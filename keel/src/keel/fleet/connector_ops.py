@@ -62,7 +62,8 @@ def settings_path() -> Path:
 def load_settings() -> dict[str, Any]:
     path = settings_path()
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        # utf-8-sig tolerates the BOM PowerShell likes to insert
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
         return data if isinstance(data, dict) else {}
     except (OSError, json.JSONDecodeError):
         return {}
@@ -85,29 +86,53 @@ def _github_wrapper() -> str:
 
 
 def _npx() -> str:
-    # Python's Popen on Windows needs an explicit .cmd/.exe; bare 'npx'
-    # resolves only inside cmd's own PATH, which is why the github wrapper
-    # works but a direct npx spawn does not.
     return "npx.cmd" if os.name == "nt" else "npx"
+
+
+def _node_bin() -> str:
+    # global installs land in the npm global prefix; resolve once
+    try:
+        import subprocess
+        out = subprocess.run(["npm", "root", "-g"], capture_output=True,
+                             text=True, timeout=15)
+        root = (out.stdout or "").strip()
+        if root:
+            return os.path.join(root, "@modelcontextprotocol")
+    except Exception:
+        pass
+    # deterministic guess for npm's standard global prefix on Windows
+    return os.path.expandvars(r"%APPDATA%\npm\node_modules\@modelcontextprotocol")
+
+
+def _dist_script(package_name: str) -> str:
+    return os.path.join(_node_bin(), package_name, "dist", "index.js")
 
 
 def preset_spec(preset: str, args: list[str] | None, env: dict[str, str] | None) -> dict[str, Any]:
     args = args or []
     env = env or {}
-    npx = _npx()
     if preset == "github":
         return {"command": "cmd",
                 "args": ["/c", _github_wrapper()],
                 "env": {}}
     if preset == "filesystem":
         target = str(Path(args[0]).expanduser() if args else Path.cwd())
-        return {"command": npx, "args": ["-y", "@modelcontextprotocol/server-filesystem", target], "env": {}}
+        return {"command": "node",
+                "args": [_dist_script("server-filesystem"), target],
+                "env": {}}
     if preset == "memory":
-        return {"command": npx, "args": ["-y", "@modelcontextprotocol/server-memory"], "env": {}}
+        return {"command": "node",
+                "args": [_dist_script("server-memory")],
+                "env": {}}
     if preset == "sequential-thinking":
-        return {"command": npx, "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"], "env": {}}
+        return {"command": "node",
+                "args": [_dist_script("server-sequential-thinking")],
+                "env": {}}
     if preset == "puppeteer":
-        return {"command": npx, "args": ["-y", "@modelcontextprotocol/server-puppeteer"], "env": {}}
+        # large download, only on demand
+        return {"command": _npx(),
+                "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+                "env": {}}
     raise ValueError(f"unknown preset {preset!r}")
 
 

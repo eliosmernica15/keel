@@ -1284,9 +1284,9 @@ export default function FleetPage() {
   }, []);
 
   /* ---- actions */
-  async function sendMessageRaw(text: string, modeArg: ModeSetting) {
+  async function sendMessageRaw(text: string, modeArg: ModeSetting): Promise<"ok" | "busy" | "error"> {
     const id = selectedIdRef.current;
-    if (!id) return;
+    if (!id) return "error";
     setStreamText("");
     setBusy(true);
     try {
@@ -1295,9 +1295,18 @@ export default function FleetPage() {
         body: JSON.stringify({ content: text, mode: modeArg }),
       });
       await loadRows(id);
+      return "ok";
     } catch (err: any) {
-      say(`Message failed: ${err.message}`);
+      const msg = String(err?.message ?? err);
+      if (msg === "http 409") {
+        // backend rejected because a turn is genuinely still running — re-queue, never drop
+        setQueue((q) => [{ id: queueId.current++, content: text, mode: modeArg }, ...q]);
+        setBusy(false);
+        return "busy";
+      }
+      say(`Message failed: ${msg}`);
       setBusy(false);
+      return "error";
     }
   }
 
@@ -1320,7 +1329,13 @@ export default function FleetPage() {
 
   async function sendMessage() {
     const text = draft.trim();
-    if (!text || !selectedId || busy) return;
+    if (!text || !selectedId) return;
+    if (busy) {
+      // the agent is mid-turn; the operator's voice must never be dropped —
+      // queue it and let the queue deliver it when this turn ends
+      enqueueDraft();
+      return;
+    }
     setDraft("");
     if (trySlashCommand(text)) return;
     await sendMessageRaw(text, mode);

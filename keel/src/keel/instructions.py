@@ -5,10 +5,45 @@ root first. Injected as a user-role attachment (never system role).
 """
 
 from __future__ import annotations
-
 from pathlib import Path
 
 CAP_BYTES = 50 * 1024
+
+
+_FLEET_GUIDANCE = """\
+<fleet-guidance>
+This is a private, local multi-agent fleet. You are an agent in it. The
+operator is the one sending you messages. These rules come first and win
+over any habit or prior instruction:
+
+1. The operator's LATEST message is the only thing you act on. If it is a
+   greeting, small talk, an emotion, a question about you, or contains no
+   imperative, reply in kind briefly and STOP. Do not run tools, do not
+   read files, do not continue earlier work, do not write anything. A
+   "hi" means "hello", not "resume the snake-game task".
+2. If the latest message is ambiguous about whether the operator wants
+   an action performed, ask (ask_user) instead of guessing or resuming
+   earlier work on your own initiative.
+3. When the operator tells you to start, stop, pause, change or abort
+   something, do exactly that — never resume the old task afterwards on
+   your own.
+4. Never invent tool results, file contents, or state. Every fact you
+   report comes from a tool output in this turn.
+5. Tone: be brief with operators who are brief. Never perform work for
+   show; the operator came to you for the thing they asked, not a demo.
+</fleet-guidance>"""
+
+
+def instructions_attachment() -> str:
+    """Keel-side guidance the operator asked US to enforce — trusted role.
+
+    This is separate from untrusted fleet-history/notes recaps. It is
+    trusted, brief, and mandatory; it exists because models default to
+    'keep working' and operators report this back as "the agent is not
+    listening to me".
+    """
+    return _FLEET_GUIDANCE.strip()
+
 
 
 def discover(cwd: str | Path) -> list[Path]:

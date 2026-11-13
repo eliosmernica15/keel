@@ -92,16 +92,25 @@ def start(store, bot: dict, command: str, shell: str,
                             f"{bot['id']}_{handle}_{int(time.time())}.log")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
+    posix_sh = None
+    posix_args = ["bash", "-c"]
     if shell == "posix":
         import shutil
-        sh = shutil.which("sh") or shutil.which("bash")
-        if sh is None:
-            raise ValueError(
-                "posix shell (sh) not found on this machine — "
-                "use powershell or cmd instead")
-        argv = [sh, "-c", command]
-    elif shell == "cmd":
+        posix_sh = shutil.which("sh") or shutil.which("bash")
+        if posix_sh is None:
+            wsl = shutil.which("wsl.exe")
+            if wsl is not None:
+                posix_sh = wsl
+                posix_args = ["bash", "-c"]  # WSL launches Ubuntu on demand
+    if shell == "cmd":
         argv = ["cmd.exe", "/d", "/c", command]
+    elif shell == "posix" and posix_sh is not None:
+        argv = [posix_sh, *posix_args, command]
+    elif shell == "posix":
+        # native posix shell (sh/bash) absent and no WSL — honestly tell the model
+        raise ValueError(
+            "posix shell is unavailable on this host (no sh/bash and no WSL); "
+            "use shell=\"powershell\" or \"cmd\" instead")
     else:  # powershell
         argv = ["powershell", "-NoProfile", "-NonInteractive", "-Command", command]
 

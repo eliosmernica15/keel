@@ -576,3 +576,32 @@ Emits (verified on Windows, exit 0):
     handshake is inherent (~10s first run) and is noted honestly.
   - Known remaining issue: on this host `hi`/`hi fork` show OpenRouter 402
     (account out of credits) — real, unrelated to the code.
+
+- **Model-behavior fix — the agent ignored "hi" (2026-11-13)**: three real
+  defects stacked into the exact behavior the operator hit.
+
+  (1) **Auto-continue starved the operator**: provider_turn looped
+  execute_turn with a continuation prompt whenever a turn hit the round cap,
+  and never looked at whether the operator had messaged in the meantime.
+  Fixed: the continuation loop checks for any user row with seq > turn-start
+  seq and bails the moment the operator speaks — their message is delivered
+  instead of replaced by autopilot.
+  (2) **Busy-composer dropped messages silently**: sending while a turn was
+  running returned without doing anything (no toast, draft stuck). Fixed:
+  the composer auto-queues (says so) and queue flushes as soon as the turn
+  ends; a 409 from the backend now re-queues instead of losing the text.
+  (3) **The model had no life-guidance**: no system instruction told it to
+  greet operators who greet it. Fixed: Keel now injects a trusted
+  <fleet-guidance> attachment into every fleet turn — operator's latest
+  message is authoritative; greetings get greetings; no invented work.
+  (4) **posix `ls -la` [WinError 2]** — requested shell was unavailable; the
+  agent burned two turns. Fixed: posix falls back to WSL `bash` inside
+  Ubuntu (cwd maps correctly, exit code propagated). Verified via probe.
+  (5) **MCP connectors actually configured + fast** — user's settings.json
+  had a UTF-8 BOM (written by PowerShell), making every read fail silently
+  with "connector not configured"; settings.py now reads utf-8-sig. npm
+  packages are pre-installed globally and invoked via absolute `node dist/
+  index.js` paths instead of npx: handshakes went from ~10-26s each to
+  ~0.5-1.1s. Four connectors verified live through bridge: github (26
+  tools), filesystem (16), memory (9), sequential-thinking (1).
+  (6) 415/415 pytest green after all changes.

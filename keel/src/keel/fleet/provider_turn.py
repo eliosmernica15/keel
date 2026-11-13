@@ -45,6 +45,23 @@ def start_provider_turn(store, bot: dict, content: str, *,
         return lock, False
 
     def _run():
+        bot_start_seq = None
+        try:
+            rows = store.list_rows(bot_id, 0, 10_000)
+            bot_start_seq = max((r.get("seq", 0) for r in rows), default=0)
+        except Exception:
+            bot_start_seq = 0
+
+        def _user_message_waiting() -> bool:
+            try:
+                rows = store.list_rows(bot_id, 0, 10_000)
+            except Exception:
+                return False
+            return any(r.get("kind") == "message" and
+                       (r.get("body") or {}).get("role") == "user" and
+                       r.get("seq", 0) > (bot_start_seq or 0)
+                       for r in rows)
+
         try:
             result = execute_turn(store, bot, content, chain=(),
                                   user_row=None,  # routes already appended the user row
@@ -54,9 +71,21 @@ def start_provider_turn(store, bot: dict, content: str, *,
             # provider hit the round cap but wasn't erroring — let it keep
             # working instead of leaving the operator to type "go on".
             # Bounded: billing and infinite loops stay impossible.
+            # BUT yield to the operator first: a message they sent while
+            # this turn was running must never be starved by autopilot.
             continuation = 0
             while result.get("terminal_reason") == "max_turns" and \
                     continuation < _MAX_CONTINUATIONS:
+                if _user_message_waiting():
+                    try:
+                        store.append_row(bot_id, "notice", {
+                            "text": "Stopping autonomous continuation — you said something. Delivering your message.",
+                            "level": "info",
+                            "icon": "routine",
+                        })
+                    except Exception:
+                        pass
+                    break
                 continuation += 1
                 try:
                     store.append_row(bot_id, "notice", {

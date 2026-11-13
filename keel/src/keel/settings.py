@@ -233,7 +233,7 @@ def _deep_merge(a: dict, b: dict) -> dict:
 def _load_json_file(path: Path, scope: str,
                     diagnostics: list[Diagnostic]) -> dict[str, Any] | None:
     try:
-        raw = path.read_text(encoding="utf-8")
+        raw = path.read_text(encoding="utf-8-sig")  # tolerate PowerShell BOM
     except OSError:
         return None  # absent is fine
     try:

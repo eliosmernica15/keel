@@ -24,7 +24,7 @@ from pathlib import Path
 
 _log = logging.getLogger(__name__)
 
-from ..instructions import history_attachment, notes_attachment
+from ..instructions import history_attachment, notes_attachment, instructions_attachment
 from ..session import Session, SessionConfig
 from ..providers.base import ProviderError
 from ..providers.model_client import ProviderModelClient
@@ -271,6 +271,14 @@ def execute_turn(store, bot: dict, content: str, *,
                               exclude_last=exclude_last_from_history)
                 if include_history else [])
         notes = (bot.get("notes") or "").strip()
+        # Fleet turns always carry Keel-side trusted guidance — the model is
+        # explicitly told HOW to read the latest operator message, which is
+        # the difference between "hi" -> greeting and "hi" -> resume task.
+        guidance = instructions_attachment()
+        if extra_attachment:
+            extra_attachment = f"{guidance}\n\n---\n\n{extra_attachment}"
+        else:
+            extra_attachment = guidance
         executor = executor or _fleet_tools(store, bot, chain)
         if row_sink is not None and hasattr(executor, "row_sink"):
             executor.row_sink = row_sink
