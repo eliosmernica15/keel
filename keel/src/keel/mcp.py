@@ -284,18 +284,40 @@ class McpManager:
         self.failed: list[str] = []
 
     def start_all(self) -> list[dict]:
+        """Start every configured server concurrently and bound the wait.
+
+        Sequential start meant 4 npm-backed servers blocked the session's
+        first token for ~40s; concurrently it costs the slowest server's
+        startup instead of the sum. Servers that exceed their own timeout
+        are reported as failed, same contract as before.
+        """
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        import threading as _threading
         statuses: list[dict] = []
-        for config in self.servers:
+        if not self.servers:
+            return statuses
+
+        def _start_one(config):
             client = McpServer(config)
             try:
                 client.start()
-                self._clients[config.name] = client
-                statuses.append({"name": config.name, "status": "connected",
-                                 "source": config.scope})
+                return config.name, "connected", client
             except Exception:
-                self.failed.append(config.name)
-                statuses.append({"name": config.name, "status": "failed",
-                                 "source": config.scope})
+                return config.name, "failed", None
+
+        with ThreadPoolExecutor(max_workers=len(self.servers),
+                                thread_name_prefix="keel-mcp") as pool:
+            futures = {pool.submit(_start_one, cfg): cfg for cfg in self.servers}
+            for future in as_completed(futures, timeout=None):
+                name, status, client = future.result()
+                if client is not None:
+                    self._clients[name] = client
+                else:
+                    self.failed.append(name)
+                scope = futures[future].scope
+                statuses.append({"name": name, "status": status,
+                                 "source": scope})
+        statuses.sort(key=lambda s: s["name"])
         return statuses
 
     def tool_schemas(self) -> list[dict]:

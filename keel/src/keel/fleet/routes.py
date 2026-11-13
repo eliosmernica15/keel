@@ -328,6 +328,20 @@ def dispatch_get(handler, *, _authorized, _origin_ok, _token=""):
             _send(handler, {"bot_id": bot_id,
                             "audit": store().list_audit(bot_id, limit)})
             return True
+        if extra == "export.md":
+            markdown = store().export_chat_markdown(bot_id, bot)
+            data = markdown.encode("utf-8")
+            filename = f"{bot.get('name', 'chat').replace(' ', '-')}.md"
+            handler.send_response(HTTPStatus.OK)
+            handler.send_header("Content-Type", "text/markdown; charset=utf-8")
+            handler.send_header("Content-Length", str(len(data)))
+            handler.send_header("Content-Disposition",
+                                f'attachment; filename="{filename}"')
+            handler.send_header("X-Content-Type-Options", "nosniff")
+            handler.send_header("Cache-Control", "no-store")
+            handler.end_headers()
+            handler.wfile.write(data)
+            return True
         return False
 
     if parts == ["api", "fleet", "projects"]:
@@ -414,32 +428,8 @@ def dispatch_get(handler, *, _authorized, _origin_ok, _token=""):
         return True
 
     if parts == ["api", "fleet", "connectors"]:
-        from ..settings import resolve, default_state_root
-        from pathlib import Path as _Path
-        out = []
-        try:
-            resolved = resolve(state_root=default_state_root(), cwd=_Path.cwd())
-            servers = resolved.value.get("mcpServers", {}) or {}
-        except Exception as exc:
-            servers = {}
-            error = f"settings resolve failed: {exc}"
-        else:
-            error = None
-        if isinstance(servers, dict):
-            for name, spec in sorted(servers.items()):
-                if not isinstance(spec, dict):
-                    continue
-                out.append({
-                    "name": name,
-                    "command": str(spec.get("command", ""))[:200],
-                    "args": [str(a) for a in (spec.get("args") or [])][:8],
-                    "env_keys": sorted((spec.get("env") or {}).keys())
-                    if isinstance(spec.get("env"), dict) else [],
-                })
-        body = {"connectors": out}
-        if error:
-            body["error"] = error
-        _send(handler, body)
+        from . import connector_ops as _cops
+        _send(handler, _cops.list_configured())
         return True
 
     if parts == ["api", "fleet", "keep-awake"]:
@@ -642,6 +632,98 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
             and parts[2] == "shells" and parts[4] == "kill":
         from . import shells as _shells
         _send(handler, _shells.kill(parts[3]))
+        return True
+
+    # ---------------- connectors — add / test / remove
+    if parts == ["api", "fleet", "connectors", "add"]:
+        payload, err = _read_json(handler)
+        if err:
+            _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
+            return True
+        from . import connector_ops as _cops
+        preset = str(payload.get("preset", "")).strip().lower()
+        env = payload.get("env") if isinstance(payload.get("env"), dict) else None
+        args = payload.get("args") if isinstance(payload.get("args"), list) else []
+        try:
+            if preset:
+                spec = _cops.preset_spec(preset,
+                                         [str(a) for a in args],
+                                         {str(k): str(v) for k, v in (env or {}).items()})
+                name = str(payload.get("name") or preset or "connector").strip()
+                _send(handler, _cops.add_connector(name, spec["command"], spec["args"], spec.get("env")))
+            else:
+                name = str(payload.get("name", "")).strip()
+                command = str(payload.get("command", "")).strip()
+                env_dict = {str(k): str(v) for k, v in (env or {}).items()} if env else None
+                _send(handler, _cops.add_connector(name, command,
+                                                   [str(a) for a in (payload.get("args") or [])],
+                                                   env_dict))
+        except ValueError as exc:
+            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+        return True
+
+    if parts == ["api", "fleet", "connectors", "test"]:
+        payload, err = _read_json(handler)
+        if err:
+            _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
+            return True
+        name = str(payload.get("name", "")).strip()
+        if not name:
+            _send(handler, {"error": "name required"}, HTTPStatus.BAD_REQUEST)
+            return True
+        from ..mcp import parse_servers, McpServer
+        from ..settings import resolve, default_state_root
+        from pathlib import Path as _Path
+        try:
+            resolved = resolve(state_root=default_state_root(), cwd=_Path.cwd())
+            servers = parse_servers(resolved.value.get("mcpServers", {}) or {})
+        except Exception as exc:
+            _send(handler, {"error": f"settings resolve failed: {exc}"},
+                  HTTPStatus.BAD_GATEWAY)
+            return True
+        target = next((s for s in servers if s.name == name), None)
+        if target is None:
+            _send(handler, {"error": f"connector {name!r} is not configured"},
+                  HTTPStatus.NOT_FOUND)
+            return True
+        server = McpServer(target, timeout=25.0)
+        try:
+            server.start()
+            tools = [{"name": t.get("name"),
+                      "description": str(t.get("description", ""))[:120]}
+                     for t in server.tools]
+            _send(handler, {"ok": True, "name": name,
+                            "tool_count": len(tools), "tools": tools})
+        except Exception as exc:
+            _send(handler, {"ok": False, "name": name,
+                            "error": (str(exc) or "handshake failed")[:300]})
+        finally:
+            server._kill()
+        return True
+
+    if parts == ["api", "fleet", "connectors", "remove"]:
+        payload, err = _read_json(handler)
+        if err:
+            _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
+            return True
+        name = str(payload.get("name", "")).strip()
+        if not name:
+            _send(handler, {"error": "name required"}, HTTPStatus.BAD_REQUEST)
+            return True
+        from . import connector_ops as _cops
+        _send(handler, _cops.remove_connector(name))
+        return True
+
+    # ---------------- project — get/create its dedicated chat
+    if len(parts) == 5 and parts[0] == "api" and parts[1] == "fleet" \
+            and parts[2] == "projects" and parts[4] == "chat":
+        pid = parts[3]
+        proj = store().get_project(pid)
+        if proj is None:
+            _send(handler, {"error": "project_not_found"}, HTTPStatus.NOT_FOUND)
+            return True
+        bot = store().chat_for_project(pid)
+        _send(handler, {"bot": bot}, HTTPStatus.OK)
         return True
 
     # ---------------- projects — terminal exec in the picked folder

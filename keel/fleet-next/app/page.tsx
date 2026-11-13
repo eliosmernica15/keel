@@ -1,7 +1,29 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/client";
+
+/* ------------------------------------------------ accordion component */
+
+function Acc({ title, count, defaultOpen = false, nest = false, children }: {
+  title: string;
+  count?: number;
+  defaultOpen?: boolean;
+  nest?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className={`acc${nest ? " nest" : ""}${open ? " open" : ""}`}>
+      <button className="acc-h" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        <svg className="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+        {title}
+        {typeof count === "number" && count > 0 && <span className="acc-count">{count}</span>}
+      </button>
+      <div className="acc-b"><div>{children}</div></div>
+    </div>
+  );
+}
 
 /* ----------------------------------------------------------- ask card */
 
@@ -99,13 +121,6 @@ const fmtBytes = (n: number) =>
 
 const initials = (name: string) => (name.trim()[0] ?? "?").toUpperCase();
 const hueOf = (bot: Bot | null | undefined, fallback = 24) => bot?.avatar_hue ?? fallback;
-
-const NAV: { id: View; label: string }[] = [
-  { id: "agents", label: "Chats" },
-  { id: "tasks", label: "Tasks" },
-  { id: "library", label: "Library" },
-  { id: "routines", label: "Routines" },
-];
 
 const QUICK_STARTS = [
   {
@@ -241,6 +256,9 @@ export default function FleetPage() {
   const [cowView, setCowView] = useState<CowView>("home");
   const [customizeTab, setCustomizeTab] = useState<CustomizeTab>("skills");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [chatMenuId, setChatMenuId] = useState<string | null>(null);
+  const [renameId, setRenameId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
   const [trustTarget, setTrustTarget] = useState<ProjectInfo | null>(null);
   const [pendingProjectId, setPendingProjectId] = useState<string | null>(null);
   const [artifacts, setArtifacts] = useState<FileItem[]>([]);
@@ -248,6 +266,12 @@ export default function FleetPage() {
   const [skills, setSkills] = useState<any[] | null>(null);
   const [skillsFilter, setSkillsFilter] = useState("");
   const [connectors, setConnectors] = useState<any[] | null>(null);
+  const [connectorCatalog, setConnectorCatalog] = useState<any[]>([]);
+  const [connectorTests, setConnectorTests] = useState<Record<string, { state: "idle" | "testing" | "ok" | "fail"; tool_count?: number; error?: string; tools?: any[] }>>({});
+  const [connectorAdding, setConnectorAdding] = useState<string | null>(null);
+  const [connectorCustomName, setConnectorCustomName] = useState("");
+  const [connectorCustomCommand, setConnectorCustomCommand] = useState("");
+  const [connectorCustomArgs, setConnectorCustomArgs] = useState("");
   const [keepAwake, setKeepAwake] = useState<{ supported: boolean; on: boolean } | null>(null);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [modalPathInput, setModalPathInput] = useState("");
@@ -329,9 +353,6 @@ export default function FleetPage() {
   const selectedIdRef = useRef<string | null>(null);
   useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
   const rowsEndRef = useRef<HTMLDivElement | null>(null);
-  const segRef = useRef<HTMLDivElement | null>(null);
-  const segBtns = useRef<(HTMLButtonElement | null)[]>([]);
-  const [segBox, setSegBox] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
   const composerRef = useRef<HTMLInputElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
 
@@ -354,21 +375,6 @@ export default function FleetPage() {
     try { localStorage.setItem("keel-theme", next); } catch { /* ignore */ }
     setTheme(next);
   };
-
-  useLayoutEffect(() => {
-    const idx = NAV.findIndex((n) => n.id === view);
-    const btn = segBtns.current[idx];
-    if (btn) setSegBox({ left: btn.offsetLeft, width: btn.offsetWidth });
-  }, [view]);
-  useEffect(() => {
-    const onResize = () => {
-      const idx = NAV.findIndex((n) => n.id === view);
-      const btn = segBtns.current[idx];
-      if (btn) setSegBox({ left: btn.offsetLeft, width: btn.offsetWidth });
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [view]);
 
   /* ---- data loaders */
   async function refreshBots() {
@@ -420,6 +426,8 @@ export default function FleetPage() {
         setRoutineModalOpen(false);
         setArtifactPreview(null);
         setArtifactAskOpen(false);
+        setChatMenuId(null);
+        setRenameId(null);
         setSlashDismissed(true);
         return;
       }
@@ -657,7 +665,86 @@ export default function FleetPage() {
     try {
       const body = await api("connectors");
       setConnectors(body.connectors ?? []);
+      setConnectorCatalog(body.presets ?? []);
     } catch (err: any) { setConnectors([]); say(`Connectors unavailable: ${err.message}`); }
+  }
+
+  async function addConnector(preset: string) {
+    setConnectorAdding(preset);
+    try {
+      const body = await api("connectors/add", {
+        method: "POST",
+        body: JSON.stringify({ preset, args: preset === "filesystem" ? [activeProject?.path ?? "C:\\\\Users\\\\Admin\\\\Desktop"] : [] }),
+      });
+      setConnectors(body.connectors ?? []);
+      setConnectorCatalog(body.presets ?? []);
+      const name = (body.connectors ?? []).find((c: any) => c.name === preset)?.name ?? preset;
+      void testConnector(name);
+      say(`Added “${preset}” — handshake verified below.`);
+    } catch (err: any) {
+      say(`Couldn't add connector: ${err.message}`);
+    } finally {
+      setConnectorAdding(null);
+    }
+  }
+
+  async function addCustomConnector() {
+    const name = connectorCustomName.trim();
+    const command = connectorCustomCommand.trim();
+    if (!name || !command) { say("Give it a name and a command."); return; }
+    const args = connectorCustomArgs.trim() ? connectorCustomArgs.trim().split(/\s+/) : [];
+    try {
+      const body = await api("connectors/add", {
+        method: "POST",
+        body: JSON.stringify({ name, command, args }),
+      });
+      setConnectors(body.connectors ?? []);
+      setConnectorCatalog(body.presets ?? []);
+      setConnectorCustomName("");
+      setConnectorCustomCommand("");
+      setConnectorCustomArgs("");
+      void testConnector(name);
+      say(`Added “${name}”.`);
+    } catch (err: any) {
+      say(`Couldn't add connector: ${err.message}`);
+    }
+  }
+
+  async function removeConnector(name: string) {
+    try {
+      const body = await api("connectors/remove", {
+        method: "POST",
+        body: JSON.stringify({ name }),
+      });
+      setConnectors(body.connectors ?? []);
+      setConnectors((prev) => (prev ?? []).filter((c) => c.name !== name));
+      setConnectorTests((prev) => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+      say(`Removed “${name}”.`);
+    } catch (err: any) {
+      say(`Couldn't remove connector: ${err.message}`);
+    }
+  }
+
+  async function testConnector(name: string) {
+    setConnectorTests((prev) => ({ ...prev, [name]: { state: "testing" } }));
+    try {
+      const body = await api("connectors/test", {
+        method: "POST",
+        body: JSON.stringify({ name }),
+      });
+      setConnectorTests((prev) => ({
+        ...prev,
+        [name]: body.ok
+          ? { state: "ok", tool_count: body.tool_count, tools: body.tools }
+          : { state: "fail", error: body.error },
+      }));
+    } catch (err: any) {
+      setConnectorTests((prev) => ({ ...prev, [name]: { state: "fail", error: String(err.message ?? err) } }));
+    }
   }
 
   /* ---- keep awake (Windows only; real SetThreadExecutionState process) */
@@ -713,6 +800,16 @@ export default function FleetPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects]);
+
+  /* ---- close chat context menu on outside click */
+  useEffect(() => {
+    if (!chatMenuId) return;
+    const onDown = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement)?.closest?.(".agent-row")) setChatMenuId(null);
+    };
+    window.addEventListener("mousedown", onDown);
+    return () => window.removeEventListener("mousedown", onDown);
+  }, [chatMenuId]);
 
   /* ---- terminal auto-scroll */
   useEffect(() => {
@@ -801,6 +898,14 @@ export default function FleetPage() {
     try {
       await api(`projects/${id}/open`, { method: "POST", body: "{}" });
     } catch { /* opening is a nicety, never blocks */ }
+    // every project owns a dedicated chat — selecting the project lands you in
+    // ITS chat, never a stale one from another project
+    try {
+      const body = await api(`projects/${id}/chat`, { method: "POST", body: "{}" });
+      const cid = body?.bot?.id;
+      await refreshBots();
+      if (cid) setSelectedId(cid);
+    } catch (err: any) { say(`Project chat failed: ${err.message}`); }
     setTreeLoading(true);
     try {
       const body = await api(`projects/${id}/tree`);
@@ -1655,6 +1760,86 @@ export default function FleetPage() {
     }
   }
 
+  /* ---- chat rows: rename / export / delete (context menu) */
+  function startRenameChat(bot: Bot) {
+    setChatMenuId(null);
+    setRenameId(bot.id);
+    setRenameValue(bot.name);
+  }
+
+  async function submitRenameChat() {
+    const name = renameValue.trim();
+    if (!renameId || !name) return;
+    try {
+      const body = await api(`bots/${renameId}/update`, {
+        method: "POST",
+        body: JSON.stringify({ name }),
+      });
+      setBots((prev) => prev.map((b) => (b.id === renameId ? { ...b, ...body.bot } : b)));
+      setRenameId(null);
+      say(`Renamed to “${name}”.`);
+    } catch (err: any) {
+      say(`Rename failed: ${err.message}`);
+    }
+  }
+
+  async function deleteChat(bot: Bot) {
+    setChatMenuId(null);
+    if (!window.confirm(`Delete “${bot.name}” and its entire transcript? This cannot be undone.`)) return;
+    try {
+      await api(`bots/${bot.id}/delete`, { method: "POST", body: "{}" });
+      if (selectedId === bot.id) {
+        setSelectedId(null);
+        setRows([]);
+      }
+      await refreshBots();
+      say(`Deleted “${bot.name}”.`);
+    } catch (err: any) {
+      say(`Delete failed: ${err.message}`);
+    }
+  }
+
+  function exportChat(bot: Bot) {
+    setChatMenuId(null);
+    window.location.href = `/api/bridge/bots/${bot.id}/export.md`;
+  }
+
+  function ChatMenu({ bot }: { bot: Bot }) {
+    return (
+      <div className="chat-menu" role="menu" aria-label={`Actions for ${bot.name}`}>
+        <button role="menuitem" onClick={() => startRenameChat(bot)}>Rename…</button>
+        <button role="menuitem" onClick={() => exportChat(bot)}>Export…</button>
+        <button role="menuitem" className="danger" onClick={() => void deleteChat(bot)}>Delete…</button>
+      </div>
+    );
+  }
+
+  /* ---- New chat — one click, fresh chat, Claude-style */
+  function newChat() {
+    const providerConfigured = providers.some((p) => p.configured);
+    void (async () => {
+      try {
+        const body = await api("bots", {
+          method: "POST",
+          body: JSON.stringify({ name: "New chat", engine: providerConfigured ? "provider" : "echo" }),
+        });
+        const id = body?.bot?.id;
+        await refreshBots();
+        if (id) {
+          setSelectedId(id);
+          setSurface("cowork");
+          setCowView("chat");
+          setDraft("");
+          window.setTimeout(() => composerRef.current?.focus(), 80);
+          say("New chat — say anything.");
+        }
+      } catch (err: any) {
+        say(`Couldn't start a new chat: ${err.message}`);
+      }
+    })();
+  }
+
+  /* ---- message actions: fork / rewind / restore */
   async function rewindFromHere(row: Row) {
     if (!selectedId || !window.confirm("Undo — rewind the conversation to before this message?")) return;
     try {
@@ -2371,25 +2556,60 @@ export default function FleetPage() {
         )}
 
         {customizeTab === "connectors" && (
-          <div className="skills-body">
-            {connectors === null && <p className="tree-loading">Loading connectors…</p>}
-            {connectors !== null && connectors.length === 0 && (
-              <div className="connectors-empty">
-                <p>No MCP servers configured. Add them to <code>~/.keel/settings.json</code>, then restart Keel:</p>
-                <pre>{'{\n  "mcpServers": {\n    "my-server": {\n      "command": "npx",\n      "args": ["-y", "my-mcp-server"]\n    }\n  }\n}'}</pre>
-                <p className="connectors-note">Keel speaks stdio MCP only. Nothing is connected until you list it here — there is no marketplace and no auto-install.</p>
+          <div className="skills-body connectors-body">
+            <div className="connectors-section">
+              <h3>Add a connector <span className="customize-count">{connectorCatalog.length}</span></h3>
+              <p className="connectors-note">Stdio MCP servers, installed and run on this machine. Auth is handled per connector — GitHub uses your existing <code>gh</code> login, nothing is stored.</p>
+              <div className="connector-preset-grid">
+                {connectorCatalog.map((p) => (
+                  <button
+                    key={p.name}
+                    className="connector-preset"
+                    disabled={connectorAdding !== null}
+                    onClick={() => void addConnector(p.name)}
+                  >
+                    <b>{p.label}</b>
+                    <span>{p.description}</span>
+                    <code>{p.command}</code>
+                    <em>{connectorAdding === p.name ? "Adding + handshake…" : "Add"}</em>
+                  </button>
+                ))}
               </div>
-            )}
-            {connectors !== null && connectors.length > 0 && connectors.map((c) => (
-              <div key={c.name} className="connector-row">
-                <span className="skill-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2" /></svg></span>
-                <span className="skill-main">
-                  <b>{c.name}</b>
-                  <code className="connector-command">{c.command}{c.args?.length ? ` ${c.args.join(" ")}` : ""}</code>
-                </span>
-                {c.env_keys?.length > 0 && <span className="skill-flags"><span className="skill-flag">{c.env_keys.length} env</span></span>}
-              </div>
-            ))}
+              <form className="connector-custom" onSubmit={(e) => { e.preventDefault(); void addCustomConnector(); }}>
+                <input value={connectorCustomName} onChange={(e) => setConnectorCustomName(e.target.value)} placeholder="name (e.g. my-server)" aria-label="Server name" spellCheck={false} />
+                <input value={connectorCustomCommand} onChange={(e) => setConnectorCustomCommand(e.target.value)} placeholder="command (e.g. npx)" aria-label="Command" spellCheck={false} />
+                <input value={connectorCustomArgs} onChange={(e) => setConnectorCustomArgs(e.target.value)} placeholder="args (e.g. -y my-package)" aria-label="Arguments" spellCheck={false} />
+                <button className="btn primary" type="submit">Add</button>
+              </form>
+            </div>
+
+            <div className="connectors-section">
+              <h3>Connected <span className="customize-count">{connectors?.length ?? 0}</span></h3>
+              {connectors === null && <p className="tree-loading">Loading connectors…</p>}
+              {connectors !== null && connectors.length === 0 && (
+                <p className="connectors-note">Nothing configured yet. Add one above — Keel speaks stdio MCP, nothing connects until you do.</p>
+              )}
+              {connectors !== null && connectors.map((c) => {
+                const t = connectorTests[c.name];
+                return (
+                  <div key={c.name} className="connector-row">
+                    <span className="skill-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2" /></svg></span>
+                    <span className="skill-main">
+                      <b>{c.name}</b>
+                      <code className="connector-command">{c.command}{c.args?.length ? ` ${c.args.join(" ")}` : ""}</code>
+                      {t?.state === "ok" && <span className="skill-desc">✓ handshake ok — {t.tool_count} tool{t.tool_count === 1 ? "" : "s"} exposed</span>}
+                      {t?.state === "fail" && <span className="skill-desc connector-error">✕ {t.error}</span>}
+                      {t?.state === "testing" && <span className="skill-desc">running MCP handshake…</span>}
+                    </span>
+                    <span className="connector-actions">
+                      {c.env_keys?.length > 0 && <span className="skill-flag">{c.env_keys.length} env</span>}
+                      <button className="btn" onClick={() => void testConnector(c.name)} disabled={t?.state === "testing"}>Test</button>
+                      <button className="project-remove" aria-label={`Remove ${c.name}`} title="Remove connector" onClick={() => void removeConnector(c.name)}>×</button>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -2631,7 +2851,9 @@ export default function FleetPage() {
         <div className="side-label"><span>Keel Cowork</span><span className="count cowork-mark">co</span></div>
         <button
           className="cowork-new"
-          onClick={() => { setDraft(""); setSelectedId(null); setCowView("home"); }}
+          onClick={newChat}
+          title="Start a new, empty chat — one click"
+          aria-label="New chat"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
           New chat
@@ -2642,19 +2864,34 @@ export default function FleetPage() {
           {item("scheduled", "Scheduled", ic(<><circle cx="12" cy="13" r="8" /><path d="M12 9.5V13l2.2 2.2M9 2.5h6" /></>), routines.filter((r: any) => r.enabled !== false && !r.paused).length)}
           {item("customize", "Customize", ic(<><path d="M4 6h16M4 12h10M4 18h7" /><circle cx="19" cy="18" r="2.4" /></>))}
         </div>
-        <div className="side-label"><span>Recents</span></div>
-        <div className="recents">
-          {recentTasks.length === 0 ? (
-            <p className="recents-empty">No tasks yet.</p>
-          ) : (
-            recentTasks.map((t) => (
-              <button key={t.id} className="ri" onClick={() => { setSurface("fleet" as Surface); setView("tasks"); }}>
-                <b>{t.title}</b>
-                <span>{t.status}</span>
-              </button>
-            ))
-          )}
-        </div>
+        <Acc title="Recents" defaultOpen nest={false} count={recentTasks.length}>
+          <div className="recents">
+            {recentTasks.length === 0 ? (
+              <p className="recents-empty">No tasks yet.</p>
+            ) : (
+              <>
+                {recentTasks.slice(0, 3).map((t) => (
+                  <button key={t.id} className="ri" onClick={() => { setSurface("fleet" as Surface); setView("tasks"); }}>
+                    <b>{t.title}</b>
+                    <span>{t.status}</span>
+                  </button>
+                ))}
+                {recentTasks.length > 3 && (
+                  <Acc title="Earlier" nest count={recentTasks.length - 3}>
+                    <div className="recents">
+                      {recentTasks.slice(3).map((t) => (
+                        <button key={t.id} className="ri" onClick={() => { setSurface("fleet" as Surface); setView("tasks"); }}>
+                          <b>{t.title}</b>
+                          <span>{t.status}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </Acc>
+                )}
+              </>
+            )}
+          </div>
+        </Acc>
       </>
     );
   }
@@ -2767,23 +3004,26 @@ export default function FleetPage() {
           )}
         </div>
 
-        <div className="cowork-ideas" aria-label="Ideas for you">
-          <p className="cowork-ideas-label">Ideas for you</p>
-          <button className="idea-card" onClick={() => { const t = ROUTINE_TEMPLATES[0]; void createRoutineFromTemplate(t); setCowView("scheduled"); }}>
-            <span className="idea-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="13" r="8" /><path d="M12 9.5V13l2.2 2.2M9 2.5h6" /></svg></span>
-            <b>Send me a daily briefing</b>
-            <span>Your agents’ work, your priorities — every morning.</span>
-          </button>
-          <button className="idea-card" onClick={() => { void runPrompt(PROMPT_FLEET_SUMMARY); setCowView("chat"); }}>
-            <span className="idea-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h10" /></svg></span>
-            <b>Summarize my fleet</b>
-            <span>What every agent did, and the next three things to do.</span>
-          </button>
-          <button className="idea-card" onClick={() => { void runPrompt(PROMPT_ATTENTION); setCowView("chat"); }}>
-            <span className="idea-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l9 16H3z" /><path d="M12 10v4M12 17h.01" /></svg></span>
-            <b>What needs my attention</b>
-            <span>Priorities across agents, tasks, projects, and files.</span>
-          </button>
+        <div className="qs" aria-label="Ideas for you">
+          <Acc title="Ideas for you" defaultOpen>
+            <div className="cowork-ideas">
+              <button className="idea-card" onClick={() => { const t = ROUTINE_TEMPLATES[0]; void createRoutineFromTemplate(t); setCowView("scheduled"); }}>
+                <span className="idea-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="13" r="8" /><path d="M12 9.5V13l2.2 2.2M9 2.5h6" /></svg></span>
+                <b>Send me a daily briefing</b>
+                <span>Your agents’ work, your priorities — every morning.</span>
+              </button>
+              <button className="idea-card" onClick={() => { void runPrompt(PROMPT_FLEET_SUMMARY); setCowView("chat"); }}>
+                <span className="idea-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h10" /></svg></span>
+                <b>Summarize my fleet</b>
+                <span>What every agent did, and the next three things to do.</span>
+              </button>
+              <button className="idea-card" onClick={() => { void runPrompt(PROMPT_ATTENTION); setCowView("chat"); }}>
+                <span className="idea-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l9 16H3z" /><path d="M12 10v4M12 17h.01" /></svg></span>
+                <b>What needs my attention</b>
+                <span>Priorities across agents, tasks, projects, and files.</span>
+              </button>
+            </div>
+          </Acc>
         </div>
       </section>
     );
@@ -3040,6 +3280,8 @@ export default function FleetPage() {
 
   return (
     <div className="win">
+      {/* ambient inner glass field — the orbs behind every frosted panel */}
+      <div className="glass" aria-hidden="true"><i /><i /><i /></div>
       {/* ============ sidebar ============ */}
       <aside className="side" aria-label="sidebar">
         <div className="dots" aria-hidden="true"><i /><i /><i /></div>
@@ -3067,34 +3309,93 @@ export default function FleetPage() {
         <div className="side-label"><span>Agents</span><span className="count">{bots.length}</span></div>
         <div className="agent-list">
           {filteredBots.map((bot) => (
-            <button key={bot.id} className={`agent${bot.id === selectedId ? " is-active" : ""}`} onClick={() => setSelectedId(bot.id)}>
-              <span className="avatar" style={{ background: `linear-gradient(160deg, hsl(${hueOf(bot)} 62% 55%), hsl(${hueOf(bot)} 62% 30%))` }}>
-                {initials(bot.name)}
-              </span>
-              <span style={{ minWidth: 0 }}>
-                <b>{bot.name}</b>
-                <small>{bot.role || bot.engine}</small>
-              </span>
-            </button>
+            <div key={bot.id} className={`agent-row${bot.id === selectedId ? " is-active" : ""}`}>
+              <button className="agent" onClick={() => setSelectedId(bot.id)} onContextMenu={(e) => { e.preventDefault(); setChatMenuId((v) => (v === bot.id ? null : bot.id)); }}>
+                <span className="avatar" style={{ background: `linear-gradient(160deg, hsl(${hueOf(bot)} 62% 55%), hsl(${hueOf(bot)} 62% 30%))` }}>
+                  {initials(bot.name)}
+                </span>
+                <span style={{ minWidth: 0 }}>
+                  <b>{bot.name}</b>
+                  <small>{bot.role || bot.engine}</small>
+                </span>
+              </button>
+              <button
+                className="agent-more"
+                aria-label={`Chat actions for ${bot.name}`}
+                title="Chat actions"
+                onClick={() => setChatMenuId((v) => (v === bot.id ? null : bot.id))}
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="12" cy="19" r="1.7" /></svg>
+              </button>
+              {chatMenuId === bot.id && <ChatMenu bot={bot} />}
+            </div>
           ))}
           {filteredBots.length === 0 && (
             <p className="agent-empty">{search ? `No agents match “${search}”.` : "No agents yet."}</p>
           )}
         </div>
 
-        <div className="side-label"><span>Recents</span></div>
-        <div className="recents">
-          {recentTasks.length === 0 ? (
-            <p className="recents-empty">No tasks yet.</p>
-          ) : (
-            recentTasks.map((t) => (
-              <button key={t.id} className="ri" onClick={() => setView("tasks")}>
-                <b>{t.title}</b>
-                <span>{t.status}</span>
-              </button>
-            ))
-          )}
-        </div>
+        <Acc title="Recents" defaultOpen count={recentTasks.length}>
+          <div className="recents">
+            {recentTasks.length === 0 ? (
+              <p className="recents-empty">No tasks yet.</p>
+            ) : (
+              <>
+                {recentTasks.slice(0, 3).map((t) => (
+                  <button key={t.id} className="ri" onClick={() => setView("tasks")}>
+                    <b>{t.title}</b>
+                    <span>{t.status}</span>
+                  </button>
+                ))}
+                {recentTasks.length > 3 && (
+                  <Acc title="Earlier" nest count={recentTasks.length - 3}>
+                    <div className="recents">
+                      {recentTasks.slice(3).map((t) => (
+                        <button key={t.id} className="ri" onClick={() => setView("tasks")}>
+                          <b>{t.title}</b>
+                          <span>{t.status}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </Acc>
+                )}
+              </>
+            )}
+          </div>
+        </Acc>
+
+        <Acc title="Workspace" defaultOpen={false}>
+          <div className="ws-nav">
+            <button className="ws-item" onClick={() => { setSurface("cowork"); setCowView("home"); }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.6 0-3.1-.4-4.4-1.2L3 20l1.2-5.1A8.5 8.5 0 1 1 21 11.5z" /></svg>
+              All chats
+            </button>
+            <button className="ws-item" onClick={() => { setSurface("cowork"); setCowView("projects"); }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>
+              Projects
+            </button>
+            <button className="ws-item" onClick={() => { setSurface("fleet"); setView("tasks"); }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+              Tasks
+            </button>
+            <button className="ws-item" onClick={() => { setSurface("fleet"); setView("library"); }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16M6 4h12v16H6zM9 8h6M9 12h6" /></svg>
+              Library
+            </button>
+            <button className="ws-item" onClick={() => { setSurface("fleet"); setView("routines"); }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="13" r="8" /><path d="M12 9.5V13l2.2 2.2M9 2.5h6" /></svg>
+              Routines
+            </button>
+            <button className="ws-item" onClick={() => { setSurface("fleet"); setView("agents"); }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 22c0-4 3.6-7 8-7s8 3 8 7" transform="translate(0 1)" /></svg>
+              Agents
+            </button>
+            <button className="ws-item" onClick={() => { setSurface("cowork"); setCowView("customize"); }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h10M4 18h7" /><circle cx="19" cy="18" r="2.4" /></svg>
+              Customize
+            </button>
+          </div>
+        </Acc>
 
           </>
         ) : (
@@ -3113,7 +3414,7 @@ export default function FleetPage() {
 
       {/* ============ main column ============ */}
       <section className="mainw">
-        {/* top bar */}
+        {/* top bar — Axiom layout: panel toggle left, mode switch centered */}
         <div className="top">
           <div className="tl">
             <button aria-label="Toggle agent panel" aria-pressed={drawerOpen} onClick={() => setDrawerOpen((v) => !v)}>
@@ -3121,58 +3422,15 @@ export default function FleetPage() {
                 <path d="M4 4h16v16H4zM9.5 4v16" />
               </svg>
             </button>
-            <span className="sep" aria-hidden="true" />
-            <div className="surface-toggle" role="tablist" aria-label="Workspace">
-              <button role="tab" aria-selected={surface === "cowork"} className={surface === "cowork" ? "is-active" : ""} onClick={() => setSurface("cowork")} title="Keel Cowork — the desktop, everything in one place">Cowork</button>
-              <button role="tab" aria-selected={surface === "code"} className={surface === "code" ? "is-active" : ""} onClick={() => setSurface("code")} title="Keel Code — the coding session, environment and context on the right">Code</button>
-              <button role="tab" aria-selected={surface === "duet"} className={surface === "duet" ? "is-active" : ""} onClick={() => setSurface("duet")} title="Keel Duet — coding with the file tree, tabs, terminal and browser">Duet</button>
-              <button role="tab" aria-selected={surface === "fleet"} className={surface === "fleet" ? "is-active" : ""} onClick={() => setSurface("fleet")} title="Fleet — agents, tasks, library, routines">Fleet</button>
-            </div>
           </div>
 
-          {surface === "duet" || surface === "code" ? (
-            <div className="duet-crumbs" aria-label="Project breadcrumb">
-              <span className="duet-badge">{surface === "duet" ? "keel duet" : "keel code"}</span>
-              {activeProject ? (
-                <>
-                  <b className="crumb-sep" aria-hidden="true">/</b>
-                  <b className="crumb-name">{activeProject.name}</b>
-                  <code className="crumb-path" title={activeProject.path}>{activeProject.path}</code>
-                </>
-              ) : surface === "code" ? (
-                <span className="crumb-path">{selectedBot?.name ?? "no agent"} — pick a folder in Projects</span>
-              ) : (
-                <span className="crumb-path">no project — paste a folder path on the left</span>
-              )}
+          <div className="top-center">
+            <div className="surface-toggle" role="tablist" aria-label="Workspace">
+              <button role="tab" aria-selected={surface === "cowork"} className={surface === "cowork" ? "is-active" : ""} onClick={() => setSurface("cowork")} title="Keel Cowork — the desktop, everything in one place">Keel Cowork</button>
+              <button role="tab" aria-selected={surface === "code"} className={surface === "code" ? "is-active" : ""} onClick={() => setSurface("code")} title="Keel Code — the coding session, environment and context on the right">Keel Code</button>
+              <button role="tab" aria-selected={surface === "duet"} className={surface === "duet" ? "is-active" : ""} onClick={() => setSurface("duet")} title="Keel Duet — coding with the file tree, tabs, terminal and browser">Keel Duet</button>
             </div>
-          ) : surface === "cowork" ? (
-            <div className="duet-crumbs" aria-label="Keel Cowork">
-              <span className="duet-badge">keel cowork</span>
-              <span className="crumb-name">{cowView === "home" || cowView === "chat" ? "desktop" : cowView}</span>
-              {activeProject && (
-                <>
-                  <b className="crumb-sep" aria-hidden="true">/</b>
-                  <code className="crumb-path" title={activeProject.path}>{activeProject.name}</code>
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="tabs" role="tablist" aria-label="workspace views" ref={segRef}>
-              <span className="seg-indicator" style={{ left: segBox.left, width: segBox.width }} aria-hidden="true" />
-              {NAV.map((n, i) => (
-                <button
-                  key={n.id}
-                  ref={(el) => { segBtns.current[i] = el; }}
-                  role="tab"
-                  aria-selected={view === n.id}
-                  className={view === n.id ? "is-active" : ""}
-                  onClick={() => setView(n.id)}
-                >
-                  {n.label}
-                </button>
-              ))}
-            </div>
-          )}
+          </div>
 
           <div className="tr">
             <span className={`live-pill${live ? "" : " bad"}`} title="SSE connection to the bridge">
@@ -3282,17 +3540,20 @@ export default function FleetPage() {
                   </div>
                 </form>
 
-                <span className="quick-label">QUICK START</span>
-                <div className="quick-grid">
-                  {QUICK_STARTS.map((q) => (
-                    <button key={q.title} className="quick" onClick={() => useQuickStart(q.prompt)}>
-                      <span className="quick-icon"><QuickIcon kind={q.icon} /></span>
-                      <span>
-                        <b>{q.title}</b>
-                        <p>{q.prompt}</p>
-                      </span>
-                    </button>
-                  ))}
+                <div className="qs">
+                  <Acc title="Quick start" defaultOpen>
+                    <div className="quick-grid">
+                      {QUICK_STARTS.map((q) => (
+                        <button key={q.title} className="quick" onClick={() => useQuickStart(q.prompt)}>
+                          <span className="quick-icon"><QuickIcon kind={q.icon} /></span>
+                          <span>
+                            <b>{q.title}</b>
+                            <p>{q.prompt}</p>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </Acc>
                 </div>
               </div>
             )}
@@ -3707,6 +3968,28 @@ export default function FleetPage() {
               <button className="btn primary" onClick={createAgent}>Create agent</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ============ rename chat ============ */}
+      {renameId && (
+        <div className="trust-backdrop" role="dialog" aria-modal="true" aria-labelledby="rename-title" onClick={() => setRenameId(null)}>
+          <form className="trust-modal" onClick={(e) => e.stopPropagation()} onSubmit={(e) => { e.preventDefault(); void submitRenameChat(); }}>
+            <h2 id="rename-title">Rename chat</h2>
+            <input
+              className="field"
+              autoFocus
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              placeholder="Chat name"
+              aria-label="Chat name"
+              onFocus={(e) => e.currentTarget.select()}
+            />
+            <div className="trust-actions">
+              <button type="button" className="btn" onClick={() => setRenameId(null)}>Cancel</button>
+              <button type="submit" className="btn dark" disabled={!renameValue.trim()}>Rename</button>
+            </div>
+          </form>
         </div>
       )}
 

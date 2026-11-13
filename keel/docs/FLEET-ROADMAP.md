@@ -345,3 +345,10 @@ session; the host has no provider credentials, so no live model turn has
 ever been observed anywhere on this machine. Trust is enforced in the UI:
 untrusted folders cannot be opened for work until trusted; the choice is
 per-folder and revocable.
+
+
+- **Project binding (v9)** — every project picks a dedicated chat; clicking
+  the project opens that conversation, never a stale one. Connectors section
+  in Customize now adds/holds real MCP servers with one-click handshake
+  verification. MCP starts concurrently. This closed the "project opens a
+  random old chat" and "connectors are decorative" gaps.

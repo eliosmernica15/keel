@@ -172,7 +172,8 @@ class FleetStore:
                    engine: str = "provider",
                    notes: str = "",
                    preset: str | None = None,
-                   avatar_hue: int | None = None) -> dict:
+                   avatar_hue: int | None = None,
+                   project_id: str | None = None) -> dict:
         slug = _slugify(name)
         base = slug
         suffix = 0
@@ -194,10 +195,10 @@ class FleetStore:
             self._conn.execute(
                 "INSERT INTO bots(id, name, role, engine, provider, model,\n"
                 "                 notes, avatar_hue, created_at, updated_at,\n"
-                "                 last_active_at)\n"
-                "VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                "                 last_active_at, project_id)\n"
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
                 (base, name, role.strip()[:120], engine, "auto", "",
-                 str(notes)[:4096], avatar_hue, now, now, now))
+                 str(notes)[:4096], avatar_hue, now, now, now, project_id))
             self._conn.commit()
             bot = self.get_bot(base)
         # announce creation as a notice so open tabs update without reload
@@ -449,6 +450,90 @@ class FleetStore:
             self._conn.commit()
         return cur.rowcount > 0
 
+    # ---------------- project-bound chats
+    def chat_for_project(self, project_id: str) -> dict | None:
+        """Return the agent that owns this project's chat, creating one the
+        first time. Each project gets its own dedicated conversation —
+        clicking a project in the UI must never surface a stale chat."""
+        proj = self.get_project(project_id)
+        if proj is None:
+            return None
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT * FROM bots WHERE project_id = ? ORDER BY created_at ASC LIMIT 1",
+                (project_id,)).fetchone()
+        if row is not None:
+            return self.get_bot(row["id"])
+        return self.create_bot(
+            name=proj["name"],
+            role=f"project · {proj['path']}",
+            engine="provider",
+            notes=f"Dedicated chat for {proj['path']}",
+            avatar_hue=int(project_id[:4], 16) % 360,
+            project_id=project_id)
+
+    def project_id_of(self, bot_id: str):
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT project_id FROM bots WHERE id = ?", (bot_id,)).fetchone()
+        return row["project_id"] if row else None
+
+    # ---------------- chat export (Markdown)
+    def export_chat_markdown(self, bot_id: str, bot: dict | None = None) -> str:
+        """Render a chat transcript as Markdown for download. Everything is
+        inline — no attachments — so the file stands alone."""
+        bot = bot or self.get_bot(bot_id) or {"id": bot_id, "name": bot_id}
+        rows = self.list_rows(bot_id, 0, 20000)
+        out: list[str] = []
+        out.append(f"# {bot.get('name', bot_id)}\n")
+        meta = []
+        if bot.get("provider"):
+            meta.append(f"provider `{bot['provider']}`")
+        if bot.get("model"):
+            meta.append(f"model `{bot['model']}`")
+        meta.append(f"exported from Keel Fleet (agent `{bot_id}`)")
+        out.append(f"*{' · '.join(meta)}*\n")
+        out.append("---\n")
+        for row in rows:
+            body = row.get("body") or {}
+            kind = row.get("kind", "")
+            if kind == "message":
+                role = "You" if body.get("role") == "user" else bot.get("name", "agent")
+                out.append(f"## {role}\n")
+                out.append(str(body.get("content", "")).rstrip() + "\n")
+            elif kind == "step":
+                status = body.get("status", "done")
+                # a running row is superseded by its done/error twin — skip it
+                if status == "running":
+                    continue
+                detail = str(body.get("detail", "")).replace("\n", " ")[:200]
+                mark = "✓" if status == "done" else "✕"
+                out.append(f"- {mark} `{body.get('name', 'tool')}` — {detail}\n")
+            elif kind == "ask":
+                out.append(f"**Agent asked:** {body.get('question', '')}\n")
+                if body.get("options"):
+                    out.append("Options: " + " · ".join(str(o) for o in body["options"]) + "\n")
+                if body.get("answer"):
+                    out.append(f"**You answered:** {body['answer']}\n")
+            elif kind == "notice":
+                text = str(body.get("text", "")).replace("\n", " ")
+                out.append(f"> {text}\n")
+            elif kind == "turn_end":
+                usage = body.get("usage") or {}
+                tin = int(usage.get("input_tokens") or 0)
+                tout = int(usage.get("output_tokens") or 0)
+                detail = f"_turn ended · {body.get('duration_ms', 0)} ms"
+                if body.get("terminal_reason"):
+                    detail += f" · {body['terminal_reason']}"
+                if tin or tout:
+                    detail += f" · {tin} in / {tout} out"
+                out.append(detail + "_\n")
+            elif kind == "approval":
+                tool = body.get("tool_name", "tool")
+                status = body.get("status", "pending")
+                out.append(f"- ⏳ `{tool}` ({status})\n")
+        return "\n".join(out).rstrip() + "\n"
+
     # ---------------- fork / rewind / restore (message actions)
     def fork_bot(self, source_id: str, *, name: str | None = None,
                  up_to_seq: int | None = None) -> dict | None:
@@ -462,7 +547,8 @@ class FleetStore:
             role=source.get("role") or "",
             engine=source.get("engine") or "provider",
             notes=source.get("notes") or "",
-            avatar_hue=source.get("avatar_hue"))
+            avatar_hue=source.get("avatar_hue"),
+            project_id=source.get("project_id"))
         with self._lock:
             self._conn.execute(
                 "UPDATE bots SET provider = ?, model = ? WHERE id = ?",

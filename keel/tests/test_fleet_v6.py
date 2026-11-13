@@ -18,7 +18,7 @@ def test_v6_fresh_schema(tmp_path):
     assert "reasoning_effort" in cols["bots"]
     version = store._conn.execute(
         "SELECT MAX(version) FROM schema_version").fetchone()[0]
-    assert version == 8
+    assert version == 9
     store.close()
 
 

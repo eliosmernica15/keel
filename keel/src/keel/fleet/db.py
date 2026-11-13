@@ -12,7 +12,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS bots (
@@ -313,5 +313,17 @@ CREATE TABLE IF NOT EXISTS fleet_projects (
                 "ALTER TABLE fleet_projects ADD COLUMN trusted INTEGER NOT NULL DEFAULT 0")
         conn.execute(
             "INSERT OR IGNORE INTO schema_version(version, applied_at) VALUES (8, ?)",
+            (_now(),))
+    if applied < 9:
+        # v9: link each chat (bot) to the project folder it belongs to,
+        # so opening a project opens ITS chat instead of a stale global one
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(bots)")}
+        if "project_id" not in cols:
+            conn.execute(
+                "ALTER TABLE bots ADD COLUMN project_id TEXT REFERENCES fleet_projects(id) ON DELETE SET NULL")
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_bots_project ON bots(project_id)")
+        conn.execute(
+            "INSERT OR IGNORE INTO schema_version(version, applied_at) VALUES (9, ?)",
             (_now(),))
     conn.commit()

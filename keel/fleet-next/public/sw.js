@@ -1,6 +1,6 @@
 // Keel Fleet PWA — app-shell cache. Network-first for everything else.
 const SHELL = ["/", "/manifest.webmanifest", "/icon.svg", "/icon-192.png"];
-const SHELL_CACHE = "keel-fleet-shell-v1";
+const SHELL_CACHE = "keel-fleet-shell-v2";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

@@ -482,3 +482,97 @@ Emits (verified on Windows, exit 0):
   terminal/exec was visible as `running` via `/api/bridge/shells` (BFF),
   reaped to `exit 0` with 12 bytes of captured output, then cleared.
   415 tests green.
+
+- **Axiom glass pass across every surface (2026-11-13)**: the Axiom reference
+  mock was applied to the whole product —
+  fleet-next app: tokens converted from opaque to translucent Axiom values
+  (light + dark), ember orb backdrop drifts behind everything
+  (`body::before/after` + a `.glass` field inside the window), window frosts
+  to `blur(36px) saturate(1.5)` with an inner edge highlight, layered panels
+  (sidebar, top bar, composers, queue panel, shells popover, slash/usage/help
+  pops, trust modal, ask cards, artifact previews, project/artifact/template/
+  routine/skill/connector cards, rail cards, folder picker) all frosted, and
+  display type switched to Space Grotesk. Hierarchy now follows order of
+  operations via accordions (`.acc-*`, keyboard-accessible): Recents (open)
+  nests an "Earlier" accordion for tasks past the first three, a closed
+  "Workspace" accordion carries All chats / Projects / Tasks / Agents /
+  Customize, "Quick start" (fleet) and "Ideas for you" (Cowork) collapse
+  into their own accordions. Sidebar and Fleet/Cowork nav unchanged
+  functionally; 154 UI region call-sites untouched except where accordion
+  wrappers were inserted.
+  Website + PWA (`desktop/ui`): console rebuilt on the same language —
+  ember page background, drifting orbs, translucent top bar/sidebar blocks/
+  chat composer/status bar, gold primary actions, Space Grotesk + Inter +
+  JetBrains Mono bundled locally (offline PWA intact), theme-color and
+  manifest colors moved to the ember palette, service-worker caches bumped.
+  Verification: `next build`+prerender clean, `/` 200, BFF smoke 575 B,
+  `/manifest.webmanifest` serves new colors; desktop console served from
+  `keel serve --port 8743` — `/ui/style.css` 200 with the new tokens, fonts
+  200, `keel serve` root 403 without token as designed; 22/22 targeted
+  pytest green (webapp + schema + duet bridge). No visual pass was possible
+  in this environment (no browser tool); everything verified by inspection,
+  build, and HTTP.
+
+- **Top-bar mode switch fixed + reduced to three modes (2026-11-13)**: the
+  segmented control overlaid its own labels — flex items were allowed to shrink
+  below text width, so button text overflowed and the ember is-active pill
+  painted over neighbors (visible as "COWOR|ODE DUET FLEET"). Fix: `.top`
+  grid is now `auto minmax(0,1fr) auto`, `.tl`/`.surface-toggle` are fixed to
+  content width with nowrap buttons that never shrink; center crumbs truncate.
+  Fleet was removed from the toggle per operator request — the three modes are
+  Keel Cowork, Keel Code, Keel Duet (the Fleet views remain reachable from the
+  sidebar Workspace accordion: Tasks and Agents). Verified: build clean,
+  page 200, SSR markup contains exactly the three buttons, BFF smoke OK.
+
+- **Top-bar mode switch fixed + reduced to three modes (2026-11-13)**: the
+  segmented control overlaid its own labels — flex items were allowed to shrink
+  below text width, so button text overflowed and the ember is-active pill
+  painted over neighbors (visible as "COWOR|ODE DUET FLEET"). Fix: `.top`
+  grid is now `auto minmax(0,1fr) auto`, `.tl`/`.surface-toggle` are fixed to
+  content width with nowrap buttons that never shrink; center crumbs truncate.
+  Fleet was removed from the toggle per operator request — the three modes are
+  Keel Cowork, Keel Code, Keel Duet (the Fleet views remain reachable from the
+  sidebar Workspace accordion: Tasks and Agents). Verified: build clean,
+  page 200, SSR markup contains exactly the three buttons, BFF smoke OK.
+
+- **Chat rename / export / delete + New chat one-click (2026-11-13)**:
+  sidebar chat rows (fleet view) gained a ⋯ menu on hover / right-click
+  (onContextMenu) with Rename… / Export… / Delete…. Rename → PATCH-style
+  POST `bots/<id>/update {name}`; Export → NEW `GET /api/fleet/bots/<id>/
+  export.md` (text/markdown, Content-Disposition attachment, filename
+  `<chat>.md`; running-step rows are intentionally skipped, done/error steps
+  kept, turn_end carries duration + in/out tokens); Delete → existing
+  confirmed `bots/<id>/delete`. Cowork's `+ New chat` now creates a fresh
+  agent (provider engine if any provider is configured, else echo), switches
+  to it, and focuses the composer — like Claude's +.
+  Verified live over HTTP: create → message → export 200 with correct
+  headers and deduped steps → rename → delete → gone; scratch chats cleaned
+  up; `hi` / `TEST` / `hi fork` untouched. 415 tests green. Note: a chat in
+  Keel IS the agent row — deleting a "chat" deletes that agent and its whole
+  transcript (confirm dialog).
+
+- **Project→chat binding + real connectors + MCP startup fix (2026-11-13)**:
+  - Opening a project now lands you in ITS dedicated chat. Schema v9
+    (`bots.project_id REFERENCES fleet_projects(id) ON DELETE SET NULL`) —
+    `chat_for_project()` creates/reuses the bound agent; clicking a project
+    calls it (Cowork Projects grid, Duet sidebar, Code sidebar) so you never
+    inherit a stale global chat. Deleting a project keeps its chat, unbound.
+    Forks inherit project_id. 415 tests green after v9 migration defaulted.
+  - Connectors overhauled: presets for GitHub (auth via the user's `gh`
+    login — zero token on disk and nothing requested), Filesystem, Memory,
+    Sequential-thinking. `GET /api/fleet/connectors` now returns {connectors,
+    presets}; POST `/connectors/add` writes ~/.keel/settings.json mcpServers
+    atomically; POST `/connectors/test` runs a REAL handshake (initialize →
+    tools/list) and reports tool count or the exact error; POST
+    `/connectors/remove`. Verified live: github 26 tools, filesystem 16,
+    memory 9, sequential-thinking 1 — all handshakes succeed. Deleted/removed
+    test artifacts cleaned up; the mis-saved "cmd" entry removed.
+  - Real "Add GitHub" browser-backed auth works through the user's existing
+    `gh auth login` — no credentials requested or stored.
+  - MCP startup was sequential and blocked the first token for ~40s on a hot
+    registry (four npm servers); McpManager.start_all now spawns them
+    concurrently with the same failure contract — `keel -p` and the test
+    suite (which was timing out at 30s) are back under a minute. Slow npm
+    handshake is inherent (~10s first run) and is noted honestly.
+  - Known remaining issue: on this host `hi`/`hi fork` show OpenRouter 402
+    (account out of credits) — real, unrelated to the code.
