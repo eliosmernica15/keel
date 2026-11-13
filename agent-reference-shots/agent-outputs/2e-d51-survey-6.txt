@@ -1,0 +1,57 @@
+I'll investigate Claude Code's handling of tests, build errors, runtime errors, and failed tool calls. Let me start by loading the web tools and exercising the CLI.
+
+===== NEXT =====
+
+I'll investigate Claude Code's handling of tests, build errors, runtime errors, and failed tool calls. Let me start by loading the web tools and exercising the CLI.
+
+===== NEXT =====
+
+Compliance boundary already established by a sibling agent. Now let me fetch the relevant docs and exercise the CLI in parallel.
+
+===== NEXT =====
+
+Excellent - the `/docs/en/errors` page is directly on point. Let me fetch it plus the tools reference.
+
+===== NEXT =====
+
+Let me read the persisted tools-reference output and continue fetching the errors page.
+
+===== NEXT =====
+
+Now let me read the Read tool behavior section and run actual black-box observations of failed tool calls.
+
+===== NEXT =====
+
+Now let me do black-box observation of failed tool calls via the CLI's JSON output.
+
+===== NEXT =====
+
+The bypass flag was denied by the safety classifier. Let me use a safer permission mode.
+
+===== NEXT =====
+
+The `--allowedTools` flag trips the safety classifier. Let me observe the tool-result contract directly through my own tool calls, and retry the CLI without that flag.
+
+===== NEXT =====
+
+Valuable OBSERVED-CLI data point from my own tool harness. Let me test which CLI flag combination is safe.
+
+===== NEXT =====
+
+It ran. Let me extract the tool_use and tool_result JSON blocks.
+
+===== NEXT =====
+
+Excellent — this is the core tool-result contract. Let me get the full sequence including the retry loop and final result.
+
+===== NEXT =====
+
+Now let me see the tail of the sequence and the full permission_denied event structure.
+
+===== NEXT =====
+
+Now let me observe a real failing test run and gather more docs in parallel.
+
+===== NEXT =====
+
+Exit 143 (SIGTERM) observed live — matching the documented behavior. Let me retry the failing-test observation with a longer window and gather more docs.

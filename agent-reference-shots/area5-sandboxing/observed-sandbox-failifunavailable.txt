@@ -1,0 +1,16 @@
+Claude Code doesn't recognize the model "minimax/minimax-m3.1-flash:free", so it assumes a context window of 200k tokens. Update Claude Code, or see https://code.claude.com/docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id to set the window.
+
+Error: sandbox required but unavailable: sandbox is enabled but the Windows sandbox is not active on this session (feature gate off)
+  sandbox.failIfUnavailable is set — refusing to start without a working sandbox.
+
+
+# ---
+# Observed: sandbox enabled, failIfUnavailable absent (native Windows)
+# Command: claude --settings '{"sandbox":{"enabled":true}}' -p 'reply with OK only'
+Claude Code doesn't recognize the model "minimax/minimax-m3.1-flash:free", so it assumes a context window of 200k tokens. Update Claude Code, or see https://code.claude.com/docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id to set the window.
+
+⚠ Sandbox disabled: sandbox is enabled but the Windows sandbox is not active on this session (feature gate off)
+  Commands will run WITHOUT sandboxing. Network and filesystem restrictions will NOT be enforced.
+
+[claude-code:unrecognized_model] {"model":"minimax/minimax-m3.1-flash:free","query_source":"sdk"}
+OK

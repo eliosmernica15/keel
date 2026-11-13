@@ -1,0 +1,23 @@
+### claude auth status --json
+{
+  "loggedIn": true,
+  "authMethod": "oauth_token",
+  "apiProvider": "firstParty",
+  "analyticsDisabled": false,
+  "projectsDirectory": "C:\\Users\\Admin\\.claude\\projects",
+  "configDirectory": "C:\\Users\\Admin\\.claude"
+}
+
+### claude auth status --text
+Auth token: ANTHROPIC_AUTH_TOKEN
+Anthropic base URL: https://openrouter.ai/api
+
+### claude doctor (provider-gating lines only)
+Managed settings (remote): not fetched — not available with a custom ANTHROPIC_BASE_URL
+Organization policy: not fetched with a custom ANTHROPIC_BASE_URL
+Remote Control
+Remote Control is only available when using Claude via api.anthropic.com. ANTHROPIC_BASE_URL is set and does not point at api.anthropic.com, so this session is using a custom endpoint — unset it (or run in a shell without it) to use Remote Control.
+- Not connected to the Anthropic API (api.anthropic.com)
+- Not signed in to claude.ai
+- claude.ai subscription auth not active
+- Remote Control availability could not be verified (no server response this session)

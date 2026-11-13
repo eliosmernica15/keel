@@ -1,0 +1,149 @@
+I'll investigate area #8: permission modes, destructive-action safeguards, and user confirmations in Claude Code. Let me start by loading the web tools and checking the local CLI.
+
+===== NEXT =====
+
+I'll investigate area #8: permission modes, destructive-action safeguards, and user confirmations in Claude Code. Let me start by loading the web tools and checking the local CLI.
+
+===== NEXT =====
+
+Version confirmed: 2.1.306. Per the compliance boundary, deep inspection (decompiling the binary, extracting bundled JS) is **not** permitted, so REA decompilation tools are off-limits for this target. I'll use public docs plus the CLI's own user-facing help surfaces.
+
+===== NEXT =====
+
+Let me fetch the core permission docs and read the full sandboxing output.
+
+===== NEXT =====
+
+Let me read the permission-modes doc and permissions doc, plus gather CLI evidence in parallel.
+
+===== NEXT =====
+
+Now let me read the permissions doc and exercise the CLI's inspection surfaces.
+
+===== NEXT =====
+
+Rich evidence. Let me get the critical paths/protected paths sections and run more CLI surfaces.
+
+===== NEXT =====
+
+Now let me extract the critical paths, protected paths, and workspace trust sections.
+
+===== NEXT =====
+
+Now let me find the workspace trust documentation and settings-reference keys, plus exercise more CLI surfaces.
+
+===== NEXT =====
+
+Now let me get the workspace trust section and settings-reference keys.
+
+===== NEXT =====
+
+Let me read the remaining sections of the permissions doc and fetch the security doc for the trust dialog.
+
+===== NEXT =====
+
+Let me get the settings-reference keys and observe a live permission denial.
+
+===== NEXT =====
+
+Strong evidence. Let me gather the remaining pieces: hard_deny rules, settings-reference keys, and working-directory semantics.
+
+===== NEXT =====
+
+Now let me fetch the settings-reference for the exact permission-related keys, and check the CLI's own settings schema.
+
+===== NEXT =====
+
+Let me read the remaining permission rule precedence sections and test an actual deny rule.
+
+===== NEXT =====
+
+Deny rule confirmed working. Let me read the remaining critical sections: hooks precedence, MCP/Agent rules, and sandbox interaction.
+
+===== NEXT =====
+
+Let me run final verification checks in parallel.
+
+===== NEXT =====
+
+Let me attempt a PTY capture of the interactive permission prompt and check env vars.
+
+===== NEXT =====
+
+Let me do final checks on the published settings schema and MCP approval surface.
+
+===== NEXT =====
+
+Let me test protected-path writes and critical-path removal safeguards.
+
+===== NEXT =====
+
+Protected-path write confirmed blocked. Now let me test a critical-path removal.
+
+===== NEXT =====
+
+The classifier intercepted the critical-path deletion. Let me verify whether `bypassPermissions` was actually honored on this machine.
+
+===== NEXT =====
+
+Let me do final verification checks in parallel.
+
+===== NEXT =====
+
+Let me read the classifier decision order section and verify the workspace trust key in the local config.
+
+===== NEXT =====
+
+The `hasTrustDialogAccepted` key is confirmed in the live config. Let me do final verification on the trust key value and the `--permission-prompt-tool` flag.
+
+===== NEXT =====
+
+Read deny rule confirmed. Let me do a final check on the "deny removes tool from context" behavior and check the `claude --help` for `--permission-prompt-tool`.
+
+===== NEXT =====
+
+Let me check the working directory for existing report files.
+
+===== NEXT =====
+
+Other areas are working in parallel. Let me check the protocol notes for consistency.
+
+===== NEXT =====
+
+Let me capture two final first-class observations and save evidence artifacts.
+
+===== NEXT =====
+
+All six permission mode values confirmed, including `manual` → `default` alias mapping. Let me save evidence artifacts and write the report.
+
+===== NEXT =====
+
+Let me check whether the main evidence file has been created by parallel work.
+
+===== NEXT =====
+
+Let me do a final verification round on a few remaining details.
+
+===== NEXT =====
+
+Important finding: the JSON output has `permission_denials` and `safety_stops` keys. Let me capture those.
+
+===== NEXT =====
+
+Excellent — `permission_denials` is a machine-readable array. Let me capture the classifier denial structure too.
+
+===== NEXT =====
+
+Let me add the JSON output findings to the observations file.
+
+===== NEXT =====
+
+Now let me write the main evidence report section for my area. Since other areas are being written in parallel, let me create my area's report file.
+
+===== NEXT =====
+
+The main report doesn't exist yet — parallel areas are still working. Let me write my area's findings as a complete, self-contained report that can be merged.
+
+===== NEXT =====
+
+The main report doesn't exist yet — parallel areas are still working. Let me write my area's findings as a complete, self-contained report that can be merged.

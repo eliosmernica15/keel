@@ -1,0 +1,81 @@
+I'll start by establishing the compliance boundary and then gather evidence from both public docs and the published CLI's help surfaces.
+
+===== NEXT =====
+
+I'll start by establishing the compliance boundary and then gather evidence from both public docs and the published CLI's help surfaces.
+
+===== NEXT =====
+
+Let me gather CLI evidence and fetch public docs in parallel.
+
+===== NEXT =====
+
+Rich source. Let me continue fetching and exercise more CLI surfaces in parallel.
+
+===== NEXT =====
+
+Rich source. Let me continue fetching and exercise more CLI surfaces in parallel.
+
+===== NEXT =====
+
+Now let me fetch the session/resume docs and CLI reference in parallel.
+
+===== NEXT =====
+
+Now let me fetch the session/resume docs and CLI reference in parallel.
+
+===== NEXT =====
+
+Let me read the persisted interactive-mode doc and fetch the sessions doc in parallel.
+
+===== NEXT =====
+
+Now the context-window/compaction doc and background session (agent-view) doc, plus filesystem observations of the documented transcript location.
+
+===== NEXT =====
+
+Transcript path confirmed. Now let me get the auto-compact thresholds, background sessions, and slash command reference.
+
+===== NEXT =====
+
+Let me grep the persisted model-config output for auto-compact thresholds and get the commands reference.
+
+===== NEXT =====
+
+Now let me exercise live CLI behaviors. First, error paths and non-mutating diagnostics.
+
+===== NEXT =====
+
+Very useful. Let me test model/effort validation paths and observe a print-mode run's structured output.
+
+===== NEXT =====
+
+Noted: `~/.claude/settings.json` contains an API token — I will not reproduce it. Let me observe structured session metadata.
+
+===== NEXT =====
+
+Excellent — direct observation of auto-compaction. Let me gather the remaining pieces.
+
+===== NEXT =====
+
+I have enough evidence. Let me capture a sanitized workflow sample and then write the report.
+
+===== NEXT =====
+
+Other areas are running in parallel and a shared `agent-evidence.md` exists. Let me check its structure so my section integrates cleanly.
+
+===== NEXT =====
+
+Let me do a final round of targeted probes, then write the report.
+
+===== NEXT =====
+
+Now let me write the Area 7 evidence section.
+
+===== NEXT =====
+
+Now let me write the Area 7 evidence section into the main report file. First let me check how other areas are integrating, to avoid clobbering.
+
+===== NEXT =====
+
+Now let me write the full Area 7 report. I'll write it to a dedicated file first, then append to the shared `agent-evidence.md` to avoid clobbering concurrent writers.

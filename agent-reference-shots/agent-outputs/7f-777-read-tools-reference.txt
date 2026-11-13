@@ -1,0 +1,37 @@
+I'll fetch the tools reference documentation and extract concrete claims.
+
+===== NEXT =====
+
+Let me cross-check the documented tool list against the local CLI's public help surface.
+
+===== NEXT =====
+
+Let me verify the exact settings keys cited in the tools-reference, and check the local tool availability.
+
+===== NEXT =====
+
+Let me observe the actual tool set in a live headless session to cross-check the documented list.
+
+===== NEXT =====
+
+Let me verify a few remaining parameter shapes against the docs.
+
+===== NEXT =====
+
+The Agent SDK TS reference has exact TypeScript input types. Let me extract them.
+
+===== NEXT =====
+
+This is the authoritative schema source. Let me extract the input and output schemas.
+
+===== NEXT =====
+
+I have the complete schema reference. Let me capture a sanitized evidence artifact and write the report.
+
+===== NEXT =====
+
+Let me check the error-message contract and confirm the local vs documented tool set divergence.
+
+===== NEXT =====
+
+I have everything needed. Now let me write the evidence file.

@@ -1,0 +1,49 @@
+I'll start by fetching the MCP documentation page, and also check the CLI's own help surfaces for MCP-related flags.
+
+===== NEXT =====
+
+I'll start by fetching the MCP documentation page, and also check the CLI's own help surfaces for MCP-related flags.
+
+===== NEXT =====
+
+Now let me fetch the MCP documentation page.
+
+===== NEXT =====
+
+The page is large (123K chars). Let me download it directly and read it as data.
+
+===== NEXT =====
+
+Got the full doc (1620 lines). Let me read it.
+
+===== NEXT =====
+
+Now let me gather locally observable evidence to complement the docs.
+
+===== NEXT =====
+
+Existing doc files are present from a prior session. Let me cross-reference MCP-related settings and env vars.
+
+===== NEXT =====
+
+Let me observe the error/warning behaviors directly (reserved names, missing type, invalid JSON).
+
+===== NEXT =====
+
+Excellent — direct observation of `mcp_server_errors`. Let me probe the reserved-name path and the `ws` type.
+
+===== NEXT =====
+
+Let me check for existing evidence-file conventions in the workspace.
+
+===== NEXT =====
+
+An `agent-evidence.md` already exists in the parent directory (written by parallel agents). Let me inspect its structure before adding to it.
+
+===== NEXT =====
+
+Let me check the coordination protocol used by parallel agents.
+
+===== NEXT =====
+
+Let me run one high-value live probe: a minimal zero-dependency stdio MCP server to observe tool naming and the approval flow.

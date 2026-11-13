@@ -1,0 +1,120 @@
+# Area 10 - discovery precedence, nested discovery, conditional skills and the listing budget (OBSERVED-CLI)
+
+All probes run against Claude Code 2.1.306 with `CLAUDE_CONFIG_DIR` pointed at a
+scratch config dir under the system temp dir. No real user config was touched.
+
+## P1 - The loader reports exactly which scopes it searched
+
+    $ claude -p "say OK" --output-format stream-json --verbose --debug-file <SCRATCH>/dbg13.log
+    [DEBUG] Loading skills from: managed=C:\Program Files\ClaudeCode\.claude\skills,
+            user=<SCRATCH_CFG>\skills,
+            project=[<PROJ13>\.claude\skills]
+    [DEBUG] Loaded 4 unique skills (4 unconditional, 0 conditional, managed: 0,
+            user: 2, project: 2, additional: 0, legacy commands: 0)
+    [DEBUG] Loaded 1 skills-as-plugins
+    [DEBUG] getPluginSkills: Processing 4 enabled plugins
+    [DEBUG] Checking plugin probe-scaffold: skillsPath=exists, skillsPaths=0 paths
+    [DEBUG] Attempting to load skills from plugin probe-scaffold default skillsPath:
+            <SCRATCH_CFG>\skills\probe-scaffold\skills
+    [DEBUG] Checking plugin cc-plugin-agents-md: skillsPath=none, skillsPaths=0 paths
+    [DEBUG] Checking plugin cc-plugin-telemetry: skillsPath=none, skillsPaths=0 paths
+    [DEBUG] Checking plugin cc-plugin-plugin-authoring: skillsPath=none, skillsPaths=0 paths
+    [DEBUG] Loaded 1 skills from plugin probe-scaffold default directory
+    [DEBUG] Total plugin skills loaded: 1 (0 duplicate/user-owned entries skipped)
+    [DEBUG] getSkills returning: 4 skill dir commands, 1 plugin skills,
+            38 bundled skills, 1 builtin plugin skills
+    [DEBUG] Watching for changes in skill/command directories:
+            <SCRATCH_CFG>\skills, <PROJ13>\.claude\skills...
+
+This is the single most useful diagnostic contract the product exposes for this
+area: one line names the three scopes and their exact paths, one line counts
+what was found per scope, and one line splits the final result into
+*skill-directory commands* vs *plugin skills* vs *bundled skills* vs
+*builtin plugin skills*.
+
+## P2 - Scope precedence: the personal copy of a same-named skill wins
+
+Fixture: the same skill name `precedence-test` present in BOTH the scratch user
+scope (`<SCRATCH_CFG>/skills/precedence-test/SKILL.md`, description "PERSONAL
+scope version...") AND the project scope
+(`<PROJ13>/.claude/skills/precedence-test/SKILL.md`, description "PROJECT scope
+version...").
+
+The `skill_listing` attachment the model received:
+
+    - precedence-test: PERSONAL scope version of the precedence probe skill.
+
+So the **user (personal) scope description is the one that reaches the model** -
+the project-scope copy of the same name is shadowed. This matches the
+documented precedence "Enterprise over personal, and personal over project".
+
+Note the loader's own count still reports both: `user: 2, project: 2` and
+`Loaded 4 unique skills`. The shadowing happens at name-resolution time, not
+at load time.
+
+## P3 - Nested `.claude/skills/` discovery depends on where the session starts
+
+Same project tree, two different working directories:
+
+Session started at `<PROJ13>` (the root):
+
+    [DEBUG] Loading skills from: ... project=[<PROJ13>\.claude\skills]
+    [DEBUG] Loaded 4 unique skills (4 unconditional, 0 conditional, managed: 0,
+            user: 2, project: 2, additional: 0, legacy commands: 0)
+    init.skills: [precedence-test, probe-scaffold, nested-only, deep-research, ...]
+
+Session started at `<PROJ13>/sub`:
+
+    [DEBUG] Loading skills from: ... project=[<PROJ13>\sub\.claude\skills,
+                                               <PROJ13>\.claude\skills]
+    [DEBUG] Loaded 5 unique skills (5 unconditional, 0 conditional, managed: 0,
+            user: 2, project: 3, additional: 0, legacy commands: 0)
+    init.skills: [precedence-test, probe-scaffold, deep-skill, nested-only,
+                  deep-research, ...]
+
+So a nested `.claude/skills/` directory is searched when the session starts
+inside it, and the parent's `.claude/skills/` is still searched - the scope list
+is an ordered array of directories, nearest-first. The nested skill `deep-skill`
+appeared only in the sub-directory session.
+
+## P4 - `paths:` frontmatter produces a CONDITIONAL skill, not an unconditional one
+
+Fixture: `<PROJ12>/.claude/skills/pathscond/SKILL.md` with `paths: "**/*.ts"`.
+
+    [DEBUG] [skills] 1 conditional skills stored (activated when matching files are touched)
+    [DEBUG] Loaded 2 unique skills (1 unconditional, 1 conditional, managed: 0,
+            user: 1, project: 1, additional: 0, legacy commands: 0)
+
+A path-scoped skill is held in a separate "conditional" store and is not part
+of the unconditional listing. It is activated when a matching file is touched.
+
+## P5 - The skill listing has a hard character budget, and overflow is warned about
+
+Same session as P1:
+
+    [DEBUG] Sending 17 skills via attachment (initial)
+    [WARN] Skill listing over budget: 17 skills, 6484 chars > 6000 budget
+            - descriptions will be truncated. Run /skills to disable some, or
+            raise skillListingBudgetFraction in settings.
+
+Observed budget on this host: **6000 characters** for 17 skills (6484 chars of
+description text). The warning names both the measured size and the budget, and
+names the two remedies: `/skills` (per-skill disable) or the
+`skillListingBudgetFraction` setting.
+
+Note the count difference: the loader found 4 skill-directory commands + 1
+plugin skill, but the attachment carried 17 skills - the remainder are bundled
+skills that are not counted in the debug "unique skills" line.
+
+## P6 - The `skill_listing` attachment is a plain text block, one line per skill
+
+Verbatim shape (first four lines of the attachment content string):
+
+    - precedence-test: PERSONAL scope version of the precedence probe skill.
+    - probe-scaffold
+    - nested-only: A skill that lives only in the project root .claude/skills.
+    - probe-scaffold:example
+
+Format: `- <name>: <description>` when a description survived the budget, and
+`- <name>` alone when it did not. The name is always present - the budget drops
+descriptions, never names.

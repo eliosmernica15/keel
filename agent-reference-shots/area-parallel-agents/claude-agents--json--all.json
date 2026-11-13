@@ -1,0 +1,85 @@
+[
+  {
+    "pid": 21488,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone",
+    "kind": "interactive",
+    "startedAt": 1792603034892,
+    "sessionId": "ca6d0088-4426-4239-8884-8c2b9e5b1238",
+    "name": "claude-clone-95",
+    "status": "busy"
+  },
+  {
+    "pid": 14252,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe",
+    "kind": "interactive",
+    "startedAt": 1792604907367,
+    "sessionId": "319feba6-ebc5-4a39-a9e7-3e973ec6d560",
+    "name": "scratch-probe-2f",
+    "status": "busy"
+  },
+  {
+    "id": "17989b89",
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\.scratch-probe5",
+    "kind": "background",
+    "startedAt": 1792605093765,
+    "sessionId": "17989b89-2134-48e8-9a0f-aeaacb4bf08b",
+    "name": "ls git version",
+    "state": "stopped"
+  },
+  {
+    "id": "4b42e986",
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\.scratch-probe5b",
+    "kind": "background",
+    "startedAt": 1792605165231,
+    "sessionId": "4b42e986-0a2f-4d15-ba84-d9ea005ec149",
+    "name": "git status",
+    "state": "stopped"
+  },
+  {
+    "pid": 4448,
+    "cwd": "C:\\Users\\Admin\\AppData\\Local\\Temp",
+    "kind": "interactive",
+    "startedAt": 1792605979902,
+    "sessionId": "3e8bf3fb-9267-4ed5-a8bb-b1557b9a227a",
+    "name": "temp-ad",
+    "status": "busy"
+  },
+  {
+    "pid": 14404,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe",
+    "kind": "interactive",
+    "startedAt": 1792605983959,
+    "sessionId": "d5f3c321-fd7c-4553-93e7-018a7ee0ab9a",
+    "name": "scratch-probe-05",
+    "status": "busy"
+  },
+  {
+    "pid": 15164,
+    "id": "fe547206",
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone",
+    "kind": "background",
+    "startedAt": 1792605984600,
+    "sessionId": "fe547206-9f8b-4d36-b2b9-8c266c157dd1",
+    "name": "claude clone greeting",
+    "status": "idle",
+    "state": "blocked"
+  },
+  {
+    "pid": 460,
+    "cwd": "C:\\Users\\Admin\\AppData\\Local\\Temp\\ccmem\\t_claudemd",
+    "kind": "interactive",
+    "startedAt": 1792605991958,
+    "sessionId": "06cf3d28-2032-4435-bd73-23873154476e",
+    "name": "t-claudemd-0d",
+    "status": "busy"
+  },
+  {
+    "pid": 21072,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\.scratch-probe",
+    "kind": "interactive",
+    "startedAt": 1792605993060,
+    "sessionId": "ab7694dc-f05b-40bf-bd08-72cf8bc5b5b1",
+    "name": "scratch-probe-da",
+    "status": "busy"
+  }
+]

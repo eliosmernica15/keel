@@ -1,0 +1,12 @@
+### claude plugin marketplace list
+Configured marketplaces:
+
+  ❯ anthropic-plugin-directory
+    Source: Built in (Anthropic Directory)
+
+  ❯ claude-plugins-official
+    Source: GitHub (anthropics/claude-plugins-official)
+
+
+### claude plugin list
+No plugins installed. Use `claude plugin install` to install a plugin.

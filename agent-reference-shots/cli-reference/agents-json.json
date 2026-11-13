@@ -1,0 +1,29 @@
+[
+  {
+    "pid": 21488,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone",
+    "kind": "interactive",
+    "startedAt": 1792603034892,
+    "sessionId": "ca6d0088-4426-4239-8884-8c2b9e5b1238",
+    "name": "claude-clone-95",
+    "status": "busy"
+  },
+  {
+    "pid": 14252,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe",
+    "kind": "interactive",
+    "startedAt": 1792604907367,
+    "sessionId": "319feba6-ebc5-4a39-a9e7-3e973ec6d560",
+    "name": "scratch-probe-2f",
+    "status": "busy"
+  },
+  {
+    "pid": 10264,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\.probe",
+    "kind": "interactive",
+    "startedAt": 1792606452823,
+    "sessionId": "e5b4eed7-65f7-4eee-970d-de0aff652ca2",
+    "name": "probe-51",
+    "status": "busy"
+  }
+]

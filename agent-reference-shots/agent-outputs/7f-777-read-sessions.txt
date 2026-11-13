@@ -1,0 +1,33 @@
+I'll fetch the sessions documentation page and analyze it.
+
+===== NEXT =====
+
+I'll fetch the sessions documentation page and analyze it.
+
+===== NEXT =====
+
+I have the full page. Let me read the raw markdown for exact section headings and quotes.
+
+===== NEXT =====
+
+Now let me verify observable CLI behavior for the flags referenced on this page (authorized: running the published CLI's own help surfaces).
+
+===== NEXT =====
+
+Let me see the rest of the CLI help for session-related flags.
+
+===== NEXT =====
+
+Let me verify the remaining env vars and a few more observable details.
+
+===== NEXT =====
+
+Resume-by-transcript-path works and reuses the original session ID. Let me check the JSON output fields and the CLI reference.
+
+===== NEXT =====
+
+Let me run a few more observable behavior checks and check for concurrent files.
+
+===== NEXT =====
+
+Let me do a few final observable checks.

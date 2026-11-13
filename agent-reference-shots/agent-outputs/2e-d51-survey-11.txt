@@ -1,0 +1,29 @@
+I'll start by establishing the environment and gathering evidence from public docs and the published CLI's own help surfaces.
+
+===== NEXT =====
+
+I'll start by establishing the environment and gathering evidence from public docs and the published CLI's own help surfaces.
+
+===== NEXT =====
+
+Let me fetch key docs and exercise the CLI in parallel.
+
+===== NEXT =====
+
+Excellent data. Now let me fetch more docs and exercise more CLI surfaces in parallel.
+
+===== NEXT =====
+
+Excellent data. Now let me fetch more docs and exercise more CLI surfaces in parallel.
+
+===== NEXT =====
+
+Now let me get the SDK message types (stream-json protocol), the interactive mode UI, and errors pages.
+
+===== NEXT =====
+
+Excellent — real stream-json output captured. Let me get more SDK types and the interactive-mode content.
+
+===== NEXT =====
+
+Let me capture a real tool-use stream and partial messages to observe the protocol in practice.

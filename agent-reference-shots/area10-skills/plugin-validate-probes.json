@@ -1,0 +1,157 @@
+===== PROBE: root =====
+{
+  "success": true,
+  "strict": false,
+  "target": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\root\\.claude\\skills",
+  "manifest": null,
+  "contents": [],
+  "advice": [],
+  "directory": null
+}
+
+===== PROBE: bad =====
+{
+  "success": true,
+  "strict": false,
+  "target": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\bad\\.claude\\skills",
+  "manifest": null,
+  "contents": [
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\bad\\.claude\\skills\\bad-skill\\SKILL.md",
+      "type": "skill",
+      "errors": [],
+      "warnings": [
+        {
+          "path": "description",
+          "message": "No description in frontmatter. A description helps users and Claude understand when to use this skill.",
+          "code": null
+        }
+      ],
+      "notes": [],
+      "gatingHooks": []
+    }
+  ],
+  "advice": [],
+  "directory": null
+}
+
+===== PROBE: badyaml =====
+{
+  "success": false,
+  "strict": false,
+  "target": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\badyaml\\.claude\\skills",
+  "manifest": null,
+  "contents": [
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\badyaml\\.claude\\skills\\yaml-skill\\SKILL.md",
+      "type": "skill",
+      "errors": [
+        {
+          "path": "frontmatter",
+          "message": "YAML frontmatter failed to parse: YAML Parse error: Unexpected token. At runtime this skill loads with empty metadata (all frontmatter fields silently dropped).",
+          "code": null
+        }
+      ],
+      "warnings": [],
+      "notes": [],
+      "gatingHooks": []
+    }
+  ],
+  "advice": [],
+  "directory": null
+}
+
+===== PROBE: nofm =====
+{
+  "success": true,
+  "strict": false,
+  "target": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\nofm\\.claude\\skills",
+  "manifest": null,
+  "contents": [
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\nofm\\.claude\\skills\\nofront\\SKILL.md",
+      "type": "skill",
+      "errors": [],
+      "warnings": [
+        {
+          "path": "frontmatter",
+          "message": "No frontmatter block found. Add YAML frontmatter between --- delimiters at the top of the file to set description and other metadata.",
+          "code": null
+        }
+      ],
+      "notes": [],
+      "gatingHooks": []
+    }
+  ],
+  "advice": [],
+  "directory": null
+}
+
+===== PROBE: spec =====
+{
+  "success": true,
+  "strict": false,
+  "target": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\spec\\.claude\\skills",
+  "manifest": null,
+  "contents": [],
+  "advice": [],
+  "directory": null
+}
+
+===== PROBE: reserved =====
+{
+  "success": true,
+  "strict": false,
+  "target": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\reserved\\.claude\\skills",
+  "manifest": null,
+  "contents": [],
+  "advice": [],
+  "directory": null
+}
+
+===== PROBE: forkctx =====
+{
+  "success": true,
+  "strict": false,
+  "target": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\forkctx\\.claude\\skills",
+  "manifest": null,
+  "contents": [],
+  "advice": [],
+  "directory": null
+}
+
+===== PROBE: unknown =====
+{
+  "success": true,
+  "strict": false,
+  "target": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\unknown\\.claude\\skills",
+  "manifest": null,
+  "contents": [],
+  "advice": [],
+  "directory": null
+}
+
+===== PROBE: cmd =====
+{
+  "success": false,
+  "strict": false,
+  "target": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\cmd\\.claude\\skills",
+  "manifest": {
+    "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\cmd\\.claude\\skills",
+    "type": "plugin",
+    "errors": [
+      {
+        "path": "file",
+        "message": "File not found: C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\_skillsprobe\\cmd\\.claude\\skills",
+        "code": null
+      }
+    ],
+    "warnings": [],
+    "notes": [],
+    "gatingHooks": []
+  },
+  "contents": [],
+  "advice": [],
+  "directory": null
+}
+

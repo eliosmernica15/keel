@@ -1,0 +1,13 @@
+# Debug-log skill discovery lines (observed, sanitized: user path collapsed)
+# source: ~/.claude/debug/<session>.txt, Claude Code 2.1.306
+
+2026-10-21T17:37:34.297Z [DEBUG] Loading skills from: managed=C:\Program Files\ClaudeCode\.claude\skills, user=C:\Users\Admin\.claude\skills, project=[]
+2026-10-21T17:37:34.317Z [DEBUG] Loaded 2 unique skills (2 unconditional, 0 conditional, managed: 0, user: 2, project: 0, additional: 0, legacy commands: 0)
+2026-10-21T17:37:34.345Z [DEBUG] getPluginSkills: Processing 3 enabled plugins
+2026-10-21T17:37:34.351Z [DEBUG] Total plugin skills loaded: 0 (0 duplicate/user-owned entries skipped)
+2026-10-21T17:37:34.451Z [DEBUG] getSkills returning: 2 skill dir commands, 0 plugin skills, 38 bundled skills, 1 builtin plugin skills
+2026-10-21T17:49:37.229Z [DEBUG] Loading skills from: managed=C:\Program Files\ClaudeCode\.claude\skills, user=C:\Users\Admin\.claude\skills, project=[]
+2026-10-21T17:49:37.262Z [DEBUG] Loaded 2 unique skills (2 unconditional, 0 conditional, managed: 0, user: 2, project: 0, additional: 0, legacy commands: 0)
+2026-10-21T17:49:37.428Z [DEBUG] getPluginSkills: Processing 3 enabled plugins
+2026-10-21T17:49:37.434Z [DEBUG] Total plugin skills loaded: 0 (0 duplicate/user-owned entries skipped)
+2026-10-21T17:49:37.608Z [DEBUG] getSkills returning: 2 skill dir commands, 0 plugin skills, 38 bundled skills, 1 builtin plugin skills

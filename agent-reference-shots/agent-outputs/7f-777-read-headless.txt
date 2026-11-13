@@ -1,0 +1,5 @@
+I have the full page. Let me gather corroborating observable behavior from the CLI's own help surfaces and the CLI reference.
+
+===== NEXT =====
+
+Real JSON envelope captured. Now let me observe stream-json and exit-code behavior.

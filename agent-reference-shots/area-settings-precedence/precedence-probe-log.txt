@@ -1,0 +1,34 @@
+=== SETTINGS PRECEDENCE PROBE LOG (Claude Code 2.1.306, win32) ===
+=== All observations from published CLI help + runnable behavior. No decompilation. ===
+
+--- 1. claude doctor in dir with INVALID .claude/settings.json ---
+Invalid settings
+- C:\Users\Admin\AppData\Local\Temp\setprobe\.claude\settings.json: Invalid or malformed JSON
+
+
+--- 2. env merge: shared + local, distinct keys -> BOTH present ---
+```
+PROBE_SHARED=shared-value PROBE_LOCAL=local-value
+```
+
+--- 3. env CONFLICT shared vs local -> local wins ---
+```
+PROBE_SAME=from-local
+```
+
+--- 4. --settings CLI beats project local -> from-cli ---
+
+--- 4. --settings CLI beats project local -> from-cli (rerun) ---
+(from above run: PROBE_SAME=from-cli)
+
+--- 5. permissions.defaultMode=plan from .claude/settings.json -> init event reports permissionMode=plan ---
+permissionMode = 'plan'
+claude_code_version = '2.1.306'
+
+--- 6. permissions.defaultMode=bypassPermissions from .claude/settings.json -> DOES NOT apply (write blocked by permission prompt) ---
+Observed: model replied it needed approval; no file created.
+Doc: 'bypassPermissions took effect from any file' BEFORE v2.1.257 only.
+
+--- 7. Windows exception: local settings file read from STARTING dir, not git root ---
+Observed: WHICH_FILE=start-dir-local (from sub/deep/.claude/settings.local.json)
+Observed: repo-root .claude/settings.local.json NOT read (WHICH_FILE unset)

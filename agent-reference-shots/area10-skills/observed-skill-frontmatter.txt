@@ -1,0 +1,31 @@
+# Real-world SKILL.md frontmatter observed on this machine (sanitized)
+# ~/.claude/skills/<name>/SKILL.md
+
+--- /c/Users/Admin/.claude/skills/developing-with-streamlit/SKILL.md
+---
+name: developing-with-streamlit
+description: "Use for ALL Streamlit tasks: creating, editing, debugging, beautifying, styling, theming, optimizing, or deploying Streamlit apps. Also custom components, st.components.v2, HTML/JS/CSS work. Discovers and loads version-matched reference docs from the user's installed Streamlit (>=1.57). Triggers: streamlit, st., dashboard, app.py, beautify, style, CSS, color, background, theme, button, widget styling, custom component, st.components, CCv2, session state, performance, cache, fragment, slow rerun, deploy."
+allowed-tools: Bash(python ${CLAUDE_SKILL_DIR}/scripts/discover.py:*) Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/discover.py:*)
+---
+
+# Developing with Streamlit
+
+Streamlit (>=1.57) ships detailed reference documentation for building Streamlit apps inside its pip package. The bundled skill is a routing `SKILL.md` plus a `references/` folder of topic-specific reference docs (dashboards, themes, layouts, session state, custom components, etc.).
+
+## Usage
+
+
+--- /c/Users/Admin/.claude/skills/reverse-engineer-anything/SKILL.md
+---
+name: reverse-engineer-anything
+description: Reverse engineer native, managed, Electron/JavaScript, packaged, firmware, and browser targets with REA. Use shipped-artifact or requested runtime evidence to explain features, compare versions, decompile code, or guide a reconstruction. Skip REA for ordinary source-repository architecture analysis.
+metadata:
+  version: "42"
+  tool_count: 207
+---
+
+# REA
+
+Use REA when a claim depends on a shipped binary or package, decompilation,
+passive application runtime evidence, or comparison with
+

@@ -1,0 +1,16 @@
+### claude mcp list
+Checking MCP server health…
+
+rea: cmd.exe /d /c npx -y rea-agents@6.7.0 mcp - ✘ Failed to connect — MCP server "rea" connection timed out after 30000ms
+
+### claude mcp get rea
+rea:
+  Scope: User config (available in all your projects)
+  Status: ✘ Failed to connect
+  Issue: MCP server "rea" connection timed out after 30000ms
+  Type: stdio
+  Command: cmd.exe
+  Args: /d /c npx -y rea-agents@6.7.0 mcp
+  Environment:
+
+To remove this server, run: claude mcp remove rea -s user

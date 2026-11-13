@@ -1,0 +1,111 @@
+I'll start by loading the web tools and establishing the compliance baseline, then investigate the CLI's public surfaces.
+
+===== NEXT =====
+
+I'll start by loading the web tools and establishing the compliance baseline, then investigate the CLI's public surfaces.
+
+===== NEXT =====
+
+Let me gather CLI help surfaces and public docs in parallel.
+
+===== NEXT =====
+
+Good. Let me get the rest of the help output and fetch the key docs pages in parallel.
+
+===== NEXT =====
+
+Now let me exercise CLI inspection surfaces and fetch the sessions/headless docs in parallel.
+
+===== NEXT =====
+
+Now let me observe on-disk session storage and print-mode behavior directly.
+
+===== NEXT =====
+
+Now let me observe actual runtime behavior: a print-mode run and on-disk transcript structure.
+
+===== NEXT =====
+
+Excellent — real print-mode output observed. Let me examine the on-disk transcript structure and the interactive-mode doc.
+
+===== NEXT =====
+
+Now let me exercise more CLI surfaces and observe conversation threading in the transcript.
+
+===== NEXT =====
+
+Let me observe stream-json output format and other CLI surfaces in parallel.
+
+===== NEXT =====
+
+Now let me test the stream-json input mode for multi-turn conversation threading.
+
+===== NEXT =====
+
+Let me test stdin/TTY behavior, `--bg` mode, and check the config file structure.
+
+===== NEXT =====
+
+Let me test background mode and fetch the architecture doc.
+
+===== NEXT =====
+
+The compliance boundary was already established by a prior step. Let me gather the remaining pieces.
+
+===== NEXT =====
+
+Let me run a final batch of observations to confirm key behaviors.
+
+===== NEXT =====
+
+Session resume confirmed. Let me capture sanitized interface artifacts and verify a few last behaviors.
+
+===== NEXT =====
+
+Excellent — a real sanitized TUI capture. Let me clean up the test artifacts and write the report.
+
+===== NEXT =====
+
+Let me check the sibling protocol notes for format alignment, then write my report.
+
+===== NEXT =====
+
+I have solid evidence. Let me write the report.
+
+===== NEXT =====
+
+Let me create the area1 artifacts directory and verify the report.
+
+===== NEXT =====
+
+No conflicts. Let me organize my area-1 artifacts and do a final verification.
+
+===== NEXT =====
+
+No secrets found. Let me do a final verification of the report's key claims against my evidence.
+
+===== NEXT =====
+
+Report is complete and well-structured: 18 findings, all with clean-room opportunities, and every claim classified.
+
+Let me clean up the leftover probe directories I noticed.
+
+===== NEXT =====
+
+Let me verify two numeric claims in my report for precision.
+
+===== NEXT =====
+
+Let me correct three numeric claims in my report to be exact.
+
+===== NEXT =====
+
+The MCP server timed out on this second connection attempt (it connected earlier). Let me correct that claim to be accurate.
+
+===== NEXT =====
+
+The file changed on disk and is now 630 lines (was 1178). Let me check its current state.
+
+===== NEXT =====
+
+A sibling parallel agent overwrote `agent-evidence.md` with its Area #2 content. Let me preserve their work and restore mine.

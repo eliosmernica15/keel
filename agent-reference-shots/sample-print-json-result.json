@@ -1,0 +1,40 @@
+{
+  "type": "result",
+  "subtype": "success",
+  "session_id": "fc9143ca-1b09-4693-a363-aa16da4a438f",
+  "num_turns": 1,
+  "is_error": false,
+  "duration_ms": 2382,
+  "total_cost_usd": 0.0028998,
+  "result": "OK",
+  "permission_denials": [],
+  "fast_mode_state": "off",
+  "usage_keys": [
+    "cache_creation",
+    "cache_creation_input_tokens",
+    "cache_read_input_tokens",
+    "fallback_credit",
+    "inference_geo",
+    "input_tokens",
+    "iterations",
+    "output_tokens",
+    "output_tokens_details",
+    "server_tool_use",
+    "service_tier",
+    "speed"
+  ],
+  "modelUsage_keys": [
+    "cacheCreationInputTokens",
+    "cacheReadInputTokens",
+    "canonicalModel",
+    "contextWindow",
+    "costBasis",
+    "costUSD",
+    "inputTokens",
+    "maxOutputTokens",
+    "outputTokens",
+    "provider",
+    "thinkingTokens",
+    "webSearchRequests"
+  ]
+}

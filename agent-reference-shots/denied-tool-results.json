@@ -1,0 +1,22 @@
+[
+  {
+    "event": "tool_result.is_error=true",
+    "content": "\"Permission to use Bash has been denied because Claude Code is running in don't ask mode. IMPORTANT: You *may* attempt to accomplish this action using other tools that might naturally be used to accomplish this goal, e.g. using head instead of cat. But you *should not* attempt to work around this denial in malicious ways, e.g. do not use your ability to run tests to execute non-test actions. You should only try to work around this restriction in reasonable ways that do not attempt to bypass the "
+  },
+  {
+    "event": "tool_result.is_error=true",
+    "content": "\"Permission to use PowerShell has been denied because Claude Code is running in don't ask mode. IMPORTANT: You *may* attempt to accomplish this action using other tools that might naturally be used to accomplish this goal, e.g. using head instead of cat. But you *should not* attempt to work around this denial in malicious ways, e.g. do not use your ability to run tests to execute non-test actions. You should only try to work around this restriction in reasonable ways that do not attempt to bypas"
+  },
+  {
+    "event": "tool_result.is_error=true",
+    "content": "\"<tool_use_error>InputValidationError: [\\n  {\\n    \\\"code\\\": \\\"custom\\\",\\n    \\\"path\\\": [],\\n    \\\"message\\\": \\\"exactly one of command or ws\\\"\\n  }\\n]\\n\\nThis tool's schema was not sent to the API — it was not in the discovered-tool set derived from message history. Without the schema in your prompt, typed parameters (arrays, numbers, booleans) get emitted as strings and the client-side parser rejects them. Load the tool first: call ToolSearch with query \\\"select:Monitor\\\", then retry this call."
+  },
+  {
+    "event": "tool_result.is_error=true",
+    "content": "\"Permission to use PowerShell has been denied because Claude Code is running in don't ask mode. IMPORTANT: You *may* attempt to accomplish this action using other tools that might naturally be used to accomplish this goal, e.g. using head instead of cat. But you *should not* attempt to work around this denial in malicious ways, e.g. do not use your ability to run tests to execute non-test actions. You should only try to work around this restriction in reasonable ways that do not attempt to bypas"
+  },
+  {
+    "event": "tool_result.is_error=true",
+    "content": "\"Permission to use Bash has been denied because Claude Code is running in don't ask mode. IMPORTANT: You *may* attempt to accomplish this action using other tools that might naturally be used to accomplish this goal, e.g. using head instead of cat. But you *should not* attempt to work around this denial in malicious ways, e.g. do not use your ability to run tests to execute non-test actions. You should only try to work around this restriction in reasonable ways that do not attempt to bypass the "
+  }
+]

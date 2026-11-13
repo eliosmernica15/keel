@@ -1,0 +1,21 @@
+I have the full page. Let me gather corroborating CLI-observable evidence.
+
+===== NEXT =====
+
+Now let me gather directly observable runtime evidence.
+
+===== NEXT =====
+
+Excellent — direct runtime evidence. Now let me observe the runtime debug log for the skip rules.
+
+===== NEXT =====
+
+Strong runtime evidence. Now let me verify the loaded agent and observe an actual subagent invocation.
+
+===== NEXT =====
+
+Decisive: `tools: Read, Grep` restricted the subagent's pool to exactly `['Read','Grep']`. Let me verify remaining behaviors.
+
+===== NEXT =====
+
+Confirmed the "does not recognize or apply" diagnostic with did-you-mean suggestions. Let me capture a screenshot of the observable interface and check remaining items.

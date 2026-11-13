@@ -1,0 +1,65 @@
+I'll fetch the target documentation page and extract concrete claims from it.
+
+===== NEXT =====
+
+I'll fetch the target documentation page and extract concrete claims from it.
+
+===== NEXT =====
+
+Page fetched. Let me pull the raw markdown directly for exact-quote fidelity.
+
+===== NEXT =====
+
+I have the full page. Let me check the workspace state and fetch the closely-linked companion page for the message-cycle specifics.
+
+===== NEXT =====
+
+Let me pull supporting specifics from the tools reference and context-window pages to ground the claims precisely.
+
+===== NEXT =====
+
+Let me check the tools reference for the mechanical details of tool execution that underpin the loop.
+
+===== NEXT =====
+
+Now let me verify the observable CLI surface to ground the doc claims in directly observable behavior.
+
+===== NEXT =====
+
+Let me extract the assistant/tool_use/user/tool_result cycle shape from the observed stream.
+
+===== NEXT =====
+
+Let me verify the on-disk session format and permission mode names against the docs.
+
+===== NEXT =====
+
+Let me extract the exact tool_use input schema observed in the live stream, to ground the tool-call contract claims.
+
+===== NEXT =====
+
+Let me verify the parallel tool dispatch observation against the docs and check a few remaining specifics.
+
+===== NEXT =====
+
+Let me verify the user-turn → model-request mapping in the headless/CLI reference.
+
+===== NEXT =====
+
+Let me check existing screenshot conventions and capture a live agent-loop example.
+
+===== NEXT =====
+
+Rich capture. Let me examine the permission_denied events and the final result message in detail.
+
+===== NEXT =====
+
+The Agent SDK's agent-loop page directly documents the message cycle. Let me read it fully as supporting evidence.
+
+===== NEXT =====
+
+Let me check where sibling agents are placing shared outputs before writing my file.
+
+===== NEXT =====
+
+Let me verify the stream-json input contract and hook ordering, which are the "between calls" mechanics.

@@ -1,0 +1,53 @@
+2026-10-21T17:54:33.452Z [DEBUG] [MCP] --mcp-config servers running fully async (nonblocking)
+2026-10-21T17:54:33.455Z [DEBUG] [MCP] claude.ai connectors running fully async (nonblocking)
+2026-10-21T17:54:34.194Z [DEBUG] MCP server "demo-http": Initializing HTTP transport to https://mcp.example.com/mcp
+2026-10-21T17:54:34.196Z [DEBUG] MCP server "demo-http": Node version: v26.3.0, Platform: win32
+2026-10-21T17:54:34.197Z [DEBUG] MCP server "demo-http": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-10-21T17:54:34.201Z [DEBUG] MCP server "demo-http": HTTP transport options: {"url":"https://mcp.example.com/mcp","headers":{"User-Agent":"claude-code/2.1.306 (sdk-cli)","Accept-Encoding":"identity"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-10-21T17:54:34.203Z [DEBUG] MCP server "demo-http": HTTP transport created successfully
+2026-10-21T17:54:34.205Z [DEBUG] MCP server "demo-http": Starting connection with timeout of 30000ms
+2026-10-21T17:54:34.206Z [DEBUG] MCP server "demo-http": Testing basic HTTP connectivity to https://mcp.example.com/mcp
+2026-10-21T17:54:34.207Z [DEBUG] MCP server "demo-http": Parsed URL: host=mcp.example.com, port=default, protocol=https:
+2026-10-21T17:54:34.252Z [DEBUG] MCP server "demo-http": No token data found
+2026-10-21T17:54:34.294Z [DEBUG] MCP server "demo-stdio": Starting connection with timeout of 30000ms
+2026-10-21T17:54:34.732Z [DEBUG] MCP server "demo-http": version negotiation probe failed on the http transport; reconnecting pinned legacy
+2026-10-21T17:54:34.753Z [DEBUG] MCP server "demo-http": No token data found
+2026-10-21T17:54:34.821Z [DEBUG] MCP server "demo-http": HTTP Connection failed after 633ms: getaddrinfo ENOTFOUND mcp.example.com (code: ENOTFOUND, errno: 4)
+2026-10-21T17:54:34.822Z [ERROR] MCP server "demo-http" TypeError: getaddrinfo ENOTFOUND mcp.example.com
+2026-10-21T17:54:34.837Z [DEBUG] MCP server "demo-http": Connection failed after 636ms (ENOTFOUND): getaddrinfo ENOTFOUND mcp.example.com
+2026-10-21T17:54:34.837Z [ERROR] MCP server "demo-http" Connection failed (ENOTFOUND): getaddrinfo ENOTFOUND mcp.example.com
+2026-10-21T17:54:34.991Z [DEBUG] MCP server "demo-stdio": version negotiation probe closed the stdio server (rmcp-class pre-init hard close); respawning pinned legacy
+2026-10-21T17:54:35.365Z [DEBUG] [MCP] Retry attempt 1: 1 transiently-failed remote server(s)
+2026-10-21T17:54:35.502Z [DEBUG] MCP server "demo-http": Initializing HTTP transport to https://mcp.example.com/mcp
+2026-10-21T17:54:35.502Z [DEBUG] MCP server "demo-http": Node version: v26.3.0, Platform: win32
+2026-10-21T17:54:35.502Z [DEBUG] MCP server "demo-http": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-10-21T17:54:35.503Z [DEBUG] MCP server "demo-http": HTTP transport options: {"url":"https://mcp.example.com/mcp","headers":{"User-Agent":"claude-code/2.1.306 (sdk-cli)","Accept-Encoding":"identity"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-10-21T17:54:35.504Z [DEBUG] MCP server "demo-http": HTTP transport created successfully
+2026-10-21T17:54:35.504Z [DEBUG] MCP server "demo-http": Starting connection with timeout of 30000ms
+2026-10-21T17:54:35.505Z [DEBUG] MCP server "demo-http": Testing basic HTTP connectivity to https://mcp.example.com/mcp
+2026-10-21T17:54:35.505Z [DEBUG] MCP server "demo-http": Parsed URL: host=mcp.example.com, port=default, protocol=https:
+2026-10-21T17:54:35.509Z [DEBUG] MCP server "demo-http": No token data found
+2026-10-21T17:54:35.550Z [DEBUG] MCP server "demo-http": version negotiation probe failed on the http transport; reconnecting pinned legacy
+2026-10-21T17:54:35.556Z [DEBUG] MCP server "demo-http": No token data found
+2026-10-21T17:54:35.620Z [DEBUG] MCP server "demo-http": HTTP Connection failed after 128ms: getaddrinfo ENOTFOUND mcp.example.com (code: ENOTFOUND, errno: 4)
+2026-10-21T17:54:35.620Z [ERROR] MCP server "demo-http" TypeError: getaddrinfo ENOTFOUND mcp.example.com
+2026-10-21T17:54:35.635Z [DEBUG] MCP server "demo-http": Connection failed after 129ms (ENOTFOUND): getaddrinfo ENOTFOUND mcp.example.com
+2026-10-21T17:54:35.636Z [ERROR] MCP server "demo-http" Connection failed (ENOTFOUND): getaddrinfo ENOTFOUND mcp.example.com
+2026-10-21T17:54:35.800Z [DEBUG] MCP server "demo-stdio": Connection failed after 2458ms (CONNECTION_CLOSED): Connection closed
+2026-10-21T17:54:35.800Z [ERROR] MCP server "demo-stdio" Connection failed (CONNECTION_CLOSED): Connection closed
+2026-10-21T17:54:37.168Z [DEBUG] [MCP] Retry attempt 2: 1 transiently-failed remote server(s)
+2026-10-21T17:54:37.174Z [DEBUG] MCP server "demo-http": Initializing HTTP transport to https://mcp.example.com/mcp
+2026-10-21T17:54:37.174Z [DEBUG] MCP server "demo-http": Node version: v26.3.0, Platform: win32
+2026-10-21T17:54:37.175Z [DEBUG] MCP server "demo-http": Environment: {"NODE_OPTIONS":"not set","UV_THREADPOOL_SIZE":"default","HTTP_PROXY":"not set","HTTPS_PROXY":"not set","NO_PROXY":"not set"}
+2026-10-21T17:54:37.175Z [DEBUG] MCP server "demo-http": HTTP transport options: {"url":"https://mcp.example.com/mcp","headers":{"User-Agent":"claude-code/2.1.306 (sdk-cli)","Accept-Encoding":"identity"},"hasAuthProvider":true,"timeoutMs":60000}
+2026-10-21T17:54:37.176Z [DEBUG] MCP server "demo-http": HTTP transport created successfully
+2026-10-21T17:54:37.177Z [DEBUG] MCP server "demo-http": Starting connection with timeout of 30000ms
+2026-10-21T17:54:37.178Z [DEBUG] MCP server "demo-http": Testing basic HTTP connectivity to https://mcp.example.com/mcp
+2026-10-21T17:54:37.179Z [DEBUG] MCP server "demo-http": Parsed URL: host=mcp.example.com, port=default, protocol=https:
+2026-10-21T17:54:37.187Z [DEBUG] MCP server "demo-http": No token data found
+2026-10-21T17:54:37.193Z [DEBUG] MCP server "demo-http": version negotiation probe failed on the http transport; reconnecting pinned legacy
+2026-10-21T17:54:37.201Z [DEBUG] MCP server "demo-http": No token data found
+2026-10-21T17:54:37.217Z [DEBUG] MCP server "demo-http": HTTP Connection failed after 43ms: getaddrinfo ENOTFOUND mcp.example.com (code: ENOTFOUND, errno: 4)
+2026-10-21T17:54:37.218Z [ERROR] MCP server "demo-http" TypeError: getaddrinfo ENOTFOUND mcp.example.com
+2026-10-21T17:54:37.233Z [DEBUG] MCP server "demo-http": Connection failed after 45ms (ENOTFOUND): getaddrinfo ENOTFOUND mcp.example.com
+2026-10-21T17:54:37.233Z [ERROR] MCP server "demo-http" Connection failed (ENOTFOUND): getaddrinfo ENOTFOUND mcp.example.com

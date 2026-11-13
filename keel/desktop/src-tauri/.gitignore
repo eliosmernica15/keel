@@ -1,0 +1,5 @@
+/target
+/gen
+/src-tauri/gen
+**/*.rs.bk
+node_modules

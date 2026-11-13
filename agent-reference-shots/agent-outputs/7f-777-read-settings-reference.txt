@@ -1,0 +1,53 @@
+I'll fetch the settings reference documentation page as specified.
+
+===== NEXT =====
+
+The page is 404K characters. Let me fetch the remaining sections and also try a direct download for local analysis.
+
+===== NEXT =====
+
+Downloaded the full page locally (404KB). Let me analyze its structure.
+
+===== NEXT =====
+
+Excellent — 245 setting keys documented. Let me read the key sections in detail.
+
+===== NEXT =====
+
+Now let me read the detailed entries for the focus areas: permissions, env, hooks, sandbox, model, output styles.
+
+===== NEXT =====
+
+Let me look at the scopes section, output style, skills/plugins, MCP, and agent/worktree entries.
+
+===== NEXT =====
+
+Let me read a few more key sections and corroborate with the local CLI's own help surfaces (permitted).
+
+===== NEXT =====
+
+The local CLI help corroborates the docs. Let me capture the rest of the help and version.
+
+===== NEXT =====
+
+Version confirmed (2.1.306). Let me gather the remaining key sections in parallel.
+
+===== NEXT =====
+
+Let me capture the final high-value sections: sandbox network/credentials and the settings index scope table.
+
+===== NEXT =====
+
+Let me gather the remaining details and check observable local state.
+
+===== NEXT =====
+
+Let me gather final details and compute key counts.
+
+===== NEXT =====
+
+I have comprehensive coverage. Let me save evidence artifacts.
+
+===== NEXT =====
+
+I have thorough coverage. Let me write the evidence file.

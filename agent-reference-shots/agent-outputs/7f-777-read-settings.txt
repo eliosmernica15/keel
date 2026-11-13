@@ -1,0 +1,53 @@
+I'll fetch the specified documentation page and extract concrete claims.
+
+===== NEXT =====
+
+Now let me check the CLI's own help surface (authorized) and verify some details in the raw markdown.
+
+===== NEXT =====
+
+I have the full page content and CLI help. Let me save the raw evidence captures to the working directory.
+
+===== NEXT =====
+
+I have the complete page, the raw markdown, and the local CLI's own help surface. Let me verify a couple of exact quotes before finalizing.
+
+===== NEXT =====
+
+Let me pull the exact remaining quote strings I need.
+
+===== NEXT =====
+
+Let me check what the sibling agents have produced so I don't clobber shared files.
+
+===== NEXT =====
+
+Let me verify a few more exact quotes and check the local CLI's observable behavior for settings sources.
+
+===== NEXT =====
+
+Let me run a couple of quick observable checks on settings loading behavior, in an isolated temp directory.
+
+===== NEXT =====
+
+Good, that directly confirms the "Settings Error" path. Let me observe precedence behavior empirically.
+
+===== NEXT =====
+
+Let me test the documented scope restriction on `permissions.defaultMode` from project files.
+
+===== NEXT =====
+
+Let me verify the git-excludes behavior for the local settings file, which is concretely observable.
+
+===== NEXT =====
+
+Excellent — the `init` event confirms `permissionMode: "plan"` was applied from the project settings file. Let me capture the full init event.
+
+===== NEXT =====
+
+Let me verify the documented git-root placement rule and the Windows exception.
+
+===== NEXT =====
+
+Let me check the shared protocol notes for conventions used by sibling agents.

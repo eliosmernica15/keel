@@ -1,0 +1,93 @@
+I'll start by establishing the compliance boundary and then investigate the product area assigned to me.
+
+===== NEXT =====
+
+I'll establish the compliance boundary first, then gather evidence for my area (planning, task decomposition, implementation, iterative problem-solving).
+
+===== NEXT =====
+
+Now let me get the full docs index and continue exercising CLI surfaces.
+
+===== NEXT =====
+
+Let me fetch the key docs for my area while exercising CLI surfaces in parallel.
+
+===== NEXT =====
+
+Let me fetch the core docs for my area in parallel.
+
+===== NEXT =====
+
+Rich detail. Let me read the saved plan-mode doc and fetch todo-tracking docs.
+
+===== NEXT =====
+
+Now let me read the plan mode section in detail and check more CLI surfaces.
+
+===== NEXT =====
+
+Let me gather more docs on the Agent tool, interactive mode, and workflows in parallel.
+
+===== NEXT =====
+
+Let me observe actual CLI behavior with a headless run, and fetch more docs in parallel.
+
+===== NEXT =====
+
+Strong OBSERVED-CLI evidence. Let me now test plan mode headlessly and fetch remaining docs in parallel.
+
+===== NEXT =====
+
+Plan mode blocked the file write. Let me confirm and gather the remaining details.
+
+===== NEXT =====
+
+Excellent evidence. Let me check the plans directory and gather more docs.
+
+===== NEXT =====
+
+Excellent. Let me verify the task-tool availability gating and observe error recovery behavior.
+
+===== NEXT =====
+
+Confirmed the task-tool gating. Let me verify the opt-in path and gather remaining details.
+
+===== NEXT =====
+
+Let me gather the remaining details on fork mode, concurrency limits, and settings keys.
+
+===== NEXT =====
+
+Let me gather final CLI observations and verify settings keys.
+
+===== NEXT =====
+
+Let me test actual subagent delegation and fetch targeted settings keys.
+
+===== NEXT =====
+
+Strong evidence. Let me capture artifacts and get remaining settings keys.
+
+===== NEXT =====
+
+Let me verify the "plan mode" behavior when ExitPlanMode is available and capture the interactive/plan approval flow.
+
+===== NEXT =====
+
+Let me capture one more piece of direct evidence: the actual task-tracking tool calls in a real run.
+
+===== NEXT =====
+
+Excellent — direct evidence of the task lifecycle including dependency blocking and failure handling. Let me capture this stream and finish.
+
+===== NEXT =====
+
+Other area agents are working in parallel. Let me check the evidence file structure before adding my section.
+
+===== NEXT =====
+
+The background task was cut short. Let me save the sanitized excerpt I already captured from the earlier successful run.
+
+===== NEXT =====
+
+Now let me write my Area 3 section into the evidence file.

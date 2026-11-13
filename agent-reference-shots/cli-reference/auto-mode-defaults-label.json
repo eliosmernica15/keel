@@ -1,0 +1,8 @@
+{
+  "allow": [],
+  "soft_deny": [
+    "Git Destructive [named+specifics — **must name:** the destructive operation and its target]: A force-push, remote-branch or tag deletion, release deletion, or history rewrite that destroys someone else's work — removing commits other people authored or depend on. On a shared or release branch (e.g. `main`, `master`, `staging`, `develop`, `prod-*`, `release-*`, `release/*`, or the repository's default branch), other people's work is presumed: a bare force-push or branch deletion there is this rule; `--force-with-lease` is the sanctioned careful form of force everywhere and is judged by the clarity bar below, not the presumption. In all other cases, block only when it is clear that the destroyed work is someone else's; if unclear, do not block. For remote branch or tag deletion beyond the agent's own session branches, the user's words must name the remote scope — a branch-deletion request that does not say remote is a local request. Reshaping the agent's own work — `--amend`, rebase, force-pushing a personal branch containing only their commits — is the normal iteration loop, not this rule. But `git commit --amend` with no prior `git commit` visible in this transcript means HEAD pre-dates the session — amending it rewrites the user's commit; that clears when the user asked to amend/reword/fixup or the agent visibly created HEAD this session."
+  ],
+  "hard_deny": [],
+  "environment": []
+}

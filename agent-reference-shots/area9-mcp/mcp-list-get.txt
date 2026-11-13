@@ -1,0 +1,40 @@
+# OBSERVED-CLI: claude mcp list (real user config)
+Checking MCP server health…
+
+rea: cmd.exe /d /c npx -y rea-agents@6.7.0 mcp - ✔ Connected
+
+# OBSERVED-CLI: claude mcp get rea
+rea:
+  Scope: User config (available in all your projects)
+  Status: ✘ Failed to connect
+  Issue: MCP server "rea" connection timed out after 30000ms
+  Type: stdio
+  Command: cmd.exe
+  Args: /d /c npx -y rea-agents@6.7.0 mcp
+  Environment:
+
+To remove this server, run: claude mcp remove rea -s user
+
+# OBSERVED-CLI: isolated config, project-scope server
+$ cat .mcp.json
+{
+  "mcpServers": {
+    "demo": {
+      "type": "http",
+      "url": "https://mcp.example.com/mcp"
+    }
+  }
+}
+$ claude mcp list
+Checking MCP server health…
+
+demo: https://mcp.example.com/mcp (HTTP) - ⏸ Pending approval (run `claude` to approve)
+
+$ claude mcp get demo
+demo:
+  Scope: Project config (shared via .mcp.json)
+  Status: ⏸ Pending approval (run `claude` to approve)
+  Type: http
+  URL: https://mcp.example.com/mcp
+
+To remove this server, run: claude mcp remove demo -s project

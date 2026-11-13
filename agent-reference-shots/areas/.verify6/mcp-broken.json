@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "broken": {
+      "command": "node",
+      "args": ["-e", "process.stderr.write('BOOM\n'); process.exit(3);"]
+    },
+    "failing": {
+      "command": "node",
+      "args": ["-e", "setTimeout(()=>{}, 999999)"]
+    }
+  }
+}

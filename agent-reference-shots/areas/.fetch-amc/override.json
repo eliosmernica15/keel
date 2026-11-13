@@ -1,0 +1,1 @@
+{"autoMode":{"environment":["$defaults","Source control: github.example.com/acme-corp"],"soft_deny":["Never run terraform apply"]}}

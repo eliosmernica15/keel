@@ -1,0 +1,41 @@
+I'll start by establishing the compliance boundary and then gathering evidence from public docs and the published CLI's own inspection surfaces.
+
+===== NEXT =====
+
+I'll work within the compliance boundary: public docs + the published CLI's own user-facing inspection surfaces only. REA is not authorized for inspecting the Claude Code binary, so it won't be used for that target.
+
+===== NEXT =====
+
+Good detail. Let me continue reading the rest of that page and exercise the CLI's own inspection surfaces in parallel.
+
+===== NEXT =====
+
+Good detail. Let me continue reading the rest of that page and exercise the CLI's own inspection surfaces in parallel.
+
+===== NEXT =====
+
+Let me gather more CLI surfaces in parallel.
+
+===== NEXT =====
+
+Now let me exercise `claude mcp serve` (a user-facing surface) and look at the claude.ai connectors section.
+
+===== NEXT =====
+
+Let me observe more CLI surfaces and read the remaining doc sections.
+
+===== NEXT =====
+
+Let me observe add/list behavior in an isolated config dir (no mutation of real user config), plus a few more surfaces.
+
+===== NEXT =====
+
+The debug log is rich evidence. Let me capture it and gather the remaining pieces.
+
+===== NEXT =====
+
+An `agent-evidence.md` already exists from parallel work. Let me inspect its structure so I append rather than overwrite.
+
+===== NEXT =====
+
+Let me fill a few remaining gaps with read-only CLI exercises.

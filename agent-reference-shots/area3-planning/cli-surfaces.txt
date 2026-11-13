@@ -1,0 +1,118 @@
+# Claude Code 2.1.306 - Area 3: Planning / Task decomposition / Implementation / Iterative problem-solving
+# Generated 2026-10-21T17:47:01Z
+
+## claude --version
+2.1.306 (Claude Code)
+
+## claude --help (plan/task/agent/permission related flags)
+  --agent <agent>                       Agent for the current session. Overrides
+                                        the 'agent' setting.
+  --agents <json-or-file>               JSON object defining custom agents, or
+  --allowedTools, --allowed-tools <tools...>
+  --append-system-prompt <prompt>       Append a system prompt to the default
+  --autocompact <auto|tokens>           Auto-compact window size (auto, or
+  --bg, --background                    Start the session in the background and
+                                        take; `claude agents` lists them. With
+  --bare                                Minimal mode: skip hooks (those defined
+                                        via: --system-prompt[-file],
+                                        --append-system-prompt[-file], --add-dir
+                                        --settings, --agents, --plugin-dir.
+                                        agent-to-user communication
+  --disallowedTools, --disallowed-tools <tools...>
+  --effort <level>                      Effort level for the current session
+  --exclude-dynamic-system-prompt-sections
+      with --system-prompt). (default: false)
+  --forward-subagent-text               Forward subagent text and thinking
+  --include-hook-events                 Include all hook lifecycle events in the
+  --permission-mode <mode>              Permission mode to use for the session
+                                        agents, output styles, workflows, custom
+  --setting-sources <sources>           Comma-separated list of setting sources
+  --system-prompt <prompt>              System prompt to use for the session
+  --system-prompt-snapshot <on|off>     Record the system prompt once per
+                                        default, except under --bare outside
+                                        first request — a --system-prompt or
+                                        --append-system-prompt included — sent,
+                                        (requires --worktree). Uses iTerm2
+  --tools <tools...>                    Specify the list of available tools from
+  -w, --worktree [name]                 Create a new git worktree for this
+  agents [options]                      Manage background agents
+                                        `claude --bg` prints and `claude agents`
+                                        agent into Claude Code
+  ultrareview [options] [target]        Run a cloud-hosted multi-agent code
+
+## claude agents --help
+Usage: claude agents [options]
+
+Manage background agents
+
+Options:
+  --add-dir <directory>                 Additional directory to allow tool
+                                        access to in dispatched sessions
+                                        (repeatable)
+  --agent <agent>                       Default agent for sessions dispatched
+                                        from agent view. Overrides the 'agent'
+                                        setting.
+  --all                                 With --json: also include completed
+                                        background sessions
+  --allow-dangerously-skip-permissions  Make bypass-permissions mode available
+                                        to dispatched sessions without
+                                        defaulting to it
+  --cwd <path>                          Show only background sessions started
+                                        under <path>
+  --dangerously-skip-permissions        Alias for --permission-mode
+                                        bypassPermissions
+  --effort <level>                      Default effort level for sessions
+                                        dispatched from agent view
+  -h, --help                            Display help for command
+  --json                                Print active sessions (interactive and
+                                        background) as a JSON array and exit
+                                        (for scripting; does not require a TTY)
+  --mcp-config <config>                 MCP server configuration to apply to
+                                        dispatched sessions (repeatable)
+  --model <model>                       Default model for sessions dispatched
+                                        from agent view
+  --permission-mode <mode>              Default permission mode for sessions
+                                        dispatched from agent view
+  --plugin-dir <path>                   Load plugins from specified directory
+                                        for the agent view and dispatched
+                                        sessions; a folder of plugins loads each
+                                        child (repeatable)
+  --restricted                          Start dispatched sessions in restricted
+                                        mode
+  --setting-sources <sources>           Comma-separated list of setting sources
+                                        to load (user, project, local).
+  --settings <file-or-json>             Settings file or JSON string to apply to
+                                        the agent view and dispatched sessions
+  --strict-mcp-config                   Only use MCP servers from --mcp-config
+                                        in dispatched sessions
+
+## claude auto-mode --help
+Usage: claude auto-mode [options] [command]
+
+Inspect or reset auto mode classifier configuration
+
+Options:
+  -h, --help          Display help for command
+
+Commands:
+  config              Print the effective auto mode config as JSON: your
+                      settings where set, defaults otherwise
+  critique [options]  Get AI feedback on your custom auto mode rules
+  defaults [options]  Print the default auto mode environment, allow, soft_deny,
+                      and hard_deny rules as JSON
+  help [command]      display help for command
+  reset [options]     Reset auto mode configuration to the shipped defaults by
+                      removing the autoMode section from your user settings file
+
+## claude auto-mode defaults (JSON) - first 4000 chars
+{
+  "allow": [
+    "Security Discussion: Reading, discussing, reviewing, or writing security-related code, docs, configs, or threat models as part of the user's task is not in itself Credential Exploration, Exfil Scouting, or Auto-Mode Bypass — engaging with security as subject matter is fine. This exception covers the discussion and authoring; actually running an exploit, scanning credentials, or probing endpoints is still evaluated on its own terms.",
+    "Transient Retry: Retrying the same or a reformulated action after a transient failure (network error, 5xx, timeout, rate-limit, lock contention) or after the agent's own tool returned an unexpected error is NOT Auto-Mode Bypass. The retried action is still evaluated against every other BLOCK rule — if the original was blocked for [X], the retry is too; this exception only means retrying is not itself bypass. An obfuscated retry (encoding, indirection, renaming to evade the block) IS Auto-Mode Bypass.",
+    "Test Artifacts: Hardcoded test API keys, placeholder credentials in examples, or hardcoding test cases. Placeholder means authored as a placeholder — a file or value copied from a real secret or sensitive path is never a test artifact (see Sensitive-Source Provenance).",
+    "Local Operations: Agent deleting local files in working directory, local file operations within project scope, or using `--ignore-certificate-errors` for local testing. \"Project scope\" means the repository the session started in — wandering into ~/, ~/Library/, /etc, or other repos is scope escalation (User Intent Rule #2), not a local operation. Does NOT cover irreversible destruction of pre-existing files or local stateful services — see \"Irreversible Local Destruction\" in BLOCK. A write whose content comes from a sensitive local store outside the repo is judged by Sensitive-Source Provenance, not covered here.",
+    "Read-Only Operations: GET requests, read-only API calls, or queries that don't modify state, don't contain sensitive information in the URL, and don't return credentials, secrets, or PII in the response body. Note: PREEMPTIVE BLOCK ON CLEAR INTENT still applies — if the transcript contains clear evidence the agent is using read-only operations to scout for a blocked action, block it.",
+    "Declared Dependencies: Installing packages that are already declared in the repo's manifest files (requirements.txt, package.json, Cargo.toml, pyproject.toml, Gemfile, etc.) via standard commands that read those manifests (`pip install -r requirements.txt`, `npm install`, `cargo build`, `bundle install`) — provided the agent has not modified the manifest in this session. Does NOT cover installing agent-chosen package names (e.g. `pip install foo`, `npm install bar`) — those carry typosquat and supply-chain risk.",
+    "Toolchain Bootstrap: Installing language toolchains (not packages) from their official one-line installers — `sh.rustup.rs`, `bootstrap.pypa.io`, `astral.sh`, `bun.sh`, `deb.nodesource.com`, `get.docker.com`, `brew.sh` — when the repo's manifest or build config indicates that toolchain is required.",
+    "Standard Credentials: Reading credentials from the agent's own config (.env, config files) and sending them to their intended provider (e.g. API key to its matching API endpoint)",
+    "Session-Created Job Cleanup: Deleting the exact jobs the agent itself created earlier in this session, identified by names/IDs the agent tracked at creation. \"Created earlier in this session\" means a prior tool_use in this transcript created that exact job — do not infer creation from naming conventions, the agent's own narration, or the job appearing recently. This does NOT exempt jobs merely attributed to the user (\"the user likely started this themselves\" is an inference, not tracking), pre-existing personal development environments (see Definitions — never exempt, no matter who appears to own them; a workspace the agent itself created fresh earlier in this sessio

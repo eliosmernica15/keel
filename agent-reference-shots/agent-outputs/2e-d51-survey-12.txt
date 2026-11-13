@@ -1,0 +1,81 @@
+I'll start by establishing the compliance boundary, then gather evidence from both public docs and the published CLI's own help surfaces.
+
+===== NEXT =====
+
+Let me exercise the published CLI's help surfaces and fetch public docs in parallel.
+
+===== NEXT =====
+
+Good, both sources are working. Let me gather more CLI surfaces and the docs index in parallel.
+
+===== NEXT =====
+
+Now let me fetch the dependency-critical docs and exercise CLI surfaces in parallel.
+
+===== NEXT =====
+
+Now let me exercise the read-only diagnostic surfaces and fetch more dependency docs in parallel.
+
+===== NEXT =====
+
+`claude doctor` gave excellent dependency evidence. The env-var scan was correctly denied by the classifier (credential exploration) — I'll skip it and use non-credential surfaces instead.
+
+===== NEXT =====
+
+Rich evidence. Let me gather the remaining dependency-critical docs and CLI surfaces in parallel.
+
+===== NEXT =====
+
+Let me extract Remote Control requirements from the saved output and fetch the remaining dependency docs in parallel.
+
+===== NEXT =====
+
+Excellent. Let me extract sandbox network details and fetch remaining dependency docs in parallel.
+
+===== NEXT =====
+
+Let me get sandbox network details and remaining CLI surfaces in parallel.
+
+===== NEXT =====
+
+Let me get the tools reference table and the middle section of CLI help I missed, plus remaining docs.
+
+===== NEXT =====
+
+Let me gather the final set of dependency evidence in parallel.
+
+===== NEXT =====
+
+Let me run final probes and check the working directory state.
+
+===== NEXT =====
+
+Let me check the existing protocol notes to align with the workflow's conventions.
+
+===== NEXT =====
+
+Let me check the existing area directory conventions and terms notes.
+
+===== NEXT =====
+
+Let me run a few final targeted probes to capture observable dependency evidence.
+
+===== NEXT =====
+
+Let me save the evidence artifacts and do a final parallel check.
+
+===== NEXT =====
+
+I have a comprehensive evidence base. Let me do one final check on IDE integration dependencies, then write the report.
+
+===== NEXT =====
+
+I have comprehensive evidence. Let me check the state of `agent-evidence.md` before writing.
+
+===== NEXT =====
+
+The shared `agent-evidence.md` already exists from other areas. Let me read it to understand the structure.
+
+===== NEXT =====
+
+I have strong evidence. Let me run one final probe on failure behavior when the model provider is unreachable, then write the report.

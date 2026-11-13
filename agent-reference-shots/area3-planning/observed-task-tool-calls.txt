@@ -1,0 +1,27 @@
+# Sanitized excerpt: raw task-tracking tool calls observed in a live stream
+# Source: CLAUDE_CODE_ENABLE_TODO_TOOLS=1 claude -p "Create a todo list with 3 tasks ..."
+#          --output-format=stream-json --verbose
+# Paths replaced with <WORKDIR>; no secrets, no credentials, no personal data.
+#
+# This is the RAW tool_use input as emitted by the model (pre-repair).
+
+"TaskCreate" input {"subject":"Write todo-proof.txt","description":"Create the file todo-proof.txt in <WORKDIR> with simple content.","activeForm":"Writing todo-proof.txt"}
+"TaskCreate" input {"subject":"Read todo-proof.txt back","description":"Read the contents of todo-proof.txt to verify it was written correctly.","activeForm":"Reading todo-proof.txt"}
+"TaskCreate" input {"subject":"Report results","description":"Report the outcome of tasks 1 and 2 to the user.","activeForm":"Reporting results"}
+
+# --- dependency wiring ---
+"TaskUpdate" input {"taskId":"2","addBlockedBy":["1"]}
+"TaskUpdate" input {"taskId":"3","addBlockedBy":["2"]}
+
+# --- execution begins ---
+"TaskUpdate" input {"taskId":"1","status":"in_progress"}
+"TaskList"   input {}
+
+# --- task 1 stalls on an unapproved write; the agent records WHY, and adds a task for it ---
+"TaskUpdate" input {"description":"Create todo-proof.txt in <WORKDIR> with simple content. BLOCKED: the Write tool and all shell routes (PowerShell tool is erroring with \"command line is too long\"; Bash redirect and touch need approval) are pending a permission grant that has not been approved. Retry once permission is granted.","taskId":"1"}
+"TaskCreate" input {"subject":"Approve write permission for todo-proof.txt","description":"Grant the pending file-creation permission for <WORKDIR>\\todo-proof.txt so task #1 can complete. Blocked until the user approves the write prompt.","activeForm":"Waiting on write-permission approval"}
+
+# Observed lifecycle states in the raw stream: pending -> in_progress -> completed
+# Observed field vocabulary: subject, description, activeForm, status, taskId, addBlockedBy
+# Observed numeric taskIds are assigned by the runtime (not present in the TaskCreate input);
+# they arrive in the tool_result payload as tool_use_result.task.id

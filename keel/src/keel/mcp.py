@@ -1,0 +1,345 @@
+"""keel.mcp — minimal, honest MCP client (stdio transport only).
+
+Scope, deliberately:
+- stdio servers only (the reference's other three transports unbuilt);
+- project-scope servers are INERT UNTIL APPROVED (approval is stored
+  user-scope as a command-line-shape hash; see approvals());
+- tool names are mapped to mcp__<server>__<tool>, non-[A-Za-z0-9_-] -> _;
+- output capped at MCP_OUTPUT_CAP bytes;
+- shutdown is best-effort (shutdown -> exit -> kill), never raises into the
+  session.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import subprocess
+import threading
+import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Iterator
+
+MCP_OUTPUT_CAP = 100_000  # bytes of tool output kept for the model
+
+
+@dataclass(frozen=True)
+class McpServerConfig:
+    name: str
+    command: str
+    args: tuple[str, ...] = ()
+    env: dict[str, str] | None = None
+    scope: str = "user"          # user | project (project is inert until approved)
+
+
+def approval_key(config: McpServerConfig) -> str:
+    """Stable identity of what the user approved: name + command shape."""
+    basis = json.dumps({"name": config.name,
+                        "command": config.command,
+                        "args": list(config.args)},
+                       sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(basis.encode("utf-8")).hexdigest()
+
+
+def approvals_path() -> Path:
+    return Path(os.path.expanduser("~")) / ".keel" / "mcp-approvals.json"
+
+
+def approvals() -> dict[str, str]:
+    path = approvals_path()
+    if not path.is_file():
+        return {}
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    return doc if isinstance(doc, dict) else {}
+
+
+def approve(config: McpServerConfig) -> str:
+    path = approvals_path()
+    doc = approvals()
+    key = approval_key(config)
+    doc[config.name] = {"key": key, "command": config.command,
+                        "args": list(config.args)}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
+    return key
+
+
+def revoke(name: str) -> bool:
+    doc = approvals()
+    if name not in doc:
+        return False
+    doc.pop(name)
+    approvals_path().write_text(json.dumps(doc, indent=2), encoding="utf-8")
+    return True
+
+
+def is_approved(config: McpServerConfig) -> bool:
+    doc = approvals()
+    entry = doc.get(config.name)
+    return isinstance(entry, dict) and entry.get("key") == approval_key(config)
+
+
+def parse_servers(raw: Any) -> list[McpServerConfig]:
+    """Parse the settings `mcpServers` object; tolerate junk."""
+    out: list[McpServerConfig] = []
+    if not isinstance(raw, dict):
+        return out
+    for name, spec_raw in raw.items():
+        if not isinstance(spec_raw, dict):
+            continue
+        command = spec_raw.get("command")
+        if not command or not isinstance(command, str):
+            continue
+        args = spec_raw.get("args", [])
+        if not isinstance(args, list):
+            continue
+        env = spec_raw.get("env")
+        if env is not None and not isinstance(env, dict):
+            env = None
+        scope = "user" if spec_raw.get("scope") in (None, "user") else "project"
+        out.append(McpServerConfig(
+            name=str(name), command=command,
+            args=tuple(str(a) for a in args),
+            env={str(k): str(v) for k, v in (env or {}).items()},
+            scope=scope))
+    return out
+
+
+def tool_name_for(server: str, tool: str) -> str:
+    def clean(text: str) -> str:
+        return "".join(ch if (ch.isalnum() or ch in "_-") else "_"
+                       for ch in text)
+    return f"mcp__{clean(server)}__{clean(tool)}"
+
+
+class McpError(Exception):
+    pass
+
+
+class McpServer:
+    """One stdio MCP server. Lazy start; best-effort shutdown."""
+
+    def __init__(self, config: McpServerConfig, *,
+                 timeout: float = 30.0):
+        self.config = config
+        self.timeout = timeout
+        self._proc: subprocess.Popen | None = None
+        self._lock = threading.Lock()
+        self._next_id = 1
+        self.tools: list[dict] = []
+        self._started = False
+
+    @property
+    def running(self) -> bool:
+        return self._proc is not None and self._proc.poll() is None
+
+    def start(self) -> None:
+        if self.running:
+            return
+        self._proc = subprocess.Popen(
+            [self.config.command, *self.config.args],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env={**os.environ, **(self.config.env or {})},
+            text=True, encoding="utf-8", errors="replace",
+            bufsize=1)
+        try:
+            self._request("initialize", {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": {"name": "keel", "version": "0.1.0a0"},
+            })
+            self._notify("notifications/initialized", {})
+            result = self._request("tools/list", {})
+            self.tools = list(result.get("tools", []))
+            self._started = True
+        except Exception:
+            self._kill()
+            raise
+
+    def call_tool(self, tool: str, arguments: dict) -> tuple[bool, str]:
+        """Returns (ok, text). Text capped at MCP_OUTPUT_CAP bytes."""
+        if not self._started:
+            self.start()
+        assert self._proc is not None
+        try:
+            result = self._request("tools/call",
+                                   {"name": tool, "arguments": arguments})
+        except McpError as exc:
+            return False, f"mcp error: {exc}"
+        text = _content_text(result)
+        is_error = bool(result.get("isError", False))
+        capped = text[:MCP_OUTPUT_CAP]
+        if len(text) > MCP_OUTPUT_CAP:
+            capped += f"\n[mcp: output truncated at {MCP_OUTPUT_CAP} bytes]"
+        return (not is_error, capped)
+
+    def shutdown(self) -> None:
+        if self._proc is None:
+            return
+        try:
+            if self.running:
+                try:
+                    self._request("shutdown", {}, notify=False)
+                except Exception:
+                    pass
+                try:
+                    self._notify("notifications/exit", {})
+                except Exception:
+                    pass
+        finally:
+            self._kill()
+
+    # ------------------------------------------------------------ RPC
+
+    def _request(self, method: str, params: dict, *, notify: bool = False):
+        req_id = self._next_id
+        self._next_id += 1
+        frame = json.dumps({"jsonrpc": "2.0", "id": req_id,
+                            "method": method, "params": params},
+                           separators=(",", ":"))
+        with self._lock:
+            assert self._proc is not None and self._proc.stdin is not None
+            try:
+                self._proc.stdin.write(frame + "\n")
+                self._proc.stdin.flush()
+            except (BrokenPipeError, OSError) as exc:
+                raise McpError(f"server stdin closed: {exc}") from None
+            line = self._read_line()
+        if line is None:
+            raise McpError("server produced no response")
+        response = _parse_response(line)
+        if "error" in response:
+            err = response["error"]
+            message = err.get("message", "unknown") if isinstance(
+                err, dict) else str(err)
+            raise McpError(str(message))
+        return response.get("result", {})
+
+    def _notify(self, method: str, params: dict) -> None:
+        frame = json.dumps({"jsonrpc": "2.0",
+                            "method": method, "params": params},
+                           separators=(",", ":"))
+        with self._lock:
+            assert self._proc is not None and self._proc.stdin is not None
+            try:
+                self._proc.stdin.write(frame + "\n")
+                self._proc.stdin.flush()
+            except (BrokenPipeError, OSError):
+                pass
+
+    def _read_line(self) -> str | None:
+        assert self._proc is not None and self._proc.stdout is not None
+        holder: list[str] = []
+
+        def reader() -> None:
+            line = self._proc.stdout.readline()
+            if line:
+                holder.append(line)
+
+        thread = threading.Thread(target=reader, daemon=True)
+        thread.start()
+        thread.join(self.timeout)
+        if thread.is_alive():
+            return None  # server is hung; caller treats as timeout
+        return holder[0] if holder else None
+
+    def _kill(self) -> None:
+        proc = self._proc
+        self._proc = None
+        if proc is None:
+            return
+        try:
+            if proc.stdin:
+                proc.stdin.close()
+        except OSError:
+            pass
+        try:
+            proc.kill()
+        except OSError:
+            pass
+
+
+def _parse_response(line: str) -> dict:
+    # MCP stdio framing for this client uses newline-delimited JSON
+    line = line.strip()
+    try:
+        doc = json.loads(line)
+    except json.JSONDecodeError as exc:
+        raise McpError(f"invalid JSON from server: {exc}") from None
+    return doc if isinstance(doc, dict) else {}
+
+
+class McpManager:
+    """Group lifecycle for a session's MCP servers."""
+
+    def __init__(self, servers: list[McpServerConfig]):
+        self.servers = servers
+        self._clients: dict[str, McpServer] = {}
+        self.failed: list[str] = []
+
+    def start_all(self) -> list[dict]:
+        statuses: list[dict] = []
+        for config in self.servers:
+            client = McpServer(config)
+            try:
+                client.start()
+                self._clients[config.name] = client
+                statuses.append({"name": config.name, "status": "connected",
+                                 "source": config.scope})
+            except Exception:
+                self.failed.append(config.name)
+                statuses.append({"name": config.name, "status": "failed",
+                                 "source": config.scope})
+        return statuses
+
+    def tool_schemas(self) -> list[dict]:
+        schemas: list[dict] = []
+        for name, client in self._clients.items():
+            for tool in client.tools:
+                tool_name = tool_name_for(name, str(tool.get("name", "")))
+                schemas.append({
+                    "name": tool_name,
+                    "description": str(tool.get("description",
+                                                f"MCP tool from {name}")),
+                    "input_schema": tool.get("inputSchema") or
+                                    {"type": "object", "properties": {}},
+                })
+        return schemas
+
+    def call(self, mapped_name: str, arguments: dict) -> tuple[bool, str]:
+        parts = mapped_name.split("__", 2)
+        if len(parts) != 3:
+            return False, f"unmapped mcp tool name: {mapped_name!r}"
+        _, server, tool = parts
+        client = self._clients.get(server)
+        if client is None:
+            return False, f"mcp server not connected: {server!r}"
+        return client.call_tool(tool, arguments)
+
+    def shutdown_all(self) -> None:
+        for client in list(self._clients.values()):
+            try:
+                client.shutdown()
+            except Exception:
+                pass
+        self._clients.clear()
+
+
+def _content_text(result: dict) -> str:
+    parts = []
+    for block in result.get("content", []) or []:
+        if isinstance(block, dict):
+            if block.get("type") == "text":
+                parts.append(str(block.get("text", "")))
+            elif block.get("type"):
+                parts.append(f"[{block.get('type')}]")
+    if not parts and result.get("structuredContent") is not None:
+        parts.append(json.dumps(result["structuredContent"],
+                                separators=(",", ":")))
+    return "\n".join(parts)

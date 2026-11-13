@@ -1,0 +1,97 @@
+{
+  "note": "Observed on this host (Windows 11, Claude Code 2.1.306, custom ANTHROPIC_BASE_URL). Structure only; no credentials, no prompt bodies.",
+  "job_state_json_top_level_keys": [
+    "backend",
+    "children",
+    "cliVersion",
+    "createdAt",
+    "cwd",
+    "daemonShort",
+    "detail",
+    "firstTerminalAt",
+    "intent",
+    "lastTerminalAt",
+    "name",
+    "nameSource",
+    "output",
+    "providerEnv",
+    "respawnFlags",
+    "resumeSessionId",
+    "sessionId",
+    "state",
+    "template",
+    "tempo",
+    "tokens",
+    "updatedAt"
+  ],
+  "job_state_json_sample_values": {
+    "state": "stopped",
+    "detail": "stopped",
+    "tempo": "idle",
+    "tokens": 171,
+    "template": "bg",
+    "backend": "daemon",
+    "nameSource": "auto",
+    "daemonShort": "<8-hex-short-id>",
+    "cliVersion": "2.1.306"
+  },
+  "job_state_json_nested": {
+    "inFlight": {
+      "tasks": 0,
+      "queued": 0,
+      "kinds": [],
+      "drainableMonitors": 0
+    },
+    "providerEnv": {
+      "ANTHROPIC_MODEL": "<redacted-model-alias>",
+      "ANTHROPIC_SMALL_FAST_MODEL": "<redacted-model-alias>"
+    },
+    "respawnFlags": [
+      "--model",
+      "<redacted-model-alias>"
+    ]
+  },
+  "job_dir_layout": [
+    "state.json",
+    "timeline.jsonl",
+    "tmp/"
+  ],
+  "timeline_jsonl_sample": {
+    "at": "<ISO-8601 UTC>",
+    "state": "working",
+    "detail": "<short human status>",
+    "text": ""
+  },
+  "daemon_roster_json": {
+    "proto": 1,
+    "supervisorPid": "<pid>",
+    "updatedAt": "<unix-ms>",
+    "workers": {}
+  },
+  "daemon_status_stdout_shape": [
+    "not running",
+    "bg sessions:",
+    "sock dir:     \\.\\pipe\\cc-daemon-*",
+    "control.sock: unreachable (connect ENOENT ...)",
+    "bg workers:   0 in roster.json (control unreachable)",
+    "roster.json:  updated <N>s ago",
+    "daemon.log:   2.7KB at <HOME>\\.claude\\daemon.log"
+  ],
+  "task_list_dir_layout": [
+    ".lock",
+    "<n>.json"
+  ],
+  "task_item_json_fields": [
+    "id",
+    "subject",
+    "description",
+    "activeForm",
+    "status",
+    "blocks",
+    "blockedBy"
+  ],
+  "task_item_status_values_observed": [
+    "pending"
+  ],
+  "task_list_dir_name_form": "<session-uuid>"
+}

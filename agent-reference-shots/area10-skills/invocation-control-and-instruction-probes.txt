@@ -1,0 +1,198 @@
+# Area 10 - invocation control, subagent preloading, output styles and instruction-file selection (OBSERVED-CLI)
+
+All probes run against Claude Code 2.1.306 with `CLAUDE_CONFIG_DIR` pointed at a
+scratch config dir under the system temp dir. No real user config was touched.
+The model served by this machine is a third-party model reached through a custom
+gateway, so anything that depends on the model *obeying* an instruction is
+reported as model-limited, not product-limited.
+
+## P1 - `skillOverrides` has four states, and they affect three different surfaces
+
+Fixture: three project skills `ovr-one`, `ovr-two`, `ovr-three`, and
+
+```json
+{ "skillOverrides": { "ovr-one": "name-only",
+                       "ovr-two": "user-invocable-only",
+                       "ovr-three": "off" } }
+```
+
+Observed `init.skills` (the registry the harness keeps): `['ovr-one', 'ovr-two']`
+- `ovr-three` ("off") is absent.
+
+Observed `init.slash_commands` (the user-facing `/` menu): `['ovr-one', 'ovr-two']`
+- `ovr-three` ("off") is absent.
+
+Observed `skill_listing` attachment content (what the model sees): exactly one
+line matched, `- ovr-one` - a **name with no description**.
+
+So, observed:
+
+| State | in `init.skills` | in `/` menu | description in the model listing |
+| :- | :- | :- | :- |
+| `name-only` | yes | yes | no (name only) |
+| `user-invocable-only` | yes | yes | yes |
+| `off` | no | no | no |
+
+Note that `user-invocable-only` behaves here as "listed to the model, hidden
+from the model listing", which is the opposite naming intuition: the state name
+describes who may *run* it, and the effect is that it is hidden from the
+model's own selection.
+
+## P2 - `disableSkillShellExecution` replaces an injected command in place
+
+Fixture: `<PROJ>/.claude/skills/injtest2/SKILL.md`
+
+    ---
+    name: injtest2
+    description: Injection probe with policy enabled. Use when asked for the injtest2 probe.
+    ---
+    START !`echo POLICY_PROBE_OK` END
+
+and `<PROJ>/.claude/settings.json`:
+
+    { "disableSkillShellExecution": true }
+
+Rendered skill content delivered to the model (verbatim from the transcript):
+
+    Base directory for this skill: <PROJ>\.claude\skills\injtest2
+
+    START [shell command execution disabled by policy] END
+
+The command did **not** run; the placeholder was replaced with the literal
+policy marker. This is the documented behaviour of the `disableSkillShellExecution`
+setting, confirmed end-to-end against the loader.
+
+## P3 - A subagent's `skills:` field preloads the FULL skill body, frontmatter included
+
+Fixture: `<PROJ>/.claude/agents/preload-agent.md`
+
+    ---
+    name: preload-agent
+    description: A probe agent that preloads one skill and reports what it received.
+    tools: Read, Grep
+    skills: [preload-me]
+    ---
+    You are a probe agent. Report the first non-empty line of the preloaded skill body.
+
+The subagent reported the content it received:
+
+    ---
+    name: preload-me
+    description: A skill whose full body should be preloaded into a subagent.
+    ---
+    PRELOAD_TOKEN_ZZZ first line of the skill body.
+    Second line.
+
+So preloading injects the **entire `SKILL.md` file, including its YAML
+frontmatter**, not just the body. Compare with the normal skill listing, which
+carries only `- <name>: <description>`.
+
+The run's own accounting:
+
+    "subagent_stats": { "spawned": 1, "requested": { "background": 0,
+      "foreground": 1, "unset": 0 }, "started_in_background": 0,
+      "max_depth": 1, "spawned_by_subagents": 0, "completed": 1,
+      "failed": 0, ..., "by_type": { "preload-agent": 1 } }
+
+`by_type` is a per-agent-type counter - useful for an implementer building a
+task ledger.
+
+## P4 - The delegation tool is named `Task` in the harness tool list, `Agent` in the model-facing schema
+
+`init.tools` for the same session:
+
+    ["Task", "Bash", "CronCreate", "CronDelete", "CronList", "DesignSync",
+     "Edit", "EnterWorktree", "ExitWorktree", "Glob", "Grep", "ListAgents",
+     "NotebookEdit", "Read", "ReportFindings", "ScheduleWakeup", "SendMessage",
+     "Skill", "TaskStop", "ToolSearch", "WebFetch", "WebSearch", "Workflow",
+     "Write"]
+
+`Task` is present; `Agent` is **not** in this list. But the tool definition
+actually sent to the model in the API request shape is named **`Agent`**:
+
+    { "name": "Agent",
+      "description": "Launch a new agent to handle complex, multi-step tasks. ...",
+      "input_schema": { "type": "object", "properties": {
+          "description": {...}, "prompt": {...}, "subagent_type": {...},
+          "model": { "enum": ["sonnet","opus","haiku","fable"] },
+          "effort": { "enum": ["low","medium","high","xhigh","max"] },
+          "run_in_background": { "type": "boolean" },
+          "isolation": { "enum": ["worktree","remote"] } },
+        "required": ["description","prompt"], "additionalProperties": false } }
+
+So the harness's internal tool *name* and the model's visible tool *name* differ.
+An implementer must pick one canonical name and be consistent; if compatibility
+with Claude Code transcripts matters, `Task` is what appears in `init.tools`.
+
+## P5 - The `agent_listing_delta` attachment is the agent registry the model sees
+
+```json
+{ "type": "agent_listing_delta",
+  "addedTypes": ["claude","Explore","general-purpose","Plan","preload-agent",
+                 "probe-scaffold:example","statusline-setup"],
+  "addedLines": [
+    "- claude: Catch-all for any task that doesn't fit a more specific agent. ... (Tools: *)",
+    "- Explore: Read-only search agent for broad fan-out searches ... (Tools: All tools except Agent, Artifact, ArtifactComments, ArtifactData, ArtifactCheck, ExitPlanMode, Edit, Write, NotebookEdit)",
+    "- general-purpose: General-purpose agent for researching complex questions ... (Tools: *)",
+    "- Plan: Software architect agent for designing implementation plans ... (Tools: All tools except Agent, Artifact, ArtifactComments, ArtifactData, ArtifactCheck, ExitPlanMode, Edit, Write, NotebookEdit)",
+    "- preload-agent: A probe agent that preloads one skill and reports what it received. (Tools: Read, Grep)",
+    "- probe-scaffold:example: TODO - when should Claude delegate to this subagent? (Tools: Read, Grep)",
+    "- statusline-setup: Use this agent to configure the user's Claude Code status line setting. (Tools: Read, Edit)"
+  ],
+  "builtInTypes": ["claude","Explore","general-purpose","Plan","statusline-setup"],
+  "builtInPluginTypes": [],
+  "removedTypes": [], "isInitial": true, "showConcurrencyNote": true }
+```
+
+Each line is `- <type>: <description> (Tools: <tool list>)`, and the tool list
+is rendered as an explicit *exclusion* list when the agent inherits most tools
+("All tools except Agent, Artifact, ... Edit, Write, NotebookEdit"). The
+`builtInTypes` list separates built-in agent types from plugin/user/project ones;
+`removedTypes` supports hot-removal of an agent mid-session.
+
+## P6 - The `skill_listing` attachment carries digests and an explicit name array
+
+```json
+{ "type": "skill_listing",
+  "content": "- precedence-test: PERSONAL scope version of the precedence probe skill.\n- probe-scaffold\n- nested-only: ...\n...",
+  "skillCount": 17,
+  "isInitial": true,
+  "names": ["precedence-test","probe-scaffold","nested-only","probe-scaffold:example","dataviz", ...],
+  "digests": ["24709798e5b55fc0","0e2f2269d902ca43", ...] }
+```
+
+`names` and `digests` are parallel arrays, one entry per skill, in listing order.
+The digest is a 16-hex-char identifier - evidently a content hash used to detect
+that a skill's *rendered* description changed (so the listing can be re-sent
+incrementally) and to decide whether an invocation is a repeat of one already
+in context.
+
+## P7 - The `AGENTS.md` fallback is driven by a built-in plugin option
+
+With no CLAUDE.md present (probe project 2), `AGENTS.md` was loaded as the
+project instruction file. With both CLAUDE.md and AGENTS.md present, only
+CLAUDE.md was loaded. Switching the built-in plugin's option on the command line
+reproduced the documented "both" behaviour:
+
+    claude -p "say OK" --output-format stream-json --verbose \
+      --settings '{"pluginConfigs":{"cc-plugin-agents-md@builtin":
+                    {"options":{"instructionFiles":"claude-md-and-agents-md"}}}}'
+
+produced an `instructions` attachment containing BOTH files:
+
+    [ { "path": "...\\proj\\CLAUDE.md", "type": "Project",
+        "content": "# Project instructions\nAlways answer with the token CLAUDE_MD_LOADED." },
+      { "path": "...\\proj\\AGENTS.md", "type": "Project",
+        "content": "# Agents instructions\nAlways answer with the token AGENTS_MD_LOADED." } ]
+
+The same option written into the **project** `.claude/settings.json` did NOT
+take effect - the debug log states why:
+
+    [DEBUG] plugin cc-plugin-agents-md: no pluginConfigs["agents-md@builtin" or
+            "cc-plugin-agents-md@builtin"].options in user, --settings or managed
+            settings (project settings are not read); every option is its default
+
+So the option is read from user settings, `--settings`, or managed settings -
+**never** from project or local settings. That is an unusually tight scope for a
+project-affecting setting, and it is a real trap for anyone copying a config
+between machines.

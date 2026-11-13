@@ -1,0 +1,27 @@
+### claude doctor
+Claude Code doctor
+
+Running: native (2.1.306)
+Commit: 01ae8327ca99
+Platform: win32-x64
+Path: C:\Users\Admin\.local\bin\claude.exe
+Config install method: native
+Search: OK (bundled)
+Auto-updates: enabled
+Auto-update channel: latest
+Last update attempt: success → 2.1.306 (2026-10-21)
+Managed settings (remote): not fetched — not available with a custom ANTHROPIC_BASE_URL
+Organization policy: not fetched with a custom ANTHROPIC_BASE_URL
+
+Remote Control
+Remote Control is only available when using Claude via api.anthropic.com. ANTHROPIC_BASE_URL is set and does not point at api.anthropic.com, so this session is using a custom endpoint — unset it (or run in a shell without it) to use Remote Control.
+- Not connected to the Anthropic API (api.anthropic.com)
+- Not signed in to claude.ai
+- claude.ai subscription auth not active
+- Sign-in is missing the user:profile scope
+- Organization not resolved
+- Remote Control availability could not be verified (no server response this session)
+
+No installation issues found.
+
+For a full setup checkup that can also fix issues, run /doctor in a Claude Code session.

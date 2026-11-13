@@ -1,0 +1,85 @@
+{
+ "type": "system",
+ "subtype": "init",
+ "cwd": "<PROJECT_ROOT>",
+ "tools": [
+  "Task",
+  "Bash",
+  "CronCreate",
+  "CronDelete",
+  "CronList",
+  "DesignSync",
+  "Edit",
+  "EnterWorktree",
+  "ExitWorktree",
+  "Glob",
+  "Grep",
+  "ListAgents",
+  "Monitor",
+  "NotebookEdit",
+  "PowerShell",
+  "PushNotification",
+  "Read",
+  "ReportFindings",
+  "ScheduleWakeup",
+  "SendMessage",
+  "Skill",
+  "TaskStop",
+  "ToolSearch",
+  "WebFetch",
+  "WebSearch",
+  "Workflow",
+  "Write"
+ ],
+ "mcp_servers": [
+  {
+   "name": "rea",
+   "status": "pending",
+   "source": "user"
+  }
+ ],
+ "permissionMode": "default",
+ "claude_code_version": "2.1.306",
+ "agents": [
+  "claude",
+  "Explore",
+  "general-purpose",
+  "Plan",
+  "statusline-setup"
+ ],
+ "memory_paths": {
+  "auto": "<CONFIG_DIR>/projects/<PROJECT_SLUG>/memory/"
+ },
+ "original_cwd": "<PROJECT_ROOT>",
+ "additional_directories": [
+  "<PROJECT_ROOT>"
+ ]
+}
+{
+ "event": "tool_use",
+ "tool": "Glob",
+ "input": {
+  "pattern": "*"
+ }
+}
+{
+ "event": "tool_use",
+ "tool": "Read",
+ "input": {
+  "file_path": "<ABSOLUTE_PATH>"
+ }
+}
+{
+ "event": "tool_result",
+ "content": "1\tconst x=2\n2\t"
+}
+{
+ "event": "tool_result",
+ "content": "CLAUDE.md\nnested\\CLAUDE.md\nAGENTS.md\n.git\\description\n.git\\hooks\\applypatch-msg.sample\n.git\\hooks\\commit-msg.sample\n.git\\hooks\\fsmonitor-watchman.sample\n.git\\hooks\\post-update.sample\n.git\\hooks\\pre-applypatch.sample\n.git\\hooks\\pre-commit.sample\n.git\\hooks\\pre-merge-commit.sample\n.git\\hooks\\pre-push.sample\n.git\\hooks\\pre-rebase.sample\n.git\\hooks\\pre-receive.sample\n.git\\hooks\\prepare-commit-msg.sample\n.git\\hooks\\push-to-checkout.sample\n.git\\hooks\\sendemail-validate.sample\n.git\\hooks\\update.sample\n.git\\info\\exclude\n.git\\HEAD\n.git\\config\nREADME.md\n.git\\objects\\b6\\6961081946c8f7d32700efe09d1e649b8000d3\n.git\\objects\\09\\181273d910deec8a8af5d1f06975b86fe46ff8\n.git\\objects\\ce\\013625030ba8dba906f75696 ...[truncated]"
+}
+{
+ "event": "result",
+ "subtype": "success",
+ "num_turns": 3,
+ "is_error": false
+}

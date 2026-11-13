@@ -1,0 +1,98 @@
+# Area 10 — instructions attachment probe (OBSERVED-CLI)
+
+# Source: the `instructions` attachment type in the session transcript (the product's own
+# record of which instruction files it injected into context, with their contents).
+# Paths are scratch probe directories. No secrets, no personal data.
+
+## A. CLAUDE.md and AGENTS.md both present -> only CLAUDE.md loaded
+```json
+{
+ "type": "instructions",
+ "files": [
+  {
+   "path": "C:\\Users\\Admin\\AppData\\Local\\Temp\\cc-probe\\proj\\CLAUDE.md",
+   "type": "Project",
+   "content": "# Project instructions\nAlways answer with the token CLAUDE_MD_LOADED."
+  }
+ ]
+}
+```
+
+## B. AGENTS.md only (no CLAUDE.md) -> AGENTS.md loaded
+```json
+{
+ "type": "instructions",
+ "files": [
+  {
+   "path": "C:\\Users\\Admin\\AppData\\Local\\Temp\\cc-probe\\proj2\\AGENTS.md",
+   "type": "Project",
+   "content": "# Agents instructions\nAlways answer with the token AGENTS_MD_LOADED."
+  }
+ ]
+}
+```
+
+## C. CLAUDE.md with @sub/CLAUDE.md import -> import expanded into its own entry
+```json
+{
+ "type": "instructions",
+ "files": [
+  {
+   "path": "C:\\Users\\Admin\\AppData\\Local\\Temp\\cc-probe\\proj5\\CLAUDE.md",
+   "type": "Project",
+   "content": "# Project instructions\nBase instructions. Import the sub guide with @sub/CLAUDE.md"
+  },
+  {
+   "path": "C:\\Users\\Admin\\AppData\\Local\\Temp\\cc-probe\\proj5\\sub\\CLAUDE.md",
+   "type": "Project",
+   "content": "# Sub instructions\nSub-directory instructions."
+  }
+ ]
+}
+```
+
+## D. .claude/rules/ -> unconditional rule loaded at launch; path-scoped rule loaded on file access
+```json
+{
+ "type": "instructions",
+ "files": [
+  {
+   "path": "C:\\Users\\Admin\\AppData\\Local\\Temp\\cc-probe\\proj8\\.claude\\rules\\plain-rule.md",
+   "type": "Project",
+   "content": "# Plain rule\nAlways answer with the token RULE_PLAIN_LOADED."
+  }
+ ]
+}
+```
+
+## E. Path-scoped rule injected as a `nested_memory` attachment on file access
+
+Probe: `.claude/rules/ts-rule.md` with `paths: ["**/*.ts"]`; the session then Read `sample.ts`.
+The rule is NOT in the launch-time `instructions` attachment; it arrives later as a
+`nested_memory` attachment whose `rendered` field is a system-reminder block.
+
+```json
+{
+ "type": "attachment",
+ "attachment": {
+  "type": "nested_memory",
+  "path": "<PROJ>/.claude/rules/ts-rule.md",
+  "content": {
+   "type": "Project",
+   "content": "# TS rule\nAlways answer with the token RULE_TS_LOADED.\n",
+   "globs": [
+    "**/*.ts"
+   ],
+   "contentDiffersFromDisk": true,
+   "rawContent": "---\npaths:\n  - \"**/*.ts\"\n---\n# TS rule\nAlways answer with the token RULE_TS_LOADED.\n",
+   "displayPath": ".claude\rules\ts-rule.md"
+  },
+  "rendered": [
+   {
+    "content": "<system-reminder>\nContents of <PROJ>/.claude/rules/ts-rule.md:\n\n# TS rule\nAlways answer with the token RULE_TS_LOADED.\n\n</system-reminder>"
+   }
+  ],
+  "renderedRole": "system"
+ }
+}
+```

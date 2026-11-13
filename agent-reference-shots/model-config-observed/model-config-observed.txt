@@ -1,0 +1,36 @@
+# Observed CLI behaviour — model configuration (Claude Code 2.1.306)
+# Generated on a host with ANTHROPIC_BASE_URL=https://openrouter.ai/api serving a non-Anthropic model.
+# No secrets or personal data captured. Commands are reproduced verbatim.
+
+$ claude --version
+2.1.306 (Claude Code)
+
+$ claude -p --model "my-gateway-opus" "ok"
+Warning: no stdin data received in 3s, proceeding without it. If piping from a slow command, redirect stdin explicitly: < /dev/null to skip, or wait longer.
+Claude Code doesn't recognize the model "my-gateway-opus", so it assumes a context window of 200k tokens. Update Claude Code, or see https://code.claude.com/docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id to set the window.
+[claude-code:unrecognized_model] {"model":"my-gateway-opus","query_source":"sdk"}
+API Error: 400 my-gateway-opus is not a valid model ID
+
+$ claude -p --effort bogus --model "my-gateway-opus" "ok"
+Warning: Unknown --effort value 'bogus' — ignoring it and using the default effort. Valid values: low, medium, high, xhigh, max.
+Warning: no stdin data received in 3s, proceeding without it. If piping from a slow command, redirect stdin explicitly: < /dev/null to skip, or wait longer.
+Claude Code doesn't recognize the model "my-gateway-opus", so it assumes a context window of 200k tokens. Update Claude Code, or see https://code.claude.com/docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id to set the window.
+[claude-code:unrecognized_model] {"model":"my-gateway-opus","query_source":"sdk"}
+
+$ claude -p --model "my-gateway-opus" --fallback-model "another-bogus" "ok"
+Warning: no stdin data received in 3s, proceeding without it. If piping from a slow command, redirect stdin explicitly: < /dev/null to skip, or wait longer.
+Claude Code doesn't recognize the model "my-gateway-opus", so it assumes a context window of 200k tokens. Update Claude Code, or see https://code.claude.com/docs/en/model-config#correct-the-window-for-a-gateway-or-custom-model-id to set the window.
+[claude-code:unrecognized_model] {"model":"my-gateway-opus","query_source":"sdk"}
+[claude-code:unrecognized_model] {"model":"another-bogus","query_source":"sdk"}
+API Error: 400 another-bogus is not a valid model ID
+
+$ CLAUDE_CODE_AUTO_COMPACT_WINDOW=200 claude -p --model "my-gateway-opus" "ok"
+Warning: no stdin data received in 3s, proceeding without it. If piping from a slow command, redirect stdin explicitly: < /dev/null to skip, or wait longer.
+CLAUDE_CODE_AUTO_COMPACT_WINDOW="200" reads as 200 tokens, so Claude Code treats it as the 100k minimum. Set it to a size from 100k to 1M, such as 200k or 200000, or unset it.
+[claude-code:unrecognized_model] {"model":"my-gateway-opus","query_source":"sdk"}
+API Error: 400 my-gateway-opus is not a valid model ID
+
+$ CLAUDE_CODE_AUTO_COMPACT_WINDOW=200k claude -p --model "my-gateway-opus" "ok"   # no warning expected
+Warning: no stdin data received in 3s, proceeding without it. If piping from a slow command, redirect stdin explicitly: < /dev/null to skip, or wait longer.
+[claude-code:unrecognized_model] {"model":"my-gateway-opus","query_source":"sdk"}
+API Error: 400 my-gateway-opus is not a valid model ID

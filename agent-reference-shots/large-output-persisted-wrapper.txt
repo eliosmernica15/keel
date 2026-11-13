@@ -1,0 +1,37 @@
+<persisted-output>
+Output too large (2.5MB). Full output saved to: <SESSION_DIR>/tool-results/<id>.txt
+
+Preview (first 2KB):
+LINE 0 some repeated test output content here to make it long
+LINE 1 some repeated test output content here to make it long
+LINE 2 some repeated test output content here to make it long
+LINE 3 some repeated test output content here to make it long
+LINE 4 some repeated test output content here to make it long
+LINE 5 some repeated test output content here to make it long
+LINE 6 some repeated test output content here to make it long
+LINE 7 some repeated test output content here to make it long
+LINE 8 some repeated test output content here to make it long
+LINE 9 some repeated test output content here to make it long
+LINE 10 some repeated test output content here to make it long
+LINE 11 some repeated test output content here to make it long
+LINE 12 some repeated test output content here to make it long
+LINE 13 some repeated test output content here to make it long
+LINE 14 some repeated test output content here to make it long
+LINE 15 some repeated test output content here to make it long
+LINE 16 some repeated test output content here to make it long
+LINE 17 some repeated test output content here to make it long
+LINE 18 some repeated test output content here to make it long
+LINE 19 some repeated test output content here to make it long
+LINE 20 some repeated test output content here to make it long
+LINE 21 some repeated test output content here to make it long
+LINE 22 some repeated test output content here to make it long
+LINE 23 some repeated test output content here to make it long
+LINE 24 some repeated test output content here to make it long
+LINE 25 some repeated test output content here to make it long
+LINE 26 some repeated test output content here to make it long
+LINE 27 some repeated test output content here to make it long
+LINE 28 some repeated test output content here to make it long
+LINE 29 some repeated test output content here to make it long
+LINE 30 some repeated test output content here to make it long
+...
+</persisted-output>

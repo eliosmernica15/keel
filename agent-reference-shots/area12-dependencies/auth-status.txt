@@ -1,0 +1,13 @@
+### claude auth status --text
+Auth token: ANTHROPIC_AUTH_TOKEN
+Anthropic base URL: https://openrouter.ai/api
+
+### claude auth status --json
+{
+  "loggedIn": true,
+  "authMethod": "oauth_token",
+  "apiProvider": "firstParty",
+  "analyticsDisabled": false,
+  "projectsDirectory": "C:\\Users\\Admin\\.claude\\projects",
+  "configDirectory": "C:\\Users\\Admin\\.claude"
+}

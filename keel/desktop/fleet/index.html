@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Keel Fleet — your agent workspace</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M10 38 L32 50 L54 38 L32 6 Z' fill='%2312324a' stroke='%234cc2ff' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M32 10 V38' stroke='%234cc2ff' stroke-width='3' opacity='.6'/%3E%3Ccircle cx='32' cy='38' r='4' fill='%234cc2ff'/%3E%3C/svg%3E" />
+<meta name="theme-color" content="#0e1116" />
+<link rel="stylesheet" href="/fleet/fleet.css" />
+</head>
+<body>
+<header class="lf-topbar">
+  <div class="lf-brand">
+    <svg class="lf-mark" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M10 38 L32 50 L54 38 L32 6 Z" fill="#12324a" stroke="#4cc2ff"
+            stroke-width="4" stroke-linejoin="round"/>
+      <path d="M32 10 V38" stroke="#4cc2ff" stroke-width="3" opacity=".6"/>
+      <circle cx="32" cy="38" r="4" fill="#4cc2ff"/>
+    </svg>
+    <div>
+      <span class="lf-wordmark">Keel <em>Fleet</em></span>
+      <span class="lf-tagline">your agent workspace</span>
+    </div>
+  </div>
+  <div class="lf-top-right">
+    <span class="lf-pill" id="provider-mini">provider: auto</span>
+    <span class="lf-pill lf-pill-dim" id="engine-mini">scripted test bots</span>
+    <span class="lf-dot lf-dot-ok" title="bridge online"></span>
+  </div>
+</header>
+
+<main class="lf-layout">
+  <aside class="lf-rail" aria-label="Agents">
+    <div class="lf-rail-head">
+      <span class="lf-rail-title">Agents</span>
+      <button class="lf-icon-btn" id="new-bot-btn" title="Add an agent">+</button>
+    </div>
+    <form class="lf-newbot" id="newbot-form" hidden>
+      <input id="newbot-name" placeholder="Name (e.g. Nova)" maxlength="48" autocomplete="off" />
+      <input id="newbot-role" placeholder="Role (e.g. Research analyst)" maxlength="96" autocomplete="off" />
+      <label class="lf-field"><span>Engine</span>
+        <select id="newbot-engine">
+          <option value="provider" selected>Provider agent (real model)</option>
+          <option value="echo">Scripted Echo (test bot)</option>
+        </select>
+      </label>
+      <div class="lf-newbot-actions">
+        <button type="button" class="lf-ghost" id="newbot-cancel">Cancel</button>
+        <button type="submit" class="lf-primary">Create</button>
+      </div>
+    </form>
+    <div class="lf-rail-list" id="fleet-list" aria-live="polite"></div>
+    <div class="lf-groups-head">
+      <span class="lf-rail-title">Groups</span>
+      <button class="lf-icon-btn" id="new-group-btn" title="Create a group">+</button>
+    </div>
+    <form class="lf-newbot lf-newgroup" id="newgroup-form" hidden>
+      <input id="newgroup-name" placeholder="Group name (e.g. Research pod)" maxlength="48" autocomplete="off" />
+      <label class="lf-field-label"><span>Members (pick 2–3)</span></label>
+      <div class="lf-member-pick" id="newgroup-members"></div>
+      <div class="lf-newbot-actions">
+        <button type="button" class="lf-ghost" id="newgroup-cancel">Cancel</button>
+        <button type="submit" class="lf-primary">Create</button>
+      </div>
+    </form>
+    <div class="lf-rail-list lf-group-list" id="group-list" aria-live="polite"></div>
+    <div class="lf-groups-head"><span class="lf-rail-title">Workspace</span></div>
+    <button class="lf-ws-item" id="ws-tasks-btn" type="button">
+      <span class="lf-ws-ic" style="background:#241b33;color:#c9a2ff;border-color:#3a2a50">✓</span>
+      <span class="lf-ws-label">Tasks<small id="ws-tasks-count">open</small></span>
+    </button>
+    <button class="lf-ws-item" id="ws-library-btn" type="button">
+      <span class="lf-ws-ic" style="background:#16261d;color:#7ee2a8;border-color:#1f4430">▤</span>
+      <span class="lf-ws-label">Library<small id="ws-library-count">saved files</small></span>
+    </button>
+    <button class="lf-ws-item" id="ws-routines-btn" type="button">
+      <span class="lf-ws-ic" style="background:#1b2233;color:#8ab6ff;border-color:#2a3a5c">◷</span>
+      <span class="lf-ws-label">Routines<small id="ws-routines-count">scheduled</small></span>
+    </button>
+    <div class="lf-rail-foot">
+      <div class="lf-pilot"><span class="lf-pilot-avatar">Y</span>
+        <div><strong>You</strong><br /><span class="lf-muted">the operator</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="lf-stage" aria-label="Conversation">
+  <div id="view-chat" class="lf-view">
+    <header class="lf-chat-head" id="chat-head">
+      <div class="lf-chat-ident">
+        <div class="lf-avatar lg" id="chat-avatar">·</div>
+        <div>
+          <h1 id="chat-name">Pick an agent</h1>
+          <p id="chat-role" class="lf-muted">…or create one with the + button</p>
+          <div class="lf-member-chips" id="chat-members" hidden></div>
+        </div>
+      </div>
+      <button class="lf-icon-btn lf-agent-only" id="panel-toggle" title="Details" aria-label="Toggle details">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="lf-rows" id="rows"></div>
+
+    <form class="lf-composer" id="composer-form">
+      <textarea id="composer-input" rows="2" maxlength="8000"
+                placeholder="Message the selected agent…" disabled></textarea>
+      <button type="submit" class="lf-send" id="send-btn" disabled aria-label="Send">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M4 12l16-7-5 17-3.5-6.5L4 12z" stroke="#03131d" stroke-width="1.6" stroke-linejoin="round" fill="#03131d" opacity=".85"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <section class="lf-view lf-tasks-view" id="view-tasks" hidden aria-label="Tasks">
+    <header class="lf-chat-head">
+      <div class="lf-chat-ident">
+        <div class="lf-avatar lg" id="tasks-avatar" style="--lf-hue:265">T</div>
+        <div>
+          <h1>Tasks</h1>
+          <p class="lf-muted">fleet-wide task list — agents and you both work it</p>
+        </div>
+      </div>
+    </header>
+    <div class="lf-tasks-filters" id="task-filters"></div>
+    <form class="lf-tasks-new" id="task-new-form">
+      <input id="task-new-title" placeholder="New task title…" maxlength="200" autocomplete="off" />
+      <select id="task-new-assignee" aria-label="Assign to"></select>
+      <select id="task-new-priority" aria-label="Priority">
+        <option value="low">low</option>
+        <option value="normal" selected>normal</option>
+        <option value="high">high</option>
+      </select>
+      <button type="submit" class="lf-primary">Add</button>
+    </form>
+    <div class="lf-tasks-body">
+      <div class="lf-tasks-list" id="tasks-list"></div>
+      <aside class="lf-task-detail" id="task-detail" hidden>
+        <label class="lf-field"><span>Title</span><input type="text" id="task-detail-title" maxlength="200" /></label>
+        <label class="lf-field"><span>Description</span><textarea id="task-detail-description" rows="4" maxlength="4000"></textarea></label>
+        <div class="lf-detail-row">
+          <label class="lf-field"><span>Priority</span>
+            <select id="task-detail-priority">
+              <option value="low">low</option><option value="normal">normal</option><option value="high">high</option>
+            </select>
+          </label>
+          <label class="lf-field"><span>Assigned to</span><select id="task-detail-assignee"></select></label>
+        </div>
+        <div class="lf-detail-row">
+          <label class="lf-field"><span>Progress (<span id="task-progress-label">0</span>%)</span><input type="range" id="task-detail-progress" min="0" max="100" value="0" /></label>
+        </div>
+        <div class="lf-task-status-row" id="task-detail-status"></div>
+        <div class="lf-task-events" id="task-events"></div>
+        <div class="lf-panel-actions">
+          <button class="lf-ghost" id="task-cancel-forever" type="button">Delete task…</button>
+          <button class="lf-primary" id="task-save" type="button">Save</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="lf-view lf-library-view" id="view-library" hidden aria-label="Library">
+    <header class="lf-chat-head">
+      <div class="lf-chat-ident">
+        <div class="lf-avatar lg" id="library-avatar" style="--lf-hue:150">L</div>
+        <div>
+          <h1>Library</h1>
+          <p class="lf-muted">deliverables saved by agents — browse, preview, download</p>
+        </div>
+      </div>
+    </header>
+    <div class="lf-library-bar">
+      <select id="library-agent-filter" aria-label="Agent"></select>
+      <span class="lf-muted" id="library-usage"></span>
+      <label class="lf-ghost lf-upload-label" for="library-upload-input">Upload…</label>
+      <input type="file" id="library-upload-input" hidden />
+    </div>
+    <div class="lf-library-body">
+      <div class="lf-library-grid" id="library-grid"></div>
+      <aside class="lf-library-detail" id="library-detail" hidden>
+        <h2 id="library-detail-name"></h2>
+        <div class="lf-library-meta" id="library-detail-meta"></div>
+        <div class="lf-library-preview" id="library-preview"></div>
+        <div class="lf-panel-actions">
+          <button class="lf-danger" id="library-delete" type="button">Delete…</button>
+          <a class="lf-primary lf-download-link" id="library-download">Download</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="lf-view lf-routines-view" id="view-routines" hidden aria-label="Routines">
+    <header class="lf-chat-head">
+      <div class="lf-chat-ident">
+        <div class="lf-avatar lg" id="routines-avatar" style="--lf-hue:20">◷</div>
+        <div>
+          <h1>Routines</h1>
+          <p class="lf-muted">scheduled agent work — cron-driven, timezone-aware, F1-gated like everything else</p>
+        </div>
+      </div>
+    </header>
+    <form class="lf-routines-create" id="routine-create-form">
+      <input id="routine-name" type="text" placeholder="Routine name (e.g. Morning brief)" maxlength="64" autocomplete="off" required />
+      <select id="routine-agent" aria-label="Agent"></select>
+      <input id="routine-cron" type="text" placeholder="cron (e.g. 0 9 * * 1-5)" maxlength="60" autocomplete="off" value="0 9 * * *" />
+      <select id="routine-timezone" aria-label="Timezone"></select>
+      <button type="submit" class="lf-primary">Add</button>
+      <textarea id="routine-prompt" rows="2" maxlength="8000" placeholder="What should the agent do when it runs?"></textarea>
+    </form>
+    <div class="lf-routines-body">
+      <div class="lf-routines-list" id="routines-list"></div>
+      <aside class="lf-routine-detail" id="routine-detail" hidden>
+        <div class="lf-routine-detail-head">
+          <h2 id="routine-detail-name"></h2>
+          <span class="lf-routine-state" id="routine-detail-state"></span>
+        </div>
+        <label class="lf-field"><span>Agent</span><select id="routine-detail-agent"></select></label>
+        <label class="lf-field"><span>Prompt</span><textarea id="routine-detail-prompt" rows="5" maxlength="8000"></textarea></label>
+        <div class="lf-detail-row">
+          <label class="lf-field"><span>Cron</span><input type="text" id="routine-detail-cron" maxlength="60" /></label>
+          <label class="lf-field"><span>Timezone</span><select id="routine-detail-timezone"></select></label>
+        </div>
+        <div class="lf-routine-meta" id="routine-detail-meta"></div>
+        <div class="lf-panel-actions">
+          <button class="lf-ghost" id="routine-run-now" type="button">▶ Run now</button>
+          <button class="lf-ghost" id="routine-enable-toggle" type="button">Enabled</button>
+          <button class="lf-ghost" id="routine-pause-toggle" type="button">Pause</button>
+        </div>
+        <div class="lf-panel-actions">
+          <button class="lf-danger" id="routine-delete" type="button">Delete…</button>
+          <button class="lf-primary" id="routine-save" type="button">Save</button>
+        </div>
+        <h3 class="lf-perm-title">Execution history</h3>
+        <div class="lf-routine-runs" id="routine-runs"></div>
+      </aside>
+    </div>
+  </section>
+
+  </section>
+
+  <aside class="lf-panel" id="panel" aria-label="Agent settings">
+    <div class="lf-panel-tabs" role="tablist">
+      <button class="lf-tab is-active" data-tab="studio" role="tab">Studio</button>
+      <button class="lf-tab" data-tab="engine" role="tab">Engine</button>
+      <button class="lf-tab" data-tab="notes" role="tab">Notes</button>
+      <button class="lf-tab" data-tab="tasks" role="tab">Tasks</button>
+      <button class="lf-tab" data-tab="permissions" role="tab">Permissions</button>
+    </div>
+
+    <div class="lf-panel-body">
+      <section class="lf-page is-active" id="page-studio" role="tabpanel">
+        <div class="lf-avatar-editor">
+          <div class="lf-avatar xl" id="panel-avatar">·</div>
+          <label class="lf-field"><span>Avatar hue</span>
+            <input type="range" id="hue-slider" min="0" max="359" value="210" />
+          </label>
+        </div>
+        <label class="lf-field"><span>Name</span>
+          <input type="text" id="studio-name" maxlength="48" autocomplete="off" />
+        </label>
+        <label class="lf-field"><span>Role</span>
+          <input type="text" id="studio-role" maxlength="96" autocomplete="off" />
+        </label>
+        <div class="lf-panel-actions">
+          <button class="lf-danger" id="delete-bot" type="button">Delete agent…</button>
+          <button class="lf-primary" id="studio-save" type="button">Save</button>
+        </div>
+      </section>
+
+      <section class="lf-page" id="page-engine" role="tabpanel">
+        <p class="lf-hint">Agents pick their own provider &amp; model. Keys come from the
+          environment (like <code>keel provider list</code>), or you can paste one below —
+          it is validated against the provider, used for this session only, and never
+          written to disk.</p>
+        <label class="lf-field"><span>Provider</span>
+          <select id="engine-provider"></select>
+        </label>
+        <div class="lf-engine-status" id="engine-status"></div>
+        <div class="lf-field"><span>API key for this session <em class="lf-muted">(never written to disk; gone on restart)</em></span>
+          <div class="lf-key-row">
+            <input type="password" id="engine-key" maxlength="512" autocomplete="off"
+                   placeholder="paste key, then validate" />
+            <button class="lf-ghost" id="engine-key-save" type="button">Validate &amp; load models</button>
+            <button class="lf-ghost" id="engine-key-clear" type="button" title="forget the session key">Forget</button>
+          </div>
+          <div class="lf-key-status" id="engine-key-status"></div>
+        </div>
+        <label class="lf-field"><span>Model (optional)</span>
+          <input type="text" id="engine-model" placeholder="e.g. openrouter/auto"
+                 maxlength="120" autocomplete="off" list="engine-models" />
+          <datalist id="engine-models"></datalist>
+        </label>
+        <div class="lf-panel-actions">
+          <button class="lf-primary" id="engine-save" type="button">Save</button>
+        </div>
+        <p class="lf-hint">Consequential tools (files, shell, Task, MCP writes) ask inline in the conversation — Allow once, Always allow, or Don't allow. Standing policies are per agent and live under Permissions. Keel's global safety rules always win.</p>
+      </section>
+
+      <section class="lf-page" id="page-notes" role="tabpanel">
+        <label class="lf-field"><span>Notes (up to 4096 bytes, private to this agent)</span>
+          <textarea id="notes-text" rows="14" maxlength="4096"
+                    placeholder="What should this agent remember?&#10;e.g. Prefers terse bullet lists. Always verify sources."></textarea>
+        </label>
+        <div class="lf-notes-meta"><span id="notes-count">0</span>/4096</div>
+        <div class="lf-panel-actions">
+          <button class="lf-primary" id="notes-save" type="button">Save notes</button>
+        </div>
+      </section>
+
+      <section class="lf-page" id="page-tasks" role="tabpanel">
+        <p class="lf-hint">Tasks assigned to <b id="agent-tasks-name">this agent</b>. Open one in the Tasks view to edit or complete it.</p>
+        <div id="agent-tasks" class="lf-agent-tasks"></div>
+      </section>
+
+      <section class="lf-page" id="page-permissions" role="tabpanel">
+        <p class="lf-hint">Standing policies for <b id="perm-bot-name">this agent</b> only.
+          They never override Keel's global safety rules (Tier-2, hooks, deny rules) and are
+          never shared between agents. <code>Always allowed</code> persists for this
+          agent+tool; <code>Never allowed</code> persists a refusal. Revoke any time.</p>
+        <h3 class="lf-perm-title">Standing policies</h3>
+        <div id="perm-list" class="lf-perm-list"></div>
+        <h3 class="lf-perm-title">Recent decisions</h3>
+        <div id="perm-audit" class="lf-perm-audit"></div>
+      </section>
+    </div>
+  </aside>
+</main>
+
+<footer class="lf-statusbar">
+  <span id="status-left">keel fleet — f4</span>
+  <span class="lf-sep">·</span>
+  <span id="status-mid">ready</span>
+  <span class="lf-sep">·</span>
+  <span id="status-right">no agent selected</span>
+</footer>
+
+<script src="/fleet/fleet.js"></script>
+</body>
+</html>

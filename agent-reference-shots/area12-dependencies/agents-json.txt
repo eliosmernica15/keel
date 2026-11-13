@@ -1,0 +1,75 @@
+### claude agents --json
+[
+  {
+    "pid": 21488,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone",
+    "kind": "interactive",
+    "startedAt": 1792603034892,
+    "sessionId": "ca6d0088-4426-4239-8884-8c2b9e5b1238",
+    "name": "claude-clone-95",
+    "status": "busy"
+  },
+  {
+    "pid": 14252,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe",
+    "kind": "interactive",
+    "startedAt": 1792604907367,
+    "sessionId": "319feba6-ebc5-4a39-a9e7-3e973ec6d560",
+    "name": "scratch-probe-2f",
+    "status": "busy"
+  },
+  {
+    "pid": 12456,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe",
+    "kind": "interactive",
+    "startedAt": 1792605264825,
+    "sessionId": "7fd9a97f-54f3-431d-9c01-97ea8a72f681",
+    "name": "scratch-probe-11",
+    "status": "busy"
+  },
+  {
+    "pid": 21108,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe\\permprobe",
+    "kind": "interactive",
+    "startedAt": 1792605383200,
+    "sessionId": "c23deddf-e1be-4ecf-ab5b-fdea874615be",
+    "name": "permprobe-bc",
+    "status": "busy"
+  },
+  {
+    "pid": 972,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone",
+    "kind": "interactive",
+    "startedAt": 1792605384740,
+    "sessionId": "d37f6010-394d-4c1b-9484-67eeb7297661",
+    "name": "claude-clone-7c",
+    "status": "busy"
+  },
+  {
+    "pid": 18076,
+    "cwd": "C:\\Users\\Admin\\Desktop\\Claude clone\\scratch-probe",
+    "kind": "interactive",
+    "startedAt": 1792605399884,
+    "sessionId": "3259d2ed-c61c-44cc-9e3f-0f9024040330",
+    "name": "scratch-probe-a3",
+    "status": "busy"
+  },
+  {
+    "pid": 17240,
+    "cwd": "C:\\Users\\Admin\\AppData\\Local\\Temp\\probe-agents",
+    "kind": "interactive",
+    "startedAt": 1792605424466,
+    "sessionId": "ca6b715e-40b8-43b4-b26b-2bc8edd45c60",
+    "name": "probe-agents-63",
+    "status": "busy"
+  },
+  {
+    "pid": 19356,
+    "cwd": "C:\\Users\\Admin\\AppData\\Local\\Temp\\setprobe",
+    "kind": "interactive",
+    "startedAt": 1792605445826,
+    "sessionId": "4a33caaa-54fd-42d8-9180-882fe4bff255",
+    "name": "setprobe-8b",
+    "status": "busy"
+  }
+]

@@ -1,0 +1,85 @@
+# OBSERVED-CLI: claude mcp serve - raw JSON-RPC session over stdio
+# (initialize, notifications/initialized, tools/list, prompts/list, resources/list, resources/templates/list, ping)
+# Sent on stdin; responses below.
+
+{
+ "jsonrpc": "2.0",
+ "id": 3,
+ "error": {
+  "code": -32601,
+  "message": "Method not found"
+ }
+}
+{
+ "jsonrpc": "2.0",
+ "id": 4,
+ "error": {
+  "code": -32601,
+  "message": "Method not found"
+ }
+}
+{
+ "jsonrpc": "2.0",
+ "id": 5,
+ "error": {
+  "code": -32601,
+  "message": "Method not found"
+ }
+}
+{
+ "result": {
+  "protocolVersion": "2025-06-18",
+  "capabilities": {
+   "tools": {
+    "listChanged": true
+   }
+  },
+  "serverInfo": {
+   "name": "claude/tengu",
+   "version": "2.1.306"
+  }
+ },
+ "jsonrpc": "2.0",
+ "id": 1
+}
+{
+ "result": {},
+ "jsonrpc": "2.0",
+ "id": 6
+}
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "capabilities": null,
+  "toolNames": [
+   "Agent",
+   "Bash",
+   "Glob",
+   "Grep",
+   "Read",
+   "Edit",
+   "Write",
+   "NotebookEdit",
+   "WebFetch",
+   "ReportFindings",
+   "WebSearch",
+   "TaskStop",
+   "Skill",
+   "DesignSync",
+   "EnterWorktree",
+   "ExitWorktree",
+   "SendMessage",
+   "ListAgents",
+   "Workflow",
+   "CronCreate",
+   "CronDelete",
+   "CronList",
+   "ScheduleWakeup",
+   "Monitor",
+   "PushNotification",
+   "PowerShell",
+   "ToolSearch"
+  ]
+ }
+}

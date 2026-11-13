@@ -1,0 +1,980 @@
+{
+  "captured": "2026-10-21",
+  "source": "authorized gateway /v1/models",
+  "total_models_listed": 468,
+  "selected": [
+    {
+      "id": "deepseek/deepseek-v4.1-flash-1017",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000015",
+      "completion_per_token": "0.0000006",
+      "name": "DeepSeek: DeepSeek V4.1 Flash 1017"
+    },
+    {
+      "id": "google/gemini-4-argon",
+      "context_length": 1048576,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.00001",
+      "name": "Google: Gemini 4 Argon"
+    },
+    {
+      "id": "google/gemini-4-argon:batch",
+      "context_length": 1048576,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.000005",
+      "name": "Google: Gemini 4 Argon (batch)"
+    },
+    {
+      "id": "anthropic/claude-haiku-5.5",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000001",
+      "completion_per_token": "0.0000005",
+      "name": "Anthropic: Claude Haiku 5.5"
+    },
+    {
+      "id": "anthropic/claude-haiku-5.5:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00000005",
+      "completion_per_token": "0.00000025",
+      "name": "Anthropic: Claude Haiku 5.5 (batch)"
+    },
+    {
+      "id": "openai/gpt-6.1-sol-pro",
+      "context_length": 1050000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.00001",
+      "name": "OpenAI: GPT-6.1 Sol Pro"
+    },
+    {
+      "id": "openai/gpt-6.1-sol-pro:batch",
+      "context_length": 1050000,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.000005",
+      "name": "OpenAI: GPT-6.1 Sol Pro (batch)"
+    },
+    {
+      "id": "openai/gpt-6.1-sol",
+      "context_length": 1050000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.00001",
+      "name": "OpenAI: GPT-6.1 Sol"
+    },
+    {
+      "id": "openai/gpt-6.1-sol:batch",
+      "context_length": 1050000,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.000005",
+      "name": "OpenAI: GPT-6.1 Sol (batch)"
+    },
+    {
+      "id": "anthropic/claude-sonnet-5.5",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.00001",
+      "name": "Anthropic: Claude Sonnet 5.5"
+    },
+    {
+      "id": "anthropic/claude-sonnet-5.5:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.000005",
+      "name": "Anthropic: Claude Sonnet 5.5 (batch)"
+    },
+    {
+      "id": "z-ai/glm-5.3-prime",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000028",
+      "completion_per_token": "0.0000088",
+      "name": "Z.ai: GLM 5.3 Prime"
+    },
+    {
+      "id": "qwen/qwen3.8-max-prime",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000004",
+      "completion_per_token": "0.000012",
+      "name": "Qwen: Qwen3.8 Max Prime"
+    },
+    {
+      "id": "openai/gpt-6-luna-pro",
+      "context_length": 1050000,
+      "prompt_per_token": "0.0000001",
+      "completion_per_token": "0.0000005",
+      "name": "OpenAI: GPT-6 Luna Pro"
+    },
+    {
+      "id": "openai/gpt-6-luna-pro:batch",
+      "context_length": 1050000,
+      "prompt_per_token": "0.00000005",
+      "completion_per_token": "0.00000025",
+      "name": "OpenAI: GPT-6 Luna Pro (batch)"
+    },
+    {
+      "id": "openai/gpt-6-luna",
+      "context_length": 1050000,
+      "prompt_per_token": "0.0000001",
+      "completion_per_token": "0.0000005",
+      "name": "OpenAI: GPT-6 Luna"
+    },
+    {
+      "id": "openai/gpt-6-luna:batch",
+      "context_length": 1050000,
+      "prompt_per_token": "0.00000005",
+      "completion_per_token": "0.00000025",
+      "name": "OpenAI: GPT-6 Luna (batch)"
+    },
+    {
+      "id": "openai/gpt-6-sol-pro",
+      "context_length": 1050000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.00001",
+      "name": "OpenAI: GPT-6 Sol Pro"
+    },
+    {
+      "id": "openai/gpt-6-sol-pro:batch",
+      "context_length": 1050000,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.000005",
+      "name": "OpenAI: GPT-6 Sol Pro (batch)"
+    },
+    {
+      "id": "openai/gpt-6-sol",
+      "context_length": 1050000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.00001",
+      "name": "OpenAI: GPT-6 Sol"
+    },
+    {
+      "id": "openai/gpt-6-sol:batch",
+      "context_length": 1050000,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.000005",
+      "name": "OpenAI: GPT-6 Sol (batch)"
+    },
+    {
+      "id": "anthropic/claude-opus-5.5",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000004",
+      "completion_per_token": "0.00002",
+      "name": "Anthropic: Claude Opus 5.5"
+    },
+    {
+      "id": "anthropic/claude-opus-5.5:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.00001",
+      "name": "Anthropic: Claude Opus 5.5 (batch)"
+    },
+    {
+      "id": "x-ai/grok-4.7",
+      "context_length": 500000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.000006",
+      "name": "SpaceXAI: Grok 4.7"
+    },
+    {
+      "id": "qwen/qwen3.8-omni-flash",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00000015",
+      "completion_per_token": "0.00000047",
+      "name": "Qwen: Qwen3.8 Omni Flash"
+    },
+    {
+      "id": "z-ai/glm-5.3-flashx",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000037",
+      "completion_per_token": "0.00000125",
+      "name": "Z.ai: GLM 5.3 FlashX"
+    },
+    {
+      "id": "~deepseek/deepseek-pro-latest",
+      "context_length": 1048576,
+      "prompt_per_token": "0.0000001307",
+      "completion_per_token": "0.000008",
+      "name": "DeepSeek: DeepSeek Pro Latest"
+    },
+    {
+      "id": "~deepseek/deepseek-flash-latest",
+      "context_length": 1048576,
+      "prompt_per_token": "0.000000049",
+      "completion_per_token": "0.000000375",
+      "name": "DeepSeek: DeepSeek Flash Latest"
+    },
+    {
+      "id": "deepseek/deepseek-v4.1-flash",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000002394",
+      "completion_per_token": "0.000000375",
+      "name": "DeepSeek: DeepSeek V4.1 Flash"
+    },
+    {
+      "id": "deepseek/deepseek-v4.1-flash:batch",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000005",
+      "completion_per_token": "0.00000015",
+      "name": "DeepSeek: DeepSeek V4.1 Flash (batch)"
+    },
+    {
+      "id": "openai/gpt-6-astra",
+      "context_length": 1050000,
+      "prompt_per_token": "0.00001",
+      "completion_per_token": "0.00005",
+      "name": "OpenAI: GPT-6 Astra"
+    },
+    {
+      "id": "openai/gpt-6-astra:batch",
+      "context_length": 1050000,
+      "prompt_per_token": "0.000005",
+      "completion_per_token": "0.000025",
+      "name": "OpenAI: GPT-6 Astra (batch)"
+    },
+    {
+      "id": "openai/gpt-6-astra-pro",
+      "context_length": 1050000,
+      "prompt_per_token": "0.00001",
+      "completion_per_token": "0.00005",
+      "name": "OpenAI: GPT-6 Astra Pro"
+    },
+    {
+      "id": "openai/gpt-6-astra-pro:batch",
+      "context_length": 1050000,
+      "prompt_per_token": "0.000005",
+      "completion_per_token": "0.000025",
+      "name": "OpenAI: GPT-6 Astra Pro (batch)"
+    },
+    {
+      "id": "qwen/qwen3.8-max-0902",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.000006",
+      "name": "Qwen: Qwen3.8 Max (0902)"
+    },
+    {
+      "id": "anthropic/claude-fable-5.1",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00001",
+      "completion_per_token": "0.00005",
+      "name": "Anthropic: Claude Fable 5.1"
+    },
+    {
+      "id": "anthropic/claude-fable-5.1:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000005",
+      "completion_per_token": "0.000025",
+      "name": "Anthropic: Claude Fable 5.1 (batch)"
+    },
+    {
+      "id": "qwen/qwen3.8-flash",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00000015",
+      "completion_per_token": "0.00000047",
+      "name": "Qwen: Qwen3.8 Flash"
+    },
+    {
+      "id": "z-ai/glm-5.3-flash",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000015",
+      "completion_per_token": "0.0000005",
+      "name": "Z.ai: GLM 5.3 Flash"
+    },
+    {
+      "id": "z-ai/glm-5.3-flash:batch",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000005",
+      "completion_per_token": "0.00000018",
+      "name": "Z.ai: GLM 5.3 Flash (batch)"
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash-vision-exp",
+      "context_length": 1048576,
+      "prompt_per_token": "0.0000002156",
+      "completion_per_token": "0.0000006468",
+      "name": "DeepSeek: DeepSeek V4 Flash Vision Exp"
+    },
+    {
+      "id": "z-ai/glm-5.3",
+      "context_length": 1048576,
+      "prompt_per_token": "0.000000079",
+      "completion_per_token": "0.0000014",
+      "name": "Z.ai: GLM 5.3"
+    },
+    {
+      "id": "z-ai/glm-5.3:batch",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000045",
+      "completion_per_token": "0.000002",
+      "name": "Z.ai: GLM 5.3 (batch)"
+    },
+    {
+      "id": "qwen/qwen3.8-27b",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00000004",
+      "completion_per_token": "0.00000135",
+      "name": "Qwen: Qwen3.8 27B"
+    },
+    {
+      "id": "qwen/qwen3.8-2.4t-a95b",
+      "context_length": 1048576,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.000006",
+      "name": "Qwen: Qwen3.8 2.4T A95B"
+    },
+    {
+      "id": "deepseek/deepseek-v4-pro-0813",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000066",
+      "completion_per_token": "0.00000198",
+      "name": "DeepSeek: DeepSeek V4 Pro 0813"
+    },
+    {
+      "id": "x-ai/grok-4.6",
+      "context_length": 500000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.000006",
+      "name": "SpaceXAI: Grok 4.6"
+    },
+    {
+      "id": "~deepseek/deepseek-v4-flash-latest",
+      "context_length": 1048576,
+      "prompt_per_token": "0.0000000422",
+      "completion_per_token": "0.0000001729",
+      "name": "DeepSeek: DeepSeek V4 Flash Latest"
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash-0731",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000004444",
+      "completion_per_token": "0.00000013332",
+      "name": "DeepSeek: DeepSeek V4 Flash 0731"
+    },
+    {
+      "id": "qwen/qwen3.7-flash",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00000003",
+      "completion_per_token": "0.00000013",
+      "name": "Qwen: Qwen3.7 Flash"
+    },
+    {
+      "id": "anthropic/claude-opus-5",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000005",
+      "completion_per_token": "0.000025",
+      "name": "Anthropic: Claude Opus 5"
+    },
+    {
+      "id": "anthropic/claude-opus-5:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000025",
+      "completion_per_token": "0.0000125",
+      "name": "Anthropic: Claude Opus 5 (batch)"
+    },
+    {
+      "id": "moonshotai/kimi-k3",
+      "context_length": 1048576,
+      "prompt_per_token": "0.000000239",
+      "completion_per_token": "0.000011936",
+      "name": "MoonshotAI: Kimi K3"
+    },
+    {
+      "id": "moonshotai/kimi-k3:batch",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000228",
+      "completion_per_token": "0.0000114",
+      "name": "MoonshotAI: Kimi K3 (batch)"
+    },
+    {
+      "id": "x-ai/grok-4.5",
+      "context_length": 500000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.000006",
+      "name": "SpaceXAI: Grok 4.5"
+    },
+    {
+      "id": "~x-ai/grok-latest",
+      "context_length": 500000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.000006",
+      "name": "xAI: Grok Latest"
+    },
+    {
+      "id": "anthropic/claude-sonnet-5",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.00001",
+      "name": "Anthropic: Claude Sonnet 5"
+    },
+    {
+      "id": "anthropic/claude-sonnet-5:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.000005",
+      "name": "Anthropic: Claude Sonnet 5 (batch)"
+    },
+    {
+      "id": "z-ai/glm-5.2",
+      "context_length": 1048576,
+      "prompt_per_token": "0.0000000341",
+      "completion_per_token": "0.000007",
+      "name": "Z.ai: GLM 5.2"
+    },
+    {
+      "id": "moonshotai/kimi-k2.7-code",
+      "context_length": 262144,
+      "prompt_per_token": "0.0000006712",
+      "completion_per_token": "0.00000335",
+      "name": "MoonshotAI: Kimi K2.7 Code"
+    },
+    {
+      "id": "~anthropic/claude-fable-latest",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00001",
+      "completion_per_token": "0.00005",
+      "name": "Anthropic: Claude Fable Latest"
+    },
+    {
+      "id": "anthropic/claude-fable-5",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00001",
+      "completion_per_token": "0.00005",
+      "name": "Anthropic: Claude Fable 5"
+    },
+    {
+      "id": "anthropic/claude-fable-5:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000005",
+      "completion_per_token": "0.000025",
+      "name": "Anthropic: Claude Fable 5 (batch)"
+    },
+    {
+      "id": "qwen/qwen3.7-plus",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00000032",
+      "completion_per_token": "0.00000128",
+      "name": "Qwen: Qwen3.7 Plus"
+    },
+    {
+      "id": "qwen/qwen3.7-plus:batch",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000023",
+      "completion_per_token": "0.00000092",
+      "name": "Qwen: Qwen3.7 Plus (batch)"
+    },
+    {
+      "id": "anthropic/claude-opus-4.8",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000005",
+      "completion_per_token": "0.000025",
+      "name": "Anthropic: Claude Opus 4.8"
+    },
+    {
+      "id": "anthropic/claude-opus-4.8:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000025",
+      "completion_per_token": "0.0000125",
+      "name": "Anthropic: Claude Opus 4.8 (batch)"
+    },
+    {
+      "id": "qwen/qwen3.7-max",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000001475",
+      "completion_per_token": "0.000004425",
+      "name": "Qwen: Qwen3.7 Max"
+    },
+    {
+      "id": "x-ai/grok-build-0.1",
+      "context_length": 256000,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.000002",
+      "name": "SpaceXAI: Grok Build 0.1"
+    },
+    {
+      "id": "x-ai/grok-4.3",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00000125",
+      "completion_per_token": "0.0000025",
+      "name": "SpaceXAI: Grok 4.3"
+    },
+    {
+      "id": "x-ai/grok-4.3:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.000002",
+      "name": "SpaceXAI: Grok 4.3 (batch)"
+    },
+    {
+      "id": "~anthropic/claude-haiku-latest",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000001",
+      "completion_per_token": "0.0000005",
+      "name": "Anthropic: Claude Haiku Latest"
+    },
+    {
+      "id": "~moonshotai/kimi-latest",
+      "context_length": 1048576,
+      "prompt_per_token": "0.000000238",
+      "completion_per_token": "0.000016",
+      "name": "MoonshotAI: Kimi Latest"
+    },
+    {
+      "id": "~anthropic/claude-sonnet-latest",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000002",
+      "completion_per_token": "0.00001",
+      "name": "Anthropic: Claude Sonnet Latest"
+    },
+    {
+      "id": "qwen/qwen3.5-plus-20260420",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000003",
+      "completion_per_token": "0.0000018",
+      "name": "Qwen: Qwen3.5 Plus 2026-04-20"
+    },
+    {
+      "id": "qwen/qwen3.6-flash",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000001875",
+      "completion_per_token": "0.000001125",
+      "name": "Qwen: Qwen3.6 Flash"
+    },
+    {
+      "id": "qwen/qwen3.6-35b-a3b",
+      "context_length": 262144,
+      "prompt_per_token": "0.0000001",
+      "completion_per_token": "0.00000095",
+      "name": "Qwen: Qwen3.6 35B A3B"
+    },
+    {
+      "id": "qwen/qwen3.6-27b",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000025",
+      "completion_per_token": "0.000002",
+      "name": "Qwen: Qwen3.6 27B"
+    },
+    {
+      "id": "deepseek/deepseek-v4-pro",
+      "context_length": 1048576,
+      "prompt_per_token": "0.00000041238",
+      "completion_per_token": "0.00000082476",
+      "name": "DeepSeek: DeepSeek V4 Pro 0423"
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash",
+      "context_length": 1048576,
+      "prompt_per_token": "0.000000091",
+      "completion_per_token": "0.000000182",
+      "name": "DeepSeek: DeepSeek V4 Flash 0423"
+    },
+    {
+      "id": "~anthropic/claude-opus-latest",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000004",
+      "completion_per_token": "0.00002",
+      "name": "Anthropic: Claude Opus Latest"
+    },
+    {
+      "id": "moonshotai/kimi-k2.6",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000065",
+      "completion_per_token": "0.00000341",
+      "name": "MoonshotAI: Kimi K2.6"
+    },
+    {
+      "id": "anthropic/claude-opus-4.7",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000005",
+      "completion_per_token": "0.000025",
+      "name": "Anthropic: Claude Opus 4.7"
+    },
+    {
+      "id": "anthropic/claude-opus-4.7:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000025",
+      "completion_per_token": "0.0000125",
+      "name": "Anthropic: Claude Opus 4.7 (batch)"
+    },
+    {
+      "id": "z-ai/glm-5.1",
+      "context_length": 204800,
+      "prompt_per_token": "0.0000014",
+      "completion_per_token": "0.0000044",
+      "name": "Z.ai: GLM 5.1"
+    },
+    {
+      "id": "qwen/qwen3.6-plus",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000000325",
+      "completion_per_token": "0.00000195",
+      "name": "Qwen: Qwen3.6 Plus"
+    },
+    {
+      "id": "z-ai/glm-5v-turbo",
+      "context_length": 202752,
+      "prompt_per_token": "0.0000012",
+      "completion_per_token": "0.000004",
+      "name": "Z.ai: GLM 5V Turbo"
+    },
+    {
+      "id": "x-ai/grok-4.20-multi-agent",
+      "context_length": 2000000,
+      "prompt_per_token": "0.00000125",
+      "completion_per_token": "0.0000025",
+      "name": "SpaceXAI: Grok 4.20 Multi-Agent"
+    },
+    {
+      "id": "x-ai/grok-4.20",
+      "context_length": 2000000,
+      "prompt_per_token": "0.00000125",
+      "completion_per_token": "0.0000025",
+      "name": "SpaceXAI: Grok 4.20"
+    },
+    {
+      "id": "z-ai/glm-5-turbo",
+      "context_length": 202752,
+      "prompt_per_token": "0.0000012",
+      "completion_per_token": "0.000004",
+      "name": "Z.ai: GLM 5 Turbo"
+    },
+    {
+      "id": "qwen/qwen3.5-9b",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000008",
+      "completion_per_token": "0.00000013",
+      "name": "Qwen: Qwen3.5-9B"
+    },
+    {
+      "id": "qwen/qwen3.5-35b-a3b",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000014",
+      "completion_per_token": "0.000001",
+      "name": "Qwen: Qwen3.5-35B-A3B"
+    },
+    {
+      "id": "qwen/qwen3.5-27b",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000027",
+      "completion_per_token": "0.00000216",
+      "name": "Qwen: Qwen3.5-27B"
+    },
+    {
+      "id": "qwen/qwen3.5-122b-a10b",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000026",
+      "completion_per_token": "0.00000208",
+      "name": "Qwen: Qwen3.5-122B-A10B"
+    },
+    {
+      "id": "qwen/qwen3.5-flash-02-23",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000000065",
+      "completion_per_token": "0.00000026",
+      "name": "Qwen: Qwen3.5-Flash"
+    },
+    {
+      "id": "anthropic/claude-sonnet-4.6",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000003",
+      "completion_per_token": "0.000015",
+      "name": "Anthropic: Claude Sonnet 4.6"
+    },
+    {
+      "id": "anthropic/claude-sonnet-4.6:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000015",
+      "completion_per_token": "0.0000075",
+      "name": "Anthropic: Claude Sonnet 4.6 (batch)"
+    },
+    {
+      "id": "qwen/qwen3.5-plus-02-15",
+      "context_length": 1000000,
+      "prompt_per_token": "0.00000026",
+      "completion_per_token": "0.00000156",
+      "name": "Qwen: Qwen3.5 Plus 2026-02-15"
+    },
+    {
+      "id": "qwen/qwen3.5-397b-a17b",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000039",
+      "completion_per_token": "0.00000234",
+      "name": "Qwen: Qwen3.5 397B A17B"
+    },
+    {
+      "id": "z-ai/glm-5",
+      "context_length": 204800,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.0000032",
+      "name": "Z.ai: GLM 5"
+    },
+    {
+      "id": "anthropic/claude-opus-4.6",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000005",
+      "completion_per_token": "0.000025",
+      "name": "Anthropic: Claude Opus 4.6"
+    },
+    {
+      "id": "anthropic/claude-opus-4.6:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000025",
+      "completion_per_token": "0.0000125",
+      "name": "Anthropic: Claude Opus 4.6 (batch)"
+    },
+    {
+      "id": "qwen/qwen3-coder-next",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000012",
+      "completion_per_token": "0.0000008",
+      "name": "Qwen: Qwen3 Coder Next"
+    },
+    {
+      "id": "moonshotai/kimi-k2.5",
+      "context_length": 262144,
+      "prompt_per_token": "0.0000005",
+      "completion_per_token": "0.0000025",
+      "name": "MoonshotAI: Kimi K2.5"
+    },
+    {
+      "id": "deepseek/deepseek-v3.2",
+      "context_length": 163840,
+      "prompt_per_token": "0.00000028",
+      "completion_per_token": "0.00000042",
+      "name": "DeepSeek: DeepSeek V3.2"
+    },
+    {
+      "id": "anthropic/claude-opus-4.5",
+      "context_length": 200000,
+      "prompt_per_token": "0.000005",
+      "completion_per_token": "0.000025",
+      "name": "Anthropic: Claude Opus 4.5"
+    },
+    {
+      "id": "anthropic/claude-opus-4.5:batch",
+      "context_length": 200000,
+      "prompt_per_token": "0.0000025",
+      "completion_per_token": "0.0000125",
+      "name": "Anthropic: Claude Opus 4.5 (batch)"
+    },
+    {
+      "id": "moonshotai/kimi-k2-thinking",
+      "context_length": 262144,
+      "prompt_per_token": "0.0000006",
+      "completion_per_token": "0.0000025",
+      "name": "MoonshotAI: Kimi K2 Thinking"
+    },
+    {
+      "id": "anthropic/claude-haiku-4.5",
+      "context_length": 200000,
+      "prompt_per_token": "0.000001",
+      "completion_per_token": "0.000005",
+      "name": "Anthropic: Claude Haiku 4.5"
+    },
+    {
+      "id": "anthropic/claude-haiku-4.5:batch",
+      "context_length": 200000,
+      "prompt_per_token": "0.0000005",
+      "completion_per_token": "0.0000025",
+      "name": "Anthropic: Claude Haiku 4.5 (batch)"
+    },
+    {
+      "id": "qwen/qwen3-vl-8b-instruct",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000025",
+      "completion_per_token": "0.00000075",
+      "name": "Qwen: Qwen3 VL 8B Instruct"
+    },
+    {
+      "id": "qwen/qwen3-vl-30b-a3b-thinking",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000029",
+      "completion_per_token": "0.000001",
+      "name": "Qwen: Qwen3 VL 30B A3B Thinking"
+    },
+    {
+      "id": "qwen/qwen3-vl-30b-a3b-instruct",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000015",
+      "completion_per_token": "0.0000006",
+      "name": "Qwen: Qwen3 VL 30B A3B Instruct"
+    },
+    {
+      "id": "anthropic/claude-sonnet-4.5",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000003",
+      "completion_per_token": "0.000015",
+      "name": "Anthropic: Claude Sonnet 4.5"
+    },
+    {
+      "id": "anthropic/claude-sonnet-4.5:batch",
+      "context_length": 1000000,
+      "prompt_per_token": "0.0000015",
+      "completion_per_token": "0.0000075",
+      "name": "Anthropic: Claude Sonnet 4.5 (batch)"
+    },
+    {
+      "id": "deepseek/deepseek-v3.2-exp",
+      "context_length": 163840,
+      "prompt_per_token": "0.00000027",
+      "completion_per_token": "0.00000041",
+      "name": "DeepSeek: DeepSeek V3.2 Exp"
+    },
+    {
+      "id": "qwen/qwen3-vl-235b-a22b-instruct",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000021",
+      "completion_per_token": "0.0000019",
+      "name": "Qwen: Qwen3 VL 235B A22B Instruct"
+    },
+    {
+      "id": "deepseek/deepseek-v3.1-terminus",
+      "context_length": 163840,
+      "prompt_per_token": "0.00000027",
+      "completion_per_token": "0.000001",
+      "name": "DeepSeek: DeepSeek V3.1 Terminus"
+    },
+    {
+      "id": "qwen/qwen3-coder-flash",
+      "context_length": 1000000,
+      "prompt_per_token": "0.000000195",
+      "completion_per_token": "0.000000975",
+      "name": "Qwen: Qwen3 Coder Flash"
+    },
+    {
+      "id": "qwen/qwen3-next-80b-a3b-thinking",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000015",
+      "completion_per_token": "0.0000012",
+      "name": "Qwen: Qwen3 Next 80B A3B Thinking"
+    },
+    {
+      "id": "qwen/qwen3-next-80b-a3b-instruct",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000009",
+      "completion_per_token": "0.0000011",
+      "name": "Qwen: Qwen3 Next 80B A3B Instruct"
+    },
+    {
+      "id": "moonshotai/kimi-k2-0905",
+      "context_length": 262144,
+      "prompt_per_token": "0.0000006",
+      "completion_per_token": "0.0000025",
+      "name": "MoonshotAI: Kimi K2 0905"
+    },
+    {
+      "id": "deepseek/deepseek-chat-v3.1",
+      "context_length": 163840,
+      "prompt_per_token": "0.00000025",
+      "completion_per_token": "0.00000095",
+      "name": "DeepSeek: DeepSeek V3.1"
+    },
+    {
+      "id": "anthropic/claude-opus-4.1",
+      "context_length": 200000,
+      "prompt_per_token": "0.000015",
+      "completion_per_token": "0.000075",
+      "name": "Anthropic: Claude Opus 4.1"
+    },
+    {
+      "id": "anthropic/claude-opus-4.1:batch",
+      "context_length": 200000,
+      "prompt_per_token": "0.0000075",
+      "completion_per_token": "0.0000375",
+      "name": "Anthropic: Claude Opus 4.1 (batch)"
+    },
+    {
+      "id": "qwen/qwen3-coder-30b-a3b-instruct",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000007",
+      "completion_per_token": "0.00000028",
+      "name": "Qwen: Qwen3 Coder 30B A3B Instruct"
+    },
+    {
+      "id": "qwen/qwen3-30b-a3b-instruct-2507",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000009",
+      "completion_per_token": "0.0000003",
+      "name": "Qwen: Qwen3 30B A3B Instruct 2507"
+    },
+    {
+      "id": "qwen/qwen3-235b-a22b-thinking-2507",
+      "context_length": 128000,
+      "prompt_per_token": "0.00000045",
+      "completion_per_token": "0.0000035",
+      "name": "Qwen: Qwen3 235B A22B Thinking 2507"
+    },
+    {
+      "id": "qwen/qwen3-coder",
+      "context_length": 262144,
+      "prompt_per_token": "0.0000003",
+      "completion_per_token": "0.000001",
+      "name": "Qwen: Qwen3 Coder 480B A35B"
+    },
+    {
+      "id": "qwen/qwen3-235b-a22b-2507",
+      "context_length": 262144,
+      "prompt_per_token": "0.00000009",
+      "completion_per_token": "0.00000055",
+      "name": "Qwen: Qwen3 235B A22B Instruct 2507"
+    },
+    {
+      "id": "moonshotai/kimi-k2",
+      "context_length": 131072,
+      "prompt_per_token": "0.00000057",
+      "completion_per_token": "0.0000023",
+      "name": "MoonshotAI: Kimi K2 0711"
+    },
+    {
+      "id": "deepseek/deepseek-r1-0528",
+      "context_length": 163840,
+      "prompt_per_token": "0.0000005",
+      "completion_per_token": "0.00000215",
+      "name": "DeepSeek: R1 0528"
+    },
+    {
+      "id": "qwen/qwen3-30b-a3b",
+      "context_length": 40960,
+      "prompt_per_token": "0.00000012",
+      "completion_per_token": "0.0000005",
+      "name": "Qwen: Qwen3 30B A3B"
+    },
+    {
+      "id": "qwen/qwen3-14b",
+      "context_length": 40960,
+      "prompt_per_token": "0.00000012",
+      "completion_per_token": "0.00000024",
+      "name": "Qwen: Qwen3 14B"
+    },
+    {
+      "id": "qwen/qwen3-32b",
+      "context_length": 131072,
+      "prompt_per_token": "0.00000008",
+      "completion_per_token": "0.00000028",
+      "name": "Qwen: Qwen3 32B"
+    },
+    {
+      "id": "meta-llama/llama-4-maverick",
+      "context_length": 524288,
+      "prompt_per_token": "0.0000001875",
+      "completion_per_token": "0.0000006525",
+      "name": "Meta: Llama 4 Maverick"
+    },
+    {
+      "id": "meta-llama/llama-4-scout",
+      "context_length": 1310720,
+      "prompt_per_token": "0.0000001",
+      "completion_per_token": "0.0000003",
+      "name": "Meta: Llama 4 Scout"
+    },
+    {
+      "id": "deepseek/deepseek-chat-v3-0324",
+      "context_length": 163840,
+      "prompt_per_token": "0.00000029",
+      "completion_per_token": "0.00000114",
+      "name": "DeepSeek: DeepSeek V3 0324"
+    },
+    {
+      "id": "deepseek/deepseek-chat",
+      "context_length": 163840,
+      "prompt_per_token": "0.0000002574",
+      "completion_per_token": "0.0000010287",
+      "name": "DeepSeek: DeepSeek V3"
+    }
+  ]
+}

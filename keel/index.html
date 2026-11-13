@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Snake - Enhanced Edition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-wrapper">
+        <!-- Header -->
+        <header class="game-header">
+            <h1>🐍 NEON SNAKE</h1>
+            <div class="header-stats">
+                <div class="stat">
+                    <span class="stat-label">Score</span>
+                    <span class="stat-value" id="score">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">High Score</span>
+                    <span class="stat-value" id="highScore">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Level</span>
+                    <span class="stat-value" id="level">1</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Game Canvas Container -->
+        <div class="game-container">
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
+            
+            <!-- Start Screen -->
+            <div class="overlay" id="startScreen">
+                <div class="overlay-content">
+                    <h2>NEON SNAKE</h2>
+                    <p class="subtitle">Eat the food, grow longer, don't crash!</p>
+                    <div class="difficulty-selector">
+                        <label>Difficulty:</label>
+                        <select id="difficulty">
+                            <option value="1">Easy</option>
+                            <option value="2" selected>Medium</option>
+                            <option value="3">Hard</option>
+                            <option value="4">Insane</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="startBtn">Start Game</button>
+                    <div class="controls-hint">
+                        <p>Use <strong>Arrow Keys</strong> or <strong>WASD</strong> to move</p>
+                        <p>Press <strong>P</strong> to pause • <strong>M</strong> to mute sound</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pause Screen -->
+            <div class="overlay" id="pauseScreen" style="display: none;">
+                <div class="overlay-content">
+                    <h2>⏸ PAUSED</h2>
+                    <button class="btn btn-primary" id="resumeBtn">Resume</button>
+                </div>
+            </div>
+
+            <!-- Game Over Screen -->
+            <div class="overlay" id="gameOverScreen" style="display: none;">
+                <div class="overlay-content">
+                    <h2 style="color: #ff4757;">GAME OVER</h2>
+                    <p class="final-score">Final Score: <span id="finalScore">0</span></p>
+                    <p class="high-score-msg" id="highScoreMsg"></p>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="playAgainBtn">Play Again</button>
+                        <button class="btn btn-secondary" id="mainMenuBtn">Main Menu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Controls -->
+        <div class="mobile-controls">
+            <div class="d-pad">
+                <button class="dir-btn" data-dir="up">▲</button>
+                <div class="dir-row">
+                    <button class="dir-btn" data-dir="left">◀</button>
+                    <button class="dir-btn" data-dir="down">▼</button>
+                    <button class="dir-btn" data-dir="right">▶</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

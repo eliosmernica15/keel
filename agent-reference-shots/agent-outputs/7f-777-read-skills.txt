@@ -1,0 +1,33 @@
+I'll fetch the target documentation page and gather evidence.
+
+===== NEXT =====
+
+I'll fetch the target documentation page and gather evidence.
+
+===== NEXT =====
+
+Let me fetch the raw markdown directly so quotes are exact rather than paraphrased by the fetch tool.
+
+===== NEXT =====
+
+Raw markdown acquired. Let me extract exact quotes from the key sections.
+
+===== NEXT =====
+
+Now let me do a quick black-box observation of the local CLI's own help surfaces (permitted) to corroborate the docs.
+
+===== NEXT =====
+
+Let me probe the documented `claude plugin validate` surface against a test skills directory — this is the product's own validation tool, a permitted public surface.
+
+===== NEXT =====
+
+Let me run a final batch of targeted probes to pin down validation behavior precisely.
+
+===== NEXT =====
+
+I have solid evidence. Let me save the sanitized probe artifacts and write the report.
+
+===== NEXT =====
+
+Now let me write the report.

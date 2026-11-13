@@ -1,0 +1,45 @@
+I'll fetch the permissions documentation page and extract concrete claims.
+
+===== NEXT =====
+
+The fetch output was large and saved to a file. Let me read it.
+
+===== NEXT =====
+
+Let me get the rest of the CLI help (permission-related flags) and verify exact quotes against the raw markdown.
+
+===== NEXT =====
+
+Let me do a quick time-boxed live check to corroborate doc behavior on this host.
+
+===== NEXT =====
+
+Let me do one quick live observation to corroborate the rule-evaluation order on this host.
+
+===== NEXT =====
+
+Live probe confirms deny-first precedence. Let me run one more targeted probe on Bash wildcard spacing semantics.
+
+===== NEXT =====
+
+Let me verify a couple of exact settings key names against the settings reference.
+
+===== NEXT =====
+
+Let me run two final live probes and grab the documented permission-prompt image.
+
+===== NEXT =====
+
+The `lsof` probe was inconclusive (something else auto-approved it). Let me run a decisive allow-rule test.
+
+===== NEXT =====
+
+Decisive confirmation of the wildcard-spacing rule. Now the Read deny probe and the docs screenshot.
+
+===== NEXT =====
+
+Strong finding. Let me test one documented limitation — whether a read-only git command that doesn't name the file bypasses the `Read` deny rule.
+
+===== NEXT =====
+
+Let me verify the documented "bare tool name removes the tool from context" behavior live.

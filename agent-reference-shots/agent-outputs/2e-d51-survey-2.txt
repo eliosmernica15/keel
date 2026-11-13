@@ -1,0 +1,149 @@
+I'll investigate Claude Code's project discovery, repository context, file reading, and code search behavior. Let me start by loading the web tools and checking the CLI.
+
+===== NEXT =====
+
+I'll investigate Claude Code's project discovery, repository context, file reading, and code search behavior. Let me start by loading the web tools and checking the CLI.
+
+===== NEXT =====
+
+Let me fetch the docs index and exercise the CLI help surfaces in parallel.
+
+===== NEXT =====
+
+Let me fetch the docs index and exercise the CLI help surfaces in parallel.
+
+===== NEXT =====
+
+Let me get the rest of the help output and the docs index in parallel.
+
+===== NEXT =====
+
+Now let me fetch the key documentation pages in parallel.
+
+===== NEXT =====
+
+Both outputs were persisted to files. Let me read them.
+
+===== NEXT =====
+
+Excellent detail. Now let me read the memory/CLAUDE.md doc.
+
+===== NEXT =====
+
+Now let me exercise the CLI help surfaces and fetch more docs in parallel.
+
+===== NEXT =====
+
+Now let me exercise more CLI surfaces and test actual project discovery behavior.
+
+===== NEXT =====
+
+Let me set up a test project and observe actual project discovery behavior.
+
+===== NEXT =====
+
+Let me observe actual runtime behavior with a print-mode run and debug logging.
+
+===== NEXT =====
+
+Let me observe actual tool behavior and context loading with debug output.
+
+===== NEXT =====
+
+Very valuable. Let me check git detection and CLAUDE.md loading in debug output.
+
+===== NEXT =====
+
+Let me check the transcript to see how CLAUDE.md content enters context.
+
+===== NEXT =====
+
+Let me observe how CLAUDE.md content enters context via my own session transcript (targeted grep only).
+
+===== NEXT =====
+
+CLAUDE.md content is injected (2 occurrences), AGENTS.md is not (0 occurrences) — confirming the precedence rule. Let me determine the exact injection point structurally.
+
+===== NEXT =====
+
+CLAUDE.md is injected as a user-turn attachment. Let me check nested CLAUDE.md on-demand loading and git context.
+
+===== NEXT =====
+
+Let me test on-demand nested CLAUDE.md loading with a non-CLAUDE.md file, and check git context injection.
+
+===== NEXT =====
+
+Let me check git context injection and fetch remaining docs in parallel.
+
+===== NEXT =====
+
+Let me check git status injection and the remaining details.
+
+===== NEXT =====
+
+Let me examine the gitStatus attachment content.
+
+===== NEXT =====
+
+Excellent — gitStatus injection confirmed. Now let me test the search tool contracts (gitignore behavior, .gitignore in Glob) and check the "@" mention syntax and /context output.
+
+===== NEXT =====
+
+Confirmed: Glob ignores .gitignore, Grep respects it. Let me test the Read tool contract (offset/limit, large files, notebooks).
+
+===== NEXT =====
+
+Excellent — notebook cell IDs and image handling confirmed. Let me now check the Grep output modes and glob tool search params.
+
+===== NEXT =====
+
+All confirmed. Let me capture screenshots of the CLI and fetch remaining docs.
+
+===== NEXT =====
+
+The file exists. Let me create sanitized artifacts and fetch remaining docs in parallel.
+
+===== NEXT =====
+
+Let me write the sanitizer as a file to avoid escaping issues.
+
+===== NEXT =====
+
+The sanitized example reveals Glob with `pattern: "*"` traverses `.git/`. Let me capture a terminal screenshot and verify a couple final details.
+
+===== NEXT =====
+
+Let me attempt a terminal capture and fetch the config-debugging doc in parallel.
+
+===== NEXT =====
+
+I have comprehensive evidence. Let me save a few sanitized artifacts and capture CLI help output as evidence.
+
+===== NEXT =====
+
+Now let me verify a couple of final behaviors and write the report.
+
+===== NEXT =====
+
+Let me test this more efficiently with a direct approach and then write the report.
+
+===== NEXT =====
+
+Let me verify one more key behavior — working directory from a subdirectory.
+
+===== NEXT =====
+
+Note: `gitBranch` is null in `-p` mode even in a git repo. Let me verify the git repo root detection and then write the report.
+
+===== NEXT =====
+
+I have comprehensive evidence. Let me run one final combined verification, then write the report.
+
+===== NEXT =====
+
+All key behaviors confirmed. Now let me write the report.
+
+===== NEXT =====
+
+Now let me clean up the probe project and verify the final state.

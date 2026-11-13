@@ -1,0 +1,2 @@
+{"type":"system","subtype":"init","claude_code_version":"2.1.306","slash_commands":[],"terminal_slash_commands":null,"skills":[],"agents":["claude","Explore","general-purpose","Plan","statusline-setup"],"output_style":"default","view_mode":"default","permissionMode":"default"}
+{"type":"result","subtype":"success","is_error":false,"num_turns":0,"duration_api_ms":0,"total_cost_usd":0,"local_command":null,"result":"/help isn't available in this environment."}

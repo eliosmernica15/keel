@@ -1,0 +1,29 @@
+# Sanitized capture — Claude Code 2.1.306 TUI, background session 17989b89
+# Source: `claude logs 17989b89` (raw ANSI stripped)
+# Prompt issued: "Run the shell command: ls -la, then run: git --version"
+# Mode at capture time: manual (default)
+
+● I'll run both commands.
+● Running 2 shell commands…
+  ⎿  $ git --version
+──────────────────────────────────────────────────────────── PowerShell command
+ List directory contents
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ Get-ChildItem -Force | Format-Table Mode, Length, LastWriteTime, Name -AutoSize
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ │ Command contains malformed syntax that cannot be parsed: pwsh exited with code 1: The command line is too long.
+ Do you want to proceed?
+ ❯ 1. Yes
+   2. No
+ Esc to cancel · Tab to amend
+
+# Notes on the rendering:
+#  - The permission panel is titled by TOOL ("PowerShell command" / "Bash command"),
+#    then the agent's `description` ("List directory contents"), then the exact
+#    command text.
+#  - The right-hand "│" gutter carries the rejection/parse reason.
+#  - Options are numbered "1. Yes" / "2. No" with "❯" marking the selection.
+#  - The footer lists the two bindings: "Esc to cancel · Tab to amend".
+#    Per the docs, Tab on a permission prompt also opens a comment field
+#    when Yes/No is focused, and "Tab to amend" lets the user edit the
+#    command before approving it.
+#  - This particular capture shows a *parse failure* prompt: the PowerShell
+#    command exceeded the OS command-line limit, so it was never executed.

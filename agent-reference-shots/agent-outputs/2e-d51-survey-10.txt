@@ -1,0 +1,57 @@
+I'll start by loading the web tools and exploring the Claude Code CLI's help surfaces in parallel.
+
+===== NEXT =====
+
+I'll start by loading the web tools and exploring the Claude Code CLI's help surfaces in parallel.
+
+===== NEXT =====
+
+Now let me explore the subcommand help surfaces and fetch docs in parallel.
+
+===== NEXT =====
+
+Excellent detail. Now let me fetch the related docs pages in parallel.
+
+===== NEXT =====
+
+Let me read the persisted memory doc and fetch more pages in parallel.
+
+===== NEXT =====
+
+Now let me fetch the Workflow feature docs and the docs index to find remaining relevant pages.
+
+===== NEXT =====
+
+Let me fetch the Workflows docs and exercise more CLI surfaces in parallel.
+
+===== NEXT =====
+
+Now let me create a test plugin structure and validate it to get concrete CLI-observed evidence about frontmatter parsing.
+
+===== NEXT =====
+
+Let me fix the plugin and observe clean validation plus skill/agent details.
+
+===== NEXT =====
+
+Let me observe runtime skill/agent discovery using an isolated config dir.
+
+===== NEXT =====
+
+The `-p` mode times out (custom gateway). Let me run that in background and gather more docs in parallel.
+
+===== NEXT =====
+
+Great runtime evidence. Let me continue with parallel probes.
+
+===== NEXT =====
+
+Strong evidence. Let me run more targeted CLI probes in parallel.
+
+===== NEXT =====
+
+Let me fetch the remaining docs pages while the probe runs.
+
+===== NEXT =====
+
+Excellent runtime evidence. Let me run final probes in parallel.

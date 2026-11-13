@@ -1,0 +1,137 @@
+# Claude Code 2.1.306 - skill surfaces observed (black-box)
+
+## claude plugin validate --help
+Usage: claude plugin validate [options] <path>
+
+Validate a plugin or marketplace manifest, or the skills, agents, and commands
+in a directory
+
+Options:
+  -h, --help        Display help for command
+  --json            Output the validation report as JSON (same exit codes)
+  --profile <name>  Also exit 1 when the plugin directory (the catalog that
+                    plugins are submitted to) would refuse a submission of the
+                    plugin on a check this command runs, such as a missing
+                    README, or when such a check could not be made: plugin.json
+                    lists more than 16 files for MCP servers or for hooks (16 of
+                    each are checked), or an MCP or hooks file is one these
+                    checks cannot use, such as one that is not valid JSON. With
+                    --strict, also fail on its warnings. The directory runs more
+                    checks. (choices: "directory")
+  --strict          Treat warnings as errors (exit 1). Use in CI to fail on
+                    unrecognized fields, missing metadata, and other issues that
+                    the runtime tolerates.
+
+## claude plugin init --help
+Usage: claude plugin init|new [options] <name>
+
+Scaffold a new plugin at ~/.claude/skills/<name>/ (auto-loads next session as
+<name>@skills-dir)
+
+Options:
+  --author <name>         Author name (default: git config user.name)
+  --author-email <email>  Author email (default: git config user.email)
+  --description <text>    Manifest description
+  -f, --force             Overwrite an existing .claude-plugin/ at the target
+  -h, --help              Display help for command
+  --with <components...>  Also scaffold: skills, agents, hooks, mcp, lsp,
+                          output-style, channel
+
+## claude plugin details --help
+Usage: claude plugin details [options] <name>
+
+Show a plugin's component inventory and projected token cost
+
+Options:
+  -h, --help  Display help for command
+
+## claude --help (skill/plugin-relevant flags)
+Options:
+  --add-dir <directories...>            Additional directories to allow tool
+                                        access to
+  --agent <agent>                       Agent for the current session. Overrides
+                                        the 'agent' setting.
+  --agents <json-or-file>               JSON object defining custom agents, or
+                                        with --print the path to a file that
+                                        holds one (e.g. '{"reviewer":
+                                        {"description": "Reviews code",
+                                        "prompt": "You are a code reviewer"}}')
+--
+                                        the session is already running
+  --bare                                Minimal mode: skip hooks (those defined
+                                        in settings and by installed plugins;
+                                        features built into Claude Code are
+                                        unaffected), LSP, plugin sync,
+                                        attribution, auto-memory, background
+                                        prefetches, keychain reads, and
+                                        CLAUDE.md auto-discovery. Sets
+                                        CLAUDE_CODE_SIMPLE=1. Anthropic auth is
+--
+                                        (Bedrock/Vertex/Foundry) use their own
+                                        credentials. Skills still resolve via
+                                        /skill-name. Explicitly provide context
+                                        via: --system-prompt[-file],
+                                        --append-system-prompt[-file], --add-dir
+                                        (CLAUDE.md dirs), --mcp-config,
+                                        --settings, --agents, --plugin-dir.
+  --betas <betas...>                    Beta headers to include in API requests
+                                        (API key users only)
+  --brief                               Enable SendUserMessage tool for
+                                        agent-to-user communication
+--
+                                        --resume <id> to pick the session)
+  --disable-slash-commands              Disable all skills and commands
+  --disallowedTools, --disallowed-tools <tools...>
+      Comma or space-separated list of tool names to deny (e.g. "Bash(git *)
+      Edit")
+  --effort <level>                      Effort level for the current session
+--
+                                        "host")
+  --plugin-dir <path>                   Load a plugin from a directory or .zip
+                                        for this session only; a folder of
+                                        plugins loads each child (repeatable:
+                                        --plugin-dir A --plugin-dir B.zip)
+                                        (default: [])
+  --plugin-url <url>                    Fetch a plugin .zip from a URL for this
+                                        session only (repeatable: --plugin-url A
+                                        --plugin-url B) (default: [])
+  -p, --print                           Print response and exit (useful for
+                                        pipes). Note: The workspace trust dialog
+                                        is skipped when Claude is run in
+                                        non-interactive mode (via -p, or when
+--
+                                        too). Also confines the file tools to
+                                        the working directories (--add-dir
+                                        included), refuses bypassPermissions,
+                                        and lets only a person or the configured
+                                        permission handler approve writes to
+                                        settings, git and tool-configuration
+--
+                                        optional search term
+  --safe-mode                           Start with all customizations
+                                        (CLAUDE.md, skills, installed plugins,
+                                        hooks, MCP servers, custom commands and
+                                        agents, output styles, workflows, custom
+                                        themes, keybindings, and more) disabled
+                                        — useful for troubleshooting a broken
+--
+                                        settings still apply. Auth, model
+                                        selection, built-in tools and plugins,
+                                        and permissions work normally. Sets
+                                        CLAUDE_CODE_SAFE_MODE=1.
+  --session-id <uuid>                   Use a specific session ID for the
+                                        conversation (must be a valid UUID)
+--
+                                        every request and resume. on (the
+                                        default, except under --bare outside
+                                        cloud and background sessions): the
+                                        prompt is rendered on the conversation's
+                                        first request — a --system-prompt or
+                                        --append-system-prompt included — sent,
+--
+  mcp                                   Configure and manage MCP servers
+  plugin|plugins                        Manage Claude Code plugins
+  purge [options] [path]                Delete all Claude Code state for a
+                                        project (transcripts, tasks, file
+                                        history, config entry)
+  respawn [options] [id]                Restart a background session, or all of

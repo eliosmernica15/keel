@@ -1,0 +1,29 @@
+The doc fetched successfully (98KB). Let me examine its structure.
+
+===== NEXT =====
+
+The doc fetched. Let me read it in full sections.
+
+===== NEXT =====
+
+I have the full doc. Let me check the local CLI's help surfaces and the working directory state.
+
+===== NEXT =====
+
+Let me check the CLI's own help surfaces for permission-mode flags.
+
+===== NEXT =====
+
+Let me verify exact settings key names in the settings reference.
+
+===== NEXT =====
+
+Let me do a couple of permitted black-box observations via the CLI's own documented surfaces.
+
+===== NEXT =====
+
+Let me observe the actual enforcement behavior in a sandbox directory.
+
+===== NEXT =====
+
+Excellent — a real observable denial. Let me capture the full structure.

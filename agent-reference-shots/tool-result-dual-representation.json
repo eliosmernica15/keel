@@ -1,0 +1,80 @@
+[
+  {
+    "outcome": "failure_or_denial",
+    "tool_use_result": "Error: This command requires approval",
+    "tool_result_content": "This command requires approval",
+    "is_error": true
+  },
+  {
+    "outcome": "failure_or_denial",
+    "tool_use_result": "Error: Command contains malformed syntax that cannot be parsed: pwsh exited with code 1: The command line is too long.",
+    "tool_result_content": "Command contains malformed syntax that cannot be parsed: pwsh exited with code 1: The command line is too long.",
+    "is_error": true
+  },
+  {
+    "outcome": "failure_or_denial",
+    "tool_use_result": "Error: Command contains malformed syntax that cannot be parsed: pwsh exited with code 1: The command line is too long.",
+    "tool_result_content": "Command contains malformed syntax that cannot be parsed: pwsh exited with code 1: The command line is too long.",
+    "is_error": true
+  },
+  {
+    "outcome": "success",
+    "tool_use_result": {
+      "stdout": "A",
+      "stderr": "",
+      "interrupted": false,
+      "isImage": false,
+      "noOutputExpected": false
+    },
+    "tool_result_content": "A",
+    "is_error": false
+  },
+  {
+    "outcome": "failure_or_denial",
+    "tool_use_result": "Error: Command contains malformed syntax that cannot be parsed: pwsh exited with code 1: The command line is too long.",
+    "tool_result_content": "Command contains malformed syntax that cannot be parsed: pwsh exited with code 1: The command line is too long.",
+    "is_error": true
+  },
+  {
+    "outcome": "failure_or_denial",
+    "tool_use_result": "Error: This command requires approval",
+    "tool_result_content": "This command requires approval",
+    "is_error": true
+  },
+  {
+    "outcome": "failure_or_denial",
+    "tool_use_result": "Error: This Bash command contains multiple operations. The following part requires approval: exit 3",
+    "tool_result_content": "This Bash command contains multiple operations. The following part requires approval: exit 3",
+    "is_error": true
+  },
+  {
+    "outcome": "success",
+    "tool_use_result": {
+      "stdout": "A\nB",
+      "stderr": "",
+      "interrupted": false,
+      "isImage": false,
+      "noOutputExpected": false
+    },
+    "tool_result_content": "A\nB",
+    "is_error": false
+  },
+  {
+    "outcome": "failure_or_denial",
+    "tool_use_result": "Error: This command requires approval",
+    "tool_result_content": "This command requires approval",
+    "is_error": true
+  },
+  {
+    "outcome": "failure_or_denial",
+    "tool_use_result": "Error: Exit code 1\nA\nB",
+    "tool_result_content": "Exit code 1\nA\nB",
+    "is_error": true
+  },
+  {
+    "outcome": "failure_or_denial",
+    "tool_use_result": "Error: This command uses shell operators that require approval for safety",
+    "tool_result_content": "This command uses shell operators that require approval for safety",
+    "is_error": true
+  }
+]

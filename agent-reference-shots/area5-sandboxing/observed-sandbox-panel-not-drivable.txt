@@ -1,0 +1,29 @@
+# Observed: the /sandbox panel is a local TUI render and is not drivable headlessly
+# Host: win32-x64, Claude Code 2.1.306 (native), 2026-10-21
+# No files were modified by these probes; the background session was stopped and removed.
+
+--- Attempt 1: claude -p "/sandbox" ---
+Result: hung; terminated at the 120s timeout with no output.
+Reason (inferred): the panel is rendered locally, so a non-interactive print-mode
+invocation has nothing to drive it.
+
+--- Attempt 2: background session + attach, "/sandbox" piped to stdin ---
+Command: (printf '/sandbox\n'; sleep 25) | claude attach <id>
+Result: the attach reproduced the full TUI -- banner, prompt, spinner -- but the piped
+keystrokes did not register as a slash command and the panel never opened.
+Sanitised capture of the attach render:
+  Attaching...
+   Claude Code v2.1.306
+   minimax/minimax-m3.1-flash:free - API Usage Billing
+   ~\Desktop\Claude clone
+  warning: Model "minimax/minimax-m3.1-flash:free" isn't recognized - context assumed
+           to be 200k tokens
+  > reply with OK
+  * OK
+  -- status line: "manual mode on - <- 1 agent - esc to interrupt"
+
+--- Cleanup ---
+claude stop <id>  -> "stopped <id>"
+claude rm <id>    -> "removed <id>"
+Project .claude/settings.local.json was verified unchanged (only a pre-existing
+"Skill(update-config)" permission entry).

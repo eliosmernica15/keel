@@ -1,0 +1,140 @@
+# Area 10 — skill rendering probes (OBSERVED-CLI)
+
+Every probe below was run with `CLAUDE_CONFIG_DIR` pointed at a scratch config
+directory, in a throwaway project under the system temp dir, against Claude Code
+2.1.306. The model served by this machine is a third-party model reached through a
+custom gateway (`minimax/minimax-m3.1-flash:free`), so anything that depends on
+the model *obeying* an instruction is reported as model-limited, not product-limited.
+What the *harness* does (parsing, substitution, injection, error text) is the
+product's behaviour and is reported as observed.
+
+## P1 — Argument substitution (`$ARGUMENTS`, `$0`, `$thing`, `${CLAUDE_SESSION_ID}`)
+
+Skill body (`<PROJ>/.claude/skills/argtest/SKILL.md`):
+
+    ---
+    name: argtest
+    description: Argument and injection probe. Use when asked for the argtest probe.
+    ---
+    ARGS=[$ARGUMENTS] IDX0=[$0] NAMED=[$thing] SID=[${CLAUDE_SESSION_ID}]
+    INJECTED=!"echo INJECTED_OK"
+
+Invocation: `claude -p "/argtest hello world" --output-format stream-json --verbose`
+
+Rendered content the harness delivered to the model (verbatim from the session
+transcript's user message):
+
+    Base directory for this skill: <PROJ>\.claude\skills\argtest
+
+    ARGS=[hello world] IDX0=[hello] NAMED=[$thing] SID=[afeba6c6-0ceb-4520-bf05-a1cb3e49607a]
+    INJECTED=!"echo INJECTED_OK"
+
+
+    ARGUMENTS: C:/Program Files/Git/argtest hello world
+
+Observations:
+
+- `$ARGUMENTS` expanded to the argument string as typed after the skill name.
+- `$0` expanded to the first whitespace-delimited token.
+- `$thing` was NOT expanded: the skill declared no `arguments:` frontmatter, so
+  the named placeholder is unknown and the literal `$thing` was left in place.
+- `${CLAUDE_SESSION_ID}` expanded to the session id.
+- The harness also injects a "Base directory for this skill:" line and, when the
+  body contains no argument placeholder, an `ARGUMENTS: <value>` line so the model
+  still sees what was typed. (In this probe the body *did* contain `$ARGUMENTS`,
+  and the `ARGUMENTS:` line was still appended.)
+- `!` immediately followed by a backtick and NOT preceded by whitespace was left
+  as literal text, matching the documented rule that the inline form is only
+  recognised at the start of a line or after whitespace.
+
+## P2 — Inline dynamic-context injection, line-start vs after-whitespace
+
+Skill body:
+
+    Start of line:
+    !`echo INJECTED_INLINE_OK`
+    After whitespace:
+    VALUE !`echo INJECTED_WS_OK`
+
+Rendered content delivered to the model:
+
+    Base directory for this skill: <PROJ>\.claude\skills\injtest
+
+    Start of line:
+    INJECTED_INLINE_OK
+    After whitespace:
+    VALUE INJECTED_WS_OK
+
+Observations:
+
+- The harness RAN both shell commands at skill-render time and substituted their
+  stdout into the body. No tool call was made by the model to do this; the
+  substitution happened in the loader, before the skill content reached the model.
+- Both forms are recognised: at the start of a line and after whitespace.
+- Contrast with P1, where `INJECTED=!"echo INJECTED_OK"` was left literal —
+  because there the `!` was preceded by `=`, i.e. by another character.
+- The injected output is plain text and is not re-scanned for further `!`cmd`
+  placeholders.
+
+## P3 — `disable-model-invocation: true` and the Skill tool
+
+Project skills: `dmi` (disable-model-invocation: true), `uif`
+(user-invocable: false), `plain` (neither).
+
+`init.skills` registry for that session:
+
+    ["probe-scaffold", "dmi", "plain", "deep-research", "probe-scaffold:example",
+     "design", "design-sync", "dataviz", "update-config", "verify", "debug",
+     "code-review", "simplify", "batch", "fewer-permission-prompts", "doctor",
+     "loop", "claude-api", "workflow-authoring", "run", "run-skill-generator",
+     "plugin-authoring"]
+
+Observations:
+
+- `dmi` (disable-model-invocation) IS in the session's `skills` registry and IS
+  present in the `/` slash-command list; `uif` (user-invocable: false) is in
+  NEITHER.
+- The `skill_listing` attachment the model receives contains `plain` and `uif`
+  but NOT `dmi` — so `disable-model-invocation` removes the skill's *description*
+  from the model's context, while `user-invocable: false` keeps the description
+  visible to the model but hides the command from the user.
+- Attempting to invoke the hidden skill through the Skill tool returns a typed
+  error (verbatim):
+
+      <tool_use_error>Skill dmi cannot be used with Skill tool due to
+      disable-model-invocation. Ask the user to run /dmi themselves - it cannot be
+      invoked via the Skill tool. Do not replicate this skill's workflow by other
+      means - it is reserved for explicit user invocation.</tool_use_error>
+
+## P4 — Skill with `context: fork` + `agent: Explore`
+
+Skill body: "Reply with exactly the token FORKED_OK." with frontmatter
+`context: fork`, `agent: Explore`.
+
+`claude -p "<prompt>" --output-format json` result field:
+
+    "result": "FORKED_OK"
+
+with `subagent_stats: {"spawned": 0, ...}` and
+`"num_turns": 7`. The skill body was executed in an isolated context and only
+its final text came back to the caller. Note the harness's own accounting
+(`subagent_stats.spawned = 0`) does not count a `context: fork` skill as a
+spawned subagent.
+
+## P5 — Legacy `.claude/commands/*.md` still supported
+
+Files: `<PROJ>/.claude/commands/deploy.md` and
+`<PROJ>/.claude/commands/frontend/component.md`.
+
+`init.slash_commands` for that session included:
+
+    "deploy", "frontend:component"
+
+and the debug log recorded:
+
+    [DEBUG] Loaded 3 unique skills (3 unconditional, 0 conditional, managed: 0,
+            user: 1, project: 0, additional: 0, legacy commands: 2)
+
+So legacy command files are counted separately from skills but surface in the
+same `/` command list; a nested command file's name is the subdirectory path
+with `/` replaced by `:` plus the file name.

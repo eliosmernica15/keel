@@ -1,0 +1,21 @@
+# Sanitized capture — Claude Code 2.1.306 TUI, background session 4b42e986
+# Source: `claude logs 4b42e986` (raw ANSI stripped)
+# Prompt issued: "Use the Bash tool to run exactly: git status"
+
+● I'll run that command.
+  Running 1 shell command · 8s…
+  ⎿  $ git status
+✻ Quantumizing… (17s · ↓ 23 tokens)
+─────────────────────────────────────────────────────────── git status ─❯
+──────────────────────────────────────────────────────────  ⏸ manual mode on · esc to interrupt
+
+# Notes on the rendering:
+#  - "  ⎿  $ <command>" is the tool-call line: a two-space indent, a U+23BF
+#    "print screen" elbow connector, then "$" + the exact command text.
+#  - "Running 1 shell command · 8s…" is the progress line; the elapsed
+#    seconds tick live while the command runs.
+#  - The prompt bar's title becomes " git status " (the command as the tab
+#    title) once the tool call starts.
+#  - The footer shows the permission mode glyph: "⏸ manual mode on".
+#  - While the command is running the footer hint changes from "← for agents"
+#    to "esc to interrupt".

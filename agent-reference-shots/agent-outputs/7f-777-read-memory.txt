@@ -1,0 +1,29 @@
+I have the full page content. Let me gather supporting evidence in parallel.
+
+===== NEXT =====
+
+Let me run observable behavior tests to corroborate the docs.
+
+===== NEXT =====
+
+Let me run targeted observable tests on memory-file loading.
+
+===== NEXT =====
+
+Both confirmed. Now testing subdirectory lazy loading, imports, and rules.
+
+===== NEXT =====
+
+Both confirmed. Now testing path-scoped rules, backtick escaping, and the debug surface.
+
+===== NEXT =====
+
+Let me refine the exclusion test and test import depth and size limits.
+
+===== NEXT =====
+
+Let me pin down the exact import depth cutoff and test `--setting-sources`.
+
+===== NEXT =====
+
+The depth test may be confounded — the model could have read files itself. Let me re-run with file-reading tools disallowed.

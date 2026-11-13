@@ -1,0 +1,7 @@
+{
+  "loggedIn": true,
+  "authMethod": "oauth_token",
+  "apiProvider": "firstParty",
+  "analyticsDisabled": false,
+  "configDirectory": "C:\\Users\\Admin\\.claude"
+}

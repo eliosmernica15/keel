@@ -1,0 +1,21 @@
+I'll start by fetching the target documentation page.
+
+===== NEXT =====
+
+Now let me gather the cross-referenced pages this page defers to for exact values, and check the local CLI's own help surfaces.
+
+===== NEXT =====
+
+Let me look for "context editing" (in the focus area), `/context` command details, and the compact/clear behaviors.
+
+===== NEXT =====
+
+Let me gather runtime-observable evidence via the CLI's own debug surfaces.
+
+===== NEXT =====
+
+Good runtime signal. Let me verify the compaction behavior end-to-end and the reserve-margin hypothesis.
+
+===== NEXT =====
+
+While that runs, let me examine the compaction lifecycle events in the hooks doc.

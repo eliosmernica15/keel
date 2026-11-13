@@ -1,0 +1,45 @@
+# Keel — workspace ignores
+
+# --- third-party clones, excluded by decision 2026-11-13 ---
+# research/ holds third-party clones this workspace used as reference:
+#   research/codex  — pristine OpenAI Codex CLI (Apache-2.0)
+#   research/rea    — github.com/morluto/rea (reverse-engineering tool)
+#   research/spl    — github.com/asgeirtj/system_prompts_leaks (leaked prompts)
+# Upstream content, not this project's work; spl must not be redistributed.
+# Re-clone any of them on demand instead of vendoring them into this repo.
+research/
+
+# --- scratch probe repo (own git dir, no remote; leave on disk) ---
+.probe/
+
+# --- generated stress-test artifacts (paths too long for Windows) ---
+.verify-skills/blackbox/
+
+# --- secrets: never commit tokens or local env ---
+**/.env.local
+**/.env*.local
+**/.env
+
+# --- build artifacts ---
+node_modules/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# --- python ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.venv/
+venv/
+
+# --- misc ---
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
