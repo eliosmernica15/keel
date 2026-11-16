@@ -1,7 +1,7 @@
 {
-  "name": "Keel Desktop",
-  "short_name": "Keel",
-  "description": "Keel — local, private coding harness. Your agents, your files, your keys, on your machine.",
+  "name": "Keel — mirror (demo)",
+  "short_name": "Keel Mirror",
+  "description": "Public mirror of Keel — a demo shell with no agent and no disk access. The real Keel runs locally: clone github.com/eliosmernica15/keel, python -m keel serve, and install from the browser icon on that page.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0605",

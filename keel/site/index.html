@@ -238,6 +238,27 @@ main{flex:1;min-width:0;position:relative;overflow:hidden}
 .app.mode-chat .foot-note{opacity:1}
 .foot-note b{color:#d6cfb5;font-weight:500}
 
+/* install panel */
+.install{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center}
+.install-backdrop{position:absolute;inset:0;background:rgba(6,4,2,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.install-card{position:relative;width:min(520px,calc(100vw - 32px));border:1px solid var(--edge);border-radius:18px;background:rgba(18,13,9,.92);-webkit-backdrop-filter:blur(36px);backdrop-filter:blur(36px);box-shadow:var(--shadow);padding:22px}
+.install-card h3{margin:0;font-family:var(--display);font-weight:500;font-size:19px;letter-spacing:-.2px}
+.install-card .sub{margin:8px 0 14px;font-size:12.5px;color:var(--muted);line-height:1.55}
+.steps{display:flex;flex-direction:column;gap:9px;margin:0 0 14px;padding:0;list-style:none;counter-reset:step}
+.steps li{counter-increment:step;display:flex;gap:10px;font-size:13px;line-height:1.55}
+.steps li::before{content:counter(step);flex:none;width:20px;height:20px;border-radius:6px;border:1px solid var(--edge);display:grid;place-items:center;font-family:var(--mono);font-size:10px;color:var(--accent)}
+.steps code{font-family:var(--mono);font-size:11px;color:var(--accent);background:rgba(0,0,0,.3);border-radius:5px;padding:1px 5px}
+.install-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-primary{height:34px;padding:0 16px;border-radius:9px;border:1px solid var(--accent-dim);background:rgba(230,213,76,.1);color:var(--accent);font-weight:600;font-size:12.5px}
+.btn-primary:hover{background:var(--accent);color:#171310;border-color:var(--accent)}
+.btn-ghost{height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--edge-dim);color:var(--muted);font-size:12.5px}
+.btn-ghost:hover{color:var(--text);border-color:var(--accent-dim)}
+.install-close{position:absolute;top:12px;right:12px;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;color:var(--muted)}
+.install-close:hover{background:var(--panel-2);color:var(--text)}
+.install-close svg{width:16px;height:16px}
+.demo-note{margin:12px 0 0;font-size:11px;color:var(--muted);line-height:1.55}
+.demo-note code{font-family:var(--mono);font-size:10px;color:var(--accent)}
+
 /* toast */
 .toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,16px);z-index:50;opacity:0;
   background:rgba(16,12,8,.92);border:1px solid var(--edge);border-radius:12px;padding:10px 16px;
@@ -344,6 +365,25 @@ main{flex:1;min-width:0;position:relative;overflow:hidden}
     </form>
     <p class="foot-note" id="foot-note">Keel is AI and can make mistakes. Double-check work that matters · <b>Keel · local</b></p>
   </main>
+</div>
+
+<div class="install" id="install-panel" hidden role="dialog" aria-modal="true" aria-label="Install the real Keel">
+  <div class="install-backdrop" id="install-backdrop"></div>
+  <div class="install-card">
+    <button class="install-close" id="install-close" aria-label="Close"><svg viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8"/></svg></button>
+    <h3>Install the real Keel</h3>
+    <p class="sub">This page is a static public mirror — it can't run an agent or read your disk. Keel Desktop runs on your machine; three steps:</p>
+    <ol class="steps">
+      <li><span>Open a terminal: <code>git clone https://github.com/eliosmernica15/keel.git</code></span></li>
+      <li><span><code>cd keel &amp;&amp; python -m keel serve</code></span></li>
+      <li><span>Open the printed <code>http://127.0.0.1:…/?t=…</code> URL, then click the <b>install icon</b> in the address bar — that is Keel Desktop, folder picker included.</span></li>
+    </ol>
+    <div class="install-actions">
+      <button class="btn-primary" id="copy-install">Copy the commands</button>
+      <button class="btn-ghost" id="install-demo">Install this mirror (demo)</button>
+    </div>
+    <p class="demo-note">Installing this mirror gives you a read-only demo — no agent, no folder access, no keys. For the real thing, follow the steps above.</p>
+  </div>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -594,21 +634,35 @@ document.querySelectorAll(".chip").forEach((chip) =>
     q.focus();
   }));
 
-/* ---------- install (the site IS a PWA — manifest + service worker) ---------- */
+/* install flow: the mirror can't BE the app — it can only point at the real one */
 let deferredPrompt = null;
 window.addEventListener("beforeinstallprompt", (ev) => { ev.preventDefault(); deferredPrompt = ev; });
-async function installApp() {
+const installPanel = $("install-panel");
+const openInstallPanel = () => { installPanel.hidden = false; };
+const closeInstallPanel = () => { installPanel.hidden = true; };
+$("install-pill").addEventListener("click", openInstallPanel);
+$("get-apps").addEventListener("click", openInstallPanel);
+$("install-close").addEventListener("click", closeInstallPanel);
+$("install-backdrop").addEventListener("click", closeInstallPanel);
+document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !installPanel.hidden) closeInstallPanel(); });
+$("copy-install").addEventListener("click", () => {
+  clip("git clone https://github.com/eliosmernica15/keel.git\ncd keel && python -m keel serve")
+    .then(() => toast("Commands copied — then open the URL it prints."))
+    .catch(() => toast("Clipboard blocked by the browser."));
+});
+$("install-demo").addEventListener("click", async () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     const choice = await deferredPrompt.userChoice.catch(() => null);
     deferredPrompt = null;
-    if (choice && choice.outcome === "accepted") toast("Keel installed — check your app list.");
+    if (choice && choice.outcome === "accepted") {
+      closeInstallPanel();
+      toast("Demo installed — for the real Keel, use the steps in that panel.");
+    }
     return;
   }
-  toast("Install from your browser menu — <code>Install app</code> / <code>Add to Home Screen</code>.");
-}
-$("install-pill").addEventListener("click", installApp);
-$("get-apps").addEventListener("click", installApp);
+  toast("This browser won't install the mirror — follow the steps above instead.");
+});
 
 /* ---------- chat-header actions (chat mode) ---------- */
 $("pill-x").addEventListener("click", () => { $("pill-chat").remove(); });

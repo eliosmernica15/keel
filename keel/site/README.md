@@ -15,7 +15,9 @@ Everything here runs locally in the browser tab:
 
 - the morph is pure CSS transitions + one JS toggle
 - prompts are echoed locally (sessionStorage, this tab only, never uploaded)
-- "Install ↓" installs this page as the Keel Desktop PWA (manifest + SW)
+- "Install ↓" opens the install panel: exact commands to run the real
+  Keel locally and install it from its own URL — or install this mirror
+  explicitly as a labeled read-only demo (no agent, no disk access)
 - Share copies the URL, never a key or a message
 - zero tracking, zero analytics, zero external network calls
 
