@@ -598,6 +598,7 @@ function hydrateGeneral() {
   document.body.classList.toggle("reduce-motion", motion === "reduced");
   const notif = !uiSettings.notifications || uiSettings.notifications.response !== false;
   $("notif-toggle").checked = notif;
+  applyTheme(uiSettings.theme || "dark");
 }
 $("work-select").addEventListener("change", (ev) => {
   saveSettingsPatch({ ui: { work: ev.target.value } }).catch(() => {});
@@ -619,6 +620,15 @@ els("#font-chips button").forEach((btn) => btn.addEventListener("click", () => {
   document.body.dataset.font = btn.dataset.font;
   els("#font-chips button").forEach((b) => b.classList.toggle("on", b === btn));
   saveSettingsPatch({ ui: { font: btn.dataset.font } }).catch(() => {});
+}));
+function applyTheme(mode) {
+  if (mode === "system") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", mode);
+  document.querySelectorAll("#theme-seg button").forEach((b) => b.classList.toggle("on", b.dataset.theme === mode));
+}
+els("#theme-seg button").forEach((btn) => btn.addEventListener("click", () => {
+  applyTheme(btn.dataset.theme);
+  saveSettingsPatch({ ui: { theme: btn.dataset.theme } }).catch(() => {});
 }));
 els("#motion-seg button").forEach((btn) => btn.addEventListener("click", () => {
   document.body.classList.toggle("reduce-motion", btn.dataset.motion === "reduced");

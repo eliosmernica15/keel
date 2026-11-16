@@ -7,7 +7,8 @@
 <link rel="manifest" href="/manifest.webmanifest" />
 <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
 <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
-<meta name="theme-color" content="#0a0605" />
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0605" />
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f4ef" />
 <meta name="description" content="Keel Desktop and Keel Code — your agentic coding harness, local and private. Same machine, same bridge, one app you install." />
 <link rel="stylesheet" href="/ui/style.css" />
 </head>
@@ -227,7 +228,7 @@
           <div class="card">
             <h3>Appearance</h3>
             <div class="row-line"><span>Theme</span>
-              <div class="seg-mini"><button class="on" disabled title="Keel ships dark today">Dark</button><button disabled title="Nothing to switch to yet — no hidden themes">Light</button></div></div>
+              <div class="seg-mini" id="theme-seg"><button data-theme="dark" class="on">Dark</button><button data-theme="light">Light</button><button data-theme="system">System</button></div></div>
             <div class="row-line"><span>Motion</span>
               <div class="seg-mini" id="motion-seg"><button data-motion="system" class="on">System</button><button data-motion="reduced">Reduced</button></div></div>
             <div class="row-line"><span>Chat font</span>
