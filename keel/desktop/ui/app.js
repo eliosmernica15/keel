@@ -475,6 +475,139 @@ $("btn-search-recents").addEventListener("click", () => {
   renderRecents();
 });
 
+/* -------------------------------------------------------- folder picker */
+/* Local-bridge directory navigator. Works only against `keel serve` — the
+   public site doesn't have it, by design. */
+
+const fsToken = () => {
+  const p = new URLSearchParams(location.search);
+  return p.get("t") || sessionStorage.getItem("keel_token") || "";
+};
+const fsHeaders = () => ({ "X-Keel-Token": fsToken() });
+const picker = $("fs-picker");
+const fsListEl = $("fs-list");
+const fsErrorEl = $("fs-error");
+const fsPathEl = $("fs-path");
+const fsRootsEl = $("fs-roots");
+let pickerPath = "";
+let workdir = null;
+
+function fsError(msg) {
+  fsErrorEl.hidden = !msg;
+  fsErrorEl.textContent = msg || "";
+}
+
+function joinPath(base, name) {
+  const sep = base.includes("\\") ? "\\" : "/";
+  return base.endsWith("\\") || base.endsWith("/") ? base + name : base + sep + name;
+}
+
+function baseName(path) {
+  const parts = String(path).split(/[\\/]+/).filter(Boolean);
+  return parts.length ? parts[parts.length - 1] : path;
+}
+
+function openFsPicker() {
+  picker.hidden = false;
+  fsError("");
+  loadFs(workdir || "");
+}
+function closeFsPicker() { picker.hidden = true; }
+
+async function loadFs(path) {
+  fsError("");
+  try {
+    const q = path ? `?path=${encodeURIComponent(path)}` : "";
+    const r = await fetch(`/api/fs/list${q}`, { headers: fsHeaders() });
+    if (r.status === 404 || r.status === 405) {
+      fsPathEl.textContent = "—";
+      fsRootsEl.textContent = "";
+      fsListEl.textContent = "";
+      fsError("This folder browser needs the updated bridge — quit and restart `keel serve`, then reopen this window.");
+      return;
+    }
+    if (!r.ok) { fsError(`bridge refused the listing (http ${r.status}).`); return; }
+    const doc = await r.json();
+    pickerPath = doc.path || "";
+    fsPathEl.textContent = pickerPath;
+    fsRootsEl.textContent = "";
+    for (const root of doc.roots || []) {
+      const chip = el("button", { className: "root-chip", type: "button", textContent: root });
+      chip.addEventListener("click", () => loadFs(root));
+      fsRootsEl.appendChild(chip);
+    }
+    const rows = [];
+    if (doc.parent) {
+      rows.push({ name: "..", up: true });
+    }
+    for (const dir of doc.dirs || []) rows.push({ name: dir.name });
+    fsListEl.textContent = "";
+    if (!rows.length) {
+      fsListEl.appendChild(el("p", { className: "picker-empty", textContent: "No subfolders here — this folder itself can be used." }));
+    } else {
+      for (const row of rows) {
+        const btn = el("button", { className: "picker-row", type: "button", role: "option" });
+        const icon = el("svg", { viewBox: "0 0 16 16" });
+        if (row.up) {
+          icon.innerHTML = '<path d="M8 13V3M3.5 7.5L8 3l4.5 4.5"/>';
+        } else {
+          icon.innerHTML = '<path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/>';
+        }
+        btn.appendChild(icon);
+        btn.appendChild(el("span", { className: "name", textContent: row.name }));
+        btn.addEventListener("click", () => loadFs(row.up ? doc.parent : joinPath(pickerPath, row.name)));
+        fsListEl.appendChild(btn);
+      }
+    }
+    if (doc.warning) fsError(doc.warning);
+    if (doc.truncated) fsError("Showing the first folders only.");
+  } catch {
+    fsError("Bridge unreachable — is `keel serve` running?");
+  }
+}
+
+function setWorkdirUI(path) {
+  workdir = path || null;
+  for (const id of ["workdir-pill-chat", "workdir-pill-code"]) {
+    const pill = $(id);
+    if (!pill) continue;
+    pill.hidden = !workdir;
+    pill.querySelector("span").textContent = workdir ? `working in: ${baseName(workdir)}` : "";
+    pill.title = workdir ? `Working folder: ${workdir}` : "No working folder set";
+  }
+}
+
+async function applyWorkdir(path) {
+  try {
+    const r = await fetch("/api/workdir", {
+      method: "POST",
+      headers: { ...fsHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ path }),
+    });
+    const doc = await r.json().catch(() => ({}));
+    if (!r.ok) { fsError(doc.error || `bridge refused (http ${r.status}).`); return; }
+    setWorkdirUI(doc.path);
+    closeFsPicker();
+    systemNote(doc.path
+      ? `working folder set to ${doc.path} — the agent's tools will run there.`
+      : "working folder reset — the agent runs from the bridge's folder.", "system", state.surface);
+  } catch {
+    fsError("Bridge unreachable — is `keel serve` running?");
+  }
+}
+
+$("fs-use").addEventListener("click", () => applyWorkdir(pickerPath));
+$("fs-reset").addEventListener("click", () => applyWorkdir(null));
+$("fs-close").addEventListener("click", closeFsPicker);
+$("fs-backdrop").addEventListener("click", closeFsPicker);
+$("fs-up").addEventListener("click", () => {
+  if (!pickerPath) return;
+  const trimmed = pickerPath.replace(/[\\/]+$/, "");
+  const idx = Math.max(trimmed.lastIndexOf("\\"), trimmed.lastIndexOf("/"));
+  loadFs(idx > 0 ? trimmed.slice(0, idx) : trimmed.slice(0, idx + 1));
+});
+document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !picker.hidden) closeFsPicker(); });
+
 /* ----------------------------------------------------------------- wiring */
 
 $("nav-new").addEventListener("click", () => {
@@ -511,11 +644,7 @@ $("win-close").addEventListener("click", () => window.close());
 $("nav-back").addEventListener("click", () => history.back());
 $("nav-forward").addEventListener("click", () => history.forward());
 
-$("folder-chat").addEventListener("click", () => {
-  setSurface("chat");
-  prompts.chat.value = "Open a project from my machine and tell me what we are working on, and what I should do next.";
-  prompts.chat.focus();
-});
+$("folder-chat").addEventListener("click", openFsPicker);
 document.querySelectorAll(".idea").forEach((btn) =>
   btn.addEventListener("click", () => {
     setSurface("chat");
@@ -534,8 +663,7 @@ $("start-auto").addEventListener("click", () => {
   systemNote("Autopilot armed — Keel will not ask before running tools. Stay nearby.", "system", "code");
 });
 
-$("chip-computer").addEventListener("click", () =>
-  systemNote("Keel always runs on this machine — this UI and the agent share 127.0.0.1. Nothing is relayed to the internet.", "system", "code"));
+$("chip-computer").addEventListener("click", openFsPicker);
 $("chip-mode").addEventListener("click", () => {
   const idx = MODE_CYCLE.indexOf(currentMode());
   const next = MODE_CYCLE[(idx + 1) % MODE_CYCLE.length];
@@ -574,6 +702,10 @@ syncModeUI();
 renderRecents();
 setSurface(localStorage.getItem("keel_surface") === "code" ? "code" : "chat", { focus: false });
 if (window.innerWidth <= 900) rootEl.classList.add("sidebar-hidden");
+fetch("/api/workdir", { headers: fsHeaders() })
+  .then((r) => (r.ok ? r.json() : null))
+  .then((doc) => { if (doc && doc.path) setWorkdirUI(doc.path); })
+  .catch(() => {});
 
 if (!bridge.live) {
   systemNote("demo mode — open the URL printed by `keel serve` for the real backend", "system", state.surface);
