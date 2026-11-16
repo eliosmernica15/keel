@@ -637,3 +637,23 @@ Emits (verified on Windows, exit 0):
   result honestly. Screenshots verified for both surfaces. Service worker
   re-registered and activated as v3. Local recents list left clean
   (verification entries removed). The public Vercel site is unchanged.
+
+- **Local folder picker + home-chat morph public site (2026-11-16)**:
+  the PWA can bind agent tools to any folder on this machine — the bridge
+  gained token-gated /api/fs/roots and /api/fs/list (directory names only)
+  plus /api/workdir (POST set/clear, GET read; memory only, never disk);
+  `/api/run` now spawns keel with cwd=<workdir>. The PWA shows a real
+  picker (drives, parent navigation, Use/Reset), a working-in pill on both
+  surfaces, and degrades honestly (restart message) against an unrestarted
+  keel-serve. Verified end-to-end against a fresh bridge instance: full
+  picker flow to "working in: Claude clone".
+  The Vercel site is now the Keel Desktop home screen that morphs (composer
+  into the pill) into the conversation layout on Enter — mirror-mode
+  replies, zero third-party branding. Verified live on
+  keel-desktop.vercel.app: zero console errors, morph exercised both ways,
+  this-visit prompts stored in sessionStorage only. No live model turn was
+  involved; the mirror never claims one.
+
+  NOTE: the keel-serve instance that was already running keeps the old
+  bridge code in memory until it is restarted — until then the PWA's
+  folder picker shows the restart reminder instead of browsing.
