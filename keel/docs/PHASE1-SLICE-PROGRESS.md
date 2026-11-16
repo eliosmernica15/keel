@@ -605,3 +605,19 @@ Emits (verified on Windows, exit 0):
   ~0.5-1.1s. Four connectors verified live through bridge: github (26
   tools), filesystem (16), memory (9), sequential-thinking (1).
   (6) 415/415 pytest green after all changes.
+
+- **Vercel deploy of Keel Desktop (2026-11-16)**: the `keel-desktop` Vercel
+  project (`losis-projects/keel-desktop`) is now connected to this repo,
+  with Root Directory = `keel/site`, Framework Preset = Other, Output
+  Directory = `.`, auto-deploys on push to main. Deployed to production and
+  live at https://keel-desktop.vercel.app (alias) plus the unique URL.
+  All 12 public assets verified 200 (HTML+CSS+JS+SW+manifest+icons+fonts),
+  404 router intact. The deployed site is intentionally only the app shell
+  — Keel's bridge is not reachable from the internet, by design. Local PWA:
+  `keel serve --port 8744` serves the original `desktop/ui` at
+  127.0.0.1:8744 with all absolute refs; /api/health 200; verified.
+
+  Verification: `curl` from this machine for all public assets; keel serve
+  HTML + JS served; /api/health returns {"ok":true, version}; icons present
+  (192/512/256+ico); manifest.webmanifest starts PWA with proper icons and
+  theme colors; service worker caches shell.

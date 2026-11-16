@@ -352,3 +352,10 @@ per-folder and revocable.
   in Customize now adds/holds real MCP servers with one-click handshake
   verification. MCP starts concurrently. This closed the "project opens a
   random old chat" and "connectors are decorative" gaps.
+
+
+- **Keel Desktop deployed + PWA verifiable (2026-11-16)**: deployed to
+  Vercel as a static app shell (repo-linked, auto-deploy). The app shell
+  loads standalone on the internet; chat functionality remains local-only
+  (bridge is 127.0.0.1). `keel serve` remains the entry point for the
+  actually-working agent on your own machine.
