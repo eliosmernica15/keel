@@ -28,81 +28,221 @@ const clip = (t) => (navigator.clipboard ? navigator.clipboard.writeText(t) : Pr
   $("greet").textContent = part + ", how are things?";
 })();
 
-/* ---------- recents with pinning (this machine's storage only) ---------- */
-const RECENT_CAP = 50;
-const RECENT_KEY = "keel_recents_v1";
-const loadRecents = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; } };
-const saveRecents = (arr) => { try { localStorage.setItem(RECENT_KEY, JSON.stringify(arr.slice(0, RECENT_CAP))); } catch {} };
-let recentFilter = "";
+/* ---------- this visit's prompts (sessionStorage only) ---------- */
+const VISIT_KEY = "keel_visit_prompts_v1";
+function loadVisit() {
+  try {
+    const raw = JSON.parse(sessionStorage.getItem(VISIT_KEY) || "[]");
+    if (!Array.isArray(raw)) return [];
+    return raw.map((entry) =>
+      typeof entry === "string"
+        ? { id: `legacy-${entry.slice(0, 20)}-${entry.length}`, text: entry, ts: 0, pinned: false, unread: false, archived: false }
+        : entry);
+  } catch { return []; }
+}
+function saveVisit(items) {
+  try { sessionStorage.setItem(VISIT_KEY, JSON.stringify(items.slice(0, 50))); } catch {}
+}
+function patchVisit(id, patch) {
+  saveVisit(loadVisit().map((item) => (item.id === id ? { ...item, ...patch } : item)));
+  renderVisitList();
+}
+function addVisit(text, surface) {
+  const items = loadVisit();
+  items.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, text, surface, ts: Date.now(), pinned: false, unread: false, archived: false });
+  saveVisit(items);
+  renderVisitList();
+}
+function togglePinVisit(id) {
+  const target = loadVisit().find((i) => i.id === id);
+  patchVisit(id, { pinned: !(target && target.pinned) });
+}
+function toggleUnreadVisit(id) {
+  const target = loadVisit().find((i) => i.id === id);
+  patchVisit(id, { unread: !(target && target.unread) });
+}
+let sortAsc = false;
+let showArchived = false;
 
-function addRecent(text, surface) {
-  const items = loadRecents();
-  items.unshift({
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    text,
-    surface,
-    ts: Date.now(),
-    pinned: false,
-  });
-  saveRecents(items);
-  renderRecents();
+const moreIconSvg = '<svg viewBox="0 0 16 16"><circle cx="3.5" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="12.5" cy="8" r="1.3"/></svg>';
+
+function refreshArchivedToggle(items) {
+  const archived = items.filter((i) => i.archived).length;
+  const btn = $("btn-show-archived");
+  btn.hidden = archived === 0;
+  btn.textContent = `Archived (${archived})`;
+  btn.classList.toggle("on", showArchived);
 }
 
-function togglePin(id) {
-  const items = loadRecents().map((item) => (item.id === id ? { ...item, pinned: !item.pinned } : item));
-  saveRecents(items);
-  renderRecents();
-}
-
-function renderRecents() {
-  const items = loadRecents();
-  const match = (item) => !recentFilter || item.text.toLowerCase().includes(recentFilter);
-  const pinned = items.filter((item) => item.pinned && match(item));
-  const rest = items.filter((item) => !item.pinned && match(item)).slice(0, 20);
+function renderVisitList() {
+  const items = loadVisit();
+  const pinnedList = $("pinned-list");
+  const recentsList = $("recents-list");
+  const empty = $("chats-empty");
+  pinnedList.textContent = "";
+  recentsList.textContent = "";
+  empty.style.display = items.length ? "none" : "";
+  const ordered = sortAsc ? [...items].reverse() : items;
+  const visible = ordered.filter((i) => showArchived || !i.archived);
+  const pinned = visible.filter((i) => i.pinned);
+  const rest = visible.filter((i) => !i.pinned);
   const paint = (container, list) => {
-    container.textContent = "";
     for (const item of list) {
       const row = document.createElement("div");
-      row.className = `item${item.pinned ? " pinned" : ""}`;
-      row.tabIndex = 0;
-      row.setAttribute("role", "button");
+      row.className = `item${item.pinned ? " pinned" : ""}${item.unread ? " unread" : ""}${item.archived ? " archived" : ""}`;
       row.title = item.text;
+      row.tabIndex = 0;
+      if (item.unread) {
+        const dot = document.createElement("span");
+        dot.className = "dot";
+        row.appendChild(dot);
+      }
       const icon = document.createElement("svg");
+      icon.className = "ic";
       icon.setAttribute("viewBox", "0 0 16 16");
-      icon.classList.add("ic");
       icon.innerHTML = item.surface === "code"
         ? '<path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3M9 4l-2 8"/>'
         : '<path d="M9.5 3.5h-5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h.5v2l2.5-2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2z"/>';
       row.appendChild(icon);
-      const span = document.createElement("span");
-      span.className = "t";
-      span.textContent = item.text;
-      row.appendChild(span);
-      const pin = document.createElement("button");
-      pin.className = "pin";
-      pin.type = "button";
-      pin.setAttribute("aria-label", item.pinned ? "Unpin" : "Pin");
-      const pinSvg = document.createElement("svg");
-      pinSvg.setAttribute("viewBox", "0 0 16 16");
-      pinSvg.innerHTML = '<path d="M9.6 2.4l4 4-2 .6-2.2 2.2.4 2.6-1.6 1.6-3-3-3.6 3.6-.4-.4 3.6-3.6-3-3 1.6-1.6 2.6.4 2.2-2.2z"/>';
-      pin.appendChild(pinSvg);
-      pin.addEventListener("click", (ev) => { ev.stopPropagation(); togglePin(item.id); });
-      row.appendChild(pin);
-      const launch = () => {
-        setMode(item.surface === "code" ? "code" : "chat");
-        document.getElementById("q").value = item.text;
-        updateSendState();
-        document.getElementById("q").focus();
-      };
+      const t = document.createElement("span");
+      t.className = "t";
+      t.textContent = item.text;
+      row.appendChild(t);
+      const tag = item.project || item.group;
+      if (tag) {
+        const chip = document.createElement("span");
+        chip.className = "tag-chip";
+        chip.textContent = tag;
+        row.appendChild(chip);
+      }
+      const more = document.createElement("button");
+      more.className = "more";
+      more.type = "button";
+      more.setAttribute("aria-label", "Chat options");
+      more.innerHTML = moreIconSvg;
+      more.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (!recentsMenu.hidden && menuItemId === item.id) { closeRecentsMenu(); return; }
+        openRecentsMenu(item, more.getBoundingClientRect());
+      });
+      row.appendChild(more);
+      const launch = () => { q.value = item.text; updateSendState(); patchVisit(item.id, { unread: false }); q.focus(); };
       row.addEventListener("click", launch);
       row.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); launch(); } });
       container.appendChild(row);
     }
   };
-  paint($("pinned-list"), pinned);
-  paint($("recents-list"), rest);
-  $("recents-empty").style.display = items.length === 0 ? "" : "none";
+  paint(pinnedList, pinned);
+  paint(recentsList, rest);
+  refreshArchivedToggle(items);
 }
+
+/* ---------- item context menu — Mark unread · Pin · Rename · Add to project · Move to group · Archive · Delete ---------- */
+
+const recentsMenu = $("recents-menu");
+let menuItemId = null;
+
+function openRecentsMenu(item, anchor) {
+  menuItemId = item.id;
+  recentsMenu.hidden = false;
+  const mw = 240, mh = recentsMenu.offsetHeight || 320;
+  let left = Math.max(8, Math.min(window.innerWidth - mw - 8, anchor.right - mw));
+  let top = anchor.bottom + 6;
+  if (top + mh > window.innerHeight - 8) top = Math.max(8, anchor.top - mh - 6);
+  recentsMenu.style.left = `${left}px`;
+  recentsMenu.style.top = `${top}px`;
+  recentsMenu.querySelector('[data-action="unread"] .ctx-label').textContent = item.unread ? "Mark as read" : "Mark as unread";
+  recentsMenu.querySelector('[data-action="pin"] .ctx-label').textContent = item.pinned ? "Unpin" : "Pin";
+  recentsMenu.querySelector('[data-action="archive"] .ctx-label').textContent = item.archived ? "Unarchive" : "Archive";
+  populateFlyout("project", $("project-list"), item.project, "Remove from project");
+  populateFlyout("group", $("group-list"), item.group, "Move out of group");
+}
+function closeRecentsMenu() {
+  recentsMenu.hidden = true;
+  menuItemId = null;
+}
+function visitMenuAction(action) {
+  const id = menuItemId;
+  if (!id) return;
+  const items = loadVisit();
+  const item = items.find((i) => i.id === id);
+  if (!item) { closeRecentsMenu(); return; }
+  switch (action) {
+    case "unread": toggleUnreadVisit(id); break;
+    case "pin": togglePinVisit(id); break;
+    case "rename": {
+      const next = window.prompt("Rename this chat:", item.text);
+      if (next && next.trim()) patchVisit(id, { text: next.trim() });
+      break;
+    }
+    case "archive":
+      patchVisit(id, { archived: !item.archived });
+      if (!item.archived) toast("Archived — hidden until you toggle “Archived”.");
+      break;
+    case "delete":
+      if (!window.confirm("Delete this chat from this browser? This can't be undone.")) break;
+      saveVisit(items.filter((i) => i.id !== id));
+      renderVisitList();
+      break;
+  }
+  closeRecentsMenu();
+}
+function populateFlyout(kind, container, current, clearLabel) {
+  container.textContent = "";
+  const items = loadVisit();
+  const names = [...new Set(items.map((i) => i[kind]).filter(Boolean))].slice(0, 6);
+  for (const name of names) {
+    const b = document.createElement("button");
+    b.className = "fly-item";
+    b.type = "button";
+    b.textContent = name;
+    if (name === current) {
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = "current";
+      b.appendChild(tag);
+    }
+    b.addEventListener("click", () => { patchVisit(menuItemId, { [kind]: name }); closeRecentsMenu(); });
+    container.appendChild(b);
+  }
+  if (current) {
+    const clear = document.createElement("button");
+    clear.className = "fly-item fly-clear";
+    clear.type = "button";
+    clear.textContent = clearLabel;
+    clear.addEventListener("click", () => { patchVisit(menuItemId, { [kind]: undefined }); closeRecentsMenu(); });
+    container.appendChild(clear);
+  }
+  const fresh = document.createElement("button");
+  fresh.className = "fly-item fly-new";
+  fresh.type = "button";
+  fresh.textContent = kind === "project" ? "New project…" : "New group…";
+  fresh.addEventListener("click", () => {
+    const name = window.prompt(kind === "project" ? "New project name:" : "New group name:");
+    if (name && name.trim()) patchVisit(menuItemId, { [kind]: name.trim() });
+    closeRecentsMenu();
+  });
+  container.appendChild(fresh);
+}
+recentsMenu.addEventListener("click", (ev) => {
+  const btn = ev.target.closest("[data-action]");
+  if (btn) { ev.stopPropagation(); visitMenuAction(btn.dataset.action); }
+});
+document.addEventListener("click", (ev) => {
+  if (!recentsMenu.hidden && !recentsMenu.contains(ev.target)) closeRecentsMenu();
+});
+document.addEventListener("keydown", (ev) => {
+  if (!recentsMenu.hidden) {
+    if (ev.key === "Escape") { closeRecentsMenu(); return; }
+    const k = ev.key.toLowerCase();
+    if (k === "u") { ev.preventDefault(); visitMenuAction("unread"); }
+    else if (k === "p") { ev.preventDefault(); visitMenuAction("pin"); }
+    else if (k === "r") { ev.preventDefault(); visitMenuAction("rename"); }
+    else if (k === "a") { ev.preventDefault(); visitMenuAction("archive"); }
+    else if (k === "d") { ev.preventDefault(); visitMenuAction("delete"); }
+  }
+});
+$("btn-show-archived").addEventListener("click", () => { showArchived = !showArchived; renderVisitList(); });
 
 /* ---------- morph: home <-> chat ---------- */
 const REPO = "https://github.com/eliosmernica15/keel";
@@ -286,7 +426,7 @@ q.addEventListener("input", updateSendState);
 function sendPrompt() {
   const raw = q.value.trim();
   if (!raw) { q.focus(); return; }
-  addRecent(raw, app.classList.contains("mode-code") ? "code" : "chat");
+  addVisit(raw, app.classList.contains("mode-code") ? "code" : "chat");
   bumpUsage("prompts");
   const wasHome = app.classList.contains("mode-home");
   if (app.classList.contains("mode-code")) { if (wasHome) morphToCode(raw); }
@@ -315,7 +455,8 @@ q.addEventListener("keydown", (ev) => {
 });
 
 /* ---------- sidebar collapse ---------- */
-$("tgl-sidebar").addEventListener("click", () => app.classList.toggle("collapsed"));
+$("tgl").addEventListener("click", () => app.classList.add("collapsed"));
+$("open").addEventListener("click", () => app.classList.remove("collapsed"));
 $("chat-title").addEventListener("click", () => app.classList.toggle("collapsed"));
 
 /* ---------- nav: honest wiring, no dead buttons ---------- */
@@ -324,29 +465,45 @@ $("nav-new").addEventListener("click", () => {
   thread.textContent = "";
   app.classList.remove("has-messages");
   $("greet").textContent = "Evening, how are things?";
+  toast("Fresh page — the real session lives in the app.");
 });
+$("nav-search").addEventListener("click", () => {
+  const needle = window.prompt("Filter this visit's prompts:", "");
+  if (needle === null) return;
+  const q2 = needle.trim().toLowerCase();
+  const items = loadVisit().filter((item) => !q2 || item.text.toLowerCase().includes(q2));
+  const list = $("recents-list");
+  list.textContent = "";
+  $("chats-empty").style.display = items.length ? "none" : "";
+  for (const item of items) {
+    const row = document.createElement("div");
+    row.className = "item";
+    const t = document.createElement("span");
+    t.className = "t";
+    t.textContent = item.text;
+    row.appendChild(t);
+    row.addEventListener("click", () => { q.value = item.text; updateSendState(); q.focus(); });
+    list.appendChild(row);
+  }
+});
+$("nav-projects").addEventListener("click", () => toast("Projects live where Keel runs — <code>python -m keel serve</code>."));
+$("nav-artifacts").addEventListener("click", () => toast("Artifacts are produced in the local app — nothing persists on this page."));
+$("nav-code").addEventListener("click", () => setMode("code"));
 $("code-new").addEventListener("click", () => { setMode("code"); q.focus(); });
 $("code-fleet").addEventListener("click", () =>
   toast("The full agent lives in the local app — <code>python -m keel serve</code>."));
 $("nav-customize").addEventListener("click", () => openSettings("general"));
-$("btn-search-recents").addEventListener("click", () => {
-  const next = window.prompt("Filter recents (empty to clear filter):", recentFilter);
-  if (next === null) return;
-  recentFilter = next.trim().toLowerCase();
-  renderRecents();
-});
-$("btn-clear-recents").addEventListener("click", () => {
-  if (!confirm("Clear all saved recents? This only affects this machine's browser storage.")) return;
-  saveRecents([]);
-  renderRecents();
-});
+$("sort-toggle").addEventListener("click", () => { sortAsc = !sortAsc; renderVisitList(); });
+$("clear-recents").addEventListener("click", () => { saveVisit([]); renderVisitList(); });
+$("viewall").addEventListener("click", () => toast("The full history lives on your machine — this page can't see it."));
 
 /* hide/show this visit's prompts (screen privacy) */
 $("hide-recents").addEventListener("click", () => {
   document.body.classList.toggle("hide-recents");
   const hidden = document.body.classList.contains("hide-recents");
-  for (const container of [$("recents-list"), $("pinned-list"), $("recents-empty")]) {
-    if (container) container.style.visibility = hidden ? "hidden" : "";
+  for (const id of ["pinned-list", "recents-list", "chats-empty"]) {
+    const el2 = $(id);
+    if (el2) el2.style.visibility = hidden ? "hidden" : "";
   }
   toast(hidden ? "Prompts hidden on this screen." : "Prompts visible again.");
 });
@@ -539,6 +696,8 @@ function toggleFolderMenu(open) {
 fmSearch.addEventListener("input", () => renderFolderList(fmSearch.value));
 $("fm-open").addEventListener("click", () => { toggleFolderMenu(false); pickAndAttach(); });
 $("attach").addEventListener("click", (ev) => { ev.stopPropagation(); toggleFolderMenu(); });
+$("tgl-menu").addEventListener("click", () => app.classList.toggle("collapsed"));
+$("tgl-sidebar").addEventListener("click", () => app.classList.toggle("collapsed"));
 $("nav-back").addEventListener("click", () => history.back());
 $("nav-forward").addEventListener("click", () => history.forward());
 document.addEventListener("click", (ev) => {
@@ -961,19 +1120,19 @@ function refreshStorageUsage() {
     `localStorage on this browser: ~${(storageBytes() / 1024).toFixed(1)} KB across ${localStorage.length} key(s) — cleared only by you.`;
 }
 $("clear-visit").addEventListener("click", () => {
-  try { localStorage.removeItem(RECENT_KEY); } catch {}
+  try { sessionStorage.removeItem("keel_visit_prompts_v1"); } catch {}
   try { sessionStorage.removeItem(MIRROR_USAGE_KEY); } catch {}
-  renderRecents();
+  renderVisitList();
   refreshStorageUsage();
   refreshUsage();
-  toast("Recents cleared.");
+  toast("Visit prompts cleared.");
 });
 $("clear-all-site").addEventListener("click", () => {
   if (!confirm("Clear everything this site stored on this browser — settings, prompts, all of it?")) return;
   try { localStorage.clear(); } catch {}
   try { sessionStorage.clear(); } catch {}
   try { localStorage.setItem(MIRROR_SETTINGS_KEY, "{}"); } catch {}
-  renderRecents();
+  renderVisitList();
   hydrateGeneral();
   refreshStorageUsage();
   refreshUsage();
@@ -1009,7 +1168,7 @@ importFile.addEventListener("change", async () => {
       if (typeof value === "string") localStorage.setItem(key, value);
     }
     mirrorSettings = loadMirrorSettings();
-    renderRecents();
+    renderVisitList();
     hydrateGeneral();
     note.textContent = "imported — merged into this browser's storage";
     note.className = "hint ok";
@@ -1046,8 +1205,7 @@ $("win-restore").addEventListener("click", () => app.classList.remove("collapsed
 $("win-close").addEventListener("click", () => window.close());
 
 /* ---------- boot ---------- */
-if (window.matchMedia("(max-width: 880px)").matches) app.classList.add("collapsed");
-renderRecents();
+renderVisitList();
 updateSendState();
 hydrateGeneral();
 refreshUsage();
