@@ -1021,6 +1021,63 @@ function setWorkdirUI(path) {
     pill.title = workdir ? `Working folder: ${workdir}` : "No working folder set";
   }
 }
+
+/* recent working folders — kept in THIS machine's storage, capped */
+const RECENT_DIRS_KEY = "keel_recent_workdirs_v1";
+function loadRecentDirs() {
+  try { return JSON.parse(localStorage.getItem(RECENT_DIRS_KEY) || "[]"); } catch { return []; }
+}
+function saveRecentDirs(list) {
+  try { localStorage.setItem(RECENT_DIRS_KEY, JSON.stringify(list.slice(0, 10))); } catch {}
+}
+function recordRecentDir(path) {
+  if (!path) return;
+  const rest = loadRecentDirs().filter((p) => p !== path);
+  saveRecentDirs([path, ...rest]);
+}
+const folderMenu = $("folder-menu");
+const fmSearch = $("fm-search");
+const fmList = $("fm-list");
+function renderFolderList(filter) {
+  const needle = (filter || "").trim().toLowerCase();
+  fmList.textContent = "";
+  const dirs = loadRecentDirs().filter((p) => !needle || p.toLowerCase().includes(needle));
+  if (!dirs.length) {
+    fmList.appendChild(el("p", { className: "fm-empty", textContent: needle
+      ? "No folder matches that name."
+      : "Nothing picked yet — choose one below." }));
+    return;
+  }
+  for (const path of dirs) {
+    const btn = el("button", { className: "fm-item", type: "button", role: "menuitem", title: path });
+    const icon = el("svg", { viewBox: "0 0 16 16" });
+    icon.innerHTML = '<path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/>';
+    btn.appendChild(icon);
+    btn.appendChild(el("span", { className: "n", textContent: baseName(path) }));
+    const parent = path.split(/[\\/]+/).filter(Boolean);
+    btn.appendChild(el("span", { className: "d", textContent: parent.length >= 2 ? parent[parent.length - 2] : "" }));
+    btn.addEventListener("click", () => { toggleFolderMenu(false); applyWorkdir(path); });
+    fmList.appendChild(btn);
+  }
+}
+function toggleFolderMenu(open) {
+  const show = open === undefined ? folderMenu.hidden : open;
+  folderMenu.hidden = !show;
+  if (show) {
+    fmSearch.value = "";
+    renderFolderList("");
+    fmSearch.focus();
+  }
+}
+fmSearch.addEventListener("input", () => renderFolderList(fmSearch.value));
+$("fm-open").addEventListener("click", () => { toggleFolderMenu(false); openFsPicker(); });
+document.addEventListener("click", (ev) => {
+  if (folderMenu.hidden) return;
+  if (!folderMenu.contains(ev.target) && !ev.target.closest("#chip-computer")) toggleFolderMenu(false);
+});
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape" && !folderMenu.hidden) toggleFolderMenu(false);
+});
 async function applyWorkdir(path) {
   try {
     const r = await fetch("/api/workdir", {
@@ -1028,6 +1085,7 @@ async function applyWorkdir(path) {
     });
     const doc = await r.json().catch(() => ({}));
     if (!r.ok) { fsError(doc.error || `bridge refused (http ${r.status}).`); return; }
+    recordRecentDir(doc.path);
     setWorkdirUI(doc.path);
     closeFsPicker();
     systemNote(doc.path
@@ -1082,7 +1140,7 @@ $("start-auto").addEventListener("click", () => {
   requestMode("bypassPermissions");
   systemNote("Autopilot armed — Keel will not ask before running tools. Stay nearby.", "system", "code");
 });
-$("chip-computer").addEventListener("click", openFsPicker);
+$("chip-computer").addEventListener("click", () => toggleFolderMenu());
 $("chip-mode").addEventListener("click", () => {
   const idx = MODE_CYCLE.indexOf(currentMode());
   requestMode(MODE_CYCLE[(idx + 1) % MODE_CYCLE.length]);
