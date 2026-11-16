@@ -450,6 +450,28 @@ function toggleUnread(id) {
 const recentsMenu = $("recents-menu");
 let menuItemId = null;
 
+function populateSectionFlyout(container, currentItem) {
+  container.textContent = "";
+  const items = loadRecents();
+  const names = [...new Set(items.map((i) => i.section).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })).slice(0, 8);
+  for (const name of names) {
+    const b = el("button", { className: "fly-item", type: "button" });
+    b.textContent = name;
+    if (currentItem.section === name) b.appendChild(el("span", { className: "tag", textContent: "current" }));
+    b.addEventListener("click", () => { patchItem(menuItemId, { section: name }); closeRecentsMenu(); });
+    container.appendChild(b);
+  }
+  const fresh = el("button", { className: "fly-item fly-new", type: "button" });
+  fresh.textContent = "New section…";
+  fresh.addEventListener("click", () => {
+    const name = window.prompt("New section name:");
+    if (name && name.trim()) patchItem(menuItemId, { section: name.trim() });
+    closeRecentsMenu();
+  });
+  container.appendChild(fresh);
+}
+
 function openRecentsMenu(item, anchor) {
   menuItemId = item.id;
   recentsMenu.hidden = false;
@@ -464,9 +486,11 @@ function openRecentsMenu(item, anchor) {
   recentsMenu.querySelector('[data-action="unread"] .ctx-label').textContent = item.unread ? "Mark as read" : "Mark as unread";
   recentsMenu.querySelector('[data-action="pin"] .ctx-label').textContent = item.pinned ? "Unpin" : "Pin";
   recentsMenu.querySelector('[data-action="archive"] .ctx-label').textContent = item.archived ? "Unarchive" : "Archive";
+  $("ctx-detach").hidden = !item.section;
   // fill flyouts
   populateFlyout("project", $("project-list"), item.project, "Remove from project");
   populateFlyout("group", $("group-list"), item.group, "Move out of group");
+  populateSectionFlyout($("section-list"), item);
   anchor.focus?.({ preventScroll: true });
 }
 function closeRecentsMenu() {
@@ -487,6 +511,27 @@ function menuAction(action) {
       if (next && next.trim()) patchItem(id, { text: next.trim() });
       break;
     }
+    case "fork": {
+      const fork = { ...item, id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, ts: Date.now(), pinned: false, unread: true, archived: false };
+      items.unshift(fork);
+      saveRecents(items.slice(0, RECENT_CAP));
+      renderRecents();
+      setSurface(item.surface === "code" ? "code" : "chat");
+      prompts[state.surface].value = item.text;
+      updateRing();
+      prompts[state.surface].focus();
+      systemNote("Forked — prompt ready in a fresh conversation.", "system", state.surface);
+      break;
+    }
+    case "detach":
+      patchItem(id, { section: undefined });
+      break;
+    case "open-new-tab":
+      window.open(location.href, "_blank", "noopener");
+      break;
+    case "open-new-window":
+      window.open(location.href, "_blank", "width=1280,height=860,noopener");
+      break;
     case "archive":
       patchItem(id, { archived: !item.archived });
       if (!item.archived) systemNote("Archived — hidden from Recents; toggle “Archived” to see it again.", "system", state.surface);
@@ -513,6 +558,7 @@ document.addEventListener("keydown", (ev) => {
     if (k === "u") { ev.preventDefault(); menuAction("unread"); }
     else if (k === "p") { ev.preventDefault(); menuAction("pin"); }
     else if (k === "r") { ev.preventDefault(); menuAction("rename"); }
+    else if (k === "f") { ev.preventDefault(); menuAction("fork"); }
     else if (k === "a") { ev.preventDefault(); menuAction("archive"); }
     else if (k === "d") { ev.preventDefault(); menuAction("delete"); }
   }
@@ -556,46 +602,62 @@ $("btn-show-archived").addEventListener("click", () => { showArchived = !showArc
 
 const moreIconSvg = '<svg viewBox="0 0 16 16"><circle cx="3.5" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="12.5" cy="8" r="1.3"/></svg>';
 
+function makeVisitRow(item) {
+  const row = el("div", { className: `item${item.pinned ? " pinned" : ""}${item.unread ? " unread" : ""}${item.archived ? " archived" : ""}`, tabindex: "0", role: "button", title: item.text });
+  if (item.unread) row.appendChild(el("span", { className: "dot" }));
+  const icon = el("svg", { className: "ic", viewBox: "0 0 16 16" });
+  icon.innerHTML = item.surface === "code"
+    ? '<path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3M9 4l-2 8"/>'
+    : '<path d="M9.5 3.5h-5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h.5v2l2.5-2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2z"/>';
+  row.appendChild(icon);
+  row.appendChild(el("span", { className: "t", textContent: item.text }));
+  const tag = item.project || item.group;
+  if (tag) row.appendChild(el("span", { className: "tag-chip", textContent: tag }));
+  const more = el("button", { className: "more", "aria-label": "Chat options", type: "button" });
+  more.innerHTML = moreIconSvg;
+  more.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    if (!recentsMenu.hidden && menuItemId === item.id) { closeRecentsMenu(); return; }
+    openRecentsMenu(item, more.getBoundingClientRect());
+  });
+  row.appendChild(more);
+  const launch = () => {
+    setSurface(item.surface === "code" ? "code" : "chat");
+    prompts[state.surface].value = item.text;
+    patchItem(item.id, { unread: false });
+    prompts[state.surface].focus();
+  };
+  row.addEventListener("click", launch);
+  row.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); launch(); } });
+  return row;
+}
+
 function renderRecents() {
   const items = loadRecents();
   const match = (item) => !recentFilter || item.text.toLowerCase().includes(recentFilter);
+  const pinnedList = $("pinned-list");
+  const recentsList = $("recents-list");
+  const groupsBox = $("recents-groups");
+  pinnedList.textContent = "";
+  recentsList.textContent = "";
+  groupsBox.textContent = "";
   const visible = items.filter((item) => showArchived || !item.archived);
   const pinned = visible.filter((item) => item.pinned && match(item));
-  const rest = visible.filter((item) => !item.pinned && match(item)).slice(0, 20);
-  const paint = (container, list) => {
-    container.textContent = "";
-    for (const item of list) {
-      const row = el("div", { className: `item${item.pinned ? " pinned" : ""}${item.unread ? " unread" : ""}${item.archived ? " archived" : ""}`, tabindex: "0", role: "button", title: item.text });
-      if (item.unread) row.appendChild(el("span", { className: "dot" }));
-      const icon = el("svg", { className: "ic", viewBox: "0 0 16 16" });
-      icon.innerHTML = item.surface === "code"
-        ? '<path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3M9 4l-2 8"/>'
-        : '<path d="M9.5 3.5h-5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h.5v2l2.5-2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2z"/>';
-      row.appendChild(icon);
-      row.appendChild(el("span", { className: "t", textContent: item.text }));
-      const tag = item.project || item.group;
-      if (tag) row.appendChild(el("span", { className: "tag-chip", textContent: tag }));
-      const more = el("button", { className: "more", "aria-label": "Chat options", type: "button" });
-      more.innerHTML = moreIconSvg;
-      more.addEventListener("click", (ev) => {
-        ev.stopPropagation();
-        if (!recentsMenu.hidden && menuItemId === item.id) { closeRecentsMenu(); return; }
-        openRecentsMenu(item, more.getBoundingClientRect());
-      });
-      row.appendChild(more);
-      const launch = () => {
-        setSurface(item.surface === "code" ? "code" : "chat");
-        prompts[state.surface].value = item.text;
-        patchItem(item.id, { unread: false });
-        prompts[state.surface].focus();
-      };
-      row.addEventListener("click", launch);
-      row.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); launch(); } });
-      container.appendChild(row);
-    }
-  };
-  paint($("pinned-list"), pinned);
-  paint($("recents-list"), rest);
+  const restAll = visible.filter((item) => !item.pinned && match(item));
+  const sectionNames = [...new Set(restAll.map((i) => i.section).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  for (const name of sectionNames) {
+    const lbl = el("div", { className: "lbl" });
+    lbl.appendChild(el("span", { textContent: name }));
+    groupsBox.appendChild(lbl);
+    const box = el("div", { className: "recents" });
+    for (const item of restAll.filter((i) => i.section === name && match(i))) box.appendChild(makeVisitRow(item));
+    groupsBox.appendChild(box);
+  }
+  for (const item of pinned) pinnedList.appendChild(makeVisitRow(item));
+  for (const item of restAll.filter((i) => !i.section).slice(0, 20)) {
+    if (match(item)) recentsList.appendChild(makeVisitRow(item));
+  }
   $("recents-empty").style.display = items.length === 0 ? "" : "none";
   refreshArchivedToggle(items);
 }

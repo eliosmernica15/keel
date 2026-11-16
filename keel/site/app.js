@@ -29,19 +29,33 @@ const clip = (t) => (navigator.clipboard ? navigator.clipboard.writeText(t) : Pr
 })();
 
 /* ---------- this visit's prompts (sessionStorage only) ---------- */
-const VISIT_KEY = "keel_visit_prompts_v1";
+const VISIT_KEY = "keel_visit_prompts_v2";
+const LEGACY_VISIT_KEY = "keel_visit_prompts_v1";
+
 function loadVisit() {
   try {
-    const raw = JSON.parse(sessionStorage.getItem(VISIT_KEY) || "[]");
+    // one-time migration: this tab's sessionStorage list -> shared localStorage
+    const legacy = sessionStorage.getItem(LEGACY_VISIT_KEY);
+    if (legacy && !localStorage.getItem(VISIT_KEY)) {
+      try {
+        const parsed = JSON.parse(legacy);
+        if (Array.isArray(parsed) && parsed.length) {
+          const migrated = parsed.map((entry) =>
+            typeof entry === "string"
+              ? { id: `legacy-${entry.slice(0, 20)}-${entry.length}`, text: entry, ts: 0, pinned: false, unread: false, archived: false }
+              : entry);
+          localStorage.setItem(VISIT_KEY, JSON.stringify(migrated.slice(0, 50)));
+        }
+      } catch { /* start fresh */ }
+      sessionStorage.removeItem(LEGACY_VISIT_KEY);
+    }
+    const raw = JSON.parse(localStorage.getItem(VISIT_KEY) || "[]");
     if (!Array.isArray(raw)) return [];
-    return raw.map((entry) =>
-      typeof entry === "string"
-        ? { id: `legacy-${entry.slice(0, 20)}-${entry.length}`, text: entry, ts: 0, pinned: false, unread: false, archived: false }
-        : entry);
+    return raw;
   } catch { return []; }
 }
 function saveVisit(items) {
-  try { sessionStorage.setItem(VISIT_KEY, JSON.stringify(items.slice(0, 50))); } catch {}
+  try { localStorage.setItem(VISIT_KEY, JSON.stringify(items.slice(0, 50))); } catch {}
 }
 function patchVisit(id, patch) {
   saveVisit(loadVisit().map((item) => (item.id === id ? { ...item, ...patch } : item)));
@@ -74,66 +88,81 @@ function refreshArchivedToggle(items) {
   btn.classList.toggle("on", showArchived);
 }
 
+function makeVisitRow(item) {
+  const row = document.createElement("div");
+  row.className = `item${item.pinned ? " pinned" : ""}${item.unread ? " unread" : ""}${item.archived ? " archived" : ""}`;
+  row.title = item.text;
+  row.tabIndex = 0;
+  if (item.unread) {
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    row.appendChild(dot);
+  }
+  const icon = document.createElement("svg");
+  icon.className = "ic";
+  icon.setAttribute("viewBox", "0 0 16 16");
+  icon.innerHTML = item.surface === "code"
+    ? '<path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3M9 4l-2 8"/>'
+    : '<path d="M9.5 3.5h-5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h.5v2l2.5-2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2z"/>';
+  row.appendChild(icon);
+  const t = document.createElement("span");
+  t.className = "t";
+  t.textContent = item.text;
+  row.appendChild(t);
+  const tag = item.project || item.group;
+  if (tag) {
+    const chip = document.createElement("span");
+    chip.className = "tag-chip";
+    chip.textContent = tag;
+    row.appendChild(chip);
+  }
+  const more = document.createElement("button");
+  more.className = "more";
+  more.type = "button";
+  more.setAttribute("aria-label", "Chat options");
+  more.innerHTML = moreIconSvg;
+  more.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    if (!recentsMenu.hidden && menuItemId === item.id) { closeRecentsMenu(); return; }
+    openRecentsMenu(item, more.getBoundingClientRect());
+  });
+  row.appendChild(more);
+  const launch = () => { q.value = item.text; updateSendState(); patchVisit(item.id, { unread: false }); q.focus(); };
+  row.addEventListener("click", launch);
+  row.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); launch(); } });
+  return row;
+}
+
 function renderVisitList() {
   const items = loadVisit();
   const pinnedList = $("pinned-list");
   const recentsList = $("recents-list");
+  const groupsBox = $("recents-groups");
   const empty = $("chats-empty");
   pinnedList.textContent = "";
   recentsList.textContent = "";
+  groupsBox.textContent = "";
   empty.style.display = items.length ? "none" : "";
   const ordered = sortAsc ? [...items].reverse() : items;
   const visible = ordered.filter((i) => showArchived || !i.archived);
   const pinned = visible.filter((i) => i.pinned);
-  const rest = visible.filter((i) => !i.pinned);
-  const paint = (container, list) => {
-    for (const item of list) {
-      const row = document.createElement("div");
-      row.className = `item${item.pinned ? " pinned" : ""}${item.unread ? " unread" : ""}${item.archived ? " archived" : ""}`;
-      row.title = item.text;
-      row.tabIndex = 0;
-      if (item.unread) {
-        const dot = document.createElement("span");
-        dot.className = "dot";
-        row.appendChild(dot);
-      }
-      const icon = document.createElement("svg");
-      icon.className = "ic";
-      icon.setAttribute("viewBox", "0 0 16 16");
-      icon.innerHTML = item.surface === "code"
-        ? '<path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3M9 4l-2 8"/>'
-        : '<path d="M9.5 3.5h-5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h.5v2l2.5-2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2z"/>';
-      row.appendChild(icon);
-      const t = document.createElement("span");
-      t.className = "t";
-      t.textContent = item.text;
-      row.appendChild(t);
-      const tag = item.project || item.group;
-      if (tag) {
-        const chip = document.createElement("span");
-        chip.className = "tag-chip";
-        chip.textContent = tag;
-        row.appendChild(chip);
-      }
-      const more = document.createElement("button");
-      more.className = "more";
-      more.type = "button";
-      more.setAttribute("aria-label", "Chat options");
-      more.innerHTML = moreIconSvg;
-      more.addEventListener("click", (ev) => {
-        ev.stopPropagation();
-        if (!recentsMenu.hidden && menuItemId === item.id) { closeRecentsMenu(); return; }
-        openRecentsMenu(item, more.getBoundingClientRect());
-      });
-      row.appendChild(more);
-      const launch = () => { q.value = item.text; updateSendState(); patchVisit(item.id, { unread: false }); q.focus(); };
-      row.addEventListener("click", launch);
-      row.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); launch(); } });
-      container.appendChild(row);
-    }
-  };
-  paint(pinnedList, pinned);
-  paint(recentsList, rest);
+  const restAll = visible.filter((i) => !i.pinned);
+  // sections are named groups of chats (derived from items — no orphan state)
+  const sectionNames = [...new Set(restAll.map((i) => i.section).filter(Boolean))].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  for (const name of sectionNames) {
+    const lbl = document.createElement("div");
+    lbl.className = "lbl";
+    const span = document.createElement("span");
+    span.textContent = name;
+    lbl.appendChild(span);
+    groupsBox.appendChild(lbl);
+    const box = document.createElement("div");
+    box.className = "recents";
+    for (const item of restAll.filter((i) => i.section === name)) box.appendChild(makeVisitRow(item));
+    groupsBox.appendChild(box);
+  }
+  for (const item of pinned) pinnedList.appendChild(makeVisitRow(item));
+  for (const item of restAll.filter((i) => !i.section)) recentsList.appendChild(makeVisitRow(item));
   refreshArchivedToggle(items);
 }
 
@@ -145,7 +174,7 @@ let menuItemId = null;
 function openRecentsMenu(item, anchor) {
   menuItemId = item.id;
   recentsMenu.hidden = false;
-  const mw = 240, mh = recentsMenu.offsetHeight || 320;
+  const mw = 240, mh = recentsMenu.offsetHeight || 380;
   let left = Math.max(8, Math.min(window.innerWidth - mw - 8, anchor.right - mw));
   let top = anchor.bottom + 6;
   if (top + mh > window.innerHeight - 8) top = Math.max(8, anchor.top - mh - 6);
@@ -154,8 +183,39 @@ function openRecentsMenu(item, anchor) {
   recentsMenu.querySelector('[data-action="unread"] .ctx-label').textContent = item.unread ? "Mark as read" : "Mark as unread";
   recentsMenu.querySelector('[data-action="pin"] .ctx-label').textContent = item.pinned ? "Unpin" : "Pin";
   recentsMenu.querySelector('[data-action="archive"] .ctx-label').textContent = item.archived ? "Unarchive" : "Archive";
+  $("ctx-detach").hidden = !item.section;
   populateFlyout("project", $("project-list"), item.project, "Remove from project");
   populateFlyout("group", $("group-list"), item.group, "Move out of group");
+  populateSectionFlyout($("section-list"), item);
+}
+function populateSectionFlyout(container, currentItem) {
+  container.textContent = "";
+  const items = loadVisit();
+  const names = [...new Set(items.map((i) => i.section).filter(Boolean))].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })).slice(0, 8);
+  for (const name of names) {
+    const b = document.createElement("button");
+    b.className = "fly-item";
+    b.type = "button";
+    b.textContent = name;
+    if (currentItem.section === name) {
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = "current";
+      b.appendChild(tag);
+    }
+    b.addEventListener("click", () => { patchVisit(menuItemId, { section: name }); closeRecentsMenu(); });
+    container.appendChild(b);
+  }
+  const fresh = document.createElement("button");
+  fresh.className = "fly-item fly-new";
+  fresh.type = "button";
+  fresh.textContent = "New section…";
+  fresh.addEventListener("click", () => {
+    const name = window.prompt("New section name:");
+    if (name && name.trim()) patchVisit(menuItemId, { section: name.trim() });
+    closeRecentsMenu();
+  });
+  container.appendChild(fresh);
 }
 function closeRecentsMenu() {
   recentsMenu.hidden = true;
@@ -175,6 +235,30 @@ function visitMenuAction(action) {
       if (next && next.trim()) patchVisit(id, { text: next.trim() });
       break;
     }
+    case "fork": {
+      const itemsNow = loadVisit();
+      const source = itemsNow.find((i) => i.id === id);
+      if (!source) break;
+      const fork = { ...source, id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, ts: Date.now(), pinned: false, unread: true, archived: false };
+      itemsNow.unshift(fork);
+      saveVisit(itemsNow.slice(0, 50));
+      renderVisitList();
+      setMode(source.surface === "code" ? "code" : "chat");
+      q.value = source.text;
+      updateSendState();
+      q.focus();
+      toast("Forked — prompt ready in a fresh conversation.");
+      break;
+    }
+    case "detach":
+      patchVisit(id, { section: undefined });
+      break;
+    case "open-new-tab":
+      window.open(location.href, "_blank", "noopener");
+      break;
+    case "open-new-window":
+      window.open(location.href, "_blank", "width=1280,height=860,noopener");
+      break;
     case "archive":
       patchVisit(id, { archived: !item.archived });
       if (!item.archived) toast("Archived — hidden until you toggle “Archived”.");
@@ -238,6 +322,7 @@ document.addEventListener("keydown", (ev) => {
     if (k === "u") { ev.preventDefault(); visitMenuAction("unread"); }
     else if (k === "p") { ev.preventDefault(); visitMenuAction("pin"); }
     else if (k === "r") { ev.preventDefault(); visitMenuAction("rename"); }
+    else if (k === "f") { ev.preventDefault(); visitMenuAction("fork"); }
     else if (k === "a") { ev.preventDefault(); visitMenuAction("archive"); }
     else if (k === "d") { ev.preventDefault(); visitMenuAction("delete"); }
   }
@@ -501,7 +586,7 @@ $("viewall").addEventListener("click", () => toast("The full history lives on yo
 $("hide-recents").addEventListener("click", () => {
   document.body.classList.toggle("hide-recents");
   const hidden = document.body.classList.contains("hide-recents");
-  for (const id of ["pinned-list", "recents-list", "chats-empty"]) {
+  for (const id of ["pinned-list", "recents-groups", "recents-list", "chats-empty"]) {
     const el2 = $(id);
     if (el2) el2.style.visibility = hidden ? "hidden" : "";
   }
@@ -1120,12 +1205,12 @@ function refreshStorageUsage() {
     `localStorage on this browser: ~${(storageBytes() / 1024).toFixed(1)} KB across ${localStorage.length} key(s) — cleared only by you.`;
 }
 $("clear-visit").addEventListener("click", () => {
-  try { sessionStorage.removeItem("keel_visit_prompts_v1"); } catch {}
+  try { localStorage.removeItem(VISIT_KEY); } catch {}
   try { sessionStorage.removeItem(MIRROR_USAGE_KEY); } catch {}
   renderVisitList();
   refreshStorageUsage();
   refreshUsage();
-  toast("Visit prompts cleared.");
+  toast("Prompts cleared on this device.");
 });
 $("clear-all-site").addEventListener("click", () => {
   if (!confirm("Clear everything this site stored on this browser — settings, prompts, all of it?")) return;

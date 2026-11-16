@@ -182,6 +182,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .item.unread .t{color:var(--text);font-weight:500}
 .item.archived{opacity:.45}
 .item .dot{position:absolute;left:5px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.ctx-item[hidden]{display:none !important}
+.fly-glyph{display:grid;place-items:center;width:22px;height:22px;color:var(--muted);flex:none}
+.fly-glyph svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .item .tag-chip{font-family:var(--mono);font-size:8.5px;letter-spacing:.05em;color:var(--muted);border:1px solid var(--edge-dim);border-radius:5px;padding:1px 5px;margin-right:4px;flex:none;max-width:90px;overflow:hidden;text-overflow:ellipsis}
 .item .more{opacity:0;width:22px;height:22px;display:grid;place-items:center;border-radius:6px;color:var(--muted);margin-left:auto;flex:none;background:transparent;border:0;cursor:pointer;padding:0}
 .item:hover .more,.item:focus-within .more{opacity:1}
@@ -618,20 +621,35 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
 
     <div class="lbl"><span>Pinned</span></div>
     <div id="pinned-list" class="recents"></div>
+    <div id="recents-groups"></div>
     <div class="lbl"><span>Chats and tasks</span><span class="lbl-actions">
       <button class="archived-toggle" id="btn-show-archived" hidden title="Show archived">Archived (0)</button>
       <button id="sort-toggle" title="Sort this visit's prompts" aria-label="Sort this visit's prompts"><svg viewBox="0 0 16 16"><path d="M5 2v12M11 2v12M3 10h4M9 6h4"/></svg></button>
       <button class="ibtn" id="clear-recents" aria-label="Clear this visit's prompts"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6.2 4.5V3a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.5M5.2 4.5l.7 8.5a1 1 0 0 0 1 .9h2.2a1 1 0 0 0 1-.9l.7-8.5"/></svg></button>
     </span></div>
     <div id="recents-list" class="recents"></div>
-    <p class="chats-empty" id="chats-empty">Nothing yet. Prompts you send stay in this tab — Keel's real history lives on your machine.</p>
+    <p class="chats-empty" id="chats-empty">Nothing yet. Prompts you send stay in this browser on this machine — Keel's real history lives in the local app.</p>
     <a class="viewall" id="viewall">View all</a>
 
-    <!-- item context menu — Mark unread · Pin · Rename · Add to project · Move to group · Archive · Delete -->
+    <!-- item context menu — full chat options -->
     <div class="ctx-menu" id="recents-menu" role="menu" aria-label="Chat options" hidden>
-      <button class="ctx-item" data-action="unread" role="menuitem"><svg viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h11"/></svg><span class="ctx-label">Mark as unread</span><span class="ctx-key">U</span></button>
+      <div class="ctx-item ctx-sub" id="ctx-sub-open"><svg viewBox="0 0 16 16"><path d="M6 3H3.5v10H6M10 3h2.5v10H10M7.5 8h5M10 5.5l2.5 2.5L10 10.5"/></svg><span class="ctx-label">Open in</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
+        <div class="ctx-flyout" id="flyout-open" role="menu">
+          <button class="fly-item" data-action="open-new-tab"><span class="fly-glyph"><svg viewBox="0 0 16 16"><path d="M2.5 3h11v10h-11zM2.5 6h11"/></svg></span>Open in new tab</button>
+          <button class="fly-item" data-action="open-new-window"><span class="fly-glyph"><svg viewBox="0 0 16 16"><path d="M2.5 3.5h11v9h-11zM2.5 6h11M4.5 4.5h.01M7 4.5h.01"/></svg></span>Open in new window</button>
+        </div>
+      </div>
       <button class="ctx-item" data-action="pin" role="menuitem"><svg viewBox="0 0 16 16"><path d="M9.6 2.4l4 4-2 .6-2.2 2.2.4 2.6-1.6 1.6-3-3-3.6 3.6-.4-.4 3.6-3.6-3-3 1.6-1.6 2.6.4 2.2-2.2z"/></svg><span class="ctx-label">Pin</span><span class="ctx-key">P</span></button>
+      <button class="ctx-item" data-action="unread" role="menuitem"><svg viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h11"/></svg><span class="ctx-label">Mark as unread</span><span class="ctx-key">U</span></button>
       <button class="ctx-item" data-action="rename" role="menuitem"><svg viewBox="0 0 16 16"><path d="M2.5 12.5l3.5-.8L13.3 4.4a1.4 1.4 0 0 0 0-2L13.6 1a1.4 1.4 0 0 0-2 0L3.3 9.7zM11.5 3.4l1.1 1.1"/></svg><span class="ctx-label">Rename</span><span class="ctx-key">R</span></button>
+      <button class="ctx-item" data-action="fork" role="menuitem"><svg viewBox="0 0 16 16"><circle cx="5" cy="3.5" r="1.5"/><circle cx="5" cy="12.5" r="1.5"/><circle cx="11" cy="8" r="1.5"/><path d="M5 5v6M5 6.5l4.7 4M5 9.5L9.8 6.5"/></svg><span class="ctx-label">Fork</span><span class="ctx-key">F</span></button>
+      <div class="ctx-item ctx-sub" id="ctx-sub-section"><svg viewBox="0 0 16 16"><path d="M2.5 5h11M2.5 10.5h11"/></svg><span class="ctx-label">Move to section</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
+        <div class="ctx-flyout" id="flyout-section" role="menu">
+          <p class="ctx-note">Sections bundle chats — your own named groups</p>
+          <div class="flyout-list" id="section-list"></div>
+        </div>
+      </div>
+      <button class="ctx-item" data-action="detach" role="menuitem" id="ctx-detach"><svg viewBox="0 0 16 16"><path d="M6 2.5v11M3 2.5v11M10 8h4M12 5.5l2.5 2.5-2.5 2.5"/></svg><span class="ctx-label">Detach to top level</span></button>
       <div class="ctx-item ctx-sub" id="ctx-sub-project"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span class="ctx-label">Add to project</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
         <div class="ctx-flyout" id="flyout-project" role="menu">
           <p class="ctx-note">Project — a folder the agent works inside</p>
@@ -881,14 +899,14 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
         <h2>Privacy</h2>
         <ul class="fact-list">
           <li>This page is static. There is no Keel server; nothing phones home.</li>
-          <li>Prompts you send live in this tab (sessionStorage) and vanish when it closes.</li>
+          <li>Prompts you send live in this browser's localStorage on this machine — never uploaded anywhere else.</li>
           <li>Settings saved here stay in this browser's localStorage — fonts, work, instructions.</li>
           <li>The real app and your keys live on your machine, never here.</li>
         </ul>
         <div class="card">
           <h3>Storage on this browser</h3>
           <p class="hint"><span id="storage-usage">calculating…</span></p>
-          <button class="btn-ghost danger full" id="clear-visit">Clear visit prompts (this tab)</button>
+          <button class="btn-ghost danger full" id="clear-visit">Clear prompts on this device</button>
           <button class="btn-ghost danger full" id="clear-all-site">Clear everything this site stored</button>
         </div>
       </section>

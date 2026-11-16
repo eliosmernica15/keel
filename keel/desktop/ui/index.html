@@ -52,7 +52,7 @@
 
       <div class="lbl"><span>Pinned</span></div>
       <div id="pinned-list" class="recents"></div>
-
+      <div id="recents-groups"></div>
       <div class="lbl"><span>Recents</span><span class="lbl-actions">
         <button class="archived-toggle" id="btn-show-archived" hidden title="Show archived">Archived (0)</button>
         <button id="btn-search-recents" aria-label="Filter recents"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></button>
@@ -65,8 +65,22 @@
     <!-- chat item context menu — Mark unread · Pin · Rename · Add to project · Move to group · Archive · Delete -->
     <div class="ctx-menu" id="recents-menu" role="menu" aria-label="Chat options" hidden>
       <button class="ctx-item" data-action="unread" role="menuitem"><svg viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h11"/></svg><span class="ctx-label">Mark as unread</span><span class="ctx-key">U</span></button>
+      <div class="ctx-item ctx-sub" id="ctx-sub-open"><svg viewBox="0 0 16 16"><path d="M6 3H3.5v10H6M10 3h2.5v10H10M7.5 8h5M10 5.5l2.5 2.5L10 10.5"/></svg><span class="ctx-label">Open in</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
+        <div class="ctx-flyout" id="flyout-open" role="menu">
+          <button class="fly-item" data-action="open-new-tab"><span class="fly-glyph"><svg viewBox="0 0 16 16"><path d="M2.5 3h11v10h-11zM2.5 6h11"/></svg></span>Open in new tab</button>
+          <button class="fly-item" data-action="open-new-window"><span class="fly-glyph"><svg viewBox="0 0 16 16"><path d="M2.5 3.5h11v9h-11zM2.5 6h11M4.5 4.5h.01M7 4.5h.01"/></svg></span>Open in new window</button>
+        </div>
+      </div>
       <button class="ctx-item" data-action="pin" role="menuitem"><svg viewBox="0 0 16 16"><path d="M9.6 2.4l4 4-2 .6-2.2 2.2.4 2.6-1.6 1.6-3-3-3.6 3.6-.4-.4 3.6-3.6-3-3 1.6-1.6 2.6.4 2.2-2.2z"/></svg><span class="ctx-label">Pin</span><span class="ctx-key">P</span></button>
       <button class="ctx-item" data-action="rename" role="menuitem"><svg viewBox="0 0 16 16"><path d="M2.5 12.5l3.5-.8L13.3 4.4a1.4 1.4 0 0 0 0-2L13.6 1a1.4 1.4 0 0 0-2 0L3.3 9.7zM11.5 3.4l1.1 1.1"/></svg><span class="ctx-label">Rename</span><span class="ctx-key">R</span></button>
+      <button class="ctx-item" data-action="fork" role="menuitem"><svg viewBox="0 0 16 16"><circle cx="5" cy="3.5" r="1.5"/><circle cx="5" cy="12.5" r="1.5"/><circle cx="11" cy="8" r="1.5"/><path d="M5 5v6M5 6.5l4.7 4M5 9.5L9.8 6.5"/></svg><span class="ctx-label">Fork</span><span class="ctx-key">F</span></button>
+      <div class="ctx-item ctx-sub" id="ctx-sub-section"><svg viewBox="0 0 16 16"><path d="M2.5 5h11M2.5 10.5h11"/></svg><span class="ctx-label">Move to section</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
+        <div class="ctx-flyout" id="flyout-section" role="menu">
+          <p class="ctx-note">Sections bundle chats — your own named groups</p>
+          <div class="flyout-list" id="section-list"></div>
+        </div>
+      </div>
+      <button class="ctx-item" data-action="detach" role="menuitem" id="ctx-detach"><svg viewBox="0 0 16 16"><path d="M6 2.5v11M3 2.5v11M10 8h4M12 5.5l2.5 2.5-2.5 2.5"/></svg><span class="ctx-label">Detach to top level</span></button>
       <div class="ctx-item ctx-sub" id="ctx-sub-project"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span class="ctx-label">Add to project</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
         <div class="ctx-flyout" id="flyout-project" role="menu">
           <p class="ctx-note">Project — a folder the agent works inside</p>
