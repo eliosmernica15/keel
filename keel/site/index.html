@@ -147,44 +147,16 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   display:flex;flex-direction:column;position:relative;z-index:2;
   -webkit-backdrop-filter:blur(30px) saturate(1.5);backdrop-filter:blur(30px) saturate(1.5);transition:margin .28s var(--ease)}
 .app.collapsed .side{margin-left:-288px}
-.brand{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 18px;flex:none}
-.brand .word{font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:.2px}
-.brand .word i{font-style:normal;color:var(--accent)}
 .ibtn{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;color:var(--muted)}
 .ibtn:hover{background:var(--hover);color:var(--text)}
-.nav{margin-top:4px;padding:0 8px;flex:none}
-.nav a{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:9px;cursor:pointer;color:var(--text);text-decoration:none}
-.nav a:hover{background:var(--hover)}
-.nav a.on{background:var(--active)}
-.nav a svg{width:19px;height:19px;stroke-width:1.4;margin-left:-1px;color:var(--muted)}
-.nav a.on svg{color:var(--accent)}
-.local-tag{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--accent);border:1px solid var(--accent-dim);border-radius:10px;padding:2px 8px;background:rgba(230,213,76,.06)}
-.sec{margin-top:30px;padding:0 12px 0 18px;display:flex;align-items:center;justify-content:space-between;height:26px;
-  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);flex:none}
-.sec span{display:flex;align-items:center;gap:5px;cursor:pointer}
-.sec span svg{width:12px;height:12px}
-.sec .ibtn{width:24px;height:24px}
-.sec .ibtn svg{width:14px;height:14px}
-.chats{padding:6px 8px 0;flex:none;overflow-y:auto;scrollbar-width:thin}
-.chat{display:flex;align-items:center;gap:10px;height:32px;margin-bottom:2px;padding:0 10px;border-radius:9px;cursor:pointer;overflow:hidden;white-space:nowrap}
-.chat::before{content:"";width:7px;height:7px;border:1px solid #8f887c;border-radius:50%;margin:0 6px 0 7px;flex:none}
-.chat .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.chat:hover{background:var(--hover)}
-.chat .x{display:none;width:22px;height:22px;place-items:center;color:var(--muted);border-radius:6px}
-.chat:hover .x{display:grid}
-.chat .x:hover{color:var(--text);background:var(--panel-2)}
-.chat .x svg{width:12px;height:12px}
-.chats-empty{padding:10px 12px;font-size:11.5px;color:var(--muted);line-height:1.5}
-.viewall{display:block;padding:11px 18px;color:var(--muted);font-size:13.5px;cursor:pointer}
-.viewall:hover{color:var(--text)}
 .acct{margin-top:auto;height:44px;border-top:1px solid var(--edge-dim);padding:0 14px 0 16px;display:flex;align-items:center;gap:10px;flex:none}
+
+/* window controls */
 .acct .mark{width:18px;height:18px;color:var(--accent);stroke:none;filter:drop-shadow(0 0 6px rgba(230,213,76,.45))}
 .acct .me{font-size:14px}
 .acct .me small{color:var(--muted);font-size:12.5px;margin-left:2px}
 .acct .ibtn{margin-left:auto}
 
-/* window controls */
 .win{display:flex;align-items:center;gap:2px}
 .tools-right{display:flex;align-items:center;gap:4px;margin-left:auto}
 .win button{width:44px;height:40px;display:grid;place-items:center;color:var(--muted)}
@@ -570,26 +542,22 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
 
   <div class="body">
   <aside class="side" id="side">
-    <div class="brand">
-      <span class="word">K<i>eel</i></span>
-      <button class="ibtn" id="tgl" aria-label="Collapse sidebar"><svg viewBox="0 0 18 18" style="width:17px;height:17px"><rect x="2.5" y="3" width="13" height="12" rx="2.2"/><path d="M7 3v12"/></svg></button>
-    </div>
-    <nav class="nav">
-      <a class="on" id="nav-new"><svg viewBox="0 0 18 18"><path d="M9 3v12M3 9h12"/></svg>New</a>
-      <a id="nav-search"><svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"/><path d="M12 12l3.5 3.5"/></svg>Search</a>
-      <a id="nav-projects"><svg viewBox="0 0 18 18"><path d="M3 7.5h12v6.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM4.5 5h9M6 2.8h6"/></svg>Projects</a>
-      <a id="nav-artifacts"><svg viewBox="0 0 18 18"><circle cx="6.2" cy="5.2" r="2.1"/><path d="M2.5 15l3-6h2.2l3 6zM10.5 8.5h5v6.5h-5z"/></svg>Artifacts</a>
-      <a id="nav-code" class="pwa-only"><svg viewBox="0 0 18 18"><path d="M6.2 5.8L3 9l3.2 3.2M11.8 5.8L15 9l-3.2 3.2M10.2 4.5l-2.4 9"/></svg>Keel Code<span class="local-tag">Local</span></a>
-      <a id="nav-customize"><svg viewBox="0 0 18 18"><rect x="2.5" y="6" width="13" height="8.5" rx="1.5"/><path d="M6.5 6V4.5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V6M2.5 9.8h13"/></svg>Customize</a>
-    </nav>
+    <div class="scroll">
+      <nav class="nav">
+        <a id="nav-new" tabindex="0"><svg viewBox="0 0 18 18"><path d="M9 3v12M3 9h12"/></svg>New session</a>
+        <a id="nav-customize" tabindex="0"><svg viewBox="0 0 18 18"><rect x="2.5" y="6" width="13" height="8.5" rx="1.5"/><path d="M6.5 6V4.5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V6M2.5 9.8h13"/></svg>Customize Keel</a>
+      </nav>
 
-    <div class="sec">
-      <span id="sort-toggle" title="Sort this visit's prompts">Chats and tasks <svg viewBox="0 0 14 14"><path d="M3 5l4 4 4-4"/></svg></span>
-      <button class="ibtn" id="clear-recents" aria-label="Clear this visit's prompts"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6.2 4.5V3a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.5M5.2 4.5l.7 8.5a1 1 0 0 0 1 .9h2.2a1 1 0 0 0 1-.9l.7-8.5"/></svg></button>
+      <div class="lbl"><span>Pinned</span></div>
+      <div class="recents" id="pinned-list"></div>
+
+      <div class="lbl"><span>Recents</span><span class="lbl-actions">
+        <button id="btn-search-recents" aria-label="Filter recents"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></button>
+        <button id="btn-clear-recents" aria-label="Clear recents"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6.2 4.5V3a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.5M5.2 4.5l.7 8.5a1 1 0 0 0 1 .9h2.2a1 1 0 0 0 1-.9l.7-8.5"/></svg></button>
+      </span></div>
+      <div class="recents" id="recents-list"></div>
+      <p class="side-note" id="recents-empty">Nothing yet. Prompts you send are stored only on this machine — Keel never phones home.</p>
     </div>
-    <div class="chats" id="chats"></div>
-    <p class="chats-empty" id="chats-empty">Nothing yet. Prompts you send here stay in this tab — Keel's real history lives on your machine.</p>
-    <a class="viewall" id="viewall">View all</a>
 
     <button class="acct" id="acct-toggle" aria-haspopup="menu" aria-expanded="false" aria-controls="dropup">
       <svg class="mark" viewBox="0 0 48 48"><use href="#starburst"/></svg>
@@ -904,3 +872,29 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
 
 </body>
 </html>
+
+/* sidebar â€” local-app structure (Pinned / Recents) */
+.scroll{flex:1;min-height:0;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:1px;scrollbar-width:thin;scrollbar-color:#4a4441 transparent}
+.nav{padding:0 2px;flex:none}
+.nav a{display:flex;align-items:center;gap:10px;height:30px;padding:0 11px;border-radius:8px;color:var(--text);cursor:pointer;text-decoration:none}
+.nav a:hover,.nav a.on{background:var(--hover)}
+.nav a svg{width:15px;height:15px;stroke:var(--muted);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.nav a.on svg{stroke:var(--accent)}
+.lbl{display:flex;align-items:center;justify-content:space-between;height:26px;padding:0 8px;margin-top:20px;
+  color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+.lbl-actions{display:flex;gap:2px}
+.lbl-actions button{width:22px;height:22px;display:grid;place-items:center;color:var(--muted);border-radius:5px}
+.lbl-actions button:hover{background:var(--hover);color:var(--text)}
+.lbl-actions svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.recents{display:flex;flex-direction:column;gap:1px;margin-top:4px}
+.item{display:flex;align-items:center;gap:8px;height:30px;padding:0 8px 0 10px;border-radius:8px;
+  color:var(--text);cursor:pointer;font-size:12.5px;overflow:hidden}
+.item:hover,.item.on{background:var(--hover)}
+.item .ic{width:14px;height:14px;color:var(--muted);fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.item .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .pin{width:20px;height:20px;display:grid;place-items:center;color:var(--muted);border-radius:5px;opacity:0}
+.item:hover .pin,.item.pinned .pin{opacity:1}
+.item .pin:hover{background:var(--panel-2);color:var(--accent)}
+.item.pinned .pin{color:var(--accent)}
+.item .pin svg{width:11px;height:11px;fill:currentColor;stroke:none}
+.side-note{margin:14px 8px 0;font-size:11px;color:var(--muted);line-height:1.5}

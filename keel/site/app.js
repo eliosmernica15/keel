@@ -8,8 +8,6 @@ const q = $("q");
 const thread = $("thread");
 const threadScroll = $("thread-scroll");
 const chatTitle = $("chat-title");
-const chatsList = $("chats");
-const chatsEmpty = $("chats-empty");
 const toastEl = $("toast");
 let toastTimer = null;
 const prefersReducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -30,43 +28,80 @@ const clip = (t) => (navigator.clipboard ? navigator.clipboard.writeText(t) : Pr
   $("greet").textContent = part + ", how are things?";
 })();
 
-/* ---------- this visit's prompts (sessionStorage only) ---------- */
-const VISIT_KEY = "keel_visit_prompts_v1";
-const loadVisit = () => { try { return JSON.parse(sessionStorage.getItem(VISIT_KEY) || "[]"); } catch { return []; } };
-const saveVisit = (arr) => { try { sessionStorage.setItem(VISIT_KEY, JSON.stringify(arr)); } catch {} };
-let sortAsc = false;
+/* ---------- recents with pinning (this machine's storage only) ---------- */
+const RECENT_CAP = 50;
+const RECENT_KEY = "keel_recents_v1";
+const loadRecents = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; } };
+const saveRecents = (arr) => { try { localStorage.setItem(RECENT_KEY, JSON.stringify(arr.slice(0, RECENT_CAP))); } catch {} };
+let recentFilter = "";
 
-function renderVisitList() {
-  const items = loadVisit();
-  chatsList.textContent = "";
-  chatsEmpty.style.display = items.length ? "none" : "";
-  if (!items.length) return;
-  const ordered = sortAsc ? [...items].reverse() : items;
-  for (const text of ordered) {
-    const row = document.createElement("div");
-    row.className = "chat";
-    row.title = "Reusable on this page — click to fill the composer";
-    const t = document.createElement("span");
-    t.className = "t";
-    t.textContent = text;
-    const x = document.createElement("button");
-    x.className = "x";
-    x.setAttribute("aria-label", "Remove from this visit");
-    x.innerHTML = '<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
-    x.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      saveVisit(loadVisit().filter((it) => it !== text));
-      renderVisitList();
-    });
-    row.appendChild(t);
-    row.appendChild(x);
-    row.addEventListener("click", () => {
-      q.value = text;
-      updateSendState();
-      q.focus();
-    });
-    chatsList.appendChild(row);
-  }
+function addRecent(text, surface) {
+  const items = loadRecents();
+  items.unshift({
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    text,
+    surface,
+    ts: Date.now(),
+    pinned: false,
+  });
+  saveRecents(items);
+  renderRecents();
+}
+
+function togglePin(id) {
+  const items = loadRecents().map((item) => (item.id === id ? { ...item, pinned: !item.pinned } : item));
+  saveRecents(items);
+  renderRecents();
+}
+
+function renderRecents() {
+  const items = loadRecents();
+  const match = (item) => !recentFilter || item.text.toLowerCase().includes(recentFilter);
+  const pinned = items.filter((item) => item.pinned && match(item));
+  const rest = items.filter((item) => !item.pinned && match(item)).slice(0, 20);
+  const paint = (container, list) => {
+    container.textContent = "";
+    for (const item of list) {
+      const row = document.createElement("div");
+      row.className = `item${item.pinned ? " pinned" : ""}`;
+      row.tabIndex = 0;
+      row.setAttribute("role", "button");
+      row.title = item.text;
+      const icon = document.createElement("svg");
+      icon.setAttribute("viewBox", "0 0 16 16");
+      icon.classList.add("ic");
+      icon.innerHTML = item.surface === "code"
+        ? '<path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3M9 4l-2 8"/>'
+        : '<path d="M9.5 3.5h-5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h.5v2l2.5-2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2z"/>';
+      row.appendChild(icon);
+      const span = document.createElement("span");
+      span.className = "t";
+      span.textContent = item.text;
+      row.appendChild(span);
+      const pin = document.createElement("button");
+      pin.className = "pin";
+      pin.type = "button";
+      pin.setAttribute("aria-label", item.pinned ? "Unpin" : "Pin");
+      const pinSvg = document.createElement("svg");
+      pinSvg.setAttribute("viewBox", "0 0 16 16");
+      pinSvg.innerHTML = '<path d="M9.6 2.4l4 4-2 .6-2.2 2.2.4 2.6-1.6 1.6-3-3-3.6 3.6-.4-.4 3.6-3.6-3-3 1.6-1.6 2.6.4 2.2-2.2z"/>';
+      pin.appendChild(pinSvg);
+      pin.addEventListener("click", (ev) => { ev.stopPropagation(); togglePin(item.id); });
+      row.appendChild(pin);
+      const launch = () => {
+        setMode(item.surface === "code" ? "code" : "chat");
+        document.getElementById("q").value = item.text;
+        updateSendState();
+        document.getElementById("q").focus();
+      };
+      row.addEventListener("click", launch);
+      row.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); launch(); } });
+      container.appendChild(row);
+    }
+  };
+  paint($("pinned-list"), pinned);
+  paint($("recents-list"), rest);
+  $("recents-empty").style.display = items.length === 0 ? "" : "none";
 }
 
 /* ---------- morph: home <-> chat ---------- */
@@ -251,10 +286,7 @@ q.addEventListener("input", updateSendState);
 function sendPrompt() {
   const raw = q.value.trim();
   if (!raw) { q.focus(); return; }
-  const items = loadVisit();
-  items.unshift(raw);
-  saveVisit(items);
-  renderVisitList();
+  addRecent(raw, app.classList.contains("mode-code") ? "code" : "chat");
   bumpUsage("prompts");
   const wasHome = app.classList.contains("mode-home");
   if (app.classList.contains("mode-code")) { if (wasHome) morphToCode(raw); }
@@ -293,40 +325,30 @@ $("nav-new").addEventListener("click", () => {
   thread.textContent = "";
   app.classList.remove("has-messages");
   $("greet").textContent = "Evening, how are things?";
-  toast("Fresh page — the real session lives in the app.");
 });
-$("nav-search").addEventListener("click", () => {
-  const needle = window.prompt("Filter this visit's prompts:", "");
-  if (needle === null) return;
-  const items = loadVisit().filter((it) => it.toLowerCase().includes(needle.trim().toLowerCase()));
-  chatsList.textContent = "";
-  chatsEmpty.style.display = items.length ? "none" : "";
-  for (const text of items) {
-    const row = document.createElement("div");
-    row.className = "chat";
-    row.innerHTML = '<span class="t"></span>';
-    row.querySelector(".t").textContent = text;
-    row.addEventListener("click", () => { q.value = text; updateSendState(); q.focus(); });
-    chatsList.appendChild(row);
-  }
-});
-$("nav-projects").addEventListener("click", () => toast("Projects live where Keel runs — <code>python -m keel serve</code>."));
-$("nav-artifacts").addEventListener("click", () => toast("Artifacts are produced in the local app — nothing persists on this page."));
-$("nav-code").addEventListener("click", () => setMode("code"));
 $("code-new").addEventListener("click", () => { setMode("code"); q.focus(); });
 $("code-fleet").addEventListener("click", () =>
   toast("The full agent lives in the local app — <code>python -m keel serve</code>."));
 $("nav-customize").addEventListener("click", () => openSettings("general"));
-$("sort-toggle").addEventListener("click", () => { sortAsc = !sortAsc; renderVisitList(); });
-$("clear-recents").addEventListener("click", () => { saveVisit([]); renderVisitList(); });
-$("viewall").addEventListener("click", () => toast("The full history lives on your machine — this page can't see it."));
+$("btn-search-recents").addEventListener("click", () => {
+  const next = window.prompt("Filter recents (empty to clear filter):", recentFilter);
+  if (next === null) return;
+  recentFilter = next.trim().toLowerCase();
+  renderRecents();
+});
+$("btn-clear-recents").addEventListener("click", () => {
+  if (!confirm("Clear all saved recents? This only affects this machine's browser storage.")) return;
+  saveRecents([]);
+  renderRecents();
+});
 
 /* hide/show this visit's prompts (screen privacy) */
 $("hide-recents").addEventListener("click", () => {
   document.body.classList.toggle("hide-recents");
   const hidden = document.body.classList.contains("hide-recents");
-  chatsList.style.visibility = hidden ? "hidden" : "";
-  chatsEmpty.style.visibility = hidden ? "hidden" : "";
+  for (const container of [$("recents-list"), $("pinned-list"), $("recents-empty")]) {
+    if (container) container.style.visibility = hidden ? "hidden" : "";
+  }
   toast(hidden ? "Prompts hidden on this screen." : "Prompts visible again.");
 });
 
@@ -941,19 +963,19 @@ function refreshStorageUsage() {
     `localStorage on this browser: ~${(storageBytes() / 1024).toFixed(1)} KB across ${localStorage.length} key(s) — cleared only by you.`;
 }
 $("clear-visit").addEventListener("click", () => {
-  try { sessionStorage.removeItem("keel_visit_prompts_v1"); } catch {}
+  try { localStorage.removeItem(RECENT_KEY); } catch {}
   try { sessionStorage.removeItem(MIRROR_USAGE_KEY); } catch {}
-  renderVisitList();
+  renderRecents();
   refreshStorageUsage();
   refreshUsage();
-  toast("Visit prompts cleared.");
+  toast("Recents cleared.");
 });
 $("clear-all-site").addEventListener("click", () => {
   if (!confirm("Clear everything this site stored on this browser — settings, prompts, all of it?")) return;
   try { localStorage.clear(); } catch {}
   try { sessionStorage.clear(); } catch {}
   try { localStorage.setItem(MIRROR_SETTINGS_KEY, "{}"); } catch {}
-  renderVisitList();
+  renderRecents();
   hydrateGeneral();
   refreshStorageUsage();
   refreshUsage();
@@ -989,7 +1011,7 @@ importFile.addEventListener("change", async () => {
       if (typeof value === "string") localStorage.setItem(key, value);
     }
     mirrorSettings = loadMirrorSettings();
-    renderVisitList();
+    renderRecents();
     hydrateGeneral();
     note.textContent = "imported — merged into this browser's storage";
     note.className = "hint ok";
@@ -1027,7 +1049,7 @@ $("win-close").addEventListener("click", () => window.close());
 
 /* ---------- boot ---------- */
 if (window.matchMedia("(max-width: 880px)").matches) app.classList.add("collapsed");
-renderVisitList();
+renderRecents();
 updateSendState();
 hydrateGeneral();
 refreshUsage();
