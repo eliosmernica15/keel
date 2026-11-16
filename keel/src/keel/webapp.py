@@ -237,6 +237,20 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     return
                 self._send_json({"path": _WORKDIR})
                 return
+            if path == "/api/settings":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                from . import settings_store
+                self._send_json(settings_store.public_view())
+                return
+            if path == "/api/settings/export":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                from . import settings_store
+                self._send_json(settings_store.export_view())
+                return
             self._send_json({"error": "not_found"}, HTTPStatus.NOT_FOUND)
 
         def do_POST(self):
@@ -248,6 +262,76 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._refuse()
                 return
             path = self.path.split("?", 1)[0]
+            if path == "/api/settings":
+                from . import settings_store
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                if length > 64_000:
+                    self._send_json({"error": "body too large"},
+                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    return
+                raw = self.rfile.read(length) if length else b"{}"
+                try:
+                    request = json.loads(raw or b"{}")
+                except json.JSONDecodeError:
+                    self._send_json({"error": "invalid json"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                if not isinstance(request, dict):
+                    self._send_json({"error": "bad body"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                doc = settings_store.load()
+                changed = False
+                if isinstance(request.get("ui"), dict):
+                    doc["ui"] = {**settings_store.get_ui(doc), **request["ui"]}
+                    changed = True
+                cfg = request.get("providerConfig")
+                if isinstance(cfg, dict):
+                    cur = settings_store.get_provider_config(doc)
+                    merged_cfg = dict(cur)
+                    if isinstance(cfg.get("preferred"), str):
+                        merged_cfg["preferred"] = cfg["preferred"]
+                    if isinstance(cfg.get("models"), dict):
+                        merged_cfg["models"] = {**cur.get("models", {}),
+                                                **cfg["models"]}
+                    doc["providerConfig"] = merged_cfg
+                    changed = True
+                if not changed:
+                    self._send_json({"error": "nothing to change"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                settings_store.save(doc)
+                self._send_json({"ok": True, **settings_store.public_view(doc)})
+                return
+            if path == "/api/settings/import":
+                from . import settings_store
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                if length > 512_000:
+                    self._send_json({"error": "body too large"},
+                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    return
+                raw = self.rfile.read(length) if length else b"{}"
+                try:
+                    payload = json.loads(raw or b"{}")
+                except json.JSONDecodeError:
+                    self._send_json({"error": "invalid json"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                doc = payload.get("doc") if isinstance(payload, dict) else None
+                if not isinstance(doc, dict):
+                    self._send_json({"error": "doc must be an object"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                include_keys = bool(isinstance(payload, dict)
+                                    and payload.get("include_keys"))
+                try:
+                    view = settings_store.merge_import(doc, include_keys=include_keys)
+                except Exception as exc:
+                    self._send_json({"error": f"import failed: {exc}"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                self._send_json({"ok": True, **view})
+                return
             if path == "/api/workdir":
                 global _WORKDIR
                 length = int(self.headers.get("Content-Length", "0") or 0)
@@ -303,7 +387,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             provider = str(request.get("provider", "auto"))
             permission_mode = str(request.get("permission_mode", "default"))
             accept_risk = bool(request.get("accept_risk", False))
-            self._stream_run(prompt, provider, permission_mode, accept_risk)
+            model = str(request.get("model", "") or "").strip()
+            self._stream_run(prompt, provider, permission_mode, accept_risk, model)
 
         # ---------------- internals
         def _serve_file(self, path: Path, content_type: Optional[str] = None,
@@ -337,7 +422,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             self.wfile.write(body)
 
         def _stream_run(self, prompt: str, provider: str,
-                        permission_mode: str, accept_risk: bool):
+                        permission_mode: str, accept_risk: bool,
+                        model: str = ""):
             args = [sys.executable, "-m", "keel",
                     "-p", prompt,
                     "--output-format", "stream-json",
@@ -358,6 +444,15 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             run_kwargs = {}
             if _WORKDIR and Path(_WORKDIR).is_dir():
                 run_kwargs["cwd"] = _WORKDIR
+            run_env = dict(os.environ)
+            _MODEL_ENV = {"openrouter": "KEEL_OPENROUTER_MODEL",
+                          "google": "KEEL_GOOGLE_MODEL",
+                          "nvidia": "KEEL_NVIDIA_MODEL",
+                          "anthropic": "KEEL_ANTHROPIC_MODEL",
+                          "openai-compatible": "KEEL_COMPAT_MODEL"}
+            if model and provider in _MODEL_ENV:
+                run_env[_MODEL_ENV[provider]] = model
+            run_kwargs["env"] = run_env
 
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")

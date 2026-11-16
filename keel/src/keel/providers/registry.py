@@ -16,6 +16,7 @@ from .base import CapabilityRecord, ProviderError, ProviderRequest
 from .gemini import GeminiAdapter
 from .model_client import ProviderModelClient
 from .openai_compatible import OpenAICompatibleAdapter
+from .. import settings_store
 
 _PROVIDERS: dict[str, CapabilityRecord] = {
     "openrouter": CapabilityRecord(
@@ -60,11 +61,19 @@ _PROVIDERS: dict[str, CapabilityRecord] = {
               "and KEEL_COMPAT_MODEL to be usable."),
 }
 
+settings_store.apply_stored_keys()
+
 _AUTO_CHAIN = ("openrouter", "google", "nvidia", "openai-compatible")
 
 
 def _key_for(cap: CapabilityRecord) -> str:
-    return os.environ.get(cap.env_var, "").strip()
+    """Env wins; the settings-store key (explicitly saved by the user) is the
+    fallback. Material never leaves this process except into memory and the
+    spawned child's env."""
+    key = os.environ.get(cap.env_var, "").strip()
+    if key:
+        return key
+    return (settings_store.stored_key(cap.name) or "").strip()
 
 
 def capability(name: str | None) -> CapabilityRecord | None:
@@ -77,10 +86,19 @@ def list_providers() -> list[dict]:
     out = []
     for name, cap in _PROVIDERS.items():
         key = _key_for(cap)
+        env_var = os.environ.get(cap.env_var, "").strip()
+        if not key:
+            source = None
+        elif env_var:
+            source = f"env:{cap.env_var}"
+        else:
+            source = "settings.json"
         out.append({
             "name": name,
             "configured": bool(key),
-            "key_source": f"env:{cap.env_var}" if key else None,
+            "key_source": source,
+            "key_hint": (settings_store.stored_key_hint(name)
+                         if source == "settings.json" else None),
             "default_model": cap.default_model,
             "base_url": cap.base_url,
             "opt_in": name == "anthropic",

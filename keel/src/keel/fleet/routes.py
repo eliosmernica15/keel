@@ -570,6 +570,58 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
         _send(handler, {"ok": True, "provider": name})
         return True
 
+    if parts == ["api", "fleet", "providers", "save"]:
+        from . import session_keys
+        from .. import settings_store
+        payload, err = _read_json(handler, limit=4096)
+        if err:
+            _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
+            return True
+        name = str(payload.get("name", "")).strip().lower()
+        key = str(payload.get("key", "")).strip()
+        cap = provider_registry.capability(name)
+        if cap is None:
+            _send(handler, {"ok": False, "error": "unknown_provider",
+                            "detail": f"unknown provider {name!r}"},
+                  HTTPStatus.BAD_REQUEST)
+            return True
+        if not key or len(key) > 512:
+            _send(handler, {"ok": False, "error": "bad_key",
+                            "detail": "key must be 1-512 characters"},
+                  HTTPStatus.BAD_REQUEST)
+            return True
+        try:
+            models, models_meta = session_keys.fetch_models_with_meta(name, key)
+        except session_keys.ProviderKeyError as exc:
+            _send(handler, {"ok": False, "error": exc.category,
+                            "detail": exc.detail})
+            return True
+        settings_store.save_provider_key(name, key)
+        _send(handler, {"ok": True, "provider": name,
+                        "models": models, "model_count": len(models),
+                        "models_meta": models_meta,
+                        "hint": key[-4:],
+                        "note": "saved to ~/.keel/settings.json (this machine "
+                                "only) and applied to this bridge process. "
+                                "Shell env vars still take precedence."})
+        return True
+
+    if parts == ["api", "fleet", "providers", "remove"]:
+        from .. import settings_store
+        payload, err = _read_json(handler, limit=1024)
+        if err:
+            _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
+            return True
+        name = str(payload.get("name", "")).strip().lower()
+        removed = settings_store.remove_provider_key(name)
+        if not removed:
+            _send(handler, {"ok": False, "error": "not_saved",
+                            "detail": f"{name}: no stored key; env vars are "
+                                      "never touched by this route"})
+            return True
+        _send(handler, {"ok": True, "provider": name})
+        return True
+
     if parts == ["api", "fleet", "bots"]:
         payload, err = _read_json(handler)
         if err:

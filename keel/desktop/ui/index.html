@@ -164,60 +164,254 @@
     </div>
   </div>
 
-  <!-- Customize panel: the real session/provider/keys/transcript controls -->
-  <div class="config" id="config-panel" role="dialog" aria-modal="true" aria-label="Customize Keel" hidden>
-    <div class="config-head">
-      <h3>Customize Keel</h3>
-      <button id="btn-close-config" aria-label="Close panel"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
-    </div>
-    <div class="config-body">
-      <section class="block">
-        <h4>Session</h4>
-        <label class="field">
-          <span>Provider</span>
-          <select id="provider-select">
-            <option value="auto">auto (OpenRouter → AI Studio → NIM)</option>
-            <option value="openrouter">OpenRouter</option>
-            <option value="google">Google AI Studio</option>
-            <option value="nvidia">NVIDIA NIM</option>
-            <option value="anthropic">Anthropic (opt-in)</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>Permission mode</span>
-          <select id="mode-select">
-            <option value="default">manual</option>
-            <option value="acceptEdits">accept edits</option>
-            <option value="dontAsk">dont ask</option>
-            <option value="bypassPermissions">bypass (dangerous)</option>
-          </select>
-        </label>
-        <label class="field checkbox">
-          <input type="checkbox" id="accept-risk" />
-          <span>I accept the risk of bypass mode</span>
-        </label>
-        <p class="mode-readout">Current mode: <strong id="mode-pill">manual</strong> · Provider: <strong id="provider-pill">auto</strong></p>
-      </section>
+  <!-- Full-window Settings: twelve pages, each wired to the local bridge -->
+  <div class="settings" id="settings-panel" hidden role="dialog" aria-modal="true" aria-label="Settings">
+    <div class="settings-backdrop" id="settings-backdrop"></div>
+    <div class="settings-window">
 
-      <section class="block">
-        <h4>Keys</h4>
-        <ul class="key-list" id="key-list">
-          <li data-key="KEEL_OPENROUTER_API_KEY">OpenRouter <span class="key-state">.</span></li>
-          <li data-key="KEEL_GOOGLE_API_KEY">AI Studio <span class="key-state">.</span></li>
-          <li data-key="KEEL_NVIDIA_API_KEY">NVIDIA NIM <span class="key-state">.</span></li>
-          <li data-key="KEEL_ANTHROPIC_API_KEY">Anthropic <span class="key-state">.</span></li>
-        </ul>
-        <p class="hint">Keys are never written to disk by Keel. Status is read from the process environment via <code>keel doctor</code>-style probes.</p>
-      </section>
+      <aside class="settings-rail">
+        <div class="rail-search">
+          <svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"/><path d="M12 12l3.5 3.5"/></svg>
+          <input id="settings-search" type="text" placeholder="Search settings" aria-label="Search settings" autocomplete="off">
+        </div>
+        <nav class="rail-nav" id="rail-nav">
+          <p class="rail-group" data-group>Settings</p>
+          <button class="rail-item on" data-section="general"><svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="2.6"/><path d="M9 1.8l1 2.3 2.4-.6 1.3 2 2.1 1.2-1.1 2.3 1.1 2.3-2.1 1.2-1.3 2-2.4-.6-1 2.3L8 17l-1-2.3-2.4.6-1.3-2-2.1-1.2L2.3 9.8 1.2 7.5l2.1-1.2 1.3-2 2.4.6z"/></svg>General</button>
+          <button class="rail-item" data-section="providers"><svg viewBox="0 0 18 18"><path d="M10.2 1.8L4.6 10h4l-1.5 6.2L12.7 8h-4z"/></svg>Providers<span class="rail-extra" id="rail-configured">0 linked</span></button>
+          <button class="rail-item" data-section="usage"><svg viewBox="0 0 18 18"><path d="M3 15V8M9 15V3M15 15v-5"/></svg>Usage</button>
+          <button class="rail-item" data-section="privacy"><svg viewBox="0 0 18 18"><path d="M9 1.8l6 2.6v4.4c0 3.9-2.5 6.6-6 8-3.5-1.4-6-4.1-6-8V4.4z"/></svg>Privacy</button>
+          <button class="rail-item" data-section="import"><svg viewBox="0 0 18 18"><path d="M9 2v10M5.5 8.5L9 12l3.5-3.5M3 15h12"/></svg>Import &amp; export</button>
+          <button class="rail-item" data-section="keel-code"><svg viewBox="0 0 18 18"><path d="M6.2 5.8L3 9l3.2 3.2M11.8 5.8L15 9l-3.2 3.2M10.2 4.5l-2.4 9"/></svg>Keel Code</button>
+          <button class="rail-item" data-section="keel-desktop"><svg viewBox="0 0 18 18"><path d="M3 5.5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H8l-3.5 3v-3A2 2 0 0 1 3 10.5z"/></svg>Keel Desktop</button>
+          <p class="rail-group" data-group>This computer</p>
+          <button class="rail-item" data-section="system"><svg viewBox="0 0 18 18"><rect x="2.5" y="4" width="13" height="8" rx="1.2"/><path d="M6 15h6M9 12v3"/></svg>System</button>
+          <button class="rail-item" data-section="developer"><svg viewBox="0 0 18 18"><path d="M6.5 3.5a2 2 0 0 1 4.5 1.1c1.4.4 2.4 1.6 2.4 3.1 0 .7-.2 1.4-.6 2l-2.3 4.1a1.5 1.5 0 0 1-2.9-.4L7 10.6a3.6 3.6 0 0 1-2-3.2C5 5 6 4 7.5 3.7z"/></svg>Developer</button>
+          <p class="rail-group" data-group>Customize</p>
+          <button class="rail-item" data-section="skills"><svg viewBox="0 0 18 18"><circle cx="6.2" cy="5.2" r="2.1"/><path d="M2.5 15l3-6h2.2l3 6zM10.5 8.5h5v6.5h-5z"/></svg>Skills</button>
+          <button class="rail-item" data-section="connectors"><svg viewBox="0 0 18 18"><circle cx="5" cy="9" r="2.6"/><circle cx="13" cy="5.5" r="2.6"/><circle cx="13" cy="12.5" r="2.6"/><path d="M7.4 7.8l3.4-1.6M7.4 10.2l3.4 1.6"/></svg>Connectors</button>
+          <button class="rail-item" data-section="plugins"><svg viewBox="0 0 18 18"><rect x="2.5" y="2.5" width="5.5" height="5.5" rx="1.2"/><rect x="10" y="2.5" width="5.5" height="5.5" rx="1.2"/><rect x="2.5" y="10" width="5.5" height="5.5" rx="1.2"/><path d="M13.8 10.5v5M11.3 13h5"/></svg>Plugins</button>
+        </nav>
+        <button class="rail-close" id="settings-close"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg>Close</button>
+      </aside>
 
-      <section class="block">
-        <h4>Transcript</h4>
-        <button id="copy-transcript" class="ghost full">Copy transcript (this surface)</button>
-        <button id="clear-transcript" class="ghost full">Clear view (this surface)</button>
-      </section>
+      <div class="settings-body" id="settings-body">
+
+        <!-- GENERAL -->
+        <section class="pane on" id="pane-general" role="tabpanel">
+          <h2>General</h2>
+          <div class="card profile-card">
+            <svg class="profile-mark" viewBox="0 0 48 48"><use href="#starburst"/></svg>
+            <div><b>You · local</b><p>No account. This machine is the account.</p></div>
+          </div>
+
+          <div class="card">
+            <label class="row-line" for="work-select"><span>What best describes your work?</span>
+              <select id="work-select">
+                <option value="">Select…</option>
+                <option>Engineering</option>
+                <option>Design</option>
+                <option>Founding / product</option>
+                <option>Writing</option>
+                <option>Research</option>
+                <option>Operations</option>
+                <option>Other</option>
+              </select></label>
+          </div>
+
+          <div class="card">
+            <label class="row-line" for="instructions"><span>Instructions for Keel<small>Prepended to every message you send — visible in your own messages.</small></span></label>
+            <textarea id="instructions" rows="4" placeholder="e.g. keep explanations brief and to the point" spellcheck="true"></textarea>
+            <div class="row-end"><span class="hint" id="instructions-meta">0 characters</span><button class="btn-primary" id="save-instructions">Save instructions</button></div>
+          </div>
+
+          <div class="card">
+            <h3>Appearance</h3>
+            <div class="row-line"><span>Theme</span>
+              <div class="seg-mini"><button class="on" disabled title="Keel ships dark today">Dark</button><button disabled title="Nothing to switch to yet — no hidden themes">Light</button></div></div>
+            <div class="row-line"><span>Motion</span>
+              <div class="seg-mini" id="motion-seg"><button data-motion="system" class="on">System</button><button data-motion="reduced">Reduced</button></div></div>
+            <div class="row-line"><span>Chat font</span>
+              <div class="font-chips" id="font-chips">
+                <button data-font="body" class="on">Inter</button>
+                <button data-font="display">Space Grotesk</button>
+                <button data-font="mono">JetBrains Mono</button>
+              </div></div>
+          </div>
+
+          <div class="card">
+            <h3>Notifications</h3>
+            <label class="row-line switch-row" for="notif-toggle"><span>When Keel finishes a response<small>Uses a browser notification if you grant permission — otherwise the window dot tells the story.</small></span>
+              <input type="checkbox" id="notif-toggle" role="switch"></label>
+          </div>
+        </section>
+
+        <!-- PROVIDERS -->
+        <section class="pane" id="pane-providers" role="tabpanel">
+          <h2>Providers</h2>
+          <p class="lead">Bring your own keys — verified against the provider before they're saved. Saved keys live only in <code>~/.keel/settings.json</code> on this machine; shell environment variables always take precedence.</p>
+
+          <div class="card">
+            <label class="row-line" for="preferred-select"><span>Preferred provider</span>
+              <select id="preferred-select">
+                <option value="auto">auto (OpenRouter → AI Studio → NIM)</option>
+                <option value="openrouter">OpenRouter</option>
+                <option value="google">Google AI Studio</option>
+                <option value="nvidia">NVIDIA NIM</option>
+                <option value="anthropic">Anthropic (opt-in)</option>
+                <option value="openai-compatible">OpenAI-compatible</option>
+              </select></label>
+          </div>
+
+          <div id="provider-rows"></div>
+
+          <div class="card">
+            <h3>Session</h3>
+            <label class="row-line" for="mode-select"><span>Permission mode</span>
+              <select id="mode-select">
+                <option value="default">manual</option>
+                <option value="acceptEdits">accept edits</option>
+                <option value="dontAsk">dont ask</option>
+                <option value="bypassPermissions">bypass (dangerous)</option>
+              </select></label>
+            <label class="row-line checkbox" for="accept-risk">
+              <input type="checkbox" id="accept-risk">
+              <span>I accept the risk of bypass mode</span></label>
+            <p class="mode-readout">Current mode: <strong id="mode-pill">manual</strong> · Provider: <strong id="provider-pill">auto</strong></p>
+          </div>
+          <select id="provider-select" style="display:none" aria-hidden="true" tabindex="-1">
+            <option value="auto">auto</option>
+            <option value="openrouter">openrouter</option>
+            <option value="google">google</option>
+            <option value="nvidia">nvidia</option>
+            <option value="anthropic">anthropic</option>
+          </select>
+        </section>
+
+        <!-- USAGE -->
+        <section class="pane" id="pane-usage" role="tabpanel">
+          <h2>Usage</h2>
+          <div class="stat-grid">
+            <div class="stat"><b id="stat-turns">0</b><span>turns</span></div>
+            <div class="stat"><b id="stat-tokens">0</b><span>tokens</span></div>
+          </div>
+          <p class="lead">This is local accounting for this session, counted on this machine. Provider-side billing and quota live on your provider's dashboard — Keel keeps no books of its own.</p>
+          <div class="card">
+            <h3>Transcript</h3>
+            <button id="copy-transcript" class="btn-ghost full">Copy transcript (this surface)</button>
+            <button id="clear-transcript" class="btn-ghost full">Clear view (this surface)</button>
+          </div>
+        </section>
+
+        <!-- PRIVACY -->
+        <section class="pane" id="pane-privacy" role="tabpanel">
+          <h2>Privacy</h2>
+          <ul class="fact-list">
+            <li>Keel runs on this machine. There is no Keel cloud; nothing phones home.</li>
+            <li>Your keys are either shell environment variables or stored only in <code>~/.keel/settings.json</code> — never sent anywhere except your provider.</li>
+            <li>Recents in this app live in this browser's localStorage, on this machine.</li>
+            <li>The public website is a static mirror — it cannot see any of this.</li>
+          </ul>
+          <div class="card">
+            <h3>Storage on this machine</h3>
+            <p class="hint"><span id="storage-usage">calculating…</span></p>
+            <button class="btn-ghost danger full" id="clear-recents-pwa">Clear recents (this PWA)</button>
+            <button class="btn-ghost danger full" id="clear-visit-prompts">Clear visit prompts (this tab)</button>
+          </div>
+        </section>
+
+        <!-- IMPORT & EXPORT -->
+        <section class="pane" id="pane-import" role="tabpanel">
+          <h2>Import &amp; export</h2>
+          <p class="lead">Export your configuration as JSON — UI preferences, provider preferences and connector definitions. <b>API keys are never included.</b></p>
+          <div class="card">
+            <button class="btn-primary" id="export-settings">Export settings.json</button>
+          </div>
+          <div class="card">
+            <h3>Import</h3>
+            <input type="file" id="import-file" accept="application/json,.json" hidden>
+            <button class="btn-ghost" id="import-pick">Choose a file…</button>
+            <label class="row-line switch-row" for="import-include-keys"><span>Also replace saved API keys<small>Only sections present in the file are merged. A rolling backup (settings.json.bak) is kept before any import.</small></span><input type="checkbox" id="import-include-keys" role="switch"></label>
+            <p class="hint" id="import-result"></p>
+          </div>
+        </section>
+
+        <!-- KEEL CODE -->
+        <section class="pane" id="pane-keel-code" role="tabpanel">
+          <h2>Keel Code</h2>
+          <p class="lead">The coding surface: a terminal-style console for agentic work — tools, shells, MCP servers. Same bridge as this window, same permission model, same working folder.</p>
+          <div class="kv"><span>Status</span><b id="keelcode-status">checking…</b></div>
+          <div class="card">
+            <button class="btn-primary" id="goto-code">Switch to Keel Code</button>
+          </div>
+        </section>
+
+        <!-- KEEL DESKTOP -->
+        <section class="pane" id="pane-keel-desktop" role="tabpanel">
+          <h2>Keel Desktop</h2>
+          <p class="lead">The desktop surface: hero composer, ideas, one conversation per surface — your agents, your files, your machine. Same bridge, same folder binding.</p>
+          <div class="kv"><span>Status</span><b id="keeldesktop-status">checking…</b></div>
+          <div class="card">
+            <button class="btn-primary" id="goto-desktop">Switch to Keel Desktop</button>
+          </div>
+        </section>
+
+        <!-- SYSTEM -->
+        <section class="pane" id="pane-system" role="tabpanel">
+          <h2>System</h2>
+          <div class="kv"><span>Keel version</span><b id="sys-version">…</b></div>
+          <div class="kv"><span>Bridge</span><b id="sys-origin">…</b></div>
+          <div class="kv"><span>Token</span><b>Printed by <code>keel serve</code> — this window never displays or stores it.</b></div>
+          <div class="kv"><span>Settings file</span><b><code>~/.keel/settings.json</code> — your keys &amp; preferences, this machine only</b></div>
+          <div class="kv"><span>Working folder</span><b id="sys-workdir">not set</b></div>
+        </section>
+
+        <!-- DEVELOPER -->
+        <section class="pane" id="pane-developer" role="tabpanel">
+          <h2>Developer</h2>
+          <p class="lead">Everything this window talks to is a local, token-gated endpoint:</p>
+          <ul class="endpoint-list">
+            <li><code>GET /api/health</code><span>liveness + version</span></li>
+            <li><code>GET /api/providers</code><span>provider status (presence only, never key material)</span></li>
+            <li><code>POST /api/run</code><span>stream a keel run as NDJSON</span></li>
+            <li><code>GET /api/fs/list?path=</code><span>browse directories (names only)</span></li>
+            <li><code>POST /api/workdir</code><span>bind agent tools to a folder</span></li>
+            <li><code>GET /api/settings</code><span>your saved configuration (secret-free view)</span></li>
+            <li><code>POST /api/settings</code><span>save UI + provider preferences</span></li>
+            <li><code>GET /api/settings/export</code><span>secret-free export</span></li>
+            <li><code>POST /api/fleet/providers/save</code><span>verify &amp; store a provider key</span></li>
+            <li><code>POST /api/fleet/providers/catalog</code><span>live model catalog for a provider</span></li>
+            <li><code>POST /api/fleet/providers/remove</code><span>forget a stored key</span></li>
+            <li><code>GET /api/fleet/skills</code><span>skills loaded on this machine</span></li>
+            <li><code>GET /api/fleet/connectors</code><span>MCP connectors + presets</span></li>
+          </ul>
+          <p class="lead">For provider probes and MCP diagnostics run <code>keel doctor</code> in a terminal. The fleet console lives at <code>/fleet</code> on the same bridge.</p>
+        </section>
+
+        <!-- SKILLS -->
+        <section class="pane" id="pane-skills" role="tabpanel">
+          <h2>Skills</h2>
+          <p class="lead">Skills loaded on this machine — user skills and Keel's bundled set.</p>
+          <div class="list-block" id="skills-list"><p class="hint">Loading…</p></div>
+        </section>
+
+        <!-- CONNECTORS -->
+        <section class="pane" id="pane-connectors" role="tabpanel">
+          <h2>Connectors</h2>
+          <p class="lead">MCP servers linked to Keel on this machine. Manage them in the fleet console — live add / test / remove.</p>
+          <div class="list-block" id="connectors-list"><p class="hint">Loading…</p></div>
+          <div class="card"><a class="btn-primary" id="open-fleet" href="/fleet" target="_blank" rel="noopener noreferrer">Open the Keel Fleet console</a></div>
+        </section>
+
+        <!-- PLUGINS -->
+        <section class="pane" id="pane-plugins" role="tabpanel">
+          <h2>Plugins</h2>
+          <p class="lead">Keel does not ship a plugin runtime. Connectors — MCP — are the extension surface: add a tool server there and every surface here can use it.</p>
+          <div class="card"><button class="btn-primary" id="goto-connectors">Open Connectors</button></div>
+        </section>
+
+      </div>
     </div>
   </div>
-
   <footer class="statusbar">
     <span id="status-text">idle</span>
     <span class="sep">·</span>

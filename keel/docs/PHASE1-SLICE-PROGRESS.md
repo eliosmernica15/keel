@@ -657,3 +657,20 @@ Emits (verified on Windows, exit 0):
   NOTE: the keel-serve instance that was already running keeps the old
   bridge code in memory until it is restarted — until then the PWA's
   folder picker shows the restart reminder instead of browsing.
+
+- **Full Settings system in the desktop PWA (2026-11-16)**: a full-window
+  settings panel with twelve pages (General, Providers, Usage, Privacy,
+  Import & export, Keel Code, Keel Desktop, System, Developer, Skills,
+  Connectors, Plugins) — all wired to the local bridge. Keys can now be
+  saved on this machine (~/.keel/settings.json, rolling .bak, 0600 best
+  effort, last-4 hint in the UI, shell env always wins, authenticated probe
+  required before persisting). Model catalogs are fetched live for pinning
+  a preferred model per provider; pinned models are passed to /api/run and
+  injected as KEEL_*_MODEL for the spawned agent. Instructions set in
+  General are prepended to every outbound message. Export excludes keys;
+  import merges ui/providerConfig/connectors with a backup kept.
+  Verified: 415/415 pytest green; settings save/load roundtrip; export
+  secret-free; fake key rejected with HTTP 401; all 12 panes + rail search
+  + hydration verified in-browser against an isolated bridge instance
+  (temp state dir; real ~/.keel untouched). Requires a keel serve restart
+  to take effect.
