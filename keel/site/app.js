@@ -284,7 +284,7 @@ q.addEventListener("keydown", (ev) => {
 
 /* ---------- sidebar collapse ---------- */
 $("tgl").addEventListener("click", () => app.classList.add("collapsed"));
-$("open").addEventListener("click", () => app.classList.remove("collapsed"));
+$("tgl-sidebar").addEventListener("click", () => app.classList.toggle("collapsed"));
 $("chat-title").addEventListener("click", () => app.classList.toggle("collapsed"));
 
 /* ---------- nav: honest wiring, no dead buttons ---------- */
@@ -519,7 +519,6 @@ fmSearch.addEventListener("input", () => renderFolderList(fmSearch.value));
 $("fm-open").addEventListener("click", () => { toggleFolderMenu(false); pickAndAttach(); });
 $("attach").addEventListener("click", (ev) => { ev.stopPropagation(); toggleFolderMenu(); });
 $("tgl-menu").addEventListener("click", () => app.classList.toggle("collapsed"));
-$("tgl-sidebar").addEventListener("click", () => app.classList.toggle("collapsed"));
 $("nav-back").addEventListener("click", () => history.back());
 $("nav-forward").addEventListener("click", () => history.forward());
 document.addEventListener("click", (ev) => {
@@ -1027,6 +1026,7 @@ $("win-restore").addEventListener("click", () => app.classList.remove("collapsed
 $("win-close").addEventListener("click", () => window.close());
 
 /* ---------- boot ---------- */
+if (window.matchMedia("(max-width: 880px)").matches) app.classList.add("collapsed");
 renderVisitList();
 updateSendState();
 hydrateGeneral();
