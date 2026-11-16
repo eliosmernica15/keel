@@ -15,9 +15,9 @@ Everything here runs locally in the browser tab:
 
 - the morph is pure CSS transitions + one JS toggle
 - prompts are echoed locally (sessionStorage, this tab only, never uploaded)
-- "Install ↓" opens the install panel: exact commands to run the real
-  Keel locally and install it from its own URL — or install this mirror
-  explicitly as a labeled read-only demo (no agent, no disk access)
+- "Install ↓" triggers the browser's own install flow directly (the page
+  is an installable PWA — manifest + service worker); if the browser
+  won't prompt, it points at the browser's install menu. No popups.
 - Share copies the URL, never a key or a message
 - zero tracking, zero analytics, zero external network calls
 
