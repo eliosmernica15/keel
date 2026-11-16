@@ -2,7 +2,7 @@
    offline. API calls always go to the network (they hit the local bridge);
    if the network fails, the app shell still loads in offline/demo mode. */
 
-const VERSION = "keel-shell-v2";
+const VERSION = "keel-shell-v3";
 const SHELL = [
   "/",
   "/ui/index.html",

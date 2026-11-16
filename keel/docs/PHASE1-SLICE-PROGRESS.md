@@ -621,3 +621,19 @@ Emits (verified on Windows, exit 0):
   HTML + JS served; /api/health returns {"ok":true, version}; icons present
   (192/512/256+ico); manifest.webmanifest starts PWA with proper icons and
   theme colors; service worker caches shell.
+
+- **Desktop PWA rebuilt as two surfaces (2026-11-16)**: the installable app
+  (`desktop/ui`, service `keel-shell-v3`) is now a single PWA with two
+  switchable surfaces — **Keel Desktop** (Cowork-style hero: starburst +
+  "You're here." + ideas + folder + composer) and **Keel Code** (coding
+  console: start card with "New coding session" / "Autopilot", bottom
+  composer, this-computer + permission-mode chips). Both ride the same
+  `/api/run` NDJSON bridge, one shared provider/permission config in the
+  Customize panel, one session state, one shared recents store (localStorage,
+  with pinned entries; stored only on this machine). Interactive send path
+  verified against the running 127.0.0.1:8744 instance — the agent replied
+  through the pipeline with `model keel-fake-1` (no provider is wired on
+  this host, so no live model turn has been observed); UI rendered the
+  result honestly. Screenshots verified for both surfaces. Service worker
+  re-registered and activated as v3. Local recents list left clean
+  (verification entries removed). The public Vercel site is unchanged.
