@@ -8,11 +8,37 @@ stream=true and stream_options.include_usage=true.
 from __future__ import annotations
 
 import json
+import os
 from typing import Any, Iterator
 
 from .base import (CapabilityRecord, ProviderError, ProviderRequest, UsageRecord,
                    http_transport, openai_tools, parse_sse_lines,
                    status_to_category, RETRY_UNKNOWN)
+
+
+def _openrouter_attribution() -> dict:
+    """App attribution for OpenRouter (app-attribution guide).
+
+    HTTP-Referer identifies Keel; X-OpenRouter-Title sets the display name;
+    X-OpenRouter-Categories tags Keel as an agentic coding harness so
+    agent-gated models are served instead of refused. Overridable via env.
+    """
+    referer = os.environ.get("KEEL_OPENROUTER_REFERER",
+                             "https://keel-desktop.vercel.app").strip()
+    title = os.environ.get("KEEL_OPENROUTER_TITLE", "Keel").strip()
+    categories = os.environ.get("KEEL_OPENROUTER_CATEGORIES",
+                                "cli-agent,programming-app").strip()
+    visibility = os.environ.get("KEEL_OPENROUTER_VISIBILITY", "").strip()
+    headers = {}
+    if referer:
+        headers["HTTP-Referer"] = referer
+    if title:
+        headers["X-OpenRouter-Title"] = title
+    if categories:
+        headers["X-OpenRouter-Categories"] = categories
+    if visibility:
+        headers["X-OpenRouter-App-Visibility"] = visibility
+    return headers
 
 
 class OpenAICompatibleAdapter:
@@ -37,6 +63,8 @@ class OpenAICompatibleAdapter:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
+        if self.cap.name == "openrouter":
+            headers.update(_openrouter_attribution())
         return headers
 
     def complete(self, request: ProviderRequest) -> Iterator[dict]:

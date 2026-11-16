@@ -593,20 +593,28 @@ $("notif-toggle").addEventListener("change", async (ev) => {
 });
 
 /* Providers — BYOK: this browser talks to the provider directly. No servers of ours exist. */
+/* OpenRouter app attribution — without these headers every app is anonymous.
+   HTTP-Referer identifies Keel; categories tag this chat surface. The local
+   agent sends cli-agent/programming-app from its side. */
+const OPENROUTER_ATTRIBUTION = {
+  "HTTP-Referer": "https://keel-desktop.vercel.app",
+  "X-OpenRouter-Title": "Keel",
+  "X-OpenRouter-Categories": "general-chat",
+};
 const PROVIDER_DEFS = {
   openrouter: {
     label: "OpenRouter",
     verifyUrl: (key) => "https://openrouter.ai/api/v1/auth/key",
-    verifyHeaders: (key) => ({ Authorization: `Bearer ${key}` }),
+    verifyHeaders: (key) => ({ Authorization: `Bearer ${key}`, ...OPENROUTER_ATTRIBUTION }),
     catalogUrl: () => "https://openrouter.ai/api/v1/models",
-    catalogHeaders: () => ({}),
+    catalogHeaders: () => ({ ...OPENROUTER_ATTRIBUTION }),
     parseCatalog: (doc) => (Array.isArray(doc?.data) ? doc.data.map((m) => m?.id) : []),
     defaultModel: "openrouter/auto",
     chat: (key, model, messages) => ({
       url: "https://openrouter.ai/api/v1/chat/completions",
       init: {
         method: "POST",
-        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", ...OPENROUTER_ATTRIBUTION },
         body: JSON.stringify({ model, stream: true, usage: { include: true }, messages }),
       },
       extractDelta: (evt) => evt?.choices?.[0]?.delta?.content || "",
