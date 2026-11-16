@@ -1116,7 +1116,6 @@ document.addEventListener("keydown", (ev) => {
 
 /* ---------- window chrome / sidebar ---------- */
 const toggleSidebar = () => rootEl.classList.toggle("sidebar-hidden");
-$("tgl-menu").addEventListener("click", toggleSidebar);
 $("tgl-sidebar").addEventListener("click", toggleSidebar);
 $("win-min").addEventListener("click", toggleSidebar);
 $("win-restore").addEventListener("click", () => rootEl.classList.toggle("sidebar-hidden"));

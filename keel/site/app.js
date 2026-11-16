@@ -315,7 +315,6 @@ q.addEventListener("keydown", (ev) => {
 });
 
 /* ---------- sidebar collapse ---------- */
-$("tgl").addEventListener("click", () => app.classList.add("collapsed"));
 $("tgl-sidebar").addEventListener("click", () => app.classList.toggle("collapsed"));
 $("chat-title").addEventListener("click", () => app.classList.toggle("collapsed"));
 
@@ -540,7 +539,6 @@ function toggleFolderMenu(open) {
 fmSearch.addEventListener("input", () => renderFolderList(fmSearch.value));
 $("fm-open").addEventListener("click", () => { toggleFolderMenu(false); pickAndAttach(); });
 $("attach").addEventListener("click", (ev) => { ev.stopPropagation(); toggleFolderMenu(); });
-$("tgl-menu").addEventListener("click", () => app.classList.toggle("collapsed"));
 $("nav-back").addEventListener("click", () => history.back());
 $("nav-forward").addEventListener("click", () => history.forward());
 document.addEventListener("click", (ev) => {
