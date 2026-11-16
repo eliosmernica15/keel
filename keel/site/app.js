@@ -213,21 +213,34 @@ function addMirrorReply() {
 
 const toBottom = () => { threadScroll.scrollTop = threadScroll.scrollHeight; };
 
-function morphToChat(prompt) {
-  app.classList.remove("mode-home");
-  app.classList.add("mode-chat");
-  $("chat-top").setAttribute("aria-hidden", "false");
-  q.placeholder = "Write a message.";
-  setTitle(prompt);
-  document.title = prompt.slice(0, 52) + " — Keel";
-}
+/* ---------- installed-app detection (standalone PWA vs browser tab) ---------- */
+const displayModeQuery = window.matchMedia("(display-mode: standalone)");
+const applyStandalone = () => document.documentElement.classList.toggle("standalone", displayModeQuery.matches);
+applyStandalone();
+if (displayModeQuery.addEventListener) displayModeQuery.addEventListener("change", applyStandalone);
+else if (displayModeQuery.addListener) displayModeQuery.addListener(applyStandalone);
 
+/* ---------- three modes: home (hero) · chat (conversation) · code (terminal) ---------- */
+function setMode(m) {
+  app.classList.remove("mode-home", "mode-chat", "mode-code");
+  app.classList.add("mode-" + m);
+  app.classList.toggle("has-messages", thread.children.length > 0);
+  $("chat-top").setAttribute("aria-hidden", String(m === "home"));
+  q.placeholder = m === "code"
+    ? "Describe a task or ask a question"
+    : (m === "chat" ? "Write a message." : "How can I help you today?");
+  $("seg-chat").classList.toggle("on", m !== "code");
+  $("seg-keel-code").classList.toggle("on", m === "code");
+}
+function setTitleAndDoc(text) {
+  setTitle(text);
+  document.title = text.slice(0, 52) + " — Keel";
+}
+function morphToChat(prompt) { setMode("chat"); setTitleAndDoc(prompt); }
+function morphToCode(prompt) { setMode("code"); setTitleAndDoc(prompt); }
 function morphToHome() {
-  app.classList.add("mode-home");
-  app.classList.remove("mode-chat");
+  setMode("home");
   app.classList.remove("sending");
-  $("chat-top").setAttribute("aria-hidden", "true");
-  q.placeholder = "How can I help you today?";
   q.focus();
 }
 
@@ -243,8 +256,11 @@ function sendPrompt() {
   saveVisit(items);
   renderVisitList();
   bumpUsage("prompts");
-  if (app.classList.contains("mode-home")) morphToChat(raw); else setTitle(raw);
+  const wasHome = app.classList.contains("mode-home");
+  if (app.classList.contains("mode-code")) { if (wasHome) morphToCode(raw); }
+  else if (wasHome) morphToChat(raw); else setTitle(raw);
   addUser(raw);
+  app.classList.add("has-messages");
   q.value = "";
   updateSendState();
   app.classList.add("sending");
@@ -275,6 +291,7 @@ $("chat-title").addEventListener("click", () => app.classList.toggle("collapsed"
 $("nav-new").addEventListener("click", () => {
   morphToHome();
   thread.textContent = "";
+  app.classList.remove("has-messages");
   $("greet").textContent = "Evening, how are things?";
   toast("Fresh page — the real session lives in the app.");
 });
@@ -295,7 +312,10 @@ $("nav-search").addEventListener("click", () => {
 });
 $("nav-projects").addEventListener("click", () => toast("Projects live where Keel runs — <code>python -m keel serve</code>."));
 $("nav-artifacts").addEventListener("click", () => toast("Artifacts are produced in the local app — nothing persists on this page."));
-$("nav-code").addEventListener("click", () => toast("Keel Code ships with the app — <code>python -m keel serve</code>, then switch surfaces in the toolbar."));
+$("nav-code").addEventListener("click", () => setMode("code"));
+$("code-new").addEventListener("click", () => { setMode("code"); q.focus(); });
+$("code-fleet").addEventListener("click", () =>
+  toast("The full agent lives in the local app — <code>python -m keel serve</code>."));
 $("nav-customize").addEventListener("click", () => openSettings("general"));
 $("sort-toggle").addEventListener("click", () => { sortAsc = !sortAsc; renderVisitList(); });
 $("clear-recents").addEventListener("click", () => { saveVisit([]); renderVisitList(); });
@@ -384,15 +404,8 @@ $("attach").addEventListener("click", openFolderPick);
 $("mic").addEventListener("click", () => toast("Voice input needs the app and a microphone on your machine."));
 $("wave").addEventListener("click", () => toast("Voice mode is app-only — no audio is captured on this page."));
 $("model").addEventListener("click", () => openSettings("providers"));
-$("seg-chat").addEventListener("click", () => {
-  $("seg-chat").classList.add("on");
-  $("seg-keel-code").classList.remove("on");
-});
-$("seg-keel-code").addEventListener("click", () => {
-  $("seg-keel-code").classList.add("on");
-  $("seg-chat").classList.remove("on");
-  toast("Keel Code runs in the app — install it, then use the toolbar switch.");
-});
+$("seg-chat").addEventListener("click", () => setMode("chat"));
+$("seg-keel-code").addEventListener("click", () => setMode("code"));
 
 /* chips fill the composer with genuinely useful prompts */
 document.querySelectorAll(".chip").forEach((chip) =>
