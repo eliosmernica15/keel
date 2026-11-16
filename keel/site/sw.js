@@ -1,15 +1,12 @@
-/* Keel webapp service worker — caches the app shell so the window opens
-   offline. API calls always go to the network (they hit the local bridge);
-   if the network fails, the app shell still loads in offline/demo mode. */
+/* Keel Desktop public mirror — service worker.
+   Caches only the app shell. API calls are never touched: this is a static landing page. */
 
-const VERSION = "keel-shell-v2";
+const VERSION = "keel-shell-v4";
 const SHELL = [
   "/",
-  "/ui/index.html",
-  "/ui/style.css",
-  "/ui/app.js",
   "/manifest.webmanifest",
   "/ui/icons/icon-192.png",
+  "/ui/icons/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -29,13 +26,7 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
-  if (url.origin !== location.origin) {
-    return; // never touch cross-origin traffic
-  }
-  if (url.pathname.startsWith("/api/")) {
-    return; // network only — the local bridge owns this
-  }
-  // app shell: cache first, refresh in background (stale-while-revalidate)
+  if (url.origin !== location.origin) return;
   event.respondWith(
     caches.match(event.request).then((cached) => {
       const network = fetch(event.request).then((resp) => {

@@ -1,11 +1,11 @@
 {
-  "name": "Keel",
+  "name": "Keel Desktop",
   "short_name": "Keel",
-  "description": "Your agentic coding harness — local, private, bring your own keys",
+  "description": "Keel — local, private coding harness. Your agents, your files, your keys, on your machine.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0605",
-  "theme_color": "#c2530a",
+  "theme_color": "#0a0605",
   "orientation": "any",
   "icons": [
     {
