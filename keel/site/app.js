@@ -352,20 +352,55 @@ async function walkDirectory(dirHandle, prefix, state, depth) {
   }
 }
 
-async function openFolderPick() {
-  if (!window.showDirectoryPicker) {
-    toast("This browser won't open a folder picker here — try <code>python -m keel serve</code> on this machine.");
-    return;
-  }
-  let dirHandle;
+/* ---------- folder dropdown: recent picks persisted by handle ---------- */
+const RECENT_FOLDERS_KEY = "keel_mirror_recent_folders_v1";
+const HDB_NAME = "keel-handles-v1";
+const HDB_STORE = "handles";
+
+const loadRecentFolders = () => {
+  try { return JSON.parse(localStorage.getItem(RECENT_FOLDERS_KEY) || "[]"); } catch { return []; }
+};
+const saveRecentFolders = (list) => {
+  try { localStorage.setItem(RECENT_FOLDERS_KEY, JSON.stringify(list.slice(0, 10))); } catch {}
+};
+const recordRecentFolder = (name) => {
+  if (!name) return;
+  const rest = loadRecentFolders().filter((n) => n !== name);
+  saveRecentFolders([name, ...rest]);
+};
+
+function hdbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(HDB_NAME, 1);
+    req.onupgradeneeded = () => { req.result.createObjectStore(HDB_STORE); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function saveDirHandle(handle) {
   try {
-    dirHandle = await window.showDirectoryPicker({ mode: "read" });
-  } catch (err) {
-    const name = err && err.name;
-    if (name === "AbortError" || name === "SecurityError") return; // user cancelled — silent
-    toast("The browser refused the folder — permission denied.");
-    return;
-  }
+    const db = await hdbOpen();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(HDB_STORE, "readwrite");
+      tx.objectStore(HDB_STORE).put(handle, handle.name);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch { /* browser refused to persist handles */ }
+}
+async function getDirHandle(name) {
+  try {
+    const db = await hdbOpen();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(HDB_STORE, "readonly");
+      const req = tx.objectStore(HDB_STORE).get(name);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  } catch { return null; }
+}
+
+async function performAttach(dirHandle) {
   morphToChat("Folder " + dirHandle.name);
   addUser("Attach my folder: " + dirHandle.name);
   const state = { files: 0, dirs: 0, collected: 0, skipped: 0, lines: [], skippedHeavy: [] };
@@ -400,7 +435,97 @@ async function openFolderPick() {
   threadScroll.scrollTop = threadScroll.scrollHeight;
 }
 
-$("attach").addEventListener("click", openFolderPick);
+async function pickAndAttach() {
+  if (!window.showDirectoryPicker) {
+    toast("This browser won't open a folder picker here — try <code>python -m keel serve</code> on this machine.");
+    return;
+  }
+  let dirHandle;
+  try {
+    dirHandle = await window.showDirectoryPicker({ mode: "read" });
+  } catch (err) {
+    const name = err && err.name;
+    if (name === "AbortError" || name === "SecurityError") return; // user cancelled — silent
+    toast("The browser refused the folder — permission denied.");
+    return;
+  }
+  recordRecentFolder(dirHandle.name);
+  await saveDirHandle(dirHandle);
+  await performAttach(dirHandle);
+}
+
+const folderMenu = $("folder-menu");
+const fmSearch = $("fm-search");
+const fmList = $("fm-list");
+function renderFolderList(filter) {
+  const needle = (filter || "").trim().toLowerCase();
+  fmList.textContent = "";
+  const dirs = loadRecentFolders().filter((n) => !needle || n.toLowerCase().includes(needle));
+  if (!dirs.length) {
+    const p = document.createElement("p");
+    p.className = "fm-empty";
+    p.textContent = needle ? "No folder matches that name." : "Nothing picked yet — pick one below.";
+    fmList.appendChild(p);
+    return;
+  }
+  for (const name of dirs) {
+    const btn = document.createElement("button");
+    btn.className = "fm-item";
+    btn.type = "button";
+    btn.role = "menuitem";
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg>';
+    const span = document.createElement("span");
+    span.className = "n";
+    span.textContent = name;
+    btn.appendChild(span);
+    btn.title = "Attach “" + name + "” again";
+    btn.addEventListener("click", async () => {
+      toggleFolderMenu(false);
+      const handle = await getDirHandle(name);
+      if (!handle) {
+        toast("That handle isn't stored in this browser — picking it again.");
+        pickAndAttach();
+        return;
+      }
+      try {
+        const perm = handle.queryPermission ? await handle.queryPermission({ mode: "read" }) : "prompt";
+        if (perm !== "granted" && handle.requestPermission) {
+          const req = await handle.requestPermission({ mode: "read" });
+          if (req !== "granted") {
+            toast("Permission not granted — picking it again.");
+            pickAndAttach();
+            return;
+          }
+        }
+        await performAttach(handle);
+      } catch {
+        toast("That handle no longer resolves — picking it again.");
+        pickAndAttach();
+      }
+    });
+    fmList.appendChild(btn);
+  }
+}
+function toggleFolderMenu(open) {
+  const show = open === undefined ? folderMenu.hidden : open;
+  folderMenu.hidden = !show;
+  if (show) {
+    fmSearch.value = "";
+    renderFolderList("");
+    fmSearch.focus();
+  }
+}
+fmSearch.addEventListener("input", () => renderFolderList(fmSearch.value));
+$("fm-open").addEventListener("click", () => { toggleFolderMenu(false); pickAndAttach(); });
+$("attach").addEventListener("click", (ev) => { ev.stopPropagation(); toggleFolderMenu(); });
+$("tgl-menu").addEventListener("click", () => app.classList.toggle("collapsed"));
+$("tgl-sidebar").addEventListener("click", () => app.classList.toggle("collapsed"));
+$("nav-back").addEventListener("click", () => history.back());
+$("nav-forward").addEventListener("click", () => history.forward());
+document.addEventListener("click", (ev) => {
+  if (folderMenu.hidden) return;
+  if (!folderMenu.contains(ev.target) && ev.target.id !== "attach" && !ev.target.closest("#attach")) toggleFolderMenu(false);
+});
 $("mic").addEventListener("click", () => toast("Voice input needs the app and a microphone on your machine."));
 $("wave").addEventListener("click", () => toast("Voice mode is app-only — no audio is captured on this page."));
 $("model").addEventListener("click", () => openSettings("providers"));
@@ -494,6 +619,7 @@ document.addEventListener("click", (ev) => {
 });
 document.addEventListener("keydown", (ev) => {
   if (ev.key === "Escape") {
+    if (!folderMenu.hidden) { toggleFolderMenu(false); return; }
     if (!settingsPanel.hidden) { closeSettings(); return; }
     if (!dropup.hidden) toggleDropup(false);
   }

@@ -294,6 +294,38 @@ main{flex:1;min-width:0;position:relative;overflow:hidden}
 .acts svg{width:14px;height:14px;stroke-width:1.4}
 
 /* composer shell */
+/* toolbar — surface switch pinned to the top, always visible */
+.tools{position:fixed;top:0;left:0;z-index:6;height:40px;display:flex;align-items:center;
+  padding-left:10px;gap:1px}
+.tools>button{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;color:var(--muted)}
+.tools>button:hover{background:var(--hover);color:var(--text)}
+.tools svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.seg{display:flex;gap:0;background:var(--panel);border:1px solid var(--edge-dim);border-radius:10px;padding:2px;
+  margin-left:8px;-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
+.seg button{width:34px;height:26px;display:grid;place-items:center;border-radius:8px;color:var(--muted);transition:color .15s,background .15s}
+.seg button.on{background:var(--panel-2);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.seg button svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* folder dropdown — recent folders, re-pick to attach */
+.folder-menu{position:absolute;left:10px;bottom:52px;z-index:20;width:300px;max-height:300px;display:flex;flex-direction:column;
+  border:1px solid var(--edge);border-radius:14px;background:var(--pop);overflow:hidden;box-shadow:var(--shadow);
+  -webkit-backdrop-filter:blur(30px) saturate(1.5);backdrop-filter:blur(30px) saturate(1.5)}
+.fm-search{height:38px;padding:0 12px;border:0;outline:none;color:var(--text);
+  background:transparent;border-bottom:1px solid var(--edge-dim);font-size:13px}
+.fm-search::placeholder{color:var(--muted)}
+.fm-label{margin:8px 12px 4px;font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.fm-list{flex:1;min-height:0;overflow-y:auto;padding:2px 6px 6px;scrollbar-width:thin}
+.fm-item{display:flex;align-items:center;gap:10px;width:100%;height:32px;
+  padding:0 10px;border-radius:9px;color:var(--text);text-align:left;font-size:13px}
+.fm-item:hover{background:var(--panel-2)}
+.fm-item svg{width:15px;height:15px;stroke:var(--muted);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.fm-item .n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fm-item .d{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px}
+.fm-empty{padding:14px 12px;color:var(--muted);font-size:12px;text-align:center}
+.fm-open{display:flex;align-items:center;gap:10px;height:40px;padding:0 14px;
+  border:0;border-top:1px solid var(--edge-dim);color:var(--text);font-size:13px;text-align:left;background:transparent;cursor:pointer}
+.fm-open:hover{background:var(--panel-2)}
+.fm-open svg{width:15px;height:15px;stroke:var(--accent);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .comp{position:absolute;left:50%;z-index:3;transform:translateX(-50%);border:1px solid var(--edge);
   background:var(--panel-2);box-shadow:var(--shadow), inset 0 0 0 1px var(--edge-dim);
   -webkit-backdrop-filter:blur(26px) saturate(1.4);backdrop-filter:blur(26px) saturate(1.4);
@@ -305,10 +337,6 @@ main{flex:1;min-width:0;position:relative;overflow:hidden}
 .crow{position:absolute;left:8px;right:12px;bottom:9px;height:30px;display:flex;align-items:center;gap:2px}
 .crow .add{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;color:var(--muted);margin-right:6px}
 .crow .add:hover{background:var(--panel-2);color:var(--text)}
-.seg{display:flex;background:var(--panel-3);border:1px solid var(--edge-dim);border-radius:9px;height:28px;align-items:center;padding:2px;
-  transition:opacity .3s var(--ease), transform .4s var(--ease)}
-.seg button{height:24px;padding:0 12px;font-size:13px;border-radius:7px;color:var(--muted)}
-.seg button.on{background:var(--panel-2);color:var(--text);box-shadow:0 0 0 1px var(--edge-dim)}
 .model{margin-left:auto;margin-right:14px;font-family:var(--mono);font-size:11px;color:var(--muted);
   padding:5px 10px;border-radius:9px;transition:opacity .3s var(--ease);letter-spacing:.04em}
 .model span{color:var(--code-text)}
@@ -524,6 +552,15 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
 <div class="app mode-home" id="app">
 
   <!-- ============ sidebar ============ -->
+  <!-- toolbar — the surface switch lives at the top, always -->
+  <div class="tools">
+    <button id="tgl-menu" aria-label="Toggle sidebar"><svg viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h11"/></svg></button>
+    <button id="tgl-sidebar" aria-label="Toggle sidebar"><svg viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="11" rx="2"/><path d="M6 2.5v11"/></svg></button>
+    <button id="nav-back" aria-label="Back"><svg viewBox="0 0 16 16"><path d="M13 8H3M7 4L3 8l4 4"/></svg></button>
+    <button id="nav-forward" aria-label="Forward"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+    <div class="seg" id="seg" role="tablist" aria-label="Keel surface"><button type="button" class="on" id="seg-chat" role="tab" aria-selected="true" aria-label="Keel Desktop"><svg viewBox="0 0 16 16"><path d="M9.5 3.5h-5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h.5v2l2.5-2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2z"/><path d="M11.5 6.5h1a2 2 0 0 1 2 2v2.5a2 2 0 0 1-2 2h-.5v1.5l-2-1.5"/></svg></button><button type="button" id="seg-keel-code" class="pwa-only" role="tab" aria-selected="false" aria-label="Keel Code"><svg viewBox="0 0 16 16"><path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3M9 4l-2 8"/></svg></button></div>
+  </div>
+
   <aside class="side" id="side">
     <div class="brand">
       <span class="word">K<i>eel</i></span>
@@ -615,12 +652,19 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
     <form class="comp" id="comp" autocomplete="off">
       <textarea id="q" rows="2" placeholder="How can I help you today?" aria-label="Message Keel" spellcheck="true"></textarea>
       <div class="crow">
-        <button type="button" class="add" id="attach" aria-label="Add"><svg viewBox="0 0 18 18" style="width:19px;height:19px"><path d="M9 3v12M3 9h12"/></svg></button>
-        <div class="seg" id="seg"><button type="button" class="on" id="seg-chat">Chat</button><button type="button" id="seg-keel-code" class="pwa-only">Keel Code</button></div>
+        <button type="button" class="add" id="attach" aria-label="Folders" title="Folders — pick one to attach"><svg viewBox="0 0 18 18" style="width:19px;height:19px"><path d="M9 3v12M3 9h12"/></svg></button>
         <button type="button" class="model" id="model">Keel · <span>local</span></button>
         <button type="button" class="mic" id="mic" aria-label="Voice input"><svg viewBox="0 0 18 18"><rect x="6.5" y="2" width="5" height="9" rx="2.5"/><path d="M4 8.5a5 5 0 0 0 10 0M9 13.5V16"/></svg></button>
         <button type="button" class="wave" id="wave" aria-label="Voice mode"><svg viewBox="0 0 18 18"><path d="M3 7.5v3M6 5v8M9 2.5v13M12 5v8M15 7.5v3"/></svg></button>
         <button type="submit" class="send" id="send" aria-label="Send"><svg viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5"/></svg></button>
+      </div>
+
+      <!-- folder dropdown — attach a folder's tree, no typing paths -->
+      <div class="folder-menu" id="folder-menu" hidden role="menu" aria-label="Choose folder">
+        <input class="fm-search" id="fm-search" placeholder="Search folders…" aria-label="Search folders" autocomplete="off" spellcheck="false">
+        <p class="fm-label">Recent</p>
+        <div class="fm-list" id="fm-list"></div>
+        <button class="fm-open" id="fm-open"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg>Open folder…</button>
       </div>
     </form>
     <p class="foot-note" id="foot-note">Keel is AI and can make mistakes. Double-check work that matters · <b>Keel · local</b></p>
