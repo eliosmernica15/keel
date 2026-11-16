@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Keel</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+<link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+<meta name="theme-color" content="#0a0605" />
+<link rel="stylesheet" href="/ui/style.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">K</span>
+    <div class="brand-text">
+      <strong>Keel</strong>
+      <span class="tagline">your agentic coding harness</span>
+    </div>
+  </div>
+  <div class="top-controls">
+    <span id="mode-pill" class="pill">print</span>
+    <span id="provider-pill" class="pill pill-dim">provider: auto</span>
+    <span id="status-dot" class="dot dot-ok" title="state"></span>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="sidebar">
+    <section class="side-block">
+      <h3>Session</h3>
+      <label class="field">
+        <span>Provider</span>
+        <select id="provider-select">
+          <option value="auto">auto (OpenRouter → AI Studio → NIM)</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="google">Google AI Studio</option>
+          <option value="nvidia">NVIDIA NIM</option>
+          <option value="anthropic">Anthropic (opt-in)</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Permission mode</span>
+        <select id="mode-select">
+          <option value="default">manual</option>
+          <option value="acceptEdits">accept edits</option>
+          <option value="dontAsk">dont ask</option>
+          <option value="bypassPermissions">bypass (dangerous)</option>
+        </select>
+      </label>
+      <label class="field checkbox">
+        <input type="checkbox" id="accept-risk" />
+        <span>I accept the risk of bypass mode</span>
+      </label>
+    </section>
+
+    <section class="side-block">
+      <h3>Keys</h3>
+      <ul class="key-list" id="key-list">
+        <li data-key="KEEL_OPENROUTER_API_KEY">OpenRouter <span class="key-state">…</span></li>
+        <li data-key="KEEL_GOOGLE_API_KEY">AI Studio <span class="key-state">…</span></li>
+        <li data-key="KEEL_NVIDIA_API_KEY">NVIDIA NIM <span class="key-state">…</span></li>
+        <li data-key="KEEL_ANTHROPIC_API_KEY">Anthropic <span class="key-state">…</span></li>
+      </ul>
+      <p class="hint">Keys are never written to disk by Keel. This list is read from the process environment via <code>keel doctor</code>-style probes.</p>
+    </section>
+
+    <section class="side-block">
+      <h3>Transcript</h3>
+      <button id="copy-transcript" class="ghost full">Copy transcript</button>
+      <button id="clear-transcript" class="ghost full">Clear view</button>
+    </section>
+  </aside>
+
+  <section class="chat">
+    <div id="transcript" class="transcript" aria-live="polite"></div>
+    <form id="prompt-form" class="composer">
+      <textarea id="prompt" rows="3" placeholder="What should Keel do?"
+                autocomplete="off" spellcheck="true"></textarea>
+      <div class="composer-bar">
+        <span id="composer-hint" class="hint">⏎ send · ⇧⏎ newline</span>
+        <button type="submit" id="send-btn" class="send">Send <kbd>⏎</kbd></button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<footer class="statusbar">
+  <span id="status-text">idle</span>
+  <span class="sep">·</span>
+  <span id="token-count">0 tokens</span>
+  <span class="sep">·</span>
+  <span id="turn-count">0 turns</span>
+  <span class="sep">·</span>
+  <span id="session-id-label">no session</span>
+</footer>
+
+<script src="/ui/app.js"></script>
+</body>
+</html>
