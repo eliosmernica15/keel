@@ -3,7 +3,7 @@
    static assets are cache-first with background refresh. API traffic is
    never touched — this page is static either way. */
 
-const VERSION = "keel-shell-v5";
+const VERSION = "keel-shell-v6";
 const SHELL = [
   "/",
   "/manifest.webmanifest",
@@ -47,17 +47,16 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets: cache first, refresh in background.
+  // All same-origin GETs: network first, cache as offline fallback.
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const network = fetch(event.request).then((resp) => {
-        if (resp && resp.ok && event.request.method === "GET") {
-          const clone = resp.clone();
-          caches.open(VERSION).then((cache) => cache.put(event.request, clone));
-        }
-        return resp;
-      });
-      return cached || network;
-    })
+    fetch(event.request).then((resp) => {
+      if (resp && resp.ok && event.request.method === "GET") {
+        const clone = resp.clone();
+        caches.open(VERSION).then((cache) => cache.put(event.request, clone));
+      }
+      return resp;
+    }).catch(() =>
+      caches.match(event.request).then((cached) => cached || caches.match("/"))
+    )
   );
 });

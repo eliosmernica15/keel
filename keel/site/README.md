@@ -1,25 +1,33 @@
-# Keel — public mirror
+# Keel — public mirror (also: BYOK chat)
 
-This is the **public face of Keel**: the Keel Desktop home screen (the
-greeting, the composer, the chips) and, after you press Enter, the same
-screen morphed into the conversation view. Keel's own marks and design
-system only — no third-party branding, assets or copy.
+The public mirror of Keel Desktop — same shell, same glass, plus honest
+bring-your-own-key chat.
 
-**What this is not:** a runnable Keel. The real agent is a local program
-that binds `127.0.0.1` on your machine and talks to your chosen provider
-with your keys. It is not reachable from the internet by design. On this
-page, sending a message morphs the layout, echoes your prompt back, and
-answers honestly: Keel runs locally. Your keys never leave your disk.
+**What works here**
 
-Everything here runs locally in the browser tab:
+- **Live chat with your own key, in your browser** — OpenRouter and
+  Google AI Studio both allow browser access (verified against their
+  CORS preflights). Paste a key in Settings → Providers →
+  Verify & save: it is checked against the provider live, stored **only
+  in this browser's localStorage**, and used for streaming replies.
+  "Forget this key" wipes it. No Keel server exists; your prompt goes
+  to your provider under your key — that's BYOK.
+- The mirror UI: account drop-up, full settings (General, Providers,
+  Usage with real token counters, Privacy, Import & export, Keel Code /
+  Desktop, System with live SW status, Developer, Skills, Connectors,
+  Plugins), dark / light / system theme, folder attach (read-only tree).
+- The service worker serves navigations network-first; a strict
+  Content-Security-Policy (see `vercel.json`) locks scripts to this
+  origin and `connect-src` to the two permitted providers.
 
-- the morph is pure CSS transitions + one JS toggle
-- prompts are echoed locally (sessionStorage, this tab only, never uploaded)
-- "Install ↓" triggers the browser's own install flow directly (the page
-  is an installable PWA — manifest + service worker); if the browser
-  won't prompt, it points at the browser's install menu. No popups.
-- Share copies the URL, never a key or a message
-- zero tracking, zero analytics, zero external network calls
+**What doesn't work here**
 
-Fonts are bundled (Inter, Space Grotesk, JetBrains Mono). The real, private
-agent lives at `github.com/eliosmernica15/keel` — `python -m keel serve`.
+- No tools, no files, no agent loop — Keel's agent runs in the local
+  app (`python -m keel serve`, then clone this repo).
+- **NVIDIA NIM and Anthropic** do not permit browser calls (no
+  CORS allowance). Their keys work in the local app only — this page
+  says so rather than pretend.
+- No accounts, no storage beyond this browser, no tracking.
+
+Fonts bundled (Inter, Space Grotesk, JetBrains Mono).
+Source of truth: github.com/eliosmernica15/keel — `keel/site/`.
