@@ -232,10 +232,10 @@ html.standalone .browser-only{display:none !important}
 
 /* chat header (chat mode only) */
 .chat-top{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;
-  padding:0 14px 0 56px;z-index:4;opacity:0;pointer-events:none;transform:translateY(-8px);
+  padding:0 150px 0 56px;z-index:4;opacity:0;pointer-events:none;transform:translateY(-8px);
   transition:opacity .3s var(--ease) .08s, transform .4s var(--ease) .08s;border-bottom:1px solid var(--edge-dim);
   background:var(--bar);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
-.app.mode-chat .chat-top{opacity:1;pointer-events:auto;transform:none}
+.app.mode-chat .chat-top,.app.mode-code .chat-top{opacity:1;pointer-events:auto;transform:none}
 .title{display:flex;align-items:center;gap:10px;font-size:13.5px;cursor:pointer;padding:6px 10px;margin-left:-10px;
   border-radius:8px;max-width:44vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .title:hover{background:var(--hover)}
@@ -577,17 +577,17 @@ body.reduce-motion *,body.reduce-motion *::before,body.reduce-motion *::after{an
   <!-- install pill (home mode) -->
   <div class="pill-home browser-only" id="pill-home">Keel runs on your machine <button class="pill-cta" id="install-pill">Install ↓</button></div>
 
-  <!-- chat header (chat mode) -->
-  <header class="chat-top" id="chat-top" aria-hidden="true">
-    <button class="title" id="chat-title" title="Toggle sidebar">New session <svg viewBox="0 0 14 14"><path d="M3 5l4 4 4-4"/></svg></button>
-    <div class="pill-chat" id="pill-chat">local · private<button id="pill-x" aria-label="Dismiss"><svg viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
-    <div class="rt">
-      <button class="ibtn" id="btn-files" aria-label="Files" title="Files"><svg viewBox="0 0 18 18" style="width:17px;height:17px"><path d="M4.5 2.5h6l3.5 3.5v9a1 1 0 0 1-1 1h-8.5a1 1 0 0 1-1-1v-11.5a1 1 0 0 1 1-1zM10.5 2.8V6h3.2"/></svg></button>
-      <button class="share" id="btn-share"><svg viewBox="0 0 18 18"><path d="M9 11.5V3M6 5.8L9 3l3 2.8M4 9.5v4.5a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9.5"/></svg>Share</button>
-    </div>
-  </header>
-
   <main>
+    <!-- chat header (chat + code modes) — lives inside the main column -->
+    <header class="chat-top" id="chat-top" aria-hidden="true">
+      <button class="title" id="chat-title" title="Toggle sidebar">New session <svg viewBox="0 0 14 14"><path d="M3 5l4 4 4-4"/></svg></button>
+      <div class="pill-chat" id="pill-chat">local · private<button id="pill-x" aria-label="Dismiss"><svg viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div>
+      <div class="rt">
+        <button class="ibtn" id="btn-files" aria-label="Files" title="Files"><svg viewBox="0 0 18 18" style="width:17px;height:17px"><path d="M4.5 2.5h6l3.5 3.5v9a1 1 0 0 1-1 1h-8.5a1 1 0 0 1-1-1v-11.5a1 1 0 0 1 1-1zM10.5 2.8V6h3.2"/></svg></button>
+        <button class="share" id="btn-share"><svg viewBox="0 0 18 18"><path d="M9 11.5V3M6 5.8L9 3l3 2.8M4 9.5v4.5a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9.5"/></svg>Share</button>
+      </div>
+    </header>
+
     <h1 class="hero" id="hero"><svg class="mark" viewBox="0 0 48 48"><use href="#starburst"/></svg><span id="greet">Evening, how are things?</span></h1>
     <p class="sub" id="sub">Keel — your agentic coding harness, local &amp; private</p>
 
