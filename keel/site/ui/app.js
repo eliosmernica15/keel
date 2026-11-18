@@ -515,7 +515,7 @@ function notifyResponseDone(evt) {
   } catch { /* permission revoked mid-run */ }
 }
 
-function send(surface) {
+async function send(surface) {
   const active = surface || state.surface;
   const promptEl = prompts[active];
   const raw = promptEl.value.trim();
@@ -535,7 +535,24 @@ function send(surface) {
     ? `\n\n[attachments: ${pending.map((f) => f.name).join(", ")}]`
     : "";
   const outbound = (instructions ? `${instructions}\n\n` : "") + raw;
-  const wire = pending.length ? outbound + attachmentBlock(pending) : outbound;
+  let workspaceBlock = "";
+  if (workspaceHandle && workspaceQueued) {
+    try {
+      const collected = [];
+      const skipped = [];
+      await collectFromDirectory(workspaceHandle, workspaceName, collected, skipped);
+      if (collected.length) {
+        workspaceBlock = `\n\n[Workspace: ${workspaceName} — ${collected.length} text file(s), read-only]\n`
+          + collected.map((f) => `### ${f.name} (${fmtBytes(f.bytes)})\n${f.content}`).join("\n\n");
+      } else {
+        systemNote("workspace bound but it has no readable text files — sending without file context", "system", active);
+      }
+    } catch {
+      systemNote("couldn't read the workspace — sending without file context", "system", active);
+    }
+    workspaceQueued = false;
+  }
+  const wire = (pending.length ? outbound + attachmentBlock(pending) : outbound) + workspaceBlock;
   appendMessage("user", "you", (body) => { body.textContent = outbound + attachNote; }, active);
   addRecent(raw, active);
   state.runSurface = active;
@@ -586,6 +603,46 @@ const ATTACH_MAX_FILE = 4 * 1024 * 1024;
 const ATTACH_MAX_TOTAL = 12 * 1024 * 1024;
 const DESKTOP_ACCEPT = ".pdf,.doc,.docx,.odt,.rtf,.txt,.md,.markdown,.csv,.tsv,.xls,.xlsx,.ods,.png,.jpg,.jpeg,.gif,.webp,.svg,.json,.xml,.yaml,.yml,.toml,.ini,.cfg,.log,.sql,.css,.html,.htm,.js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.java,.c,.h,.cpp,.cs,.go,.rs,.rb,.php,.sh,.ps1,.bat,.env,.ipynb";
 const attachInput = $("attach-file-input");
+/* workspace binding (mirror): the + folder item binds a folder as your
+   session workspace — the chip shows its name; its text files are read
+   ONCE and ride along with your next message as read-only context. */
+let workspaceHandle = null;
+let workspaceName = "";
+let workspaceQueued = false;
+function mirrorBindWorkspace(dirHandle) {
+  workspaceHandle = dirHandle;
+  workspaceName = dirHandle.name;
+  workspaceQueued = true;
+  setWorkdirUI(workspaceName);
+  const detach = $("pop-workspace-detach");
+  if (detach) detach.hidden = false;
+  systemNote(`workspace bound: ${workspaceName} — its text files will ride along with your next message as read-only context (no agent on this mirror)`, "system", state.surface);
+}
+function mirrorUnbindWorkspace() {
+  workspaceHandle = null;
+  workspaceName = "";
+  workspaceQueued = false;
+  setWorkdirUI(null);
+  const detach = $("pop-workspace-detach");
+  if (detach) detach.hidden = true;
+  systemNote("workspace detached", "system", state.surface);
+}
+async function pickAndBindWorkspace(surface) {
+  const msg = "Picking a folder needs Chrome or Edge on this page — use Attach files… instead.";
+  if (!window.showDirectoryPicker) {
+    systemNote(msg, "system", surface);
+    return;
+  }
+  let dirHandle;
+  try {
+    dirHandle = await window.showDirectoryPicker({ mode: "read" });
+  } catch (err) {
+    if (err && err.name === "AbortError") return;
+    systemNote(`couldn't open the folder picker: ${String((err && err.message) || err).slice(0, 120)}`, "system", surface);
+    return;
+  }
+  mirrorBindWorkspace(dirHandle);
+}
 const attachmentBytes = (list) => list.reduce((sum, f) => sum + f.bytes, 0);
 const fmtBytes = (n) => (n >= 1024 * 1024 ? `${(n / 1048576).toFixed(1)} MB` : n >= 1024 ? `${Math.round(n / 1024)} KB` : `${n} B`);
 const TEXT_MIME = /^(text\/|application\/(json|xml|javascript|x-yaml|yaml|toml|x-sh|x-sql|sql|csv|x-python|x-rust)|image\/svg\+xml)/;
@@ -746,7 +803,7 @@ function openAttachMenu(surface) {
   $("attach-menu-files").querySelector(".ctx-label").textContent = surface === "code"
     ? "Attach files (any type)…"
     : "Attach files (docs, images, spreadsheets, code)…";
-  $("attach-menu-folder").querySelector(".ctx-label").textContent = "Select folder… (text files become context)";
+  $("attach-menu-folder").querySelector(".ctx-label").textContent = "Select folder as workspace…";
   $("attach-menu-folder").hidden = false;
   const r = btn.getBoundingClientRect();
   menu.hidden = false;
@@ -778,37 +835,10 @@ $("attach-menu-files").addEventListener("click", () => {
   attachInput.accept = surface === "code" ? "" : DESKTOP_ACCEPT;
   attachInput.click();
 });
-$("attach-menu-folder").addEventListener("click", async () => {
+$("attach-menu-folder").addEventListener("click", () => {
   const surface = state.surface;
   closeAttachMenu();
-  if (!window.showDirectoryPicker) {
-    systemNote("Picking a folder needs Chrome or Edge on this page — use Attach files… instead.", "system", surface);
-    return;
-  }
-  let dirHandle;
-  try {
-    dirHandle = await window.showDirectoryPicker({ mode: "read" });
-  } catch (err) {
-    if (err && err.name === "AbortError") return;
-    systemNote(`couldn't open the folder picker: ${String((err && err.message) || err).slice(0, 120)}`, "system", surface);
-    return;
-  }
-  const collected = [];
-  const skipped = [];
-  try {
-    await collectFromDirectory(dirHandle, dirHandle.name, collected, skipped);
-  } catch (err) {
-    systemNote(`couldn't read the folder: ${String((err && err.message) || err).slice(0, 120)}`, "system", surface);
-    return;
-  }
-  if (!collected.length) {
-    systemNote("no readable text files found there (binaries and oversize files are skipped)", "system", surface);
-    if (skipped.length) noteSkipped(surface, skipped);
-    return;
-  }
-  addAttachments(surface, collected);
-  if (skipped.length) noteSkipped(surface, skipped);
-  systemNote(`attached ${collected.length} file(s) from “${dirHandle.name}” — sent with your next message as read-only context`, "system", surface);
+  pickAndBindWorkspace(surface);
 });
 attachInput.addEventListener("change", async () => {
   const surface = state.surface;
@@ -1701,7 +1731,8 @@ $("pop-folder-search").addEventListener("keydown", (ev) => {
     if (value) { closePops(); applyWorkdir(value); }
   }
 });
-$("pop-folder-open").addEventListener("click", () => { closePops(); openFsPicker(); });
+$("pop-folder-open").addEventListener("click", () => { closePops(); pickAndBindWorkspace(state.surface); });
+$("pop-workspace-detach").addEventListener("click", () => { closePops(); mirrorUnbindWorkspace(); });
 $("pop-perm").addEventListener("click", (ev) => {
   const item = ev.target.closest(".pop-item");
   if (!item) return;

@@ -195,7 +195,8 @@
           <div class="pop-lb" id="pop-folder-label">Recent</div>
           <div class="pop-list" id="pop-folder-list" role="listbox"></div>
           <div class="pop-dv"></div>
-          <button class="pop-open" id="pop-folder-open"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span>Open folder…</span></button>
+          <button class="pop-open" id="pop-folder-open"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span>Select folder as workspace…</span></button>
+          <button class="pop-open" id="pop-workspace-detach" hidden><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg><span>Detach workspace…</span></button>
         </div>
 
         <!-- popover: permission modes — keel's real permission modes -->
@@ -213,7 +214,7 @@
   <!-- Attach menu — opened by the + (Add) button in either composer; Keel-branded, our icons -->
   <div class="pop attach-menu" id="attach-menu" hidden role="menu" aria-label="Add to message">
     <button class="ctx-item" id="attach-menu-files" role="menuitem"><svg viewBox="0 0 16 16"><path d="M3 3.5a1.5 1.5 0 0 1 1.5-1.5h4.2L13 6.3V12.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 3 12.5z"/><path d="M9 2v4.5h4.5"/></svg><span class="ctx-label">Attach files…</span><span class="ctx-key">Ctrl+U</span></button>
-    <button class="ctx-item" id="attach-menu-folder" role="menuitem" title="Pick a folder on your desktop — its readable text files are attached to your next message (Chrome / Edge)"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg><span class="ctx-label">Select folder… (text files become context)</span><span class="ctx-key"></span></button>
+    <button class="ctx-item" id="attach-menu-folder" role="menuitem" title="Bind a folder as your workspace — its readable text files ride along with your next message (Chrome / Edge)"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg><span class="ctx-label">Select folder as workspace…</span><span class="ctx-key"></span></button>
   </div>
   <input type="file" id="attach-file-input" multiple hidden />
 
