@@ -642,6 +642,22 @@ body[data-font="display"] { font-family: var(--display); }
 body[data-font="mono"] { font-family: var(--mono); }
 body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after { animation: none !important; transition: none !important; }
 
+/* ---------------- composer attach menu + chips ---------------- */
+.attach-menu { width: 264px; padding: 6px; }
+.attachments { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px 0; }
+.attachments[hidden] { display: none; }
+.code-bottom .attachments { width: min(770px, calc(100% - 40px)); margin: 0 auto; padding: 6px 6px 6px; }
+.attach-chip { display: inline-flex; align-items: center; gap: 7px; max-width: 100%;
+  padding: 4px 6px 4px 9px; border: 1px solid var(--edge); border-radius: 10px;
+  background: var(--panel-2); font-size: 11px; color: var(--text); }
+.attach-chip svg { width: 12px; height: 12px; stroke: var(--muted); stroke-width: 1.5; fill: none;
+  stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.attach-chip .n { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); }
+.attach-chip .sz { color: var(--muted); font-family: var(--mono); font-size: 10px; flex: none; }
+.attach-chip .x { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 6px; color: var(--muted); background: transparent; border: 0; cursor: pointer; }
+.attach-chip .x:hover { background: var(--hover-strong); color: var(--text); }
+.attach-chip .x svg { width: 10px; height: 10px; stroke: currentColor; }
+
 /* ---------------- footer popovers (Keel Code footer) ---------------- */
 .code-bottom { position: relative; }
 .pop {

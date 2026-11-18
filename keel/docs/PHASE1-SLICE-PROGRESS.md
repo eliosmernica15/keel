@@ -718,3 +718,15 @@ Emits (verified on Windows, exit 0):
   surface + popovers, mirror-mode notes for folder flows. Streaming success
   path NOT yet observed live (no provider key on this host); SW bumped to
   v7 (network-first navigations).
+
+- **Composer attach menu + attachments on both builds (2026-11-18)**:
+  the + (Add) button in both composers now opens a keel-branded menu
+  (Attach files… Ctrl+U · Select folder from your desktop…), replacing the
+  old "name the file in your prompt" hint. Attachments are read as text
+  (File System Access API for folders, caps: 40 files / 256 KB each /
+  512 KB total, binaries skipped) and inlined into the next message as a
+  read-only context block; the user bubble shows a compact marker, the
+  wire prompt carries the content. Verified end-to-end for file attach:
+  upload -> chip -> send -> marker in bubble, chips cleared, per-tab
+  counters unaffected. Folder path implemented but not machine-verified
+  (native picker dialog) - one click in Chrome/Edge confirms.

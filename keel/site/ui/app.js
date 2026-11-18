@@ -506,15 +506,22 @@ function send(surface) {
   }
 
   const instructions = (uiSettings.instructions || "").trim();
-  const outbound = instructions ? `${instructions}\n\n${raw}` : raw;
-  appendMessage("user", "you", (body) => { body.textContent = outbound; }, active);
+  const pending = attachments[active];
+  const attachNote = pending.length
+    ? `\n\n[attachments: ${pending.map((f) => f.name).join(", ")}]`
+    : "";
+  const outbound = (instructions ? `${instructions}\n\n` : "") + raw;
+  const wire = pending.length ? outbound + attachmentBlock(pending) : outbound;
+  appendMessage("user", "you", (body) => { body.textContent = outbound + attachNote; }, active);
   addRecent(raw, active);
   state.runSurface = active;
+  attachments[active] = [];
+  renderAttachments(active);
   startRun();
 
   const provider = currentProvider();
   const payload = {
-    prompt: outbound,
+    prompt: wire,
     provider,
     permission_mode,
     accept_risk: acceptRisk(),
@@ -537,10 +544,183 @@ $("form-chat").addEventListener("submit", (ev) => { ev.preventDefault(); send("c
 $("form-code").addEventListener("submit", (ev) => { ev.preventDefault(); send("code"); });
 prompts.chat.addEventListener("keydown", (ev) => handleEnter(ev, "chat"));
 prompts.code.addEventListener("keydown", (ev) => handleEnter(ev, "code"));
-$("attach-chat").addEventListener("click", () =>
-  systemNote("Attach: drop a file path into your prompt — the agent reads it with its tools (read_file / glob / grep).", "system", "chat"));
-$("attach-code").addEventListener("click", () =>
-  systemNote("Add context: name the file or folder in your prompt — Keel Code reads it with its tools (read_file / glob / grep).", "system", "code"));
+/* ================================================================ attachments
+   The + (Add) button in either composer opens an attach menu: upload files
+   (Ctrl+U) or pick a folder on this machine via the File System Access API.
+   Attachments are read as text and inlined into the next message as
+   read-only context. Caps keep payloads sane: 40 files, 256 KB per file,
+   512 KB total. Binary files are skipped. */
+const attachments = { chat: [], code: [] };
+const ATTACH_MAX_FILES = 40;
+const ATTACH_MAX_FILE = 256 * 1024;
+const ATTACH_MAX_TOTAL = 512 * 1024;
+const attachInput = $("attach-file-input");
+const attachmentBytes = (list) => list.reduce((sum, f) => sum + f.bytes, 0);
+const fmtBytes = (n) => (n >= 1024 * 1024 ? `${(n / 1048576).toFixed(1)} MB` : n >= 1024 ? `${Math.round(n / 1024)} KB` : `${n} B`);
+
+function renderAttachments(surface) {
+  const box = $(`attachments-${surface}`);
+  if (!box) return;
+  const list = attachments[surface];
+  box.textContent = "";
+  box.hidden = list.length === 0;
+  list.forEach((file, index) => {
+    const chip = el("span", { className: "attach-chip", title: file.name });
+    const icon = el("svg", { viewBox: "0 0 16 16" });
+    icon.innerHTML = '<path d="M3 3.5a1.5 1.5 0 0 1 1.5-1.5h4.2L13 6.3V12.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 3 12.5z"/><path d="M9 2v4.5h4.5"/>';
+    chip.appendChild(icon);
+    chip.appendChild(el("span", { className: "n", textContent: file.name }));
+    chip.appendChild(el("span", { className: "sz", textContent: fmtBytes(file.bytes) }));
+    const drop = el("button", { className: "x", type: "button", "aria-label": `Remove ${file.name}`, title: "Remove" });
+    drop.innerHTML = '<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+    drop.addEventListener("click", () => {
+      attachments[surface].splice(index, 1);
+      renderAttachments(surface);
+    });
+    chip.appendChild(drop);
+    box.appendChild(chip);
+  });
+}
+function noteSkipped(surface, reasons) {
+  if (!reasons.length) return;
+  systemNote(`skipped ${reasons.length}: ${reasons.slice(0, 3).join("; ")}${reasons.length > 3 ? "; …" : ""}`, "system", surface);
+}
+function attachmentBlock(list) {
+  return `\n\n[Attached files — read-only context, ${list.length} file(s)]\n` + list.map((f) =>
+    `### ${f.name} (${fmtBytes(f.bytes)})\n${f.content}`).join("\n\n");
+}
+function addAttachments(surface, files) {
+  const skipped = [];
+  let total = attachmentBytes(attachments[surface]);
+  for (const file of files) {
+    if (attachments[surface].length >= ATTACH_MAX_FILES) { skipped.push(`${file.name} (file cap)`); continue; }
+    if (file.bytes > ATTACH_MAX_FILE) { skipped.push(`${file.name} (too big)`); continue; }
+    if (total + file.bytes > ATTACH_MAX_TOTAL) { skipped.push(`${file.name} (size cap)`); continue; }
+    attachments[surface].push(file);
+    total += file.bytes;
+  }
+  renderAttachments(surface);
+  noteSkipped(surface, skipped);
+}
+async function fileToAttachment(file) {
+  const text = await file.text();
+  if (text.includes("\0")) return null; // binary
+  return { name: file.name, bytes: file.size, content: text };
+}
+async function readFileHandle(handle, relName) {
+  try {
+    const file = await handle.getFile();
+    if (file.size > ATTACH_MAX_FILE) return { skip: `${relName} (too big)` };
+    const text = await file.text();
+    if (text.includes("\0")) return { skip: `${relName} (binary)` };
+    return { file: { name: relName, bytes: file.size, content: text } };
+  } catch (err) {
+    return { skip: `${relName} (unreadable)` };
+  }
+}
+async function collectFromDirectory(dirHandle, prefix, out, skipped, depth = 0) {
+  if (depth > 3 || out.length >= ATTACH_MAX_FILES) return;
+  for await (const entry of dirHandle.values()) {
+    if (out.length >= ATTACH_MAX_FILES) return;
+    const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.kind === "directory") {
+      await collectFromDirectory(entry, rel, out, skipped, depth + 1);
+    } else if (entry.kind === "file") {
+      const result = await readFileHandle(entry, rel);
+      if (result.file) out.push(result.file);
+      else skipped.push(result.skip);
+    }
+  }
+}
+
+let attachSurface = "chat";
+function closeAttachMenu() {
+  const menu = $("attach-menu");
+  if (!menu) return;
+  menu.hidden = true;
+  for (const id of ["attach-chat", "attach-code"]) $(id).classList.remove("on");
+}
+function openAttachMenu(surface) {
+  const menu = $("attach-menu");
+  attachSurface = surface;
+  const btn = $(surface === "code" ? "attach-code" : "attach-chat");
+  const r = btn.getBoundingClientRect();
+  menu.hidden = false;
+  const h = menu.offsetHeight;
+  menu.style.left = `${Math.max(8, Math.min(r.left - 4, window.innerWidth - menu.offsetWidth - 8))}px`;
+  menu.style.bottom = `${window.innerHeight - r.top + 8}px`;
+  menu.style.top = "";
+  btn.classList.add("on");
+}
+function toggleAttachMenu(surface) {
+  const menu = $("attach-menu");
+  const opening = menu.hidden;
+  closeAttachMenu();
+  if (opening) openAttachMenu(surface);
+}
+for (const surface of ["chat", "code"]) {
+  $(surface === "code" ? "attach-code" : "attach-chat").addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    toggleAttachMenu(surface);
+  });
+}
+$("attach-menu").addEventListener("click", (ev) => ev.stopPropagation());
+document.addEventListener("click", closeAttachMenu);
+window.addEventListener("resize", closeAttachMenu);
+
+$("attach-menu-files").addEventListener("click", () => {
+  closeAttachMenu();
+  attachInput.click();
+});
+$("attach-menu-folder").addEventListener("click", async () => {
+  closeAttachMenu();
+  const surface = attachSurface;
+  if (!window.showDirectoryPicker) {
+    systemNote("Picking a folder needs Chrome or Edge on this page — use Attach files…, or run `keel serve` and use its folder picker.", "system", surface);
+    return;
+  }
+  let dirHandle;
+  try {
+    dirHandle = await window.showDirectoryPicker({ mode: "read" });
+  } catch (err) {
+    if (err && err.name === "AbortError") return;
+    systemNote(`couldn't open the folder picker: ${String((err && err.message) || err).slice(0, 120)}`, "system", surface);
+    return;
+  }
+  const collected = [];
+  const skipped = [];
+  try {
+    await collectFromDirectory(dirHandle, dirHandle.name, collected, skipped);
+  } catch (err) {
+    systemNote(`couldn't read the folder: ${String((err && err.message) || err).slice(0, 120)}`, "system", surface);
+    return;
+  }
+  if (!collected.length) {
+    systemNote("no readable text files found there (binaries and oversize files are skipped)", "system", surface);
+    if (skipped.length) noteSkipped(surface, skipped);
+    return;
+  }
+  addAttachments(surface, collected);
+  if (skipped.length) noteSkipped(surface, skipped);
+  systemNote(`attached ${collected.length} file(s) from “${dirHandle.name}” — sent with your next message as read-only context`, "system", surface);
+});
+attachInput.addEventListener("change", async () => {
+  const surface = attachSurface;
+  const files = [];
+  const skipped = [];
+  for (const file of attachInput.files || []) {
+    try {
+      const result = await fileToAttachment(file);
+      if (result) files.push(result);
+      else skipped.push(`${file.name} (binary)`);
+    } catch {
+      skipped.push(`${file.name} (unreadable)`);
+    }
+  }
+  attachInput.value = "";
+  if (files.length) addAttachments(surface, files);
+  if (skipped.length) noteSkipped(surface, skipped);
+});
 
 /* ================================================================ recents */
 
@@ -1458,7 +1638,15 @@ $("fs-up").addEventListener("click", () => {
 
 /* ---------- key bindings shared by overlays ---------- */
 document.addEventListener("keydown", (ev) => {
+  if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "u") {
+    ev.preventDefault();
+    attachSurface = state.surface;
+    closeAttachMenu();
+    attachInput.click();
+    return;
+  }
   if (ev.key === "Escape") {
+    if (!$("attach-menu").hidden) { closeAttachMenu(); return; }
     if (anyPopOpen()) { closePops(); return; }
     if (!recentsMenu.hidden) { closeRecentsMenu(); return; }
     if (!picker.hidden) closeFsPicker();

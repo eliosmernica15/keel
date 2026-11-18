@@ -3,7 +3,7 @@
    assets are network-first so deploys land immediately, with cache fallback
    for offline. Cross-origin traffic (provider APIs) is never touched. */
 
-const VERSION = "keel-shell-v7";
+const VERSION = "keel-shell-v8";
 const SHELL = [
   "/",
   "/ui/style.css",
