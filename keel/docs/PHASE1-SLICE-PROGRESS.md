@@ -674,3 +674,28 @@ Emits (verified on Windows, exit 0):
   + hydration verified in-browser against an isolated bridge instance
   (temp state dir; real ~/.keel untouched). Requires a keel serve restart
   to take effect.
+
+- **Keel Code footer popovers + folder->session attach, reference rebuild (2026-11-18)**:
+  rebuilt the code-surface footer from the user's Claude Code menu reference
+  (`claude-code-menus-clone.html`, keel-branded, glass-dark): environment /
+  folder / permission chips now open anchored popovers. Environment popover
+  is honest (this machine only - WSL/remote are not wired in this build).
+  Folder popover lists real recent working folders (searchable, current
+  one marked, full path in title) with Enter-to-apply against the bridge's
+  validation and an Open folder… path to the full fs picker; the picker
+  was verified working against a fresh bridge (typed path -> agent cwd).
+  Permission popover maps to the real modes (manual/acceptEdits/bypass);
+  bypass stays gated behind the risk checkbox. THE BUG: the installed local
+  bridge had died and the PWA pointed at nothing, so "selecting a project"
+  silently did nothing - restarted keel fleet (8739), keel serve (8744) and
+  fleet-next (3000) with the SAME tokens the installed PWA already holds
+  (webapp now accepts KEEL_TOKEN env to preserve tokens across restarts).
+  Verified live: typed path -> POST /api/workdir -> label "keel" + pill +
+  system note; recents record it; chat surface shows the same pill. Local
+  service worker bumped to v4 with network-first navigations.
+  Note: the user's installed PWA is the Vercel mirror, which by design
+  cannot reach a local bridge - folder-attached sessions only work on
+  http://127.0.0.1:8744/?t=<token printed by keel serve>.
+  In-flight cleanup: my automated verification session accidentally armed
+  bypass mode via stray synthetic clicks; reset to manual BEFORE finishing
+  (nothing about it persists - accept-risk is in-memory only, verified).

@@ -2,7 +2,7 @@
    offline. API calls always go to the network (they hit the local bridge);
    if the network fails, the app shell still loads in offline/demo mode. */
 
-const VERSION = "keel-shell-v3";
+const VERSION = "keel-shell-v4";
 const SHELL = [
   "/",
   "/ui/index.html",
@@ -34,6 +34,19 @@ self.addEventListener("fetch", (event) => {
   }
   if (url.pathname.startsWith("/api/")) {
     return; // network only — the local bridge owns this
+  }
+  if (event.request.mode === "navigate") {
+    // network first — the installed window should never be pinned to a stale shell
+    event.respondWith(
+      fetch(event.request).then((resp) => {
+        if (resp && resp.ok) {
+          const clone = resp.clone();
+          caches.open(VERSION).then((cache) => cache.put(event.request, clone));
+        }
+        return resp;
+      }).catch(() => caches.match(event.request).then((cached) => cached || caches.match("/")))
+    );
+    return;
   }
   // app shell: cache first, refresh in background (stale-while-revalidate)
   event.respondWith(

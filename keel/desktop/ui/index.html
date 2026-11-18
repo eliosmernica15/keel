@@ -168,20 +168,42 @@
           <input id="prompt-code" type="text" placeholder="Describe a task or ask a question" aria-label="Message Keel Code" autocomplete="off" spellcheck="true" />
           <button type="submit" class="go" id="btn-send-code" aria-label="Send"><svg viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5"/></svg></button>
         </form>
+        <!-- footer chips — reference layout: environment | folder | permission · ring -->
         <div class="foot">
-          <button id="chip-computer" title="Choose the working folder on this machine"><svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="7" rx="1"/><path d="M1.5 12.8h13"/></svg>This computer</button>
-          <button type="button" class="workdir" id="workdir-pill-code" hidden title="Working folder — agent tools run here"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span></span></button>
-          <button id="chip-mode" title="Cycles the permission mode — bypass requires your explicit risk acceptance"><svg viewBox="0 0 16 16"><path d="M8 2l5.5 2.5v4.2c0 3.4-2.3 5.4-5.5 6.8-3.2-1.4-5.5-3.4-5.5-6.8V4.5z"/></svg><span id="chip-mode-label">manual</span></button>
+          <button id="chip-env" aria-haspopup="true"><svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="7" rx="1"/><path d="M1.5 12.8h13"/></svg><span id="chip-env-label">This computer</span></button>
+          <button id="chip-folder" aria-haspopup="true" title="Choose the working folder — the agent runs inside it"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg><span id="chip-folder-label">Select folder…</span></button>
+          <button id="chip-perm" class="perm" aria-haspopup="true" title="Permission mode for this session"><span id="chip-perm-label">Manual</span></button>
           <span class="ring" id="usage-ring" role="status" title="0 turns · 0 tokens"></span>
         </div>
 
-        <!-- folder dropdown — recent working folders, anchored above the footer row -->
-        <div class="folder-menu" id="folder-menu" hidden role="menu" aria-label="Choose folder">
-          <input class="fm-search" id="fm-search" placeholder="Search folders…" aria-label="Search folders" autocomplete="off" spellcheck="false">
-          <p class="fm-label">Recent</p>
-          <div class="fm-list" id="fm-list"></div>
-          <button class="fm-open" id="fm-open"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg>Open folder…</button>
+        <!-- popover: environment (honest — exactly one environment exists here) -->
+        <div class="pop" hidden id="pop-env" role="dialog" aria-label="Environments">
+          <div class="pop-hd">Environments · this session</div>
+          <div class="pop-sel">
+            <svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="7" rx="1"/><path d="M1.5 12.8h13"/></svg>
+            <span class="pop-sel-main">This computer<small>Windows · runs here · cwd = selected folder</small></span>
+            <svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg>
+          </div>
+          <div class="pop-note">No other environments are wired into this build.</div>
         </div>
+
+        <!-- popover: working folder — backed by /api/fs/list + /api/workdir -->
+        <div class="pop" hidden id="pop-folder" role="dialog" aria-label="Folders">
+          <input class="pop-search" id="pop-folder-search" placeholder="Search folders…" aria-label="Search folders" autocomplete="off" spellcheck="false">
+          <div class="pop-lb" id="pop-folder-label">Recent</div>
+          <div class="pop-list" id="pop-folder-list" role="listbox"></div>
+          <div class="pop-dv"></div>
+          <button class="pop-open" id="pop-folder-open"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span>Open folder…</span></button>
+        </div>
+
+        <!-- popover: permission modes — keel's real permission modes -->
+        <div class="pop" hidden id="pop-perm" role="dialog" aria-label="Permission modes">
+          <div class="pop-hd">Permissions · this session</div>
+          <div class="pop-item" data-mode="default"><b>Manual</b><span>Ask before every change</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></div>
+          <div class="pop-item" data-mode="acceptEdits"><b>Accept edits</b><span>Automatically accept file edits</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></div>
+          <div class="pop-item" data-mode="bypassPermissions"><b>Bypass permissions</b><span>Keel runs tools without asking — dangerous</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></div>
+        </div>
+
       </div>
     </section>
   </main>

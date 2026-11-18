@@ -318,7 +318,6 @@ function startRun() {
 }
 
 const MODE_LABEL = { default: "manual", acceptEdits: "accept edits", dontAsk: "dont ask", bypassPermissions: "bypass" };
-const MODE_CYCLE = ["default", "acceptEdits", "dontAsk", "bypassPermissions"];
 const MODE_TO_PROVIDER_ENV = {
   openrouter: "KEEL_OPENROUTER_MODEL", google: "KEEL_GOOGLE_MODEL",
   nvidia: "KEEL_NVIDIA_MODEL", anthropic: "KEEL_ANTHROPIC_MODEL",
@@ -330,8 +329,13 @@ const pinnedModelFor = (provider) => (providerConfig.models && providerConfig.mo
 
 function syncModeUI() {
   const label = MODE_LABEL[currentMode()] || currentMode();
+  const cap = label.charAt(0).toUpperCase() + label.slice(1);
   $("mode-pill").textContent = label;
-  $("chip-mode-label").textContent = label;
+  $("chip-perm-label").textContent = cap;
+  $("chip-perm").classList.toggle("bypass", currentMode() === "bypassPermissions");
+  document.querySelectorAll("#pop-perm .pop-item").forEach((item) => {
+    item.classList.toggle("sel", item.dataset.mode === currentMode());
+  });
   $("provider-pill").textContent = currentProvider();
   const pinned = pinnedModelFor(currentProvider());
   $("model-pill-chat").textContent = pinned
@@ -1214,6 +1218,15 @@ function setWorkdirUI(path) {
     pill.querySelector("span").textContent = workdir ? `working in: ${baseName(workdir)}` : "";
     pill.title = workdir ? `Working folder: ${workdir}` : "No working folder set";
   }
+  const chip = $("chip-folder");
+  if (chip) {
+    chip.querySelector("span").textContent = workdir ? baseName(workdir) : "Select folder…";
+    chip.title = workdir
+      ? `Working folder: ${workdir}\nThe agent's tools run inside this folder`
+      : "Choose the working folder — the agent's tools run inside it";
+  }
+  const sysWorkdir = $("sys-workdir");
+  if (sysWorkdir) sysWorkdir.textContent = workdir || "not set — the bridge's launch folder is used";
 }
 
 /* recent working folders — kept in THIS machine's storage, capped */
@@ -1229,49 +1242,92 @@ function recordRecentDir(path) {
   const rest = loadRecentDirs().filter((p) => p !== path);
   saveRecentDirs([path, ...rest]);
 }
-const folderMenu = $("folder-menu");
-const fmSearch = $("fm-search");
-const fmList = $("fm-list");
-function renderFolderList(filter) {
+/* footer popovers — environment · folder · permissions (Keel Code footer) */
+const pops = { env: $("pop-env"), folder: $("pop-folder"), perm: $("pop-perm") };
+const chips = { env: $("chip-env"), folder: $("chip-folder"), perm: $("chip-perm") };
+const anyPopOpen = () => Object.values(pops).some((p) => p && !p.hidden);
+function closePops(except) {
+  for (const key of Object.keys(pops)) {
+    if (key === except || !pops[key]) continue;
+    pops[key].hidden = true;
+    if (chips[key]) chips[key].classList.remove("on");
+  }
+}
+function togglePop(key) {
+  const pop = pops[key];
+  if (!pop) return;
+  const show = pop.hidden;
+  closePops();
+  if (!show) return;
+  pop.hidden = false;
+  const r = chips[key].getBoundingClientRect();
+  const w = pop.offsetWidth;
+  pop.style.left = `${Math.max(8, Math.min(r.left - 1, window.innerWidth - w - 8))}px`;
+  pop.style.bottom = `${window.innerHeight - r.top + 6}px`;
+  pop.style.top = "";
+  chips[key].classList.add("on");
+  if (key === "folder") {
+    const search = $("pop-folder-search");
+    search.value = "";
+    renderPopFolder("");
+    search.focus();
+  }
+}
+function renderPopFolder(filter) {
   const needle = (filter || "").trim().toLowerCase();
-  fmList.textContent = "";
+  const list = $("pop-folder-list");
+  list.textContent = "";
   const dirs = loadRecentDirs().filter((p) => !needle || p.toLowerCase().includes(needle));
   if (!dirs.length) {
-    fmList.appendChild(el("p", { className: "fm-empty", textContent: needle
-      ? "No folder matches that name."
-      : "Nothing picked yet — choose one below." }));
+    const empty = el("p", { className: "pop-empty" });
+    empty.textContent = needle
+      ? "No recent folder matches — press Enter to try it as a full path, or Open folder… to browse the disk."
+      : "No recent folders yet — Open folder… to browse the disk.";
+    list.appendChild(empty);
     return;
   }
   for (const path of dirs) {
-    const btn = el("button", { className: "fm-item", type: "button", role: "menuitem", title: path });
+    const btn = el("button", {
+      className: `pop-row${path === workdir ? " active" : ""}`,
+      type: "button", role: "option", title: path,
+    });
     const icon = el("svg", { viewBox: "0 0 16 16" });
-    icon.innerHTML = '<path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/>';
+    icon.innerHTML = '<path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/>';
     btn.appendChild(icon);
     btn.appendChild(el("span", { className: "n", textContent: baseName(path) }));
-    const parent = path.split(/[\\/]+/).filter(Boolean);
-    btn.appendChild(el("span", { className: "d", textContent: parent.length >= 2 ? parent[parent.length - 2] : "" }));
-    btn.addEventListener("click", () => { toggleFolderMenu(false); applyWorkdir(path); });
-    fmList.appendChild(btn);
+    const parts = path.split(/[\\/]+/).filter(Boolean);
+    btn.appendChild(el("span", {
+      className: "d",
+      textContent: path === workdir ? "current" : (parts.length >= 2 ? parts[parts.length - 2] : ""),
+    }));
+    btn.addEventListener("click", () => { closePops(); applyWorkdir(path); });
+    list.appendChild(btn);
   }
 }
-function toggleFolderMenu(open) {
-  const show = open === undefined ? folderMenu.hidden : open;
-  folderMenu.hidden = !show;
-  if (show) {
-    fmSearch.value = "";
-    renderFolderList("");
-    fmSearch.focus();
-  }
+$("chip-env").addEventListener("click", (ev) => { ev.stopPropagation(); togglePop("env"); });
+$("chip-folder").addEventListener("click", (ev) => { ev.stopPropagation(); togglePop("folder"); });
+$("chip-perm").addEventListener("click", (ev) => { ev.stopPropagation(); togglePop("perm"); });
+for (const pop of Object.values(pops)) {
+  if (pop) pop.addEventListener("click", (ev) => ev.stopPropagation());
 }
-fmSearch.addEventListener("input", () => renderFolderList(fmSearch.value));
-$("fm-open").addEventListener("click", () => { toggleFolderMenu(false); openFsPicker(); });
-document.addEventListener("click", (ev) => {
-  if (folderMenu.hidden) return;
-  if (!folderMenu.contains(ev.target) && !ev.target.closest("#chip-computer")) toggleFolderMenu(false);
+$("pop-folder-search").addEventListener("input", (ev) => renderPopFolder(ev.target.value));
+$("pop-folder-search").addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter") {
+    const value = ev.target.value.trim();
+    if (value) { closePops(); applyWorkdir(value); }
+  }
 });
-document.addEventListener("keydown", (ev) => {
-  if (ev.key === "Escape" && !folderMenu.hidden) toggleFolderMenu(false);
+$("pop-folder-open").addEventListener("click", () => { closePops(); openFsPicker(); });
+$("pop-perm").addEventListener("click", (ev) => {
+  const item = ev.target.closest(".pop-item");
+  if (!item) return;
+  if (requestMode(item.dataset.mode)) closePops();
 });
+$("pop-env").addEventListener("click", (ev) => {
+  if (ev.target.closest(".pop-sel")) closePops();
+});
+document.addEventListener("click", () => closePops());
+window.addEventListener("resize", () => closePops());
 async function applyWorkdir(path) {
   try {
     const r = await fetch("/api/workdir", {
@@ -1303,6 +1359,7 @@ $("fs-up").addEventListener("click", () => {
 /* ---------- key bindings shared by overlays ---------- */
 document.addEventListener("keydown", (ev) => {
   if (ev.key === "Escape") {
+    if (anyPopOpen()) { closePops(); return; }
     if (!recentsMenu.hidden) { closeRecentsMenu(); return; }
     if (!picker.hidden) closeFsPicker();
     if (!settingsPanel.hidden) closeSettings();
@@ -1334,11 +1391,6 @@ $("start-auto").addEventListener("click", () => {
   }
   requestMode("bypassPermissions");
   systemNote("Autopilot armed — Keel will not ask before running tools. Stay nearby.", "system", "code");
-});
-$("chip-computer").addEventListener("click", () => toggleFolderMenu());
-$("chip-mode").addEventListener("click", () => {
-  const idx = MODE_CYCLE.indexOf(currentMode());
-  requestMode(MODE_CYCLE[(idx + 1) % MODE_CYCLE.length]);
 });
 $("btn-term").addEventListener("click", () =>
   systemNote("There is no terminal inside this browser surface. The live terminal lives in the Keel Fleet console — this surface drives the agent with prompts.", "system", state.surface));

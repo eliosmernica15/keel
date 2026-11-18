@@ -61,7 +61,7 @@ _STATIC_CSP = ("default-src 'none'; script-src 'self'; "
                "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
                "connect-src 'self'; font-src 'self' data:; "
                "object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
-_TOKEN = secrets.token_urlsafe(24)
+_TOKEN = os.environ.get("KEEL_TOKEN") or secrets.token_urlsafe(24)
 _LOCK = threading.Lock()
 _CURRENT_RUN: dict = {}
 _WORKDIR: Optional[str] = None
