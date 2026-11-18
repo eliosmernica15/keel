@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Download Keel</title>
+  <meta name="description" content="Download Keel — a local, private, multi-agent coding workspace. Windows, macOS, Linux." />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <link rel="stylesheet" href="/ui/style.css" />
+  <style>
+    body.download {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--display, system-ui, sans-serif);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .nav { display: flex; align-items: center; gap: 18px; padding: 18px 28px; border-bottom: 1px solid var(--edge-dim); }
+    .nav a { color: var(--muted); text-decoration: none; font-size: 14px; }
+    .nav a:hover { color: var(--text); }
+    .nav .brand { color: var(--text); font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 60px 28px 120px; }
+    h1 { font-size: 44px; line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 14px; }
+    .sub { font-size: 18px; color: var(--muted); max-width: 620px; margin-bottom: 42px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+    .card { border: 1px solid var(--edge); border-radius: 16px; padding: 22px 20px 20px;
+      background: linear-gradient(160deg, var(--panel) 0%, var(--panel-2) 100%); display: flex; flex-direction: column; gap: 12px; }
+    .card h2 { font-size: 18px; display: flex; align-items: center; gap: 10px; }
+    .card small { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .btn-download { display: inline-flex; align-items: center; gap: 10px; padding: 11px 18px; border-radius: 12px;
+      background: var(--accent); color: var(--bg); font-weight: 700; text-decoration: none; font-size: 15px;
+      border: none; cursor: pointer; align-self: flex-start; transition: filter .15s ease; }
+    .btn-download:hover { filter: brightness(1.05); }
+    .btn-download:disabled, .btn-download[aria-disabled="true"] { background: var(--panel-2); color: var(--muted); cursor: not-allowed; }
+    .meta { font-size: 12px; color: var(--muted); font-family: var(--mono); line-height: 1.6; }
+    .notes { font-size: 13px; color: var(--muted); line-height: 1.55; }
+    .badge { align-self: flex-start; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; border: 1px solid var(--edge); border-radius: 999px; padding: 4px 10px; color: var(--muted); }
+    .hero-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 14px; margin-bottom: 6px; }
+    .version { font-family: var(--mono); font-size: 12px; color: var(--muted); border: 1px solid var(--edge); border-radius: 8px; padding: 4px 10px; }
+    .detect { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 20px; }
+    .footnote { margin-top: 40px; font-size: 12px; color: var(--muted); line-height: 1.6; max-width: 780px; }
+    .kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--edge); border-bottom-width: 2px; border-radius: 6px; padding: 1px 5px; }
+  </style>
+</head>
+<body class="download">
+  <nav class="nav" aria-label="Site">
+    <a class="brand" href="/">
+      <svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true"><use href="/ui/icons/icon-192.png#icon" /></svg>
+      <span>Keel</span>
+    </a>
+    <a href="/">Mirror</a>
+    <a href="/download" aria-current="page" style="color: var(--text);">Download</a>
+    <a href="/#">About</a>
+  </nav>
+
+  <main class="wrap">
+    <div class="hero-row">
+      <h1>Download Keel</h1>
+      <span class="version" id="version-pill">v0.1.0</span>
+    </div>
+    <p class="sub">A private, local, multi-agent coding workspace for your machine. The same installer experience you want from a VS Code–class app, with nothing leaving your computer by default.</p>
+    <p class="detect" id="detect-note">Detecting your platform…</p>
+
+    <div class="grid" id="download-grid" aria-label="Installers">
+      <!-- populated by /ui/download.js -->
+    </div>
+
+    <p class="footnote">
+      After installation, Keel runs entirely on this machine — the agent, the bridge, your conversations, your keys.
+      The first launch shows a short onboarding. Uninstalling never touches your <span class="kbd">~/.keel</span> directory.
+      Installers are currently served from GitHub Releases while Keel Cloud hosting is being wired up; that migration does not change the install experience.
+    </p>
+  </main>
+
+  <script type="module" src="/ui/download.js"></script>
+</body>
+</html>

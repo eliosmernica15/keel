@@ -194,6 +194,12 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                           _token=_TOKEN):
                 return
             path = self.path.split("?", 1)[0]
+            # ---------------- Keel v2 compat surface
+            if path.startswith("/api/v2/sessions"):
+                from . import compat
+                parts = path.split("/", 4)
+                sid = parts[4] if len(parts) > 4 else ""
+                return self._v2_sessions(path, sid, compat)
             if path in ("/", ""):
                 if not self._authorized():
                     self._refuse()
@@ -282,6 +288,11 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._refuse()
                 return
             path = self.path.split("?", 1)[0]
+            # ---------------- Keel v2 compat surface
+            if path.startswith("/api/v2/sessions") or path == "/api/v2/sessions":
+                from . import compat
+                sid = path[len("/api/v2/sessions"):].strip("/")
+                return self._v2_sessions(path, sid, compat)
             if path == "/api/settings":
                 from . import settings_store
                 length = int(self.headers.get("Content-Length", "0") or 0)
@@ -449,6 +460,129 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             self._stream_run(prompt, provider, permission_mode, accept_risk, model)
 
         # ---------------- internals
+
+        def _v2_sessions(self, path: str, sid: str, compat) -> None:
+            """OpenCode-compatible sessions surface (tracer bullet)."""
+            import json as _json
+
+            if sid == "":
+                if path != "/api/v2/sessions":
+                    self._send_json({"error": "bad v2 path"}, HTTPStatus.NOT_FOUND)
+                    return
+                if self.command == "POST":
+                    length = int(self.headers.get("Content-Length", "0") or 0)
+                    if length > 16_000:
+                        self._send_json({"error": "body too large"},
+                                       HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                        return
+                    raw = self.rfile.read(length) if length else b"{}"
+                    try:
+                        request = _json.loads(raw or b"{}")
+                    except _json.JSONDecodeError:
+                        self._send_json({"error": "invalid json"},
+                                       HTTPStatus.BAD_REQUEST)
+                        return
+                    title = str(request.get("title", "Untitled")).strip() or "Untitled"
+                    created = compat.create_session(title)
+                    self._send_json(created, HTTPStatus.CREATED)
+                    return
+                if self.command != "GET":
+                    self._send_json({"error": "method not allowed"},
+                                   HTTPStatus.METHOD_NOT_ALLOWED)
+                    return
+                if not self._authorized():
+                    self._refuse()
+                    return
+                self._send_json({"sessions": compat.sessions_list()})
+                return
+
+            if not self._authorized():
+                self._refuse()
+                return
+
+            parts = sid.split("/")
+            base = parts[0]
+            rest = "/".join(parts[1:])
+
+            if rest == "":
+                if self.command != "GET":
+                    self._send_json({"error": "method not allowed"},
+                                   HTTPStatus.METHOD_NOT_ALLOWED)
+                    return
+                summary = compat.get_session(base)
+                if not summary:
+                    self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+                    return
+                self._send_json({"session": summary})
+                return
+
+            if rest in ("messages",):
+                if self.command != "POST":
+                    self._send_json({"error": "method not allowed"},
+                                   HTTPStatus.METHOD_NOT_ALLOWED)
+                    return
+                sid = base
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                if length > 16_000:
+                    self._send_json({"error": "body too large"},
+                                   HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    return
+                raw = self.rfile.read(length) if length else b"{}"
+                try:
+                    request = _json.loads(raw or b"{}")
+                except _json.JSONDecodeError:
+                    self._send_json({"error": "invalid json"},
+                                   HTTPStatus.BAD_REQUEST)
+                    return
+                text = str(request.get("text", "")).strip()
+                workdir = str(request.get("workdir", "")).strip() or None
+                if not text:
+                    self._send_json({"error": "text must not be empty"},
+                                   HTTPStatus.BAD_REQUEST)
+                    return
+                result = compat.run_message(sid, text, workdir=workdir)
+                self._send_json(result, HTTPStatus.ACCEPTED)
+                return
+
+            if rest == "events":
+                if self.command != "GET":
+                    self._send_json({"error": "method not allowed"},
+                                   HTTPStatus.METHOD_NOT_ALLOWED)
+                    return
+                sid = base
+                events = compat.session_events(sid, 0)
+                body = "\n".join(f"data: {_json.dumps(e)}\n" for e in events) + ("" if events else "")
+                encoded = body.encode()
+                self.send_response(HTTPStatus.OK)
+                self.send_header("Content-Type", "text/event-stream")
+                self.send_header("Cache-Control", "no-cache")
+                self.send_header("Content-Length", str(len(encoded)))
+                self.end_headers()
+                self.wfile.write(encoded)
+                return
+
+            if rest == "approve":
+                if self.command != "POST":
+                    self._send_json({"error": "method not allowed"},
+                                   HTTPStatus.METHOD_NOT_ALLOWED)
+                    return
+                sid = base
+                compat.approve(sid)
+                self._send_json({"ok": True})
+                return
+
+            if rest == "reject":
+                if self.command != "POST":
+                    self._send_json({"error": "method not allowed"},
+                                   HTTPStatus.METHOD_NOT_ALLOWED)
+                    return
+                sid = base
+                compat.reject(sid)
+                self._send_json({"ok": True})
+                return
+
+            self._send_json({"error": "bad v2 path"}, HTTPStatus.NOT_FOUND)
+
         def _serve_file(self, path: Path, content_type: Optional[str] = None,
                         extra_headers=()):
             if not path.is_file():

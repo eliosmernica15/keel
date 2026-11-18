@@ -1,0 +1,325 @@
+{
+  "upstream": "https://github.com/anomalyco/opencode",
+  "generatedAt": "2026-11-18T22:42:46.907781+00:00",
+  "packages": [
+    {
+      "path": "packages/ai",
+      "files": 824,
+      "loc": 110553,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/app",
+      "files": 1260,
+      "loc": 358616,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/cli",
+      "files": 214,
+      "loc": 27671,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/client",
+      "files": 74,
+      "loc": 25777,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/codemode",
+      "files": 148,
+      "loc": 51220,
+      "description": "Effect-native confined code execution over schema-described tools",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/core",
+      "files": 929,
+      "loc": 231455,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/data",
+      "files": 132,
+      "loc": 34487,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/desktop",
+      "files": 247,
+      "loc": 29755,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/effect-drizzle-sqlite",
+      "files": 0,
+      "loc": 0,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/gui-plugins",
+      "files": 1033,
+      "loc": 114601,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/http-recorder",
+      "files": 28,
+      "loc": 3715,
+      "description": "Record and replay Effect HTTP and WebSocket traffic with deterministic cassettes",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/httpapi-codegen",
+      "files": 15,
+      "loc": 4883,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/identity",
+      "files": 0,
+      "loc": 0,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/latex",
+      "files": 16,
+      "loc": 2690,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/merman",
+      "files": 91,
+      "loc": 22268,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/nav-menus",
+      "files": 7,
+      "loc": 722,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/patchmark",
+      "files": 19,
+      "loc": 5112,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/plugin",
+      "files": 102,
+      "loc": 12846,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/plugin-browser",
+      "files": 22,
+      "loc": 3844,
+      "description": "OpenCode's desktop browser plugin",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/plugins",
+      "files": 99,
+      "loc": 32900,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/process-daemon",
+      "files": 9,
+      "loc": 941,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/protocol",
+      "files": 57,
+      "loc": 37110,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/schema",
+      "files": 135,
+      "loc": 10353,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/script",
+      "files": 7,
+      "loc": 370,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/sdk",
+      "files": 33,
+      "loc": 3104,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/server",
+      "files": 122,
+      "loc": 13746,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/session-ui",
+      "files": 272,
+      "loc": 55554,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/simulation",
+      "files": 28,
+      "loc": 4302,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/stories",
+      "files": 34,
+      "loc": 2517,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/theme",
+      "files": 17,
+      "loc": 2119,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/tui",
+      "files": 556,
+      "loc": 124484,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/ui",
+      "files": 375,
+      "loc": 73530,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "packages/util",
+      "files": 77,
+      "loc": 7088,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    }
+  ],
+  "services": [
+    {
+      "path": "services/data",
+      "files": 9,
+      "loc": 343,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "services/files",
+      "files": 4,
+      "loc": 323,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "services/legacy",
+      "files": 9,
+      "loc": 418,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "services/site",
+      "files": 599,
+      "loc": 184691,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    },
+    {
+      "path": "services/update",
+      "files": 5,
+      "loc": 1154,
+      "description": "",
+      "license": "MIT",
+      "inspected": true
+    }
+  ],
+  "sdks": [
+    {
+      "path": "sdks/vscode",
+      "files": 7,
+      "loc": 349,
+      "description": "opencode for VS Code",
+      "license": "MIT",
+      "inspected": true
+    }
+  ],
+  "specs": [
+    "specs/v2"
+  ]
+}

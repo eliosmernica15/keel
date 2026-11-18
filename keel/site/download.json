@@ -1,0 +1,31 @@
+{
+  "version": "0.1.0",
+  "tag": "v0.1.0",
+  "channels": {
+    "windows": {
+      "name": "Windows x64 (64-bit)",
+      "file": "Keel-Setup-0.1.0.exe",
+      "size": 121917363,
+      "sha256": "56731AE2820AA46BD9E54A9E5C7151AB965B53BC7282FCC02D3DA6F792E19DCE",
+      "url": "https://github.com/eliosmernica15/keel/releases/download/v0.1.0/Keel-Setup-0.1.0.exe",
+      "notes": "NSIS installer. Per-user install (no admin required). SmartScreen will warn because the build is unsigned; see README."
+    },
+    "macos": {
+      "name": "macOS (Apple Silicon, arm64)",
+      "file": "Keel-0.1.0-macos-arm64.dmg",
+      "size": null,
+      "sha256": null,
+      "url": null,
+      "notes": "Built by CI on macos-latest. Untested on real hardware."
+    },
+    "linux": {
+      "name": "Linux x64",
+      "file": "Keel-0.1.0-linux-x86_64.AppImage",
+      "size": null,
+      "sha256": null,
+      "url": null,
+      "notes": "Built by CI on ubuntu-latest (AppImage). Untested on real hardware."
+    }
+  },
+  "__hosting__": "Assets are currently served from GitHub Releases for convenience; Keel Cloud hosting is the intended public distribution channel and will replace these URLs when object-storage credentials are available. See docs/HOSTING.md."
+}
