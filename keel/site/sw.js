@@ -1,14 +1,19 @@
-/* Keel webapp service worker — v5.
-   Navigations (the HTML page) are network-first so deploys land immediately;
-   static assets are cache-first with background refresh. API traffic is
-   never touched — this page is static either way. */
+/* Keel webapp service worker — v7 (mirror build).
+   The public mirror is static; there is no /api. Navigations and same-origin
+   assets are network-first so deploys land immediately, with cache fallback
+   for offline. Cross-origin traffic (provider APIs) is never touched. */
 
-const VERSION = "keel-shell-v6";
+const VERSION = "keel-shell-v7";
 const SHELL = [
   "/",
+  "/ui/style.css",
+  "/ui/app.js",
   "/manifest.webmanifest",
   "/ui/icons/icon-192.png",
   "/ui/icons/icon-512.png",
+  "/ui/fonts/inter-400.woff2",
+  "/ui/fonts/space-grotesk-400.woff2",
+  "/ui/fonts/jetbrains-mono-400.woff2",
 ];
 
 self.addEventListener("install", (event) => {
@@ -29,9 +34,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== location.origin) return;
-  if (url.pathname.startsWith("/api/")) return;
 
-  // Page navigations: network first — never one deploy behind.
   if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request).then((resp) => {
@@ -47,7 +50,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // All same-origin GETs: network first, cache as offline fallback.
   event.respondWith(
     fetch(event.request).then((resp) => {
       if (resp && resp.ok && event.request.method === "GET") {

@@ -699,3 +699,22 @@ Emits (verified on Windows, exit 0):
   In-flight cleanup: my automated verification session accidentally armed
   bypass mode via stray synthetic clicks; reset to manual BEFORE finishing
   (nothing about it persists - accept-risk is in-memory only, verified).
+
+- **Mirror rebuilt as the local UI, client-side BYOK (2026-11-18)**:
+  site/ is now the SAME shell as the 127.0.0.1:8744 app (surfaces, popovers,
+  Settings, theme, menus) but with the bridge layer replaced by an entirely
+  client-side provider engine. Picks: the mirror cannot and never could reach
+  a local bridge from keel-desktop.vercel.app, so the send path streams
+  straight from the browser to OpenRouter / Google AI Studio with the key
+  saved in Settings -> Providers (localStorage keel_mirror_settings_v1,
+  never leaves the browser except to the provider). Local app keeps 415/415
+  tests green; the mirror is not executable off-machine against the local
+  backend. Honestly degraded panes: folder attach/skills/connectors/import
+  say so; no agent runs claimed; manifest stays "Keel - mirror (demo)".
+  Verified in an isolated static-server profile: zero console errors,
+  send-without-key -> honest note + counters, both providers empty-key
+  verify, bogus OpenRouter key -> live 401 surfaced honestly (OpenAI-compat
+  SSE path incl. attribution headers exercised), theme toggle, Keel Code
+  surface + popovers, mirror-mode notes for folder flows. Streaming success
+  path NOT yet observed live (no provider key on this host); SW bumped to
+  v7 (network-first navigations).
