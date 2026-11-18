@@ -366,7 +366,7 @@ function notifyResponseDone(evt) {
   } catch { /* permission revoked mid-run */ }
 }
 
-function send(surface) {
+async function send(surface) {
   const active = surface || state.surface;
   const promptEl = prompts[active];
   const raw = promptEl.value.trim();
@@ -380,18 +380,23 @@ function send(surface) {
   }
 
   const instructions = (uiSettings.instructions || "").trim();
-  const pending = attachments[active];
+  const pending = attachments[active].slice();
   const attachNote = pending.length
     ? `\n\n[attachments: ${pending.map((f) => f.name).join(", ")}]`
     : "";
   const outbound = (instructions ? `${instructions}\n\n` : "") + raw;
-  const wire = pending.length ? outbound + attachmentBlock(pending) : outbound;
   appendMessage("user", "you", (body) => { body.textContent = outbound + attachNote; }, active);
   addRecent(raw, active);
   state.runSurface = active;
   attachments[active] = [];
   renderAttachments(active);
   startRun();
+
+  const { uploaded, failed } = pending.length
+    ? await uploadAttachmentsList(pending)
+    : { uploaded: [], failed: [] };
+  if (failed.length) systemNote(`couldn't upload ${failed.length}: ${failed.join(", ")}`, "denied", active);
+  const wire = uploaded.length ? outbound + attachmentWireNote(uploaded) : outbound;
 
   const provider = currentProvider();
   const payload = {
@@ -419,15 +424,23 @@ $("form-code").addEventListener("submit", (ev) => { ev.preventDefault(); send("c
 prompts.chat.addEventListener("keydown", (ev) => handleEnter(ev, "chat"));
 prompts.code.addEventListener("keydown", (ev) => handleEnter(ev, "code"));
 /* ================================================================ attachments
-   The + (Add) button in either composer opens an attach menu: upload files
-   (Ctrl+U) or pick a folder on this machine via the File System Access API.
-   Attachments are read as text and inlined into the next message as
-   read-only context. Caps keep payloads sane: 40 files, 256 KB per file,
-   512 KB total. Binary files are skipped. */
+   The + (Add) button opens a per-surface attach menu:
+
+   - Keel Desktop: upload Documents / Images / Spreadsheets / Code files;
+   - Keel Code:    upload ANYTHING - the agent works on what you give it.
+
+   Files are uploaded to the bridge (~/.keel/uploads/) and the agent reads /
+   copies / unpacks them with its own tools. .zip files unpack with the
+   agent's shell (Expand-Archive on Windows, tar elsewhere). The folder
+   picker ("Select folder as workspace") binds the agent's cwd to that
+   folder - the agent reads, edits and runs inside it.
+
+   Caps: 8 files, 24 MB per file, 96 MB per send. */
 const attachments = { chat: [], code: [] };
-const ATTACH_MAX_FILES = 40;
-const ATTACH_MAX_FILE = 256 * 1024;
-const ATTACH_MAX_TOTAL = 512 * 1024;
+const ATTACH_MAX_FILES = 8;
+const ATTACH_MAX_FILE = 24 * 1024 * 1024;
+const ATTACH_MAX_TOTAL = 96 * 1024 * 1024;
+const DESKTOP_ACCEPT = ".pdf,.doc,.docx,.odt,.rtf,.txt,.md,.markdown,.csv,.tsv,.xls,.xlsx,.ods,.png,.jpg,.jpeg,.gif,.webp,.svg,.json,.xml,.yaml,.yml,.toml,.ini,.cfg,.log,.sql,.css,.html,.htm,.js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.java,.c,.h,.cpp,.cs,.go,.rs,.rb,.php,.sh,.ps1,.bat,.env,.ipynb";
 const attachInput = $("attach-file-input");
 const attachmentBytes = (list) => list.reduce((sum, f) => sum + f.bytes, 0);
 const fmtBytes = (n) => (n >= 1024 * 1024 ? `${(n / 1048576).toFixed(1)} MB` : n >= 1024 ? `${Math.round(n / 1024)} KB` : `${n} B`);
@@ -439,7 +452,7 @@ function renderAttachments(surface) {
   box.textContent = "";
   box.hidden = list.length === 0;
   list.forEach((file, index) => {
-    const chip = el("span", { className: "attach-chip", title: file.name });
+    const chip = el("span", { className: "attach-chip", title: `${file.name}${file.type ? " · " + file.type : ""}` });
     const icon = el("svg", { viewBox: "0 0 16 16" });
     icon.innerHTML = '<path d="M3 3.5a1.5 1.5 0 0 1 1.5-1.5h4.2L13 6.3V12.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 3 12.5z"/><path d="M9 2v4.5h4.5"/>';
     chip.appendChild(icon);
@@ -457,57 +470,55 @@ function renderAttachments(surface) {
 }
 function noteSkipped(surface, reasons) {
   if (!reasons.length) return;
-  systemNote(`skipped ${reasons.length}: ${reasons.slice(0, 3).join("; ")}${reasons.length > 3 ? "; …" : ""}`, "system", surface);
-}
-function attachmentBlock(list) {
-  return `\n\n[Attached files — read-only context, ${list.length} file(s)]\n` + list.map((f) =>
-    `### ${f.name} (${fmtBytes(f.bytes)})\n${f.content}`).join("\n\n");
+  systemNote(`skipped ${reasons.length} file(s): ${reasons.slice(0, 3).join("; ")}${reasons.length > 3 ? "; …" : ""}`, "system", surface);
 }
 function addAttachments(surface, files) {
   const skipped = [];
   let total = attachmentBytes(attachments[surface]);
   for (const file of files) {
-    if (attachments[surface].length >= ATTACH_MAX_FILES) { skipped.push(`${file.name} (file cap)`); continue; }
-    if (file.bytes > ATTACH_MAX_FILE) { skipped.push(`${file.name} (too big)`); continue; }
-    if (total + file.bytes > ATTACH_MAX_TOTAL) { skipped.push(`${file.name} (size cap)`); continue; }
+    if (attachments[surface].length >= ATTACH_MAX_FILES) { skipped.push(`${file.name} (8-file cap)`); continue; }
+    if (file.bytes > ATTACH_MAX_FILE) { skipped.push(`${file.name} (24 MB cap)`); continue; }
+    if (total + file.bytes > ATTACH_MAX_TOTAL) { skipped.push(`${file.name} (96 MB per-send cap)`); continue; }
     attachments[surface].push(file);
     total += file.bytes;
   }
   renderAttachments(surface);
   noteSkipped(surface, skipped);
 }
-async function fileToAttachment(file) {
-  const text = await file.text();
-  if (text.includes("\0")) return null; // binary
-  return { name: file.name, bytes: file.size, content: text };
-}
-async function readFileHandle(handle, relName) {
-  try {
-    const file = await handle.getFile();
-    if (file.size > ATTACH_MAX_FILE) return { skip: `${relName} (too big)` };
-    const text = await file.text();
-    if (text.includes("\0")) return { skip: `${relName} (binary)` };
-    return { file: { name: relName, bytes: file.size, content: text } };
-  } catch (err) {
-    return { skip: `${relName} (unreadable)` };
+async function fileToBase64(file) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let bin = "";
+  const CHUNK = 0x8000;
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
   }
+  return btoa(bin);
 }
-async function collectFromDirectory(dirHandle, prefix, out, skipped, depth = 0) {
-  if (depth > 3 || out.length >= ATTACH_MAX_FILES) return;
-  for await (const entry of dirHandle.values()) {
-    if (out.length >= ATTACH_MAX_FILES) return;
-    const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.kind === "directory") {
-      await collectFromDirectory(entry, rel, out, skipped, depth + 1);
-    } else if (entry.kind === "file") {
-      const result = await readFileHandle(entry, rel);
-      if (result.file) out.push(result.file);
-      else skipped.push(result.skip);
+async function uploadAttachmentsList(list) {
+  const uploaded = [];
+  const failed = [];
+  for (const item of list) {
+    try {
+      const contentB64 = await fileToBase64(item.file);
+      const r = await fetch("/api/upload", {
+        method: "POST", headers: jsonHeaders(),
+        body: JSON.stringify({ name: item.name, contentB64 }),
+      });
+      const doc = await r.json().catch(() => ({}));
+      if (!r.ok || !doc.ok) throw new Error(doc.error || `http ${r.status}`);
+      uploaded.push({ ...item, path: doc.path });
+    } catch (err) {
+      failed.push(`${item.name} (${String((err && err.message) || err).slice(0, 80)})`);
     }
   }
+  return { uploaded, failed };
+}
+function attachmentWireNote(uploaded) {
+  if (!uploaded.length) return "";
+  const lines = uploaded.map((f) => `- ${f.path} (${f.name}, ${fmtBytes(f.bytes)}${f.type.startsWith("image/") ? ", image - the agent has no vision tool" : ""})`);
+  return "\n\n[attached files - saved on this machine; read them or unpack them with your tools]\n" + lines.join("\n");
 }
 
-let attachSurface = "chat";
 function closeAttachMenu() {
   const menu = $("attach-menu");
   if (!menu) return;
@@ -516,8 +527,12 @@ function closeAttachMenu() {
 }
 function openAttachMenu(surface) {
   const menu = $("attach-menu");
-  attachSurface = surface;
   const btn = $(surface === "code" ? "attach-code" : "attach-chat");
+  const filesItem = $("attach-menu-files");
+  filesItem.querySelector(".ctx-label").textContent = surface === "code"
+    ? "Attach files (any type)…"
+    : "Attach files (docs, images, spreadsheets, code)…";
+  $("attach-menu-folder").hidden = surface === "chat";
   const r = btn.getBoundingClientRect();
   menu.hidden = false;
   const h = menu.offsetHeight;
@@ -544,56 +559,22 @@ window.addEventListener("resize", closeAttachMenu);
 
 $("attach-menu-files").addEventListener("click", () => {
   closeAttachMenu();
+  attachInput.accept = state.surface === "code" ? "" : DESKTOP_ACCEPT;
   attachInput.click();
 });
-$("attach-menu-folder").addEventListener("click", async () => {
+$("attach-menu-folder").addEventListener("click", () => {
   closeAttachMenu();
-  const surface = attachSurface;
-  if (!window.showDirectoryPicker) {
-    systemNote("Picking a folder needs Chrome or Edge on this page — use Attach files…, or run `keel serve` and use its folder picker.", "system", surface);
-    return;
-  }
-  let dirHandle;
-  try {
-    dirHandle = await window.showDirectoryPicker({ mode: "read" });
-  } catch (err) {
-    if (err && err.name === "AbortError") return;
-    systemNote(`couldn't open the folder picker: ${String((err && err.message) || err).slice(0, 120)}`, "system", surface);
-    return;
-  }
-  const collected = [];
-  const skipped = [];
-  try {
-    await collectFromDirectory(dirHandle, dirHandle.name, collected, skipped);
-  } catch (err) {
-    systemNote(`couldn't read the folder: ${String((err && err.message) || err).slice(0, 120)}`, "system", surface);
-    return;
-  }
-  if (!collected.length) {
-    systemNote("no readable text files found there (binaries and oversize files are skipped)", "system", surface);
-    if (skipped.length) noteSkipped(surface, skipped);
-    return;
-  }
-  addAttachments(surface, collected);
-  if (skipped.length) noteSkipped(surface, skipped);
-  systemNote(`attached ${collected.length} file(s) from “${dirHandle.name}” — sent with your next message as read-only context`, "system", surface);
+  // open the real disk picker - the agent's cwd is bound to what you pick
+  openFsPicker();
 });
 attachInput.addEventListener("change", async () => {
-  const surface = attachSurface;
-  const files = [];
-  const skipped = [];
+  const surface = state.surface;
+  const list = [];
   for (const file of attachInput.files || []) {
-    try {
-      const result = await fileToAttachment(file);
-      if (result) files.push(result);
-      else skipped.push(`${file.name} (binary)`);
-    } catch {
-      skipped.push(`${file.name} (unreadable)`);
-    }
+    list.push({ name: file.name, bytes: file.size, type: file.type || "", file });
   }
   attachInput.value = "";
-  if (files.length) addAttachments(surface, files);
-  if (skipped.length) noteSkipped(surface, skipped);
+  if (list.length) addAttachments(surface, list);
 });
 
 /* ================================================================ recents */
@@ -1540,7 +1521,7 @@ $("fs-up").addEventListener("click", () => {
 document.addEventListener("keydown", (ev) => {
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "u") {
     ev.preventDefault();
-    attachSurface = state.surface;
+    attachInput.accept = state.surface === "code" ? "" : DESKTOP_ACCEPT;
     closeAttachMenu();
     attachInput.click();
     return;

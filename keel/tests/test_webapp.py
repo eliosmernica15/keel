@@ -7,6 +7,7 @@ import http.client
 import os
 import threading
 import urllib.request
+from pathlib import Path
 
 import pytest
 
@@ -89,6 +90,43 @@ def test_providers_endpoint(server):
     rows = json.loads(body)["providers"]
     names = {r["name"] for r in rows}
     assert {"openrouter", "google", "nvidia", "anthropic"} <= names
+
+
+def test_upload_roundtrip(server, tmp_path, monkeypatch):
+    from keel import settings_store
+    monkeypatch.setattr(settings_store, "STATE_DIR", tmp_path)
+    payload = {"name": "..\\..\\evil.txt", "contentB64": "aGVsbG8="}  # "hello"
+    status, body = _post(server, "/api/upload", payload, webapp.token())
+    assert status == 200
+    doc = json.loads(body)
+    assert doc["ok"] is True
+    target = Path(doc["path"])
+    assert target.parent == tmp_path / "uploads"
+    assert target.read_bytes() == b"hello"
+    assert ".." not in target.name
+
+
+def test_upload_rejects_bad_base64(server, tmp_path, monkeypatch):
+    from keel import settings_store
+    monkeypatch.setattr(settings_store, "STATE_DIR", tmp_path)
+    status, body = _post(server, "/api/upload",
+                         {"name": "a.txt", "contentB64": "!!!notb64!!!"},
+                         webapp.token())
+    assert status == 400
+    assert "base64" in body
+
+
+def test_upload_requires_fields(server, tmp_path, monkeypatch):
+    from keel import settings_store
+    monkeypatch.setattr(settings_store, "STATE_DIR", tmp_path)
+    status, _ = _post(server, "/api/upload", {}, webapp.token())
+    assert status == 400
+
+
+def test_upload_requires_token(server):
+    status, _ = _post(server, "/api/upload", {"name": "a.txt", "contentB64": "aA=="},
+                      "definitely-not-the-token")
+    assert status == 403
 
 
 def test_static_asset_served(server):

@@ -75,6 +75,18 @@ const MIRROR_PROVIDER_DEFS = {
     catalogHeaders: () => ({}),
     parseCatalog: (doc) => (Array.isArray(doc?.models) ? doc.models.map((m) => String(m?.name || "").replace(/^models\//, "")) : []),
     chat: (key, model, messages) => {
+      const toParts = (content) => {
+        if (typeof content === "string") return content.trim() ? [{ text: content }] : [];
+        const parts = [];
+        for (const p of content || []) {
+          if (p.type === "text" && p.text) parts.push({ text: p.text });
+          else if (p.type === "image_url" && p.image_url?.url) {
+            const m = /^data:([^;]+);base64,(.*)$/.exec(p.image_url.url);
+            if (m) parts.push({ inlineData: { mimeType: m[1], data: m[2] } });
+          }
+        }
+        return parts;
+      };
       const sys = messages.find((m) => m.role === "system");
       const convo = messages.filter((m) => m.role !== "system");
       return {
@@ -83,8 +95,8 @@ const MIRROR_PROVIDER_DEFS = {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            ...(sys ? { systemInstruction: { parts: [{ text: sys.content }] } } : {}),
-            contents: convo.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
+            ...(sys ? { systemInstruction: { parts: toParts(sys.content) } } : {}),
+            contents: convo.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: toParts(m.content) })),
           }),
         },
         extractDelta: (evt) => (evt?.candidates?.[0]?.content?.parts || []).map((p) => p?.text || "").join(""),
@@ -211,10 +223,21 @@ async function mirrorSend(payload) {
   const key = getProviders()[picked].key;
   const model = providerModel(picked);
   const instructions = (uiSettings.instructions || "").trim();
+  const images = Array.isArray(payload?.images) ? payload.images : [];
   const messages = [
     ...(instructions ? [{ role: "system", content: instructions }] : []),
     ...history,
   ];
+  if (images.length) {
+    // fold the attached images into the final user turn (OpenAI-compatible shape;
+    // the Google def converts to inline_data parts)
+    const last = messages[messages.length - 1];
+    const text = last && last.role === "user" && typeof last.content === "string" ? last.content : "";
+    const parts = [];
+    if (text.trim()) parts.push({ type: "text", text });
+    for (const img of images) parts.push({ type: "image_url", image_url: { url: `data:${img.mime};base64,${img.data}` } });
+    messages[messages.length - 1] = { role: "user", content: parts };
+  }
   const holder = { body: null };
   appendMessage("assistant", surface === "code" ? "keel code" : "keel", (body) => {
     holder.body = body;
@@ -506,7 +529,8 @@ function send(surface) {
   }
 
   const instructions = (uiSettings.instructions || "").trim();
-  const pending = attachments[active];
+  const pending = attachments[active].slice();
+  const images = pending.filter((f) => f.kind === "image").map((f) => ({ mime: f.mime, data: f.b64, name: f.name }));
   const attachNote = pending.length
     ? `\n\n[attachments: ${pending.map((f) => f.name).join(", ")}]`
     : "";
@@ -526,6 +550,7 @@ function send(surface) {
     permission_mode,
     accept_risk: acceptRisk(),
     model: pinnedModelFor(provider),
+    images,
   };
   const maybePromise = bridge.send(payload);
   if (maybePromise && maybePromise.catch) {
@@ -545,18 +570,25 @@ $("form-code").addEventListener("submit", (ev) => { ev.preventDefault(); send("c
 prompts.chat.addEventListener("keydown", (ev) => handleEnter(ev, "chat"));
 prompts.code.addEventListener("keydown", (ev) => handleEnter(ev, "code"));
 /* ================================================================ attachments
-   The + (Add) button in either composer opens an attach menu: upload files
-   (Ctrl+U) or pick a folder on this machine via the File System Access API.
-   Attachments are read as text and inlined into the next message as
-   read-only context. Caps keep payloads sane: 40 files, 256 KB per file,
-   512 KB total. Binary files are skipped. */
+   The + (Add) button opens a per-surface attach menu:
+
+   - Keel Desktop: upload Documents / Images / Spreadsheets / Code files
+     (images go to the vision model of the provider you linked);
+   - Keel Code:    upload ANYTHING — files, images, .zip archives, and
+     whole desktop folders (their text files become read-only context).
+
+   .zip archives are unpacked in the browser (stored + deflate entries) —
+   text files come along as inline context. Attachments are inlined into
+   the next message. Caps: 8 files, 4 MB each, 12 MB total. */
 const attachments = { chat: [], code: [] };
-const ATTACH_MAX_FILES = 40;
-const ATTACH_MAX_FILE = 256 * 1024;
-const ATTACH_MAX_TOTAL = 512 * 1024;
+const ATTACH_MAX_FILES = 8;
+const ATTACH_MAX_FILE = 4 * 1024 * 1024;
+const ATTACH_MAX_TOTAL = 12 * 1024 * 1024;
+const DESKTOP_ACCEPT = ".pdf,.doc,.docx,.odt,.rtf,.txt,.md,.markdown,.csv,.tsv,.xls,.xlsx,.ods,.png,.jpg,.jpeg,.gif,.webp,.svg,.json,.xml,.yaml,.yml,.toml,.ini,.cfg,.log,.sql,.css,.html,.htm,.js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.java,.c,.h,.cpp,.cs,.go,.rs,.rb,.php,.sh,.ps1,.bat,.env,.ipynb";
 const attachInput = $("attach-file-input");
 const attachmentBytes = (list) => list.reduce((sum, f) => sum + f.bytes, 0);
 const fmtBytes = (n) => (n >= 1024 * 1024 ? `${(n / 1048576).toFixed(1)} MB` : n >= 1024 ? `${Math.round(n / 1024)} KB` : `${n} B`);
+const TEXT_MIME = /^(text\/|application\/(json|xml|javascript|x-yaml|yaml|toml|x-sh|x-sql|sql|csv|x-python|x-rust)|image\/svg\+xml)/;
 
 function renderAttachments(surface) {
   const box = $(`attachments-${surface}`);
@@ -567,10 +599,12 @@ function renderAttachments(surface) {
   list.forEach((file, index) => {
     const chip = el("span", { className: "attach-chip", title: file.name });
     const icon = el("svg", { viewBox: "0 0 16 16" });
-    icon.innerHTML = '<path d="M3 3.5a1.5 1.5 0 0 1 1.5-1.5h4.2L13 6.3V12.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 3 12.5z"/><path d="M9 2v4.5h4.5"/>';
+    icon.innerHTML = file.kind === "image"
+      ? '<rect x="2" y="3" width="12" height="10" rx="1.5"/><circle cx="5" cy="6.2" r=".9"/><path d="M3 11.5l3.5-3.5 3 3M9.5 9l1.5-1.5 2.5 2.5"/>'
+      : '<path d="M3 3.5a1.5 1.5 0 0 1 1.5-1.5h4.2L13 6.3V12.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 3 12.5z"/><path d="M9 2v4.5h4.5"/>';
     chip.appendChild(icon);
     chip.appendChild(el("span", { className: "n", textContent: file.name }));
-    chip.appendChild(el("span", { className: "sz", textContent: fmtBytes(file.bytes) }));
+    chip.appendChild(el("span", { className: "sz", textContent: (file.kind === "image" ? "image · " : "") + fmtBytes(file.bytes) }));
     const drop = el("button", { className: "x", type: "button", "aria-label": `Remove ${file.name}`, title: "Remove" });
     drop.innerHTML = '<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
     drop.addEventListener("click", () => {
@@ -586,35 +620,102 @@ function noteSkipped(surface, reasons) {
   systemNote(`skipped ${reasons.length}: ${reasons.slice(0, 3).join("; ")}${reasons.length > 3 ? "; …" : ""}`, "system", surface);
 }
 function attachmentBlock(list) {
-  return `\n\n[Attached files — read-only context, ${list.length} file(s)]\n` + list.map((f) =>
+  const textFiles = list.filter((f) => f.kind !== "image");
+  if (!textFiles.length) return "";
+  return `\n\n[Attached files — read-only context, ${textFiles.length} file(s)]\n` + textFiles.map((f) =>
     `### ${f.name} (${fmtBytes(f.bytes)})\n${f.content}`).join("\n\n");
 }
 function addAttachments(surface, files) {
   const skipped = [];
   let total = attachmentBytes(attachments[surface]);
   for (const file of files) {
-    if (attachments[surface].length >= ATTACH_MAX_FILES) { skipped.push(`${file.name} (file cap)`); continue; }
-    if (file.bytes > ATTACH_MAX_FILE) { skipped.push(`${file.name} (too big)`); continue; }
-    if (total + file.bytes > ATTACH_MAX_TOTAL) { skipped.push(`${file.name} (size cap)`); continue; }
+    if (attachments[surface].length >= ATTACH_MAX_FILES) { skipped.push(`${file.name} (8-file cap)`); continue; }
+    if (file.bytes > ATTACH_MAX_FILE) { skipped.push(`${file.name} (4 MB cap)`); continue; }
+    if (total + file.bytes > ATTACH_MAX_TOTAL) { skipped.push(`${file.name} (12 MB per-send cap)`); continue; }
     attachments[surface].push(file);
     total += file.bytes;
   }
   renderAttachments(surface);
   noteSkipped(surface, skipped);
 }
+async function blobToBase64(blob) {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let bin = "";
+  const CHUNK = 0x8000;
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+  }
+  return btoa(bin);
+}
+async function inflateRaw(compressed) {
+  const stream = new Blob([compressed]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function unzipTexts(file) {
+  const buf = await file.arrayBuffer();
+  const b = new Uint8Array(buf), dv = new DataView(buf);
+  // locate End Of Central Directory (last 64 KiB + 22 bytes)
+  let eocd = -1;
+  for (let i = b.length - 22; i >= Math.max(0, b.length - 22 - 65557); i--) {
+    if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error("not a zip (no end-of-central-directory record)");
+  const total = dv.getUint16(eocd + 10, true);
+  let offset = dv.getUint32(eocd + 16, true);
+  const out = [];
+  const td = new TextDecoder();
+  for (let n = 0; n < total && out.length < ATTACH_MAX_FILES; n++) {
+    if (dv.getUint32(offset, true) !== 0x02014b50) break;
+    const method = dv.getUint16(offset + 10, true);
+    const compSize = dv.getUint32(offset + 20, true);
+    const nameLen = dv.getUint16(offset + 28, true);
+    const extraLen = dv.getUint16(offset + 30, true);
+    const commentLen = dv.getUint16(offset + 32, true);
+    const localOffset = dv.getUint32(offset + 42, true);
+    const name = td.decode(b.subarray(offset + 46, offset + 46 + nameLen));
+    offset += 46 + nameLen + extraLen + commentLen;
+    if (name.endsWith("/")) continue;
+    if (dv.getUint32(localOffset, true) !== 0x04034b50) continue;
+    const lNameLen = dv.getUint16(localOffset + 26, true);
+    const lExtraLen = dv.getUint16(localOffset + 28, true);
+    const dataStart = localOffset + 30 + lNameLen + lExtraLen;
+    try {
+      const slice = b.subarray(dataStart, dataStart + compSize);
+      const raw = method === 0 ? slice : method === 8 ? await inflateRaw(slice) : null;
+      if (!raw) continue;
+      if (raw.includes(0)) continue; // binary entry
+      out.push({ name: `${file.name}/${name}`, bytes: raw.length, kind: "text", content: td.decode(raw) });
+    } catch { /* entry unreadable - skip */ }
+  }
+  if (!out.length) throw new Error("zip contained no readable text files");
+  return out;
+}
 async function fileToAttachment(file) {
+  if (file.type && file.type.startsWith("image/")) {
+    return { name: file.name, bytes: file.size, kind: "image", mime: file.type, b64: await blobToBase64(file) };
+  }
+  const isZip = /\.zip$/i.test(file.name) || file.type === "application/zip" || file.type === "application/x-zip-compressed";
+  if (isZip) {
+    try {
+      const entries = await unzipTexts(file);
+      return { zip: entries };
+    } catch (err) {
+      return { skip: `${file.name} (${String((err && err.message) || err).slice(0, 60)})` };
+    }
+  }
   const text = await file.text();
-  if (text.includes("\0")) return null; // binary
-  return { name: file.name, bytes: file.size, content: text };
+  if (text.includes("\u0000")) return null; // binary
+  if (!TEXT_MIME.test(file.type) && /[\x00-\x08\x0E-\x1F]/.test(text.slice(0, 512))) return null;
+  return { name: file.name, bytes: file.size, kind: "text", content: text };
 }
 async function readFileHandle(handle, relName) {
   try {
     const file = await handle.getFile();
-    if (file.size > ATTACH_MAX_FILE) return { skip: `${relName} (too big)` };
+    if (file.size > ATTACH_MAX_FILE) return { skip: `${relName} (4 MB cap)` };
     const text = await file.text();
-    if (text.includes("\0")) return { skip: `${relName} (binary)` };
-    return { file: { name: relName, bytes: file.size, content: text } };
-  } catch (err) {
+    if (text.includes("\u0000")) return { skip: `${relName} (binary)` };
+    return { file: { name: relName, bytes: file.size, kind: "text", content: text } };
+  } catch {
     return { skip: `${relName} (unreadable)` };
   }
 }
@@ -633,7 +734,6 @@ async function collectFromDirectory(dirHandle, prefix, out, skipped, depth = 0) 
   }
 }
 
-let attachSurface = "chat";
 function closeAttachMenu() {
   const menu = $("attach-menu");
   if (!menu) return;
@@ -642,8 +742,12 @@ function closeAttachMenu() {
 }
 function openAttachMenu(surface) {
   const menu = $("attach-menu");
-  attachSurface = surface;
   const btn = $(surface === "code" ? "attach-code" : "attach-chat");
+  $("attach-menu-files").querySelector(".ctx-label").textContent = surface === "code"
+    ? "Attach files (any type)…"
+    : "Attach files (docs, images, spreadsheets, code)…";
+  $("attach-menu-folder").querySelector(".ctx-label").textContent = "Select folder… (text files become context)";
+  $("attach-menu-folder").hidden = false;
   const r = btn.getBoundingClientRect();
   menu.hidden = false;
   const h = menu.offsetHeight;
@@ -669,14 +773,16 @@ document.addEventListener("click", closeAttachMenu);
 window.addEventListener("resize", closeAttachMenu);
 
 $("attach-menu-files").addEventListener("click", () => {
+  const surface = state.surface;
   closeAttachMenu();
+  attachInput.accept = surface === "code" ? "" : DESKTOP_ACCEPT;
   attachInput.click();
 });
 $("attach-menu-folder").addEventListener("click", async () => {
+  const surface = state.surface;
   closeAttachMenu();
-  const surface = attachSurface;
   if (!window.showDirectoryPicker) {
-    systemNote("Picking a folder needs Chrome or Edge on this page — use Attach files…, or run `keel serve` and use its folder picker.", "system", surface);
+    systemNote("Picking a folder needs Chrome or Edge on this page — use Attach files… instead.", "system", surface);
     return;
   }
   let dirHandle;
@@ -705,20 +811,22 @@ $("attach-menu-folder").addEventListener("click", async () => {
   systemNote(`attached ${collected.length} file(s) from “${dirHandle.name}” — sent with your next message as read-only context`, "system", surface);
 });
 attachInput.addEventListener("change", async () => {
-  const surface = attachSurface;
-  const files = [];
+  const surface = state.surface;
+  const ready = [];
   const skipped = [];
   for (const file of attachInput.files || []) {
     try {
       const result = await fileToAttachment(file);
-      if (result) files.push(result);
+      if (result && result.zip) ready.push(...result.zip);
+      else if (result && result.skip) skipped.push(result.skip);
+      else if (result) ready.push(result);
       else skipped.push(`${file.name} (binary)`);
     } catch {
       skipped.push(`${file.name} (unreadable)`);
     }
   }
   attachInput.value = "";
-  if (files.length) addAttachments(surface, files);
+  if (ready.length) addAttachments(surface, ready);
   if (skipped.length) noteSkipped(surface, skipped);
 });
 
@@ -1640,8 +1748,8 @@ $("fs-up").addEventListener("click", () => {
 document.addEventListener("keydown", (ev) => {
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "u") {
     ev.preventDefault();
-    attachSurface = state.surface;
     closeAttachMenu();
+    attachInput.accept = state.surface === "code" ? "" : DESKTOP_ACCEPT;
     attachInput.click();
     return;
   }

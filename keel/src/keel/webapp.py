@@ -12,6 +12,9 @@ Serves the static UI at 127.0.0.1:<port> and exposes a minimal JSON API:
     GET  /api/workdir           -> {"path": ...} currently chosen folder (or null)
     POST /api/workdir           -> {"path": ...} set the agent's working folder,
                                    or {"path": null} to reset
+    POST /api/upload            -> {"name","contentB64"} saves one file to
+                                   ~/.keel/uploads/ and returns {"path": ...};
+                                   the agent reads it from there with its tools
 
 Security model (honest, machine-local):
 - binds 127.0.0.1 only, never an external interface;
@@ -48,10 +51,13 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Optional
+import base64
+import re
 
 from . import __version__
 from .fleet import routes as _fleet_routes
 from .providers import registry as provider_registry
+from . import settings_store as _settings_store
 
 UI_DIR = Path(__file__).resolve().parents[2] / "desktop" / "ui"
 PWA_DIR = Path(__file__).resolve().parents[2] / "desktop"
@@ -67,6 +73,16 @@ _CURRENT_RUN: dict = {}
 _WORKDIR: Optional[str] = None
 
 _FS_LIST_CAP = 400
+_UPLOAD_MAX_BYTES = 24 * 1024 * 1024  # 24 MB per file, kept in memory while decoding
+_UPLOAD_SAFE = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def _safe_upload_name(name: object) -> str:
+    """Reduce an attacker/user-supplied filename to a safe basename (never a path)."""
+    raw = str(name or "upload").replace("\\", "/")
+    base = Path(raw).name
+    base = _UPLOAD_SAFE.sub("_", base).strip("._ ") or "upload"
+    return base[:120]
 
 
 def _fs_roots() -> list[str]:
@@ -364,6 +380,44 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     return
                 _WORKDIR = str(target)
                 self._send_json({"ok": True, "path": _WORKDIR})
+                return
+            if path == "/api/upload":
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                if length > 40 * 1024 * 1024:
+                    self._send_json({"error": "body too large"},
+                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    return
+                raw = self.rfile.read(length) if length else b"{}"
+                try:
+                    request = json.loads(raw or b"{}")
+                except json.JSONDecodeError:
+                    self._send_json({"error": "invalid json"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                name = request.get("name")
+                content_b64 = request.get("contentB64")
+                if not name or not content_b64:
+                    self._send_json({"error": "name and contentB64 are required"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                try:
+                    data = base64.b64decode(str(content_b64), validate=True)
+                except Exception:
+                    self._send_json({"error": "contentB64 is not valid base64"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                if len(data) > _UPLOAD_MAX_BYTES:
+                    self._send_json({"error": "file too large (24 MB cap)"},
+                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    return
+                safe = _safe_upload_name(name)
+                uploads = _settings_store.STATE_DIR / "uploads"
+                uploads.mkdir(parents=True, exist_ok=True)
+                stamp = time.strftime("%Y%m%d-%H%M%S")
+                target = uploads / f"{stamp}-{secrets.token_hex(3)}-{safe}"
+                target.write_bytes(data)
+                self._send_json({"ok": True, "path": str(target),
+                                 "bytes": len(data)})
                 return
             if path != "/api/run":
                 self._send_json({"error": "not_found"}, HTTPStatus.NOT_FOUND)

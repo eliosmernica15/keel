@@ -730,3 +730,23 @@ Emits (verified on Windows, exit 0):
   upload -> chip -> send -> marker in bubble, chips cleared, per-tab
   counters unaffected. Folder path implemented but not machine-verified
   (native picker dialog) - one click in Chrome/Edge confirms.
+
+- **Composer attach, per-surface rules + real upload paths (2026-11-18)**:
+  Local app gains POST /api/upload (base64 JSON, token-gated, filename
+  sanitized to a basename, capped 24 MB; saved to ~/.keel/uploads/) - the
+  agent unpacks/reads attachments itself with its tools (zip via shell).
+  Keel Desktop attaches Documents/Images/Spreadsheets/Code files; Keel
+  Code attaches anything and "Select folder as workspace" binds the
+  agent's cwd via the real disk picker. Attachment uploads now flow
+  through the bridge (not inlined); bubble marker lists names. Fixed a
+  real routing bug (uploads from Desktop leaked into the Code tray after
+  the Keel Code menu had been opened). Mirror build: Desktop restricted to
+  docs/images/sheets/code; Code attaches anything - files, images (real
+  vision over BYOK: OpenAI-compatible + Google contents inlineData, both
+  proven byte-for-byte via intercepted fetch), .zip archives unpacked in
+  browser (stored+deflate, text entries become context), folders become
+  text context. No agent execution on the mirror, honestly labeled.
+  Verified: pytest 15/15 (4 new upload tests), node --check, static-server
+  smoke both builds incl. real zip parse (DecompressionStream) and both
+  providers' multimodal payloads. Streaming success turn not observable
+  (no keys on this host); 401 path verified earlier.

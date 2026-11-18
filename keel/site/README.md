@@ -1,27 +1,40 @@
 # Keel — public mirror
 
 **https://keel-desktop.vercel.app** — the mirror of the Keel desktop app,
-rendered as the same static UI, but with **no local backend**. Everything on
+served as the same static UI, but with **no local backend**. Everything on
 this page runs in your browser.
+
+## What it does
 
 - **Chat** streams directly from your browser to **OpenRouter** or **Google
   AI Studio** using a key you paste in Settings → Providers. The key is
-  verified against the provider, then stored only in this browser's
+  verified against the provider, stored only in this browser's
   `localStorage`, and is sent nowhere except your provider — never to us
   (there is no "us"; this is a static site).
-- **What it cannot do**: reach your disk, run an agent, bind a folder, list
-  files, or expose connectors/skills — those belong to the local app
-  (`keel serve`). Anything that would need them says so honestly in the UI.
-- **The real thing**: clone
-  [eliosmernica15/keel](https://github.com/eliosmernica15/keel),
-  `cd keel`, `python -m keel serve`, then install from the browser icon on
-  the printed page. That app runs entirely on your machine.
+- **Two surfaces**, same as the local app: Keel Desktop and Keel Code.
+  - **Keel Desktop** — attach Documents / Images / Spreadsheets / Code
+    files. Text files are inlined as read-only context; images are sent to
+    the vision model of the provider you linked (both support vision).
+  - **Keel Code** — attach anything: files, images, **.zip archives**
+    (unpacked in your browser; text entries become read-only context), and
+    whole desktop folders (their text files are attached the same way).
+    This is a scratch-context workflow, not an agent run — nothing edits
+    or executes your disk from this page.
+- Caps: 8 files per message, 4 MB each, 12 MB total per send. Binary
+  files are skipped with a note. Attachments never leave your browser
+  except as part of a message to your linked provider.
 
-This mirror keeps the local app's design 1:1 (two surfaces — Keel Desktop and
-Keel Code — popovers, menus, theme, settings). It is intentionally not a
-byte-identical build: the bridge layer is replaced by client-side BYOK so the
-page can actually do something useful off your machine.
+## What it cannot do
 
-State that is kept, per your browser: prompts (`Recents`), settings and
-provider keys (`keel_mirror_settings_v1`), visit counters for this tab.
-Clearing site data removes all of it.
+Bind a folder as an agent workspace, run an agent, execute shell commands,
+or read PDFs/Office binaries without exporting them to text. That is the
+**local app** (`keel` repository → `cd keel` → `python -m keel serve`) —
+it runs entirely on your machine; its `+` menus upload files to a local
+`~/.keel/uploads/` folder and the agent reads, copies and unpacks them
+itself (e.g. `.zip` via the shell), and its folder picker binds the
+agent's working directory.
+
+## State kept per your browser
+
+Recents, settings, provider keys (`keel_mirror_settings_v1`), visit
+counters for this tab. Clearing site data removes all of it.
