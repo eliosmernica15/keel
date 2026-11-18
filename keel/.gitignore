@@ -1,0 +1,10 @@
+# toolchain / build outputs
+.vercel
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# personal folders that are not part of the repo
+snake-game/
+keel/keel/

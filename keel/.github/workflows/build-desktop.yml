@@ -1,0 +1,175 @@
+name: Build desktop installers
+
+# Builds Keel Desktop for Windows, macOS and Linux in CI.
+# APL's own pipeline proved this pattern works for a public repo.
+# Require: the release tag v* triggers a GitHub Release with the installers
+# attached (same flow APL uses).
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build keel sidecar (PyInstaller)
+        shell: powershell
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pyinstaller pillow
+          python -m PyInstaller desktop-app\sidecar.spec --noconfirm --distpath dist\keel-sidecar
+          New-Item -ItemType Directory -Force -Path build\resources\keel | Out-Null
+          Copy-Item dist\keel-sidecar\keel.exe build\resources\keel\keel.exe
+      - name: Generate installer assets
+        run: |
+          pip install pillow
+          python desktop-app\scripts\generate_assets.py
+      - name: npm install
+        working-directory: desktop-app
+        run: npm install --no-audit --no-fund
+      - name: Build NSIS installer
+        working-directory: desktop-app
+        run: npx electron-builder --win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: SHA-256
+        shell: bash
+        run: sha256sum dist/Keel-Setup-*.exe > dist/SHA256SUMS-windows.txt && cat dist/SHA256SUMS-windows.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: keel-windows
+          path: |
+            dist/Keel-Setup-*.exe
+            dist/SHA256SUMS-windows.txt
+
+  build-macos:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build keel sidecar (PyInstaller)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pyinstaller pillow
+          python -m PyInstaller desktop-app/sidecar.spec --noconfirm --distpath dist/keel-sidecar
+          mkdir -p build/resources/keel
+          cp dist/keel-sidecar/keel build/resources/keel/keel
+      - name: Generate installer assets (icons)
+        run: |
+          pip install pillow
+          python desktop-app/scripts/generate_assets.py
+      - name: npm install
+        working-directory: desktop-app
+        run: npm install --no-audit --no-fund
+      - name: Build .dmg + .zip
+        working-directory: desktop-app
+        run: npx electron-builder --mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: SHA-256
+        run: shasum -a 256 dist/Keel-*-macos-*.dmg dist/Keel-*-macos-*.zip > dist/SHA256SUMS-macos.txt && cat dist/SHA256SUMS-macos.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: keel-macos
+          path: |
+            dist/Keel-*-macos-*.dmg
+            dist/Keel-*-macos-*.zip
+            dist/SHA256SUMS-macos.txt
+
+  build-linux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: System deps for electron-builder
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libarchive-tools desktop-file-utils rpm
+      - name: Build keel sidecar (PyInstaller)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pyinstaller pillow
+          python -m PyInstaller desktop-app/sidecar.spec --noconfirm --distpath dist/keel-sidecar
+          mkdir -p build/resources/keel
+          cp dist/keel-sidecar/keel build/resources/keel/keel
+      - name: Generate installer assets
+        run: |
+          pip install pillow
+          python desktop-app/scripts/generate_assets.py
+      - name: npm install
+        working-directory: desktop-app
+        run: npm install --no-audit --no-fund
+      - name: Build .AppImage + .deb
+        working-directory: desktop-app
+        run: npx electron-builder --linux AppImage deb
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: SHA-256
+        run: sha256sum dist/Keel-*-linux-*.AppImage dist/Keel-*-linux-*.deb > dist/SHA256SUMS-linux.txt && cat dist/SHA256SUMS-linux.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: keel-linux
+          path: |
+            dist/Keel-*-linux-*.AppImage
+            dist/Keel-*-linux-*.deb
+            dist/SHA256SUMS-linux.txt
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Create combined checksum manifest
+        shell: bash
+        run: |
+          find artifacts -type f ! -name 'SHA256SUMS*.txt' -print0 | sort -z | xargs -0 sha256sum > RELEASE-SHA256SUMS.txt
+          cat RELEASE-SHA256SUMS.txt
+      - name: Upload assets to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/keel-windows/Keel-Setup-*.exe
+            artifacts/keel-windows/SHA256SUMS-windows.txt
+            artifacts/keel-macos/Keel-*-macos-*.dmg
+            artifacts/keel-macos/Keel-*-macos-*.zip
+            artifacts/keel-macos/SHA256SUMS-macos.txt
+            artifacts/keel-linux/Keel-*-linux-*.AppImage
+            artifacts/keel-linux/Keel-*-linux-*.deb
+            artifacts/keel-linux/SHA256SUMS-linux.txt
+            RELEASE-SHA256SUMS.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

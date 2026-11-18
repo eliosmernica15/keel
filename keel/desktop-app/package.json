@@ -1,0 +1,97 @@
+{
+  "name": "keel-desktop",
+  "version": "0.1.0",
+  "description": "Keel — local, private, multi-agent coding workspace",
+  "author": "Keel Team",
+  "license": "Proprietary",
+  "private": true,
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "app.keel.desktop",
+    "productName": "Keel",
+    "copyright": "Copyright © 2026 Keel Team",
+    "directories": {
+      "output": "../dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "package.json",
+      "main.js",
+      "splash.html"
+    ],
+    "extraResources": [
+      {
+        "from": "../site",
+        "to": "site"
+      },
+      {
+        "from": "../build/resources/keel",
+        "to": "keel"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "Keel-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Keel",
+      "include": "build/nsis-keel.nsh",
+      "installerHeader": "build/header.bmp",
+      "installerSidebar": "build/sidebar.bmp",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "license": "build/LICENSE.txt"
+    },
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "artifactName": "Keel-${version}-macos-${arch}.${ext}",
+      "darkModeSupport": true
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development",
+      "icon": "build/icons",
+      "description": "Keel — local, private, multi-agent coding workspace. Your agents, your files, your machine."
+    },
+    "deb": {
+      "depends": [
+        "libgtk-3-0",
+        "libnss3",
+        "libasound2"
+      ]
+    },
+    "npmRebuild": false,
+    "electronDownload": {
+      "cache": true
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^42.0.0",
+    "electron-builder": "^26.0.0"
+  }
+}

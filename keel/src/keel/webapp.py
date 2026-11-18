@@ -59,7 +59,7 @@ from .fleet import routes as _fleet_routes
 from .providers import registry as provider_registry
 from . import settings_store as _settings_store
 
-UI_DIR = Path(__file__).resolve().parents[2] / "desktop" / "ui"
+UI_DIR = Path(os.environ.get("KEEL_UI_DIR") or Path(__file__).resolve().parents[2] / "desktop" / "ui")
 PWA_DIR = Path(__file__).resolve().parents[2] / "desktop"
 
 DEFAULT_PORT = 8739
@@ -208,6 +208,10 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 candidate = (UI_DIR / name).resolve()
                 if candidate.is_file() and candidate.is_relative_to(UI_DIR.resolve()):
                     self._serve_file(candidate)
+                    return
+                nested = (UI_DIR / "ui" / name).resolve()
+                if nested.is_file() and nested.is_relative_to(UI_DIR.resolve()):
+                    self._serve_file(nested)
                     return
                 self._send_json({"error": "not_found"}, HTTPStatus.NOT_FOUND)
                 return

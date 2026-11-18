@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Keel</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(1200px 700px at 50% -10%, #2a150c 0%, #080604 60%);
+      color: #e8e0d4;
+      display: grid;
+      place-items: center;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+    .mark { width: 96px; height: 96px; display: block; margin: 0 auto 18px; }
+    .mark path { stroke: #e07a4f; }
+    h1 { font-size: 30px; font-weight: 600; letter-spacing: .2px; text-align: center; }
+    .sub { margin-top: 6px; font-size: 13px; color: #9a8f82; text-align: center; }
+    .bar { margin-top: 22px; width: 200px; height: 3px; border-radius: 99px; background: rgba(232, 224, 212, .12); overflow: hidden; margin-left: auto; margin-right: auto; }
+    .bar > div { height: 100%; width: 35%; border-radius: inherit; background: #e07a4f; animation: slide 1.15s ease-in-out infinite alternate; }
+    @keyframes slide { from { transform: translateX(-60%); } to { transform: translateX(290%); } }
+    .note { position: absolute; bottom: 16px; left: 0; right: 0; font-size: 11px; color: #6f655a; text-align: center; }
+  </style>
+</head>
+<body>
+  <div>
+    <svg class="mark" viewBox="0 0 48 48" fill="none" aria-label="Keel">
+      <g stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 3v9M20 28v9M3 20h9M28 20h9M8 8l6.5 6.5M25.5 25.5L32 32M32 8l-6.5 6.5M14.5 25.5L8 32" />
+        <path d="M12 4.6l3.7 8M24.3 27.4l3.7 8M35.4 12l-8 3.7M12.6 24.3l-8 3.7M28 4.6l-3.7 8M15.7 27.4L12 35.4M35.4 28l-8-3.7M12.6 15.7l-8-3.7" stroke-width="2.4" />
+      </g>
+    </svg>
+    <h1>Keel</h1>
+    <p class="sub">your agents, your files, your machine</p>
+    <div class="bar"><div></div></div>
+    <p class="note">starting the local bridge…</p>
+  </div>
+</body>
+</html>
