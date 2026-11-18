@@ -206,6 +206,14 @@ async function mirrorSend(payload) {
     const isKeel = /^keel/i.test(role);
     return text && (isUser || isKeel) ? { role: isUser ? "user" : "assistant", content: text } : null;
   }).filter(Boolean);
+  // the newest user bubble is a short marker; the wire prompt is the real
+  // payload (instructions + attachments + workspace text) — swap it in so the
+  // provider actually receives the file contents.
+  if (payload && typeof payload.prompt === "string" && payload.prompt.trim()) {
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i].role === "user") { history[i] = { role: "user", content: payload.prompt }; break; }
+    }
+  }
   const configured = configuredProvider();
   const named = payload && payload.provider && payload.provider !== "auto"
     && MIRROR_PROVIDER_DEFS[payload.provider] && getProviders()[payload.provider]?.key
