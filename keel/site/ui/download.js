@@ -168,7 +168,7 @@ function renderCard(os, channel, version, highlight) {
     row.appendChild(code);
     row.appendChild(copyButton(String(channel.sha256)));
     parts.push(
-      el("small", null, downloadable ? "SHA-256 (verified over HTTPS)" : "SHA-256 (last CI build; not hosted)"),
+      el("small", null, downloadable ? "SHA-256 (verified over HTTPS)" : "SHA-256 (CI build; not hosted)"),
       row
     );
   }
