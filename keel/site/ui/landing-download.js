@@ -142,7 +142,7 @@ async function main() {
   const note = document.getElementById("landing-download-note");
   if (note) {
     note.textContent = anyAvailable
-      ? "Download links point at Keel-controlled storage. Every published file was downloaded over public HTTPS and matched against its SHA-256 before this page listed it."
+      ? "Download links point at GitHub Releases. Every published file was downloaded over public HTTPS and matched against its SHA-256 before this page listed it."
       : "Installers will appear on /download the moment a release is built, published and SHA-256 verified over public HTTPS. Until then, nothing here is secretly downloadable — that's deliberate.";
   }
 }

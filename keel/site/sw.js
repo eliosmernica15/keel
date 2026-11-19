@@ -1,12 +1,12 @@
-/* Keel webapp service worker - v14.
+/* Keel webapp service worker - v15.
    The landing (/), the mirror app (/app.html) and the download page are all
    static, with one serverless helper at /api/download-manifest that proxies
-   the published R2 release manifest. Navigations and same-origin assets are
+   the published GitHub Release manifest. Navigations and same-origin assets are
    network-first so deploys land immediately, with cache fallback for offline.
    Release manifests are never cached: availability must reflect the origin.
    Cross-origin traffic (provider APIs) is never touched. */
 
-const VERSION = "keel-shell-v14";
+const VERSION = "keel-shell-v15";
 const SHELL = [
   "/",
   "/app.html",

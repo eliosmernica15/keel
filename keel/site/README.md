@@ -9,7 +9,7 @@
 | `/` | `/index.html` | The Keel landing page (marketing) |
 | `/app` | `/app.html` | The web mirror of the Keel app (BYOK chat, no agent, no disk) |
 | `/download` | `/download.html` | Platform download cards, rendered from the release manifest |
-| `/api/download-manifest` | serverless function | Same-origin proxy for the published R2 release manifest |
+| `/api/download-manifest` | serverless function | Same-origin proxy for the latest GitHub Release manifest |
 | `/download.json` | static | Committed fallback manifest; all channels unavailable until a verified release is published |
 
 The download surface only enables a button when the manifest marks the channel

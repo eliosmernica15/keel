@@ -1,16 +1,18 @@
 /* Same-origin proxy for the published download manifest.
  *
- * The site is static; the release workflow publishes download.json to
- * Keel-controlled R2. Fetching it here (rather than in the browser) keeps the
- * page free of third-party connect-src rules and lets availability change
- * without redeploying the website.
+ * The site is static; the Python release manager publishes download.json as an
+ * asset of the latest GitHub Release attached to this repository. Fetching it
+ * here (rather than in the browser) keeps the page free of third-party
+ * connect-src rules and lets availability change without redeploying the
+ * website.
  *
  * Configure the origin with the public, non-secret Vercel environment
- * variable KEEL_DOWNLOAD_MANIFEST_URL (defaults to the intended
- * https://download.keel.app/download.json). Never place credentials here.
+ * variable KEEL_DOWNLOAD_MANIFEST_URL (defaults to the latest GitHub Release
+ * asset). Never place credentials here.
  */
 
-const DEFAULT_MANIFEST_URL = "https://download.keel.app/download.json";
+const DEFAULT_MANIFEST_URL =
+  "https://github.com/eliosmernica15/keel/releases/latest/download/download.json";
 const MAX_BYTES = 256 * 1024;
 
 function fail(res, status, error) {
