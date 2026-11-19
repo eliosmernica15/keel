@@ -472,6 +472,20 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 return self._v2_sessions(path, sid, compat)
             self._send_json({"error": "not_found"}, HTTPStatus.NOT_FOUND)
 
+        def _sse_raw(self, payload: bytes) -> None:
+            try:
+                self.wfile.write(payload)
+                self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError,
+                    ConnectionAbortedError, ValueError, OSError) as exc:
+                raise ConnectionError(str(exc) or "client disconnected")
+
+        def _sse_write(self, event: dict) -> None:
+            import json as _json
+            data = _json.dumps(event, separators=(",", ":"),
+                               ensure_ascii=False).encode("utf-8")
+            self._sse_raw(b"data: " + data + b"\n\n")
+
         def _v2_sessions(self, path: str, sid: str, compat) -> None:
             """OpenCode-compatible sessions surface (tracer bullet)."""
             import json as _json
@@ -564,10 +578,15 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     self._send_json({"error": "text must not be empty"},
                                    HTTPStatus.BAD_REQUEST)
                     return
+                permission_mode = str(request.get("permission_mode", "")).strip() or None
                 try:
-                    result = compat.run_message(sid, text, workdir=workdir)
+                    result = compat.run_message(sid, text, workdir=workdir,
+                                                permission_mode=permission_mode)
                 except ValueError:
                     self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+                    return
+                if not result.get("ok") and result.get("terminal_reason") == "busy":
+                    self._send_json(result, HTTPStatus.CONFLICT)
                     return
                 self._send_json(result, HTTPStatus.ACCEPTED)
                 return
@@ -581,47 +600,120 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
                     return
                 sid = base
-                since = 0.0
                 query = urllib.parse.urlparse(self.path).query
                 params = urllib.parse.parse_qs(query)
                 raw_since = (params.get("since") or ["0"])[0]
                 try:
-                    since = max(0.0, float(raw_since))
+                    since = max(0, int(float(raw_since)))
                 except (TypeError, ValueError):
-                    since = 0.0
-                events = compat.session_events(sid, since)
-                body = "\n".join(f"data: {_json.dumps(e)}\n" for e in events) + ("" if events else "")
-                encoded = body.encode()
+                    since = 0
+
                 self.send_response(HTTPStatus.OK)
-                self.send_header("Content-Type", "text/event-stream")
+                self.send_header("Content-Type", "text/event-stream; charset=utf-8")
                 self.send_header("Cache-Control", "no-cache")
-                self.send_header("Content-Length", str(len(encoded)))
+                self.send_header("X-Accel-Buffering", "no")
+                self.send_header("Connection", "keep-alive")
                 self.end_headers()
-                self.wfile.write(encoded)
+
+                # Register the live subscription BEFORE replay so no event is
+                # lost between the two reads; seq-dedup handles the overlap.
+                from .fleet import routes as _fleet_routes
+                store = _fleet_routes.store()
+                q = store.subscribe()
+                try:
+                    last_seq = since
+                    for e in compat.session_events(sid, since):
+                        if e.get("seq") is not None:
+                            last_seq = max(last_seq, e["seq"])
+                        self._sse_write(e)
+                    while True:
+                        event = store.poll_subscribed(q, timeout=15)
+                        if event is None:
+                            self._sse_raw(b": ping\n\n")
+                            continue
+                        if event.get("bot_id") != sid:
+                            continue
+                        if event.get("type") == "row":
+                            seq = event.get("seq") or 0
+                            if seq <= last_seq:
+                                continue  # already replayed
+                            last_seq = seq
+                        mapped = compat.live_event_to_v2(event)
+                        if mapped is None:
+                            continue
+                        self._sse_write(mapped)
+                except (BrokenPipeError, ConnectionResetError,
+                        ConnectionAbortedError, ValueError, OSError,
+                        ConnectionError):
+                    pass
+                finally:
+                    store.unsubscribe(q)
                 return
 
-            if rest == "approve":
+            if rest in ("approve", "reject"):
                 if self.command != "POST":
                     self._send_json({"error": "method not allowed"},
                                    HTTPStatus.METHOD_NOT_ALLOWED)
                     return
                 sid = base
-                if compat.approve(sid) is None:
+                approval_id = None
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                if length:
+                    raw = self.rfile.read(length) if length else b"{}"
+                    try:
+                        body = _json.loads(raw or b"{}")
+                        if isinstance(body, dict):
+                            approval_id = body.get("approval_id")
+                    except _json.JSONDecodeError:
+                        self._send_json({"error": "invalid json"},
+                                        HTTPStatus.BAD_REQUEST)
+                        return
+                try:
+                    if rest == "approve":
+                        result = compat.approve(sid, approval_id=approval_id)
+                    else:
+                        result = compat.reject(sid, approval_id=approval_id)
+                except ValueError:
                     self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
                     return
-                self._send_json({"ok": True})
+                except KeyError as exc:
+                    self._send_json({"error": str(exc)}, HTTPStatus.NOT_FOUND)
+                    return
+                except RuntimeError as exc:
+                    self._send_json({"error": str(exc)}, HTTPStatus.CONFLICT)
+                    return
+                self._send_json(result)
                 return
 
-            if rest == "reject":
+            if rest == "pending":
+                if self.command != "GET":
+                    self._send_json({"error": "method not allowed"},
+                                   HTTPStatus.METHOD_NOT_ALLOWED)
+                    return
+                try:
+                    pending = compat.pending_approvals(base)
+                except ValueError:
+                    self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+                    return
+                self._send_json({"approvals": pending})
+                return
+
+            if rest == "cancel":
                 if self.command != "POST":
                     self._send_json({"error": "method not allowed"},
                                    HTTPStatus.METHOD_NOT_ALLOWED)
                     return
-                sid = base
-                if compat.reject(sid) is None:
+                try:
+                    cancelled = compat.cancel_session(base)
+                except ValueError:
                     self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
                     return
-                self._send_json({"ok": True})
+                if cancelled:
+                    self._send_json({"ok": True, "cancelled": True})
+                else:
+                    self._send_json({"ok": False,
+                                     "error": "no active turn for this session"},
+                                    HTTPStatus.CONFLICT)
                 return
 
             self._send_json({"error": "bad v2 path"}, HTTPStatus.NOT_FOUND)

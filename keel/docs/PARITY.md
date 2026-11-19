@@ -18,18 +18,23 @@ These are the closest analogues, not full equivalents.
 | Capability area | OpenCode reference | Keel status | Notes |
 |---|---|---|---|
 | Desktop shell | `packages/desktop` | **Reused** (`desktop-app/`) | Electron + Python sidecar; working installer |
-| Local agent runtime | `packages/core` `ai/*` | **Ported-to-Python (partial)** | `runner.py`, `fleet/turn_core.py` — no streaming, no resume, no compaction |
-| SQLite persistence | `packages/core` `database/*` | **Reused** | `fleet/db.py`, `session.py` — similar role, not the same schema |
-| File tools | `search/glob/grep/read/write/patch` | **Ported-to-Python** | `shell_ast.py`, `permissions.py`, `hooks.py` — subset |
-| Provider routing | `packages/providers` | **Ported-to-Python** | `providers/` — OpenRouter + Google working; no fallbacks |
+| Local agent runtime | `packages/core` `ai/*` | **Ported-to-Python (partial)** | `runner.py`, `session.py` (full loop), `fleet/turn_core.py` — token streaming over SSE, tool execution with permission gates, compaction |
+| SQLite persistence | `packages/core` `database/*` | **Reused** | `fleet/db.py` (v10) — bots/rows/approvals; sessions as `kind='session'` bots; survives restart |
+| File tools | `search/glob/grep/read/write/patch` | **Ported-to-Python** | `shell_ast.py`, `permissions.py`, `hooks.py`, `fleet/tools.py` — real registry, Tier-1+2 gates |
+| Provider routing | `packages/providers` | **Ported-to-Python** | `providers/` — OpenRouter, Google, NVIDIA, OpenAI-compatible, Anthropic (opt-in); auto-chain; fake-transport-verified |
 | PWA / web UI | `packages/app` `ui` `session-ui` | **Reused (closely related UI)** | `site/`, `desktop/ui` — similar visual design, not the same build |
 | Skills | `packages/skills` (not listed) | **New in Keel** | `_parse_frontmatter` in `skills.py`, `/api/skills` endpoint |
 | MCP | `packages/core/mcp` | **Reused** | `src/keel/mcp.py` - partial overlap only |
-| v2 sessions compat surface | `packages/server` (partial) | **Implemented (tracer scope)** | `/api/v2/sessions*` in `src/keel/compat.py` — sessions CRUD-ish, message roundtrip, buffered events replay with `?since=`, approve/reject; **not provider-backed, not OpenCode parity** — 8 contract tests green (`tests/test_compat_tracer.py`) |
+| v2 sessions compat surface | `packages/server` (partial) | **Implemented + fake-transport tested** | `/api/v2/sessions*` in `src/keel/compat.py` — real provider-backed runtime: tools via real registry, approvals, SSE token streaming with replay, SQLite persistence, cancel; **not OpenCode parity** |
 
-### Keel-side compat tracer (this milestone, 2026-11-19)
+### Keel-side v2 runtime (2026-11-19, milestone 3)
 
-The `/api/v2/*` surface exists so an OpenCode-shaped client can exercise the Keel bridge end to end. It creates sessions, round-trips a message through a **local deterministic loop** (no LLM provider is called), replays buffered events as SSE with a `since` filter, and handles permission approve/reject with 404s for unknown sessions. It is deliberately not wired to `runner.py` or any provider yet. Nothing in OpenCode `packages/server` is ported; the tracer is a Keel-native shim and is not a parity claim.
+The `/api/v2/*` surface is no longer a demo tracer. It is wired into Keel's actual agent runtime: HTTP → `compat.py` → `fleet.provider_turn.start_provider_turn` → `session.Session` (agent loop) → `fleet.tools` (real tool registry, F1 approval broker) → `providers/` adapters (fake transport in CI, real keys in production). Messages persist as `fleet.db` rows (`kind=message`), tool steps as `kind=step`, approvals as `fleet_approvals`. Sessions survive restart and replay with `?since=<seq>`.
+
+- **Implemented**: provider-backed turns; token streaming over SSE (live fan-out + persisted replay with seq dedup); tool execution through the real registry; approve/reject (once/reject — no standing policy), `409` busy, cancel endpoint; provider auth/billing errors recorded honestly in transcript notices + `turn_end.terminal_reason=provider_error`; cancellation with `terminal_reason=cancelled`.
+- **Tested with fake transport**: 12 acceptance tests in `tests/test_compat_runtime.py` + contract tests in `tests/test_compat_tracer.py`; full suite 437 passed.
+- **Verified with a live provider**: NOT YET — no provider keys have been exercised on this host; CI uses only the deterministic fake transport. The first live call must be done by the operator with their own key.
+- **Deliberately not implemented**: OpenCode event taxonomy/schema layer, plugins, PTY/computer use, standing-policy management via v2 (approve/reject never touch policy; `once` only), Postgres.
 
 ## What Keel does not cover
 
@@ -67,10 +72,10 @@ Every package above is marked `Inspected` only: we have read/classified the sour
 
 - Windows installer + NSIS ceremony (Keel-branded sidebar, header)
 - Local PWA + Settings + BYOK provider config
-- Keel Fleet subagent framework (and SQLite schema)
+- Keel Fleet subagent framework (and SQLite schema v10)
 - `shell_ast.py` safe command analysis
-- `/download` page (this milestone)
-- `/api/v2/*` OpenCode-compat surface (this milestone, tracer bullet)
+- `/download` page (installer validation milestone)
+- `/api/v2/*` v2 runtime: provider-backed turns, SSE token streaming, SQLite persistence, approvals (milestone 3)
 
 ## Notices
 

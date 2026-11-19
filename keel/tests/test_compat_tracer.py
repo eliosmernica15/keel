@@ -1,143 +1,108 @@
-import http.client
+"""v2 surface — HTTP contract tests (thin layer over the fleet runtime).
+
+Deep acceptance coverage lives in test_compat_runtime.py; these tests pin
+the wire contract: status codes, JSON shapes, and authn/authz.
+"""
+
+import json
 import os
-import sys
 
 import pytest
 
-os.environ.setdefault("PYTHONPATH", "src")
-
-os.environ["KEEL_TOKEN"] = "tracetoken12345"
-
-import keel.webapp as webapp  # noqa: E402
-
-TOKEN = os.environ["KEEL_TOKEN"]
+TOKEN = os.environ.get("KEEL_TOKEN", "tracetoken12345")
 
 
-@pytest.fixture()
-def server():
-    srv = webapp.make_server(0)
-    import threading
-    t = threading.Thread(target=srv.serve_forever, daemon=True)
-    t.start()
-    yield srv
-    srv.shutdown()
-    srv.server_close()
-    t.join(timeout=5)
+def _http(server):
+    return __import__("http.client", fromlist=["HTTPConnection"]).HTTPConnection(
+        "127.0.0.1", server.server_address[1], timeout=20)
 
 
-def _post(server, path, body, token=None):
-    port = server.server_address[1]
-    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=15)
-    headers = {"Content-Type": "application/json", "X-Keel-Token": token}
-    conn.request("POST", path, body=body, headers=headers)
-    resp = conn.getresponse()
-    return resp.status, resp.read().decode()
+def _post(server, path, body, token=TOKEN):
+    conn = _http(server)
+    try:
+        headers = {"Content-Type": "application/json"}
+        if token is not None:
+            headers["X-Keel-Token"] = token
+        conn.request("POST", path, body=body, headers=headers)
+        resp = conn.getresponse()
+        return resp.status, resp.read().decode()
+    finally:
+        conn.close()
 
 
-def _get(server, path, token=None):
-    port = server.server_address[1]
-    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=15)
-    headers = {"X-Keel-Token": token}
-    conn.request("GET", path, headers=headers)
-    resp = conn.getresponse()
-    return resp.status, resp.read().decode()
+def _get(server, path, token=TOKEN):
+    conn = _http(server)
+    try:
+        headers = {}
+        if token is not None:
+            headers["X-Keel-Token"] = token
+        conn.request("GET", path, headers=headers)
+        resp = conn.getresponse()
+        return resp.status, resp.read().decode()
+    finally:
+        conn.close()
 
 
-def test_v2_session_roundtrip(server):
-    status, body = _post(server, "/api/v2/sessions", '{"title":"tracer"}', TOKEN)
-    assert status == 201, body
-    sid = body and __import__("json").loads(body)["id"]
-    assert sid
-
-    status, body = _post(server, f"/api/v2/sessions/{sid}/messages", '{"text":"hi"}', TOKEN)
-    assert status == 202, body
-
-    status, body = _get(server, f"/api/v2/sessions/{sid}", TOKEN)
-    assert status == 200
-    doc = __import__("json").loads(body)
-    assert doc["session"]["id"] == sid
-
-
-def test_v2_unauthorized(server):
-    status, _ = _get(server, "/api/v2/sessions", "bad")
-    assert status == 403
-
-
-def _delete(server, path, token=None):
-    port = server.server_address[1]
-    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=15)
-    headers = {"X-Keel-Token": token}
-    conn.request("DELETE", path, headers=headers)
-    resp = conn.getresponse()
-    return resp.status, resp.read().decode()
+def _delete(server, path, token=TOKEN):
+    conn = _http(server)
+    try:
+        headers = {}
+        if token is not None:
+            headers["X-Keel-Token"] = token
+        conn.request("DELETE", path, headers=headers)
+        resp = conn.getresponse()
+        return resp.status, resp.read().decode()
+    finally:
+        conn.close()
 
 
 def _make_session(server):
-    status, body = _post(server, "/api/v2/sessions", '{"title":"t"}', TOKEN)
+    status, body = _post(server, "/api/v2/sessions", '{"title":"tracer"}')
     assert status == 201, body
-    return __import__("json").loads(body)["id"]
+    return json.loads(body)["id"]
 
 
-def test_v2_sessions_list(server):
-    sid = _make_session(server)
-    status, body = _get(server, "/api/v2/sessions", TOKEN)
+def test_create_returns_201_and_fields(compat_store, compat_server):
+    status, body = _post(compat_server, "/api/v2/sessions",
+                         '{"title":"contract check"}')
+    assert status == 201
+    doc = json.loads(body)
+    assert doc["id"]
+    assert doc["title"] == "contract check"
+    assert doc["engine"] == "provider"
+
+
+def test_unauthorized(compat_store, compat_server):
+    status, _ = _get(compat_server, "/api/v2/sessions", "bad")
+    assert status == 403
+
+
+def test_sessions_list_contains_created(compat_store, compat_server):
+    sid = _make_session(compat_server)
+    status, body = _get(compat_server, "/api/v2/sessions", TOKEN)
     assert status == 200
-    doc = __import__("json").loads(body)
+    doc = json.loads(body)
     assert any(s["id"] == sid for s in doc["sessions"])
 
 
-def test_v2_message_roundtrip_history(server):
-    sid = _make_session(server)
-    status, _ = _post(server, f"/api/v2/sessions/{sid}/messages",
-                      '{"text":"hello"}', TOKEN)
-    assert status == 202
-    status, body = _get(server, f"/api/v2/sessions/{sid}/messages", TOKEN)
+def test_delete_session(compat_store, compat_server):
+    sid = _make_session(compat_server)
+    status, _ = _delete(compat_server, f"/api/v2/sessions/{sid}", TOKEN)
     assert status == 200
-    doc = __import__("json").loads(body)
-    roles = [m["role"] for m in doc["messages"]]
-    assert roles == ["user", "assistant"]
-
-
-def test_v2_session_get_includes_messages(server):
-    sid = _make_session(server)
-    _post(server, f"/api/v2/sessions/{sid}/messages", '{"text":"hi"}', TOKEN)
-    status, body = _get(server, f"/api/v2/sessions/{sid}", TOKEN)
-    assert status == 200
-    doc = __import__("json").loads(body)
-    assert doc["session"]["id"] == sid
-    assert [m["role"] for m in doc["messages"]] == ["user", "assistant"]
-
-
-def test_v2_delete_session(server):
-    sid = _make_session(server)
-    status, _ = _delete(server, f"/api/v2/sessions/{sid}", TOKEN)
-    assert status == 200
-    status, _ = _get(server, f"/api/v2/sessions/{sid}", TOKEN)
-    assert status == 404
-    status, _ = _delete(server, f"/api/v2/sessions/{sid}", TOKEN)
+    status, _ = _get(compat_server, f"/api/v2/sessions/{sid}", TOKEN)
     assert status == 404
 
 
-def test_v2_unknown_session_endpoints(server):
+def test_unknown_session_endpoints_404(compat_store, compat_server):
     for method, path in (("GET", "/api/v2/sessions/nope"),
                          ("GET", "/api/v2/sessions/nope/messages"),
                          ("GET", "/api/v2/sessions/nope/events"),
                          ("POST", "/api/v2/sessions/nope/messages"),
                          ("POST", "/api/v2/sessions/nope/approve"),
-                         ("POST", "/api/v2/sessions/nope/reject")):
+                         ("POST", "/api/v2/sessions/nope/reject"),
+                         ("POST", "/api/v2/sessions/nope/cancel")):
         if method == "GET":
-            status, _ = _get(server, path, TOKEN)
+            status, _ = _get(compat_server, path, TOKEN)
         else:
-            status, _ = _post(server, path, '{"text":"x"}', TOKEN)
+            status, _ = _post(compat_server, path, '{"text":"x"}', TOKEN)
         assert status == 404, (method, path, status)
-
-
-def test_v2_events_since_filter(server):
-    sid = _make_session(server)
-    _post(server, f"/api/v2/sessions/{sid}/messages", '{"text":"hi"}', TOKEN)
-    status, body = _get(server, f"/api/v2/sessions/{sid}/events", TOKEN)
-    assert status == 200
-    assert "data:" in body
-    status, body = _get(server, f"/api/v2/sessions/{sid}/events?since=99999999999", TOKEN)
-    assert status == 200
-    assert "data:" not in body

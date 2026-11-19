@@ -7,14 +7,19 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 
 | Tag | Item | Status | Evidence |
 |---|---|---|---|
+| Runtime milestone 3 | v2 surface provider-backed (full flow: session→message→provider→tools→approval→transcript→restart→replay) | done | `tests/test_compat_runtime.py` (12 acceptance tests), full suite 437 passed |
 | Audit | Full OpenCode source inspection | done | `docs/PARITY.md`, `docs/parity.json` |
 | Notices | Third-party license notices | done | `docs/THIRD_PARTY_NOTICES.md` |
-| Tracer | `/api/v2/sessions` POST/GET list/delete | done | `src/keel/compat.py`, tests green |
-| Tracer | `/api/v2/sessions/:id/approve` (+ reject, 404 on unknown) | done | `test_compat_tracer.py` (8 tests green) |
+| Tracer | `/api/v2/sessions` POST/GET list/delete | done | `src/keel/compat.py` (fleet-backed), tests green |
+| Tracer | `/api/v2/sessions/:id/approve` (+ reject, 404 on unknown, busy 409) | done | `test_compat_runtime.py` (12 acceptance tests green) |
 | Tracer | `/api/v2/sessions/:id/messages` POST/GET | done | same |
 | Tracer | `/api/v2/sessions/:id` GET (session + messages) | done | same |
-| Tracer | `/api/v2/sessions/:id/events?since=` | partial | buffered replay with since-filter; not live SSE yet |
-| Tracer | Latent deadlock in `sessions_list()` (non-reentrant lock) | fixed | caught by new tests; `_LOCK` is now `RLock` |
+| Tracer | `/api/v2/sessions/:id/events` | done | replay+live SSE, seq cursor, token frames, `?since=`, ping keep-alive (`docs/EVENTS.md`) |
+| Tracer | Provider-backed runtime | done | turn executes through `fleet/turn_core.py` + `Session` + real tool registry; fake transport in CI only |
+| Tracer | Approval broker integration | done | F1 broker: pending → approve (allow once) / reject (deny, no standing policy); `test_tool_rejected_never_executes` proves the tool does not run |
+| Tracer | SQLite persistence across restart | done | sessions are `fleet.db` bots (kind='session'); survives process restart; migration v10 |
+| Tracer | Cancel active run | done | POST `/api/v2/sessions/:id/cancel`; `terminal_reason=cancelled` asserted in tests |
+| Tracer | `sessions_list()` deadlock (non-reentrant lock) | fixed | `_LOCK` is now `RLock`; milestone 3 removed the in-memory store entirely |
 | Downloads | Mirror `/download` page | done | `site/download.html`, `/ui/download.js`, `/download.json` |
 | Downloads | Download destinations configurable | done | destinations from `download.json` |
 | Downloads | Route rewrites in `vercel.json` | done | `/download` -> `/download.html`, `/app` -> `/app.html` |
@@ -23,7 +28,7 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 | CI | Windows build (runner, not this host) | done | run `44431591087` green 2026-11-19; NSIS artifact produced; sha256 `43a5eb7d…` |
 | CI | macOS build (runner; arm64 only) | done | same run; `Keel-0.1.0-macos-arm64.dmg/.zip`; Intel untested; Gatekeeper unsigned |
 | CI | Linux build | done | same run; `Keel-0.1.0-linux-x86_64.AppImage`, `Keel-0.1.0-linux-amd64.deb`; not run on a desktop Linux yet |
-| Tests | Full suite | done | `pytest -q` -> 427 passed (2026-11-19) |
+| Tests | Full suite | done | `pytest -q` -> 437 passed (2026-11-19, milestone 3) |
 | Installer validation | Windows installer (CI artifact, run `44527352992`) | done | hash verified; silent install → launch → frozen sidecar on 127.0.0.1:8857; `/api/health` 403 (token-protected); `/ui/style.css` 200; reinstall OK; silent uninstall removed dir; `~/.keel` fully preserved |
 | Installer validation | macOS DMG/ZIP (arm64) | partial | CI build green; hashes verified; zip structure inspected (Mach-O 64-bit, app.asar, frozen sidecar present, Info.plist sane, LSMinimum 12.0); UNSIGNED (no _CodeSignature); never mounted on a Mac; Intel unsupported |
 | Installer validation | Linux AppImage + .deb | partial | hashes verified; `.deb` control/deps/desktop-entry/postinst inspected; AppImage ELF x86-64 type-2 w/ squashfs verified; not launched on desktop Linux |

@@ -189,9 +189,13 @@ class ApprovalBroker:
 
     # ---------------- resolution handlers (HTTP bridge)
     def decide(self, *, bot_id: str, approval_id: str, decision: str) -> tuple[bool, dict, str | None]:
-        """Operator click. Returns (changed, approval, error)."""
-        if decision not in ("once", "always", "never"):
-            return False, {}, "decision must be once | always | never"
+        """Operator click. Returns (changed, approval, error).
+
+        'once' / 'always' / 'reject' never set a standing policy; 'never'
+        denies this call and pins a standing Never policy.
+        """
+        if decision not in ("once", "always", "never", "reject"):
+            return False, {}, "decision must be once | always | never | reject"
         approval = self.store.get_approval(approval_id)
         if approval is None or approval["bot_id"] != bot_id:
             return False, {}, "approval_not_found"
@@ -202,15 +206,16 @@ class ApprovalBroker:
             self.store.set_policy(bot_id, final["tool_name"], "always")
         elif decision == "never":
             self.store.set_policy(bot_id, final["tool_name"], "never")
+        granted = decision in ("once", "always")
         self.store.append_audit(bot_id=bot_id,
                                 tool_name=final["tool_name"],
                                 fingerprint=final["fingerprint"],
                                 event="decided",
                                 decision=decision,
-                                outcome="granted" if decision != "never" else "refused",
+                                outcome="granted" if granted else "refused",
                                 approval_id=approval_id)
         self._announce_resolution(final,
-                                  "approved" if decision != "never" else "denied",
+                                  "approved" if granted else "denied",
                                   decision)
         with self._lock:
             event = self._events.get(approval_id)

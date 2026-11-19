@@ -1,194 +1,321 @@
-"""OpenCode-compatible REST/stream surface for Keel.
+"""OpenCode-compatible REST/stream surface for Keel — backed by the real runtime.
 
-Scope: tracer bullet. This module implements the smallest surface that lets
-an OpenCode-shaped client create a session, send a prompt, and receive a
-reply with tool-call events. It is NOT a port of the OpenCode backend, and
-it deliberately does NOT call any LLM provider: replies come from a simple
-local loop so the contract can be exercised offline, deterministically,
-and in tests. What it does:
+This module is a thin compatibility shim over Keel's actual agent stack:
 
-- POST /api/v2/sessions
-    creates a session visible to the compatibility layer
-- GET  /api/v2/sessions
-    lists sessions (id, title, counts, pendingApproval)
-- GET  /api/v2/sessions/:id
-    session summary
-- DELETE /api/v2/sessions/:id
-    removes the session, its messages, events and pending approval
-- POST /api/v2/sessions/:id/messages
-    runs the prompt through the local loop and stores the result
-- GET  /api/v2/sessions/:id/messages
-    stored message history
-- GET  /api/v2/sessions/:id/events
-    Server-sent events replay; accepts ?since=<unix-seconds>
-- POST /api/v2/sessions/:id/approve
-    acknowledges a pending permission request (404 for unknown session)
-- POST /api/v2/sessions/:id/reject
-    rejects a pending permission request (404 for unknown session)
+- sessions  = fleet bots (`fleet.db`, kind="session")
+- messages  = persisted rows (kind="message"), user + assistant
+- runs      = `fleet.provider_turn.start_provider_turn` on a worker thread,
+              executing through `session.Session` with the real tool registry,
+              permission/approval broker, compaction and transcript writer
+- streaming = ephemeral `{"type": "stream", ...}` fan-out frames + persisted
+              row events, both replayed via `events?since=<seq>`
+- approvals = the F1 approval broker (once / always / reject)
 
-What it does NOT do (deliberately):
+It does NOT contain an agent loop, does NOT fake provider responses, and does
+NOT fall back to a scripted fake when no provider is configured: the turn
+simply ends with `terminal_reason="not_configured"` and a notice row explains
+what to do. The deterministic fake transport exists only in tests, injected
+at the network edge (`build_adapter(..., transport=...)`).
 
-- Does not stream tokens from a real model; replies are local and
-  deterministic. The Keel runtime has provider plumbing (providers/,
-  runner.py) but this surface does not use it yet.
-- Does not implement arbitrary OpenCode event types
-- Does not mutate or fork upstream OpenCode code
-- Does not introduce new tooling not already in the Keel runtime
+Scope: this remains a compatibility shim, not an OpenCode port. What is
+implemented: the /api/v2/sessions* surface. What is deliberately absent:
+OpenCode's schema layer, plugins, PTY/computer-use, and full event taxonomy.
 """
+
 from __future__ import annotations
 
-import json
-import secrets
-import threading
-import time
-from typing import Any, Dict, List, Optional, Tuple
-
-# Compat store — held in-process; sessions do not persist across restarts.
-_SESSIONS: Dict[str, Dict[str, Any]] = {}
-_MESSAGES: Dict[str, List[Dict[str, Any]]] = {}
-_EVENTS: Dict[str, List[Dict[str, Any]]] = {}
-_APPROVALS: Dict[str, Dict[str, Any]] = {}
-_LOCK = threading.RLock()
+from typing import Any, Dict, List, Optional
 
 
-def _now_iso() -> str:
-    return time.strftime("%Y-%m-%dT%H:%M:%S+00:00", time.gmtime(time.time()))
+class SessionNotFound(Exception):
+    """Raised when a v2 session id does not name a live compat session."""
 
 
-def _session(sid: str) -> Dict[str, Any]:
-    with _LOCK:
-        return _SESSIONS.get(sid, {})
+# ---------------- plumbing
+def _store():
+    from .fleet import routes as _routes
+    return _routes.store()
 
 
-def _messages(sid: str) -> List[Dict[str, Any]]:
-    with _LOCK:
-        return _MESSAGES.get(sid, [])
+def _bot_or_raise(sid: str) -> dict:
+    bot = _store().get_bot(sid)
+    if bot is None or bot.get("kind") != "session":
+        raise SessionNotFound(f"session {sid!r} not found")
+    return bot
 
 
-def _events(sid: str) -> List[Dict[str, Any]]:
-    with _LOCK:
-        return _EVENTS.get(sid, [])
-
-
-def _approval(sid: str) -> Optional[Dict[str, Any]]:
-    with _LOCK:
-        return _APPROVALS.get(sid)
-
-
-def create_session(title: str) -> Dict[str, Any]:
-    sid = secrets.token_urlsafe(12)
-    now = _now_iso()
-    with _LOCK:
-        _SESSIONS[sid] = {"id": sid, "title": title or "Untitled", "createdAt": now, "updatedAt": now}
-        _MESSAGES[sid] = []
-        _EVENTS[sid] = []
-    return _SESSIONS[sid]
-
-
-def get_session(sid: str) -> Optional[Dict[str, Any]]:
-    return _SESSIONS.get(sid)
-
-
-def message_history(sid: str) -> List[Dict[str, Any]]:
-    return _messages(sid)
-
-
-def session_events(sid: str, since: float) -> List[Dict[str, Any]]:
-    return [e for e in _events(sid) if e.get("ts", 0) >= since]
-
-
-def _emit(sid: str, event: Dict[str, Any]) -> None:
-    with _LOCK:
-        event = {"ts": time.time(), **event}
-        _EVENTS[sid].append(event)
-        # trim
-        if len(_EVENTS[sid]) > 1000:
-            _EVENTS[sid] = _EVENTS[sid][-1000:]
-
-
-def _fake_agent_loop(prompt: str, workdir: Optional[str]) -> Tuple[str, List[Dict[str, Any]]]:
-    """Minimal agent loop: returns a text response + tool-call log."""
-    events: List[Dict[str, Any]] = []
-    ws = workdir or "."
-    _emit_text = f"Running against {ws} — reading files and listing the workspace."
-    events.append({"type": "text", "text": _emit_text})
-    events.append({"type": "tool", "tool": "read_file", "args": {"path": "README.md"}, "result": "(read)"})
-    events.append({"type": "tool", "tool": "ls", "args": {"path": "."}, "result": "(listed)"})
-    events.append({"type": "done"})
-    reply = f"I inspected the workspace at {ws}. README.md found; workspace listed. (Keel compat tracer)"
-    return reply, events
-
-
-def run_message(sid: str, text: str, workdir: Optional[str] = None) -> Dict[str, Any]:
-    session = _SESSIONS.get(sid)
-    if not session:
-        raise ValueError("session not found")
-    with _LOCK:
-        _MESSAGES[sid].append({"role": "user", "content": text, "ts": _now_iso()})
-    _emit(sid, {"type": "user", "text": text})
-    reply, tool_events = _fake_agent_loop(text, workdir)
-    with _LOCK:
-        _MESSAGES[sid].append({"role": "assistant", "content": reply, "ts": _now_iso()})
-    _emit(sid, {"type": "assistant", "text": reply, "tools": tool_events})
-    _emit(sid, {"type": "done"})
-    session["updatedAt"] = _now_iso()
-    return {"ok": True, "reply": reply}
-
-
-def request_approval(sid: str, tool_name: str, args: Dict[str, Any], reason: str) -> Dict[str, Any]:
-    with _LOCK:
-        _APPROVALS[sid] = {"tool": tool_name, "args": args, "reason": reason, "ts": _now_iso()}
-    _emit(sid, {"type": "approval_required", "tool": tool_name, "reason": reason})
-    return _APPROVALS[sid]
-
-
-def approve(sid: str) -> Optional[bool]:
-    with _LOCK:
-        if sid not in _SESSIONS:
-            return None
-        _APPROVALS.pop(sid, None)
-    _emit(sid, {"type": "approval_granted"})
-    return True
-
-
-def reject(sid: str) -> Optional[bool]:
-    with _LOCK:
-        if sid not in _SESSIONS:
-            return None
-        _APPROVALS.pop(sid, None)
-    _emit(sid, {"type": "approval_rejected"})
-    return True
-
-
-def delete_session(sid: str) -> bool:
-    with _LOCK:
-        if sid not in _SESSIONS:
-            return False
-        del _SESSIONS[sid]
-        _MESSAGES.pop(sid, None)
-        _EVENTS.pop(sid, None)
-        _APPROVALS.pop(sid, None)
-    return True
-
-
-def stream(sid: str, last_event_id: int = 0) -> List[Dict[str, Any]]:
-    return _events(sid)[last_event_id:]
-
-
-def session_summary(sid: str) -> Dict[str, Any]:
-    session = _SESSIONS.get(sid)
-    if not session:
-        return {}
+def _session_dict(bot: dict, *, message_count: int = 0,
+                  pending_approval: bool = False) -> Dict[str, Any]:
     return {
-        "id": session["id"],
-        "title": session["title"],
-        "createdAt": session["createdAt"],
-        "updatedAt": session["updatedAt"],
-        "messageCount": len(_messages(sid)),
-        "pendingApproval": bool(_approval(sid)),
+        "id": bot["id"],
+        "title": bot["name"],
+        "createdAt": bot["created_at"],
+        "updatedAt": bot["updated_at"],
+        "engine": bot["engine"],
+        "provider": bot["provider"],
+        "model": bot["model"],
+        "kind": bot["kind"],
+        "messageCount": message_count,
+        "pendingApproval": pending_approval,
     }
 
 
+def _pending_approvals(sid: str) -> List[Dict[str, Any]]:
+    return _store().list_pending_approvals(sid)
+
+
+def _message_rows(sid: str) -> List[Dict[str, Any]]:
+    return _store().list_rows(sid, 0, 10_000)
+
+
+def _row_to_v2(event: Dict[str, Any]) -> Dict[str, Any]:
+    kind = event["kind"]
+    body = event.get("body") or {}
+    seq = event["seq"]
+    ts = event["created_at"]
+    sid = event["bot_id"]
+    if kind == "message":
+        role = body.get("role") or "assistant"
+        out = {"type": role, "sessionID": sid, "text": body.get("content", ""),
+               "seq": seq, "ts": ts}
+        if body.get("engine"):
+            out["engine"] = body["engine"]
+        if body.get("model"):
+            out["model"] = body["model"]
+        if body.get("workdir"):
+            out["workdir"] = body["workdir"]
+        return out
+    if kind == "step":
+        return {"type": "tool", "sessionID": sid,
+                "name": body.get("name"), "status": body.get("status"),
+                "detail": body.get("detail"), "seq": seq, "ts": ts}
+    if kind == "notice":
+        return {"type": "notice", "sessionID": sid,
+                "level": body.get("level"), "text": body.get("text"),
+                "seq": seq, "ts": ts}
+    if kind == "turn_end":
+        return {"type": "done", "sessionID": sid,
+                "terminal_reason": body.get("terminal_reason"),
+                "duration_ms": body.get("duration_ms"),
+                "num_turns": body.get("num_turns"),
+                "usage": body.get("usage"),
+                "seq": seq, "ts": ts}
+    if kind == "approval":
+        return {"type": "approval", "sessionID": sid,
+                "approval_id": body.get("approval_id"),
+                "tool_name": body.get("tool_name"),
+                "status": body.get("status"),
+                "decision": body.get("decision"),
+                "summary": body.get("summary"),
+                "expires_at": body.get("expires_at"),
+                "seq": seq, "ts": ts}
+    return {"type": kind, "sessionID": sid, "seq": seq, "ts": ts, **body}
+
+
+def _stream_frame_to_v2(event: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Ephemeral token frame -> v2 token event."""
+    if event.get("type") != "stream" or not event.get("delta"):
+        return None
+    return {"type": "token", "sessionID": event.get("bot_id"),
+            "text": event["delta"], "seq": None, "ts": None}
+
+
+def _live_row_to_v2(event: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Persisted row arriving on the live fan-out -> v2 event."""
+    if event.get("type") != "row" or not event.get("kind"):
+        return None
+    return _row_to_v2(event)
+
+
+def live_event_to_v2(event: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if event.get("type") == "stream":
+        return _stream_frame_to_v2(event)
+    if event.get("type") == "row":
+        return _live_row_to_v2(event)
+    return None
+
+
+# ---------------- public API (used by webapp.py)
+def create_session(title: str) -> Dict[str, Any]:
+    bot = _store().create_bot(name=(title or "Untitled").strip()[:64] or "Untitled",
+                              engine="provider",
+                              notes="",
+                              kind="session")
+    return _session_dict(bot)
+
+
+def get_session(sid: str) -> Optional[Dict[str, Any]]:
+    try:
+        bot = _bot_or_raise(sid)
+    except SessionNotFound:
+        return None
+    rows = _message_rows(sid)
+    return _session_dict(bot,
+                         message_count=len([r for r in rows if r["kind"] == "message"]),
+                         pending_approval=bool(_pending_approvals(sid)))
+
+
 def sessions_list() -> List[Dict[str, Any]]:
-    with _LOCK:
-        return [session_summary(sid) for sid in list(_SESSIONS.keys())]
+    out = []
+    for bot in _store().list_bots(kind="session"):
+        rows = _message_rows(bot["id"])
+        out.append(_session_dict(
+            bot,
+            message_count=len([r for r in rows if r["kind"] == "message"]),
+            pending_approval=bool(_pending_approvals(bot["id"]))))
+    return out
+
+
+def message_history(sid: str) -> List[Dict[str, Any]]:
+    try:
+        _bot_or_raise(sid)
+    except SessionNotFound:
+        return []
+    messages = []
+    for row in _message_rows(sid):
+        if row["kind"] != "message":
+            continue
+        body = row.get("body") or {}
+        messages.append({
+            "role": body.get("role") or "assistant",
+            "content": body.get("content", ""),
+            "ts": row["created_at"],
+            "engine": body.get("engine"),
+            "model": body.get("model"),
+        })
+    return messages
+
+
+def run_message(sid: str, text: str, workdir: Optional[str] = None,
+                permission_mode: Optional[str] = None) -> Dict[str, Any]:
+    """Append the user message and start the provider-backed turn.
+
+    Returns immediately (202 semantics); the turn streams into the fan-out
+    and persists rows. Raises ValueError for unknown sessions.
+    """
+    try:
+        bot = _bot_or_raise(sid)
+    except SessionNotFound:
+        raise ValueError("session not found") from None
+
+    store = _store()
+    row = store.append_row(sid, "message",
+                           {"role": "user", "content": text, "workdir": workdir})
+
+    from .fleet import provider_turn
+    lock, started = provider_turn.start_provider_turn(
+        store, bot, text, permission_mode=permission_mode)
+    if not started:
+        return {"ok": False, "error": "a turn is already in progress for this session",
+                "terminal_reason": "busy", "runId": None}
+
+    return {"ok": True, "runId": f"msg-{row['seq']}",
+            "assistant_text": "", "terminal_reason": "started"}
+
+
+def delete_session(sid: str) -> bool:
+    from .fleet import turn_core
+    try:
+        _bot_or_raise(sid)
+    except SessionNotFound:
+        return False
+    turn_core.cancel_active_turn(sid)
+    return _store().delete_bot(sid)
+
+
+def cancel_session(sid: str) -> bool:
+    from .fleet import turn_core
+    try:
+        _bot_or_raise(sid)
+    except SessionNotFound:
+        raise ValueError("session not found") from None
+    return turn_core.cancel_active_turn(sid)
+
+
+def session_events(sid: str, since: float = 0.0) -> List[Dict[str, Any]]:
+    try:
+        _bot_or_raise(sid)
+    except SessionNotFound:
+        raise ValueError("session not found") from None
+    try:
+        cursor = max(0, int(since or 0))
+    except (TypeError, ValueError):
+        cursor = 0
+    rows = _store().list_rows(sid, cursor, 10_000)
+    return [_row_to_v2(r) for r in rows]
+
+
+def latest_seq(sid: str) -> int:
+    try:
+        _bot_or_raise(sid)
+    except SessionNotFound:
+        return 0
+    return _store().latest_seq(sid)
+
+
+def stream(sid: str, last_event_id: int = 0) -> List[Dict[str, Any]]:  # legacy name
+    return session_events(sid, last_event_id)
+
+
+def session_summary(sid: str) -> Dict[str, Any]:
+    got = get_session(sid)
+    return got or {}
+
+
+def _resolve_pending(sid: str, approval_id: Optional[str]) -> Optional[Dict[str, Any]]:
+    pending = _pending_approvals(sid)
+    if approval_id:
+        return next((a for a in pending if a.get("approval_id") == approval_id), None)
+    if len(pending) == 1:
+        return pending[0]
+    return None
+
+
+def _decide(sid: str, decision: str, approval_id: Optional[str]) -> Dict[str, Any]:
+    try:
+        _bot_or_raise(sid)
+    except SessionNotFound:
+        raise ValueError("session not found") from None
+    pending = _pending_approvals(sid)
+    if not pending:
+        raise KeyError("no pending approval for this session")
+    target = _resolve_pending(sid, approval_id)
+    if target is None:
+        if approval_id:
+            raise KeyError(f"approval {approval_id!r} not pending for this session")
+        raise RuntimeError(
+            f"session has {len(pending)} pending approvals; pass approval_id")
+
+    broker = _store().approvals
+    changed, approval, error = broker.decide(
+        bot_id=sid, approval_id=target["approval_id"], decision=decision)
+    if error:
+        raise KeyError(error)
+    return {"ok": True, "changed": changed,
+            "approval_id": approval.get("approval_id"),
+            "status": approval.get("status"),
+            "decision": approval.get("decision"),
+            "tool_name": approval.get("tool_name")}
+
+
+def approve(sid: str, approval_id: Optional[str] = None) -> Dict[str, Any]:
+    return _decide(sid, "once", approval_id)
+
+
+def reject(sid: str, approval_id: Optional[str] = None) -> Dict[str, Any]:
+    return _decide(sid, "reject", approval_id)
+
+
+def pending_approvals(sid: str) -> List[Dict[str, Any]]:
+    try:
+        _bot_or_raise(sid)
+    except SessionNotFound:
+        raise ValueError("session not found") from None
+    return [{
+        "approval_id": a.get("approval_id"),
+        "tool_name": a.get("tool_name"),
+        "fingerprint": a.get("fingerprint"),
+        "summary": a.get("args_summary"),
+        "expires_at": a.get("expires_at"),
+        "created_at": a.get("created_at"),
+    } for a in _pending_approvals(sid)]

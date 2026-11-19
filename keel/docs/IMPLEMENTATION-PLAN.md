@@ -13,25 +13,29 @@ See `docs/PARITY.md` and machine-readable inventory `docs/parity.json`.
 
 See `docs/THIRD_PARTY_NOTICES.md`.
 
-## Phase 3 — Tracer bullet (this milestone)
+## Phase 3 — Tracer bullet (this milestone) → **superseded by milestone 3 (2026-11-19)**
 
-New package `src/keel_compat/` — OpenCode-compatible REST/stream surface over the Keel runtime:
+The tracer became the real thing. `/api/v2/sessions` is now wired to the actual
+agent runtime (`fleet/turn_core.py`, `session.py`, `fleet/tools.py`, real
+provider adapters), persists in SQLite (`fleet/db.py` v10), streams tokens over
+SSE (`docs/EVENTS.md`), and is covered by 12 acceptance tests in
+`tests/test_compat_runtime.py`. The "tracer bullet — not a port" caveat still
+applies: no OpenCode schema/event taxonomy, no plugins, no standing-policy
+management via v2. See `docs/PARITY.md` for the honest status table.
+
+Historical contract (still the live shape):
 
 ```
-POST   /api/v2/sessions              -> 201 { id, title, createdAt }
-POST   /api/v2/sessions/:id/messages -> 202 { runId }   (SSE stream on events)
-GET    /api/v2/sessions/:id/events   -> text/event-stream   (session events)
+POST   /api/v2/sessions              -> 201 { id, title, ... }
+POST   /api/v2/sessions/:id/messages -> 202 { ok, runId, ... }
+GET    /api/v2/sessions/:id/events   -> text/event-stream (replay + live)
 GET    /api/v2/sessions/:id          -> 200 { session, messages }
-POST   /api/v2/sessions/:id/approve  -> 200 { ok }          (F1-style approval)
+GET    /api/v2/sessions/:id/pending  -> 200 { approvals: [...] }
+POST   /api/v2/sessions/:id/approve  -> 200 { ok, ... }
+POST   /api/v2/sessions/:id/reject   -> 200 { ok, ... }
+POST   /api/v2/sessions/:id/cancel   -> 200 { ok, cancelled: true }
+DELETE /api/v2/sessions/:id          -> 200 { ok: true }
 ```
-
-- Real local tool calls only (`read_file`, `ls` — via existing Keel runtime)
-- Real F1 approval gate (existing `permissions.py`)
-- `tests/test_compat.py` — contract tests for the v2 surface
-
-Honesty: this is a **tracer bullet**, not a port. Event shapes, persistence, and
-streaming are simplified to prove the path. Real parity is tracked in
-`docs/parity.json` with explicit `Not inspected` / `Ported` / `Verified` statuses.
 
 ## Phase 4 — Keel download experience
 

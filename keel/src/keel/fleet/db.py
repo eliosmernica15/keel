@@ -12,7 +12,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS bots (
@@ -37,6 +37,13 @@ CREATE TABLE IF NOT EXISTS rows (
     created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_rows_bot_seq ON rows(bot_id, seq);
+"""
+
+_DDL_V10 = """
+-- compat sessions are fleet bots distinguished by kind; the Fleet UI only
+-- lists agents, so sessions never leak into operator-facing agent views
+ALTER TABLE bots ADD COLUMN kind TEXT NOT NULL DEFAULT 'agent';
+CREATE INDEX IF NOT EXISTS idx_bots_kind ON bots(kind);
 """
 
 _DDL_V5 = """
@@ -325,5 +332,10 @@ CREATE TABLE IF NOT EXISTS fleet_projects (
             "CREATE INDEX IF NOT EXISTS idx_bots_project ON bots(project_id)")
         conn.execute(
             "INSERT OR IGNORE INTO schema_version(version, applied_at) VALUES (9, ?)",
+            (_now(),))
+    if applied < 10:
+        conn.executescript(_DDL_V10)
+        conn.execute(
+            "INSERT OR IGNORE INTO schema_version(version, applied_at) VALUES (10, ?)",
             (_now(),))
     conn.commit()

@@ -173,7 +173,8 @@ class FleetStore:
                    notes: str = "",
                    preset: str | None = None,
                    avatar_hue: int | None = None,
-                   project_id: str | None = None) -> dict:
+                   project_id: str | None = None,
+                   kind: str = "agent") -> dict:
         slug = _slugify(name)
         base = slug
         suffix = 0
@@ -195,10 +196,11 @@ class FleetStore:
             self._conn.execute(
                 "INSERT INTO bots(id, name, role, engine, provider, model,\n"
                 "                 notes, avatar_hue, created_at, updated_at,\n"
-                "                 last_active_at, project_id)\n"
-                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                "                 last_active_at, project_id, kind)\n"
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (base, name, role.strip()[:120], engine, "auto", "",
-                 str(notes)[:4096], avatar_hue, now, now, now, project_id))
+                 str(notes)[:4096], avatar_hue, now, now, now, project_id,
+                 kind))
             self._conn.commit()
             bot = self.get_bot(base)
         # announce creation as a notice so open tabs update without reload
@@ -216,11 +218,22 @@ class FleetStore:
                 "SELECT * FROM bots WHERE id = ?", (bot_id,)).fetchone()
         return _row_to_dict(row) if row else None
 
-    def list_bots(self) -> list[dict]:
+    def list_bots(self, kind: str | None = "agent") -> list[dict]:
         with self._lock:
-            rows = self._conn.execute(
-                "SELECT * FROM bots ORDER BY last_active_at DESC").fetchall()
+            if kind is None:
+                rows = self._conn.execute(
+                    "SELECT * FROM bots ORDER BY last_active_at DESC").fetchall()
+            else:
+                rows = self._conn.execute(
+                    "SELECT * FROM bots WHERE kind = ? ORDER BY last_active_at DESC",
+                    (kind,)).fetchall()
         return [_row_to_dict(r) for r in rows]
+
+    def delete_bot(self, bot_id: str) -> bool:
+        with self._lock:
+            cur = self._conn.execute("DELETE FROM bots WHERE id = ?", (bot_id,))
+            self._conn.commit()
+            return cur.rowcount > 0
 
     def _bot_exists(self, bot_id: str) -> bool:
         with self._lock:
@@ -739,8 +752,8 @@ class FleetStore:
 
     def decide_approval(self, approval_id: str, *, decision: str,
                         decided_by: str = "operator") -> tuple[bool, dict | None]:
-        if decision not in ("once", "always", "never"):
-            raise ValueError("decision must be once | always | never")
+        if decision not in ("once", "always", "never", "reject"):
+            raise ValueError("decision must be once | always | never | reject")
         target = "approved" if decision in ("once", "always") else "denied"
         return self._transition_approval(approval_id, target,
                                          decision=decision,
@@ -766,6 +779,13 @@ class FleetStore:
                     (by, now, by))
                 self._conn.commit()
         return [a for a in (self.get_approval(i) for i in ids) if a]
+
+    def list_pending_approvals(self, bot_id: str) -> list[dict]:
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM fleet_approvals WHERE bot_id = ? AND status = 'pending'\n"
+                " ORDER BY created_at ASC", (bot_id,)).fetchall()
+        return [dict(r) for r in rows]
 
     # ---------------- audit (F1) — fingerprints only, never raw arguments
     def append_audit(self, *, bot_id: str, tool_name: str, fingerprint: str,

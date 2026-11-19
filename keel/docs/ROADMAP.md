@@ -8,12 +8,19 @@ Caveats up front:
 
 ## Milestone 2 — Python runtime to OpenCode contract parity (3–6 months)
 
-- Port `/api/v2/sessions` persistence to Postgres (local-first keeps SQLite fallback).
-- Real event streaming on `/api/v2/sessions/:id/events` over SSE.
-- Skills + plugins + MCP capability registry.
-- Permission model enforcement identical to Keel's current `permissions.py`.
-- Automated test matrix on Windows + macOS + Linux via CI.
-- First measured, public parity report like this document — with coverage numbers, not claims.
+Done in milestone 3 (2026-11-19):
+
+- Real event streaming on `/api/v2/sessions/:id/events` over SSE — **done** (replay + live, `docs/EVENTS.md`).
+- Provider-backed agent runtime — **done** (turn through `Session` + real tool registry, approvals via the F1 broker, transcript persisted in SQLite; fake-transport-verified in CI).
+- Local persistence of sessions — **done** via existing SQLite (`fleet.db`, migration v10); sessions survive restart. PostgreSQL deliberately not introduced.
+- Automated test matrix on Windows + macOS + Linux via CI — **partially done**: CI builds all three on every push, but the v2 runtime suite has only been run on Windows 11 so far; Linux/macOS runners have not executed it yet.
+
+Still open:
+
+- Live-provider end-to-end verification with a real key (no keys on this host; must be run by the operator).
+- OpenCode surface coverage: schemas, plugins, more of `packages/server` (only v2 sessions are wired).
+- Postgres adapter / migration tooling (only if/when multi-writer demand appears; local-first stays SQLite).
+- First measured parity report with coverage numbers.
 
 ## Milestone 3 — Desktop packaging distribution
 

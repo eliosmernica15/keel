@@ -470,6 +470,12 @@ class Session:
             try:
                 blocks = self.model.complete(messages, tool_schemas)
             except Exception as exc:
+                # operator Stop mid-round: don't treat it as a provider
+                # error — route back through the loop-top check, which
+                # builds the cancelled envelope and closes the transcript
+                from .providers.base import TurnCancelled
+                if isinstance(exc, TurnCancelled):
+                    continue
                 from .providers.base import ProviderError
                 category = getattr(exc, "category", "unknown")
                 retryable = bool(getattr(exc, "retryable", False))
