@@ -17,7 +17,8 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 | Tracer | Latent deadlock in `sessions_list()` (non-reentrant lock) | fixed | caught by new tests; `_LOCK` is now `RLock` |
 | Downloads | Mirror `/download` page | done | `site/download.html`, `/ui/download.js`, `/download.json` |
 | Downloads | Download destinations configurable | done | destinations from `download.json` |
-| Downloads | Route rewrites in `vercel.json` | done | `/download` -> `/download.html` |
+| Downloads | Route rewrites in `vercel.json` | done | `/download` -> `/download.html`, `/app` -> `/app.html` |
+| Site | Premium developer landing page | done | `site/index.html` + `site/ui/landing.css`/`landing.js`; mirror moved to `/app`; real screenshots; Lighthouse a11y/best-practices/SEO 1.0 |
 | CI | Workflow discovered by GitHub Actions | done | `.github/workflows/build-desktop.yml` at repo root (was nested at `keel/.github/` where it was invisible) |
 | CI | Windows build (runner, not this host) | done | run `44431591087` green 2026-11-19; NSIS artifact produced; sha256 `43a5eb7d…` |
 | CI | macOS build (runner; arm64 only) | done | same run; `Keel-0.1.0-macos-arm64.dmg/.zip`; Intel untested; Gatekeeper unsigned |

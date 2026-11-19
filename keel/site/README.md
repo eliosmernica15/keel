@@ -1,10 +1,22 @@
-# Keel — public mirror
+# Keel — public web surface
 
-**https://keel-desktop.vercel.app** — the mirror of the Keel desktop app,
-served as the same static UI, but with **no local backend**. Everything on
-this page runs in your browser.
+**https://keel-desktop.vercel.app**
 
-## What it does
+## Layout
+
+| Route | Serves | What it is |
+|---|---|---|
+| `/` | `/index.html` | The Keel landing page (marketing) |
+| `/app` | `/app.html` | The web mirror of the Keel app (BYOK chat, no agent, no disk) |
+| `/download` | `/download.html` | Platform download cards, rendered from `/download.json` |
+| `/download.json` | static | Machine-readable availability manifest |
+
+Desktop and web share the same design language: same tokens, fonts and icons.
+The desktop app (`desktop/ui/`) embeds the same mirror-family UI served by the
+local Python bridge; the landing page is static and makes no network calls
+beyond the static files themselves.
+
+## The web mirror (`/app`) — what it does
 
 - **Chat** streams directly from your browser to **OpenRouter** or **Google
   AI Studio** using a key you paste in Settings → Providers. The key is
@@ -20,21 +32,21 @@ this page runs in your browser.
     whole desktop folders (their text files are attached the same way).
     This is a scratch-context workflow, not an agent run — nothing edits
     or executes your disk from this page.
-- Caps: 8 files per message, 4 MB each, 12 MB total per send. Binary
-  files are skipped with a note. Attachments never leave your browser
-  except as part of a message to your linked provider.
+- Caps: 8 files per message, 4 MB each, 12 MB total per send. Binary files
+  are skipped with a note. Attachments never leave your browser except as
+  part of a message to your linked provider.
 
 ## What it cannot do
 
 Bind a folder as an agent workspace, run an agent, execute shell commands,
 or read PDFs/Office binaries without exporting them to text. That is the
-**local app** (`keel` repository → `cd keel` → `python -m keel serve`) —
-it runs entirely on your machine; its `+` menus upload files to a local
+**local app** (the `keel` repository → `cd keel` → `python -m keel serve`) —
+it runs entirely on your machine; its `+` menu uploads files to a local
 `~/.keel/uploads/` folder and the agent reads, copies and unpacks them
 itself (e.g. `.zip` via the shell), and its folder picker binds the
 agent's working directory.
 
-## State kept per your browser
+## State kept in your browser
 
-Recents, settings, provider keys (`keel_mirror_settings_v1`), visit
-counters for this tab. Clearing site data removes all of it.
+Recents, settings, provider keys (`keel_mirror_settings_v1`), visit counters
+for this tab. Clearing site data removes all of it.

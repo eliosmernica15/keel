@@ -1,504 +1,326 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Keel — Desktop &amp; Code</title>
-<link rel="manifest" href="/manifest.webmanifest" />
-<link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
-<link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0605" />
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f4ef" />
-<meta name="description" content="Keel Desktop and Keel Code — your agentic coding harness, local and private. Same machine, same bridge, one app you install." />
-<link rel="stylesheet" href="/ui/style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel — Your AI. Your tools. Your environment.</title>
+  <meta name="description" content="Keel is a developer-first AI agent environment for your machine — a local bridge, your own provider keys, real tools under your permissions. No account, no telemetry, no cloud relay. Windows, macOS, Linux." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-512.png" />
+  <meta name="theme-color" content="#0a0605" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Keel — Your AI. Your tools. Your environment." />
+  <meta property="og:description" content="A developer-first AI agent environment for your machine: local bridge, BYOK providers, real tools, permission-gated actions. No account. No telemetry. No cloud relay." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/" />
+  <meta property="og:image" content="https://keel-desktop.vercel.app/ui/icons/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Keel — Your AI. Your tools. Your environment." />
+  <meta name="twitter:description" content="A developer-first AI agent environment for your machine. Local-first, BYOK, permission-gated." />
+  <meta name="twitter:image" content="https://keel-desktop.vercel.app/ui/icons/icon-512.png" />
+  <link rel="stylesheet" href="/ui/landing.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Keel",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Windows, macOS, Linux",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Keel is a developer-first AI agent environment for your machine: local bridge, BYOK providers, real tools, permission-gated actions. Not yet publicly distributed; installers will appear on /download when hosted.",
+    "author": { "@type": "Organization", "name": "Keel Team" }
+  }
+  </script>
 </head>
-<body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="starburst" viewBox="0 0 48 48">
-      <g stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none">
-        <path d="M24 2v12M24 34v12M2 24h12M34 24h12M7.5 7.5l9 9M31.5 31.5l9 9M40.5 7.5l-9 9M16.5 31.5l-9 9"/>
-        <path d="M11 3.5l5.2 11.6M31.8 32.9l5.2 11.6M44.5 11l-11.6 5.2M21.4 32.9L9.8 44.5M37 3.5l-5.2 11.6M27.2 32.9l-5.2 11.6M44.5 37L32.9 31.8M21.4 15.2L9.8 3.6" stroke-width="1.8"/>
-      </g>
-      <circle cx="24" cy="24" r="4.4" fill="currentColor"/>
-    </symbol>
-    <symbol id="code" viewBox="0 0 16 16"><path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3M9 4l-2 8"/></symbol>
-    <symbol id="chat" viewBox="0 0 16 16"><path d="M9.5 3.5h-5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h.5v2l2.5-2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2z"/><path d="M11.5 6.5h1a2 2 0 0 1 2 2v2.5a2 2 0 0 1-2 2h-.5v1.5l-2-1.5"/></symbol>
-    <symbol id="plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></symbol>
-    <symbol id="folder" viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></symbol>
-  </defs>
-</svg>
+<body class="landing">
 
-<div class="app">
-  <!-- shared tools row -->
-  <div class="tools">
-    <button id="tgl-menu" aria-label="Toggle sidebar"><svg viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h11"/></svg></button>
-    <button id="tgl-sidebar" aria-label="Toggle sidebar"><svg viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="11" rx="2"/><path d="M6 2.5v11"/></svg></button>
-    <button id="nav-back" aria-label="Back"><svg viewBox="0 0 16 16"><path d="M13 8H3M7 4L3 8l4 4"/></svg></button>
-    <button id="nav-forward" aria-label="Forward"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
-    <div class="seg" role="tablist" aria-label="Keel surface">
-      <button id="seg-chat" class="on" role="tab" aria-selected="true" aria-label="Keel Desktop"><svg viewBox="0 0 16 16"><path d="M9.5 3.5h-5a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h.5v2l2.5-2h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2z"/><path d="M11.5 6.5h1a2 2 0 0 1 2 2v2.5a2 2 0 0 1-2 2h-.5v1.5l-2-1.5"/></svg></button>
-      <button id="seg-code" role="tab" aria-selected="false" aria-label="Keel Code"><svg viewBox="0 0 16 16"><path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3M9 4l-2 8"/></svg></button>
-    </div>
-  </div>
-
-  <!-- shared sidebar -->
-  <aside class="side" id="sidebar">
-    <div class="scroll">
-      <nav class="nav">
-        <a id="nav-new" tabindex="0"><svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>New session</a>
-        <a id="nav-customize" tabindex="0"><svg viewBox="0 0 16 16"><rect x="2" y="5.5" width="12" height="7.5" rx="1.3"/><path d="M5.8 5.5V4a1 1 0 0 1 1-1h2.4a1 1 0 0 1 1 1v1.5M2 8.8h12"/></svg>Customize Keel</a>
+  <!-- ==================== nav ==================== -->
+  <header class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="wordmark" href="#top" aria-label="Keel — home">
+        <img src="/ui/icons/icon-192.png" alt="" width="28" height="28" />
+        <span>Keel</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#product">Product</a>
+        <a href="#models">Models</a>
+        <a href="#local">Local-first</a>
+        <a href="#download">Download</a>
+        <a href="#docs">Docs</a>
       </nav>
-
-      <div class="lbl"><span>Pinned</span></div>
-      <div id="pinned-list" class="recents"></div>
-      <div id="recents-groups"></div>
-      <div class="lbl"><span>Recents</span><span class="lbl-actions">
-        <button class="archived-toggle" id="btn-show-archived" hidden title="Show archived">Archived (0)</button>
-        <button id="btn-search-recents" aria-label="Filter recents"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></button>
-        <button id="btn-clear-recents" aria-label="Clear recents"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6.2 4.5V3a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.5M5.2 4.5l.7 8.5a1 1 0 0 0 1 .9h2.2a1 1 0 0 0 1-.9l.7-8.5"/></svg></button>
-      </span></div>
-      <div id="recents-list" class="recents"></div>
-      <p class="side-note" id="recents-empty">Nothing yet. Prompts you send are stored only in this browser — they never leave it.</p>
+      <a class="btn btn-primary btn-nav" href="/download">Download
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v9m0 0-3.5-3.5M8 11l3.5-3.5M3 13.5h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3 6h12M3 9h12M3 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
     </div>
-
-    <!-- chat item context menu — Mark unread · Pin · Rename · Add to project · Move to group · Archive · Delete -->
-    <div class="ctx-menu" id="recents-menu" role="menu" aria-label="Chat options" hidden>
-      <button class="ctx-item" data-action="unread" role="menuitem"><svg viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h11"/></svg><span class="ctx-label">Mark as unread</span><span class="ctx-key">U</span></button>
-      <div class="ctx-item ctx-sub" id="ctx-sub-open"><svg viewBox="0 0 16 16"><path d="M6 3H3.5v10H6M10 3h2.5v10H10M7.5 8h5M10 5.5l2.5 2.5L10 10.5"/></svg><span class="ctx-label">Open in</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
-        <div class="ctx-flyout" id="flyout-open" role="menu">
-          <button class="fly-item" data-action="open-new-tab"><span class="fly-glyph"><svg viewBox="0 0 16 16"><path d="M2.5 3h11v10h-11zM2.5 6h11"/></svg></span>Open in new tab</button>
-          <button class="fly-item" data-action="open-new-window"><span class="fly-glyph"><svg viewBox="0 0 16 16"><path d="M2.5 3.5h11v9h-11zM2.5 6h11M4.5 4.5h.01M7 4.5h.01"/></svg></span>Open in new window</button>
-        </div>
-      </div>
-      <button class="ctx-item" data-action="pin" role="menuitem"><svg viewBox="0 0 16 16"><path d="M9.6 2.4l4 4-2 .6-2.2 2.2.4 2.6-1.6 1.6-3-3-3.6 3.6-.4-.4 3.6-3.6-3-3 1.6-1.6 2.6.4 2.2-2.2z"/></svg><span class="ctx-label">Pin</span><span class="ctx-key">P</span></button>
-      <button class="ctx-item" data-action="rename" role="menuitem"><svg viewBox="0 0 16 16"><path d="M2.5 12.5l3.5-.8L13.3 4.4a1.4 1.4 0 0 0 0-2L13.6 1a1.4 1.4 0 0 0-2 0L3.3 9.7zM11.5 3.4l1.1 1.1"/></svg><span class="ctx-label">Rename</span><span class="ctx-key">R</span></button>
-      <button class="ctx-item" data-action="fork" role="menuitem"><svg viewBox="0 0 16 16"><circle cx="5" cy="3.5" r="1.5"/><circle cx="5" cy="12.5" r="1.5"/><circle cx="11" cy="8" r="1.5"/><path d="M5 5v6M5 6.5l4.7 4M5 9.5L9.8 6.5"/></svg><span class="ctx-label">Fork</span><span class="ctx-key">F</span></button>
-      <div class="ctx-item ctx-sub" id="ctx-sub-section"><svg viewBox="0 0 16 16"><path d="M2.5 5h11M2.5 10.5h11"/></svg><span class="ctx-label">Move to section</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
-        <div class="ctx-flyout" id="flyout-section" role="menu">
-          <p class="ctx-note">Sections bundle chats — your own named groups</p>
-          <div class="flyout-list" id="section-list"></div>
-        </div>
-      </div>
-      <button class="ctx-item" data-action="detach" role="menuitem" id="ctx-detach"><svg viewBox="0 0 16 16"><path d="M6 2.5v11M3 2.5v11M10 8h4M12 5.5l2.5 2.5-2.5 2.5"/></svg><span class="ctx-label">Detach to top level</span></button>
-      <div class="ctx-item ctx-sub" id="ctx-sub-project"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span class="ctx-label">Add to project</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
-        <div class="ctx-flyout" id="flyout-project" role="menu">
-          <p class="ctx-note">Project — a folder the agent works inside</p>
-          <div class="flyout-list" id="project-list"></div>
-        </div>
-      </div>
-      <div class="ctx-item ctx-sub" id="ctx-sub-group"><svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="4.5" height="4.5" rx="1"/><rect x="9" y="3" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="8.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="8.5" width="4.5" height="4.5" rx="1"/></svg><span class="ctx-label">Move to group</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
-        <div class="ctx-flyout" id="flyout-group" role="menu">
-          <p class="ctx-note">Group — a label to bundle chats by theme</p>
-          <div class="flyout-list" id="group-list"></div>
-        </div>
-      </div>
-      <button class="ctx-item" data-action="archive" role="menuitem"><svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="3.2" rx="1"/><path d="M3.5 6.2V12a1.8 1.8 0 0 0 1.8 1.8h5.4a1.8 1.8 0 0 0 1.8-1.8V6.2M6.5 9h3"/></svg><span class="ctx-label">Archive</span><span class="ctx-key">A</span></button>
-      <div class="ctx-sep"></div>
-      <button class="ctx-item danger" data-action="delete" role="menuitem"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6.2 4.5V3a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.5M5.2 4.5l.7 8.5a1 1 0 0 0 1 .9h2.2a1 1 0 0 0 1-.9l.7-8.5"/></svg><span class="ctx-label">Delete</span><span class="ctx-key">D</span></button>
+    <div class="mobile-menu" id="mobileMenu" hidden>
+      <a href="#product">Product</a>
+      <a href="#models">Models</a>
+      <a href="#local">Local-first</a>
+      <a href="#download">Download</a>
+      <a href="#docs">Docs</a>
+      <a class="btn btn-primary" href="/download">Download Keel</a>
     </div>
-    </div>
+  </header>
 
-    <div class="acct">
-      <svg class="logo" viewBox="0 0 48 48"><use href="#starburst"/></svg>
-      <b>You</b><small>local</small>
-      <svg viewBox="0 0 16 16"><path d="M4 6.5l4 4 4-4"/></svg>
-    </div>
-  </aside>
+  <main id="top">
 
-  <!-- shared header -->
-  <div class="head">
-    <h2 id="head-title">Keel Desktop</h2>
-    <div class="right">
-      <button id="btn-term" aria-label="Terminal"><svg viewBox="0 0 16 16"><path d="M2.5 4.5l4 3.5-4 3.5M8 12h5.5"/></svg></button>
-      <button id="btn-files" aria-label="Files"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg></button>
-      <span class="gap"></span>
-      <div class="win">
-        <a id="nav-download" class="nav-download" href="/download" aria-label="Download Keel" style="display:inline-flex;align-items:center;gap:6px;color:var(--accent);text-decoration:none;font-weight:600;padding:0 8px;font-size:13px;">Download</a>
-      <button id="win-min" aria-label="Minimize"><svg viewBox="0 0 13 13"><path d="M1.5 6.5h10"/></svg></button>
-        <button id="win-restore" aria-label="Restore"><svg viewBox="0 0 13 13"><rect x="1.5" y="3.5" width="8" height="8" rx="1.2"/><path d="M3.8 3.5V2.7a1.2 1.2 0 0 1 1.2-1.2h5.3a1.2 1.2 0 0 1 1.2 1.2V8a1.2 1.2 0 0 1-1.2 1.2h-.8"/></svg></button>
-        <button id="win-close" aria-label="Close"><svg viewBox="0 0 13 13"><path d="M2 2l9 9M11 2l-9 9"/></svg></button>
-      </div>
-    </div>
-  </div>
-
-  <main>
-    <!-- ======================= SURFACE A — KEEL DESKTOP (desktop web chat) -->
-    <section id="view-chat" class="view" role="tabpanel" aria-label="Keel Desktop">
-      <div class="hero" id="hero-chat">
-        <h1 class="wordmark"><svg class="starburst big" viewBox="0 0 48 48"><use href="#starburst"/></svg><span>You’re here.</span></h1>
-        <p class="subtitle">Keel mirror · the shape of the local app, in your browser</p>
-        <p class="tag"><i></i>PUBLIC MIRROR · NO BACKEND</p>
-        <div class="ideas">
-          <p>Ideas for you</p>
-          <button class="idea" data-prompt="Send me my daily briefing — who did what, what needs attention today."><span class="ic"><svg viewBox="0 0 16 16"><path d="M3 3.5h10v9H3zM5.5 8.8h5M6.5 6.2a1.5 1.5 0 0 1 3 0"/></svg></span><span>Send me a daily briefing</span></button>
-          <button class="idea" data-prompt="Review my open tasks and the state of my projects. What needs attention today?"><span class="ic"><svg viewBox="0 0 24 16" style="width:28px;height:18px"><path d="M4 4h11l2 2v6H4zM7 4V2.5h10M3 12h18"/></svg></span><span>Review my fleet</span></button>
-          <button class="idea" data-prompt="Audit my agents and notes. Is anything misconfigured or out of date?"><span class="ic"><svg viewBox="0 0 16 16"><path d="M3.5 2.5h9v11h-9zM5.5 5.5h5M5.5 8h5M5.5 10.5h2.5"/></svg></span><span>Customize Keel for me</span></button>
+    <!-- ==================== hero ==================== -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="kicker"><span class="pulse" aria-hidden="true"></span>Local-first · BYOK · No account</p>
+          <h1 id="hero-title" class="hero-title">Your AI.<br />Your tools.<br /><em>Your environment.</em></h1>
+          <p class="hero-sub">Keel is a developer-first AI agent environment for your machine — a local bridge, your own provider keys, and real tools under your permissions. No account. No telemetry. No cloud relay.</p>
+          <div class="hero-ctas">
+            <a class="btn btn-primary btn-lg" href="#download">Download Keel
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v9m0 0-3.5-3.5M8 11l3.5-3.5M3 13.5h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="btn btn-ghost btn-lg" href="/app">Try the live mirror
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+          <p class="hero-meta"><span>v0.1.0</span><span aria-hidden="true">·</span><span>Windows verified</span><span aria-hidden="true">·</span><span>macOS / Linux built in CI</span></p>
+          <ul class="hero-proofs" aria-label="How Keel behaves">
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Bridge on 127.0.0.1, per-launch token</li>
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Keys verified, stored only on your machine</li>
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Approval gates on privileged tool calls</li>
+          </ul>
         </div>
-        <button class="folder" id="folder-chat"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg>Attach a folder — needs the local app</button>
+
+        <figure class="hero-shot" aria-label="Keel desktop application window">
+          <div class="shot-frame">
+            <img src="/assets/img/keel-app.jpg" alt="The Keel desktop application: sidebar with New session and recents, the Keel Desktop surface, and the composer with the Keel auto model selected" width="1138" height="798" fetchpriority="high" />
+            <figcaption><span class="dot-ok" aria-hidden="true"></span>Keel — the local app. Actual build, not a mockup.</figcaption>
+          </div>
+          <div class="hero-chip chip-a"><span class="chip-k">Permission mode</span><span class="chip-v">manual</span></div>
+          <div class="hero-chip chip-b"><span class="chip-k">Providers</span><span class="chip-v">auto · OpenRouter → Google AI Studio</span></div>
+        </figure>
       </div>
-
-      <div class="thread" id="thread-chat" aria-live="polite"></div>
-
-      <form class="composer" id="form-chat">
-        <textarea id="prompt-chat" rows="2" placeholder="How can I help you today?" aria-label="Message Keel" autocomplete="off" spellcheck="true"></textarea>
-        <div class="attachments" id="attachments-chat" hidden></div>
-        <div class="row">
-          <button type="button" class="add" id="attach-chat" aria-label="Add" title="Attach files or pick a folder (Ctrl+U)"><svg viewBox="0 0 16 16"><path d="M8 2.5v11M2.5 8h11"/></svg></button>
-          <button type="button" class="workdir" id="workdir-pill-chat" hidden title="Working folder — agent tools run here"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span></span></button>
-          <button type="button" class="model" id="model-pill-chat">Keel · local</button>
-          <button type="submit" class="send" id="btn-send-chat" aria-label="Send"><svg viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5"/></svg></button>
-        </div>
-      </form>
     </section>
 
-    <!-- ==================================== SURFACE B — KEEL CODE (coding) -->
-    <section id="view-code" class="view hidden" role="tabpanel" aria-label="Keel Code">
-      <div class="start" id="start-code">
-        <svg class="starburst mark" viewBox="0 0 48 48"><use href="#starburst"/></svg>
-        <div class="menu card">
-          <button id="start-new"><svg viewBox="0 0 16 16"><path d="M2.5 4.5l4 3.5-4 3.5M8 12h5.5"/></svg>New coding session</button>
-          <button id="start-auto"><svg viewBox="0 0 16 16"><path d="M9 1.8L3.5 9H8l-1 5.2L12.5 7H8z"/></svg>Autopilot — Keel runs tools without asking</button>
+    <!-- ==================== capabilities ==================== -->
+    <section class="section" id="product" aria-labelledby="product-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="kicker">Capabilities</p>
+          <h2 id="product-title">An agent with real hands.</h2>
+          <p class="section-sub">Keel is not a chat box with delusions of agency. It has a working agent loop, a shell parser that knows what commands actually do, and a permission model that stands between the model and your machine.</p>
+        </div>
+        <div class="cards6">
+          <article class="card reveal">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 8-4 4 4 4M15 8l4 4-4 4"/></svg></div>
+            <h3>Coding</h3>
+            <p>Reads, patches and writes against your real workspace. The agent loop runs against a folder you bind — not a sandboxed re-creation of it.</p>
+            <p class="mono card-foot">runner.py · shell_ast.py</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17 10 11l-6-6M12 19h8"/></svg></div>
+            <h3>Terminal</h3>
+            <p>Shell commands are parsed into an AST before execution. Allow-lists, deny-lists, and permission gates — the model never gets a raw shell by default.</p>
+            <p class="mono card-foot">shell_ast.py · permissions.py</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <h3>Files &amp; workspace</h3>
+            <p>Bind a folder as the agent's workspace. Files it asks you to attach are uploaded to <code>~/.keel/uploads</code> and read by the agent itself.</p>
+            <p class="mono card-foot">~/.keel/uploads · workspace binding</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+            <h3>Sessions &amp; fleet</h3>
+            <p>Named sessions with transcripts, a multi-agent fleet with delegation and groups, routines and scheduling — persistent across restarts.</p>
+            <p class="mono card-foot">session.py · fleet/ · transcript.py</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 18 10.5h-6.5z"/></svg></div>
+            <h3>Tools &amp; workflows</h3>
+            <p>21 bundled skills, user skills loaded from disk, hooks, subagents, slash commands. Automate the workflow you already have.</p>
+            <p class="mono card-foot">skills.py · hooks.py · subagent.py · commands.py</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.4"/><circle cx="5" cy="19" r="2.4"/><circle cx="19" cy="19" r="2.4"/><path d="M10.8 7 6.6 16.8M13.2 7l4.2 9.8M7.4 19h9.2"/></svg></div>
+            <h3>MCP &amp; extensibility</h3>
+            <p>A Model Context Protocol client for tool servers, plus plugins, skills and an OpenCode-shaped REST/events surface for client tooling.</p>
+            <p class="mono card-foot">mcp.py · /api/v2 (tracer) · plugins</p>
+          </article>
         </div>
       </div>
+    </section>
 
-      <div class="thread" id="thread-code" aria-live="polite"></div>
-
-      <div class="code-bottom">
-        <div class="attachments" id="attachments-code" hidden></div>
-        <form class="comp" id="form-code">
-          <button type="button" class="add" id="attach-code" aria-label="Add" title="Attach files or pick a folder (Ctrl+U)"><svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></button>
-          <input id="prompt-code" type="text" placeholder="Describe a task or ask a question" aria-label="Message Keel Code" autocomplete="off" spellcheck="true" />
-          <button type="submit" class="go" id="btn-send-code" aria-label="Send"><svg viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5"/></svg></button>
-        </form>
-        <!-- footer chips — reference layout: environment | folder | permission · ring -->
-        <div class="foot">
-          <button id="chip-env" aria-haspopup="true"><svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="7" rx="1"/><path d="M1.5 12.8h13"/></svg><span id="chip-env-label">This browser</span></button>
-          <button id="chip-folder" aria-haspopup="true" title="Choose the working folder — the agent runs inside it"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg><span id="chip-folder-label">Select folder…</span></button>
-          <button id="chip-perm" class="perm" aria-haspopup="true" title="Permission mode for this session"><span id="chip-perm-label">Manual</span></button>
-          <span class="ring" id="usage-ring" role="status" title="0 turns · 0 tokens"></span>
+    <!-- ==================== providers / models ==================== -->
+    <section class="section section-alt" id="models" aria-labelledby="models-title">
+      <div class="container split">
+        <div class="split-copy reveal">
+          <p class="kicker">Providers</p>
+          <h2 id="models-title">Your keys.<br />Your models.<br /><em>Auto failover.</em></h2>
+          <p class="section-sub">Bring your own keys. Keel verifies each key against the provider before it saves it, then sends it nowhere else. Flip providers, pin a model, or let the auto-chain fall through in order.</p>
+          <ul class="model-list">
+            <li><span class="model-name">OpenRouter</span><span class="mono model-tag">wired · browser &amp; bridge</span></li>
+            <li><span class="model-name">Google AI Studio</span><span class="mono model-tag">wired · free tier available</span></li>
+            <li><span class="model-name">Anthropic API</span><span class="mono model-tag">opt-in only · your terms</span></li>
+            <li><span class="model-name">OpenAI-compatible endpoints</span><span class="mono model-tag">any base URL · bridge</span></li>
+          </ul>
+          <p class="fine">Auto chain: <code>openrouter → google → nvidia → openai-compatible</code>, resolved per request from your saved order. The web mirror wires OpenRouter and Google AI Studio; the desktop build adds Anthropic (opt-in) and OpenAI-compatible endpoints.</p>
         </div>
+        <figure class="split-shot reveal" aria-label="Keel settings panel showing provider configuration">
+          <img src="/assets/img/keel-settings-providers.jpg" alt="Keel Settings → Providers: OpenRouter and Google AI Studio cards with Save key controls, preferred provider set to auto, and Permission mode set to manual with an explicit bypass acknowledgement" loading="lazy" width="1138" height="798" />
+          <figcaption><span class="dot-ok" aria-hidden="true"></span>Settings → Providers. Every key verified before it is saved.</figcaption>
+        </figure>
+      </div>
+    </section>
 
-        <!-- popover: environment (honest — exactly one environment exists here) -->
-        <div class="pop" hidden id="pop-env" role="dialog" aria-label="Environments">
-          <div class="pop-hd">Environments · this session</div>
-          <div class="pop-sel">
-            <svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="7" rx="1"/><path d="M1.5 12.8h13"/></svg>
-            <span class="pop-sel-main">This browser<small>Public mirror — no machine access, no files</small></span>
-            <svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg>
-          </div>
-          <div class="pop-note">The mirror runs entirely in this browser. Folder binding, WSL and remote machines need `keel serve` on your machine.</div>
+    <!-- ==================== local-first ==================== -->
+    <section class="section" id="local" aria-labelledby="local-title">
+      <div class="container split split-rev">
+        <figure class="split-shot reveal" aria-label="Keel settings panel showing the local device account">
+          <img src="/assets/img/keel-settings-general.jpg" alt="Keel Settings → General: 'You · this device — No account. This browser is the account.', instructions prepended to messages, theme set to Dark" loading="lazy" width="1138" height="798" />
+          <figcaption><span class="dot-ok" aria-hidden="true"></span>Settings → General. The device is the account.</figcaption>
+        </figure>
+        <div class="split-copy reveal">
+          <p class="kicker">Local-first</p>
+          <h2 id="local-title">Your machine is<br />the trust boundary.</h2>
+          <ul class="checklist">
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Runs where you run.</strong> Bridge on <code>127.0.0.1</code> with a per-launch token in the URL — never a relay we operate, never reachable from the network.</span></li>
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>No telemetry.</strong> There is no analytics, no crash reporter, no usage beacon anywhere in the codebase — this is auditable in the repository.</span></li>
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Manual permission mode.</strong> Privileged tool calls wait for your explicit approve/reject — visibly, in the UI you just saw.</span></li>
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong><code>~/.keel</code> is yours.</strong> Sessions, settings, keys and uploads live on your disk. Uninstalling Keel Desktop never deletes them.</span></li>
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>No account, no billing inside the app.</strong> The device is the account. Your provider bill is your provider's business.</span></li>
+          </ul>
         </div>
+      </div>
+    </section>
 
-        <!-- popover: working folder — backed by /api/fs/list + /api/workdir -->
-        <div class="pop" hidden id="pop-folder" role="dialog" aria-label="Folders">
-          <input class="pop-search" id="pop-folder-search" placeholder="Search folders…" aria-label="Search folders" autocomplete="off" spellcheck="false">
-          <div class="pop-lb" id="pop-folder-label">Recent</div>
-          <div class="pop-list" id="pop-folder-list" role="listbox"></div>
-          <div class="pop-dv"></div>
-          <button class="pop-open" id="pop-folder-open"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span>Select folder as workspace…</span></button>
-          <button class="pop-open" id="pop-workspace-detach" hidden><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg><span>Detach workspace…</span></button>
+    <!-- ==================== downloads ==================== -->
+    <section class="section section-alt" id="download" aria-labelledby="download-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="kicker">Download</p>
+          <h2 id="download-title">Install on your machine.</h2>
+          <p class="section-sub">Keel ships as an installer per platform. Builds are produced and checksummed in CI on every push; public hosting is being set up — the <a href="/download">full download page</a> always shows the current truth.</p>
         </div>
-
-        <!-- popover: permission modes — keel's real permission modes -->
-        <div class="pop" hidden id="pop-perm" role="dialog" aria-label="Permission modes">
-          <div class="pop-hd">Permissions · this session</div>
-          <div class="pop-item" data-mode="default"><b>Manual</b><span>Ask before every change</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></div>
-          <div class="pop-item" data-mode="acceptEdits"><b>Accept edits</b><span>Automatically accept file edits</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></div>
-          <div class="pop-item" data-mode="bypassPermissions"><b>Bypass permissions</b><span>Keel runs tools without asking — dangerous</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></div>
+        <div class="platform-grid">
+          <article class="platform reveal">
+            <div class="platform-top"><h3>Windows</h3><span class="badge badge-pending">Not available</span></div>
+            <p class="mono platform-file">Keel-Setup-0.1.0.exe</p>
+            <ul class="platform-meta"><li>NSIS · per-user install, no admin</li><li>x64 · SHA-256 <code>43a5eb7d…</code> (CI build)</li><li>Locally install-tested; unsigned — expect SmartScreen</li></ul>
+            <a class="btn btn-disabled" aria-disabled="true" href="/download">Not publicly available</a>
+          </article>
+          <article class="platform reveal">
+            <div class="platform-top"><h3>macOS</h3><span class="badge badge-pending">Not available</span></div>
+            <p class="mono platform-file">Keel-0.1.0-macos-arm64.dmg</p>
+            <ul class="platform-meta"><li>arm64 · Apple Silicon</li><li>SHA-256 <code>38759134f6…</code> (CI build)</li><li>Unsigned — Gatekeeper will block first launch</li></ul>
+            <a class="btn btn-disabled" aria-disabled="true" href="/download">Not publicly available</a>
+          </article>
+          <article class="platform reveal">
+            <div class="platform-top"><h3>Linux</h3><span class="badge badge-pending">Not available</span></div>
+            <p class="mono platform-file">Keel-0.1.0-linux-x86_64.AppImage</p>
+            <ul class="platform-meta"><li>x86_64 · AppImage + .deb</li><li>SHA-256 <code>2661953bf…</code> (CI build)</li><li>CI-verified build; not yet run on desktop hardware</li></ul>
+            <a class="btn btn-disabled" aria-disabled="true" href="/download">Not publicly available</a>
+          </article>
         </div>
+        <p class="fine center fine-download">Installers will appear on <a href="/download">/download</a> the moment official Keel-controlled hosting is live. Until then, nothing here is secretly downloadable — that's deliberate.</p>
+      </div>
+    </section>
 
+    <!-- ==================== docs ==================== -->
+    <section class="section" id="docs" aria-labelledby="docs-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="kicker">Documentation</p>
+          <h2 id="docs-title">Read the fine print.</h2>
+          <p class="section-sub">Everything about how Keel is built, what exists, and what doesn't — written down, in the open.</p>
+        </div>
+        <div class="docs-grid">
+          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel" rel="noopener">
+            <span class="mono doc-tag">Repository</span>
+            <h3>eliosmernica15/keel ↗</h3>
+            <p>Source code, issues, and the CI pipeline that builds the installers.</p>
+          </a>
+          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/PARITY.md" rel="noopener">
+            <span class="mono doc-tag">Audit</span>
+            <h3>Parity matrix ↗</h3>
+            <p>Honest inventory of what is implemented, what is tracer-bullet, and what doesn't exist yet. No parity claims.</p>
+          </a>
+          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/ROADMAP.md" rel="noopener">
+            <span class="mono doc-tag">Roadmap</span>
+            <h3>Milestone plan ↗</h3>
+            <p>Where Keel goes next: runtime parity, distribution, provider ecosystem, and what stays explicitly out of scope.</p>
+          </a>
+          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/HOSTING.md" rel="noopener">
+            <span class="mono doc-tag">Distribution</span>
+            <h3>How installers reach you ↗</h3>
+            <p>The Keel-controlled hosting pipeline: CI builds, checksums, R2/S3 in front of <code>/download</code>, never GitHub Releases.</p>
+          </a>
+          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/IMPLEMENTATION-PLAN.md" rel="noopener">
+            <span class="mono doc-tag">Design</span>
+            <h3>Compat tracer plan ↗</h3>
+            <p>The OpenCode-shaped <code>/api/v2</code> surface: scope, contract tests, and why it deliberately isn't a port.</p>
+          </a>
+          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/THIRD_PARTY_NOTICES.md" rel="noopener">
+            <span class="mono doc-tag">Legal</span>
+            <h3>Third-party notices ↗</h3>
+            <p>OpenCode is an MIT-licensed reference. Notices are preserved; no upstream code is copied into Keel.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== final CTA ==================== -->
+    <section class="final-cta" aria-labelledby="final-title">
+      <div class="container final-cta-inner">
+        <img class="final-mark" src="/ui/icons/icon-192.png" alt="" width="72" height="72" loading="lazy" />
+        <h2 id="final-title">Your AI.<br />Your tools.<br /><em>Your environment.</em></h2>
+        <p class="section-sub">Free. Proprietary. Local. When the hosting pipeline is live, this button installs it.</p>
+        <a class="btn btn-primary btn-lg" href="/download">Download Keel
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v9m0 0-3.5-3.5M8 11l3.5-3.5M3 13.5h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
     </section>
   </main>
 
-  <!-- Attach menu — opened by the + (Add) button in either composer; Keel-branded, our icons -->
-  <div class="pop attach-menu" id="attach-menu" hidden role="menu" aria-label="Add to message">
-    <button class="ctx-item" id="attach-menu-files" role="menuitem"><svg viewBox="0 0 16 16"><path d="M3 3.5a1.5 1.5 0 0 1 1.5-1.5h4.2L13 6.3V12.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 3 12.5z"/><path d="M9 2v4.5h4.5"/></svg><span class="ctx-label">Attach files…</span><span class="ctx-key">Ctrl+U</span></button>
-    <button class="ctx-item" id="attach-menu-folder" role="menuitem" title="Bind a folder as your workspace — its readable text files ride along with your next message (Chrome / Edge)"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg><span class="ctx-label">Select folder as workspace…</span><span class="ctx-key"></span></button>
-  </div>
-  <input type="file" id="attach-file-input" multiple hidden />
-
-  <!-- Local folder picker: bind Keel's agent tools to one of your folders -->
-  <div class="picker" id="fs-picker" hidden role="dialog" aria-modal="true" aria-label="Choose working folder">
-    <div class="picker-backdrop" id="fs-backdrop"></div>
-    <div class="picker-card">
-      <div class="picker-head">
-        <h3>Choose a folder to work in</h3>
-        <button id="fs-close" class="icon-btn" aria-label="Close"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+  <!-- ==================== footer ==================== -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="wordmark" href="#top" aria-label="Keel — home">
+          <img src="/ui/icons/icon-192.png" alt="" width="26" height="26" loading="lazy" />
+          <span>Keel</span>
+        </a>
+        <p class="fine">A local, private, multi-agent coding workspace.<br />© <span id="year">2026</span> Keel Team. All rights reserved. Keel is proprietary software.</p>
       </div>
-      <div class="picker-pathbar">
-        <button id="fs-up" class="icon-btn" aria-label="Up one level"><svg viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5"/></svg></button>
-        <code class="picker-path" id="fs-path">…</code>
-      </div>
-      <div class="picker-roots" id="fs-roots"></div>
-      <div class="picker-list" id="fs-list" role="listbox" aria-label="Subfolders"></div>
-      <p class="picker-error" id="fs-error" hidden></p>
-      <div class="picker-foot">
-        <span class="picker-note">Not reachable on the mirror — folder attach happens in the local app (<code>keel serve</code>).</span>
-        <div class="picker-actions">
-          <button class="ghost" id="fs-reset">Reset</button>
-          <button class="primary" id="fs-use">Use this folder</button>
-        </div>
-      </div>
+      <nav class="footer-col" aria-label="Product">
+        <p class="mono footer-h">Product</p>
+        <a href="#product">Capabilities</a>
+        <a href="#models">Models &amp; providers</a>
+        <a href="#local">Local-first</a>
+        <a href="/download">Download</a>
+        <a href="/app">Live mirror</a>
+      </nav>
+      <nav class="footer-col" aria-label="Resources">
+        <p class="mono footer-h">Resources</p>
+        <a href="https://github.com/eliosmernica15/keel" rel="noopener">GitHub ↗</a>
+        <a href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/PARITY.md" rel="noopener">Parity audit ↗</a>
+        <a href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/ROADMAP.md" rel="noopener">Roadmap ↗</a>
+        <a href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/HOSTING.md" rel="noopener">Distribution ↗</a>
+        <a href="/download.json">Download manifest</a>
+      </nav>
+      <nav class="footer-col" aria-label="Surfaces">
+        <p class="mono footer-h">Surfaces</p>
+        <a href="/app">Keel Desktop</a>
+        <a href="/app">Keel Code</a>
+        <a href="/app">Web mirror</a>
+      </nav>
     </div>
-  </div>
-
-  <!-- Full-window Settings: twelve pages, each wired to the local bridge -->
-  <div class="settings" id="settings-panel" hidden role="dialog" aria-modal="true" aria-label="Settings">
-    <div class="settings-backdrop" id="settings-backdrop"></div>
-    <div class="settings-window">
-
-      <aside class="settings-rail">
-        <div class="rail-search">
-          <svg viewBox="0 0 18 18"><circle cx="8" cy="8" r="5"/><path d="M12 12l3.5 3.5"/></svg>
-          <input id="settings-search" type="text" placeholder="Search settings" aria-label="Search settings" autocomplete="off">
-        </div>
-        <nav class="rail-nav" id="rail-nav">
-          <p class="rail-group" data-group>Settings</p>
-          <button class="rail-item on" data-section="general"><svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="2.6"/><path d="M9 1.8l1 2.3 2.4-.6 1.3 2 2.1 1.2-1.1 2.3 1.1 2.3-2.1 1.2-1.3 2-2.4-.6-1 2.3L8 17l-1-2.3-2.4.6-1.3-2-2.1-1.2L2.3 9.8 1.2 7.5l2.1-1.2 1.3-2 2.4.6z"/></svg>General</button>
-          <button class="rail-item" data-section="providers"><svg viewBox="0 0 18 18"><path d="M10.2 1.8L4.6 10h4l-1.5 6.2L12.7 8h-4z"/></svg>Providers<span class="rail-extra" id="rail-configured">0 linked</span></button>
-          <button class="rail-item" data-section="usage"><svg viewBox="0 0 18 18"><path d="M3 15V8M9 15V3M15 15v-5"/></svg>Usage</button>
-          <button class="rail-item" data-section="privacy"><svg viewBox="0 0 18 18"><path d="M9 1.8l6 2.6v4.4c0 3.9-2.5 6.6-6 8-3.5-1.4-6-4.1-6-8V4.4z"/></svg>Privacy</button>
-          <button class="rail-item" data-section="import"><svg viewBox="0 0 18 18"><path d="M9 2v10M5.5 8.5L9 12l3.5-3.5M3 15h12"/></svg>Import &amp; export</button>
-          <button class="rail-item" data-section="keel-code"><svg viewBox="0 0 18 18"><path d="M6.2 5.8L3 9l3.2 3.2M11.8 5.8L15 9l-3.2 3.2M10.2 4.5l-2.4 9"/></svg>Keel Code</button>
-          <button class="rail-item" data-section="keel-desktop"><svg viewBox="0 0 18 18"><path d="M3 5.5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H8l-3.5 3v-3A2 2 0 0 1 3 10.5z"/></svg>Keel Desktop</button>
-          <p class="rail-group" data-group>This computer</p>
-          <button class="rail-item" data-section="system"><svg viewBox="0 0 18 18"><rect x="2.5" y="4" width="13" height="8" rx="1.2"/><path d="M6 15h6M9 12v3"/></svg>System</button>
-          <button class="rail-item" data-section="developer"><svg viewBox="0 0 18 18"><path d="M6.5 3.5a2 2 0 0 1 4.5 1.1c1.4.4 2.4 1.6 2.4 3.1 0 .7-.2 1.4-.6 2l-2.3 4.1a1.5 1.5 0 0 1-2.9-.4L7 10.6a3.6 3.6 0 0 1-2-3.2C5 5 6 4 7.5 3.7z"/></svg>Developer</button>
-          <p class="rail-group" data-group>Customize</p>
-          <button class="rail-item" data-section="skills"><svg viewBox="0 0 18 18"><circle cx="6.2" cy="5.2" r="2.1"/><path d="M2.5 15l3-6h2.2l3 6zM10.5 8.5h5v6.5h-5z"/></svg>Skills</button>
-          <button class="rail-item" data-section="connectors"><svg viewBox="0 0 18 18"><circle cx="5" cy="9" r="2.6"/><circle cx="13" cy="5.5" r="2.6"/><circle cx="13" cy="12.5" r="2.6"/><path d="M7.4 7.8l3.4-1.6M7.4 10.2l3.4 1.6"/></svg>Connectors</button>
-          <button class="rail-item" data-section="plugins"><svg viewBox="0 0 18 18"><rect x="2.5" y="2.5" width="5.5" height="5.5" rx="1.2"/><rect x="10" y="2.5" width="5.5" height="5.5" rx="1.2"/><rect x="2.5" y="10" width="5.5" height="5.5" rx="1.2"/><path d="M13.8 10.5v5M11.3 13h5"/></svg>Plugins</button>
-        </nav>
-        <button class="rail-close" id="settings-close"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg>Close</button>
-      </aside>
-
-      <div class="settings-body" id="settings-body">
-
-        <!-- GENERAL -->
-        <section class="pane on" id="pane-general" role="tabpanel">
-          <h2>General</h2>
-          <div class="card profile-card">
-            <svg class="profile-mark" viewBox="0 0 48 48"><use href="#starburst"/></svg>
-            <div><b>You · this device</b><p>No account. This browser is the account.</p></div>
-          </div>
-
-          <div class="card">
-            <label class="row-line" for="work-select"><span>What best describes your work?</span>
-              <select id="work-select">
-                <option value="">Select…</option>
-                <option>Engineering</option>
-                <option>Design</option>
-                <option>Founding / product</option>
-                <option>Writing</option>
-                <option>Research</option>
-                <option>Operations</option>
-                <option>Other</option>
-              </select></label>
-          </div>
-
-          <div class="card">
-            <label class="row-line" for="instructions"><span>Instructions for Keel<small>Prepended to every message you send — visible in your own messages.</small></span></label>
-            <textarea id="instructions" rows="4" placeholder="e.g. keep explanations brief and to the point" spellcheck="true"></textarea>
-            <div class="row-end"><span class="hint" id="instructions-meta">0 characters</span><button class="btn-primary" id="save-instructions">Save instructions</button></div>
-          </div>
-
-          <div class="card">
-            <h3>Appearance</h3>
-            <div class="row-line"><span>Theme</span>
-              <div class="seg-mini" id="theme-seg"><button data-theme="dark" class="on">Dark</button><button data-theme="light">Light</button><button data-theme="system">System</button></div></div>
-            <div class="row-line"><span>Motion</span>
-              <div class="seg-mini" id="motion-seg"><button data-motion="system" class="on">System</button><button data-motion="reduced">Reduced</button></div></div>
-            <div class="row-line"><span>Chat font</span>
-              <div class="font-chips" id="font-chips">
-                <button data-font="body" class="on">Inter</button>
-                <button data-font="display">Space Grotesk</button>
-                <button data-font="mono">JetBrains Mono</button>
-              </div></div>
-          </div>
-
-          <div class="card">
-            <h3>Notifications</h3>
-            <label class="row-line switch-row" for="notif-toggle"><span>When Keel finishes a response<small>Uses a browser notification if you grant permission — otherwise the window dot tells the story.</small></span>
-              <input type="checkbox" id="notif-toggle" role="switch"></label>
-          </div>
-        </section>
-
-        <!-- PROVIDERS -->
-        <section class="pane" id="pane-providers" role="tabpanel">
-          <h2>Providers</h2>
-          <p class="lead">Bring your own keys — every key is verified against the provider before it's saved, then lives only in this browser's localStorage. Keys go nowhere except your provider.</p>
-
-          <div class="card">
-            <label class="row-line" for="preferred-select"><span>Preferred provider</span>
-              <select id="preferred-select">
-                <option value="auto">auto (OpenRouter → Google AI Studio)</option>
-                <option value="openrouter">OpenRouter</option>
-                <option value="google">Google AI Studio</option>
-              </select></label>
-          </div>
-
-          <div id="provider-rows"></div>
-
-          <div class="card">
-            <h3>Session</h3>
-            <label class="row-line" for="mode-select"><span>Permission mode</span>
-              <select id="mode-select">
-                <option value="default">manual</option>
-                <option value="acceptEdits">accept edits</option>
-                <option value="dontAsk">dont ask</option>
-                <option value="bypassPermissions">bypass (dangerous)</option>
-              </select></label>
-            <label class="row-line checkbox" for="accept-risk">
-              <input type="checkbox" id="accept-risk">
-              <span>I accept the risk of bypass mode</span></label>
-            <p class="mode-readout">Current mode: <strong id="mode-pill">manual</strong> · Provider: <strong id="provider-pill">auto</strong></p>
-          </div>
-          <select id="provider-select" style="display:none" aria-hidden="true" tabindex="-1">
-            <option value="auto">auto</option>
-            <option value="openrouter">openrouter</option>
-            <option value="google">google</option>
-          </select>
-        </section>
-
-        <!-- USAGE -->
-        <section class="pane" id="pane-usage" role="tabpanel">
-          <h2>Usage</h2>
-          <div class="stat-grid">
-            <div class="stat"><b id="stat-turns">0</b><span>replies</span></div>
-            <div class="stat"><b id="stat-tokens">0</b><span>tokens</span></div>
-          </div>
-          <p class="lead">This is per-session accounting counted in this browser (cleared when the tab closes). Provider-side billing and quota live on your provider's dashboard — Keel keeps no books of its own.</p>
-          <div class="card">
-            <h3>Transcript</h3>
-            <button id="copy-transcript" class="btn-ghost full">Copy transcript (this surface)</button>
-            <button id="clear-transcript" class="btn-ghost full">Clear view (this surface)</button>
-          </div>
-        </section>
-
-        <!-- PRIVACY -->
-        <section class="pane" id="pane-privacy" role="tabpanel">
-          <h2>Privacy</h2>
-          <ul class="fact-list">
-            <li>This mirror runs in your browser; there is no Keel cloud. The local app runs entirely on your machine.</li>
-            <li>Your keys are stored only in this browser's localStorage and are sent only to your provider, never to us.</li>
-            <li>Recents in this app live in this browser's localStorage — on this device, not on our servers.</li>
-            <li>The public website is a static mirror — it cannot see any of this.</li>
-          </ul>
-          <div class="card">
-            <h3>Storage in this browser</h3>
-            <p class="hint"><span id="storage-usage">calculating…</span></p>
-            <button class="btn-ghost danger full" id="clear-recents-pwa">Clear recents (this PWA)</button>
-            <button class="btn-ghost danger full" id="clear-visit-prompts">Clear visit counters (this tab)</button>
-          </div>
-        </section>
-
-        <!-- IMPORT & EXPORT -->
-        <section class="pane" id="pane-import" role="tabpanel">
-          <h2>Import &amp; export</h2>
-          <p class="lead">Export your configuration as JSON — UI preferences, provider preferences and connector definitions. <b>API keys are never included.</b></p>
-          <div class="card">
-            <button class="btn-primary" id="export-settings">Export settings.json</button>
-          </div>
-          <div class="card">
-            <h3>Import</h3>
-            <input type="file" id="import-file" accept="application/json,.json" hidden>
-            <button class="btn-ghost" id="import-pick">Choose a file…</button>
-            <label class="row-line switch-row" for="import-include-keys"><span>Also replace saved API keys<small>Only sections present in the file are merged. A rolling backup (settings.json.bak) is kept before any import.</small></span><input type="checkbox" id="import-include-keys" role="switch"></label>
-            <p class="hint" id="import-result"></p>
-          </div>
-        </section>
-
-        <!-- KEEL CODE -->
-        <section class="pane" id="pane-keel-code" role="tabpanel">
-          <h2>Keel Code</h2>
-          <p class="lead">The coding surface: a terminal-style console for agentic work — tools, shells, MCP servers. Same bridge as this window, same permission model, same working folder.</p>
-          <div class="kv"><span>Status</span><b id="keelcode-status">checking…</b></div>
-          <div class="card">
-            <button class="btn-primary" id="goto-code">Switch to Keel Code</button>
-          </div>
-        </section>
-
-        <!-- KEEL DESKTOP -->
-        <section class="pane" id="pane-keel-desktop" role="tabpanel">
-          <h2>Keel Desktop</h2>
-          <p class="lead">The desktop surface: hero composer, ideas, one conversation per surface — the same design as the local app, minus the local agent (this mirror chats client-side through your provider key).</p>
-          <div class="kv"><span>Status</span><b id="keeldesktop-status">checking…</b></div>
-          <div class="card">
-            <button class="btn-primary" id="goto-desktop">Switch to Keel Desktop</button>
-          </div>
-        </section>
-
-        <!-- SYSTEM -->
-        <section class="pane" id="pane-system" role="tabpanel">
-          <h2>System</h2>
-          <div class="kv"><span>Keel version</span><b id="sys-version">…</b></div>
-          <div class="kv"><span>Bridge</span><b id="sys-origin">none — this browser only</b></div>
-          <div class="kv"><span>Token</span><b>Not used here — this mirror has no backend. Your provider key stays in this browser and goes nowhere else.</b></div>
-          <div class="kv"><span>Settings file</span><b><code>localStorage · keel_mirror_settings_v1</code> — your preferences (and keys), this browser only</b></div>
-          <div class="kv"><span>Working folder</span><b id="sys-workdir">not available — the mirror cannot see your disk</b></div>
-        </section>
-
-        <!-- DEVELOPER -->
-        <section class="pane" id="pane-developer" role="tabpanel">
-          <h2>Developer</h2>
-          <p class="lead">This public mirror has no backend — everything on this page renders in your browser. These endpoints exist only in the local app (<code>keel serve</code>):</p>
-          <ul class="endpoint-list">
-            <li><code>GET /api/health</code><span>liveness + version</span></li>
-            <li><code>GET /api/providers</code><span>provider status (presence only, never key material)</span></li>
-            <li><code>POST /api/run</code><span>stream a keel run as NDJSON</span></li>
-            <li><code>GET /api/fs/list?path=</code><span>browse directories (names only)</span></li>
-            <li><code>POST /api/workdir</code><span>bind agent tools to a folder</span></li>
-            <li><code>GET /api/settings</code><span>your saved configuration (secret-free view)</span></li>
-            <li><code>POST /api/settings</code><span>save UI + provider preferences</span></li>
-            <li><code>GET /api/settings/export</code><span>secret-free export</span></li>
-            <li><code>POST /api/fleet/providers/save</code><span>verify &amp; store a provider key</span></li>
-            <li><code>POST /api/fleet/providers/catalog</code><span>live model catalog for a provider</span></li>
-            <li><code>POST /api/fleet/providers/remove</code><span>forget a stored key</span></li>
-            <li><code>GET /api/fleet/skills</code><span>skills loaded on this machine</span></li>
-            <li><code>GET /api/fleet/connectors</code><span>MCP connectors + presets</span></li>
-          </ul>
-          <p class="lead">For provider probes and MCP diagnostics run <code>keel doctor</code> in a terminal. The fleet console lives at <code>/fleet</code> on the same bridge.</p>
-        </section>
-
-        <!-- SKILLS -->
-        <section class="pane" id="pane-skills" role="tabpanel">
-          <h2>Skills</h2>
-          <p class="lead">Skills loaded on your machine — user skills and Keel's bundled set — in the local app. This mirror shows none.</p>
-          <div class="list-block" id="skills-list"><p class="hint">Loading…</p></div>
-        </section>
-
-        <!-- CONNECTORS -->
-        <section class="pane" id="pane-connectors" role="tabpanel">
-          <h2>Connectors</h2>
-          <p class="lead">MCP servers linked to the local Keel fleet. Not reachable from this mirror — connectors live in the local fleet console (<code>keel fleet</code>).</p>
-          <div class="list-block" id="connectors-list"><p class="hint">not available on the mirror</p></div>
-          <div class="card"><a class="btn-primary" id="open-fleet" href="https://github.com/eliosmernica15/keel" target="_blank" rel="noopener noreferrer">Get Keel on GitHub</a></div>
-        </section>
-
-        <!-- PLUGINS -->
-        <section class="pane" id="pane-plugins" role="tabpanel">
-          <h2>Plugins</h2>
-          <p class="lead">Keel does not ship a plugin runtime. Connectors — MCP — are the extension surface: add a tool server there and every surface here can use it.</p>
-          <div class="card"><button class="btn-primary" id="goto-connectors">Open Connectors</button></div>
-        </section>
-
-      </div>
+    <div class="container footer-bar">
+      <span class="mono">v0.1.0 · keel-desktop.vercel.app</span>
+      <span class="mono">No account · No telemetry · No cloud relay</span>
     </div>
-  </div>
-  <footer class="statusbar">
-    <span id="status-text">idle</span>
-    <span class="sep">·</span>
-    <span id="token-count">0 tokens</span>
-    <span class="sep">·</span>
-    <span id="turn-count">0 turns</span>
-    <span class="sep">·</span>
-    <span id="session-id-label">no session</span>
-    <span id="status-dot" class="dot dot-ok" title="state"></span>
   </footer>
-</div>
 
-<script src="/ui/app.js"></script>
+  <script src="/ui/landing.js" defer></script>
 </body>
 </html>

@@ -1,19 +1,27 @@
-/* Keel webapp service worker — v7 (mirror build).
-   The public mirror is static; there is no /api. Navigations and same-origin
-   assets are network-first so deploys land immediately, with cache fallback
-   for offline. Cross-origin traffic (provider APIs) is never touched. */
+/* Keel webapp service worker - v13.
+   The landing (/), the mirror app (/app.html) and the download page are all
+   static; there is no /api. Navigations and same-origin assets are
+   network-first so deploys land immediately, with cache fallback for
+   offline. Cross-origin traffic (provider APIs) is never touched. */
 
-const VERSION = "keel-shell-v12";
+const VERSION = "keel-shell-v13";
 const SHELL = [
   "/",
+  "/app.html",
+  "/ui/landing.css",
+  "/ui/landing.js",
   "/ui/style.css",
   "/ui/app.js",
+  "/ui/download.js",
   "/manifest.webmanifest",
   "/ui/icons/icon-192.png",
   "/ui/icons/icon-512.png",
   "/ui/fonts/inter-400.woff2",
   "/ui/fonts/space-grotesk-400.woff2",
   "/ui/fonts/jetbrains-mono-400.woff2",
+  "/assets/img/keel-app.jpg",
+  "/assets/img/keel-settings-general.jpg",
+  "/assets/img/keel-settings-providers.jpg",
 ];
 
 self.addEventListener("install", (event) => {
@@ -40,11 +48,13 @@ self.addEventListener("fetch", (event) => {
       fetch(event.request).then((resp) => {
         if (resp && resp.ok) {
           const clone = resp.clone();
-          caches.open(VERSION).then((cache) => cache.put("/", clone));
+          caches.open(VERSION).then((cache) => cache.put(url.pathname, clone));
         }
         return resp;
       }).catch(() =>
-        caches.match("/").then((cached) => cached || caches.match(event.request))
+        caches.match(event.request)
+          .then((cached) => cached || caches.match("/app.html"))
+          .then((cached) => cached || caches.match("/"))
       )
     );
     return;
