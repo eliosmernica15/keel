@@ -288,6 +288,36 @@ def test_make_release_manifest_pending_urls_and_checksums_file(
     assert doc["checksums_file"] == "SHA256SUMS-windows.txt"
 
 
+def test_make_release_manifest_prefers_combined_checksums_file(
+    artifacts: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name in ("SHA256SUMS-windows.txt", "SHA256SUMS-linux.txt"):
+        (artifacts / name).write_text("abc  file\n", encoding="utf-8")
+    combined = artifacts / "RELEASE-SHA256SUMS.txt"
+    combined.write_text("abc  file\n", encoding="utf-8")
+
+    out = tmp_path / "RELEASE-MANIFEST.json"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "make_release_manifest.py",
+            "--artifacts",
+            str(artifacts),
+            "--version",
+            VERSION,
+            "--tag",
+            TAG,
+            "--out",
+            str(out),
+        ],
+    )
+    assert make_release.main() == 0
+    doc = json.loads(out.read_text(encoding="utf-8"))
+    assert len(doc["files"]) == 5
+    assert doc["checksums_file"] == "RELEASE-SHA256SUMS.txt"
+
+
 def test_make_release_manifest_rejects_tag_mismatch(
     artifacts: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

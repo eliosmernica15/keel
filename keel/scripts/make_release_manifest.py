@@ -65,11 +65,13 @@ def main() -> int:
     files = sorted(p for p in root.rglob("*") if p.is_file())
 
     entries = []
-    checksums_file = None
+    checksum_names: list[str] = []
     for path in files:
         name = path.name
-        if name.startswith("SHA256SUMS") or name == "RELEASE-MANIFEST.json":
-            checksums_file = checksums_file or name
+        if name == "RELEASE-MANIFEST.json":
+            continue
+        if name.startswith("SHA256SUMS") or name == "RELEASE-SHA256SUMS.txt":
+            checksum_names.append(name)
             continue
         kind = platform_for(name)
         if kind is None:
@@ -89,18 +91,23 @@ def main() -> int:
         print("no installer files matched the platform rules under", root, file=sys.stderr)
         return 1
 
+    checksums_file = (
+        "RELEASE-SHA256SUMS.txt"
+        if "RELEASE-SHA256SUMS.txt" in checksum_names
+        else (checksum_names[0] if checksum_names else None)
+    )
     manifest = {
         "name": "Keel Desktop",
         "version": args.version,
         "tag": args.tag,
         "generated": "release-pipeline",
         "files": entries,
-        "checksums_file": checksums_file or "RELEASE-SHA256SUMS.txt",
+        "checksums_file": checksums_file,
     }
 
     out = Path(args.out)
     out.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    print(f"manifest: {out} ({len(entries)} files, checksums file: {manifest['checksums_file']})")
+    print(f"manifest: {out} ({len(entries)} files, checksums file: {checksums_file})")
     for e in entries:
         print(f"  {e['platform']:8} {e['arch']:4} {e['file']:38} {e['bytes']:>10}  {e['sha256'][:12]}…  {e['url']}")
     return 0
