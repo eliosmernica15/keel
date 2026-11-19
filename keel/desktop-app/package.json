@@ -75,7 +75,8 @@
       ],
       "category": "Development",
       "icon": "build/icons",
-      "description": "Keel — local, private, multi-agent coding workspace. Your agents, your files, your machine."
+      "description": "Keel - local, private, multi-agent coding workspace. Your agents, your files, your machine.",
+      "artifactName": "Keel-${version}-linux-${arch}.${ext}"
     },
     "deb": {
       "depends": [

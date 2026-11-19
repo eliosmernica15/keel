@@ -1,9 +1,15 @@
 name: Build desktop installers
 
 # Builds Keel Desktop for Windows, macOS and Linux in CI.
-# APL's own pipeline proved this pattern works for a public repo.
-# Require: the release tag v* triggers a GitHub Release with the installers
-# attached (same flow APL uses).
+# Keel lives in the `keel/` directory of this repository, so every build
+# step that needs the project runs with working-directory: keel.
+#
+# On tag pushes (v*) a combined checksum manifest is staged as the
+# `keel-installers` artifact. CI never publishes a GitHub Release and
+# never uploads installers anywhere unless the `R2_UPLOAD_ENABLED`
+# repository variable is set to `true` (see docs/HOSTING.md) — and even
+# then it only ships to Keel-controlled R2 storage via the secrets
+# `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ACCOUNT_ID`, `R2_BUCKET_NAME`.
 
 on:
   push:
@@ -19,8 +25,6 @@ permissions:
 jobs:
   build-windows:
     runs-on: windows-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -31,6 +35,7 @@ jobs:
           node-version: "22"
       - name: Build keel sidecar (PyInstaller)
         shell: powershell
+        working-directory: keel
         run: |
           python -m pip install --upgrade pip
           pip install -e . pyinstaller pillow
@@ -38,31 +43,31 @@ jobs:
           New-Item -ItemType Directory -Force -Path build\resources\keel | Out-Null
           Copy-Item dist\keel-sidecar\keel.exe build\resources\keel\keel.exe
       - name: Generate installer assets
+        working-directory: keel
         run: |
           pip install pillow
           python desktop-app\scripts\generate_assets.py
       - name: npm install
-        working-directory: desktop-app
+        working-directory: keel/desktop-app
         run: npm install --no-audit --no-fund
       - name: Build NSIS installer
-        working-directory: desktop-app
+        working-directory: keel/desktop-app
         run: npx electron-builder --win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: SHA-256
         shell: bash
+        working-directory: keel
         run: sha256sum dist/Keel-Setup-*.exe > dist/SHA256SUMS-windows.txt && cat dist/SHA256SUMS-windows.txt
       - uses: actions/upload-artifact@v4
         with:
           name: keel-windows
           path: |
-            dist/Keel-Setup-*.exe
-            dist/SHA256SUMS-windows.txt
+            keel/dist/Keel-Setup-*.exe
+            keel/dist/SHA256SUMS-windows.txt
 
   build-macos:
     runs-on: macos-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -72,6 +77,7 @@ jobs:
         with:
           node-version: "22"
       - name: Build keel sidecar (PyInstaller)
+        working-directory: keel
         run: |
           python -m pip install --upgrade pip
           pip install -e . pyinstaller pillow
@@ -79,31 +85,31 @@ jobs:
           mkdir -p build/resources/keel
           cp dist/keel-sidecar/keel build/resources/keel/keel
       - name: Generate installer assets (icons)
+        working-directory: keel
         run: |
           pip install pillow
           python desktop-app/scripts/generate_assets.py
       - name: npm install
-        working-directory: desktop-app
+        working-directory: keel/desktop-app
         run: npm install --no-audit --no-fund
       - name: Build .dmg + .zip
-        working-directory: desktop-app
+        working-directory: keel/desktop-app
         run: npx electron-builder --mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: SHA-256
+        working-directory: keel
         run: shasum -a 256 dist/Keel-*-macos-*.dmg dist/Keel-*-macos-*.zip > dist/SHA256SUMS-macos.txt && cat dist/SHA256SUMS-macos.txt
       - uses: actions/upload-artifact@v4
         with:
           name: keel-macos
           path: |
-            dist/Keel-*-macos-*.dmg
-            dist/Keel-*-macos-*.zip
-            dist/SHA256SUMS-macos.txt
+            keel/dist/Keel-*-macos-*.dmg
+            keel/dist/Keel-*-macos-*.zip
+            keel/dist/SHA256SUMS-macos.txt
 
   build-linux:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -117,6 +123,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libarchive-tools desktop-file-utils rpm
       - name: Build keel sidecar (PyInstaller)
+        working-directory: keel
         run: |
           python -m pip install --upgrade pip
           pip install -e . pyinstaller pillow
@@ -124,26 +131,28 @@ jobs:
           mkdir -p build/resources/keel
           cp dist/keel-sidecar/keel build/resources/keel/keel
       - name: Generate installer assets
+        working-directory: keel
         run: |
           pip install pillow
           python desktop-app/scripts/generate_assets.py
       - name: npm install
-        working-directory: desktop-app
+        working-directory: keel/desktop-app
         run: npm install --no-audit --no-fund
       - name: Build .AppImage + .deb
-        working-directory: desktop-app
+        working-directory: keel/desktop-app
         run: npx electron-builder --linux AppImage deb
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: SHA-256
+        working-directory: keel
         run: sha256sum dist/Keel-*-linux-*.AppImage dist/Keel-*-linux-*.deb > dist/SHA256SUMS-linux.txt && cat dist/SHA256SUMS-linux.txt
       - uses: actions/upload-artifact@v4
         with:
           name: keel-linux
           path: |
-            dist/Keel-*-linux-*.AppImage
-            dist/Keel-*-linux-*.deb
-            dist/SHA256SUMS-linux.txt
+            keel/dist/Keel-*-linux-*.AppImage
+            keel/dist/Keel-*-linux-*.deb
+            keel/dist/SHA256SUMS-linux.txt
 
   prepare-installers:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -172,13 +181,20 @@ jobs:
             artifacts/keel-linux/SHA256SUMS-linux.txt
             RELEASE-SHA256SUMS.txt
 
-  # Do NOT publish installers to public GitHub Releases.
-  # Real distribution requires Keel-controlled object storage (R2/S3).
-  # Add credentials as GitHub Secrets and enable this job when ready.
+  # CI never publishes to public GitHub Releases.
+  # Installers ship to Keel-controlled R2 storage only, and only when the
+  # `R2_UPLOAD_ENABLED` repository variable is `true` and the secrets
+  # `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ACCOUNT_ID`,
+  # `R2_BUCKET_NAME` are configured (see docs/HOSTING.md).
   upload-to-hosting:
     needs: prepare-installers
+    if: vars.R2_UPLOAD_ENABLED == 'true'
     runs-on: ubuntu-latest
-    if: secrets.R2_ACCESS_KEY_ID != ''
+    env:
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -186,12 +202,7 @@ jobs:
       - name: Upload to Keel storage (R2)
         run: |
           sudo apt-get update && sudo apt-get install -y awscli
-          aws configure set aws_access_key_id "${{ secrets.R2_ACCESS_KEY_ID }}"
-          aws configure set aws_secret_access_key "${{ secrets.R2_SECRET_ACCESS_KEY }}"
+          aws configure set aws_access_key_id "$R2_ACCESS_KEY_ID"
+          aws configure set aws_secret_access_key "$R2_SECRET_ACCESS_KEY"
           aws configure set default.region auto
-          aws s3 cp . "s3://${{ secrets.R2_BUCKET_NAME }}/" --recursive --region auto --endpoint-url "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"
-        env:
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          aws s3 cp . "s3://$R2_BUCKET_NAME/" --recursive --region auto --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com"
