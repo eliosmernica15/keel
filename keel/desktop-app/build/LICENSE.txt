@@ -1,0 +1,20 @@
+# Keel — License
+
+Copyright © 2026 Keel Team. All rights reserved.
+
+Keel Desktop (the installer, the application bundle, the Keel source code and
+all Keel assets) is proprietary software.
+
+You are granted a personal, non-transferable right to install and run Keel
+Desktop on machines you own or control, for your own work. You may not
+redistribute the installer, the application, or the Keel source code without
+prior written permission from the Keel Team.
+
+Keel is provided "as is", without warranty of any kind, express or implied,
+including but not limited to the warranties of merchantability and fitness
+for a particular purpose. In no event shall the Keel Team be liable for any
+claim, damages or other liability arising from the use of Keel.
+
+Keel sends no telemetry and phones home to nobody by default. Your use of
+provider APIs (OpenRouter, Google AI Studio, etc.) is governed by those
+providers' own terms.

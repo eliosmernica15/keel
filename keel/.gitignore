@@ -3,6 +3,12 @@
 node_modules/
 dist/
 build/
+# ...but keep the desktop-app installer SOURCE files under version control;
+# generated assets in that directory stay ignored
+!desktop-app/build/
+desktop-app/build/*
+!desktop-app/build/nsis-keel.nsh
+!desktop-app/build/LICENSE.txt
 *.tsbuildinfo
 
 # personal folders that are not part of the repo

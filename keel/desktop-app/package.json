@@ -2,7 +2,10 @@
   "name": "keel-desktop",
   "version": "0.1.0",
   "description": "Keel — local, private, multi-agent coding workspace",
-  "author": "Keel Team",
+  "author": {
+    "name": "Keel Team",
+    "email": "eliosmernica15@users.noreply.github.com"
+  },
   "license": "Proprietary",
   "private": true,
   "repository": {
