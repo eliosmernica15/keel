@@ -204,7 +204,24 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 if not self._authorized():
                     self._refuse()
                     return
-                self._serve_file(UI_DIR / "index.html",
+                # the desktop app shows the app UI at /, not the marketing
+                # landing page; dev trees without app.html keep serving index.html
+                ui_page = UI_DIR / "app.html"
+                if not ui_page.is_file():
+                    ui_page = UI_DIR / "index.html"
+                self._serve_file(ui_page,
+                                 extra_headers=(("Set-Cookie",
+                                                 f"keel_token={_TOKEN}; HttpOnly; "
+                                                 f"SameSite=Strict; Path=/"),))
+                return
+            if path in ("/app", "/app.html"):
+                if not self._authorized():
+                    self._refuse()
+                    return
+                page = UI_DIR / "app.html"
+                if not page.is_file():
+                    page = UI_DIR / "index.html"
+                self._serve_file(page,
                                  extra_headers=(("Set-Cookie",
                                                  f"keel_token={_TOKEN}; HttpOnly; "
                                                  f"SameSite=Strict; Path=/"),))
@@ -574,6 +591,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     return
                 text = str(request.get("text", "")).strip()
                 workdir = str(request.get("workdir", "")).strip() or None
+                if not workdir and _WORKDIR and Path(_WORKDIR).is_dir():
+                    workdir = _WORKDIR  # honor the folder bound via the picker
                 if not text:
                     self._send_json({"error": "text must not be empty"},
                                    HTTPStatus.BAD_REQUEST)

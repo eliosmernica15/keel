@@ -1,3 +1,3 @@
-"""Keel — independent agentic coding harness (Phase 0/1 scaffold)."""
+"""Keel - local, private, multi-agent coding workspace."""
 
-__version__ = "0.1.0a0"
+__version__ = "0.1.0"

@@ -27,13 +27,16 @@ These are the closest analogues, not full equivalents.
 | MCP | `packages/core/mcp` | **Reused** | `src/keel/mcp.py` - partial overlap only |
 | v2 sessions compat surface | `packages/server` (partial) | **Implemented + fake-transport tested** | `/api/v2/sessions*` in `src/keel/compat.py` — real provider-backed runtime: tools via real registry, approvals, SSE token streaming with replay, SQLite persistence, cancel; **not OpenCode parity** |
 
-### Keel-side v2 runtime (2026-11-19, milestone 3)
+### Keel-side v2 runtime (2026-11-19, milestones 3+4)
 
 The `/api/v2/*` surface is no longer a demo tracer. It is wired into Keel's actual agent runtime: HTTP → `compat.py` → `fleet.provider_turn.start_provider_turn` → `session.Session` (agent loop) → `fleet.tools` (real tool registry, F1 approval broker) → `providers/` adapters (fake transport in CI, real keys in production). Messages persist as `fleet.db` rows (`kind=message`), tool steps as `kind=step`, approvals as `fleet_approvals`. Sessions survive restart and replay with `?since=<seq>`.
 
+The desktop app (`site/` UI served by the Python bridge) drives this runtime from the composer — token streaming, inline approval cards, stop button, session restore after reload. On the static mirror, the same page falls back to client-side BYOK chat.
+
 - **Implemented**: provider-backed turns; token streaming over SSE (live fan-out + persisted replay with seq dedup); tool execution through the real registry; approve/reject (once/reject — no standing policy), `409` busy, cancel endpoint; provider auth/billing errors recorded honestly in transcript notices + `turn_end.terminal_reason=provider_error`; cancellation with `terminal_reason=cancelled`.
-- **Tested with fake transport**: 12 acceptance tests in `tests/test_compat_runtime.py` + contract tests in `tests/test_compat_tracer.py`; full suite 437 passed.
-- **Verified with a live provider**: NOT YET — no provider keys have been exercised on this host; CI uses only the deterministic fake transport. The first live call must be done by the operator with their own key.
+- **Tested with fake transport**: 12 acceptance tests in `tests/test_compat_runtime.py` + contract tests in `tests/test_compat_tracer.py`; full suite 436 passed (+10 opt-in live-smoke tests, skipped without keys).
+- **End-to-end through the real browser** (milestone 4): a full open → message → streamed tokens → write_file approval card → Allow once → file written to disk, and a Deny run (file never created); transcript restored after reload; stop button and busy-409 confirmed. Simulated provider (fake transport in a dev bridge) — a real provider call has NOT been made.
+- **Verified with a live provider**: NOT YET — no provider keys on this host; `tests/test_live_smoke.py` skips cleanly and must be run by the operator with real keys.
 - **Deliberately not implemented**: OpenCode event taxonomy/schema layer, plugins, PTY/computer use, standing-policy management via v2 (approve/reject never touch policy; `once` only), Postgres.
 
 ## What Keel does not cover

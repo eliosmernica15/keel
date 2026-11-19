@@ -19,7 +19,7 @@ connection stays open; clients stop reading after `done`.
 | `token` | ephemeral *stream* frame | `sessionID`, `text`, `seq`: null |
 | `tool` | `step` | `sessionID`, `name`, `status` (`running`/`done`/`error`), `detail`, `seq`, `ts` |
 | `notice` | `notice` | `sessionID`, `level`, `text`, `seq`, `ts` |
-| `approval` | `approval` | `sessionID`, `approval_id`, `tool_name`, `status` (`pending`/`approved`/`denied`/`expired`), `decision`, `summary`, `expires_at`, `seq`, `ts` |
+| `approval` | `approval` | `sessionID`, `approval_id`, `tool_name`, `status` (`pending`/`approved`/`denied`/`expired`), `decision`, `summary`, `explanation`, `expires_at`, `seq`, `ts` |
 | `done` | `turn_end` | `sessionID`, `terminal_reason`, `duration_ms`, `num_turns`, `usage`, `seq`, `ts` |
 
 `seq` is the monotonically increasing row id in the SQLite `rows` table; use

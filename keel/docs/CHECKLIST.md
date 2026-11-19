@@ -7,7 +7,13 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 
 | Tag | Item | Status | Evidence |
 |---|---|---|---|
-| Runtime milestone 3 | v2 surface provider-backed (full flow: session→message→provider→tools→approval→transcript→restart→replay) | done | `tests/test_compat_runtime.py` (12 acceptance tests), full suite 437 passed |
+| Runtime milestone 3 | v2 surface provider-backed (full flow: session→message→provider→tools→approval→transcript→restart→replay) | done | `tests/test_compat_runtime.py` (12 acceptance tests), full suite green |
+| Runtime milestone 4 | Browser end-to-end agent flow (serve site UI, send, approval card, allow/deny, file written, transcript restored after reload) | done (dev-bridge + scripted fake transport; packaged retry pending CI build) | manual browser drive of the real UI at `localhost:8798` on 2026-11-19 |
+| Runtime milestone 4 | Desktop app serves the agent UI at `/` (not the landing page) | done | `webapp.py`: `/` → `app.html` when present, else `index.html`; cookie unchanged |
+| Runtime milestone 4 | v2 session ids are opaque (`token_urlsafe`), not slugs | done | `create_bot(bot_id=…)` in the fleet store; v2 sessions pass random ids |
+| Runtime milestone 4 | Cross-platform runtime CI (ubuntu/windows/macos) | done | `.github/workflows/python-tests.yml` added (matrix verified in CI) |
+| Live smoke | Opt-in live provider tests (auth success/failure, streaming) | skipped cleanly (no keys on this host) | `tests/test_live_smoke.py` |
+| Live smoke | Live provider verification with a real key | blocked | needs operator-configured keys; must not be done without them |
 | Audit | Full OpenCode source inspection | done | `docs/PARITY.md`, `docs/parity.json` |
 | Notices | Third-party license notices | done | `docs/THIRD_PARTY_NOTICES.md` |
 | Tracer | `/api/v2/sessions` POST/GET list/delete | done | `src/keel/compat.py` (fleet-backed), tests green |
@@ -28,7 +34,7 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 | CI | Windows build (runner, not this host) | done | run `44431591087` green 2026-11-19; NSIS artifact produced; sha256 `43a5eb7d…` |
 | CI | macOS build (runner; arm64 only) | done | same run; `Keel-0.1.0-macos-arm64.dmg/.zip`; Intel untested; Gatekeeper unsigned |
 | CI | Linux build | done | same run; `Keel-0.1.0-linux-x86_64.AppImage`, `Keel-0.1.0-linux-amd64.deb`; not run on a desktop Linux yet |
-| Tests | Full suite | done | `pytest -q` -> 437 passed (2026-11-19, milestone 3) |
+| Tests | Full suite | done | `pytest -q` -> 436 passed, 10 smoke skipped (2026-11-19, milestone 4) |
 | Installer validation | Windows installer (CI artifact, run `44527352992`) | done | hash verified; silent install → launch → frozen sidecar on 127.0.0.1:8857; `/api/health` 403 (token-protected); `/ui/style.css` 200; reinstall OK; silent uninstall removed dir; `~/.keel` fully preserved |
 | Installer validation | macOS DMG/ZIP (arm64) | partial | CI build green; hashes verified; zip structure inspected (Mach-O 64-bit, app.asar, frozen sidecar present, Info.plist sane, LSMinimum 12.0); UNSIGNED (no _CodeSignature); never mounted on a Mac; Intel unsupported |
 | Installer validation | Linux AppImage + .deb | partial | hashes verified; `.deb` control/deps/desktop-entry/postinst inspected; AppImage ELF x86-64 type-2 w/ squashfs verified; not launched on desktop Linux |

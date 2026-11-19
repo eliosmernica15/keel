@@ -313,6 +313,334 @@ function mkBridge() {
 }
 const bridge = mkBridge();
 
+/* =====================================================================
+   v2 agent path — when this page is served by the local bridge (Keel
+   Desktop / `keel serve`), the chat drives the local Python runtime
+   through /api/v2: sessions persist in ~/.keel/fleet.db, tools run with
+   real Tier-1/2 permissions, and consequential actions wait for your
+   approval. On the static mirror, this path is unreachable and the
+   client-side engine above handles chat.
+   ===================================================================== */
+
+const agent = {
+  ready: false,
+  sessions: { chat: null, code: null },  // surface -> {id, seq}
+  live: null,                           // EventSource for the running surface
+  streamEl: null,                       // body element filling with streamed tokens
+};
+
+const AGENT_SESSION_KEY = (surface) => "keel_v2_session_" + surface;
+
+async function agentProbe() {
+  try {
+    const r = await fetch("/api/health", { headers: fsHeaders(), cache: "no-store" });
+    agent.ready = r.ok;
+  } catch {
+    agent.ready = false;
+  }
+  return agent.ready;
+}
+
+async function agentEnsureSession(surface, create) {
+  const cached = agent.sessions[surface];
+  if (cached) return cached;
+  const stored = localStorage.getItem(AGENT_SESSION_KEY(surface));
+  if (stored) {
+    try {
+      const r = await fetch("/api/v2/sessions/" + encodeURIComponent(stored),
+                            { headers: fsHeaders() });
+      if (r.ok) {
+        agent.sessions[surface] = {
+          id: stored,
+          seq: Number(localStorage.getItem("keel_v2_seq_" + surface) || 0),
+        };
+        return agent.sessions[surface];
+      }
+    } catch { /* stale session id — re-create */ }
+    localStorage.removeItem(AGENT_SESSION_KEY(surface));
+  }
+  if (!create) return null;
+  const r = await fetch("/api/v2/sessions", {
+    method: "POST",
+    headers: jsonHeaders(),
+    body: JSON.stringify({ title: "session " + surface }),
+  });
+  if (!r.ok) return null;
+  const doc = await r.json();
+  agent.sessions[surface] = { id: doc.id, seq: 0 };
+  localStorage.setItem(AGENT_SESSION_KEY(surface), doc.id);
+  return agent.sessions[surface];
+}
+
+function setAgentHeader(surface) {
+  const sess = agent.sessions[surface];
+  const label = sess ? `session ${String(sess.id).slice(0, 8)}` : surfaceName[surface];
+  $("head-title").textContent = label;
+  const tag = $("session-id-label");
+  if (tag && sess) tag.textContent = label;
+}
+
+async function restoreAgentSession(surface) {
+  if (!agent.ready) return;
+  const sess = await agentEnsureSession(surface, false);
+  if (!sess) return;
+  try {
+    const r = await fetch(`/api/v2/sessions/${encodeURIComponent(sess.id)}/messages`,
+                          { headers: fsHeaders() });
+    if (!r.ok) return;
+    const doc = await r.json();
+    const label = surface === "code" ? "keel code" : "keel";
+    for (const m of doc.messages || []) {
+      const isUser = m.role === "user";
+      appendMessage(isUser ? "user" : "assistant", isUser ? "you" : label,
+                    (body) => { body.textContent = m.content || ""; }, surface);
+    }
+    if ((doc.messages || []).length) hideEmptyState(surface);
+    setAgentHeader(surface);
+    agentRefreshPending(surface);
+  } catch { /* restore is best-effort */ }
+}
+
+function streamAppend(text, surface) {
+  if (!agent.streamEl) {
+    const label = surface === "code" ? "keel code" : "keel";
+    agent.streamEl = appendMessage("assistant", label, (body) => { body.textContent = ""; }, surface)
+      .querySelector(".body");
+  }
+  if (agent.streamEl) agent.streamEl.textContent += text;
+  threadOf(surface).scrollTop = threadOf(surface).scrollHeight;
+}
+
+function streamCommit() {
+  agent.streamEl = null;
+}
+
+function renderToolLine(evt, surface) {
+  const status = evt.status || "running";
+  const isError = status === "error";
+  appendMessage(isError ? "denied" : "tool", "tool", (body) => {
+    const box = el("div", { className: isError ? "tool-result-error" : "tool-call" });
+    box.appendChild(el("span", { className: "tool-name", textContent: evt.name || "tool" }));
+    box.appendChild(el("span", { className: "tool-status", textContent: " " + status }));
+    if (evt.detail) {
+      box.appendChild(document.createTextNode("  "));
+      box.appendChild(el("span", { className: "tool-detail",
+        textContent: String(evt.detail).slice(0, 300) }));
+    }
+    body.appendChild(box);
+  }, surface);
+}
+
+function approvalCardExists(id, surface) {
+  return !!threadOf(surface).querySelector(`.approval-card[data-id="${CSS.escape(id)}"]`);
+}
+
+function renderApprovalCard(evt, surface) {
+  const id = evt.approval_id || "";
+  if (id && approvalCardExists(id, surface)) return;
+  appendMessage("approval", "approval", (body) => {
+    const card = el("div", { className: "approval-card", "data-id": id });
+    const head = el("div", { className: "approval-head" });
+    head.appendChild(el("span", { className: "tool-name",
+      textContent: evt.tool_name || "tool" }));
+    head.appendChild(el("span", { className: "approval-badge pending",
+      textContent: "approval needed" }));
+    card.appendChild(head);
+    card.appendChild(el("div", { className: "approval-summary",
+      textContent: evt.summary || "" }));
+    if (evt.explanation) {
+      card.appendChild(el("div", { className: "approval-explain",
+        textContent: evt.explanation }));
+    }
+    if (evt.expires_at) {
+      card.appendChild(el("div", { className: "approval-expiry",
+        textContent: "expires " + evt.expires_at }));
+    }
+    const actions = el("div", { className: "approval-actions" });
+    const allow = el("button", { className: "btn-approve", type: "button",
+      textContent: "Allow once" });
+    const deny = el("button", { className: "btn-deny", type: "button",
+      textContent: "Deny" });
+    allow.addEventListener("click", () => decideApproval(id, "approve", card, surface));
+    deny.addEventListener("click", () => decideApproval(id, "reject", card, surface));
+    actions.append(allow, deny);
+    card.appendChild(actions);
+    body.appendChild(card);
+  }, surface);
+}
+
+async function decideApproval(id, decision, card, surface) {
+  const sess = agent.sessions[surface];
+  if (!sess) return;
+  const buttons = card.querySelectorAll("button");
+  buttons.forEach((b) => { b.disabled = true; });
+  const r = await fetch(`/api/v2/sessions/${encodeURIComponent(sess.id)}/${decision}`, {
+    method: "POST",
+    headers: jsonHeaders(),
+    body: JSON.stringify({ approval_id: id }),
+  }).catch(() => null);
+  const badge = card.querySelector(".approval-badge");
+  if (r && r.ok) {
+    badge.textContent = decision === "approve" ? "approved once" : "denied";
+    badge.className = "approval-badge " + (decision === "approve" ? "ok" : "deny");
+    card.querySelector(".approval-actions")?.remove();
+  } else if (r && r.status === 404) {
+    badge.textContent = "already decided";
+    badge.className = "approval-badge deny";
+    card.querySelector(".approval-actions")?.remove();
+  } else {
+    badge.textContent = r ? `failed (http ${r.status})` : "bridge unreachable";
+    badge.className = "approval-badge deny";
+    buttons.forEach((b) => { b.disabled = false; });
+    agentRefreshPending(surface);
+  }
+}
+
+async function agentRefreshPending(surface) {
+  const sess = agent.sessions[surface];
+  if (!sess) return;
+  try {
+    const r = await fetch(`/api/v2/sessions/${encodeURIComponent(sess.id)}/pending`,
+                          { headers: fsHeaders() });
+    if (!r.ok) return;
+    const doc = await r.json();
+    for (const a of doc.approvals || []) renderApprovalCard(a, surface);
+  } catch { /* best-effort */ }
+}
+
+function markApprovalResolved(evt, surface) {
+  const card = threadOf(surface).querySelector(
+    `.approval-card[data-id="${CSS.escape(evt.approval_id || "")}"]`);
+  if (!card) return;
+  const approved = evt.status === "approved";
+  const badge = card.querySelector(".approval-badge");
+  badge.textContent = approved ? `approved (${evt.decision || "once"})` : (evt.status || "denied");
+  badge.className = "approval-badge " + (approved ? "ok" : "deny");
+  card.querySelector(".approval-actions")?.remove();
+}
+
+function showStop() {
+  const btn = $("btn-stop");
+  if (btn) { btn.hidden = false; btn.disabled = false; btn.textContent = "Stop"; }
+}
+
+function hideStop() {
+  const btn = $("btn-stop");
+  if (btn) btn.hidden = true;
+}
+
+function agentEvent(evt, surface) {
+  const sess = agent.sessions[surface];
+  if (sess && typeof evt.seq === "number" && evt.seq > 0) {
+    sess.seq = Math.max(sess.seq || 0, evt.seq);
+    try { localStorage.setItem("keel_v2_seq_" + surface, String(sess.seq)); } catch {}
+  }
+  switch (evt.type) {
+    case "token":
+      streamAppend(evt.text || "", surface);
+      return;
+    case "assistant":
+      if (agent.streamEl) streamCommit();
+      else if (evt.text) {
+        const label = surface === "code" ? "keel code" : "keel";
+        appendMessage("assistant", label, (body) => { body.textContent = evt.text; }, surface);
+      }
+      return;
+    case "user":
+      return;  // the sender renders their own bubble
+    case "tool":
+      renderToolLine(evt, surface);
+      return;
+    case "notice":
+      systemNote(evt.text || "", evt.level === "error" ? "denied" : "system", surface);
+      return;
+    case "approval":
+      if (evt.status === "pending") renderApprovalCard(evt, surface);
+      else markApprovalResolved(evt, surface);
+      return;
+    case "done": {
+      streamCommit();
+      if (agent.live) { agent.live.close(); agent.live = null; }
+      hideStop();
+      finishRun();
+      const u = evt.usage || {};
+      renderResult({
+        num_turns: evt.num_turns,
+        usage: { input_tokens: u.input_tokens || 0, output_tokens: u.output_tokens || 0 },
+        stop_reason: evt.terminal_reason,
+        is_error: evt.terminal_reason !== "completed",
+        total_cost_usd: 0,
+      }, surface);
+      setAgentHeader(surface);
+      agentRefreshPending(surface);
+      return;
+    }
+    default:
+      return;
+  }
+}
+
+function startAgentStream(surface, sess) {
+  const url = `/api/v2/sessions/${encodeURIComponent(sess.id)}/events?since=${sess.seq || 0}`;
+  if (agent.live) { try { agent.live.close(); } catch {} }
+  const es = new EventSource(url);
+  agent.live = es;
+  es.onmessage = (e) => {
+    try {
+      const evt = JSON.parse(e.data);
+      agentEvent(evt, surface);
+    } catch { /* malformed frame */ }
+  };
+  es.onerror = () => {
+    // EventSource reconnects automatically; terminal events close it via 'done'.
+  };
+}
+
+async function agentRun(surface, wire) {
+  state.runSurface = surface;
+  const sess = await agentEnsureSession(surface, true);
+  if (!sess) {
+    systemNote("agent unavailable — is the bridge running?", "denied", surface);
+    finishRun();
+    return;
+  }
+  setAgentHeader(surface);
+  try {
+    const r = await fetch(`/api/v2/sessions/${encodeURIComponent(sess.id)}/messages`, {
+      method: "POST",
+      headers: jsonHeaders(),
+      body: JSON.stringify({ text: wire, permission_mode: currentMode() }),
+    });
+    if (r.status === 409) {
+      systemNote("a turn is already running — wait for it, or press Stop", "denied", surface);
+      finishRun();
+      return;
+    }
+    if (!r.ok) {
+      systemNote(`bridge refused (http ${r.status})`, "denied", surface);
+      finishRun();
+      return;
+    }
+    showStop();
+    startAgentStream(surface, sess);
+  } catch (err) {
+    systemNote(`bridge unreachable: ${err}`, "denied", surface);
+    finishRun();
+  }
+}
+
+async function agentStopRun() {
+  const surface = state.runSurface || state.surface;
+  const sess = agent.sessions[surface];
+  const btn = $("btn-stop");
+  if (btn) { btn.disabled = true; btn.textContent = "stopping…"; }
+  if (!sess) return;
+  try {
+    await fetch(`/api/v2/sessions/${encodeURIComponent(sess.id)}/cancel`,
+                { method: "POST", headers: fsHeaders() });
+  } catch { /* cancellation is best-effort; the turn ends on the server either way */ }
+}
+
 /* ================================================================= rendering */
 
 function el(tag, props, ...children) {
@@ -577,7 +905,17 @@ async function send(surface) {
     model: pinnedModelFor(provider),
     images,
   };
-  const maybePromise = bridge.send(payload);
+  const maybePromise = agent.ready ? null : bridge.send(payload);
+  if (agent.ready) {
+    if (images.length) {
+      systemNote("the desktop agent can't view images yet — sending text only",
+                 "system", active);
+    }
+    agentRun(active, wire);
+    promptEl.value = "";
+    if (promptEl.tagName === "TEXTAREA") promptEl.style.height = "";
+    return;
+  }
   if (maybePromise && maybePromise.catch) {
     maybePromise.catch((err) => {
       systemNote(`backend error: ${err}`, "denied", state.runSurface || active);
@@ -1526,13 +1864,30 @@ importFile.addEventListener("change", async () => {
 /* ---------- Keel Code / Desktop / System / Developer ---------- */
 
 function refreshBridgeStatus() {
+  if (agent.ready) {
+    $("keelcode-status").textContent = "agent mode — chats drive the local Keel agent on this machine";
+    $("keeldesktop-status").textContent = "agent mode — chats drive the local Keel agent on this machine";
+    return;
+  }
   $("keelcode-status").textContent = "n/a — the mirror has no local bridge; chat works client-side";
   $("keeldesktop-status").textContent = "n/a — the mirror has no local bridge; chat works client-side";
 }
 async function refreshSystem() {
+  if (agent.ready) {
+    try {
+      const r = await fetch("/api/health", { headers: fsHeaders() });
+      if (r.ok) {
+        const doc = await r.json();
+        $("sys-version").textContent = "Keel " + (doc.version || "unknown");
+        $("sys-origin").textContent = window.location.origin;
+        if (workdir) $("sys-workdir").textContent = workdir;
+        return;
+      }
+    } catch { /* fall through to static text */ }
+  }
   $("sys-version").textContent = "mirror";
   $("sys-origin").textContent = "none — this browser only";
-  $("sys-workdir").textContent = "not available — the mirror cannot see your disk";
+  $("sys-workdir").textContent = agent.ready && workdir ? workdir : "not available — the mirror cannot see your disk";
 }
 $("goto-code").addEventListener("click", () => { setSurface("code"); closeSettings(); });
 $("goto-desktop").addEventListener("click", () => { setSurface("chat"); closeSettings(); });
@@ -1850,15 +2205,29 @@ renderRecents();
 setSurface(localStorage.getItem("keel_surface") === "code" ? "code" : "chat", { focus: false });
 if (window.innerWidth <= 900) rootEl.classList.add("sidebar-hidden");
 loadSettings().then(() => { refreshProviders(); hydrateGeneral(); refreshUsage(); }).catch(() => {});
-if (bridge.live) {
-  fetch("/api/workdir", { headers: fsHeaders() })
-    .then((r) => (r.ok ? r.json() : null))
-    .then((doc) => { if (doc && doc.path) setWorkdirUI(doc.path); })
-    .catch(() => {});
-}
+
+const stopBtn = $("btn-stop");
+if (stopBtn) stopBtn.addEventListener("click", () => { agentStopRun(); });
+
+agentProbe().then(() => {
+  refreshBridgeStatus();
+  refreshSystem();
+  restoreAgentSession("chat").catch(() => {});
+  restoreAgentSession("code").catch(() => {});
+
+  if (agent.ready) {
+    fetch("/api/workdir", { headers: fsHeaders() })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((doc) => { if (doc && doc.path) setWorkdirUI(doc.path); })
+      .catch(() => {});
+    systemNote("agent mode — this is the local Keel bridge. Prompts run the local agent on this machine; chats persist in ~/.keel/fleet.db and survive restarts. Set KEEL_OPENROUTER_API_KEY (or Google / NVIDIA) for real replies.", "system", state.surface);
+    return;
+  }
+  systemNote("mirror mode — this page is running fully in your browser. Chat streams straight from your browser to your provider via the key in Settings → Providers (OpenRouter or Google AI Studio). No key yet? Replies here explain how to install the local app.", "system", state.surface);
+}).catch(() => {});
 
 if (!bridge.live) {
-  systemNote("mirror mode — this page is running fully in your browser. Chat streams straight from your browser to your provider via the key in Settings → Providers (OpenRouter or Google AI Studio). No key yet? Replies here explain how to install the local app.", "system", state.surface);
+  // (static mirror path — client-side provider chat; nothing further to wire)
 } else {
   bridge.listen("keel:event", (message) => {
     const line = typeof message === "string" ? message :

@@ -174,8 +174,15 @@ class FleetStore:
                    preset: str | None = None,
                    avatar_hue: int | None = None,
                    project_id: str | None = None,
-                   kind: str = "agent") -> dict:
-        slug = _slugify(name)
+                   kind: str = "agent",
+                   bot_id: str | None = None) -> dict:
+        if bot_id is not None:
+            bot_id = bot_id.strip()
+            if not bot_id or len(bot_id) > 64 or any(c in bot_id for c in '/\\?#%"'):
+                raise ValueError("bot_id must be 1-64 chars without / \\ ? # % or quote")
+            slug = bot_id
+        else:
+            slug = _slugify(name)
         base = slug
         suffix = 0
         while self._bot_exists(base):

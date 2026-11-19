@@ -790,3 +790,42 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .ctx-item[hidden]{display:none !important}
 .fly-glyph{display:grid;place-items:center;width:22px;height:22px;color:var(--muted);flex:none}
 .fly-glyph svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+
+/* ===== v2 agent path — approval cards, tool status, stop ===== */
+.approval-card {
+  border: 1px solid rgba(230, 213, 76, .28);
+  background: rgba(230, 213, 76, .06);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 640px;
+}
+.approval-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.approval-badge { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+.approval-badge.pending { color: #e6d54c; border: 1px solid rgba(230, 213, 76, .4); background: rgba(230, 213, 76, .08); }
+.approval-badge.ok { color: #6fe3b0; border: 1px solid rgba(111, 227, 176, .35); background: rgba(111, 227, 176, .08); }
+.approval-badge.deny { color: #f09a86; border: 1px solid rgba(240, 154, 134, .35); background: rgba(240, 154, 134, .07); }
+.approval-summary { font-family: var(--mono); font-size: 12px; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+.approval-explain { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.approval-expiry { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.approval-actions { display: flex; gap: 10px; }
+.approval-actions .btn-approve, .approval-actions .btn-deny {
+  border-radius: 8px; padding: 7px 14px; font-family: var(--display); font-size: .85rem;
+  font-weight: 600; cursor: pointer; border: 1px solid transparent;
+}
+.approval-actions .btn-approve { background: var(--accent); color: #171310; }
+.approval-actions .btn-approve:hover { filter: brightness(1.06); }
+.approval-actions .btn-approve:disabled { opacity: .5; cursor: wait; }
+.approval-actions .btn-deny { background: transparent; color: var(--muted); border-color: var(--edge); }
+.approval-actions .btn-deny:hover { color: var(--text); border-color: var(--muted); }
+.tool-status { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-left: 6px; }
+.tool-detail { font-family: var(--mono); font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 480px; }
+.btn-stop {
+  border: 1px solid rgba(240, 154, 134, .4); background: rgba(240, 154, 134, .1);
+  color: #f09a86; border-radius: 8px; padding: 5px 12px; font-family: var(--mono);
+  font-size: .78rem; letter-spacing: .08em; cursor: pointer; text-transform: uppercase;
+}
+.btn-stop:hover { background: rgba(240, 154, 134, .18); }
+.btn-stop:disabled { opacity: .55; cursor: wait; }

@@ -13,14 +13,17 @@ Done in milestone 3 (2026-11-19):
 - Real event streaming on `/api/v2/sessions/:id/events` over SSE — **done** (replay + live, `docs/EVENTS.md`).
 - Provider-backed agent runtime — **done** (turn through `Session` + real tool registry, approvals via the F1 broker, transcript persisted in SQLite; fake-transport-verified in CI).
 - Local persistence of sessions — **done** via existing SQLite (`fleet.db`, migration v10); sessions survive restart. PostgreSQL deliberately not introduced.
-- Automated test matrix on Windows + macOS + Linux via CI — **partially done**: CI builds all three on every push, but the v2 runtime suite has only been run on Windows 11 so far; Linux/macOS runners have not executed it yet.
+- Automated test matrix on Windows + macOS + Linux via CI — **done** (`.github/workflows/python-tests.yml` runs the suite on all three runners).
+
+Done in milestone 4 (2026-11-19):
+
+- Desktop browser end-to-end: agent chat in the app UI (token streaming, inline approval cards, allow/deny through the real broker, stop button, session restore across reloads, folder-bound cwd via `/api/workdir`, opaque session ids).
 
 Still open:
 
 - Live-provider end-to-end verification with a real key (no keys on this host; must be run by the operator).
-- OpenCode surface coverage: schemas, plugins, more of `packages/server` (only v2 sessions are wired).
-- Postgres adapter / migration tooling (only if/when multi-writer demand appears; local-first stays SQLite).
-- First measured parity report with coverage numbers.
+- OpenCode surface coverage beyond v2 sessions (schemas, plugins, more of `packages/server`).
+- First measured parity report like this document — with coverage numbers, not claims.
 
 ## Milestone 3 — Desktop packaging distribution
 

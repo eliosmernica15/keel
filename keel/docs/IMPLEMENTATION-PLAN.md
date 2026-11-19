@@ -13,15 +13,17 @@ See `docs/PARITY.md` and machine-readable inventory `docs/parity.json`.
 
 See `docs/THIRD_PARTY_NOTICES.md`.
 
-## Phase 3 — Tracer bullet (this milestone) → **superseded by milestone 3 (2026-11-19)**
+## Phase 3 — Tracer bullet (this milestone) → **superseded by milestones 3+4 (2026-11-19)**
 
 The tracer became the real thing. `/api/v2/sessions` is now wired to the actual
 agent runtime (`fleet/turn_core.py`, `session.py`, `fleet/tools.py`, real
 provider adapters), persists in SQLite (`fleet/db.py` v10), streams tokens over
-SSE (`docs/EVENTS.md`), and is covered by 12 acceptance tests in
-`tests/test_compat_runtime.py`. The "tracer bullet — not a port" caveat still
-applies: no OpenCode schema/event taxonomy, no plugins, no standing-policy
-management via v2. See `docs/PARITY.md` for the honest status table.
+SSE (`docs/EVENTS.md`), is covered by 12 acceptance tests in
+`tests/test_compat_runtime.py`, and is driven end-to-end from the desktop
+browser UI (token streaming, approval cards, stop, session restore across
+reloads). The "tracer bullet — not a port" caveat still applies: no OpenCode
+schema/event taxonomy, no plugins, no standing-policy management via v2.
+See `docs/PARITY.md` for the honest status table.
 
 Historical contract (still the live shape):
 

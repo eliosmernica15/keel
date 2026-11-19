@@ -163,7 +163,8 @@ def execute_turn(store, bot: dict, content: str, *,
                  exclude_last_from_history: bool = True,
                  executor=None,
                  row_sink=None,
-                 permission_mode: str | None = None) -> dict:
+                 permission_mode: str | None = None,
+                 workdir: str | None = None) -> dict:
     """Run one agent turn synchronously and return a summary dict.
 
     Returns `{ok, assistant_text, terminal_reason, permission_denials,
@@ -282,8 +283,9 @@ def execute_turn(store, bot: dict, content: str, *,
         executor = executor or _fleet_tools(store, bot, chain)
         if row_sink is not None and hasattr(executor, "row_sink"):
             executor.row_sink = row_sink
+        cwd = str(workdir) if workdir and os.path.isdir(str(workdir)) else str(state_root)
         config = SessionConfig(
-            cwd=str(state_root),
+            cwd=cwd,
             state_root=str(state_root),
             bare=True,
             permission_mode=_normalize_permission_mode(permission_mode),

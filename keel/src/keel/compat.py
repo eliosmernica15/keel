@@ -107,6 +107,7 @@ def _row_to_v2(event: Dict[str, Any]) -> Dict[str, Any]:
                 "status": body.get("status"),
                 "decision": body.get("decision"),
                 "summary": body.get("summary"),
+                "explanation": body.get("explanation"),
                 "expires_at": body.get("expires_at"),
                 "seq": seq, "ts": ts}
     return {"type": kind, "sessionID": sid, "seq": seq, "ts": ts, **body}
@@ -137,9 +138,11 @@ def live_event_to_v2(event: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
 # ---------------- public API (used by webapp.py)
 def create_session(title: str) -> Dict[str, Any]:
+    import secrets
     bot = _store().create_bot(name=(title or "Untitled").strip()[:64] or "Untitled",
                               engine="provider",
                               notes="",
+                              bot_id=secrets.token_urlsafe(9),
                               kind="session")
     return _session_dict(bot)
 
@@ -204,7 +207,7 @@ def run_message(sid: str, text: str, workdir: Optional[str] = None,
 
     from .fleet import provider_turn
     lock, started = provider_turn.start_provider_turn(
-        store, bot, text, permission_mode=permission_mode)
+        store, bot, text, permission_mode=permission_mode, workdir=workdir)
     if not started:
         return {"ok": False, "error": "a turn is already in progress for this session",
                 "terminal_reason": "busy", "runId": None}
