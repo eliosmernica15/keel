@@ -11,7 +11,8 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 | Runtime milestone 4 | Browser end-to-end agent flow (serve site UI, send, approval card, allow/deny, file written, transcript restored after reload) | done (dev-bridge + scripted fake transport; packaged retry pending CI build) | manual browser drive of the real UI at `localhost:8798` on 2026-11-19 |
 | Runtime milestone 4 | Desktop app serves the agent UI at `/` (not the landing page) | done | `webapp.py`: `/` → `app.html` when present, else `index.html`; cookie unchanged |
 | Runtime milestone 4 | v2 session ids are opaque (`token_urlsafe`), not slugs | done | `create_bot(bot_id=…)` in the fleet store; v2 sessions pass random ids |
-| Runtime milestone 4 | Cross-platform runtime CI (ubuntu/windows/macos) | done | `.github/workflows/python-tests.yml` added (matrix verified in CI) |
+| Runtime milestone 4 | Cross-platform runtime CI (ubuntu/windows/macos) | done | `.github/workflows/python-tests.yml` — all three green on run `44556804615` (2026-11-19) |
+| Runtime milestone 4 | Packaged installer verified to serve the agent UI at `/` | done | milestone-4 artifact (run `44556804719`): silent install → packaged sidecar serves app UI at `/` (not landing), health `0.1.0` OK, uninstall clean, `~/.keel` preserved |
 | Live smoke | Opt-in live provider tests (auth success/failure, streaming) | skipped cleanly (no keys on this host) | `tests/test_live_smoke.py` |
 | Live smoke | Live provider verification with a real key | blocked | needs operator-configured keys; must not be done without them |
 | Audit | Full OpenCode source inspection | done | `docs/PARITY.md`, `docs/parity.json` |
