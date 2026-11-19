@@ -325,12 +325,12 @@
   "keel": {
     "updatedAt": "2026-11-19",
     "v2_runtime": {
-      "status": "Implemented — fake-transport tested, browser end-to-end verified with a scripted provider, live-provider verification blocked on operator keys",
+      "status": "Implemented \u2014 fake-transport tested, browser end-to-end verified with a scripted provider, live-provider verification blocked on operator keys",
       "path": "src/keel/compat.py",
       "tests": "tests/test_compat_runtime.py",
       "end_to_end": "site/ui/app.js agent path (view at /): token streaming, inline approval cards, stop button, session restore from SQLite across reloads",
       "notes": "Provider-backed turns through fleet/turn_core.py + session.py + real tool registry + F1 approval broker; SSE token streaming with seq replay (docs/EVENTS.md); SQLite persistence via fleet/db.py v10; cancel endpoint; provider errors recorded honestly; NOT an OpenCode port, no schema layer, no plugins"
     },
-    "packages": "none of the packages above are Implemented/Tested/Verified in Keel — all remain 'Inspected' only"
+    "packages": "none of the packages above are Implemented/Tested/Verified in Keel \u2014 all remain 'Inspected' only"
   }
 }
