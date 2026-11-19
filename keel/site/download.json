@@ -7,16 +7,20 @@
       "file": "Keel-Setup-0.1.0.exe",
       "size": 121917363,
       "sha256": "56731AE2820AA46BD9E54A9E5C7151AB965B53BC7282FCC02D3DA6F792E19DCE",
-      "url": "https://github.com/eliosmernica15/keel/releases/download/v0.1.0/Keel-Setup-0.1.0.exe",
-      "notes": "NSIS installer. Per-user install (no admin required). SmartScreen will warn because the build is unsigned; see README."
+      "url": null,
+      "available": false,
+      "notes": "NSIS installer. Per-user install, no admin required. SmartScreen will warn because this build is unsigned.",
+      "installation": "Run Keel-Setup-0.1.0.exe. Accept the installer prompts. Launch from the Start Menu shortcut or Desktop shortcut."
     },
     "macos": {
-      "name": "macOS (Apple Silicon, arm64)",
+      "name": "macOS arm64 (Apple Silicon)",
       "file": "Keel-0.1.0-macos-arm64.dmg",
       "size": null,
       "sha256": null,
       "url": null,
-      "notes": "Built by CI on macos-latest. Untested on real hardware."
+      "available": false,
+      "notes": "macOS build has not been produced or verified yet. Do not download from unofficial sources.",
+      "installation": null
     },
     "linux": {
       "name": "Linux x64",
@@ -24,8 +28,10 @@
       "size": null,
       "sha256": null,
       "url": null,
-      "notes": "Built by CI on ubuntu-latest (AppImage). Untested on real hardware."
+      "available": false,
+      "notes": "Linux build has not been produced or verified yet. Do not download from unofficial sources.",
+      "installation": null
     }
   },
-  "__hosting__": "Assets are currently served from GitHub Releases for convenience; Keel Cloud hosting is the intended public distribution channel and will replace these URLs when object-storage credentials are available. See docs/HOSTING.md."
+  "__hosting__": "Installers are not yet hosted publicly. Keel-controlled object storage/CDN is the intended distribution channel; upload and public URLs will be added when hosting credentials are provided. See docs/HOSTING.md."
 }

@@ -145,7 +145,7 @@ jobs:
             dist/Keel-*-linux-*.deb
             dist/SHA256SUMS-linux.txt
 
-  release:
+  prepare-installers:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [build-windows, build-macos, build-linux]
     runs-on: ubuntu-latest
@@ -153,15 +153,15 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - name: Create combined checksum manifest
+      - name: Combined checksum manifest
         shell: bash
         run: |
           find artifacts -type f ! -name 'SHA256SUMS*.txt' -print0 | sort -z | xargs -0 sha256sum > RELEASE-SHA256SUMS.txt
           cat RELEASE-SHA256SUMS.txt
-      - name: Upload assets to GitHub Release
-        uses: softprops/action-gh-release@v2
+      - uses: actions/upload-artifact@v4
         with:
-          files: |
+          name: keel-installers
+          path: |
             artifacts/keel-windows/Keel-Setup-*.exe
             artifacts/keel-windows/SHA256SUMS-windows.txt
             artifacts/keel-macos/Keel-*-macos-*.dmg
@@ -171,5 +171,27 @@ jobs:
             artifacts/keel-linux/Keel-*-linux-*.deb
             artifacts/keel-linux/SHA256SUMS-linux.txt
             RELEASE-SHA256SUMS.txt
+
+  # Do NOT publish installers to public GitHub Releases.
+  # Real distribution requires Keel-controlled object storage (R2/S3).
+  # Add credentials as GitHub Secrets and enable this job when ready.
+  upload-to-hosting:
+    needs: prepare-installers
+    runs-on: ubuntu-latest
+    if: secrets.R2_ACCESS_KEY_ID != ''
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: keel-installers
+      - name: Upload to Keel storage (R2)
+        run: |
+          sudo apt-get update && sudo apt-get install -y awscli
+          aws configure set aws_access_key_id "${{ secrets.R2_ACCESS_KEY_ID }}"
+          aws configure set aws_secret_access_key "${{ secrets.R2_SECRET_ACCESS_KEY }}"
+          aws configure set default.region auto
+          aws s3 cp . "s3://${{ secrets.R2_BUCKET_NAME }}/" --recursive --region auto --endpoint-url "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}

@@ -1,7 +1,7 @@
 /* /download — OS detection + platform cards
-   Reads /download.json (served next to this page). No build step.
-   Release-note text links to the tag. destinations are read from the json,
-   which makes switching hosting providers a config change, not a code change. */
+   Reads /download.json. No build step.
+   Honest availability: only 'available' channels render a download button.
+   Do not fabricate URLs or point at unhosted artifacts. */
 
 const GRID = document.getElementById("download-grid");
 const DETECT = document.getElementById("detect-note");
@@ -23,7 +23,6 @@ async function fetchManifest() {
 
 function detectOS() {
   const ua = navigator.userAgent || "";
-  const arch = ((navigator.userAgentData && navigator.userAgentData.platform) || "").toLowerCase();
   if (/Windows/.test(ua)) return "windows";
   if (/Mac OS/.test(ua)) return "macos";
   if (/Linux/.test(ua)) return "linux";
@@ -44,67 +43,66 @@ function el(tag, className, text) {
 }
 
 function renderCard(os, channel, highlight) {
+  const osName = channel.name || (os === "windows" ? "Windows" : os === "macos" ? "macOS" : "Linux x64");
   const card = el("article", "card" + (highlight ? " card-highlight" : ""));
-  const small = el("small", null, "Keel for " + (channel.osName || os === "windows" ? "Windows" : os === "macos" ? "macOS" : "Linux"));
-  const h = el("h2", null, channel.name);
-  const badge = el("span", "badge", "SHA-256 shown");
-  const meta = el("p", "meta", [
-    `${channel.file}`,
-    channel.size ? `Size: ${(channel.size / 1024 / 1024).toFixed(1)} MB` : null,
-    channel.sha256 ? `sha256: ${channel.sha256}` : null,
-  ].filter(Boolean).join("\n"));
+  const small = el("small", null, `Keel for ${osName}`);
+  const h = el("h2", null, channel.name || osName);
+  const metaLines = [channel.file];
+  if (channel.size) metaLines.push("Size: " + (channel.size / 1024 / 1024).toFixed(1) + " MB");
+  if (channel.sha256) metaLines.push("SHA-256: " + channel.sha256);
+  const meta = el("p", "meta", metaLines.join("\n"));
   const notes = el("p", "notes", channel.notes || "");
+  const install = channel.installation ? el("p", "notes", channel.installation) : null;
+
   const btn = document.createElement("a");
   btn.className = "btn-download";
-  if (channel.url) {
+  const canDownload = channel.available && channel.url;
+  if (canDownload) {
     btn.href = channel.url;
     btn.rel = "noopener";
     btn.textContent = "Download " + (channel.file || "");
   } else {
     btn.setAttribute("aria-disabled", "true");
     btn.setAttribute("role", "link");
-    btn.textContent = "Artifact not yet hosted";
+    btn.textContent = "Not currently available";
+    btn.style.pointerEvents = "none";
   }
-  card.append(small, h, badge, meta, notes, btn);
+
+  card.append(small, h, meta, notes);
+  if (install) card.append(install);
+  card.append(btn);
   return card;
 }
 
 async function main() {
   const m = await fetchManifest();
-  const detected = detectOS();
-
-  if (m?.version && VERSION_PILL) VERSION_PILL.textContent = "v" + m.version;
+  if (VERSION_PILL && m?.version) VERSION_PILL.textContent = "v" + m.version;
 
   if (!m) {
-    DETECT.textContent = "Download manifest unavailable — see the GitHub release page.";
+    if (DETECT) DETECT.textContent = "Download manifest unavailable.";
     const card = el("article", "card");
-    card.innerHTML = '<h2>Manual download</h2><p class="notes">The download manifest failed to load. You can still download the installer from the GitHub Releases page.</p>';
-    const btn = document.createElement("a");
-    btn.className = "btn-download";
-    btn.href = "https://github.com/eliosmernica15/keel/releases/latest";
-    btn.textContent = "Open GitHub Releases";
-    card.append(btn);
+    card.innerHTML = '<h2>Keel is not yet publicly available</h2><p class="notes">Downloads will be available from this page once installers are built and hosted. Check back soon.</p>';
     GRID.append(card);
     return;
   }
 
+  const detected = detectOS();
+  if (detected && channelFromManifest(m, detected)) {
+    DETECT.textContent = `Detected ${detected === "windows" ? "Windows" : detected === "macos" ? "macOS" : "Linux"}.`;
+  } else {
+    DETECT.textContent = "Could not detect your platform — pick one below.";
+  }
+
   const order = ["windows", "macos", "linux"].filter((k) => channelFromManifest(m, k));
   if (detected && order.includes(detected)) {
-    // move detected OS first
     order.splice(order.indexOf(detected), 1);
     order.unshift(detected);
   }
 
-  const label = detected === "windows" ? "Windows" : detected === "macos" ? "macOS" : detected === "linux" ? "Linux" : null;
-  DETECT.textContent = label ? `Detected ${label}. Download below.` : "Could not detect your platform — pick one below.";
-
   for (const os of order) {
     const ch = channelFromManifest(m, os);
+    if (!ch) continue;
     GRID.append(renderCard(os, ch, os === detected));
-  }
-
-  if (!detected) {
-    DETECT.textContent = "Could not detect your platform — pick one below.";
   }
 }
 
