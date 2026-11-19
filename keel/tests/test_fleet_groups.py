@@ -263,7 +263,7 @@ def test_group_round_records_member_status(bridge):
         [[{"kind": "text", "text": "ivy reply"}]],
     ]
     _post(bridge, f"/api/fleet/groups/{gid}/messages", {"content": "go"})
-    _wait_group_replies(bridge, gid, 2)
+    _wait_round_done(bridge, gid, 2)
     statuses = [r for r in _group_rows(bridge, gid)
                 if r["kind"] == "member_status"]
     by_bot = {}
