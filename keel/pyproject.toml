@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "keel-harness"
-version = "0.1.0a0"
+version = "0.1.0"
 description = "Keel — independent agentic coding harness (clean-room reimplementation of the observable CLI experience). Phase 0/1 scaffold."
 readme = "README.md"
 requires-python = ">=3.11"

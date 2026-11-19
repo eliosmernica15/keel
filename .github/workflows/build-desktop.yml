@@ -4,12 +4,19 @@ name: Build desktop installers
 # Keel lives in the `keel/` directory of this repository, so every build
 # step that needs the project runs with working-directory: keel.
 #
-# On tag pushes (v*) a combined checksum manifest is staged as the
-# `keel-installers` artifact. CI never publishes a GitHub Release and
-# never uploads installers anywhere unless the `R2_UPLOAD_ENABLED`
-# repository variable is set to `true` (see docs/HOSTING.md) — and even
-# then it only ships to Keel-controlled R2 storage via the secrets
-# `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ACCOUNT_ID`, `R2_BUCKET_NAME`.
+# Guarantees:
+# - Version sync is asserted before any build job runs (fail fast).
+# - electron-builder never publishes (`--publish never`); GH_TOKEN is not
+#   provided to the packaging steps.
+# - CI never creates a GitHub Release. Installers ship to Keel-controlled
+#   R2 storage only, and only when the `R2_UPLOAD_ENABLED` repository
+#   variable is `true` (see docs/HOSTING.md). Even then they land in the
+#   bucket under `v<tag>/` — never on a public GitHub Release.
+# - Every artifact is SHA-256 checksummed and `if-no-files-found: error`
+#   means a build that produced nothing cannot pass as a release.
+# - `upload-to-hosting` (tags only, gated on R2_UPLOAD_ENABLED) verifies
+#   the public HTTPS download of every file after upload and fails the
+#   release if any checksum mismatch or download error occurs.
 
 on:
   push:
@@ -22,15 +29,37 @@ on:
 permissions:
   contents: read
 
+# Latest push wins; tag builds always run to completion (uploads matter).
+concurrency:
+  group: build-desktop-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  validate-versions:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - uses: actions/setup-node@v4
+      - name: Check version sync
+        working-directory: keel
+        run: |
+          if [[ "${GITHUB_REF:-}" == refs/tags/v* ]]; then
+            python scripts/check_version_sync.py --tag "${GITHUB_REF#refs/tags/}"
+          else
+            python scripts/check_version_sync.py
+          fi
+
+  build-windows:
+    needs: validate-versions
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Build keel sidecar (PyInstaller)
@@ -46,30 +75,31 @@ jobs:
       - name: npm install
         working-directory: keel/desktop-app
         run: npm install --no-audit --no-fund
-      - name: Build NSIS installer
+      - name: Build NSIS installer (never publishes)
         working-directory: keel/desktop-app
-        run: npx electron-builder --win
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win --publish never
       - name: SHA-256
         shell: bash
         working-directory: keel
         run: sha256sum dist/Keel-Setup-*.exe > dist/SHA256SUMS-windows.txt && cat dist/SHA256SUMS-windows.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: keel-windows
+          retention-days: 30
+          if-no-files-found: error
           path: |
             keel/dist/Keel-Setup-*.exe
             keel/dist/SHA256SUMS-windows.txt
 
   build-macos:
+    needs: validate-versions
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Build keel sidecar (PyInstaller)
@@ -84,30 +114,31 @@ jobs:
       - name: npm install
         working-directory: keel/desktop-app
         run: npm install --no-audit --no-fund
-      - name: Build .dmg + .zip
+      - name: Build .dmg + .zip (never publishes)
         working-directory: keel/desktop-app
-        run: npx electron-builder --mac
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --mac --publish never
       - name: SHA-256
         working-directory: keel
         run: shasum -a 256 dist/Keel-*-macos-*.dmg dist/Keel-*-macos-*.zip > dist/SHA256SUMS-macos.txt && cat dist/SHA256SUMS-macos.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: keel-macos
+          retention-days: 30
+          if-no-files-found: error
           path: |
             keel/dist/Keel-*-macos-*.dmg
             keel/dist/Keel-*-macos-*.zip
             keel/dist/SHA256SUMS-macos.txt
 
   build-linux:
+    needs: validate-versions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: System deps for electron-builder
@@ -126,28 +157,38 @@ jobs:
       - name: npm install
         working-directory: keel/desktop-app
         run: npm install --no-audit --no-fund
-      - name: Build .AppImage + .deb
+      - name: Build .AppImage + .deb (never publishes)
         working-directory: keel/desktop-app
-        run: npx electron-builder --linux AppImage deb
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --linux AppImage deb --publish never
       - name: SHA-256
         working-directory: keel
         run: sha256sum dist/Keel-*-linux-*.AppImage dist/Keel-*-linux-*.deb > dist/SHA256SUMS-linux.txt && cat dist/SHA256SUMS-linux.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: keel-linux
+          retention-days: 30
+          if-no-files-found: error
           path: |
             keel/dist/Keel-*-linux-*.AppImage
             keel/dist/Keel-*-linux-*.deb
             keel/dist/SHA256SUMS-linux.txt
 
+  # Runs only on tag pushes and only after all three builds succeed.
   prepare-installers:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [build-windows, build-macos, build-linux]
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Version sync check (tag must match)
+        working-directory: keel
+        run: python scripts/check_version_sync.py --tag "$RELEASE_TAG"
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Combined checksum manifest
@@ -155,9 +196,24 @@ jobs:
         run: |
           find artifacts -type f ! -name 'SHA256SUMS*.txt' -print0 | sort -z | xargs -0 sha256sum > RELEASE-SHA256SUMS.txt
           cat RELEASE-SHA256SUMS.txt
-      - uses: actions/upload-artifact@v4
+      - name: Generate release manifest
+        working-directory: keel
+        env:
+          R2_PUBLIC_BASE_URL: ${{ vars.R2_PUBLIC_BASE_URL }}
+        run: |
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+          python scripts/make_release_manifest.py \
+            --artifacts ../artifacts \
+            --version "$RELEASE_VERSION" \
+            --tag "$RELEASE_TAG" \
+            --base-url "${R2_PUBLIC_BASE_URL:-}" \
+            --out ../RELEASE-MANIFEST.json
+          cat ../RELEASE-MANIFEST.json
+      - uses: actions/upload-artifact@v7
         with:
           name: keel-installers
+          retention-days: 90
+          if-no-files-found: error
           path: |
             artifacts/keel-windows/Keel-Setup-*.exe
             artifacts/keel-windows/SHA256SUMS-windows.txt
@@ -168,12 +224,17 @@ jobs:
             artifacts/keel-linux/Keel-*-linux-*.deb
             artifacts/keel-linux/SHA256SUMS-linux.txt
             RELEASE-SHA256SUMS.txt
+            RELEASE-MANIFEST.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: keel-release-manifest
+          retention-days: 90
+          path: RELEASE-MANIFEST.json
 
-  # CI never publishes to public GitHub Releases.
-  # Installers ship to Keel-controlled R2 storage only, and only when the
-  # `R2_UPLOAD_ENABLED` repository variable is `true` and the secrets
-  # `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ACCOUNT_ID`,
-  # `R2_BUCKET_NAME` are configured (see docs/HOSTING.md).
+  # Never runs unless both gates are set: a tag build AND
+  # repository variable R2_UPLOAD_ENABLED == 'true' (+ secrets configured).
+  # See docs/HOSTING.md. Upload is to Keel-controlled R2 only — GitHub
+  # Releases are never used for installer distribution.
   upload-to-hosting:
     needs: prepare-installers
     if: vars.R2_UPLOAD_ENABLED == 'true'
@@ -183,14 +244,44 @@ jobs:
       R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
       R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+      R2_PUBLIC_BASE_URL: ${{ vars.R2_PUBLIC_BASE_URL }}
+      RELEASE_TAG: ${{ github.ref_name }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: keel-installers
       - name: Upload to Keel storage (R2)
         run: |
+          set -euo pipefail
           sudo apt-get update && sudo apt-get install -y awscli
           aws configure set aws_access_key_id "$R2_ACCESS_KEY_ID"
           aws configure set aws_secret_access_key "$R2_SECRET_ACCESS_KEY"
           aws configure set default.region auto
-          aws s3 cp . "s3://$R2_BUCKET_NAME/" --recursive --region auto --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com"
+          # versioned object keys: v<tag>/<file>; no overwrite of older versions
+          for f in *; do
+            [ -f "$f" ] || continue
+            aws s3 cp "$f" "s3://$R2_BUCKET_NAME/$RELEASE_TAG/$f" --region auto --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com"
+          done
+      - name: Verify public downloads over HTTPS
+        run: |
+          set -euo pipefail
+          if [ -z "${R2_PUBLIC_BASE_URL:-}" ]; then
+            echo "::warning::vars.R2_PUBLIC_BASE_URL is not set; skipping public verification."
+            echo "Set it (e.g. https://download.keel.app) to make tag releases fail closed."
+            exit 0
+          fi
+          base="${R2_PUBLIC_BASE_URL%/}/$RELEASE_TAG"
+          for f in Keel-Setup-* Keel-*-macos-*.dmg Keel-*-macos-*.zip Keel-*-linux-*.AppImage Keel-*-linux-*.deb RELEASE-MANIFEST.json; do
+            [ -e "$f" ] || continue
+            url="$base/$f"
+            expected="$(sha256sum "$f" | cut -d' ' -f1)"
+            actual="$(curl -fsSL --retry 3 --max-time 600 "$url" | sha256sum | cut -d' ' -f1)"
+            if [ "$expected" != "$actual" ]; then
+              echo "::error::checksum mismatch for $url"
+              echo "expected: $expected"
+              echo "actual:   $actual"
+              exit 1
+            fi
+            echo "verified: $url"
+          done
+          echo "All public downloads verified."
