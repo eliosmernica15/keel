@@ -24,7 +24,12 @@ These are the closest analogues, not full equivalents.
 | Provider routing | `packages/providers` | **Ported-to-Python** | `providers/` — OpenRouter + Google working; no fallbacks |
 | PWA / web UI | `packages/app` `ui` `session-ui` | **Reused (closely related UI)** | `site/`, `desktop/ui` — similar visual design, not the same build |
 | Skills | `packages/skills` (not listed) | **New in Keel** | `_parse_frontmatter` in `skills.py`, `/api/skills` endpoint |
-| MCP | `packages/core/mcp` | **Reused** | `src/keel/mcp.py` — partial overlap only |
+| MCP | `packages/core/mcp` | **Reused** | `src/keel/mcp.py` - partial overlap only |
+| v2 sessions compat surface | `packages/server` (partial) | **Implemented (tracer scope)** | `/api/v2/sessions*` in `src/keel/compat.py` — sessions CRUD-ish, message roundtrip, buffered events replay with `?since=`, approve/reject; **not provider-backed, not OpenCode parity** — 8 contract tests green (`tests/test_compat_tracer.py`) |
+
+### Keel-side compat tracer (this milestone, 2026-11-19)
+
+The `/api/v2/*` surface exists so an OpenCode-shaped client can exercise the Keel bridge end to end. It creates sessions, round-trips a message through a **local deterministic loop** (no LLM provider is called), replays buffered events as SSE with a `since` filter, and handles permission approve/reject with 404s for unknown sessions. It is deliberately not wired to `runner.py` or any provider yet. Nothing in OpenCode `packages/server` is ported; the tracer is a Keel-native shim and is not a parity claim.
 
 ## What Keel does not cover
 

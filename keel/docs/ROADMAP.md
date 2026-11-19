@@ -2,9 +2,9 @@
 
 Caveats up front:
 
-- Judgment about timelines is approximate. The remaining scope is a multi-month project; the single biggest risk is in shipping a broken 122 MB binary into a CI pipeline I have not seen succeed.
-- The hosting decision (GitHub Releases vs. Keel Cloud) is still unresolved enough that download destinations are hardcoded in `site/download.json` today. That must change before public CI artifacts are published.
-- macOS/Linux signing is not possible from this Windows machine without a Mac or Linux runner and an Apple Developer ID.
+- Judgment about timelines is approximate. The remaining scope is a multi-month project; the biggest risk left in the desktop pipeline is signing and per-OS first-run UX, not building.
+- CI now builds and verifies Windows/macOS/Linux installers on every push (workflow at `.github/workflows/build-desktop.yml`), but **no installer is publicly downloadable yet** — that needs Keel-controlled object storage plus credentials, and `site/download.json` stays `available: false` until a real download has been tested end to end.
+- macOS/Linux signing is not possible from this Windows machine; the .dmg/.AppImage/.deb are unsigned and will be blocked or warned about by Gatekeeper/SmartScreen/distro policies. An Apple Developer ID and a code-signing strategy are prerequisites for frictionless installs.
 
 ## Milestone 2 — Python runtime to OpenCode contract parity (3–6 months)
 
@@ -17,10 +17,10 @@ Caveats up front:
 
 ## Milestone 3 — Desktop packaging distribution
 
-- CI builds Windows / macOS / Linux artifacts.
-- sha256 manifest and `latest.json`-style release manifest.
-- SmartScreen / Gatekeeper readiness (signing certificate, notarization).
-- GitHub Releases workflow for public downloads, or Keel Cloud bucket install.
+- CI builds Windows / macOS / Linux artifacts — done in CI (run `44431591087`, 2026-11-19): `Keel-Setup-0.1.0.exe`, `Keel-0.1.0-macos-arm64.dmg/.zip`, `Keel-0.1.0-linux-x86_64.AppImage`, `Keel-0.1.0-linux-amd64.deb`. Not publicly distributed; not install-tested on macOS/Linux hardware.
+- sha256 manifest and `latest.json`-style release manifest — `SHA256SUMS-*.txt` produced per OS in CI; combined `RELEASE-SHA256SUMS.txt` staged for tags via `prepare-installers`. A `latest.json` manifest for the mirror is not built yet.
+- SmartScreen / Gatekeeper readiness (signing certificate, notarization) — not started; needs certificates.
+- Distribution via Keel-controlled R2/S3 bucket with the `/download` page pointing at hosted objects (never public GitHub Releases) — blocked on Cloudflare R2 (or S3) credentials; see `docs/HOSTING.md`. The `upload-to-hosting` CI job is in place and gated on the `R2_UPLOAD_ENABLED` repository variable.
 
 ## Milestone 4 — Provider & model ecosystem parity
 

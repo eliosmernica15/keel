@@ -2,24 +2,28 @@
 
 This document is the truthful state of how finished Keel installers reach users.
 
-## Current state (2026-11-19)
+## Current state (2026-11-19, updated after CI fix)
 
-**No public Keel installer is available today.** The intent is for the official Keel landing page to host the installers (`/download` route), fed by a private GitHub Actions pipeline producing artifacts and uploading them to Keel-controlled object storage/CDN.
+**No public Keel installer is available today.** The intended distribution channel is a Keel-controlled object storage/CDN (Cloudflare R2 preferred), fed by GitHub Actions, surfaced on the official `/download` page.
 
-Current assets:
+What exists now:
 
-- Local build: `C:\Users\Admin\Desktop\Claude clone\keel\dist\Keel-Setup-0.1.0.exe`
-  - 122 MB
-  - SHA-256: `56731AE2820AA46BD9E54A9E5C7151AB965B53BC7282FCC02D3DA6F792E19DCE`
-  - Locally tested: silent install, launch, working bridge, silent uninstall
-- macOS / Linux: **no artifacts exist yet.** CI workflows are present but have not produced or been tested on those platforms.
+- CI builds the installers on every push to `main` (workflow at `.github/workflows/build-desktop.yml`; the project lives in `keel/` inside the repository).
+- Verified green run: `44431591087` (2026-11-19, commit `d584ae7`). Artifacts are attached to that workflow run only, **not publicly distributed**, retained until 2027-02-17:
+  - `keel-windows` (~122 MB) — `Keel-Setup-0.1.0.exe`, sha256 `43a5eb7db968faa26561ad9df793882e7de89d1da74b68c627187be1bd3339bf`
+  - `keel-macos` (arm64) — `Keel-0.1.0-macos-arm64.dmg` sha256 `38759134f6cf495dff7d67ea89b259cad4519a1d0ebe5c2da5691a30c870bdba`; `.zip` sha256 `e4216b36dbcdef9dbf106a3a03361e1c778904b6aca3cbdad051b515eba9312d`
+  - `keel-linux` — `Keel-0.1.0-linux-x86_64.AppImage` sha256 `2661953bf1a0d5c92faa91f3ef5e263e1ccfa79015d786fde94fd78876208beb`; `Keel-0.1.0-linux-amd64.deb` sha256 `15f5db415248ef8d36687b224b19033568890bce67cbc52a5b06f3ad41b04b3e`
+- Intel macOS: not built (runner is arm64). Linux: not install-tested on desktop hardware. Neither macOS nor Linux binary has been launched by a human yet.
+- Local build that was install-tested on this machine: `C:\Users\Admin\Desktop\Claude clone\keel\dist\Keel-Setup-0.1.0.exe` (122 MB, sha256 `56731AE2820AA46BD9E54A9E5C7151AB965B53BC7282FCC02D3DA6F792E19DCE`). This is a **different build** than the CI artifact — CI rebuilt it.
+- Nothing is published to GitHub Releases; `site/download.json` stays `available: false` everywhere until a hosted download is tested end to end.
 
 ## Intended pipeline
 
 1. Developer pushes to `eliosmernica15/keel`
 2. GitHub Actions (`.github/workflows/build-desktop.yml`) builds Windows, macOS, Linux installers
-3. Artifacts are uploaded to Keel-controlled storage (see below)
-4. `site/download.json` and `/download` page reflect hosted versions
+3. On tag pushes (`v*`), `prepare-installers` stages a combined `keel-installers` artifact with `RELEASE-SHA256SUMS.txt`
+4. `upload-to-hosting` ships the artifacts to Keel-controlled storage — **only when the `R2_UPLOAD_ENABLED` repository variable is `true`** — using the secrets below
+5. `site/download.json` and `/download` page are updated to the hosted URLs (real sizes/hashes), and a fresh production deploy is verified before `available: true`
 
 ## Recommended hosting
 
@@ -60,19 +64,19 @@ Required:
 - Object keys identical to Option A
 - AWS secrets via GitHub Actions: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`
 
-## Secrets to provide
+## Secrets to provide (and how, safely)
 
-Please provide **exactly one option** (A or B) and the corresponding credentials via **GitHub Secrets**, not in chat:
+1. Create the bucket and a scoped API token (Cloudflare dashboard → R2 → bucket `keel-releases` → Manage R2 API Tokens → Object Read & Write, scoped to that bucket only).
+2. In GitHub: `eliosmernica15/keel` → Settings → Secrets and variables → Actions:
+   - **Secrets** (tab 1): `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`
+   - **Variables** (tab 2): `R2_UPLOAD_ENABLED` = `true`
+   Never put these values in chat, issues, or commits.
+3. Choose the public origin, e.g. `https://download.keel.app` (custom domain → R2 bucket, cached immutable; keep versioned objects for rollback).
+4. Tell me the origin (not the secrets). I will tag a release (`v0.1.0`), watch the `prepare-installers` and `upload-to-hosting` jobs, then point `site/download.json` at the hosted objects with their real sizes/hashes, deploy, and test a public download on each platform before marking availability true.
 
-- Cloudflare R2: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`
-- AWS S3: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`
+Until all of that is done, every installer entry in `/download` remains "Not currently available". That is intentional.
 
-And the public origin where installers will be served, e.g.:
-
-- `https://download.keel.app`
-- or another domain we control
-
-Once those are set, I can add the upload step to `.github/workflows/build-desktop.yml`, and flip `site/download.json` to reference the hosted URLs with real sizes/hashes.
+AWS S3 equivalent (Option B): secrets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_S3_BUCKET`; same `R2_UPLOAD_ENABLED` gate would need adapting (ask first).
 
 ## What I will NOT do
 

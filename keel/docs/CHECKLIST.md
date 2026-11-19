@@ -9,22 +9,29 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 |---|---|---|---|
 | Audit | Full OpenCode source inspection | done | `docs/PARITY.md`, `docs/parity.json` |
 | Notices | Third-party license notices | done | `docs/THIRD_PARTY_NOTICES.md` |
-| Tracer | `/api/v2/sessions` POST/GET | done | `src/keel/compat.py`, tests green |
-| Tracer | `/api/v2/sessions/:id/approve` | done | exists in `test_compat_tracer.py` |
-| Tracer | `/api/v2/sessions/:id/messages` | done | same |
-| Tracer | `/api/v2/sessions/:id/events` | partial | server-streaming shape, no real stream yet |
+| Tracer | `/api/v2/sessions` POST/GET list/delete | done | `src/keel/compat.py`, tests green |
+| Tracer | `/api/v2/sessions/:id/approve` (+ reject, 404 on unknown) | done | `test_compat_tracer.py` (8 tests green) |
+| Tracer | `/api/v2/sessions/:id/messages` POST/GET | done | same |
+| Tracer | `/api/v2/sessions/:id` GET (session + messages) | done | same |
+| Tracer | `/api/v2/sessions/:id/events?since=` | partial | buffered replay with since-filter; not live SSE yet |
+| Tracer | Latent deadlock in `sessions_list()` (non-reentrant lock) | fixed | caught by new tests; `_LOCK` is now `RLock` |
 | Downloads | Mirror `/download` page | done | `site/download.html`, `/ui/download.js`, `/download.json` |
 | Downloads | Download destinations configurable | done | destinations from `download.json` |
 | Downloads | Route rewrites in `vercel.json` | done | `/download` -> `/download.html` |
+| CI | Workflow discovered by GitHub Actions | done | `.github/workflows/build-desktop.yml` at repo root (was nested at `keel/.github/` where it was invisible) |
+| CI | Windows build (runner, not this host) | done | run `44431591087` green 2026-11-19; NSIS artifact produced; sha256 `43a5eb7d…` |
+| CI | macOS build (runner; arm64 only) | done | same run; `Keel-0.1.0-macos-arm64.dmg/.zip`; Intel untested; Gatekeeper unsigned |
+| CI | Linux build | done | same run; `Keel-0.1.0-linux-x86_64.AppImage`, `Keel-0.1.0-linux-amd64.deb`; not run on a desktop Linux yet |
+| Tests | Full suite | done | `pytest -q` -> 427 passed (2026-11-19) |
 
 ## Not done yet (documented honestly)
 
 - PostgreSQL / object storage — later milestone.
-- macOS / Linux installer verification — CI-only, unverified on real hardware.
+- Install-and-launch verification on real macOS/Linux hardware — CI built the artifacts, nobody ran them yet.
 - Live-provider end-to-end verification — no keys/quota on this host.
 - Full OpenCode feature port — multi-month work; not claimed.
-- Public signing / SmartScreen-ready binary.
-- Installer hosting verification (requires object-store bucket creds — none available).
+- Public signing / SmartScreen / Gatekeeper-ready binaries — needs certificates.
+- Installer hosting verification — artifacts exist as GitHub Actions workflow artifacts (run `44431591087`) but are NOT publicly distributed; needs object-store credentials.
 - Port of OpenCode server routes, tools, plugins, MCP surface.
 - PostgreSQL adapter / migration tooling.
 - User accounts / PostgreSQL / object storage / sync.
