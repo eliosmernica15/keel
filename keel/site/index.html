@@ -83,7 +83,7 @@
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
           </div>
-          <p class="hero-meta"><span>v0.1.0</span><span aria-hidden="true">·</span><span>Windows verified</span><span aria-hidden="true">·</span><span>macOS / Linux built in CI</span></p>
+          <p class="hero-meta"><span>v0.1.1</span><span aria-hidden="true">·</span><span>Windows, macOS, Linux available</span><span aria-hidden="true">·</span><span>macOS / Linux built in CI</span></p>
           <ul class="hero-proofs" aria-label="How Keel behaves">
             <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Bridge on 127.0.0.1, per-launch token</li>
             <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Keys verified, stored only on your machine</li>
@@ -205,24 +205,24 @@
         <div class="platform-grid" id="platform-grid">
           <article class="platform reveal" data-os="windows">
             <div class="platform-top"><h3>Windows</h3><span class="badge badge-pending" data-badge>Not available</span></div>
-            <p class="mono platform-file" data-file>Keel-Setup-0.1.0.exe</p>
+            <p class="mono platform-file" data-file>Keel-Setup-0.1.1.exe</p>
             <ul class="platform-meta" data-meta><li>NSIS · per-user install, no admin</li><li>x64</li><li>Unsigned — expect SmartScreen</li></ul>
             <a class="btn btn-disabled" aria-disabled="true" href="/download" data-cta>Not publicly available</a>
           </article>
           <article class="platform reveal" data-os="macos">
             <div class="platform-top"><h3>macOS</h3><span class="badge badge-pending" data-badge>Not available</span></div>
-            <p class="mono platform-file" data-file>Keel-0.1.0-macos-arm64.dmg</p>
+            <p class="mono platform-file" data-file>Keel-0.1.1-macos-arm64.dmg</p>
             <ul class="platform-meta" data-meta><li>arm64 · Apple Silicon</li><li>DMG + ZIP</li><li>Unsigned — Gatekeeper will block first launch</li></ul>
             <a class="btn btn-disabled" aria-disabled="true" href="/download" data-cta>Not publicly available</a>
           </article>
           <article class="platform reveal" data-os="linux">
             <div class="platform-top"><h3>Linux</h3><span class="badge badge-pending" data-badge>Not available</span></div>
-            <p class="mono platform-file" data-file>Keel-0.1.0-linux-x86_64.AppImage</p>
+            <p class="mono platform-file" data-file>Keel-0.1.1-linux-x86_64.AppImage</p>
             <ul class="platform-meta" data-meta><li>x86_64 · AppImage + .deb</li><li>Builds checksummed in CI</li><li>Unsigned — distro policy may warn</li></ul>
             <a class="btn btn-disabled" aria-disabled="true" href="/download" data-cta>Not publicly available</a>
           </article>
         </div>
-        <p class="fine center fine-download" id="landing-download-note">Installers will appear on <a href="/download">/download</a> the moment official Keel-controlled hosting is live. Until then, nothing here is secretly downloadable — that's deliberate.</p>
+        <p class="fine center fine-download" id="landing-download-note">Installers are published as GitHub Release assets and appear on <a href="/download">/download</a> only after their SHA-256 is verified over public HTTPS.</p>
       </div>
     </section>
 
@@ -253,7 +253,7 @@
           <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/HOSTING.md" rel="noopener">
             <span class="mono doc-tag">Distribution</span>
             <h3>How installers reach you ↗</h3>
-            <p>The Keel-controlled hosting pipeline: CI builds, checksums, R2/S3 in front of <code>/download</code>, never GitHub Releases.</p>
+            <p>How installers reach you: CI builds, Python release manager, GitHub Releases in front of <code>/download</code>.</p>
           </a>
           <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/IMPLEMENTATION-PLAN.md" rel="noopener">
             <span class="mono doc-tag">Design</span>
@@ -316,7 +316,7 @@
       </nav>
     </div>
     <div class="container footer-bar">
-      <span class="mono">v0.1.0 · keel-desktop.vercel.app</span>
+      <span class="mono">v0.1.1 · keel-desktop.vercel.app</span>
       <span class="mono">No account · No telemetry · No cloud relay</span>
     </div>
   </footer>
