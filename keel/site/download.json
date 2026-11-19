@@ -5,31 +5,31 @@
     "windows": {
       "name": "Windows x64 (64-bit)",
       "file": "Keel-Setup-0.1.0.exe",
-      "size": 121917363,
-      "sha256": "56731AE2820AA46BD9E54A9E5C7151AB965B53BC7282FCC02D3DA6F792E19DCE",
+      "size": 121922561,
+      "sha256": "83A354827A5CF0D32E640C297D9243B85CBC7AEB0CF7A1A4CF28A3586781AC71",
       "url": null,
       "available": false,
-      "notes": "NSIS installer. Per-user install, no admin required. SmartScreen will warn because this build is unsigned. This entry is the locally install-tested build; a CI-built Windows installer (sha256 43a5eb7db968faa26561ad9df793882e7de89d1da74b68c627187be1bd3339bf, 121780566 bytes) also exists as a GitHub Actions artifact (run 44431591087, 2026-11-19) but is not publicly distributed.",
+      "notes": "CI-built (run 44527352992) AND install-tested on Windows 11 (silent install, launch, bridge on 127.0.0.1, reinstall, silent uninstall, ~/.keel preserved). Unsigned - expect SmartScreen. Not publicly distributed yet.",
       "installation": "Run Keel-Setup-0.1.0.exe. Accept the installer prompts. Launch from the Start Menu shortcut or Desktop shortcut."
     },
     "macos": {
       "name": "macOS arm64 (Apple Silicon)",
       "file": "Keel-0.1.0-macos-arm64.dmg",
       "size": 130484680,
-      "sha256": "38759134F6CF495DFF7D67EA89B259CAD4519A1D0EBE5C2DA5691A30C870BDBA",
+      "sha256": "FD334261DA065C930F70916C0E7D8DFA70845083F306A05EEE480816E55222F4",
       "url": null,
       "available": false,
-      "notes": "CI-built and checksummed in GitHub Actions run 44431591087 (2026-11-19). arm64 only; Intel Macs untested. Unsigned, so Gatekeeper will block first launch (right-click > Open, or a future notarized build). Not publicly distributed. Do not download from unofficial sources.",
+      "notes": "CI-built (run 44527352992, macOS 26 arm64 runner), checksummed; Mach-O arm64 zip inspected structurally but never mounted on a Mac. Unsigned - Gatekeeper will block. Intel Macs not supported by this build. Not publicly distributed yet.",
       "installation": null
     },
     "linux": {
       "name": "Linux x64",
       "file": "Keel-0.1.0-linux-x86_64.AppImage",
-      "size": null,
-      "sha256": "2661953BF1A0D5C92FAA91F3EF5E263E1CCFA79015D786FDE94FD78876208BEB",
+      "size": 148853142,
+      "sha256": "4556A5E153E9DE531CF81EABE5EF524A5F62BDC4FAC8135C8F8F81CF95E2DDDD",
       "url": null,
       "available": false,
-      "notes": "CI-built and checksummed in GitHub Actions run 44431591087 (2026-11-19). Untested on desktop Linux; the matching .deb (sha256 15f5db415248ef8d36687b224b19033568890bce67cbc52a5b06f3ad41b04b3e) is also built. Not publicly distributed. Do not download from unofficial sources.",
+      "notes": "CI-built (run 44527352992), checksummed and structure-inspected (.deb control/deps/desktop entry, AppImage ELF+squashfs); not yet launched on desktop Linux. The .deb (sha256 3A82B36A4812673A30DB06E4A29A8B428F1429CC3052EA2C2D8FC760FEEC7931) is also built. Not publicly distributed yet.",
       "installation": null
     }
   },

@@ -24,6 +24,11 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 | CI | macOS build (runner; arm64 only) | done | same run; `Keel-0.1.0-macos-arm64.dmg/.zip`; Intel untested; Gatekeeper unsigned |
 | CI | Linux build | done | same run; `Keel-0.1.0-linux-x86_64.AppImage`, `Keel-0.1.0-linux-amd64.deb`; not run on a desktop Linux yet |
 | Tests | Full suite | done | `pytest -q` -> 427 passed (2026-11-19) |
+| Installer validation | Windows installer (CI artifact, run `44527352992`) | done | hash verified; silent install → launch → frozen sidecar on 127.0.0.1:8857; `/api/health` 403 (token-protected); `/ui/style.css` 200; reinstall OK; silent uninstall removed dir; `~/.keel` fully preserved |
+| Installer validation | macOS DMG/ZIP (arm64) | partial | CI build green; hashes known; zip structure not yet inspected; never mounted on a Mac; Intel unsupported |
+| Installer validation | Linux AppImage + .deb | partial | hashes verified; `.deb` control/deps/desktop-entry/postinst inspected; AppImage ELF x86-64 type-2 w/ squashfs verified; not launched on desktop Linux |
+| Release pipeline | version sync gate + release manifest + post-upload verification | done | `scripts/check_version_sync.py`, `make_release_manifest.py`; CI green incl. validate-versions |
+| Website | `/download` correctness fixes (nav, brand icon, meta wrap, arch-aware OS detect) | done | verified locally; production re-verify pending deploy (will flip to done evidence with run id) |
 
 ## Not done yet (documented honestly)
 
