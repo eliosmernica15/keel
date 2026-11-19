@@ -396,13 +396,7 @@ async function restoreAgentSession(surface) {
                     (body) => { body.textContent = m.content || ""; }, surface);
     }
     if ((doc.messages || []).length) hideEmptyState(surface);
-    if (doc.session && doc.session.usage) {
-      const u = doc.session.usage;
-      state.tokens = (u.input_tokens || 0) + (u.output_tokens || 0);
-      const el = $("token-count");
-      if (el) el.textContent = `${state.tokens} tokens`;
-      updateRing();
-    }
+    syncSessionUsage(surface);
     setAgentHeader(surface);
     agentRefreshPending(surface);
   } catch { /* restore is best-effort */ }
@@ -515,6 +509,25 @@ async function agentRefreshPending(surface) {
   } catch { /* best-effort */ }
 }
 
+async function syncSessionUsage(surface) {
+  // fleet_usage is the source of truth: the live `usage` event is only a
+  // progress hint, so re-read the aggregate when a turn finishes.
+  const sess = agent.sessions[surface];
+  if (!sess) return;
+  try {
+    const r = await fetch(`/api/v2/sessions/${encodeURIComponent(sess.id)}`,
+                          { headers: fsHeaders() });
+    if (!r.ok) return;
+    const doc = await r.json();
+    const u = doc.session && doc.session.usage;
+    if (!u) return;
+    state.tokens = (u.input_tokens || 0) + (u.output_tokens || 0);
+    const el = $("token-count");
+    if (el) el.textContent = `${state.tokens} tokens`;
+    updateRing();
+  } catch { /* best-effort */ }
+}
+
 function markApprovalResolved(evt, surface) {
   const card = threadOf(surface).querySelector(
     `.approval-card[data-id="${CSS.escape(evt.approval_id || "")}"]`);
@@ -585,7 +598,8 @@ function agentEvent(evt, surface) {
         stop_reason: evt.terminal_reason,
         is_error: evt.terminal_reason !== "completed",
         total_cost_usd: 0,
-      }, surface);
+      }, surface, false);  // the usage event already counted this turn
+      syncSessionUsage(surface);  // then trust the server aggregate
       setAgentHeader(surface);
       agentRefreshPending(surface);
       return;
@@ -721,9 +735,9 @@ function renderToolResult(block, surface) {
     }));
   }, surface);
 }
-function renderResult(evt, surface) {
+function renderResult(evt, surface, countTokens = true) {
   const u = evt.usage || {};
-  state.tokens += (u.input_tokens || 0) + (u.output_tokens || 0);
+  if (countTokens) state.tokens += (u.input_tokens || 0) + (u.output_tokens || 0);
   state.turns = evt.num_turns ?? state.turns + 1;
   appendMessage("result", "result", (body) => {
     const grid = el("div", { className: "result-grid" });
