@@ -5,6 +5,10 @@
   "author": "Keel Team",
   "license": "Proprietary",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eliosmernica15/keel.git"
+  },
   "type": "module",
   "main": "main.js",
   "scripts": {
