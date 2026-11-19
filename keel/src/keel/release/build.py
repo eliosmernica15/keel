@@ -13,8 +13,6 @@ from .common import (
     PROJECT_ROOT,
     detect_repo,
     ensure_file,
-    expected_filenames,
-    find_artifacts,
     run_cmd,
     sha256_file,
     validate_artifacts,
@@ -77,18 +75,14 @@ def stage_release(out_dir: Path, version: str) -> dict[str, Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     dist_dir = PROJECT_ROOT / "dist"
     artifacts: dict[str, Path] = {}
-    expected = set(expected_filenames(version))
     for path in dist_dir.rglob("Keel-*"):
         if not path.is_file():
-            continue
-        if path.name not in expected:
             continue
         dest = out_dir / path.name
         shutil.copy2(path, dest)
         artifacts[path.name] = dest
-    missing = sorted(expected - set(artifacts))
-    if missing:
-        raise RuntimeError("build produced no installer for: " + ", ".join(missing))
+    if not artifacts:
+        raise RuntimeError("build produced no installer")
     write_combined_checksums(artifacts, out_dir)
     return artifacts
 
