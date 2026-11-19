@@ -597,7 +597,7 @@ function agentEvent(evt, surface) {
         usage: { input_tokens: u.input_tokens || 0, output_tokens: u.output_tokens || 0 },
         stop_reason: evt.terminal_reason,
         is_error: evt.terminal_reason !== "completed",
-        total_cost_usd: 0,
+        total_cost_usd: null,  // cost basis is unknown until a provider reports it
       }, surface, false);  // the usage event already counted this turn
       syncSessionUsage(surface);  // then trust the server aggregate
       setAgentHeader(surface);
@@ -749,7 +749,9 @@ function renderResult(evt, surface, countTokens = true) {
     };
     cell("turns", evt.num_turns ?? 0);
     cell("tokens", (u.input_tokens || 0) + (u.output_tokens || 0));
-    cell("cost", `$${(evt.total_cost_usd ?? 0).toFixed(4)}`);
+    cell("cost", evt.total_cost_usd == null
+      ? "unknown"
+      : `$${Number(evt.total_cost_usd).toFixed(4)}`);
     cell("stop", evt.stop_reason ?? "?");
     cell("is error", evt.is_error ? "yes" : "no");
     body.appendChild(grid);
