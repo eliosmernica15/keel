@@ -34,8 +34,18 @@
     .btn-download:hover { filter: brightness(1.05); }
     .btn-download:disabled, .btn-download[aria-disabled="true"] { background: var(--panel-2); color: var(--muted); cursor: not-allowed; }
     .meta { font-size: 12px; color: var(--muted); font-family: var(--mono); line-height: 1.6; white-space: pre-line; }
+    .meta-row { font-size: 12px; color: var(--muted); font-family: var(--mono); line-height: 1.6; }
     .notes { font-size: 13px; color: var(--muted); line-height: 1.55; }
     .badge { align-self: flex-start; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; border: 1px solid var(--edge); border-radius: 999px; padding: 4px 10px; color: var(--muted); }
+    .channel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .verified { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 3px 8px; }
+    .checkrow { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+    .checkrow code { font-family: var(--mono); font-size: 11px; color: var(--muted); word-break: break-all; line-height: 1.5; }
+    .copy-btn { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; background: transparent; color: var(--muted); border: 1px solid var(--edge); border-radius: 8px; padding: 4px 8px; cursor: pointer; }
+    .copy-btn:hover { color: var(--text); border-color: var(--muted); }
+    .alts { font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+    .alts a { color: var(--accent); text-decoration: none; }
+    .alts a:hover { text-decoration: underline; }
     .hero-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 14px; margin-bottom: 6px; }
     .version { font-family: var(--mono); font-size: 12px; color: var(--muted); border: 1px solid var(--edge); border-radius: 8px; padding: 4px 10px; }
     .detect { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 20px; }
@@ -66,11 +76,15 @@
       <!-- populated by /ui/download.js -->
     </div>
 
-    <p class="footnote">
-      After installation, Keel runs entirely on this machine — the agent, the bridge, your conversations, your keys.
-      The first launch shows a short onboarding. Uninstalling never touches your <span class="kbd">~/.keel</span> directory.
-      Installers are not yet publicly available; downloads will appear on this page when official hosting is ready.
+    <p class="footnote" id="hosting-note">
+      No installer is publicly available yet. When a release is published, this page will
+      show the verified download link and its SHA-256. Uninstalling never touches your
+      <span class="kbd">~/.keel</span> directory. Installers are unsigned: SmartScreen and
+      Gatekeeper will warn until code signing is configured.
     </p>
+    <noscript>
+      <p class="footnote">Enable JavaScript to see installer options.</p>
+    </noscript>
   </main>
 
   <script type="module" src="/ui/download.js"></script>

@@ -1,37 +1,58 @@
 {
+  "name": "Keel Desktop",
   "version": "0.1.0",
   "tag": "v0.1.0",
+  "generated": "fallback",
+  "published_at": null,
+  "verified_at": null,
+  "base_url": null,
+  "release_manifest_url": null,
   "channels": {
     "windows": {
       "name": "Windows x64 (64-bit)",
+      "arch": "x64",
+      "version": "0.1.0",
       "file": "Keel-Setup-0.1.0.exe",
       "size": 121922561,
       "sha256": "83A354827A5CF0D32E640C297D9243B85CBC7AEB0CF7A1A4CF28A3586781AC71",
       "url": null,
       "available": false,
-      "notes": "CI-built (run 44527352992) AND install-tested on Windows 11 (silent install, launch, bridge on 127.0.0.1, reinstall, silent uninstall, ~/.keel preserved). Unsigned - expect SmartScreen. Not publicly distributed yet.",
-      "installation": "Run Keel-Setup-0.1.0.exe. Accept the installer prompts. Launch from the Start Menu shortcut or Desktop shortcut."
+      "verified": false,
+      "verified_at": null,
+      "notes": "Built and checksummed by CI run 44527352992 and install-tested on Windows 11 (silent install, launch, bridge on 127.0.0.1, reinstall, silent uninstall, ~/.keel preserved). Not publicly hosted, so there is nothing to download yet. Unsigned - expect SmartScreen.",
+      "installation": "Run Keel-Setup-0.1.0.exe. Accept the installer prompts. Launch from the Start Menu shortcut or Desktop shortcut.",
+      "alternatives": []
     },
     "macos": {
       "name": "macOS arm64 (Apple Silicon)",
+      "arch": "arm64",
+      "version": "0.1.0",
       "file": "Keel-0.1.0-macos-arm64.dmg",
       "size": 130625482,
       "sha256": "FD334261DA065C930F70916C0E7D8DFA70845083F306A05EEE480816E55222F4",
       "url": null,
       "available": false,
-      "notes": "CI-built (run 44527352992, macOS 26 arm64 runner), checksummed; Mach-O arm64 zip inspected structurally but never mounted on a Mac. Unsigned - Gatekeeper will block. Intel Macs not supported by this build. Not publicly distributed yet.",
-      "installation": null
+      "verified": false,
+      "verified_at": null,
+      "notes": "Built and checksummed by CI run 44527352992; the app bundle was inspected but the DMG was never mounted on a Mac. Not publicly hosted, so there is nothing to download yet. Unsigned - Gatekeeper will block. Intel Macs are not supported by this build.",
+      "installation": "Open the DMG, drag Keel into Applications, then right-click Keel and choose Open the first time (Gatekeeper).",
+      "alternatives": []
     },
     "linux": {
-      "name": "Linux x64",
+      "name": "Linux x86_64",
+      "arch": "x86_64",
+      "version": "0.1.0",
       "file": "Keel-0.1.0-linux-x86_64.AppImage",
       "size": 148853142,
       "sha256": "4556A5E153E9DE531CF81EABE5EF524A5F62BDC4FAC8135C8F8F81CF95E2DDDD",
       "url": null,
       "available": false,
-      "notes": "CI-built (run 44527352992), checksummed and structure-inspected (.deb control/deps/desktop entry, AppImage ELF+squashfs); not yet launched on desktop Linux. The .deb (sha256 3A82B36A4812673A30DB06E4A29A8B428F1429CC3052EA2C2D8FC760FEEC7931) is also built. Not publicly distributed yet.",
-      "installation": null
+      "verified": false,
+      "verified_at": null,
+      "notes": "Built and checksummed by CI run 44527352992; AppImage and .deb were structure-inspected but not launched on desktop Linux. Not publicly hosted, so there is nothing to download yet. Unsigned; your distribution may show a policy warning.",
+      "installation": "Make the AppImage executable and run it. On Debian/Ubuntu the .deb can be installed with your package manager instead.",
+      "alternatives": []
     }
   },
-  "__hosting__": "Installers are not yet hosted publicly. Keel-controlled object storage/CDN is the intended distribution channel; upload and public URLs will be added when hosting credentials are provided. See docs/HOSTING.md."
+  "__hosting__": "No public release has been published. The release workflow uploads installers to Keel-controlled R2 and publishes this manifest only after every file was downloaded over public HTTPS and matched against its SHA-256. Until then every channel stays unavailable. See docs/HOSTING.md."
 }

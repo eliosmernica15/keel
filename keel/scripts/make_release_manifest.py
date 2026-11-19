@@ -26,6 +26,7 @@ PLATFORM_RULES = [
     ("Keel-", "-macos-arm64.zip", "macos", "arm64"),
     ("Keel-", "-linux-x86_64.AppImage", "linux", "x86_64"),
     ("Keel-", "-linux-amd64.deb", "linux", "amd64"),
+    ("Keel-", "-linux-x86_64.deb", "linux", "x86_64"),
 ]
 
 
@@ -54,14 +55,21 @@ def main() -> int:
     args = ap.parse_args()
 
     root = Path(args.artifacts)
+    if args.tag != f"v{args.version}":
+        print(
+            f"--tag {args.tag!r} does not match --version {args.version!r} "
+            f"(expected v{args.version})",
+            file=sys.stderr,
+        )
+        return 1
     files = sorted(p for p in root.rglob("*") if p.is_file())
 
     entries = []
-    checksums_found = False
+    checksums_file = None
     for path in files:
         name = path.name
         if name.startswith("SHA256SUMS") or name == "RELEASE-MANIFEST.json":
-            checksums_found = True
+            checksums_file = checksums_file or name
             continue
         kind = platform_for(name)
         if kind is None:
@@ -70,6 +78,7 @@ def main() -> int:
         entries.append({
             "platform": platform,
             "arch": arch,
+            "version": args.version,
             "file": name,
             "bytes": path.stat().st_size,
             "sha256": sha256_of(path),
@@ -86,12 +95,12 @@ def main() -> int:
         "tag": args.tag,
         "generated": "release-pipeline",
         "files": entries,
-        "checksums_file": "SHA256SUMS.txt",
+        "checksums_file": checksums_file or "RELEASE-SHA256SUMS.txt",
     }
 
     out = Path(args.out)
     out.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    print(f"manifest: {out} ({len(entries)} files, checksums merged: {checksums_found})")
+    print(f"manifest: {out} ({len(entries)} files, checksums file: {manifest['checksums_file']})")
     for e in entries:
         print(f"  {e['platform']:8} {e['arch']:4} {e['file']:38} {e['bytes']:>10}  {e['sha256'][:12]}…  {e['url']}")
     return 0

@@ -27,7 +27,7 @@
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Windows, macOS, Linux",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "description": "Keel is a developer-first AI agent environment for your machine: local bridge, BYOK providers, real tools, permission-gated actions. Not yet publicly distributed; installers will appear on /download when hosted.",
+    "description": "Keel is a developer-first AI agent environment for your machine: local bridge, BYOK providers, real tools, permission-gated actions. The download page shows current availability for Windows, macOS and Linux.",
     "author": { "@type": "Organization", "name": "Keel Team" }
   }
   </script>
@@ -200,29 +200,29 @@
         <div class="section-head">
           <p class="kicker">Download</p>
           <h2 id="download-title">Install on your machine.</h2>
-          <p class="section-sub">Keel ships as an installer per platform. Builds are produced and checksummed in CI on every push; public hosting is being set up — the <a href="/download">full download page</a> always shows the current truth.</p>
+          <p class="section-sub">Keel ships as an installer per platform. Builds are produced and checksummed in CI on every push; the <a href="/download">full download page</a> always shows the current truth.</p>
         </div>
-        <div class="platform-grid">
-          <article class="platform reveal">
-            <div class="platform-top"><h3>Windows</h3><span class="badge badge-pending">Not available</span></div>
-            <p class="mono platform-file">Keel-Setup-0.1.0.exe</p>
-            <ul class="platform-meta"><li>NSIS · per-user install, no admin</li><li>x64 · SHA-256 <code>43a5eb7d…</code> (CI build)</li><li>Locally install-tested; unsigned — expect SmartScreen</li></ul>
-            <a class="btn btn-disabled" aria-disabled="true" href="/download">Not publicly available</a>
+        <div class="platform-grid" id="platform-grid">
+          <article class="platform reveal" data-os="windows">
+            <div class="platform-top"><h3>Windows</h3><span class="badge badge-pending" data-badge>Not available</span></div>
+            <p class="mono platform-file" data-file>Keel-Setup-0.1.0.exe</p>
+            <ul class="platform-meta" data-meta><li>NSIS · per-user install, no admin</li><li>x64</li><li>Unsigned — expect SmartScreen</li></ul>
+            <a class="btn btn-disabled" aria-disabled="true" href="/download" data-cta>Not publicly available</a>
           </article>
-          <article class="platform reveal">
-            <div class="platform-top"><h3>macOS</h3><span class="badge badge-pending">Not available</span></div>
-            <p class="mono platform-file">Keel-0.1.0-macos-arm64.dmg</p>
-            <ul class="platform-meta"><li>arm64 · Apple Silicon</li><li>SHA-256 <code>38759134f6…</code> (CI build)</li><li>Unsigned — Gatekeeper will block first launch</li></ul>
-            <a class="btn btn-disabled" aria-disabled="true" href="/download">Not publicly available</a>
+          <article class="platform reveal" data-os="macos">
+            <div class="platform-top"><h3>macOS</h3><span class="badge badge-pending" data-badge>Not available</span></div>
+            <p class="mono platform-file" data-file>Keel-0.1.0-macos-arm64.dmg</p>
+            <ul class="platform-meta" data-meta><li>arm64 · Apple Silicon</li><li>DMG + ZIP</li><li>Unsigned — Gatekeeper will block first launch</li></ul>
+            <a class="btn btn-disabled" aria-disabled="true" href="/download" data-cta>Not publicly available</a>
           </article>
-          <article class="platform reveal">
-            <div class="platform-top"><h3>Linux</h3><span class="badge badge-pending">Not available</span></div>
-            <p class="mono platform-file">Keel-0.1.0-linux-x86_64.AppImage</p>
-            <ul class="platform-meta"><li>x86_64 · AppImage + .deb</li><li>SHA-256 <code>2661953bf…</code> (CI build)</li><li>CI-verified build; not yet run on desktop hardware</li></ul>
-            <a class="btn btn-disabled" aria-disabled="true" href="/download">Not publicly available</a>
+          <article class="platform reveal" data-os="linux">
+            <div class="platform-top"><h3>Linux</h3><span class="badge badge-pending" data-badge>Not available</span></div>
+            <p class="mono platform-file" data-file>Keel-0.1.0-linux-x86_64.AppImage</p>
+            <ul class="platform-meta" data-meta><li>x86_64 · AppImage + .deb</li><li>Builds checksummed in CI</li><li>Unsigned — distro policy may warn</li></ul>
+            <a class="btn btn-disabled" aria-disabled="true" href="/download" data-cta>Not publicly available</a>
           </article>
         </div>
-        <p class="fine center fine-download">Installers will appear on <a href="/download">/download</a> the moment official Keel-controlled hosting is live. Until then, nothing here is secretly downloadable — that's deliberate.</p>
+        <p class="fine center fine-download" id="landing-download-note">Installers will appear on <a href="/download">/download</a> the moment official Keel-controlled hosting is live. Until then, nothing here is secretly downloadable — that's deliberate.</p>
       </div>
     </section>
 
@@ -322,5 +322,6 @@
   </footer>
 
   <script src="/ui/landing.js" defer></script>
+  <script type="module" src="/ui/landing-download.js"></script>
 </body>
 </html>

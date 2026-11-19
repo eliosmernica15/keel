@@ -218,6 +218,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 600; letter-spacing: -0.0
 .platform-meta code { white-space: normal; word-break: break-all; }
 .badge { font-family: var(--mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; border-radius: 999px; padding: .35em .9em; border: 1px solid var(--edge); }
 .badge-pending { color: var(--warn); border-color: rgba(230, 213, 76, .35); background: rgba(230, 213, 76, .08); }
+.badge-available { color: #8fe3b0; border-color: rgba(143, 227, 176, .35); background: rgba(143, 227, 176, .08); }
 .fine-download { margin-top: 34px; }
 
 /* docs grid */

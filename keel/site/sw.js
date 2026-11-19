@@ -1,15 +1,18 @@
-/* Keel webapp service worker - v13.
+/* Keel webapp service worker - v14.
    The landing (/), the mirror app (/app.html) and the download page are all
-   static; there is no /api. Navigations and same-origin assets are
-   network-first so deploys land immediately, with cache fallback for
-   offline. Cross-origin traffic (provider APIs) is never touched. */
+   static, with one serverless helper at /api/download-manifest that proxies
+   the published R2 release manifest. Navigations and same-origin assets are
+   network-first so deploys land immediately, with cache fallback for offline.
+   Release manifests are never cached: availability must reflect the origin.
+   Cross-origin traffic (provider APIs) is never touched. */
 
-const VERSION = "keel-shell-v13";
+const VERSION = "keel-shell-v14";
 const SHELL = [
   "/",
   "/app.html",
   "/ui/landing.css",
   "/ui/landing.js",
+  "/ui/landing-download.js",
   "/ui/style.css",
   "/ui/app.js",
   "/ui/download.js",
@@ -42,6 +45,12 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== location.origin) return;
+
+  // Never cache release metadata: a stale manifest could advertise an
+  // installer that has been pulled, or hide a newly verified release.
+  if (url.pathname === "/download.json" || url.pathname.startsWith("/api/")) {
+    return;
+  }
 
   if (event.request.mode === "navigate") {
     event.respondWith(

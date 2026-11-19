@@ -8,8 +8,15 @@
 |---|---|---|
 | `/` | `/index.html` | The Keel landing page (marketing) |
 | `/app` | `/app.html` | The web mirror of the Keel app (BYOK chat, no agent, no disk) |
-| `/download` | `/download.html` | Platform download cards, rendered from `/download.json` |
-| `/download.json` | static | Machine-readable availability manifest |
+| `/download` | `/download.html` | Platform download cards, rendered from the release manifest |
+| `/api/download-manifest` | serverless function | Same-origin proxy for the published R2 release manifest |
+| `/download.json` | static | Committed fallback manifest; all channels unavailable until a verified release is published |
+
+The download surface only enables a button when the manifest marks the channel
+`available: true`, points at an HTTPS URL, and carries a positive byte size and
+SHA-256. The landing page and `/download` share that rule. The release workflow
+publishes the manifest only after downloading every uploaded file over public
+HTTPS and matching its checksum. See `../docs/HOSTING.md`.
 
 Desktop and web share the same design language: same tokens, fonts and icons.
 The desktop app (`desktop/ui/`) embeds the same mirror-family UI served by the

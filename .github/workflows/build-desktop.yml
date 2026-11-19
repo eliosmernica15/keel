@@ -7,16 +7,18 @@ name: Build desktop installers
 # Guarantees:
 # - Version sync is asserted before any build job runs (fail fast).
 # - electron-builder never publishes (`--publish never`); GH_TOKEN is not
-#   provided to the packaging steps.
-# - CI never creates a GitHub Release. Installers ship to Keel-controlled
-#   R2 storage only, and only when the `R2_UPLOAD_ENABLED` repository
-#   variable is `true` (see docs/HOSTING.md). Even then they land in the
-#   bucket under `v<tag>/` — never on a public GitHub Release.
-# - Every artifact is SHA-256 checksummed and `if-no-files-found: error`
-#   means a build that produced nothing cannot pass as a release.
-# - `upload-to-hosting` (tags only, gated on R2_UPLOAD_ENABLED) verifies
-#   the public HTTPS download of every file after upload and fails the
-#   release if any checksum mismatch or download error occurs.
+#   provided to the packaging steps. GitHub Releases are never used.
+# - Every platform artifact (Windows exe, macOS dmg+zip, Linux AppImage+deb)
+#   must exist before a tag release can proceed.
+# - `prepare-installers` stages a FLAT directory; the old pipeline uploaded
+#   from nested artifact folders and silently skipped every installer.
+# - `upload-to-hosting` (tags only, gated on R2_UPLOAD_ENABLED) uploads to
+#   Keel-controlled R2, then *downloads every public object over HTTPS* and
+#   compares status, byte count and SHA-256 before publishing a manifest.
+# - The public download.json is published last, after verification, and is
+#   re-fetched and compared so the site only sees a verified release.
+# - A missing secret, missing public base URL, failed upload, missing file or
+#   checksum mismatch fails the job.
 
 on:
   push:
@@ -191,11 +193,35 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           path: artifacts
+      - name: Require every platform artifact
+        run: |
+          set -euo pipefail
+          check() {
+            if ! find artifacts -type f -name "$1" -print -quit | grep -q .; then
+              echo "::error::missing required artifact matching $1"
+              exit 1
+            fi
+          }
+          check 'Keel-Setup-*.exe'
+          check 'Keel-*-macos-arm64.dmg'
+          check 'Keel-*-macos-arm64.zip'
+          check 'Keel-*-linux-*.AppImage'
+          check 'Keel-*-linux-*.deb'
+      - name: Stage a flat release directory
+        run: |
+          set -euo pipefail
+          mkdir release
+          find artifacts -type f \( -name 'Keel-*' -o -name 'SHA256SUMS-*.txt' \) -exec cp {} release/ \;
+          ls -l release
       - name: Combined checksum manifest
         shell: bash
         run: |
-          find artifacts -type f ! -name 'SHA256SUMS*.txt' -print0 | sort -z | xargs -0 sha256sum > RELEASE-SHA256SUMS.txt
+          set -euo pipefail
+          ( cd release && sha256sum Keel-* ) > RELEASE-SHA256SUMS.txt
+          cp RELEASE-SHA256SUMS.txt release/
           cat RELEASE-SHA256SUMS.txt
+      # URLs are only "pending" when no public base URL is configured; the
+      # upload job refuses to run in that state.
       - name: Generate release manifest
         working-directory: keel
         env:
@@ -203,41 +229,32 @@ jobs:
         run: |
           RELEASE_VERSION="${RELEASE_TAG#v}"
           python scripts/make_release_manifest.py \
-            --artifacts ../artifacts \
+            --artifacts ../release \
             --version "$RELEASE_VERSION" \
             --tag "$RELEASE_TAG" \
             --base-url "${R2_PUBLIC_BASE_URL:-}" \
-            --out ../RELEASE-MANIFEST.json
-          cat ../RELEASE-MANIFEST.json
+            --out ../release/RELEASE-MANIFEST.json
+          cat ../release/RELEASE-MANIFEST.json
       - uses: actions/upload-artifact@v7
         with:
           name: keel-installers
           retention-days: 90
           if-no-files-found: error
-          path: |
-            artifacts/keel-windows/Keel-Setup-*.exe
-            artifacts/keel-windows/SHA256SUMS-windows.txt
-            artifacts/keel-macos/Keel-*-macos-*.dmg
-            artifacts/keel-macos/Keel-*-macos-*.zip
-            artifacts/keel-macos/SHA256SUMS-macos.txt
-            artifacts/keel-linux/Keel-*-linux-*.AppImage
-            artifacts/keel-linux/Keel-*-linux-*.deb
-            artifacts/keel-linux/SHA256SUMS-linux.txt
-            RELEASE-SHA256SUMS.txt
-            RELEASE-MANIFEST.json
+          path: release/**
       - uses: actions/upload-artifact@v7
         with:
           name: keel-release-manifest
           retention-days: 90
-          path: RELEASE-MANIFEST.json
+          if-no-files-found: error
+          path: release/RELEASE-MANIFEST.json
 
-  # Never runs unless both gates are set: a tag build AND
-  # repository variable R2_UPLOAD_ENABLED == 'true' (+ secrets configured).
-  # See docs/HOSTING.md. Upload is to Keel-controlled R2 only — GitHub
-  # Releases are never used for installer distribution.
+  # Never runs unless both gates are set: a tag build AND repository variable
+  # R2_UPLOAD_ENABLED == 'true' (+ secrets configured). Upload is to
+  # Keel-controlled R2 only - GitHub Releases are never used. See docs/HOSTING.md.
   upload-to-hosting:
+    name: Publish verified installers
     needs: prepare-installers
-    if: vars.R2_UPLOAD_ENABLED == 'true'
+    if: startsWith(github.ref, 'refs/tags/v') && vars.R2_UPLOAD_ENABLED == 'true'
     runs-on: ubuntu-latest
     env:
       R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -247,41 +264,139 @@ jobs:
       R2_PUBLIC_BASE_URL: ${{ vars.R2_PUBLIC_BASE_URL }}
       RELEASE_TAG: ${{ github.ref_name }}
     steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
       - uses: actions/download-artifact@v8
         with:
           name: keel-installers
-      - name: Upload to Keel storage (R2)
+          path: staged
+      - name: Stage flat files
         run: |
           set -euo pipefail
-          sudo apt-get update && sudo apt-get install -y awscli
+          mkdir release
+          find staged -type f -exec cp {} release/ \;
+          ls -l release
+      - name: Require complete R2 configuration
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY R2_ACCOUNT_ID R2_BUCKET_NAME R2_PUBLIC_BASE_URL; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::$name is not configured"
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+          case "$R2_PUBLIC_BASE_URL" in
+            https://*) ;;
+            *) echo "::error::R2_PUBLIC_BASE_URL must be an absolute https:// URL"; exit 1 ;;
+          esac
+          echo "Public base: $R2_PUBLIC_BASE_URL" >> "$GITHUB_STEP_SUMMARY"
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+      - name: Upload versioned installers to R2
+        run: |
+          set -euo pipefail
           aws configure set aws_access_key_id "$R2_ACCESS_KEY_ID"
           aws configure set aws_secret_access_key "$R2_SECRET_ACCESS_KEY"
           aws configure set default.region auto
-          # versioned object keys: v<tag>/<file>; no overwrite of older versions
+          endpoint="https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com"
+          content_type() {
+            case "$1" in
+              *.exe) echo application/octet-stream ;;
+              *.dmg) echo application/x-apple-diskimage ;;
+              *.zip) echo application/zip ;;
+              *.AppImage) echo application/octet-stream ;;
+              *.deb) echo application/vnd.debian.binary-package ;;
+              *.json) echo application/json ;;
+              *.txt) echo text/plain ;;
+              *) echo application/octet-stream ;;
+            esac
+          }
+          cd release
           for f in *; do
             [ -f "$f" ] || continue
-            aws s3 cp "$f" "s3://$R2_BUCKET_NAME/$RELEASE_TAG/$f" --region auto --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com"
+            aws s3 cp "$f" "s3://$R2_BUCKET_NAME/$RELEASE_TAG/$f" \
+              --region auto --endpoint-url "$endpoint" \
+              --content-type "$(content_type "$f")" \
+              --cache-control "public, max-age=31536000, immutable"
           done
-      - name: Verify public downloads over HTTPS
+      - name: Verify public downloads (HTTPS + size + SHA-256)
         run: |
           set -euo pipefail
-          if [ -z "${R2_PUBLIC_BASE_URL:-}" ]; then
-            echo "::warning::vars.R2_PUBLIC_BASE_URL is not set; skipping public verification."
-            echo "Set it (e.g. https://download.keel.app) to make tag releases fail closed."
-            exit 0
-          fi
-          base="${R2_PUBLIC_BASE_URL%/}/$RELEASE_TAG"
-          for f in Keel-Setup-* Keel-*-macos-*.dmg Keel-*-macos-*.zip Keel-*-linux-*.AppImage Keel-*-linux-*.deb RELEASE-MANIFEST.json; do
-            [ -e "$f" ] || continue
-            url="$base/$f"
-            expected="$(sha256sum "$f" | cut -d' ' -f1)"
-            actual="$(curl -fsSL --retry 3 --max-time 600 "$url" | sha256sum | cut -d' ' -f1)"
-            if [ "$expected" != "$actual" ]; then
-              echo "::error::checksum mismatch for $url"
-              echo "expected: $expected"
-              echo "actual:   $actual"
-              exit 1
+          python keel/scripts/verify_public_release.py \
+            --manifest release/RELEASE-MANIFEST.json \
+            --retries 5 --retry-delay 10 --timeout 600
+      # The site manifest is generated only after every public object was
+      # downloaded and matched. A channel cannot be "available" because it
+      # merely compiled.
+      - name: Generate public download manifest
+        run: |
+          set -euo pipefail
+          python keel/scripts/make_download_manifest.py \
+            --artifacts release \
+            --version "${RELEASE_TAG#v}" \
+            --tag "$RELEASE_TAG" \
+            --base-url "$R2_PUBLIC_BASE_URL" \
+            --out release/download.json
+          cat release/download.json
+      - name: Publish public manifest (root + versioned)
+        run: |
+          set -euo pipefail
+          aws configure set aws_access_key_id "$R2_ACCESS_KEY_ID"
+          aws configure set aws_secret_access_key "$R2_SECRET_ACCESS_KEY"
+          aws configure set default.region auto
+          endpoint="https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com"
+          # Root manifest: short cache so a new release becomes visible
+          # without a website deploy.
+          aws s3 cp release/download.json "s3://$R2_BUCKET_NAME/download.json" \
+            --region auto --endpoint-url "$endpoint" \
+            --content-type application/json \
+            --cache-control "no-cache, max-age=0, must-revalidate"
+          # Versioned copy for immutable records.
+          aws s3 cp release/download.json "s3://$R2_BUCKET_NAME/$RELEASE_TAG/download.json" \
+            --region auto --endpoint-url "$endpoint" \
+            --content-type application/json \
+            --cache-control "public, max-age=31536000, immutable"
+      - name: Verify published manifest over HTTPS
+        run: |
+          set -euo pipefail
+          url="${R2_PUBLIC_BASE_URL%/}/download.json"
+          ok=0
+          for i in $(seq 1 10); do
+            if curl -fsSL --max-time 60 "$url" -o published-download.json; then
+              if python keel/scripts/check_download_manifest.py \
+                   release/download.json --compare published-download.json; then
+                ok=1
+                break
+              fi
             fi
-            echo "verified: $url"
+            sleep 6
           done
-          echo "All public downloads verified."
+          if [ "$ok" -ne 1 ]; then
+            echo "::error::published manifest was not readable/matching within the retry window"
+            exit 1
+          fi
+          python keel/scripts/verify_public_release.py \
+            --manifest published-download.json \
+            --retries 3 --retry-delay 5 --timeout 600
+      - name: Release summary
+        run: |
+          set -euo pipefail
+          base="${R2_PUBLIC_BASE_URL%/}/$RELEASE_TAG"
+          {
+            echo "## Keel $RELEASE_TAG published"
+            echo ""
+            echo "Manifest: ${R2_PUBLIC_BASE_URL%/}/download.json"
+            echo ""
+            echo "| File | Public URL |"
+            echo "| --- | --- |"
+            for f in release/Keel-*; do
+              [ -f "$f" ] || continue
+              echo "| $(basename "$f") | $base/$(basename "$f") |"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"

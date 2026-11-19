@@ -1,28 +1,81 @@
 /* /download - OS detection + platform cards
-   Reads /download.json. No build step.
-   Honest availability: only 'available' channels render a download button.
-   Do not fabricate URLs or point at unhosted artifacts.
+   Manifest sources, in order:
+     1. /api/download-manifest  (Vercel function proxying the published R2
+        manifest; lets the site flip availability without a redeploy)
+     2. /download.json          (committed fallback; stays unavailable until
+        a real release has been published and verified)
+   No build step. Honest availability: a button is enabled only when the
+   manifest marks the channel available, its URL is a public HTTPS URL, and
+   size + SHA-256 are present. Never fabricate URLs or point at unhosted files.
 
    Detection: userAgentData where available (Chromium) for architecture,
-   falling back to UA sniffing. Architecture we do not build (Windows ARM,
+   falling back to UA sniffing. Architectures we do not build (Windows ARM,
    Intel macOS) and platforms Keel is not for (iOS, Android) are told
    honestly instead of being handed the wrong installer. */
 
 const GRID = document.getElementById("download-grid");
 const DETECT = document.getElementById("detect-note");
 const VERSION_PILL = document.getElementById("version-pill");
+const HOSTING_NOTE = document.getElementById("hosting-note");
+
+const MANIFEST_SOURCES = ["/api/download-manifest", "/download.json"];
+const SHA_RE = /^[0-9a-f]{64}$/i;
 
 async function fetchManifest() {
-  try {
-    const r = await fetch("download.json", { cache: "no-cache" });
-    if (r.ok) return r.json();
-  } catch {
-    /* manifest unreachable */
+  for (const url of MANIFEST_SOURCES) {
+    try {
+      const r = await fetch(url, {
+        cache: "no-cache",
+        headers: { Accept: "application/json" },
+      });
+      if (!r.ok) continue;
+      const doc = await r.json();
+      if (validManifest(doc)) return doc;
+    } catch {
+      /* try the next source */
+    }
   }
   return null;
 }
 
-/* Returns { os: 'windows'|'macos'|'linux'|'ios'|'android'|null, arch: 'x64'|'arm64'|'arm'|null, note } */
+function validManifest(doc) {
+  return !!doc && typeof doc === "object"
+    && typeof doc.version === "string"
+    && !!doc.channels && typeof doc.channels === "object";
+}
+
+/* Public links must be HTTPS. Loopback HTTP is accepted only so the page can
+   be exercised locally; it is never emitted by the release pipeline. */
+function safeUrl(value) {
+  if (!value) return null;
+  try {
+    const u = new URL(String(value), window.location.href);
+    if (u.protocol === "https:") return u.href;
+    if (u.protocol === "http:" && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(u.hostname)) {
+      return u.href;
+    }
+  } catch {
+    /* malformed URL */
+  }
+  return null;
+}
+
+function isDownloadable(ch) {
+  return !!ch && ch.available === true
+    && ch.verified === true
+    && Number.isFinite(Number(ch.size)) && Number(ch.size) > 0
+    && SHA_RE.test(String(ch.sha256 || ""))
+    && safeUrl(ch.url) !== null;
+}
+
+function fmtBytes(bytes) {
+  const n = Number(bytes);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  const mb = n / 1024 / 1024;
+  return `${mb >= 100 ? mb.toFixed(1) : mb.toFixed(2)} MB`;
+}
+
+/* Returns { os: 'windows'|'macos'|'linux'|'ios'|'android'|null, arch: 'x64'|'arm64'|'arm'|null } */
 async function detectPlatform() {
   const ua = navigator.userAgent || "";
 
@@ -63,34 +116,97 @@ function el(tag, className, text) {
   return n;
 }
 
-function renderCard(os, channel, highlight) {
-  const card = el("article", "card" + (highlight ? " card-highlight" : ""));
-  const osName = channel.name || (os === "windows" ? "Windows" : os === "macos" ? "macOS" : "Linux x64");
-  const small = el("small", null, `Keel for ${osName}`);
-  const h = el("h2", null, channel.name || osName);
-  const metaLines = [channel.file];
-  if (channel.size) metaLines.push("Size: " + (channel.size / 1024 / 1024).toFixed(1) + " MB");
-  if (channel.sha256) metaLines.push("SHA-256: " + channel.sha256);
-  const meta = el("p", "meta", metaLines.join("\n"));
-  const notes = el("p", "notes", channel.notes || "");
-  const install = channel.installation ? el("p", "notes", channel.installation) : null;
+function copyButton(sha256) {
+  const btn = el("button", "copy-btn", "Copy SHA-256");
+  btn.type = "button";
+  btn.title = "Copy the SHA-256 checksum";
+  btn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(sha256);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = sha256;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch { /* clipboard unavailable */ }
+      ta.remove();
+    }
+    btn.textContent = "Copied";
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = "Copy SHA-256"; btn.disabled = false; }, 1600);
+  });
+  return btn;
+}
 
-  const btn = document.createElement("a");
+function renderCard(os, channel, version, highlight) {
+  const card = el("article", "card" + (highlight ? " card-highlight" : ""));
+  const downloadable = isDownloadable(channel);
+  const osName = channel.name || (os === "windows" ? "Windows" : os === "macos" ? "macOS" : "Linux x64");
+
+  const head = el("div", "channel-head");
+  head.appendChild(el("small", null, `Keel for ${osName}`));
+  if (downloadable && channel.verified) {
+    head.appendChild(el("span", "verified", "SHA-256 verified"));
+  }
+
+  const h = el("h2", null, channel.name || osName);
+  const metaLines = [];
+  metaLines.push(`Version: ${channel.version || version}  ·  ${channel.arch || "unknown arch"}`);
+  if (channel.file) metaLines.push(channel.file);
+  const size = fmtBytes(channel.size);
+  if (size) metaLines.push(`Size: ${size} (${Number(channel.size).toLocaleString()} bytes)`);
+  const meta = el("p", "meta", metaLines.join("\n"));
+
+  const parts = [head, h, meta];
+
+  if (channel.sha256) {
+    const row = el("div", "checkrow");
+    const code = el("code", null, String(channel.sha256));
+    row.appendChild(code);
+    row.appendChild(copyButton(String(channel.sha256)));
+    parts.push(
+      el("small", null, downloadable ? "SHA-256 (verified over HTTPS)" : "SHA-256 (last CI build; not hosted)"),
+      row
+    );
+  }
+  if (channel.notes) parts.push(el("p", "notes", channel.notes));
+  if (channel.installation) parts.push(el("p", "notes", channel.installation));
+
+  const btn = document.createElement(downloadable ? "a" : "span");
   btn.className = "btn-download";
-  if (channel.available && channel.url) {
-    btn.href = channel.url;
+  if (downloadable) {
+    btn.href = safeUrl(channel.url);
     btn.rel = "noopener";
-    btn.textContent = "Download " + (channel.file || "");
+    btn.textContent = "Download " + (channel.file || osName);
   } else {
     btn.setAttribute("aria-disabled", "true");
     btn.setAttribute("role", "link");
     btn.textContent = "Not currently available";
     btn.style.pointerEvents = "none";
   }
+  parts.push(btn);
 
-  card.append(small, h, meta, notes);
-  if (install) card.append(install);
-  card.append(btn);
+  const alternatives = (channel.alternatives || [])
+    .map((alt) => ({ alt, href: safeUrl(alt && alt.url) }))
+    .filter(({ alt, href }) => href && alt && alt.file && SHA_RE.test(String(alt.sha256 || "")));
+  if (alternatives.length) {
+    const row = el("div", "alts");
+    row.appendChild(el("span", null, "Also available:"));
+    for (const { alt, href } of alternatives) {
+      const a = document.createElement("a");
+      a.href = href;
+      a.rel = "noopener";
+      a.textContent = alt.label || alt.file;
+      a.title = [alt.file, fmtBytes(alt.size), alt.sha256].filter(Boolean).join(" · ");
+      row.appendChild(a);
+    }
+    parts.push(row);
+  }
+
+  card.append(...parts);
   return card;
 }
 
@@ -98,6 +214,20 @@ function renderUnavailable(title, note) {
   const card = el("article", "card card-highlight");
   card.append(el("h2", null, title), el("p", "notes", note));
   return card;
+}
+
+function setHostingNote(anyAvailable) {
+  if (!HOSTING_NOTE) return;
+  HOSTING_NOTE.textContent = anyAvailable
+    ? "Download links point at Keel-controlled storage. Every published file was " +
+      "downloaded over public HTTPS and matched against its SHA-256 by the release " +
+      "workflow before this page listed it. Installers are unsigned: SmartScreen and " +
+      "Gatekeeper will warn until code signing is configured. Uninstalling never " +
+      "touches your ~/.keel directory."
+    : "No installer is publicly available yet. The release workflow publishes a " +
+      "download only after uploading it and verifying its SHA-256 over public HTTPS. " +
+      "Uninstalling never touches your ~/.keel directory. Installers are unsigned: " +
+      "SmartScreen and Gatekeeper will warn until code signing is configured.";
 }
 
 async function main() {
@@ -110,12 +240,15 @@ async function main() {
     if (DETECT) DETECT.textContent = "Download manifest unavailable.";
     GRID.append(renderUnavailable(
       "Keel is not yet publicly available",
-      "Downloads will appear on this page once installers are built and hosted. Check back soon."
+      "Downloads will appear on this page once installers are built, hosted and checksum-verified. Check back soon."
     ));
+    setHostingNote(false);
     return;
   }
 
   const detected = await detectPlatform();
+  const anyAvailable = Object.values(m.channels || {}).some(isDownloadable);
+  setHostingNote(anyAvailable);
 
   // Platforms Keel is not a product for, and architectures we do not build yet.
   if (detected.os === "ios" || detected.os === "android") {
@@ -164,7 +297,7 @@ function renderCards(m, detected) {
   for (const os of order) {
     const ch = m.channels && m.channels[os];
     if (!ch) continue;
-    GRID.append(renderCard(os, ch, os === detected));
+    GRID.append(renderCard(os, ch, m.version, os === detected));
   }
 }
 
