@@ -2,23 +2,36 @@
 
 Scope: tracer bullet. This module implements the smallest surface that lets
 an OpenCode-shaped client create a session, send a prompt, and receive a
-streamed reply with a real local tool call. It is NOT a port of the OpenCode
-backend. What it does:
+reply with tool-call events. It is NOT a port of the OpenCode backend, and
+it deliberately does NOT call any LLM provider: replies come from a simple
+local loop so the contract can be exercised offline, deterministically,
+and in tests. What it does:
 
 - POST /api/v2/sessions
     creates a session visible to the compatibility layer
-- POST /api/v2/sessions/:id/messages
-    runs the prompt through the existing Keel runner and stores the result
-- GET  /api/v2/sessions/:id/events
-    Server-sent events
+- GET  /api/v2/sessions
+    lists sessions (id, title, counts, pendingApproval)
 - GET  /api/v2/sessions/:id
-    session + message history
+    session summary
+- DELETE /api/v2/sessions/:id
+    removes the session, its messages, events and pending approval
+- POST /api/v2/sessions/:id/messages
+    runs the prompt through the local loop and stores the result
+- GET  /api/v2/sessions/:id/messages
+    stored message history
+- GET  /api/v2/sessions/:id/events
+    Server-sent events replay; accepts ?since=<unix-seconds>
 - POST /api/v2/sessions/:id/approve
-    acknowledges a pending permission request
+    acknowledges a pending permission request (404 for unknown session)
+- POST /api/v2/sessions/:id/reject
+    rejects a pending permission request (404 for unknown session)
 
 What it does NOT do (deliberately):
 
-- Does not implement streaming over HTTP for arbitrary OpenCode event types
+- Does not stream tokens from a real model; replies are local and
+  deterministic. The Keel runtime has provider plumbing (providers/,
+  runner.py) but this surface does not use it yet.
+- Does not implement arbitrary OpenCode event types
 - Does not mutate or fork upstream OpenCode code
 - Does not introduce new tooling not already in the Keel runtime
 """
@@ -35,7 +48,7 @@ _SESSIONS: Dict[str, Dict[str, Any]] = {}
 _MESSAGES: Dict[str, List[Dict[str, Any]]] = {}
 _EVENTS: Dict[str, List[Dict[str, Any]]] = {}
 _APPROVALS: Dict[str, Dict[str, Any]] = {}
-_LOCK = threading.Lock()
+_LOCK = threading.RLock()
 
 
 def _now_iso() -> str:
@@ -129,17 +142,32 @@ def request_approval(sid: str, tool_name: str, args: Dict[str, Any], reason: str
     return _APPROVALS[sid]
 
 
-def approve(sid: str) -> bool:
+def approve(sid: str) -> Optional[bool]:
     with _LOCK:
+        if sid not in _SESSIONS:
+            return None
         _APPROVALS.pop(sid, None)
     _emit(sid, {"type": "approval_granted"})
     return True
 
 
-def reject(sid: str) -> bool:
+def reject(sid: str) -> Optional[bool]:
     with _LOCK:
+        if sid not in _SESSIONS:
+            return None
         _APPROVALS.pop(sid, None)
     _emit(sid, {"type": "approval_rejected"})
+    return True
+
+
+def delete_session(sid: str) -> bool:
+    with _LOCK:
+        if sid not in _SESSIONS:
+            return False
+        del _SESSIONS[sid]
+        _MESSAGES.pop(sid, None)
+        _EVENTS.pop(sid, None)
+        _APPROVALS.pop(sid, None)
     return True
 
 

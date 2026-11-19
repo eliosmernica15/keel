@@ -461,6 +461,17 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
 
         # ---------------- internals
 
+        def do_DELETE(self):
+            if not self._origin_ok() or not self._authorized():
+                self._refuse()
+                return
+            path = self.path.split("?", 1)[0]
+            if path.startswith("/api/v2/sessions") or path == "/api/v2/sessions":
+                from . import compat
+                sid = path[len("/api/v2/sessions"):].strip("/")
+                return self._v2_sessions(path, sid, compat)
+            self._send_json({"error": "not_found"}, HTTPStatus.NOT_FOUND)
+
         def _v2_sessions(self, path: str, sid: str, compat) -> None:
             """OpenCode-compatible sessions surface (tracer bullet)."""
             import json as _json
@@ -505,6 +516,12 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             rest = "/".join(parts[1:])
 
             if rest == "":
+                if self.command == "DELETE":
+                    if not compat.delete_session(base):
+                        self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+                        return
+                    self._send_json({"ok": True})
+                    return
                 if self.command != "GET":
                     self._send_json({"error": "method not allowed"},
                                    HTTPStatus.METHOD_NOT_ALLOWED)
@@ -513,10 +530,17 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 if not summary:
                     self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
                     return
-                self._send_json({"session": summary})
+                self._send_json({"session": summary,
+                                 "messages": compat.message_history(base)})
                 return
 
             if rest in ("messages",):
+                if not compat.get_session(base):
+                    self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+                    return
+                if self.command == "GET":
+                    self._send_json({"messages": compat.message_history(base)})
+                    return
                 if self.command != "POST":
                     self._send_json({"error": "method not allowed"},
                                    HTTPStatus.METHOD_NOT_ALLOWED)
@@ -540,7 +564,11 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     self._send_json({"error": "text must not be empty"},
                                    HTTPStatus.BAD_REQUEST)
                     return
-                result = compat.run_message(sid, text, workdir=workdir)
+                try:
+                    result = compat.run_message(sid, text, workdir=workdir)
+                except ValueError:
+                    self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+                    return
                 self._send_json(result, HTTPStatus.ACCEPTED)
                 return
 
@@ -549,8 +577,19 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     self._send_json({"error": "method not allowed"},
                                    HTTPStatus.METHOD_NOT_ALLOWED)
                     return
+                if not compat.get_session(base):
+                    self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+                    return
                 sid = base
-                events = compat.session_events(sid, 0)
+                since = 0.0
+                query = urllib.parse.urlparse(self.path).query
+                params = urllib.parse.parse_qs(query)
+                raw_since = (params.get("since") or ["0"])[0]
+                try:
+                    since = max(0.0, float(raw_since))
+                except (TypeError, ValueError):
+                    since = 0.0
+                events = compat.session_events(sid, since)
                 body = "\n".join(f"data: {_json.dumps(e)}\n" for e in events) + ("" if events else "")
                 encoded = body.encode()
                 self.send_response(HTTPStatus.OK)
@@ -567,7 +606,9 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                    HTTPStatus.METHOD_NOT_ALLOWED)
                     return
                 sid = base
-                compat.approve(sid)
+                if compat.approve(sid) is None:
+                    self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+                    return
                 self._send_json({"ok": True})
                 return
 
@@ -577,7 +618,9 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                    HTTPStatus.METHOD_NOT_ALLOWED)
                     return
                 sid = base
-                compat.reject(sid)
+                if compat.reject(sid) is None:
+                    self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
+                    return
                 self._send_json({"ok": True})
                 return
 
