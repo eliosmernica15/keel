@@ -15,7 +15,7 @@
     "macos": {
       "name": "macOS arm64 (Apple Silicon)",
       "file": "Keel-0.1.0-macos-arm64.dmg",
-      "size": 130484680,
+      "size": 130625482,
       "sha256": "FD334261DA065C930F70916C0E7D8DFA70845083F306A05EEE480816E55222F4",
       "url": null,
       "available": false,
