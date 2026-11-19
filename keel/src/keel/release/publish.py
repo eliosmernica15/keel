@@ -128,7 +128,7 @@ def publish_command(args: argparse.Namespace) -> int:
         if not path.is_file():
             raise FileNotFoundError(f"missing file to upload: {path}")
         # Replace an existing asset of the same name.
-        for asset in client.get_release_by_tag(tag).get("assets", []) or []:
+        for asset in client.get_release(release_id).get("assets", []) or []:
             if asset.get("name") == name:
                 client.delete_asset(asset["id"])
         print(f"uploading {name} ({path.stat().st_size} bytes)")
@@ -154,7 +154,7 @@ def publish_command(args: argparse.Namespace) -> int:
     (out_dir / "download.json").write_text(
         json.dumps(download_manifest, indent=2) + "\n", encoding="utf-8"
     )
-    for asset in client.get_release_by_tag(tag).get("assets", []) or []:
+    for asset in client.get_release(release_id).get("assets", []) or []:
         if asset.get("name") == "download.json":
             client.delete_asset(asset["id"])
     print("uploading download.json")
@@ -192,7 +192,7 @@ def publish_command(args: argparse.Namespace) -> int:
     if not published_ok:
         # Remove the manifest so the site cannot advertise an unverified release.
         try:
-            fresh = client.get_release_by_tag(tag)
+            fresh = client.get_release(release_id)
             if fresh:
                 for asset in fresh.get("assets", []) or []:
                     if asset.get("name") == "download.json":

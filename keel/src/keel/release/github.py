@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -45,13 +46,30 @@ class GitHubClient:
 
     def get_release_by_tag(self, tag: str) -> dict[str, Any] | None:
         url = f"https://api.github.com/repos/{self.repo}/releases/tags/{urllib.parse.quote(tag, safe='')}"
-        try:
-            status, body = self._request("GET", url)
-        except GitHubError as exc:
-            if " 404:" in str(exc):
-                return None
-            raise
-        return json.loads(body)
+        last: Exception | None = None
+        for _ in range(5):
+            try:
+                status, body = self._request("GET", url)
+                return json.loads(body)
+            except GitHubError as exc:
+                if " 404:" in str(exc):
+                    last = exc
+                    time.sleep(2)
+                    continue
+                raise
+        return None
+
+    def get_release(self, release_id: int) -> dict[str, Any]:
+        url = f"https://api.github.com/repos/{self.repo}/releases/{release_id}"
+        last: Exception | None = None
+        for _ in range(5):
+            try:
+                status, body = self._request("GET", url)
+                return json.loads(body)
+            except Exception as exc:  # noqa: BLE001
+                last = exc
+                time.sleep(2)
+        raise last  # type: ignore[misc]
 
     def create_release(self, tag: str, name: str, body: str, draft: bool) -> dict[str, Any]:
         url = f"https://api.github.com/repos/{self.repo}/releases"
