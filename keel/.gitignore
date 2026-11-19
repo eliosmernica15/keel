@@ -14,3 +14,12 @@ desktop-app/build/*
 # personal folders that are not part of the repo
 snake-game/
 keel/keel/
+
+# snake-game scratch files at project root (kept on disk, not in the repo)
+/snake-game/
+/snake.html
+/index.html
+/script.js
+/server.js
+/style.css
+
