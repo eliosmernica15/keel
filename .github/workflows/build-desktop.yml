@@ -164,8 +164,7 @@ jobs:
             --out release
           python -m keel.release verify \
             --manifest release/download.json \
-            --url "https://github.com/${{ github.repository }}/releases/latest/download/download.json" \
-            --compare \
+            --compare "https://github.com/${{ github.repository }}/releases/latest/download/download.json" \
             --retries 10 --retry-delay 6 --timeout 600 \
             --require-available
       - name: Release summary
