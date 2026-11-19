@@ -39,14 +39,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e . pyinstaller pillow
+          python desktop-app\scripts\generate_assets.py
           python -m PyInstaller desktop-app\sidecar.spec --noconfirm --distpath dist\keel-sidecar
           New-Item -ItemType Directory -Force -Path build\resources\keel | Out-Null
           Copy-Item dist\keel-sidecar\keel.exe build\resources\keel\keel.exe
-      - name: Generate installer assets
-        working-directory: keel
-        run: |
-          pip install pillow
-          python desktop-app\scripts\generate_assets.py
       - name: npm install
         working-directory: keel/desktop-app
         run: npm install --no-audit --no-fund
@@ -81,14 +77,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e . pyinstaller pillow
+          python desktop-app/scripts/generate_assets.py
           python -m PyInstaller desktop-app/sidecar.spec --noconfirm --distpath dist/keel-sidecar
           mkdir -p build/resources/keel
           cp dist/keel-sidecar/keel build/resources/keel/keel
-      - name: Generate installer assets (icons)
-        working-directory: keel
-        run: |
-          pip install pillow
-          python desktop-app/scripts/generate_assets.py
       - name: npm install
         working-directory: keel/desktop-app
         run: npm install --no-audit --no-fund
@@ -127,14 +119,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e . pyinstaller pillow
+          python desktop-app/scripts/generate_assets.py
           python -m PyInstaller desktop-app/sidecar.spec --noconfirm --distpath dist/keel-sidecar
           mkdir -p build/resources/keel
           cp dist/keel-sidecar/keel build/resources/keel/keel
-      - name: Generate installer assets
-        working-directory: keel
-        run: |
-          pip install pillow
-          python desktop-app/scripts/generate_assets.py
       - name: npm install
         working-directory: keel/desktop-app
         run: npm install --no-audit --no-fund

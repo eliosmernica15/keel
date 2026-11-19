@@ -11,7 +11,7 @@ SPEC_DIR = Path(SPEC).parent
 ROOT = SPEC_DIR.resolve().parent
 
 hiddenimports = sorted(
-    f"keel.{Path(p).relative_to(ROOT / 'src' / 'keel').with_suffix('')}".replace("\\", ".")
+    "keel." + Path(p).relative_to(ROOT / "src" / "keel").with_suffix("").as_posix().replace("/", ".")
     for p in glob.glob(str(ROOT / "src" / "keel" / "**" / "*.py"), recursive=True)
     if Path(p).name != "__init__.py"
 )
