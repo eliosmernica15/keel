@@ -578,7 +578,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     return
                 sid = base
                 length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 16_000:
+                # 32 MB cap: text turns stay tiny; image turns can be several MB
+                if length > 32 * 1024 * 1024:
                     self._send_json({"error": "body too large"},
                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
                     return
@@ -597,10 +598,47 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     self._send_json({"error": "text must not be empty"},
                                    HTTPStatus.BAD_REQUEST)
                     return
+                # images: allowlist mime + 4 MB (base64) each, max 8
+                images = []
+                raw_images = request.get("images")
+                if isinstance(raw_images, list):
+                    if len(raw_images) > 8:
+                        self._send_json({"error": "at most 8 images per message"},
+                                        HTTPStatus.BAD_REQUEST)
+                        return
+                    for i, img in enumerate(raw_images):
+                        if not isinstance(img, dict):
+                            self._send_json({"error": f"images[{i}]: object expected"},
+                                            HTTPStatus.BAD_REQUEST)
+                            return
+                        mime = str(img.get("mime") or "").strip().lower()
+                        if mime not in ("image/png", "image/jpeg", "image/gif", "image/webp"):
+                            self._send_json({"error": f"images[{i}]: mime {mime!r} not allowed (png|jpeg|gif|webp)"},
+                                            HTTPStatus.BAD_REQUEST)
+                            return
+                        data = img.get("data")
+                        if not isinstance(data, str) or not data:
+                            self._send_json({"error": f"images[{i}]: base64 data required"},
+                                            HTTPStatus.BAD_REQUEST)
+                            return
+                        if len(data) > 4 * 1024 * 1024 * 4 // 3 + 8:
+                            self._send_json({"error": f"images[{i}]: exceeds 4 MB"},
+                                            HTTPStatus.BAD_REQUEST)
+                            return
+                        try:
+                            import base64 as _b64
+                            _b64.b64decode(data, validate=True)
+                        except Exception:
+                            self._send_json({"error": f"images[{i}]: invalid base64"},
+                                            HTTPStatus.BAD_REQUEST)
+                            return
+                        images.append({"mime": mime, "data": data,
+                                       "name": str(img.get("name") or f"image-{i}")[:120]})
                 permission_mode = str(request.get("permission_mode", "")).strip() or None
                 try:
                     result = compat.run_message(sid, text, workdir=workdir,
-                                                permission_mode=permission_mode)
+                                                permission_mode=permission_mode,
+                                                images=images)
                 except ValueError:
                     self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
                     return

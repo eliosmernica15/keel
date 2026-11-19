@@ -13,7 +13,7 @@ from typing import Any, Iterator
 
 from .base import (CapabilityRecord, ProviderError, ProviderRequest, UsageRecord,
                    http_transport, openai_tools, parse_sse_lines,
-                   status_to_category, RETRY_UNKNOWN)
+                   status_to_category, RETRY_UNKNOWN, image_block)
 
 
 def _openrouter_attribution() -> dict:
@@ -206,6 +206,7 @@ def _to_openai_messages(messages: list[dict], system: str | None) -> list[dict]:
         text_parts: list[str] = []
         tool_calls: list[dict] = []
         tool_results: list[dict] = []
+        images: list[tuple[str, str]] = []
         for btype, block in _content_parts(content):
             if btype == "text":
                 text_parts.append(block["text"])
@@ -224,6 +225,10 @@ def _to_openai_messages(messages: list[dict], system: str | None) -> list[dict]:
                     "tool_call_id": block.get("tool_use_id", ""),
                     "content": block.get("content", ""),
                 })
+            else:
+                img = image_block(block)
+                if img:
+                    images.append(img)
         if role == "assistant":
             entry: dict[str, Any] = {"role": "assistant",
                                      "content": "\n".join(text_parts) or None}
@@ -231,7 +236,16 @@ def _to_openai_messages(messages: list[dict], system: str | None) -> list[dict]:
                 entry["tool_calls"] = tool_calls
             out.append(entry)
         else:
-            if text_parts:
+            if images:
+                parts: list[dict] = []
+                joined = "\n".join(text_parts)
+                if joined:
+                    parts.append({"type": "text", "text": joined})
+                for mime, data in images:
+                    parts.append({"type": "image_url",
+                                  "image_url": {"url": f"data:{mime};base64,{data}"}})
+                out.append({"role": role, "content": parts})
+            elif text_parts:
                 out.append({"role": role, "content": "\n".join(text_parts)})
             out.extend(tool_results)
     return out

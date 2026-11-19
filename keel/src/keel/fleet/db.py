@@ -12,7 +12,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS bots (
@@ -37,6 +37,25 @@ CREATE TABLE IF NOT EXISTS rows (
     created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_rows_bot_seq ON rows(bot_id, seq);
+"""
+
+_DDL_V11 = """
+-- per-turn token accounting; provider-reported counts only, never invented
+CREATE TABLE IF NOT EXISTS fleet_usage (
+    id                        INTEGER PRIMARY KEY AUTOINCREMENT,
+    bot_id                    TEXT NOT NULL REFERENCES bots(id) ON DELETE CASCADE,
+    provider                  TEXT NOT NULL DEFAULT '',
+    model                     TEXT NOT NULL DEFAULT '',
+    input_tokens              INTEGER NOT NULL DEFAULT 0,
+    output_tokens             INTEGER NOT NULL DEFAULT 0,
+    cache_read_input_tokens   INTEGER NOT NULL DEFAULT 0,
+    cache_creation_input_tokens INTEGER NOT NULL DEFAULT 0,
+    thinking_tokens           INTEGER NOT NULL DEFAULT 0,
+    cost_usd                  REAL NOT NULL DEFAULT 0,
+    cost_basis                TEXT NOT NULL DEFAULT 'unknown',
+    created_at                TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_fleet_usage_bot ON fleet_usage(bot_id, id);
 """
 
 _DDL_V10 = """
@@ -337,5 +356,10 @@ CREATE TABLE IF NOT EXISTS fleet_projects (
         conn.executescript(_DDL_V10)
         conn.execute(
             "INSERT OR IGNORE INTO schema_version(version, applied_at) VALUES (10, ?)",
+            (_now(),))
+    if applied < 11:
+        conn.executescript(_DDL_V11)
+        conn.execute(
+            "INSERT OR IGNORE INTO schema_version(version, applied_at) VALUES (11, ?)",
             (_now(),))
     conn.commit()

@@ -787,6 +787,47 @@ class FleetStore:
                 self._conn.commit()
         return [a for a in (self.get_approval(i) for i in ids) if a]
 
+    def insert_usage(self, *, bot_id: str, provider: str, model: str,
+                     input_tokens: int, output_tokens: int,
+                     cache_read_input_tokens: int = 0,
+                     cache_creation_input_tokens: int = 0,
+                     thinking_tokens: int = 0,
+                     cost_usd: float = 0.0, cost_basis: str = "unknown") -> int:
+        now = _utcnow()
+        with self._lock:
+            cur = self._conn.execute(
+                "INSERT INTO fleet_usage(bot_id, provider, model, input_tokens,\n"
+                " output_tokens, cache_read_input_tokens,\n"
+                " cache_creation_input_tokens, thinking_tokens, cost_usd,\n"
+                " cost_basis, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (bot_id, str(provider)[:64], str(model)[:120],
+                 int(input_tokens), int(output_tokens),
+                 int(cache_read_input_tokens), int(cache_creation_input_tokens),
+                 int(thinking_tokens), float(cost_usd), str(cost_basis)[:16],
+                 now))
+            self._conn.commit()
+            return int(cur.lastrowid)
+
+    def usage_totals(self, bot_id: str) -> dict:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT COUNT(*) AS records, COALESCE(SUM(input_tokens),0) AS i,\n"
+                " COALESCE(SUM(output_tokens),0) AS o,\n"
+                " COALESCE(SUM(cache_read_input_tokens),0) AS cr,\n"
+                " COALESCE(SUM(cache_creation_input_tokens),0) AS cc,\n"
+                " COALESCE(SUM(thinking_tokens),0) AS t,\n"
+                " COALESCE(SUM(cost_usd),0.0) AS cost\n"
+                " FROM fleet_usage WHERE bot_id = ?", (bot_id,)).fetchone()
+        d = dict(row)
+        return {"records": int(d["records"]),
+                "input_tokens": int(d["i"]),
+                "output_tokens": int(d["o"]),
+                "cache_read_input_tokens": int(d["cr"]),
+                "cache_creation_input_tokens": int(d["cc"]),
+                "thinking_tokens": int(d["t"]),
+                "cost_usd": float(d["cost"]),
+                "cost_basis": "unknown (no provider-reported cost)"}
+
     def list_pending_approvals(self, bot_id: str) -> list[dict]:
         with self._lock:
             rows = self._conn.execute(

@@ -11,7 +11,7 @@ from typing import Any, Iterator
 
 from .base import (CapabilityRecord, ProviderError, ProviderRequest, UsageRecord,
                    gemini_function_declarations, http_transport, parse_sse_lines,
-                   status_to_category, RETRY_UNKNOWN)
+                   status_to_category, RETRY_UNKNOWN, image_block)
 from .openai_compatible import _iter_text_lines
 
 
@@ -137,6 +137,12 @@ def _to_gemini_contents(messages: list[dict]) -> list[dict]:
                     parts.append({"text": block["text"]})
                 elif btype == "thinking":
                     continue
+                elif btype == "image":
+                    img = image_block(block)
+                    if img:
+                        mime, data = img
+                        parts.append({"inlineData": {"mimeType": mime,
+                                                     "data": data}})
                 elif btype == "tool_use":
                     parts.append({"functionCall": {
                         "name": block["name"],

@@ -17,10 +17,24 @@ import keel.webapp as webapp  # noqa: E402
 TOKEN = os.environ["KEEL_TOKEN"]
 
 
+@pytest.fixture(autouse=True)
+def _no_mcp_servers(monkeypatch):
+    """No test ever spawns the user's real MCP servers. MCP tests opt in by
+    monkeypatching load again themselves."""
+    try:
+        import keel.fleet.turn_core as turn_core
+        monkeypatch.setattr(turn_core.settings_store, "load", lambda: {})
+    except Exception:
+        pass
+
+
 @pytest.fixture()
-def compat_store(tmp_path):
-    """Isolated FleetStore on a tmp DB, restored afterwards."""
+def compat_store(tmp_path, monkeypatch):
+    """Isolated FleetStore on a tmp DB, restored afterwards. MCP servers
+    are not configured by default; tests enable them explicitly."""
     from keel.fleet import routes as fleet_routes
+    import keel.fleet.turn_core as turn_core
+    monkeypatch.setattr(turn_core.settings_store, "load", lambda: {})
     old = fleet_routes._store
     fleet_routes.reset_store_for_tests(tmp_path / "fleet.db")
     store = fleet_routes.store()

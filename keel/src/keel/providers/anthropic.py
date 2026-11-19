@@ -12,7 +12,7 @@ from typing import Any, Iterator
 
 from .base import (CapabilityRecord, ProviderError, ProviderRequest, UsageRecord,
                    anthropic_tools, http_transport, parse_sse_lines,
-                   status_to_category, RETRY_UNKNOWN)
+                   status_to_category, RETRY_UNKNOWN, image_block)
 from .openai_compatible import _iter_text_lines
 
 
@@ -171,6 +171,14 @@ def _to_anthropic_messages(messages: list[dict]) -> list[dict]:
                 elif btype == "thinking":
                     blocks.append({"type": "thinking",
                                    "thinking": block.get("thinking", "")})
+                elif btype == "image":
+                    img = image_block(block)
+                    if img:
+                        mime, data = img
+                        blocks.append({"type": "image",
+                                       "source": {"type": "base64",
+                                                  "media_type": mime,
+                                                  "data": data}})
                 elif btype == "tool_use":
                     blocks.append({"type": "tool_use",
                                    "id": block.get("id", "call_0"),

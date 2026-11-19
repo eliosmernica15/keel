@@ -39,7 +39,8 @@ _CONTINUE_PROMPT = ("Continue the task until it is fully complete. Do not "
 
 def start_provider_turn(store, bot: dict, content: str, *,
                         permission_mode: str | None = None,
-                        workdir: str | None = None):
+                        workdir: str | None = None,
+                        images: list | None = None):
     bot_id = bot["id"]
     lock = try_lock(bot_id)
     if lock is None:
@@ -69,7 +70,8 @@ def start_provider_turn(store, bot: dict, content: str, *,
                                   include_history=True,
                                   executor=None,
                                   permission_mode=permission_mode,
-                                  workdir=workdir)
+                                  workdir=workdir,
+                                  images=images)
             # provider hit the round cap but wasn't erroring — let it keep
             # working instead of leaving the operator to type "go on".
             # Bounded: billing and infinite loops stay impossible.
@@ -104,7 +106,8 @@ def start_provider_turn(store, bot: dict, content: str, *,
                                       executor=None,
                                       exclude_last_from_history=False,
                                       permission_mode=permission_mode,
-                                      workdir=workdir)
+                                      workdir=workdir,
+                                      images=images)
         except Exception as exc:  # never strand the UI
             _log.exception("provider turn failed")
             try:

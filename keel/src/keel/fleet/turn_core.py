@@ -25,9 +25,11 @@ from pathlib import Path
 _log = logging.getLogger(__name__)
 
 from ..instructions import history_attachment, notes_attachment, instructions_attachment
+from ..mcp import McpManager, is_approved, parse_servers
 from ..session import Session, SessionConfig
 from ..providers.base import ProviderError
 from ..providers.model_client import ProviderModelClient
+from .. import settings_store
 
 _FLEET_ROOT = Path.home() / ".keel" / "fleet"
 _STATE_ROOT = _FLEET_ROOT / "state"
@@ -84,6 +86,44 @@ def _normalize_permission_mode(mode: str | None) -> str:
         # the F1 "consent required?" pause.
         return "bypassPermissions"
     return "default"
+
+
+def _mcp_manager(store, bot_id: str) -> McpManager | None:
+    """Start the MCP servers this user configured (user-scope + approved
+    project servers). Failure of one server never fails the turn."""
+    try:
+        doc = settings_store.load() or {}
+    except Exception:
+        return None
+    servers = parse_servers(doc.get("mcpServers", {}))
+    allowed = [s for s in servers
+               if s.scope == "user" or is_approved(s)]
+    pending = [s.name for s in servers if s not in allowed]
+    if pending:
+        try:
+            store.append_row(bot_id, "notice", {
+                "text": ("Project-scope MCP servers waiting for approval in "
+                         "`keel mcp approve <name>`: " + ", ".join(pending)),
+                "level": "warning", "icon": "mcp"})
+        except Exception:
+            pass
+    if not allowed:
+        return None
+    try:
+        manager = McpManager(allowed)
+        statuses = manager.start_all()
+    except Exception:
+        _log.exception("mcp startup failed")
+        return None
+    failed = [s["name"] for s in statuses if s.get("status") != "connected"]
+    if failed:
+        try:
+            store.append_row(bot_id, "notice", {
+                "text": "MCP server(s) did not start: " + ", ".join(failed),
+                "level": "warning", "icon": "mcp"})
+        except Exception:
+            pass
+    return manager
 
 
 def _fleet_max_turns() -> int:
@@ -164,7 +204,8 @@ def execute_turn(store, bot: dict, content: str, *,
                  executor=None,
                  row_sink=None,
                  permission_mode: str | None = None,
-                 workdir: str | None = None) -> dict:
+                 workdir: str | None = None,
+                 images: list[dict] | None = None) -> dict:
     """Run one agent turn synchronously and return a summary dict.
 
     Returns `{ok, assistant_text, terminal_reason, permission_denials,
@@ -301,11 +342,28 @@ def execute_turn(store, bot: dict, content: str, *,
             approval_audit=broker.outcome_audit(bot_id),
             delegation_chain=tuple(chain or ()),
         )
-        session = Session(model_client=client,
-                          executor=executor,
-                          config=config, clock=None, rng=None)
-
-        outcome = session.run(content)
+        mcp_manager = _mcp_manager(store, bot_id)
+        try:
+            session = Session(model_client=client,
+                              executor=executor,
+                              config=config, clock=None, rng=None,
+                              mcp=mcp_manager)
+            if images:
+                blocks = [{"type": "text", "text": content}]
+                for img in images:
+                    blocks.append({"type": "image",
+                                   "mime": img.get("mime", "image/png"),
+                                   "data": img.get("data", ""),
+                                   "name": img.get("name")})
+                outcome = session.run(blocks)
+            else:
+                outcome = session.run(content)
+        finally:
+            if mcp_manager is not None:
+                try:
+                    mcp_manager.shutdown_all()
+                except Exception:
+                    _log.exception("mcp shutdown failed")
         _flush_stream()  # tail of whatever the model produced
 
         turn_steps = 0
@@ -399,6 +457,24 @@ def execute_turn(store, bot: dict, content: str, *,
             elif etype == "result":
                 terminal_reason = event.get("terminal_reason") or "completed"
                 usage = (event.get("usage") or {}) if isinstance(event.get("usage"), dict) else {}
+                usage_row = {
+                    "input_tokens": int(usage.get("input_tokens", 0) or 0),
+                    "output_tokens": int(usage.get("output_tokens", 0) or 0),
+                    "cache_read_input_tokens": int(usage.get("cache_read_input_tokens", 0) or 0),
+                    "cache_creation_input_tokens": int(usage.get("cache_creation_input_tokens", 0) or 0),
+                    "thinking_tokens": int(usage.get("thinking_tokens", 0) or 0),
+                }
+                try:
+                    store.insert_usage(bot_id=bot_id, provider=chosen.name,
+                                       model=model_name, **usage_row)
+                except Exception:
+                    _log.exception("usage accounting failed")
+                _emit_row(store, bot_id, row_sink, "usage", {
+                    **usage_row,
+                    "provider": chosen.name,
+                    "model": model_name,
+                    "cost_basis": "unknown (no provider-reported cost)",
+                })
                 _emit_row(store, bot_id, row_sink, "turn_end", {
                     "duration_ms": event.get("duration_ms", 0),
                     "num_turns": event.get("num_turns", 0),

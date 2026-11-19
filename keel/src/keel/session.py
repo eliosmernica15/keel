@@ -347,7 +347,7 @@ class Session:
                  "sessionId": self.config.session_id})
         return [summary_message] + list(selection.preserved)
 
-    def run(self, prompt: str) -> RunOutcome:
+    def run(self, prompt) -> RunOutcome:  # str or list[block] (text/image blocks)
         mode = normalize_mode(self.config.permission_mode)
         events: list[dict] = []
         self._event_sink = events
@@ -418,11 +418,15 @@ class Session:
             attachment_sources.append("fleet_extra")
         if attachment_parts:
             combined = "\n\n".join(p.rstrip("\n") for p in attachment_parts)
+            if isinstance(prompt, list):
+                new_content: object = ([{"type": "text",
+                                         "text": combined + "\n\n---\n\n"}]
+                                        + list(prompt))
+            else:
+                new_content = combined + "\n\n---\n\n" + prompt
             messages[0] = {
                 "role": "user",
-                "content": (combined
-                            + "\n\n---\n\n"
-                            + prompt),
+                "content": new_content,
                 "uuid": messages[0]["uuid"],
             }
             writer.write({"type": "attachment",
@@ -676,8 +680,25 @@ class Session:
                                 try:
                                     if block["name"].startswith("mcp__") and \
                                             self.mcp is not None:
+                                        emit_step = getattr(self.executor,
+                                                            "_emit_step", None)
+                                        if callable(emit_step):
+                                            try:
+                                                emit_step({"name": block["name"],
+                                                           "status": "running",
+                                                           "detail": str(tool_input)[:180]})
+                                            except Exception:
+                                                pass  # steps are best-effort
                                         ok, text = self.mcp.call(
                                             block["name"], tool_input)
+                                        if callable(emit_step):
+                                            try:
+                                                emit_step({"name": block["name"],
+                                                           "status": "done" if ok
+                                                           else "error",
+                                                           "detail": str(text)[:180]})
+                                            except Exception:
+                                                pass
                                         if ok:
                                             rendered = render_success(
                                                 tool_use_id,

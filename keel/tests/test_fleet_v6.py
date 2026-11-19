@@ -17,9 +17,12 @@ def test_v6_fresh_schema(tmp_path):
     assert {"position", "prev_state", "deleted_at"} <= cols["fleet_tasks"]
     assert "reasoning_effort" in cols["bots"]
     assert "kind" in cols["bots"]  # v10: compat sessions vs fleet agents
+    usage_cols = {r[1] for r in store._conn.execute(
+        "PRAGMA table_info(fleet_usage)")}
+    assert {"input_tokens", "output_tokens", "cost_basis", "provider"} <= usage_cols
     version = store._conn.execute(
         "SELECT MAX(version) FROM schema_version").fetchone()[0]
-    assert version == 10
+    assert version == 11
     store.close()
 
 

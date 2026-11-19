@@ -396,6 +396,13 @@ async function restoreAgentSession(surface) {
                     (body) => { body.textContent = m.content || ""; }, surface);
     }
     if ((doc.messages || []).length) hideEmptyState(surface);
+    if (doc.session && doc.session.usage) {
+      const u = doc.session.usage;
+      state.tokens = (u.input_tokens || 0) + (u.output_tokens || 0);
+      const el = $("token-count");
+      if (el) el.textContent = `${state.tokens} tokens`;
+      updateRing();
+    }
     setAgentHeader(surface);
     agentRefreshPending(surface);
   } catch { /* restore is best-effort */ }
@@ -558,6 +565,14 @@ function agentEvent(evt, surface) {
       if (evt.status === "pending") renderApprovalCard(evt, surface);
       else markApprovalResolved(evt, surface);
       return;
+    case "usage":
+      if (typeof evt.input_tokens === "number") {
+        state.tokens += (evt.input_tokens || 0) + (evt.output_tokens || 0);
+        const el = $("token-count");
+        if (el) el.textContent = `${state.tokens} tokens`;
+        updateRing();
+      }
+      return;
     case "done": {
       streamCommit();
       if (agent.live) { agent.live.close(); agent.live = null; }
@@ -596,7 +611,7 @@ function startAgentStream(surface, sess) {
   };
 }
 
-async function agentRun(surface, wire) {
+async function agentRun(surface, wire, images) {
   state.runSurface = surface;
   const sess = await agentEnsureSession(surface, true);
   if (!sess) {
@@ -606,10 +621,12 @@ async function agentRun(surface, wire) {
   }
   setAgentHeader(surface);
   try {
+    const body = { text: wire, permission_mode: currentMode() };
+    if (images && images.length) body.images = images;
     const r = await fetch(`/api/v2/sessions/${encodeURIComponent(sess.id)}/messages`, {
       method: "POST",
       headers: jsonHeaders(),
-      body: JSON.stringify({ text: wire, permission_mode: currentMode() }),
+      body: JSON.stringify(body),
     });
     if (r.status === 409) {
       systemNote("a turn is already running — wait for it, or press Stop", "denied", surface);
@@ -907,11 +924,14 @@ async function send(surface) {
   };
   const maybePromise = agent.ready ? null : bridge.send(payload);
   if (agent.ready) {
-    if (images.length) {
-      systemNote("the desktop agent can't view images yet — sending text only",
-                 "system", active);
+    if (pending.length) {
+      // text files already inlined into the wire prompt; images go as base64
+      if (images.length) {
+        systemNote(`${images.length} image(s) attached — the agent receives them for vision-capable providers`,
+                   "system", active);
+      }
     }
-    agentRun(active, wire);
+    agentRun(active, wire, images);
     promptEl.value = "";
     if (promptEl.tagName === "TEXTAREA") promptEl.style.height = "";
     return;

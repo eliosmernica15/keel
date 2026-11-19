@@ -144,6 +144,23 @@ class ProviderRequest:
     reasoning_effort: str | None = None
 
 
+def image_block(block) -> tuple[str, str] | None:
+    """Internal image block -> (mime, base64 data) or None.
+
+    Internal format: {"type": "image", "mime": "image/png",
+                      "data": "<base64>", "name": "x.png"}
+    """
+    if not isinstance(block, dict):
+        return None
+    if block.get("type") != "image":
+        return None
+    mime = str(block.get("mime") or "").strip()
+    data = block.get("data")
+    if not mime or not isinstance(data, str) or not data:
+        return None
+    return mime, data
+
+
 def openai_tools(tools: list[dict]) -> list[dict]:
     """Neutral tool schema -> OpenAI function tools."""
     out = []

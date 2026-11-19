@@ -46,6 +46,13 @@ def _bot_or_raise(sid: str) -> dict:
 
 def _session_dict(bot: dict, *, message_count: int = 0,
                   pending_approval: bool = False) -> Dict[str, Any]:
+    try:
+        totals = _store().usage_totals(bot["id"])
+    except Exception:
+        totals = {"records": 0, "input_tokens": 0, "output_tokens": 0,
+                  "cache_read_input_tokens": 0, "cache_creation_input_tokens": 0,
+                  "thinking_tokens": 0, "cost_usd": 0.0,
+                  "cost_basis": "unknown (no provider-reported cost)"}
     return {
         "id": bot["id"],
         "title": bot["name"],
@@ -57,6 +64,7 @@ def _session_dict(bot: dict, *, message_count: int = 0,
         "kind": bot["kind"],
         "messageCount": message_count,
         "pendingApproval": pending_approval,
+        "usage": totals,
     }
 
 
@@ -99,6 +107,17 @@ def _row_to_v2(event: Dict[str, Any]) -> Dict[str, Any]:
                 "duration_ms": body.get("duration_ms"),
                 "num_turns": body.get("num_turns"),
                 "usage": body.get("usage"),
+                "seq": seq, "ts": ts}
+    if kind == "usage":
+        return {"type": "usage", "sessionID": sid,
+                "provider": body.get("provider"),
+                "model": body.get("model"),
+                "input_tokens": body.get("input_tokens", 0),
+                "output_tokens": body.get("output_tokens", 0),
+                "cache_read_input_tokens": body.get("cache_read_input_tokens", 0),
+                "cache_creation_input_tokens": body.get("cache_creation_input_tokens", 0),
+                "thinking_tokens": body.get("thinking_tokens", 0),
+                "cost_basis": body.get("cost_basis", "unknown"),
                 "seq": seq, "ts": ts}
     if kind == "approval":
         return {"type": "approval", "sessionID": sid,
@@ -190,7 +209,8 @@ def message_history(sid: str) -> List[Dict[str, Any]]:
 
 
 def run_message(sid: str, text: str, workdir: Optional[str] = None,
-                permission_mode: Optional[str] = None) -> Dict[str, Any]:
+                permission_mode: Optional[str] = None,
+                images: Optional[list] = None) -> Dict[str, Any]:
     """Append the user message and start the provider-backed turn.
 
     Returns immediately (202 semantics); the turn streams into the fan-out
@@ -203,11 +223,14 @@ def run_message(sid: str, text: str, workdir: Optional[str] = None,
 
     store = _store()
     row = store.append_row(sid, "message",
-                           {"role": "user", "content": text, "workdir": workdir})
+                           {"role": "user", "content": text,
+                            "workdir": workdir,
+                            "images": len(images or [])})
 
     from .fleet import provider_turn
     lock, started = provider_turn.start_provider_turn(
-        store, bot, text, permission_mode=permission_mode, workdir=workdir)
+        store, bot, text, permission_mode=permission_mode, workdir=workdir,
+        images=images)
     if not started:
         return {"ok": False, "error": "a turn is already in progress for this session",
                 "terminal_reason": "busy", "runId": None}
