@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://keel-desktop.vercel.app/sitemap.xml
