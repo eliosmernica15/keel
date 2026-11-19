@@ -45,6 +45,14 @@ What exists and is verified right now:
   `/download.json`. The landing page and `/download` only enable a button when
   the manifest has `available: true`, an HTTPS URL, a positive byte size and a
   64-hex SHA-256.
+- The hardened pipeline landed in commit `08e5234`; non-tag CI (build run
+  `44603370007`, Python tests `44603370165`) passed and the publish job was
+  correctly skipped. The production site is deployed, and
+  `/api/download-manifest` is live but returns
+  `502 {"error":"manifest_unreachable"}` until `download.keel.app` exists.
+  The release scripts were also run against the real `08e5234` artifacts:
+  all five expected filenames were found, manifest generation succeeded, and
+  the resulting site manifest validated.
 - Unsigned everywhere: SmartScreen (Windows), Gatekeeper (macOS), distro
   policy (Linux) will warn/block until certificates exist.
 

@@ -41,12 +41,12 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 | CI | Windows build (runner, not this host) | done | run `44431591087` green 2026-11-19; NSIS artifact produced; sha256 `43a5eb7d…` |
 | CI | macOS build (runner; arm64 only) | done | same run; `Keel-0.1.0-macos-arm64.dmg/.zip`; Intel untested; Gatekeeper unsigned |
 | CI | Linux build | done | same run; `Keel-0.1.0-linux-x86_64.AppImage`, `Keel-0.1.0-linux-amd64.deb`; not run on a desktop Linux yet |
-| Tests | Full suite | done | `pytest -q` -> 457 passed, 10 smoke skipped (2026-11-19; includes 15 release-distribution tests) |
+| Tests | Full suite | done | `pytest -q` -> 457 passed, 10 smoke skipped (2026-11-19; includes 15 release-distribution tests); CI run `44603370165` green |
 | Installer validation | Windows installer (CI artifact, run `44527352992`) | done | hash verified; silent install → launch → frozen sidecar on 127.0.0.1:8857; `/api/health` 403 (token-protected); `/ui/style.css` 200; reinstall OK; silent uninstall removed dir; `~/.keel` fully preserved |
 | Installer validation | macOS DMG/ZIP (arm64) | partial | CI build green; hashes verified; zip structure inspected (Mach-O 64-bit, app.asar, frozen sidecar present, Info.plist sane, LSMinimum 12.0); UNSIGNED (no _CodeSignature); never mounted on a Mac; Intel unsupported |
 | Installer validation | Linux AppImage + .deb | partial | hashes verified; `.deb` control/deps/desktop-entry/postinst inspected; AppImage ELF x86-64 type-2 w/ squashfs verified; not launched on desktop Linux |
-| Release pipeline | version sync gate + release manifest + post-upload verification | implemented; CI pending | `scripts/check_version_sync.py`, `make_release_manifest.py`, `make_download_manifest.py`, `verify_public_release.py`, `check_download_manifest.py`; workflow uploads to R2 only after all builds, then full-downloads every file and publishes `download.json` last |
-| Website | manifest-driven `/download` + landing cards | implemented; production re-verify pending deploy | `/api/download-manifest` proxy, `/download.json` fallback, checksum copy, alternatives, OS/arch detection; buttons require `available`, HTTPS URL, size and SHA-256 |
+| Release pipeline | version sync gate + release manifest + post-upload verification | implemented; CI green, R2 publish blocked | `scripts/check_version_sync.py`, `make_release_manifest.py`, `make_download_manifest.py`, `verify_public_release.py`, `check_download_manifest.py`; build run `44603370007` green, publish skipped (non-tag, no R2 config); real `08e5234` artifacts all matched expected filenames |
+| Website | manifest-driven `/download` + landing cards | implemented + deployed | `/api/download-manifest` live on Vercel (502 until R2); `/download.json` fallback all unavailable; checksum copy, alternatives, OS/arch detection; buttons require `available`, `verified`, HTTPS URL, size and SHA-256 |
 
 ## Not done yet (documented honestly)
 
