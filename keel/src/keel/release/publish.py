@@ -134,6 +134,12 @@ def publish_command(args: argparse.Namespace) -> int:
         print(f"uploading {name} ({path.stat().st_size} bytes)")
         client.upload_asset(release_id, path, name)
 
+    # Publish the release now so its assets become publicly downloadable.
+    # download.json is still absent, so the site cannot advertise anything.
+    if draft:
+        client.update_release(release_id, draft=False)
+        draft = False
+
     # Verify public installer URLs before publishing the manifest.
     errors = verify_release_manifest(release_manifest, allow_http=False, retries=5, retry_delay=10, timeout=600)
     if errors:
