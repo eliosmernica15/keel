@@ -19,6 +19,12 @@ Done in milestone 4 (2026-11-19):
 
 - Desktop browser end-to-end: agent chat in the app UI (token streaming, inline approval cards, allow/deny through the real broker, stop button, session restore across reloads, folder-bound cwd via `/api/workdir`, opaque session ids).
 
+Done in milestone 5 (2026-11-19):
+
+- MCP servers (from `settings.json` / `keel fleet`) are started concurrently per turn on the v2 agent path; `mcp__server__tool` names flow through the same F1 approval gate as native tools; failures degrade to notices, never to a broken turn.
+- Per-turn usage accounting persisted to `fleet.db` (migration v11; provider-reported counts only; `cost_basis=unknown`); aggregate shown on the session; SSE `usage` events replay across restarts.
+- Image input (`image/png|jpeg|gif|webp`, ≤ 4 MB, ≤ 8) forwarded per-provider; desktop UI sends attachments automatically.
+
 Still open:
 
 - Live-provider end-to-end verification with a real key (no keys on this host; must be run by the operator).

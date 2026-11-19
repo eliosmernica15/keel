@@ -12,6 +12,12 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 | Runtime milestone 4 | Desktop app serves the agent UI at `/` (not the landing page) | done | `webapp.py`: `/` → `app.html` when present, else `index.html`; cookie unchanged |
 | Runtime milestone 4 | v2 session ids are opaque (`token_urlsafe`), not slugs | done | `create_bot(bot_id=…)` in the fleet store; v2 sessions pass random ids |
 | Runtime milestone 4 | Cross-platform runtime CI (ubuntu/windows/macos) | done | `.github/workflows/python-tests.yml` — all three green on run `44556804615` (2026-11-19) |
+| Runtime milestone 5 | MCP tools in the v2 agent loop (offer → approval → execution) | done | real turn exercises `mcp__fake__echo` through Tier-1 + F1 approval → executed (`tests/test_v2_mcp_usage_images.py`); MCP failures isolated to notices |
+| Runtime milestone 5 | Usage accounting in fleet.db (v11 ledger, `/sessions/:id` aggregates) | done | per-turn rows + `usage` SSE events; survives restart (test asserts fresh store reload); cost never invented |
+| Runtime milestone 5 | Image input for v2 messages | done | png/jpeg/gif/webp ≤ 4 MB, ≤ 8/message, 32 MB body cap; per-provider forwarding (image_url/inlineData/image block); 400 on bad mime/base64 |
+| Runtime milestone 5 | Desktop UI: images via paperclip; usage tokens in the status bar; restore re-seeds totals | done | manual browser verification at `127.0.0.1:8798` (agent mode, fake transport) |
+| Runtime milestone 5 | MCP test coverage in CI (deterministic stdio server) | done | `.github/workflows/python-tests.yml` matrix runs it |
+| Live smoke | Live provider verification with a real key | blocked | needs operator keys; `tests/test_live_smoke.py` ready and skipping cleanly |
 | Runtime milestone 4 | Packaged installer verified to serve the agent UI at `/` | done | milestone-4 artifact (run `44556804719`): silent install → packaged sidecar serves app UI at `/` (not landing), health `0.1.0` OK, uninstall clean, `~/.keel` preserved |
 | Live smoke | Opt-in live provider tests (auth success/failure, streaming) | skipped cleanly (no keys on this host) | `tests/test_live_smoke.py` |
 | Live smoke | Live provider verification with a real key | blocked | needs operator-configured keys; must not be done without them |
@@ -35,7 +41,7 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 | CI | Windows build (runner, not this host) | done | run `44431591087` green 2026-11-19; NSIS artifact produced; sha256 `43a5eb7d…` |
 | CI | macOS build (runner; arm64 only) | done | same run; `Keel-0.1.0-macos-arm64.dmg/.zip`; Intel untested; Gatekeeper unsigned |
 | CI | Linux build | done | same run; `Keel-0.1.0-linux-x86_64.AppImage`, `Keel-0.1.0-linux-amd64.deb`; not run on a desktop Linux yet |
-| Tests | Full suite | done | `pytest -q` -> 436 passed, 10 smoke skipped (2026-11-19, milestone 4) |
+| Tests | Full suite | done | `pytest -q` -> 442 passed, 10 smoke skipped (2026-11-19, milestone 5) |
 | Installer validation | Windows installer (CI artifact, run `44527352992`) | done | hash verified; silent install → launch → frozen sidecar on 127.0.0.1:8857; `/api/health` 403 (token-protected); `/ui/style.css` 200; reinstall OK; silent uninstall removed dir; `~/.keel` fully preserved |
 | Installer validation | macOS DMG/ZIP (arm64) | partial | CI build green; hashes verified; zip structure inspected (Mach-O 64-bit, app.asar, frozen sidecar present, Info.plist sane, LSMinimum 12.0); UNSIGNED (no _CodeSignature); never mounted on a Mac; Intel unsupported |
 | Installer validation | Linux AppImage + .deb | partial | hashes verified; `.deb` control/deps/desktop-entry/postinst inspected; AppImage ELF x86-64 type-2 w/ squashfs verified; not launched on desktop Linux |
