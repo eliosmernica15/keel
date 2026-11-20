@@ -36,7 +36,8 @@ WRITE_TOOLS = frozenset({"write_file", "edit_file", "delete_file",
                          "git_commit", "git_checkout"})
 SHELL_TOOLS = frozenset({"run_shell", "run_python", "run_tests",
                          "run_build", "install_deps",
-                         "background_shell", "process_kill"})
+                         "background_shell"})
+PROCESS_TOOLS = frozenset({"process_kill", "process_output", "process_wait", "process_list"})
 
 # catastrophic command names — refused in every mode, no path check needed
 _CATASTROPHIC = frozenset({
@@ -156,6 +157,9 @@ def tier2_check(tool_name: str, tool_input: dict[str, Any], tool_registry=None) 
                     else WRITE_TOOLS)
     _shell_tools = (tool_registry.shell_tools() if tool_registry is not None
                     else SHELL_TOOLS)
+    if tool_name in PROCESS_TOOLS:
+        return _ALLOW
+
     if tool_name in _read_tools:
         path = str(tool_input.get("path") or tool_input.get("pattern") or "")
         if path and _classify_target(_expand(path)) == "secret-bearing path":
