@@ -195,6 +195,23 @@ class McpServer:
             capped += f"\n[mcp: output truncated at {MCP_OUTPUT_CAP} bytes]"
         return (not is_error, capped)
 
+    def health(self) -> bool:
+        try:
+            if not self.running:
+                self.start()
+            self._request("tools/list", {})
+            return True
+        except Exception:
+            return False
+
+    def reconnect(self) -> bool:
+        self.shutdown()
+        try:
+            self.start()
+            return True
+        except Exception:
+            return False
+
     def shutdown(self) -> None:
         if self._proc is None:
             return
@@ -360,6 +377,45 @@ class McpManager:
         if client is None:
             return False, f"mcp server not connected: {server!r}"
         return client.call_tool(tool, arguments)
+
+    def health_all(self) -> dict[str, bool]:
+        out = {}
+        for client in self._clients.values():
+            out[client.config.name] = client.health()
+        for name in self.failed:
+            out[name] = False
+        return out
+
+    def reconnect_all(self) -> dict[str, bool]:
+        out = {}
+        for client in list(self._clients.values()):
+            out[client.config.name] = client.reconnect()
+        return out
+
+    def resources(self, server_name: str) -> list[dict]:
+        client = self._clients.get(server_name)
+        if client is None:
+            return []
+        if isinstance(client, HttpMcpServer):
+            return list(client.resources)
+        # stdio: best-effort resources/list
+        try:
+            result = client._request("resources/list", {})
+            return list(result.get("resources", []))
+        except Exception:
+            return []
+
+    def prompts(self, server_name: str) -> list[dict]:
+        client = self._clients.get(server_name)
+        if client is None:
+            return []
+        if isinstance(client, HttpMcpServer):
+            return list(client.prompts)
+        try:
+            result = client._request("prompts/list", {})
+            return list(result.get("prompts", []))
+        except Exception:
+            return []
 
     def shutdown_all(self) -> None:
         for client in list(self._clients.values()):
