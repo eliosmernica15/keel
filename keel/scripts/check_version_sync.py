@@ -6,6 +6,7 @@ Sources of truth that must all agree:
   3. keel/site/download.json        version + tag (tag must be "v" + version)
   4. keel/desktop/src-tauri/tauri.conf.json  version
   5. keel/desktop-app/package-lock.json      root "version"
+  6. keel/src/keel/__init__.py               __version__
 
 Usage:
   python scripts/check_version_sync.py            # compare all sources
@@ -18,6 +19,7 @@ mismatch. Run from keel/ (the script resolves paths relative to itself).
 from __future__ import annotations
 
 import json
+import re
 import sys
 import tomllib
 from pathlib import Path
@@ -53,6 +55,11 @@ def main() -> int:
 
     tauri = load_json(ROOT / "desktop" / "src-tauri" / "tauri.conf.json")
     versions["desktop/src-tauri/tauri.conf.json"] = tauri.get("version", "")
+
+    package_init = (ROOT / "src" / "keel" / "__init__.py").read_text(
+        encoding="utf-8")
+    match = re.search(r'^__version__\s*=\s*"([^"]+)"', package_init, re.MULTILINE)
+    versions["src/keel/__init__.py"] = match.group(1) if match else ""
 
     if "--tag" in sys.argv:
         idx = sys.argv.index("--tag")

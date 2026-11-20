@@ -18,6 +18,7 @@ VERSION_FILES = {
     "desktop-app/package-lock.json": PROJECT_ROOT / "desktop-app" / "package-lock.json",
     "site/download.json": PROJECT_ROOT / "site" / "download.json",
     "desktop/src-tauri/tauri.conf.json": PROJECT_ROOT / "desktop" / "src-tauri" / "tauri.conf.json",
+    "src/keel/__init__.py": PROJECT_ROOT / "src" / "keel" / "__init__.py",
 }
 
 DEFAULT_REPO = "eliosmernica15/keel"
@@ -111,6 +112,10 @@ def load_versions() -> dict[str, str]:
 
     tauri = json.loads(VERSION_FILES["desktop/src-tauri/tauri.conf.json"].read_text(encoding="utf-8"))
     versions["desktop/src-tauri/tauri.conf.json"] = tauri.get("version", "")
+
+    package_init = VERSION_FILES["src/keel/__init__.py"].read_text(encoding="utf-8")
+    match = re.search(r'^__version__\s*=\s*"([^"]+)"', package_init, re.MULTILINE)
+    versions["src/keel/__init__.py"] = match.group(1) if match else ""
 
     return versions
 

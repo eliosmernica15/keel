@@ -53,6 +53,5 @@
       "installation": "Make the AppImage executable and run it. On Debian/Ubuntu the .deb can be installed with your package manager instead.",
       "alternatives": []
     }
-  },
-  "__hosting__": "No public installer has been published yet. Installers will appear on the official download page only after their SHA-256 checksums have been verified over public HTTPS."
+  }
 }

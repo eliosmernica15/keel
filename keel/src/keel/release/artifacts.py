@@ -9,6 +9,7 @@ remove or relocate source-tree material.
 from __future__ import annotations
 
 import fnmatch
+import json
 import re
 from pathlib import Path
 
@@ -19,6 +20,9 @@ EXPECTED_SIDECAR_BINARIES: frozenset[str] = frozenset({"keel", "keel.exe"})
 
 # Clear-text credential markers. Full history scanning remains gitleaks' job;
 # this catches accidentally placed credential files in a runtime payload.
+# Internal metadata keys that must never ship in a public download manifest.
+FORBIDDEN_JSON_KEYS: frozenset[str] = frozenset({"__hosting__"})
+
 SECRET_MARKERS = re.compile(
     r"(?:\bsk-[A-Za-z0-9_-]{16,}|"
     r"\bgh[pousr]_[A-Za-z0-9]{20,}|"
@@ -99,6 +103,25 @@ def _matches(rel: str, pattern: str) -> bool:
     return False
 
 
+def _has_forbidden_json_metadata(path: Path) -> bool:
+    if path.suffix.lower() != ".json":
+        return False
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    stack = [doc]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            if any(key in FORBIDDEN_JSON_KEYS for key in node):
+                return True
+            stack.extend(node.values())
+        elif isinstance(node, list):
+            stack.extend(node)
+    return False
+
+
 def scan_tree(root: Path) -> list[str]:
     """Return sorted relative paths under *root* that violate the allowlist."""
     if not root.is_dir():
@@ -109,6 +132,8 @@ def scan_tree(root: Path) -> list[str]:
             continue
         rel = path.relative_to(root).as_posix()
         if any(_matches(rel, pattern) for pattern in PROHIBITED_PATTERNS):
+            violations.append(rel)
+        elif _has_forbidden_json_metadata(path):
             violations.append(rel)
     return sorted(violations)
 

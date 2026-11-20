@@ -13,6 +13,7 @@ from keel.release.common import expected_filenames
 from keel.release.licenses import write_inventory
 
 ROOT = Path(__file__).resolve().parents[1]
+SITE = ROOT / "site"
 REPO = ROOT.parent
 
 
@@ -45,6 +46,17 @@ def test_scan_tree_flags_prohibited_files(tmp_path):
     assert "site/.env" in found
     assert "site/index.html" not in found
     assert "site/ui/app.js" not in found
+
+
+def test_scan_tree_flags_internal_json_metadata(tmp_path):
+    root = tmp_path / "site"
+    _touch(root, "download.json", '{"__hosting__": "internal note"}')
+    assert "download.json" in scan_tree(root)
+
+
+def test_committed_download_manifest_has_no_internal_metadata():
+    doc = json.loads((SITE / "download.json").read_text(encoding="utf-8"))
+    assert "__hosting__" not in doc
 
 
 def test_scan_tree_accepts_allowed_packaged_files(tmp_path):
