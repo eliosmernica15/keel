@@ -19,8 +19,23 @@ Status: PLAN MODE — no implementation yet.
 - [x] Runtime uses registry for discovery and dispatch (`session.run`)
 - [x] Input validation in registry
 - [x] MCP tools registered into the same registry per turn
-- [x] Tests: `tests/test_tool_registry.py` (17 tests) plus full suite 471 passed
+- [x] Tests: `tests/test_tool_registry.py` (17 tests) plus full suite 479 passed
 - [x] Backward compatibility preserved (`ALL_TOOLS`, `TOOL_SCHEMAS`, `RealTools.invoke`)
+
+## Milestone 6B — Advanced agent capabilities
+- [x] Advanced native tools: delete_file, move_file, list_dir, apply_patch, diff_files, copy_file, make_dir, file_info, search_files
+- [x] Terminal/process: run_python, run_tests, run_build, install_deps, background_shell, process_list, process_output, process_wait, process_kill
+- [x] Git: git_status, git_diff, git_log, git_branch_list, git_add, git_commit, git_checkout
+- [x] Dev intelligence: project_summary, symbol_search
+- [x] Web: web_fetch, web_search
+- [x] Agent-facing: list_skills, load_skill, run_workflow
+- [x] Skills manager: discover/install/remove/enable-disable/update/validate/select
+- [x] Workflow engine: JSON discovery, execution (tool/command/shell steps)
+- [x] MCP HTTP transport + health/reconnect/resources/prompts
+- [x] Skills/commands/workflows/MCP API endpoints
+- [x] Safety tier-2 coverage for all new tools
+- [x] Ignore rules in search
+- [x] Full test suite: 479 passed, 10 skipped
 
 ## Phase 3 — Complete tool execution
 - [ ] Missing filesystem tools
