@@ -1251,6 +1251,7 @@ $("goto-connectors").addEventListener("click", () => showPane("connectors"));
 /* ---------- Skills / Connectors ---------- */
 
 async function loadSkills() {
+  if (window.__keelManagementActive) return; // management.js owns this pane
   const wrap = $("skills-list");
   wrap.innerHTML = '<p class="hint">Loading…</p>';
   const doc = await fetchJson("/api/fleet/skills", { headers: fsHeaders() });

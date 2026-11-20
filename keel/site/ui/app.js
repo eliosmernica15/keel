@@ -1932,6 +1932,7 @@ $("goto-connectors").addEventListener("click", () => showPane("connectors"));
 /* ---------- Skills / Connectors ---------- */
 
 async function loadSkills() {
+  if (window.__keelManagementActive) return; // management.js owns this pane
   const wrap = $("skills-list");
   wrap.textContent = "";
   wrap.innerHTML = '<p class="hint">Not available on the mirror — skills live on your machine and run inside `keel serve`. Install Keel to use them.</p>';

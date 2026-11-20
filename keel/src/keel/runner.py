@@ -524,8 +524,7 @@ class RealTools:
         proc = self._BG_PROCESSES.get(pid)
         if proc is None:
             raise KeyError(f"unknown process: {pid}")
-        if proc.poll() is None:
-            proc.kill()
+        _terminate_process_tree(proc)
         del self._BG_PROCESSES[pid]
         return f"killed {pid}", {"process_id": pid}
 
@@ -849,6 +848,42 @@ class RealTools:
         status = "running" if proc.poll() is None else f"exited({proc.returncode})"
         return status, {"process_id": pid, "status": status, "exit_code": proc.returncode}
 
+
+def _terminate_process_tree(proc) -> None:
+    """Terminate *proc* and every descendant it spawned."""
+    import os as _os
+    import signal
+    import subprocess as _subprocess
+
+    if proc.poll() is not None:
+        return
+    if _os.name == "nt":
+        try:
+            _subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)],
+                            capture_output=True, timeout=10)
+        except (OSError, _subprocess.SubprocessError):
+            pass
+        try:
+            proc.wait(timeout=5)
+        except _subprocess.TimeoutExpired:
+            proc.kill()
+        return
+
+    # The background process was started with start_new_session=True, so its
+    # process group id equals its pid. Kill the whole group, then escalate.
+    try:
+        _os.killpg(proc.pid, signal.SIGTERM)
+    except (ProcessLookupError, PermissionError):
+        proc.terminate()
+    try:
+        proc.wait(timeout=3)
+    except _subprocess.TimeoutExpired:
+        try:
+            _os.killpg(proc.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            proc.kill()
+
+
 def cleanup_background_processes() -> int:
     """Terminate all tracked background processes. Returns count killed."""
     from keel.runner import RealTools
@@ -856,25 +891,7 @@ def cleanup_background_processes() -> int:
     for pid, proc in list(RealTools._BG_PROCESSES.items()):
         try:
             if proc.poll() is None:
-                import os as _os, signal
-                if _os.name == "nt":
-                    # Kill the process tree on Windows
-                    subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)],
-                                   capture_output=True, timeout=10)
-                else:
-                    # Kill the entire process group on Unix
-                    try:
-                        _os.killpg(proc.pid, signal.SIGTERM)
-                    except (ProcessLookupError, PermissionError):
-                        proc.terminate()
-                    # Wait briefly, then SIGKILL if needed
-                    try:
-                        proc.wait(timeout=3)
-                    except subprocess.TimeoutExpired:
-                        try:
-                            _os.killpg(proc.pid, signal.SIGKILL)
-                        except (ProcessLookupError, PermissionError):
-                            proc.kill()
+                _terminate_process_tree(proc)
                 killed += 1
         except Exception:
             try:

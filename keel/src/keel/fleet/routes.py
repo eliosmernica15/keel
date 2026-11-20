@@ -427,6 +427,68 @@ def dispatch_get(handler, *, _authorized, _origin_ok, _token=""):
         _send(handler, {"skills": out})
         return True
 
+    if parts == ["api", "fleet", "skills", "manage"]:
+        from .. import skills_manager as _sm
+        from urllib.parse import urlparse, parse_qs
+        qs = parse_qs(urlparse(getattr(handler, "path", "")).query)
+        project_root = qs.get("project_root", [None])[0]
+        try:
+            from pathlib import Path as _P
+            managed = _sm.list_managed(_P(project_root) if project_root else None)
+        except Exception as exc:
+            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return True
+        _send(handler, {"skills": managed})
+        return True
+
+    if parts == ["api", "fleet", "commands"]:
+        from .. import commands as _cmds
+        from urllib.parse import urlparse, parse_qs
+        qs = parse_qs(urlparse(getattr(handler, "path", "")).query)
+        project_root = qs.get("project_root", [None])[0]
+        from pathlib import Path as _P
+        root = _P(project_root) if project_root else _P.cwd()
+        try:
+            found = _cmds.discover(root)
+        except Exception as exc:
+            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return True
+        out = [{"name": c.name, "description": c.description,
+                "source": c.source, "argument_hint": c.argument_hint}
+               for c in found]
+        _send(handler, {"commands": out})
+        return True
+
+    if parts == ["api", "fleet", "workflows"]:
+        from .. import workflows as _wfs
+        from urllib.parse import urlparse, parse_qs
+        qs = parse_qs(urlparse(getattr(handler, "path", "")).query)
+        project_root = qs.get("project_root", [None])[0]
+        from pathlib import Path as _P
+        root = _P(project_root) if project_root else None
+        try:
+            found = _wfs.discover(root)
+        except Exception as exc:
+            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return True
+        out = [{"name": w.name, "description": w.description, "source": w.source,
+                "steps": len(w.steps)} for w in found]
+        _send(handler, {"workflows": out})
+        return True
+
+    if parts == ["api", "fleet", "mcp", "servers"]:
+        from .. import settings_store as _ss
+        from ..mcp import parse_servers
+        try:
+            settings = _ss.load()
+        except Exception:
+            settings = {}
+        servers = parse_servers(settings.get("mcpServers", {}))
+        out = [{"name": s.name, "transport": s.transport, "scope": s.scope,
+                "command": s.command, "url": s.url} for s in servers]
+        _send(handler, {"servers": out})
+        return True
+
     if parts == ["api", "fleet", "connectors"]:
         from . import connector_ops as _cops
         _send(handler, _cops.list_configured())
@@ -1433,68 +1495,6 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
                             "outcome": "granted" if decision != "never" else "refused"})
             return True
 
-    if parts == ["api", "fleet", "skills", "manage"]:
-        from .. import skills_manager as _sm
-        from urllib.parse import urlparse, parse_qs
-        qs = parse_qs(urlparse(getattr(handler, "path", "")).query)
-        project_root = qs.get("project_root", [None])[0]
-        try:
-            from pathlib import Path as _P
-            managed = _sm.list_managed(_P(project_root) if project_root else None)
-        except Exception as exc:
-            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
-            return True
-        _send(handler, {"skills": managed})
-        return True
-
-    if parts == ["api", "fleet", "commands"]:
-        from .. import commands as _cmds
-        from urllib.parse import urlparse, parse_qs
-        qs = parse_qs(urlparse(getattr(handler, "path", "")).query)
-        project_root = qs.get("project_root", [None])[0]
-        from pathlib import Path as _P
-        root = _P(project_root) if project_root else _P.cwd()
-        try:
-            found = _cmds.discover(root)
-        except Exception as exc:
-            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
-            return True
-        out = [{"name": c.name, "description": c.description,
-                "source": c.source, "argument_hint": c.argument_hint}
-               for c in found]
-        _send(handler, {"commands": out})
-        return True
-
-    if parts == ["api", "fleet", "workflows"]:
-        from .. import workflows as _wfs
-        from urllib.parse import urlparse, parse_qs
-        qs = parse_qs(urlparse(getattr(handler, "path", "")).query)
-        project_root = qs.get("project_root", [None])[0]
-        from pathlib import Path as _P
-        root = _P(project_root) if project_root else None
-        try:
-            found = _wfs.discover(root)
-        except Exception as exc:
-            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
-            return True
-        out = [{"name": w.name, "description": w.description, "source": w.source,
-                "steps": len(w.steps)} for w in found]
-        _send(handler, {"workflows": out})
-        return True
-
-    if parts == ["api", "fleet", "mcp", "servers"]:
-        from .. import settings_store as _ss
-        from ..mcp import parse_servers
-        try:
-            settings = _ss.load()
-        except Exception:
-            settings = {}
-        servers = parse_servers(settings.get("mcpServers", {}))
-        out = [{"name": s.name, "transport": s.transport, "scope": s.scope,
-                "command": s.command, "url": s.url} for s in servers]
-        _send(handler, {"servers": out})
-        return True
-
     if parts == ["api", "fleet", "skills", "install"]:
         from .. import skills_manager as _sm
         payload, err = _read_json(handler, limit=64_000)
@@ -1604,16 +1604,29 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
             _send(handler, {"error": "workflow not found"}, HTTPStatus.NOT_FOUND)
             return True
         def _exec_tool(n, inp):
-            # Delegate to the real tool registry via a temporary executor.
-            # Tier-2 safety is enforced inside RealTools.invoke.
-            # Permission evaluation requires a session context; for the API
-            # endpoint we enforce tier-2 and deny unknown tools.
-            from keel.runner import RealTools
-            from keel.permissions import evaluate
-            from keel.permissions import parse_rules
-            # Fail closed for unknown tools
-            reg = RealTools().tools if hasattr(RealTools(), "tools") else None
-            # Basic tier-2 + registry permission check
+            # A workflow invoked from the desktop UI is a non-interactive
+            # session: every tool step must still pass the same Tier-1
+            # permission gate a normal turn passes. Tier-2 safety inside
+            # RealTools.invoke is a second line of defence, not a replacement.
+            from .. import settings as _settings
+            from ..permissions import evaluate, parse_rules
+            from ..runner import RealTools
+            from ..tools import create_native_registry
+
+            resolved = _settings.resolve(
+                state_root=_settings.default_state_root(),
+                cwd=Path(root) if root else Path.cwd())
+            deny, ask, allow = _settings.as_rule_lists(resolved)
+            rules = (parse_rules("deny", deny)[0],
+                     parse_rules("ask", ask)[0],
+                     parse_rules("allow", allow)[0])
+            registry = create_native_registry(RealTools())
+            decision = evaluate(
+                tool_name=n, tool_input=inp or {}, rules=rules,
+                mode=str(resolved.value.get("permissionMode", "default")),
+                interactive=False, tool_registry=registry)
+            if decision.decision != "allow":
+                raise PermissionError(f"{n}: {decision.reason}")
             return RealTools().invoke(n, inp)
         try:
             results = _wfs.execute_workflow(wf, tool_executor=_exec_tool,
