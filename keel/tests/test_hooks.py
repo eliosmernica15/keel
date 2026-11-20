@@ -62,6 +62,79 @@ def _run(tmp_path, command: str, hooks):
     return session.run("do it"), executor
 
 
+HOOK_LOG = (
+    "import json, sys\n"
+    "payload = json.load(sys.stdin)\n"
+    "with open(sys.argv[1], 'a', encoding='utf-8') as fh:\n"
+    "    fh.write(payload['hook_event_name'] + '\\n')\n"
+)
+
+
+def _logging_hooks(tmp_path, log_path, events):
+    script = tmp_path / "log_hook.py"
+    script.write_text(HOOK_LOG, encoding="utf-8")
+    command = f'"{sys.executable}" "{script}" "{log_path}"'
+    return [HookDefinition(event=event, matcher=None,
+                           command=command, name=f"{event}[0]")
+            for event in events]
+
+
+def test_lifecycle_events_fire_in_order(tmp_path):
+    log_path = tmp_path / "events.log"
+    hooks = _logging_hooks(tmp_path, log_path, [
+        "SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse",
+        "PostToolBatch", "Stop", "SessionEnd",
+    ])
+    out, executor = _run(tmp_path, "ls", hooks)
+    assert out.envelope["result"] == "done"
+    assert executor.calls
+    assert log_path.read_text(encoding="utf-8").splitlines() == [
+        "SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse",
+        "PostToolBatch", "Stop", "SessionEnd",
+    ]
+
+
+def test_failure_hook_events_fire(tmp_path):
+    log_path = tmp_path / "failure.log"
+    hooks = _logging_hooks(tmp_path, log_path, [
+        "PermissionDenied", "PostToolUseFailure", "StopFailure", "SessionEnd",
+    ])
+    # `rm` is irreversible; non-interactive default mode denies it.
+    out, executor = _run(tmp_path, "rm /tmp/probe-file", hooks)
+    assert out.envelope["subtype"] == "success"  # turn itself completes
+    assert not executor.calls
+    seen = log_path.read_text(encoding="utf-8").splitlines()
+    assert "PermissionDenied" in seen
+    assert "PostToolUseFailure" in seen
+    assert "SessionEnd" in seen
+
+
+def test_cancel_fires_terminal_hooks(tmp_path):
+    import threading
+
+    log_path = tmp_path / "cancel.log"
+    hooks = _logging_hooks(tmp_path, log_path, ["Stop", "SessionEnd"])
+    cancel = threading.Event()
+    cancel.set()
+    cfg = _cfg(tmp_path)
+    cfg.cancel_event = cancel
+    session = Session(
+        model_client=ScriptedModel([[{"type": "text", "text": "never"}]]),
+        executor=_Executor(), config=cfg, clock=VirtualClock(),
+        rng=SeededRng(0), hooks=hooks)
+    out = session.run("do it")
+    assert out.envelope["terminal_reason"] == "cancelled"
+    assert log_path.read_text(encoding="utf-8").splitlines() == [
+        "Stop", "SessionEnd"]
+
+
+def test_hook_failure_does_not_break_lifecycle(tmp_path):
+    hooks = [HookDefinition(event="SessionStart", matcher=None,
+                            command="definitely-not-a-real-binary-xyz")]
+    out, _ = _run(tmp_path, "ls", hooks)
+    assert out.envelope["result"] == "done"
+
+
 def test_pre_hook_exit_2_blocks_tool(tmp_path):
     out, executor = _run(tmp_path, "ls", [
         HookDefinition(event="PreToolUse", matcher=None,

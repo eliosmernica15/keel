@@ -64,3 +64,18 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 **Verification:** `python -m pytest tests/test_secret_storage.py tests/test_fleet_credentials.py tests/test_settings.py tests/test_m2_provider_config.py -q` → `49 passed`.
 
 **Remaining from defect register:** hook coverage, distribution/signing gaps.
+
+## Batch 5 — Hook lifecycle integration
+
+**v5 requirement:** §6 architecture (hooks in the Python daemon) and §11 control 9 (hooks/plugins cannot reach Tier 2). No M3 criteria were invented; only events with existing execution paths were wired.
+
+**Implemented:**
+- `src/keel/session.py`: wired SessionStart, UserPromptSubmit, PermissionRequest, PermissionDenied, PostToolUseFailure, PostToolBatch, PreCompact, PostCompact, Stop, StopFailure, and SessionEnd in addition to the existing PreToolUse/PostToolUse.
+- Terminal hook firing is centralized so cancellation, provider errors, max-turn errors, and successful completion all emit Stop/StopFailure and SessionEnd exactly once.
+- `src/keel/hooks.py`: docstring updated to reflect wired events.
+- `tests/test_hooks.py`: ordering, failure, cancellation, and hook-failure-tolerance tests.
+- `tests/test_compaction.py`: PreCompact/PostCompact boundary ordering test.
+
+**Verification:** `python -m pytest tests/test_hooks.py tests/test_compaction.py tests/test_vertical_slice.py -q` → `33 passed`.
+
+**Remaining from defect register:** distribution/signing gaps; 20 declared hook events still have no runtime surface in this slice and are intentionally left inert rather than fabricated.

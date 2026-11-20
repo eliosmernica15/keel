@@ -200,6 +200,15 @@ class Session:
         if selection is None:
             return messages
         t0 = self.clock.monotonic()
+        if self.hooks:
+            fire(self.hooks, "PreCompact", {
+                "session_id": self.config.session_id,
+                "cwd": self.config.cwd,
+                "trigger": "auto",
+                "pre_tokens": selection.pre_tokens,
+                "dropped_tokens": selection.dropped_tokens,
+                "preserved_count": len(selection.preserved),
+            })
         try:
             summary_blocks = self.model.complete(
                 [{"role": "user", "content":
@@ -241,6 +250,15 @@ class Session:
             logical_parent=logical_parent,
             trigger="auto")
         emit(boundary, dict(boundary))
+        if self.hooks:
+            fire(self.hooks, "PostCompact", {
+                "session_id": self.config.session_id,
+                "cwd": self.config.cwd,
+                "trigger": "auto",
+                "pre_tokens": selection.pre_tokens,
+                "post_tokens": post_tokens,
+                "compaction_count": self.compaction.compaction_count,
+            })
         if self.compaction.thrash_detected:
             self.compaction.disabled = True
             self.compaction.disable_reason = THRESHOLD_NOTE
@@ -266,6 +284,47 @@ class Session:
         def emit(event: dict, transcript_entry: dict | None = None) -> None:
             events.append(event)
             writer.write(transcript_entry if transcript_entry is not None else event)
+
+        def hook_emit(kind, item, event_name, tuid=None):
+            if kind == "started":
+                emit(ev.hook_started(
+                    session_id=self.config.session_id,
+                    uuid=self.ids.event_uuid(),
+                    timestamp=self.clock.now_iso(),
+                    hook_name=item.name, hook_event=event_name,
+                    tool_use_id=tuid))
+            else:
+                emit(ev.hook_response(
+                    session_id=self.config.session_id,
+                    uuid=self.ids.event_uuid(),
+                    timestamp=self.clock.now_iso(),
+                    hook_name=item.name, hook_event=event_name,
+                    tool_use_id=tuid, exit_code=item.exit_code,
+                    duration_ms=item.duration_ms,
+                    verdict=item.verdict))
+
+        def finish(envelope: dict, *, ok: bool) -> RunOutcome:
+            """Fire terminal hooks, emit the result, and close the transcript."""
+            if self.hooks:
+                terminal_payload = {
+                    "session_id": self.config.session_id,
+                    "cwd": self.config.cwd,
+                    "subtype": envelope.get("subtype", ""),
+                    "terminal_reason": envelope.get("terminal_reason", ""),
+                    "num_turns": envelope.get("num_turns", 0),
+                    "duration_ms": envelope.get("duration_ms", 0),
+                    "stop_hook_active": True,
+                    "transcript_path": writer.path,
+                }
+                fire(self.hooks, "Stop" if ok else "StopFailure",
+                     terminal_payload, stop_hook_active=True, emit=hook_emit)
+                fire(self.hooks, "SessionEnd", terminal_payload,
+                     stop_hook_active=True, emit=hook_emit)
+            emit(envelope, {"type": "cost-state",
+                            "sessionId": self.config.session_id,
+                            "totalCostUsd": 0.0})
+            writer.close()
+            return RunOutcome(events, envelope, writer.path, denials)
 
         # MCP: start approved servers eagerly so the manifest is complete
         mcp_statuses: list[dict] = []
@@ -468,6 +527,14 @@ class Session:
                     "tools": tools, "model": self.config.model})
         writer.write({"type": "permission-mode", "permissionMode": mode,
                       "sessionId": self.config.session_id})
+        if self.hooks:
+            fire(self.hooks, "SessionStart", {
+                "session_id": self.config.session_id,
+                "cwd": self.config.cwd,
+                "model": self.config.model,
+                "permission_mode": mode,
+                "transcript_path": writer.path,
+            }, emit=hook_emit)
 
         messages: list[dict] = [{"role": "user", "content": prompt,
                                  "uuid": self.ids.event_uuid()}]
@@ -511,6 +578,14 @@ class Session:
                                                   "content": prompt},
                       "uuid": messages[0]["uuid"],
                       "sessionId": self.config.session_id})
+        if self.hooks:
+            fire(self.hooks, "UserPromptSubmit", {
+                "session_id": self.config.session_id,
+                "cwd": self.config.cwd,
+                "user_input": prompt if isinstance(prompt, str)
+                else json.dumps(prompt, ensure_ascii=False),
+                "transcript_path": writer.path,
+            }, emit=hook_emit)
         tool_schemas = [all_schemas[t] for t in tools]
         self.budget = Budget(context_window=self.config.context_window,
                              reserved_output=self.config.reserved_output)
@@ -538,11 +613,7 @@ class Session:
                                      local_command=self.config.local_command,
                                      safety_stops=self.safety_stops)
                 envelope["timestamp"] = self.clock.now_iso()
-                emit(envelope, {"type": "cost-state",
-                                "sessionId": self.config.session_id,
-                                "totalCostUsd": 0.0})
-                writer.close()
-                return RunOutcome(events, envelope, writer.path, denials)
+                return finish(envelope, ok=True)
             if self.config.auto_compact and not self.compaction.disabled:
                 messages = self._maybe_compact(messages, emit)
             try:
@@ -577,11 +648,7 @@ class Session:
                     errors=errors,
                     local_command=self.config.local_command,
                     safety_stops=self.safety_stops)
-                emit(envelope, {"type": "cost-state",
-                                "sessionId": self.config.session_id,
-                                "totalCostUsd": 0.0})
-                writer.close()
-                return RunOutcome(events, envelope, writer.path, denials)
+                return finish(envelope, ok=False)
             tool_blocks = [b for b in blocks if b.get("type") == "tool_use"]
             text_blocks = [b for b in blocks if b.get("type") == "text"]
 
@@ -636,10 +703,7 @@ class Session:
                                      local_command=self.config.local_command,
                                      safety_stops=self.safety_stops)
                 envelope["timestamp"] = self.clock.now_iso()
-                emit(envelope, {"type": "cost-state", "sessionId": self.config.session_id,
-                                "totalCostUsd": 0.0})
-                writer.close()
-                return RunOutcome(events, envelope, writer.path, denials)
+                return finish(envelope, ok=False)
 
             tool_results = []
             block_indices = [i for i, b in enumerate(blocks)
@@ -654,24 +718,6 @@ class Session:
                 tool_use_id = tool_use_ids[block_idx]
                 tool_input = block.get("input", {})
                 hook_blocked_reason: str | None = None
-
-                def hook_emit(kind, item, event_name, tuid):
-                    if kind == "started":
-                        emit(ev.hook_started(
-                            session_id=self.config.session_id,
-                            uuid=self.ids.event_uuid(),
-                            timestamp=self.clock.now_iso(),
-                            hook_name=item.name, hook_event=event_name,
-                            tool_use_id=tuid))
-                    else:
-                        emit(ev.hook_response(
-                            session_id=self.config.session_id,
-                            uuid=self.ids.event_uuid(),
-                            timestamp=self.clock.now_iso(),
-                            hook_name=item.name, hook_event=event_name,
-                            tool_use_id=tuid, exit_code=item.exit_code,
-                            duration_ms=item.duration_ms,
-                            verdict=item.verdict))
 
                 if self.hooks is not None and self.hooks:
                     hook_payload = {
@@ -712,6 +758,19 @@ class Session:
                                self.allow_rules),
                         mode=mode, interactive=self.config.interactive,
                         tool_registry=self.tools)
+                    if (self.hooks and decision.decision != "allow"
+                            and decision.reason_type == "consent_required"):
+                        fire(self.hooks, "PermissionRequest", {
+                            "session_id": self.config.session_id,
+                            "cwd": self.config.cwd,
+                            "tool_name": block["name"],
+                            "tool_input": tool_input,
+                            "tool_use_id": tool_use_id,
+                            "permission_mode": mode,
+                            "reason_type": decision.reason_type,
+                            "reason": decision.reason,
+                            "transcript_path": writer.path,
+                        }, emit=hook_emit)
                     if (decision.decision != "allow"
                             and decision.reason_type == "consent_required"
                             and self.config.approval_decider is not None):
@@ -800,6 +859,18 @@ class Session:
                                 tool_use_result = rendered["toolUseResult"]
                                 is_error = rendered["isError"]
                     else:
+                        if self.hooks:
+                            fire(self.hooks, "PermissionDenied", {
+                                "session_id": self.config.session_id,
+                                "cwd": self.config.cwd,
+                                "tool_name": block["name"],
+                                "tool_input": tool_input,
+                                "tool_use_id": tool_use_id,
+                                "permission_mode": mode,
+                                "reason_type": decision.reason_type,
+                                "reason": decision.reason,
+                                "transcript_path": writer.path,
+                            }, emit=hook_emit)
                         msg = f"permission denied: {decision.reason}"
                         rendered = render_failure(tool_use_id,
                                                   machine_error(msg),
@@ -855,6 +926,11 @@ class Session:
                     }
                     fire(self.hooks, "PostToolUse", post_payload,
                          emit=hook_emit)
+                    if is_error:
+                        fire(self.hooks, "PostToolUseFailure", {
+                            **post_payload,
+                            "error": (tool_result_content or "")[:512],
+                        }, emit=hook_emit)
                 emit(ev.user_tool_result(
                     tool_use_id=tool_use_id, content=tool_result_content,
                     session_id=self.config.session_id,
@@ -872,6 +948,14 @@ class Session:
                                      "content": tool_result_content})
 
             if tool_blocks:
+                if self.hooks:
+                    fire(self.hooks, "PostToolBatch", {
+                        "session_id": self.config.session_id,
+                        "cwd": self.config.cwd,
+                        "num_turns": num_turns,
+                        "tool_results": tool_results,
+                        "transcript_path": writer.path,
+                    }, emit=hook_emit)
                 messages.append({"role": "assistant", "content": blocks,
                                  "uuid": self.ids.event_uuid()})
                 messages.append({"role": "user", "content": tool_results,
@@ -904,7 +988,4 @@ class Session:
             or None,
             safety_stops=self.safety_stops,
             local_command=self.config.local_command)
-        emit(envelope, {"type": "cost-state", "sessionId": self.config.session_id,
-                        "totalCostUsd": 0.0})
-        writer.close()
-        return RunOutcome(events, envelope, writer.path, denials)
+        return finish(envelope, ok=True)

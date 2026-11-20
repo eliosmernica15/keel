@@ -88,6 +88,40 @@ def test_compaction_emits_boundary_and_keeps_ids(tmp_path):
     assert boundary["logicalParentUuid"]
 
 
+def test_compaction_hooks_fire_around_the_boundary(tmp_path):
+    import sys
+
+    from keel.hooks import HookDefinition
+
+    log_path = tmp_path / "compact-hooks.log"
+    script = tmp_path / "log_compact_hook.py"
+    script.write_text(
+        "import json, sys\n"
+        "payload = json.load(sys.stdin)\n"
+        "with open(sys.argv[1], 'a', encoding='utf-8') as fh:\n"
+        "    fh.write(payload['hook_event_name'] + '\\n')\n",
+        encoding="utf-8")
+    command = f'"{sys.executable}" "{script}" "{log_path}"'
+    hooks = [
+        HookDefinition(event="PreCompact", matcher=None, command=command),
+        HookDefinition(event="PostCompact", matcher=None, command=command),
+    ]
+
+    huge_args = {"command": "cat " + "stacktrace-line\n" * 1400,
+                 "shell": "posix"}
+    model = ScriptedModel([
+        [{"type": "tool_use", "name": "run_shell", "input": huge_args}],
+        [{"type": "text", "text": "summary"}],
+        [{"type": "text", "text": "done"}],
+    ])
+    session = Session(model_client=model, executor=_Executor(),
+                      config=_cfg(tmp_path), clock=VirtualClock(),
+                      rng=SeededRng(0), hooks=hooks)
+    session.run("investigate\n" + "noise line\n" * 400)
+    assert log_path.read_text(encoding="utf-8").splitlines() == [
+        "PreCompact", "PostCompact"]
+
+
 def test_compaction_cumulative_is_monotonic(tmp_path):
     events = []
 
