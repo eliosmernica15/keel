@@ -94,13 +94,13 @@ def execute_workflow(workflow: Workflow, *, tool_executor: Callable[[str, dict],
                 entry["result"] = out
                 entry["ok"] = True
             elif step.kind == "shell":
-                import subprocess
-                proc = subprocess.run(step.command, shell=True, capture_output=True, timeout=120, check=False, cwd=cwd)
-                stdout = proc.stdout.decode("utf-8", errors="replace")
-                stderr = proc.stderr.decode("utf-8", errors="replace")
-                entry["result"] = stdout + ("\n" if stdout and stderr else "") + stderr
-                entry["ok"] = proc.returncode == 0
-                entry["exit_code"] = proc.returncode
+                # Route through the secured tool execution path (tier-2 safety).
+                # Do not use subprocess.run(shell=True) directly.
+                if tool_executor is None:
+                    raise RuntimeError("no tool executor provided for shell step")
+                result = tool_executor("run_shell", {"command": step.command, "shell": "posix"})
+                entry["result"] = result
+                entry["ok"] = True
             else:
                 raise ValueError(f"unknown step kind: {step.kind}")
         except Exception as exc:  # noqa: BLE001

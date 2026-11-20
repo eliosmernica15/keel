@@ -28,6 +28,8 @@ def test_workflow_discover_and_execute(tmp_path):
     calls = []
     def exec_tool(name, inp):
         calls.append((name, inp))
+        if name == "run_shell":
+            return "hello\n", {"stdout": "hello", "exit_code": 0}
         return "tool-result", {"ok": True}
 
     results = execute_workflow(wf, tool_executor=exec_tool, project_root=tmp_path, cwd=str(tmp_path))
@@ -35,7 +37,8 @@ def test_workflow_discover_and_execute(tmp_path):
     assert results[0]["ok"] is True
     assert results[0]["result"][0] == "tool-result"
     assert results[1]["ok"] is True
-    assert "hello" in results[1]["result"]
+    assert "hello" in results[1]["result"][0]
+    assert calls[1][0] == "run_shell"
 
 
 def test_workflow_stops_on_error(tmp_path):
