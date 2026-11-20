@@ -264,7 +264,11 @@ def evaluate(*, tool_name: str, tool_input: dict,
                                 "config", rule.raw, op_class, indeterminate)
 
     table = _MODE_TABLE[normalize_mode(mode)]
-    verdict = table.get(op_class or MUTATE_LOCAL, "ask")
+    if op_class is None:
+        # Unknown tool: fail closed (deny by default)
+        return Decision("deny", "mode", f"unknown tool {tool_name!r} has no permission classification",
+                        "mode", None, op_class, indeterminate)
+    verdict = table.get(op_class, "ask")
     if mode == MODE_BYPASS and verdict == "allow":
         # allow has no force here; deny/ask already returned above. Mode baseline only.
         return Decision("allow", "mode", "bypassPermissions mode baseline",
