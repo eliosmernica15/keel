@@ -142,6 +142,12 @@ NATIVE_TOOL_SCHEMAS = [
      "input_schema": {'type': 'object', 'properties': {'root': {'type': 'string'}}}},
     {"name": "symbol_search", "description": "Search code for a pattern.",
      "input_schema": {'type': 'object', 'properties': {'pattern': {'type': 'string'}, 'root': {'type': 'string'}, 'glob': {'type': 'string'}}, 'required': ['pattern']}},
+    {"name": "list_skills", "description": "List discovered skills.",
+     "input_schema": {'type': 'object', 'properties': {'project_root': {'type': 'string'}}}},
+    {"name": "load_skill", "description": "Load a skill's instructions by name.",
+     "input_schema": {'type': 'object', 'properties': {'name': {'type': 'string'}, 'project_root': {'type': 'string'}}, 'required': ['name']}},
+    {"name": "run_workflow", "description": "Execute a named workflow.",
+     "input_schema": {'type': 'object', 'properties': {'name': {'type': 'string'}, 'project_root': {'type': 'string'}}, 'required': ['name']}},
 ]
 
 NATIVE_TOOL_PERMISSIONS: dict[str, str] = {
@@ -179,6 +185,9 @@ NATIVE_TOOL_PERMISSIONS: dict[str, str] = {
     "git_checkout": "write",
     "project_summary": "read",
     "symbol_search": "read",
+    "list_skills": "read",
+    "load_skill": "read",
+    "run_workflow": "execute",
 }
 
 NATIVE_TOOL_NAMES: tuple[str, ...] = tuple(s["name"] for s in NATIVE_TOOL_SCHEMAS)

@@ -318,6 +318,9 @@ class RealTools:
             "git_checkout": self._git_checkout,
             "project_summary": self._project_summary,
             "symbol_search": self._symbol_search,
+            "list_skills": self._list_skills,
+            "load_skill": self._load_skill,
+            "run_workflow": self._run_workflow,
         }
         handler = handlers.get(name)
         if handler is None:
@@ -573,6 +576,34 @@ class RealTools:
             if len(hits) >= 1000:
                 break
         return "\n".join(hits), {"hits": hits, "numHits": len(hits), "truncated": len(hits) >= 1000}
+
+    def _list_skills(self, tool_input: dict):
+        from pathlib import Path
+        import json
+        from . import skills_manager
+        project_root = tool_input.get("project_root")
+        managed = skills_manager.list_managed(Path(project_root) if project_root else None)
+        return json.dumps(managed, indent=2, default=str), {"skills": managed, "count": len(managed)}
+
+    def _load_skill(self, tool_input: dict):
+        from pathlib import Path
+        name = tool_input["name"]
+        project_root = tool_input.get("project_root")
+        for skill in __import__("keel.skills", fromlist=["discover"]).discover(Path(project_root) if project_root else None):
+            if skill.name == name:
+                return skill.body, {"name": skill.name, "description": skill.description, "path": str(skill.path)}
+        raise KeyError(f"skill not found: {name}")
+
+    def _run_workflow(self, tool_input: dict):
+        from pathlib import Path
+        from . import workflows
+        name = tool_input["name"]
+        project_root = Path(tool_input.get("project_root") or ".")
+        wf = workflows.find(name, project_root)
+        if wf is None:
+            raise KeyError(f"workflow not found: {name}")
+        results = workflows.execute_workflow(wf, tool_executor=self.invoke, project_root=project_root)
+        return str(results), {"workflow": name, "results": results}
 
 
 def _build_model_client(plan: LaunchPlan):
