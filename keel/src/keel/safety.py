@@ -29,7 +29,8 @@ READ_TOOLS = frozenset({"read_file", "glob", "grep",
                         "list_dir", "diff_files", "project_summary",
                         "symbol_search", "git_status", "git_diff",
                         "git_log", "git_branch_list", "process_list",
-                        "list_skills", "load_skill"})
+                        "list_skills", "load_skill",
+                        "web_fetch", "web_search"})
 WRITE_TOOLS = frozenset({"write_file", "edit_file", "delete_file",
                          "move_file", "apply_patch", "git_add",
                          "git_commit", "git_checkout"})

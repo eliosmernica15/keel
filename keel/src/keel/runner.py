@@ -321,6 +321,12 @@ class RealTools:
             "list_skills": self._list_skills,
             "load_skill": self._load_skill,
             "run_workflow": self._run_workflow,
+            "web_fetch": self._web_fetch,
+            "web_search": self._web_search,
+            "copy_file": self._copy_file,
+            "make_dir": self._make_dir,
+            "file_info": self._file_info,
+            "search_files": self._search_files,
         }
         handler = handlers.get(name)
         if handler is None:
@@ -604,6 +610,125 @@ class RealTools:
             raise KeyError(f"workflow not found: {name}")
         results = workflows.execute_workflow(wf, tool_executor=self.invoke, project_root=project_root)
         return str(results), {"workflow": name, "results": results}
+
+    def _web_fetch(self, tool_input: dict):
+        import urllib.request, urllib.parse, html, re
+        url = tool_input["url"]
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            raise ValueError("url must be http or https")
+        host = parsed.hostname or ""
+        if host in ("localhost", "127.0.0.1", "::1") or host.startswith("10.") or host.startswith("192.168.") or host.startswith("172."):
+            raise ValueError("refusing to fetch local/private address")
+        timeout = int(tool_input.get("timeout", 30))
+        max_bytes = int(tool_input.get("max_bytes", 2_000_000))
+        req = urllib.request.Request(url, headers={"User-Agent": "Keel/1.0", "Accept": "text/html,application/json,text/plain"})
+        import ssl
+        try:
+            import certifi
+            _ctx = ssl.create_default_context(cafile=certifi.where())
+        except Exception:
+            _ctx = ssl.create_default_context()
+        opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=_ctx), urllib.request.ProxyHandler({}))
+        with opener.open(req, timeout=timeout) as resp:
+            data = resp.read(max_bytes + 1)
+            content_type = resp.headers.get("Content-Type", "")
+            final_url = resp.geturl()
+        truncated = len(data) > max_bytes
+        data = data[:max_bytes]
+        text = data.decode("utf-8", errors="replace")
+        if "html" in content_type.lower():
+            # strip tags
+            text = re.sub(r"<script.*?</script>", " ", text, flags=re.S | re.I)
+            text = re.sub(r"<style.*?</style>", " ", text, flags=re.S | re.I)
+            text = re.sub(r"<[^>]+>", " ", text)
+            text = html.unescape(text)
+            text = re.sub(r"\s+", " ", text).strip()
+        return text[:20000], {"url": final_url, "content_type": content_type, "bytes": len(data), "truncated": truncated}
+
+    def _web_search(self, tool_input: dict):
+        import urllib.parse, urllib.request, re, html
+        query = tool_input["query"]
+        count = int(tool_input.get("count", 8))
+        url = "https://html.duckduckgo.com/html/?q=" + urllib.parse.quote(query)
+        req = urllib.request.Request(url, headers={"User-Agent": "Keel/1.0"})
+        import ssl
+        try:
+            import certifi
+            _ctx = ssl.create_default_context(cafile=certifi.where())
+        except Exception:
+            _ctx = ssl.create_default_context()
+        opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=_ctx), urllib.request.ProxyHandler({}))
+        with opener.open(req, timeout=30) as resp:
+            raw = resp.read(2_000_000).decode("utf-8", errors="replace")
+        results = []
+        for m in re.finditer(r'<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', raw, re.S | re.I):
+            href = html.unescape(m.group(1))
+            title = re.sub(r"<[^>]+>", "", html.unescape(m.group(2))).strip()
+            # DuckDuckGo wraps links; extract uddg param
+            parsed = urllib.parse.urlparse(href)
+            qs = urllib.parse.parse_qs(parsed.query)
+            if "uddg" in qs:
+                href = qs["uddg"][0]
+            results.append({"title": title, "url": href})
+            if len(results) >= count:
+                break
+        return "\n".join(f"{r['title']} - {r['url']}" for r in results), {"results": results, "count": len(results)}
+
+    def _copy_file(self, tool_input: dict):
+        import os, shutil
+        src = self._safe_path(tool_input["src"])
+        dst = self._safe_path(tool_input["dst"])
+        if not os.path.exists(src):
+            raise FileNotFoundError(f"source not found: {src}")
+        os.makedirs(os.path.dirname(dst) or ".", exist_ok=True)
+        if os.path.isdir(src):
+            if os.path.exists(dst):
+                raise FileExistsError(f"destination exists: {dst}")
+            shutil.copytree(src, dst)
+        else:
+            shutil.copy2(src, dst)
+        return f"copied {src} -> {dst}", {"from": src, "to": dst}
+
+    def _make_dir(self, tool_input: dict):
+        import os
+        path = self._safe_path(tool_input["path"])
+        os.makedirs(path, exist_ok=True)
+        return f"created {path}", {"path": path}
+
+    def _file_info(self, tool_input: dict):
+        import os, json
+        path = self._safe_path(tool_input["path"])
+        st = os.stat(path)
+        return json.dumps({"path": path, "size": st.st_size, "mtime": st.st_mtime, "is_dir": os.path.isdir(path), "is_file": os.path.isfile(path)}, indent=2), {"path": path, "size": st.st_size}
+
+    def _search_files(self, tool_input: dict):
+        import os, fnmatch
+        root = self._safe_path(tool_input.get("root", "."))
+        pattern = tool_input.get("pattern", "*")
+        content = tool_input.get("content")
+        hits = []
+        for base, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if d not in {".git", "node_modules", "__pycache__", ".venv"}]
+            for fname in files:
+                if not fnmatch.fnmatch(fname, pattern):
+                    continue
+                fpath = os.path.join(base, fname)
+                if content:
+                    try:
+                        with open(fpath, "r", encoding="utf-8", errors="strict") as fh:
+                            for lineno, line in enumerate(fh, 1):
+                                if content in line:
+                                    hits.append(f"{fpath}:{lineno}:{line.rstrip()}")
+                    except (UnicodeDecodeError, OSError):
+                        continue
+                else:
+                    hits.append(fpath)
+                if len(hits) >= 1000:
+                    break
+            if len(hits) >= 1000:
+                break
+        return "\n".join(hits), {"hits": hits, "numHits": len(hits), "truncated": len(hits) >= 1000}
 
 
 def _build_model_client(plan: LaunchPlan):

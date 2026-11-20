@@ -148,7 +148,12 @@ NATIVE_TOOL_SCHEMAS = [
      "input_schema": {'type': 'object', 'properties': {'name': {'type': 'string'}, 'project_root': {'type': 'string'}}, 'required': ['name']}},
     {"name": "run_workflow", "description": "Execute a named workflow.",
      "input_schema": {'type': 'object', 'properties': {'name': {'type': 'string'}, 'project_root': {'type': 'string'}}, 'required': ['name']}},
+    {"name": "web_fetch", "description": "Fetch and extract a web page.",
+     "input_schema": {"type": "object", "properties": {"url": {"type": "string"}, "timeout": {"type": "integer"}, "max_bytes": {"type": "integer"}}, "required": ["url"]}},
+    {"name": "web_search", "description": "Search the web (DuckDuckGo).",
+     "input_schema": {"type": "object", "properties": {"query": {"type": "string"}, "count": {"type": "integer"}}, "required": ["query"]}},
 ]
+
 
 NATIVE_TOOL_PERMISSIONS: dict[str, str] = {
     "read_file": "read",
@@ -185,6 +190,8 @@ NATIVE_TOOL_PERMISSIONS: dict[str, str] = {
     "git_checkout": "write",
     "project_summary": "read",
     "symbol_search": "read",
+    "web_fetch": "read",
+    "web_search": "read",
     "list_skills": "read",
     "load_skill": "read",
     "run_workflow": "execute",
