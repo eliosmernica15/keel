@@ -703,7 +703,8 @@ class Session:
                         tool_name=block["name"], tool_input=tool_input,
                         rules=(self.deny_rules, self.ask_rules,
                                self.allow_rules),
-                        mode=mode, interactive=self.config.interactive)
+                        mode=mode, interactive=self.config.interactive,
+                        tool_registry=self.tools)
                     if (decision.decision != "allow"
                             and decision.reason_type == "consent_required"
                             and self.config.approval_decider is not None):
@@ -733,7 +734,8 @@ class Session:
                             tool_use_result = rendered["toolUseResult"]
                             is_error = rendered["isError"]
                         else:
-                            tier2 = tier2_check(block["name"], tool_input)
+                            tier2 = tier2_check(block["name"], tool_input,
+                                                tool_registry=self.tools)
                             if not tier2.allowed:
                                 rendered = render_failure(
                                     tool_use_id,

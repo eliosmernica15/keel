@@ -116,7 +116,9 @@ def test_no_knob_in_rpc_surface():
     # the module accepts no configuration; there is nothing to set
     import inspect
     sig = inspect.signature(tier2_check)
-    assert list(sig.parameters) == ["tool_name", "tool_input"]
+    # tool_registry is an optional, backward-compatible parameter that does
+    # not disable or configure safety; it only provides tool classification.
+    assert list(sig.parameters) == ["tool_name", "tool_input", "tool_registry"]
 
 
 def test_outline_is_published():

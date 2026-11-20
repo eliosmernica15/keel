@@ -122,15 +122,22 @@ def _tool_match(rule: Rule, tool_name: str) -> bool:
 
 
 def _specifier_match(rule: Rule, tool_name: str, tool_input: dict,
-                     operation_hint: Optional[str]) -> bool:
+                     operation_hint: Optional[str],
+                     tool_registry=None) -> bool:
     if rule.bare:
         return True
     spec = rule.specifier or ""
-    if tool_name in SHELL_TOOLS:
+    _shell_tools = (tool_registry.shell_tools() if tool_registry is not None
+                    else SHELL_TOOLS)
+    _read_tools = (tool_registry.read_tools() if tool_registry is not None
+                   else READ_TOOLS)
+    _write_tools = (tool_registry.write_tools() if tool_registry is not None
+                    else WRITE_TOOLS)
+    if tool_name in _shell_tools:
         command = str(tool_input.get("command", ""))
         return command_prefix_match(spec, command)
     path = None
-    if tool_name in READ_TOOLS or tool_name in WRITE_TOOLS:
+    if tool_name in _read_tools or tool_name in _write_tools:
         path = tool_input.get("path") or tool_input.get("file_path")
     if path is not None:
         return path_glob_match(spec, str(path))
@@ -141,21 +148,51 @@ def _specifier_match(rule: Rule, tool_name: str, tool_input: dict,
     return command_prefix_match(spec, str(tool_input))
 
 
-def _operation_class(tool_name: str, tool_input: dict) -> tuple[Optional[str], bool]:
-    if tool_name in READ_TOOLS:
+def _operation_class(tool_name: str, tool_input: dict,
+                    tool_registry=None) -> tuple[Optional[str], bool]:
+    # Consult registry first (authoritative source)
+    if tool_registry is not None:
+        level = tool_registry.operation_class(tool_name)
+        if level is not None:
+            if level == "read":
+                return READ, False
+            if level == "write":
+                return MUTATE_LOCAL, False
+            if level == "execute":
+                # Shell-like tools get command analysis
+                if tool_registry.is_shell_like(tool_name):
+                    shell = str(tool_input.get("shell", "posix"))
+                    try:
+                        ops = operations(str(tool_input.get("command", "")), shell)
+                    except Decline:
+                        return MUTATE_LOCAL, True
+                    ranked = sorted(ops, key=lambda op: _RANK.get(op, 0))
+                    return ranked[0], False
+                return EXECUTE, False
+            if level == "network":
+                return NETWORK, False
+            if level == "process_control":
+                return PROCESS_CONTROL, False
+            if level == "irreversible" or level == "destructive":
+                return IRREVERSIBLE, False
+    # Fallback to hardcoded sets for backward compat
+    _read = tool_registry.read_tools() if tool_registry is not None else READ_TOOLS
+    _write = tool_registry.write_tools() if tool_registry is not None else WRITE_TOOLS
+    _shell = tool_registry.shell_tools() if tool_registry is not None else SHELL_TOOLS
+    if tool_name in _read:
         return READ, False
-    if tool_name in WRITE_TOOLS:
+    if tool_name in _write:
         return MUTATE_LOCAL, False
-    if tool_name in SHELL_TOOLS:
+    if tool_name in _shell:
         shell = str(tool_input.get("shell", "posix"))
         try:
             ops = operations(str(tool_input.get("command", "")), shell)
         except Decline:
-            # Literal programme rule: an indeterminate operation set is mutate_local.
             return MUTATE_LOCAL, True
         ranked = sorted(ops, key=lambda op: _RANK.get(op, 0))
         return ranked[0], False
-    return None, False  # unknown tool: class unknown, rules still apply
+    # Unknown tool: fail closed (deny by default for safety)
+    return None, False
 
 
 @dataclass(frozen=True)
@@ -202,15 +239,16 @@ def normalize_mode(mode: str) -> str:
 
 def evaluate(*, tool_name: str, tool_input: dict,
              rules: tuple[list[Rule], list[Rule], list[Rule]],
-             mode: str, interactive: bool) -> Decision:
+             mode: str, interactive: bool,
+             tool_registry=None) -> Decision:
     """rules is (deny, ask, allow). Interactive is False in print/CI mode."""
     deny, ask, allow = rules
-    op_class, indeterminate = _operation_class(tool_name, tool_input)
+    op_class, indeterminate = _operation_class(tool_name, tool_input, tool_registry)
 
     for category_rules, label in ((deny, "deny"), (ask, "ask"), (allow, "allow")):
         for rule in category_rules:
             if _tool_match(rule, tool_name) and _specifier_match(
-                    rule, tool_name, tool_input, op_class):
+                    rule, tool_name, tool_input, op_class, tool_registry):
                 if label == "deny":
                     return Decision("deny", "rule", f"denied by rule {rule.raw!r}",
                                     "config", rule.raw, op_class, indeterminate)

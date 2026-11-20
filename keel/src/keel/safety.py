@@ -149,22 +149,28 @@ def _path_arg(token: str) -> str | None:
     return token
 
 
-def tier2_check(tool_name: str, tool_input: dict[str, Any]) -> Check:
-    if tool_name in READ_TOOLS:
+def tier2_check(tool_name: str, tool_input: dict[str, Any], tool_registry=None) -> Check:
+    _read_tools = (tool_registry.read_tools() if tool_registry is not None
+                   else READ_TOOLS)
+    _write_tools = (tool_registry.write_tools() if tool_registry is not None
+                    else WRITE_TOOLS)
+    _shell_tools = (tool_registry.shell_tools() if tool_registry is not None
+                    else SHELL_TOOLS)
+    if tool_name in _read_tools:
         path = str(tool_input.get("path") or tool_input.get("pattern") or "")
         if path and _classify_target(_expand(path)) == "secret-bearing path":
             return Check(False, f"read of a secret-bearing path is refused "
                                 f"({path})")
         return _ALLOW
 
-    if tool_name in WRITE_TOOLS:
+    if tool_name in _write_tools:
         path = str(tool_input.get("path") or "")
         kind = _classify_target(_expand(path)) if path else None
         if kind:
             return Check(False, f"write to a {kind} is refused ({path})")
         return _ALLOW
 
-    if tool_name in SHELL_TOOLS:
+    if tool_name in _shell_tools:
         command = str(tool_input.get("command", ""))
         shell = str(tool_input.get("shell", "posix"))
         try:
