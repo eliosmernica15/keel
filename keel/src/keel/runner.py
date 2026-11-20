@@ -243,7 +243,18 @@ class RealTools:
                                                "newContent": updated}}
         if name == "glob":
             import glob as globmod
+            import os
+            import fnmatch
             matches = globmod.glob(tool_input["pattern"], recursive=True)[:1000]
+            # Apply ignore rules
+            ignore_patterns = {".git", "node_modules", "__pycache__", ".venv"}
+            filtered = []
+            for m in matches:
+                basename = os.path.basename(m)
+                if any(fnmatch.fnmatch(basename, pat) or fnmatch.fnmatch(m, pat) for pat in ignore_patterns):
+                    continue
+                filtered.append(m)
+            matches = filtered[:1000]
             return "\n".join(matches), {"filenames": matches, "numFiles": len(matches),
                                         "truncated": False}
         if name == "grep":
@@ -258,6 +269,10 @@ class RealTools:
                     if len(hits) >= 1000:
                         break
                     fpath = os.path.join(base, fname)
+                    # Apply ignore rules
+                    ignore_patterns = {".git", "node_modules", "__pycache__", ".venv"}
+                    if any(fnmatch.fnmatch(fname, pat) or fnmatch.fnmatch(fpath, pat) for pat in ignore_patterns):
+                        continue
                     try:
                         with open(fpath, "r", encoding="utf-8",
                                   errors="strict") as fh:
