@@ -4,7 +4,9 @@ import argparse
 import sys
 from pathlib import Path
 
+from .artifacts import scan_tree
 from .build import build_command
+from .licenses import licenses_command
 from .publish import publish_command
 from .verify import verify_command
 
@@ -45,7 +47,26 @@ def build_parser() -> argparse.ArgumentParser:
     verify.add_argument("--require-available", action="store_true")
     verify.set_defaults(func=verify_command)
 
+    licenses = sub.add_parser("licenses", help="write a dependency license inventory")
+    licenses.add_argument("--out", default="release")
+    licenses.set_defaults(func=licenses_command)
+
+    check = sub.add_parser("check-artifacts", help="scan a directory for prohibited files")
+    check.add_argument("path", help="directory to scan")
+    check.set_defaults(func=check_artifacts_command)
+
     return parser
+
+
+def check_artifacts_command(args) -> int:
+    violations = scan_tree(Path(args.path))
+    if violations:
+        for item in violations:
+            print(item)
+        print(f"prohibited files: {len(violations)}", file=sys.stderr)
+        return 1
+    print(f"artifact scan clean: {args.path}")
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

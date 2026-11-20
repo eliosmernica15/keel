@@ -1,0 +1,25 @@
+title = "Keel gitleaks configuration (M1)"
+
+[extend]
+useDefault = true
+
+# The repository has historically contained black-box captures of a third-party
+# product and early site code. Those findings were reviewed during M1: all are
+# `generic-api-key` matches in captured example streams or demo UI strings, not
+# Keel credentials. Allowlist only the reviewed paths and commits; every new
+# file and every new commit is still scanned by the default rule set.
+[allowlist]
+description = "Reviewed third-party reference captures and historical demo strings"
+paths = [
+  '''agent-reference-shots/.*''',
+  '''claude-code-evidence\.md''',
+  '''agent-evidence.*\.md''',
+  '''prompt-pattern-analysis\.md''',
+]
+commits = [
+  "ee20e5b6ec5dcebe1a00dd0d6642c908095957bd",
+  "5b748c85d8dfee2ee3b4d221ef147a9aa49b8d9c",
+  "5443b4b2477b257bda236992d77a3cc0299d0efd",
+  "5eb4476e333c7bc1b033c766074bf940af139620",
+  "bdd35c7b27f2c7ca34e07d673bbd812f7e349837",
+]

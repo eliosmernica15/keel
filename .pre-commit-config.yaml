@@ -1,0 +1,8 @@
+# Local pre-commit secret protection. Install with: pre-commit install
+# The pinned hook uses the same config as CI and redacts any matched value.
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        args: ["--redact", "--config", ".gitleaks.toml"]

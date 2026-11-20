@@ -3,15 +3,10 @@
   "version": "0.1.1",
   "description": "Keel — local, private, multi-agent coding workspace",
   "author": {
-    "name": "Keel Team",
-    "email": "eliosmernica15@users.noreply.github.com"
+    "name": "Keel Team"
   },
   "license": "Proprietary",
   "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/eliosmernica15/keel.git"
-  },
   "type": "module",
   "main": "main.js",
   "scripts": {
@@ -36,7 +31,13 @@
     "extraResources": [
       {
         "from": "../site",
-        "to": "site"
+        "to": "site",
+        "filter": [
+          "**/*",
+          "!**/.vercel/**",
+          "!**/.git/**",
+          "!README.md"
+        ]
       },
       {
         "from": "../build/resources/keel",

@@ -8,6 +8,7 @@ import shutil
 import sys
 from pathlib import Path
 
+from .artifacts import validate_staged_release, validate_tree
 from .common import (
     CHANNELS,
     PROJECT_ROOT,
@@ -71,6 +72,17 @@ def electron_build(platform_name: str) -> None:
         raise ValueError(f"unsupported platform: {platform_name}")
 
 
+def validate_packaged_outputs() -> None:
+    """Reject internal/research files in any packaged Electron output."""
+    dist_dir = PROJECT_ROOT / "dist"
+    if not dist_dir.is_dir():
+        return
+    for child in sorted(p for p in dist_dir.iterdir() if p.is_dir()):
+        if child.name == "keel-sidecar":
+            continue
+        validate_tree(child)
+
+
 def stage_release(out_dir: Path, version: str) -> dict[str, Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     dist_dir = PROJECT_ROOT / "dist"
@@ -107,6 +119,7 @@ def build_command(args: argparse.Namespace) -> int:
     build_sidecar(Path("unused"))
     npm_install()
     electron_build(platform_name)
+    validate_packaged_outputs()
 
     out_dir = Path(args.out)
     if not out_dir.is_absolute():
@@ -118,6 +131,13 @@ def build_command(args: argparse.Namespace) -> int:
     (out_dir / "RELEASE-MANIFEST.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
+    platform_required = set()
+    for channel in CHANNELS:
+        if channel["key"] == platform_name:
+            platform_required.add(channel["primary"].format(version=version))
+            platform_required.update(
+                alt.format(version=version) for alt in channel["alternatives"])
+    validate_staged_release(out_dir, version, platform_required)
     print(f"staged {len(artifacts)} installers in {out_dir}")
     for name in sorted(artifacts):
         print(f"  {name}  {artifacts[name].stat().st_size} bytes  {sha256_file(artifacts[name])}")
