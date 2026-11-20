@@ -7,6 +7,7 @@
   },
   "license": "Proprietary",
   "private": true,
+  "homepage": "https://keel-desktop.vercel.app",
   "type": "module",
   "main": "main.js",
   "scripts": {
@@ -77,6 +78,7 @@
       "darkModeSupport": true
     },
     "linux": {
+      "maintainer": "Keel Team",
       "target": [
         "AppImage",
         "deb"

@@ -114,6 +114,9 @@ def test_packaging_excludes_development_metadata():
         encoding="utf-8"))
     assert "repository" not in package
     assert "email" not in package["author"]
+    assert package["homepage"] == "https://keel-desktop.vercel.app"
+    assert package["build"]["linux"]["maintainer"] == "Keel Team"
+    assert "github.com" not in json.dumps(package).lower()
     site_resource = next(r for r in package["build"]["extraResources"]
                          if r["to"] == "site")
     filters = set(site_resource["filter"])
