@@ -14,7 +14,7 @@ OpenCode is ~1.6 MLOC across 39 capability areas. Keel's Python runtime (~12.4 k
 | Capability | OpenCode | Keel current | Milestone 6 target |
 |---|---|---|---|
 | Agent turn loop | Full | Verified | Unified runtime, extended |
-| Tool registry | Full, typed | Partial (hardcoded list) | Central registry + discovery |
+| Tool registry | Full, typed | Verified (Phase 2) | Central registry + discovery |
 | Filesystem tools | read/write/patch/glob/grep | Partial | Complete set + patch/diff/move/watch |
 | Terminal tools | Full | Partial (run_shell) | Full set + background |
 | Web tools | search/fetch/browser | Missing | web_search/fetch + optional browser |

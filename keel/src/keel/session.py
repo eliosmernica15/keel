@@ -28,110 +28,11 @@ SUMMARY_PROMPT = (
     "errors seen, open TODOs. Be terse. Output only the summary.\n\n"
     "Dropped messages:\n")
 
-ALL_TOOLS = ["read_file", "write_file", "edit_file", "glob", "grep",
-             "run_shell", "Task", "send_to_bot",
-             "create_task", "update_task", "list_tasks", "save_file",
-             "ask_user"]
+from .tools.native import NATIVE_TOOL_NAMES, NATIVE_TOOL_SCHEMAS
 
-TOOL_SCHEMAS = [
-    {"name": "read_file", "description": "Read a text file from disk.",
-     "input_schema": {"type": "object",
-                      "properties": {"path": {"type": "string"}},
-                      "required": ["path"]}},
-    {"name": "write_file", "description": "Write a text file to disk.",
-     "input_schema": {"type": "object",
-                      "properties": {"path": {"type": "string"},
-                                     "content": {"type": "string"}},
-                      "required": ["path", "content"]}},
-    {"name": "edit_file", "description": "Exact-match edit of a text file.",
-     "input_schema": {"type": "object",
-                      "properties": {"path": {"type": "string"},
-                                     "old_string": {"type": "string"},
-                                     "new_string": {"type": "string"}},
-                      "required": ["path", "old_string", "new_string"]}},
-    {"name": "glob", "description": "List files matching a glob.",
-     "input_schema": {"type": "object",
-                      "properties": {"pattern": {"type": "string"}},
-                      "required": ["pattern"]}},
-    {"name": "grep", "description": "Search file contents (regex).",
-     "input_schema": {"type": "object",
-                      "properties": {"pattern": {"type": "string"},
-                                     "root": {"type": "string"}},
-                      "required": ["pattern"]}},
-    {"name": "run_shell", "description": "Run a shell command and return its output.",
-     "input_schema": {"type": "object",
-                      "properties": {"command": {"type": "string"},
-                                     "shell": {"type": "string",
-                                               "enum": ["posix", "powershell", "cmd"]}},
-                      "required": ["command"]}},
-    {"name": "Task", "description": "Delegate a bounded sub-task to a subagent and receive its final summary. The subagent inherits the current tool allowlist minus Task itself.",
-     "input_schema": {"type": "object",
-                      "properties": {"description": {"type": "string",
-                                                      "description": "short title for the subtask"},
-                                     "prompt": {"type": "string",
-                                                "description": "the full task for the subagent to perform"}},
-                      "required": ["prompt"]}},
-    {"name": "send_to_bot", "description": "Send a message or task to another agent in the fleet and receive its reply. The receiving agent runs with its own provider, model and permissions; none of your permissions transfer. Depth cap: 2 nested delegations; circular delegation is refused.",
-      "input_schema": {"type": "object",
-                       "properties": {"bot_slug": {"type": "string",
-                                                   "description": "fleet id (slug) of the receiving agent, e.g. 'sage'"},
-                                      "message": {"type": "string",
-                                                  "description": "the task or question to hand off"},
-                                      "task_id": {"type": "string",
-                                                  "description": "optional Fleet task id this delegation is linked to (kept on both sides and on the task's history)"}},
-                       "required": ["bot_slug", "message"]}},
-    {"name": "create_task", "description": "Create a tracked task in the Fleet task list. You can assign it to yourself, unassigned, or another agent by id. Returns the task id.",
-      "input_schema": {"type": "object",
-                       "properties": {"title": {"type": "string",
-                                                "description": "short title of the task"},
-                                      "description": {"type": "string",
-                                                      "description": "what done looks like"},
-                                      "priority": {"type": "string",
-                                                   "enum": ["low", "normal", "high"]},
-                                      "assignee": {"type": "string",
-                                                   "description": "fleet id of the agent to assign; omit for yourself, or 'unassigned'"}},
-                       "required": ["title"]}},
-    {"name": "update_task", "description": "Update the status, progress (0-100) or note of a task you created or are assigned to. Status moves through pending | in_progress | completed | failed | cancelled.",
-      "input_schema": {"type": "object",
-                       "properties": {"task_id": {"type": "string"},
-                                      "status": {"type": "string",
-                                                 "enum": ["pending", "in_progress",
-                                                          "completed", "failed",
-                                                          "cancelled"]},
-                                      "progress": {"type": "integer",
-                                                   "minimum": 0,
-                                                   "maximum": 100},
-                                      "note": {"type": "string"}},
-                       "required": ["task_id"]}},
-    {"name": "list_tasks", "description": "List tasks. Defaults to tasks assigned to you; pass assigned_to='all' for everything, or another agent's id.",
-      "input_schema": {"type": "object",
-                       "properties": {"assigned_to": {"type": "string"},
-                                      "status": {"type": "string",
-                                                 "enum": ["pending", "in_progress",
-                                                          "completed", "failed",
-                                                          "cancelled"]},
-                                      "limit": {"type": "integer",
-                                                "minimum": 1,
-                                                "maximum": 25}},
-                       "required": []}},
-    {"name": "ask_user", "description": "Ask the operator a question mid-turn and wait for their answer (max 5 minutes). Use for real decisions only — which framework, which approach, the user's actual preference — never for trivia. Renders as a pop-up with clickable options and free text. If the operator doesn't answer, you get a refusal and must proceed without operator input.",
-      "input_schema": {"type": "object",
-                       "properties": {"question": {"type": "string",
-                                                   "description": "one focused, self-contained question"},
-                                      "options": {"type": "array",
-                                                  "items": {"type": "string"},
-                                                  "description": "up to 6 short clickable answers; omit to let the operator type freely"}},
-                       "required": ["question"]}},
-    {"name": "save_file", "description": "Save a deliverable into your Fleet Library. Stored under your agent, organised by optional task. Returns the file id. Text content is UTF-8; set encoding='base64' for binary (images, archives).",
-      "input_schema": {"type": "object",
-                       "properties": {"filename": {"type": "string"},
-                                      "content": {"type": "string"},
-                                      "encoding": {"type": "string",
-                                                   "enum": ["utf8", "base64"]},
-                                      "mime": {"type": "string"},
-                                      "task_id": {"type": "string"}},
-                       "required": ["filename", "content"]}},
-]
+ALL_TOOLS = list(NATIVE_TOOL_NAMES)
+TOOL_SCHEMAS = NATIVE_TOOL_SCHEMAS
+
 
 
 @dataclass
@@ -212,16 +113,22 @@ class Session:
                  rng: Any = None,
                  fs: Any = None,
                  hooks: list | None = None,
-                 mcp: Any = None):
+                 mcp: Any = None,
+                 tool_registry: Any = None):
         self.model = model_client
         self.executor = executor
         self.config = config
+        if tool_registry is None:
+            from .tools import create_native_registry
+            self.tools = create_native_registry(executor)
+        else:
+            self.tools = tool_registry
         self.clock = clock or VirtualClock()
         self.rng = rng
         self.fs = fs
         self.hooks = list(hooks) if hooks else []
         self.mcp = mcp
-        self.allowed_tools = tuple(config.tool_allowlist or ALL_TOOLS)
+        self.allowed_tools = tuple(config.tool_allowlist or self.tools.names())
         self._rules_raw = tuple(rules)
         self.deny_rules, diag1 = parse_rules("deny", rules[0])
         self.ask_rules, diag2 = parse_rules("ask", rules[1])
@@ -371,11 +278,27 @@ class Session:
         mcp_names = [s["name"] for s in mcp_schemas]
 
         builtin_enabled = {t for t in self.allowed_tools
-                           if t in {t2["name"] for t2 in TOOL_SCHEMAS}}
+                           if t in self.tools.names()}
         mcp_kept = list(mcp_names)  # mcp names are always provisioned; rules govern
-        all_schemas = {t["name"]: t for t in TOOL_SCHEMAS
+        all_schemas = {t["name"]: t for t in self.tools.schemas()
                        if t["name"] in builtin_enabled}
         all_schemas.update({s["name"]: s for s in mcp_schemas})
+        for s in mcp_schemas:
+            try:
+                from .tools.registry import Tool
+                self.tools.register(Tool(
+                    name=s["name"],
+                    description=s["description"],
+                    input_schema=s["input_schema"],
+                    handler=lambda tool_input, _n=s["name"]: (
+                        self.mcp.call(_n, tool_input) if self.mcp is not None
+                        else (False, "mcp unavailable")),
+                    permission="execute",
+                    category="mcp",
+                    origin="mcp",
+                ), replace=True)
+            except Exception:
+                pass
 
         tools = manifest_tools([t for t in builtin_enabled] + mcp_kept,
                                self.deny_rules)
@@ -711,7 +634,7 @@ class Session:
                                                 tool_use_id, machine_error(text),
                                                 self.persist)
                                     else:
-                                        inline, typed = self.executor.invoke(
+                                        inline, typed = self.tools.execute(
                                             block["name"], tool_input)
                                         rendered = render_success(
                                             tool_use_id, typed, inline,

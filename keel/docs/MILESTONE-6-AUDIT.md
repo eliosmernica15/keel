@@ -67,7 +67,7 @@ Status legend:
 | Web search / fetch | Missing | no web tools in runtime (only browser tool in OpenCode harness) |
 | Browser automation | Missing | no browser tool in Keel runtime |
 | Utility tools (calc, JSON, conversion) | Missing | not implemented |
-| Tool registry with schemas/validation | Partial | `ALL_TOOLS` + `TOOL_SCHEMAS` in `session.py`; no central registry/discovery layer |
+| Tool registry with schemas/validation | Verified (Phase 2) | `keel/tools/registry.py` (`ToolRegistry`); `session.ALL_TOOLS`/`TOOL_SCHEMAS` now derived from `keel/tools/native.py`; runtime dispatch uses `self.tools.execute` |
 | Permission levels per tool | Verified | `permissions.py` modes + F1 broker |
 
 ### D. Skills

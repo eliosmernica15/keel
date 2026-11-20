@@ -11,10 +11,16 @@ Status: PLAN MODE — no implementation yet.
 - [ ] Plan reviewed and approved by user
 
 ## Phase 2 — Unified runtime and tool registry
-- [ ] `keel/tools/registry.py`
-- [ ] Refactor `session.ALL_TOOLS` to registry
-- [ ] Input validation
-- [ ] Tests
+- [x] `keel/tools/registry.py` (Tool + ToolRegistry)
+- [x] `keel/tools/native.py` (native tool definitions migrated from `session.TOOL_SCHEMAS`)
+- [x] `keel/tools/__init__.py`
+- [x] Refactor `session.ALL_TOOLS` to derive from registry
+- [x] `session.TOOL_SCHEMAS` now aliases native registry schemas
+- [x] Runtime uses registry for discovery and dispatch (`session.run`)
+- [x] Input validation in registry
+- [x] MCP tools registered into the same registry per turn
+- [x] Tests: `tests/test_tool_registry.py` (17 tests) plus full suite 471 passed
+- [x] Backward compatibility preserved (`ALL_TOOLS`, `TOOL_SCHEMAS`, `RealTools.invoke`)
 
 ## Phase 3 — Complete tool execution
 - [ ] Missing filesystem tools
