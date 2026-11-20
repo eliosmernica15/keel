@@ -35,7 +35,14 @@ Status: PLAN MODE — no implementation yet.
 - [x] Skills/commands/workflows/MCP API endpoints
 - [x] Safety tier-2 coverage for all new tools
 - [x] Ignore rules in search
+- [x] MCP resource/prompt integration into agent context (HTTP servers)
+- [x] Process cleanup on shutdown (atexit)
+- [x] Security audit document: docs/MILESTONE-6-SECURITY-AUDIT.md
 - [x] Full test suite: 479 passed, 10 skipped
+- [ ] Desktop UI management screens (API-only in this milestone)
+- [ ] Ignore rules in all filesystem operations (partial)
+- [ ] MCP resource/prompt use in stdio agent context (deferred to avoid blocking)
+- [ ] Process cleanup tested in CI (registered but not tested)
 
 ## Phase 3 — Complete tool execution
 - [ ] Missing filesystem tools
