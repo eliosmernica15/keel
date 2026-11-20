@@ -6,58 +6,80 @@ useDefault = true
 # M1 review classified 66 historical findings as false positives. They are all
 # rule `generic-api-key` matches inside black-box reference captures or deleted
 # demo site strings. Each exception below is scoped to ONE commit AND ONE exact
-# path: a finding elsewhere in the same commit is still reported. No global
-# commit-wide or repo-wide allowlist remains, and no secret value is recorded.
+# path (explicit condition = "AND") and to the generic-api-key rule only.
+# A finding elsewhere in the same commit, in the same path under a different
+# commit, or from another rule is still reported. No global commit-wide or
+# repo-wide allowlist remains, and no secret value is recorded.
 #
 # Re-review every entry before removing it. If a path is deleted from history
 # (G2, owner approval required), remove the corresponding block.
 
 [[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
 description = "Reviewed capture: headless stream events (commit ee20e5b6)"
 commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
 paths = ['''(?:^|/)agent-reference-shots/area-headless-programmatic/stream-json-events\.jsonl$''']
 
 [[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
 description = "Reviewed capture: tool-call stream (commit ee20e5b6)"
 commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
 paths = ['''(?:^|/)agent-reference-shots/area11-interface-comm/stream-json-toolcall\.jsonl$''']
 
 [[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
 description = "Reviewed capture: partial stream verification (commit ee20e5b6)"
 commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
 paths = ['''(?:^|/)agent-reference-shots/areas/\.verify-area1/verify-stream-json-partial\.jsonl$''']
 
 [[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
 description = "Reviewed capture: SDK streaming section note (commit ee20e5b6)"
 commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
 paths = ['''(?:^|/)agent-reference-shots/areas/area-sdk-streaming-output/AREA-SDK-STREAMING-SECTION\.md$''']
 
 [[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
 description = "Reviewed capture: observed stream sequence (commit ee20e5b6)"
 commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
 paths = ['''(?:^|/)agent-reference-shots/areas/area-sdk-streaming-output/observed-stream-event-sequence\.jsonl$''']
 
 [[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
 description = "Reviewed analysis note: third-party evidence (commit ee20e5b6)"
 commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
 paths = ['''(?:^|/)claude-code-evidence\.md$''']
 
 [[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
 description = "Reviewed historical demo UI strings (commit 5b748c85)"
 commits = ["5b748c85d8dfee2ee3b4d221ef147a9aa49b8d9c"]
 paths = ['''(?:^|/)keel/site/app\.js$''']
 
 [[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
 description = "Reviewed historical demo UI strings (commit bdd35c7b)"
 commits = ["bdd35c7b27f2c7ca34e07d673bbd812f7e349837"]
 paths = ['''(?:^|/)keel/site/app\.js$''']
 
 [[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
 description = "Reviewed historical demo UI strings (commit 5eb4476e)"
 commits = ["5eb4476e333c7bc1b033c766074bf940af139620"]
 paths = ['''(?:^|/)keel/site/app\.js$''']
 
 [[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
 description = "Reviewed historical demo UI strings (commit 5443b4b2)"
 commits = ["5443b4b2477b257bda236992d77a3cc0299d0efd"]
 paths = ['''(?:^|/)keel/site/index\.html$''']

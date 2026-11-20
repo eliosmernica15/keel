@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import tomllib
 from pathlib import Path
 
@@ -131,6 +132,8 @@ def test_gitleaks_config_is_present_and_narrowly_scoped():
     blocks = config["allowlists"]
     assert len(blocks) == 10
     for block in blocks:
+        assert block["condition"] == "AND"
+        assert block["targetRules"] == ["generic-api-key"]
         assert len(block["commits"]) == 1
         assert len(block["commits"][0]) == 40
         assert len(block["paths"]) == 1
@@ -148,6 +151,67 @@ def test_gitleaks_config_is_present_and_narrowly_scoped():
         "keel/site/index\\.html",
     ):
         assert path in joined
+
+
+def _allowlist_block():
+    config = tomllib.loads((REPO / ".gitleaks.toml").read_text(encoding="utf-8"))
+    return config["allowlists"][0]
+
+
+def _allowlist_applies(block: dict, finding: dict) -> bool:
+    """Mirror gitleaks allowlist semantics for the four regression cases."""
+    if finding["rule"] not in block.get("targetRules", []):
+        return False
+    criteria: list[bool] = []
+    if block.get("commits"):
+        criteria.append(finding["commit"] in block["commits"])
+    if block.get("paths"):
+        criteria.append(any(re.search(p, finding["file"]) for p in block["paths"]))
+    if not criteria:
+        return False
+    if block.get("condition", "OR") == "AND":
+        return all(criteria)
+    return any(criteria)
+
+
+def test_allowlist_covers_exact_commit_and_path_for_target_rule():
+    block = _allowlist_block()
+    finding = {
+        "commit": block["commits"][0],
+        "file": "agent-reference-shots/area-headless-programmatic/stream-json-events.jsonl",
+        "rule": "generic-api-key",
+    }
+    assert _allowlist_applies(block, finding) is True
+
+
+def test_allowlist_does_not_cover_same_commit_different_path():
+    block = _allowlist_block()
+    finding = {
+        "commit": block["commits"][0],
+        "file": "agent-reference-shots/area11-interface-comm/other-capture.jsonl",
+        "rule": "generic-api-key",
+    }
+    assert _allowlist_applies(block, finding) is False
+
+
+def test_allowlist_does_not_cover_same_path_different_commit():
+    block = _allowlist_block()
+    finding = {
+        "commit": "0" * 40,
+        "file": "agent-reference-shots/area-headless-programmatic/stream-json-events.jsonl",
+        "rule": "generic-api-key",
+    }
+    assert _allowlist_applies(block, finding) is False
+
+
+def test_allowlist_does_not_cover_other_rules():
+    block = _allowlist_block()
+    finding = {
+        "commit": block["commits"][0],
+        "file": "agent-reference-shots/area-headless-programmatic/stream-json-events.jsonl",
+        "rule": "aws-access-token",
+    }
+    assert _allowlist_applies(block, finding) is False
 
 
 def test_secret_scan_workflow_is_pinned_and_redacted():
