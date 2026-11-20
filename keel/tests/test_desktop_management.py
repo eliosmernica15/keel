@@ -13,6 +13,7 @@ desktop credential.
 from __future__ import annotations
 
 import json
+import sys
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -265,6 +266,41 @@ def test_workflow_execution_enforces_tier1_permissions(server, tmp_path):
     result = json.loads(body)
     assert result["ok"] is True, result
     assert "hello" in json.dumps(result["results"][0])
+
+
+def test_sidecar_spec_bundles_default_skills():
+    """The PyInstaller sidecar must ship the bundled SKILL.md resources."""
+    spec = ROOT / "desktop-app" / "sidecar.spec"
+    text = spec.read_text(encoding="utf-8")
+    assert "default-skills" in text
+    assert "keel/resources/default-skills" in text
+    assert "datas=datas" in text
+
+
+def test_bundled_root_resolves_in_source_tree():
+    from keel import skills as skills_mod
+
+    root = skills_mod.bundled_root()
+    assert root.is_dir(), f"bundled skills missing at {root}"
+    assert list(root.glob("*/SKILL.md")), f"no SKILL.md under {root}"
+
+
+def test_bundled_root_resolves_in_packaged_layout(monkeypatch, tmp_path):
+    """Simulate sys._MEIPASS with the data layout produced by sidecar.spec."""
+    from keel import skills as skills_mod
+
+    bundle = tmp_path / "bundle"
+    skills_dir = bundle / "keel" / "resources" / "default-skills"
+    (skills_dir / "demo").mkdir(parents=True)
+    (skills_dir / "demo" / "SKILL.md").write_text(
+        "---\nname: demo\ndescription: packaged demo\n---\nbody\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(sys, "_MEIPASS", str(bundle), raising=False)
+    monkeypatch.setattr(skills_mod, "__file__", str(bundle / "keel" / "skills.py"))
+
+    assert skills_mod.bundled_root() == skills_dir
+    assert skills_mod.discover()[0].name == "demo"
 
 
 def test_desktop_and_site_management_scripts_are_identical():

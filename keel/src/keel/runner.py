@@ -20,7 +20,8 @@ from . import events as ev, settings
 from .fakes import ScriptedModel, SeededRng, VirtualClock
 from .hooks import parse_hooks
 from .mcp import McpManager, is_approved, parse_servers
-from .permissions import KNOWN_MODES, _MODE_ALIASES, normalize_mode
+from .permissions import (KNOWN_MODES, _MODE_ALIASES, evaluate_noninteractive,
+                          normalize_mode)
 from .providers import registry as provider_registry
 from .providers.base import ProviderError
 from .providers.model_client import ProviderModelClient
@@ -653,7 +654,19 @@ class RealTools:
         wf = workflows.find(name, project_root)
         if wf is None:
             raise KeyError(f"workflow not found: {name}")
-        results = workflows.execute_workflow(wf, tool_executor=self.invoke, project_root=project_root)
+
+        def _exec_tool(tool_name, tool_input):
+            # Print-mode workflows are non-interactive. Every inner step must
+            # pass the same Tier-1 gate the desktop workflow API uses; Tier-2
+            # remains enforced inside self.invoke.
+            decision = evaluate_noninteractive(
+                tool_name, tool_input, project_root=project_root)
+            if decision.decision != "allow":
+                raise PermissionError(f"{tool_name}: {decision.reason}")
+            return self.invoke(tool_name, tool_input)
+
+        results = workflows.execute_workflow(wf, tool_executor=_exec_tool,
+                                             project_root=project_root)
         return str(results), {"workflow": name, "results": results}
 
     def _web_fetch(self, tool_input: dict):

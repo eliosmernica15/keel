@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -114,7 +115,27 @@ def _load_file(path: Path, scope: str) -> Skill:
 
 
 def bundled_root() -> Path:
-    return Path(__file__).resolve().parents[2] / "resources" / "default-skills"
+    """Locate the bundled SKILL.md tree in development or in a PyInstaller app.
+
+    In the source tree this file lives at ``<root>/src/keel/skills.py``. Inside
+    the sidecar bundle it lives at ``<_MEIPASS>/keel/skills.py`` and the data
+    are installed next to it under ``keel/resources/default-skills``.
+    """
+    source = Path(__file__).resolve()
+    candidates: list[Path] = []
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        candidates.append(Path(meipass) / "keel" / "resources" / "default-skills")
+    candidates.extend([
+        source.parent / "resources" / "default-skills",
+        source.parents[2] / "resources" / "default-skills",
+    ])
+    for candidate in candidates:
+        if candidate.is_dir():
+            return candidate
+    # Return the development location as a stable default; discovery treats a
+    # missing directory as an empty scope rather than an error.
+    return candidates[-1]
 
 
 def default_roots(project_root: Path | None = None) -> list[tuple[Path, str]]:

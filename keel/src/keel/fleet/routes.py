@@ -1604,27 +1604,13 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
             _send(handler, {"error": "workflow not found"}, HTTPStatus.NOT_FOUND)
             return True
         def _exec_tool(n, inp):
-            # A workflow invoked from the desktop UI is a non-interactive
-            # session: every tool step must still pass the same Tier-1
-            # permission gate a normal turn passes. Tier-2 safety inside
-            # RealTools.invoke is a second line of defence, not a replacement.
-            from .. import settings as _settings
-            from ..permissions import evaluate, parse_rules
+            # A workflow invoked from the desktop UI is non-interactive:
+            # every tool step must pass the same Tier-1 gate as print mode.
+            # Tier-2 stays inside RealTools.invoke.
+            from ..permissions import evaluate_noninteractive
             from ..runner import RealTools
-            from ..tools import create_native_registry
 
-            resolved = _settings.resolve(
-                state_root=_settings.default_state_root(),
-                cwd=Path(root) if root else Path.cwd())
-            deny, ask, allow = _settings.as_rule_lists(resolved)
-            rules = (parse_rules("deny", deny)[0],
-                     parse_rules("ask", ask)[0],
-                     parse_rules("allow", allow)[0])
-            registry = create_native_registry(RealTools())
-            decision = evaluate(
-                tool_name=n, tool_input=inp or {}, rules=rules,
-                mode=str(resolved.value.get("permissionMode", "default")),
-                interactive=False, tool_registry=registry)
+            decision = evaluate_noninteractive(n, inp, project_root=root)
             if decision.decision != "allow":
                 raise PermissionError(f"{n}: {decision.reason}")
             return RealTools().invoke(n, inp)

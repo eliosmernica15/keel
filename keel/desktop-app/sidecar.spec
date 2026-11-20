@@ -17,11 +17,17 @@ hiddenimports = sorted(
 )
 hiddenimports += ["keel.__main__", "keel.webapp", "keel.cli.main"]
 
+# Bundled SKILL.md files must ship inside the sidecar, next to keel/skills.py
+# in the extraction directory. skills.bundled_root() resolves this layout.
+datas = [
+    (str(ROOT / "resources" / "default-skills"), "keel/resources/default-skills"),
+]
+
 a = Analysis(
     [str(SPEC_DIR / "launcher.py")],
     pathex=[str(ROOT / "src")],
     binaries=[],
-    datas=[],
+    datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},

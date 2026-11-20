@@ -285,6 +285,34 @@ def evaluate(*, tool_name: str, tool_input: dict,
                     "mode", None, op_class, indeterminate)
 
 
+def evaluate_noninteractive(tool_name: str, tool_input: dict, *,
+                            project_root=None) -> Decision:
+    """Evaluate one tool call against resolved settings with no UI approval.
+
+    Shared by the desktop workflow API and print-mode workflow steps so both
+    paths use the same Tier-1 rules, modes and tool registry. Tier-2 is applied
+    separately by the tool executor and is never weakened here.
+    """
+    from pathlib import Path
+
+    from . import settings
+    from .runner import RealTools
+    from .tools import create_native_registry
+
+    resolved = settings.resolve(
+        state_root=settings.default_state_root(),
+        cwd=Path(project_root) if project_root else Path.cwd())
+    deny, ask, allow = settings.as_rule_lists(resolved)
+    rules = (parse_rules("deny", deny)[0],
+             parse_rules("ask", ask)[0],
+             parse_rules("allow", allow)[0])
+    registry = create_native_registry(RealTools())
+    return evaluate(
+        tool_name=tool_name, tool_input=tool_input or {}, rules=rules,
+        mode=str(resolved.value.get("permissionMode", MODE_DEFAULT)),
+        interactive=False, tool_registry=registry)
+
+
 def manifest_tools(all_tools: list[str], deny_rules: list[Rule]) -> list[str]:
     """Bare-name deny removes the tool from the manifest entirely."""
     bare_denied = {r.tool.lower() for r in deny_rules if r.bare}
