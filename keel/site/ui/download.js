@@ -1,6 +1,6 @@
 /* /download - OS detection + platform cards
    Manifest sources, in order:
-     1. /api/download-manifest  (Vercel function proxying the published GitHub Release
+     1. /api/download-manifest  (Vercel function proxying the published first-party
         manifest; lets the site flip availability without a redeploy)
      2. /download.json          (committed fallback; stays unavailable until
         a real release has been published and verified)
@@ -219,7 +219,7 @@ function renderUnavailable(title, note) {
 function setHostingNote(anyAvailable) {
   if (!HOSTING_NOTE) return;
   HOSTING_NOTE.textContent = anyAvailable
-    ? "Download links point at GitHub Releases. Every published file was " +
+    ? "Download links point at the official Keel download endpoint. Every published file was " +
       "downloaded over public HTTPS and matched against its SHA-256 by the release " +
       "workflow before this page listed it. Installers are unsigned: SmartScreen and " +
       "Gatekeeper will warn until code signing is configured. Uninstalling never " +

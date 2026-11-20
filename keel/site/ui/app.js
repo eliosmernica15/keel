@@ -33,10 +33,7 @@ const surfaceName = { chat: "Keel Desktop", code: "Keel Code" };
    ==================================================================== */
 const MIRROR_SETTINGS_KEY = "keel_mirror_settings_v1";
 const MIRROR_USAGE_KEY = "keel_mirror_usage_v1";
-const REPO = "https://github.com/eliosmernica15/keel";
-const mirrorNote = "Keel is a local, private agent — nothing runs on this page. "
-  + "Install it and this exact screen becomes the real thing: git clone " + REPO + ".git, then `cd keel` and `python -m keel serve`. "
-  + "Or add an OpenRouter / Google AI Studio key in Settings → Providers — replies will stream straight from your browser (no tools, no files).";
+const mirrorNote = "Keel is a local, private agent. Install the desktop application from the official website to use this screen with your own files and tools.";
 // openrouter/google only — the mirror cannot reach providers that need a
 // server-side agent loop. Attribution headers identify Keel to OpenRouter.
 const OPENROUTER_ATTRIBUTION = {

@@ -4,7 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from .artifacts import scan_tree
+from .artifacts import scan_sidecar_payload, scan_tree
 from .build import build_command
 from .licenses import licenses_command
 from .publish import publish_command
@@ -59,7 +59,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def check_artifacts_command(args) -> int:
-    violations = scan_tree(Path(args.path))
+    root = Path(args.path)
+    violations = (scan_sidecar_payload(root) if root.name == "keel-sidecar"
+                  else scan_tree(root))
     if violations:
         for item in violations:
             print(item)

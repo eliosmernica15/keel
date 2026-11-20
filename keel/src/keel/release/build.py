@@ -8,7 +8,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from .artifacts import validate_staged_release, validate_tree
+from .artifacts import validate_sidecar, validate_staged_release, validate_tree
 from .common import (
     CHANNELS,
     PROJECT_ROOT,
@@ -73,14 +73,15 @@ def electron_build(platform_name: str) -> None:
 
 
 def validate_packaged_outputs() -> None:
-    """Reject internal/research files in any packaged Electron output."""
+    """Validate every packaged output, including the sidecar payload."""
     dist_dir = PROJECT_ROOT / "dist"
     if not dist_dir.is_dir():
         return
     for child in sorted(p for p in dist_dir.iterdir() if p.is_dir()):
         if child.name == "keel-sidecar":
-            continue
-        validate_tree(child)
+            validate_sidecar(child)
+        else:
+            validate_tree(child)
 
 
 def stage_release(out_dir: Path, version: str) -> dict[str, Path]:

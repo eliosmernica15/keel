@@ -9,7 +9,23 @@ remove or relocate source-tree material.
 from __future__ import annotations
 
 import fnmatch
+import re
 from pathlib import Path
+
+# A PyInstaller one-file sidecar produces exactly one executable at the root
+# of its output directory. One-folder layouts add an _internal directory whose
+# compiled runtime files are validated by scan_tree(), not blanket-excluded.
+EXPECTED_SIDECAR_BINARIES: frozenset[str] = frozenset({"keel", "keel.exe"})
+
+# Clear-text credential markers. Full history scanning remains gitleaks' job;
+# this catches accidentally placed credential files in a runtime payload.
+SECRET_MARKERS = re.compile(
+    r"(?:\bsk-[A-Za-z0-9_-]{16,}|"
+    r"\bgh[pousr]_[A-Za-z0-9]{20,}|"
+    r"\bgithub_pat_[A-Za-z0-9_]{20,}|"
+    r"\bAKIA[0-9A-Z]{16}\b|"
+    r"-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----)"
+)
 
 # Internal material that must never be copied into a public installer or a
 # staged release directory. Matched against POSIX-style relative paths.
@@ -97,6 +113,37 @@ def scan_tree(root: Path) -> list[str]:
     return sorted(violations)
 
 
+def scan_secret_markers(root: Path) -> list[str]:
+    """Return relative paths containing clear-text credential markers."""
+    hits: list[str] = []
+    for path in root.rglob("*"):
+        if not path.is_file() or path.stat().st_size > 2 * 1024 * 1024:
+            continue
+        try:
+            data = path.read_bytes()
+        except OSError:
+            continue
+        if b"\x00" in data[:4096]:
+            continue  # compiled/binary runtime file
+        try:
+            text = data.decode("utf-8")
+        except UnicodeDecodeError:
+            continue
+        if SECRET_MARKERS.search(text):
+            hits.append(path.relative_to(root).as_posix())
+    return sorted(hits)
+
+
+def scan_sidecar_payload(root: Path) -> list[str]:
+    """Validate the real sidecar output, including one-folder runtime payloads."""
+    violations = set(scan_tree(root))
+    violations.update(scan_secret_markers(root))
+    for child in root.iterdir():
+        if child.is_file() and child.name not in EXPECTED_SIDECAR_BINARIES:
+            violations.add(f"unexpected sidecar root file: {child.name}")
+    return sorted(violations)
+
+
 def validate_tree(root: Path) -> None:
     violations = scan_tree(root)
     if violations:
@@ -104,6 +151,13 @@ def validate_tree(root: Path) -> None:
         suffix = "" if len(violations) <= 20 else f" (and {len(violations) - 20} more)"
         raise ValueError(
             f"prohibited files in {root}: {preview}{suffix}")
+
+
+def validate_sidecar(root: Path) -> None:
+    violations = scan_sidecar_payload(root)
+    if violations:
+        raise ValueError(
+            "prohibited sidecar payload: " + ", ".join(violations[:20]))
 
 
 def validate_staged_release(out_dir: Path, version: str,

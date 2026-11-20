@@ -1,18 +1,15 @@
 /* Same-origin proxy for the published download manifest.
  *
- * The site is static; the Python release manager publishes download.json as an
- * asset of the latest GitHub Release attached to this repository. Fetching it
- * here (rather than in the browser) keeps the page free of third-party
- * connect-src rules and lets availability change without redeploying the
- * website.
+ * The site is static. In production the public, non-secret environment
+ * variable KEEL_DOWNLOAD_MANIFEST_URL must point at the first-party,
+ * binaries-only download endpoint. No source-repository URL is embedded here.
+ * Until that endpoint exists this function returns 503 and the page falls back
+ * to the committed /download.json, which reports no available installer.
  *
- * Configure the origin with the public, non-secret Vercel environment
- * variable KEEL_DOWNLOAD_MANIFEST_URL (defaults to the latest GitHub Release
- * asset). Never place credentials here.
+ * Never place credentials here.
  */
 
-const DEFAULT_MANIFEST_URL =
-  "https://github.com/eliosmernica15/keel/releases/latest/download/download.json";
+const DEFAULT_MANIFEST_URL = "";
 const MAX_BYTES = 256 * 1024;
 
 function fail(res, status, error) {
@@ -26,6 +23,9 @@ module.exports = async function handler(req, res) {
   }
 
   const configured = process.env.KEEL_DOWNLOAD_MANIFEST_URL || DEFAULT_MANIFEST_URL;
+  if (!configured) {
+    return fail(res, 503, "manifest_not_configured");
+  }
   let target;
   try {
     target = new URL(configured);

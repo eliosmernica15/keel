@@ -1,25 +1,63 @@
-title = "Keel gitleaks configuration (M1)"
+title = "Keel gitleaks configuration (M1 closeout)"
 
 [extend]
 useDefault = true
 
-# The repository has historically contained black-box captures of a third-party
-# product and early site code. Those findings were reviewed during M1: all are
-# `generic-api-key` matches in captured example streams or demo UI strings, not
-# Keel credentials. Allowlist only the reviewed paths and commits; every new
-# file and every new commit is still scanned by the default rule set.
-[allowlist]
-description = "Reviewed third-party reference captures and historical demo strings"
-paths = [
-  '''agent-reference-shots/.*''',
-  '''claude-code-evidence\.md''',
-  '''agent-evidence.*\.md''',
-  '''prompt-pattern-analysis\.md''',
-]
-commits = [
-  "ee20e5b6ec5dcebe1a00dd0d6642c908095957bd",
-  "5b748c85d8dfee2ee3b4d221ef147a9aa49b8d9c",
-  "5443b4b2477b257bda236992d77a3cc0299d0efd",
-  "5eb4476e333c7bc1b033c766074bf940af139620",
-  "bdd35c7b27f2c7ca34e07d673bbd812f7e349837",
-]
+# M1 review classified 66 historical findings as false positives. They are all
+# rule `generic-api-key` matches inside black-box reference captures or deleted
+# demo site strings. Each exception below is scoped to ONE commit AND ONE exact
+# path: a finding elsewhere in the same commit is still reported. No global
+# commit-wide or repo-wide allowlist remains, and no secret value is recorded.
+#
+# Re-review every entry before removing it. If a path is deleted from history
+# (G2, owner approval required), remove the corresponding block.
+
+[[allowlists]]
+description = "Reviewed capture: headless stream events (commit ee20e5b6)"
+commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
+paths = ['''(?:^|/)agent-reference-shots/area-headless-programmatic/stream-json-events\.jsonl$''']
+
+[[allowlists]]
+description = "Reviewed capture: tool-call stream (commit ee20e5b6)"
+commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
+paths = ['''(?:^|/)agent-reference-shots/area11-interface-comm/stream-json-toolcall\.jsonl$''']
+
+[[allowlists]]
+description = "Reviewed capture: partial stream verification (commit ee20e5b6)"
+commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
+paths = ['''(?:^|/)agent-reference-shots/areas/\.verify-area1/verify-stream-json-partial\.jsonl$''']
+
+[[allowlists]]
+description = "Reviewed capture: SDK streaming section note (commit ee20e5b6)"
+commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
+paths = ['''(?:^|/)agent-reference-shots/areas/area-sdk-streaming-output/AREA-SDK-STREAMING-SECTION\.md$''']
+
+[[allowlists]]
+description = "Reviewed capture: observed stream sequence (commit ee20e5b6)"
+commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
+paths = ['''(?:^|/)agent-reference-shots/areas/area-sdk-streaming-output/observed-stream-event-sequence\.jsonl$''']
+
+[[allowlists]]
+description = "Reviewed analysis note: third-party evidence (commit ee20e5b6)"
+commits = ["ee20e5b6ec5dcebe1a00dd0d6642c908095957bd"]
+paths = ['''(?:^|/)claude-code-evidence\.md$''']
+
+[[allowlists]]
+description = "Reviewed historical demo UI strings (commit 5b748c85)"
+commits = ["5b748c85d8dfee2ee3b4d221ef147a9aa49b8d9c"]
+paths = ['''(?:^|/)keel/site/app\.js$''']
+
+[[allowlists]]
+description = "Reviewed historical demo UI strings (commit bdd35c7b)"
+commits = ["bdd35c7b27f2c7ca34e07d673bbd812f7e349837"]
+paths = ['''(?:^|/)keel/site/app\.js$''']
+
+[[allowlists]]
+description = "Reviewed historical demo UI strings (commit 5eb4476e)"
+commits = ["5eb4476e333c7bc1b033c766074bf940af139620"]
+paths = ['''(?:^|/)keel/site/app\.js$''']
+
+[[allowlists]]
+description = "Reviewed historical demo UI strings (commit 5443b4b2)"
+commits = ["5443b4b2477b257bda236992d77a3cc0299d0efd"]
+paths = ['''(?:^|/)keel/site/index\.html$''']

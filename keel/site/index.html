@@ -79,7 +79,7 @@
             <a class="btn btn-primary btn-lg" href="#download">Download Keel
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v9m0 0-3.5-3.5M8 11l3.5-3.5M3 13.5h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
-            <a class="btn btn-ghost btn-lg" href="/app">Try the live mirror
+            <a class="btn btn-ghost btn-lg" href="/download">View downloads
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
           </div>
@@ -164,7 +164,7 @@
             <li><span class="model-name">Anthropic API</span><span class="mono model-tag">opt-in only · your terms</span></li>
             <li><span class="model-name">OpenAI-compatible endpoints</span><span class="mono model-tag">any base URL · bridge</span></li>
           </ul>
-          <p class="fine">Auto chain: <code>openrouter → google → nvidia → openai-compatible</code>, resolved per request from your saved order. The web mirror wires OpenRouter and Google AI Studio; the desktop build adds Anthropic (opt-in) and OpenAI-compatible endpoints.</p>
+          <p class="fine">Auto chain: <code>openrouter → google → nvidia → openai-compatible</code>, resolved per request from your saved order. The desktop build supports OpenRouter, Google AI Studio, Anthropic (opt-in) and OpenAI-compatible endpoints.</p>
         </div>
         <figure class="split-shot reveal" aria-label="Keel settings panel showing provider configuration">
           <img src="/assets/img/keel-settings-providers.jpg" alt="Keel Settings → Providers: OpenRouter and Google AI Studio cards with Save key controls, preferred provider set to auto, and Permission mode set to manual with an explicit bypass acknowledgement" loading="lazy" width="1138" height="798" />
@@ -185,7 +185,7 @@
           <h2 id="local-title">Your machine is<br />the trust boundary.</h2>
           <ul class="checklist">
             <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Runs where you run.</strong> Bridge on <code>127.0.0.1</code> with a per-launch token in the URL — never a relay we operate, never reachable from the network.</span></li>
-            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>No telemetry.</strong> There is no analytics, no crash reporter, no usage beacon anywhere in the codebase — this is auditable in the repository.</span></li>
+            <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>No telemetry.</strong> There is no analytics, no crash reporter, and no usage beacon anywhere in the application.</span></li>
             <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Manual permission mode.</strong> Privileged tool calls wait for your explicit approve/reject — visibly, in the UI you just saw.</span></li>
             <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong><code>~/.keel</code> is yours.</strong> Sessions, settings, keys and uploads live on your disk. Uninstalling Keel Desktop never deletes them.</span></li>
             <li><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>No account, no billing inside the app.</strong> The device is the account. Your provider bill is your provider's business.</span></li>
@@ -222,50 +222,7 @@
             <a class="btn btn-disabled" aria-disabled="true" href="/download" data-cta>Not publicly available</a>
           </article>
         </div>
-        <p class="fine center fine-download" id="landing-download-note">Installers are published as GitHub Release assets and appear on <a href="/download">/download</a> only after their SHA-256 is verified over public HTTPS.</p>
-      </div>
-    </section>
-
-    <!-- ==================== docs ==================== -->
-    <section class="section" id="docs" aria-labelledby="docs-title">
-      <div class="container">
-        <div class="section-head">
-          <p class="kicker">Documentation</p>
-          <h2 id="docs-title">Read the fine print.</h2>
-          <p class="section-sub">Everything about how Keel is built, what exists, and what doesn't — written down, in the open.</p>
-        </div>
-        <div class="docs-grid">
-          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel" rel="noopener">
-            <span class="mono doc-tag">Repository</span>
-            <h3>eliosmernica15/keel ↗</h3>
-            <p>Source code, issues, and the CI pipeline that builds the installers.</p>
-          </a>
-          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/PARITY.md" rel="noopener">
-            <span class="mono doc-tag">Audit</span>
-            <h3>Parity matrix ↗</h3>
-            <p>Honest inventory of what is implemented, what is tracer-bullet, and what doesn't exist yet. No parity claims.</p>
-          </a>
-          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/ROADMAP.md" rel="noopener">
-            <span class="mono doc-tag">Roadmap</span>
-            <h3>Milestone plan ↗</h3>
-            <p>Where Keel goes next: runtime parity, distribution, provider ecosystem, and what stays explicitly out of scope.</p>
-          </a>
-          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/HOSTING.md" rel="noopener">
-            <span class="mono doc-tag">Distribution</span>
-            <h3>How installers reach you ↗</h3>
-            <p>How installers reach you: CI builds, Python release manager, GitHub Releases in front of <code>/download</code>.</p>
-          </a>
-          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/IMPLEMENTATION-PLAN.md" rel="noopener">
-            <span class="mono doc-tag">Design</span>
-            <h3>Compat tracer plan ↗</h3>
-            <p>The OpenCode-shaped <code>/api/v2</code> surface: scope, contract tests, and why it deliberately isn't a port.</p>
-          </a>
-          <a class="doc-card reveal" href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/THIRD_PARTY_NOTICES.md" rel="noopener">
-            <span class="mono doc-tag">Legal</span>
-            <h3>Third-party notices ↗</h3>
-            <p>OpenCode is an MIT-licensed reference. Notices are preserved; no upstream code is copied into Keel.</p>
-          </a>
-        </div>
+        <p class="fine center fine-download" id="landing-download-note">Installers appear on <a href="/download">/download</a> only after their SHA-256 is verified over public HTTPS. No installer is published yet.</p>
       </div>
     </section>
 
@@ -298,21 +255,11 @@
         <a href="#models">Models &amp; providers</a>
         <a href="#local">Local-first</a>
         <a href="/download">Download</a>
-        <a href="/app">Live mirror</a>
       </nav>
-      <nav class="footer-col" aria-label="Resources">
-        <p class="mono footer-h">Resources</p>
-        <a href="https://github.com/eliosmernica15/keel" rel="noopener">GitHub ↗</a>
-        <a href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/PARITY.md" rel="noopener">Parity audit ↗</a>
-        <a href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/ROADMAP.md" rel="noopener">Roadmap ↗</a>
-        <a href="https://github.com/eliosmernica15/keel/blob/main/keel/docs/HOSTING.md" rel="noopener">Distribution ↗</a>
+      <nav class="footer-col" aria-label="Downloads">
+        <p class="mono footer-h">Downloads</p>
+        <a href="/download">Installers</a>
         <a href="/download.json">Download manifest</a>
-      </nav>
-      <nav class="footer-col" aria-label="Surfaces">
-        <p class="mono footer-h">Surfaces</p>
-        <a href="/app">Keel Desktop</a>
-        <a href="/app">Keel Code</a>
-        <a href="/app">Web mirror</a>
       </nav>
     </div>
     <div class="container footer-bar">

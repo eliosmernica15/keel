@@ -6,7 +6,8 @@ import json
 import tomllib
 from pathlib import Path
 
-from keel.release.artifacts import scan_tree, validate_staged_release
+from keel.release.artifacts import (scan_secret_markers, scan_sidecar_payload,
+                                    scan_tree, validate_staged_release)
 from keel.release.common import expected_filenames
 from keel.release.licenses import write_inventory
 
@@ -54,6 +55,46 @@ def test_scan_tree_accepts_allowed_packaged_files(tmp_path):
     assert scan_tree(root) == []
 
 
+def test_sidecar_payload_accepts_legitimate_runtime(tmp_path):
+    root = tmp_path / "keel-sidecar"
+    root.mkdir(parents=True)
+    (root / "keel.exe").write_bytes(b"MZ\x00\x01binary")
+    skill = root / "keel" / "resources" / "default-skills" / "academy-guide"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text("---\nname: academy-guide\n---\n", encoding="utf-8")
+    (skill / "LICENSE.txt").write_text("Apache License 2.0", encoding="utf-8")
+    (skill / "font.ttf").write_bytes(b"\x00\x01\x00\x00binaryfont")
+    assert scan_sidecar_payload(root) == []
+
+
+def test_sidecar_payload_rejects_prohibited_files(tmp_path):
+    root = tmp_path / "keel-sidecar"
+    root.mkdir(parents=True)
+    (root / "keel.exe").write_bytes(b"MZ\x00\x01binary")
+    _touch(root, "keel/resources/default-skills/ok/SKILL.md", "---\nname: ok\n---\n")
+    _touch(root, ".vercel/project.json", "{}")
+    _touch(root, "licensing-and-provenance-review.md")
+    _touch(root, "ui/app.js.map", "{}")
+    _touch(root, "config/.env", "TOKEN=x")
+    _touch(root, "tools/internal.py", "print(1)")
+    _touch(root, "notes/secret.txt", 'api_key = "sk-abcdefghijklmnopqrstuvwxyz"')
+
+    found = scan_sidecar_payload(root)
+    assert ".vercel/project.json" in found
+    assert "licensing-and-provenance-review.md" in found
+    assert "ui/app.js.map" in found
+    assert "config/.env" in found
+    assert "tools/internal.py" in found
+    assert "notes/secret.txt" in found
+    assert "keel.exe" not in found
+    assert "keel/resources/default-skills/ok/SKILL.md" not in found
+
+
+def test_secret_marker_scan_skips_binary_runtime(tmp_path):
+    (tmp_path / "keel.exe").write_bytes(b"MZ\x00sk-abcdefghijklmnopqrstuvwxyz")
+    assert scan_secret_markers(tmp_path) == []
+
+
 def test_staged_release_rejects_prohibited_file(tmp_path):
     for name in expected_filenames("0.1.1"):
         _touch(tmp_path, name)
@@ -82,13 +123,31 @@ def test_staged_release_reports_missing_required_files(tmp_path):
         raise AssertionError("missing required artifact was accepted")
 
 
-def test_gitleaks_config_is_present_and_scoped():
+def test_gitleaks_config_is_present_and_narrowly_scoped():
     config = tomllib.loads((REPO / ".gitleaks.toml").read_text(encoding="utf-8"))
     assert config["extend"]["useDefault"] is True
-    allowlist = config["allowlist"]
-    assert any("agent-reference-shots" in item for item in allowlist["paths"])
-    assert len(allowlist["commits"]) >= 5
-    assert all(len(commit) == 40 for commit in allowlist["commits"])
+    # No broad global allowlist may suppress whole commits or paths.
+    assert "allowlist" not in config
+    blocks = config["allowlists"]
+    assert len(blocks) == 10
+    for block in blocks:
+        assert len(block["commits"]) == 1
+        assert len(block["commits"][0]) == 40
+        assert len(block["paths"]) == 1
+        assert block["description"]
+    # Every reviewed historical finding is covered by an exact path.
+    joined = "\n".join(block["paths"][0] for block in blocks)
+    for path in (
+        "stream-json-events\\.jsonl",
+        "stream-json-toolcall\\.jsonl",
+        "verify-stream-json-partial\\.jsonl",
+        "AREA-SDK-STREAMING-SECTION\\.md",
+        "observed-stream-event-sequence\\.jsonl",
+        "claude-code-evidence\\.md",
+        "keel/site/app\\.js",
+        "keel/site/index\\.html",
+    ):
+        assert path in joined
 
 
 def test_secret_scan_workflow_is_pinned_and_redacted():
