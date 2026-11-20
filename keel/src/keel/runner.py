@@ -501,7 +501,13 @@ class RealTools:
             argv = ["cmd.exe", "/d", "/c", command]
         else:
             argv = ["sh", "-c", command]
-        proc = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        import os as _os
+        if _os.name == "nt":
+            proc = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                    text=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+        else:
+            proc = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                    text=True, start_new_session=True)
         pid = f"bg-{uuid.uuid4().hex[:8]}"
         self._BG_PROCESSES[pid] = proc
         return f"started {pid} (os pid {proc.pid})", {"process_id": pid, "pid": proc.pid, "command": command}
@@ -850,10 +856,31 @@ def cleanup_background_processes() -> int:
     for pid, proc in list(RealTools._BG_PROCESSES.items()):
         try:
             if proc.poll() is None:
-                proc.kill()
+                import os as _os, signal
+                if _os.name == "nt":
+                    # Kill the process tree on Windows
+                    subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)],
+                                   capture_output=True, timeout=10)
+                else:
+                    # Kill the entire process group on Unix
+                    try:
+                        _os.killpg(proc.pid, signal.SIGTERM)
+                    except (ProcessLookupError, PermissionError):
+                        proc.terminate()
+                    # Wait briefly, then SIGKILL if needed
+                    try:
+                        proc.wait(timeout=3)
+                    except subprocess.TimeoutExpired:
+                        try:
+                            _os.killpg(proc.pid, signal.SIGKILL)
+                        except (ProcessLookupError, PermissionError):
+                            proc.kill()
                 killed += 1
         except Exception:
-            pass
+            try:
+                proc.kill()
+            except Exception:
+                pass
         del RealTools._BG_PROCESSES[pid]
     return killed
 

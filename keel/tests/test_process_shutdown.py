@@ -11,24 +11,6 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _is_running(pid):
-    """Check if a process is running without killing it."""
-    if os.name == "nt":
-        import ctypes
-        kernel32 = ctypes.windll.kernel32
-        handle = kernel32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
-        if handle:
-            kernel32.CloseHandle(handle)
-            return True
-        return False
-    else:
-        try:
-            os.kill(pid, 0)
-            return True
-        except (OSError, ProcessLookupError):
-            return False
-
-
 @pytest.fixture
 def bg_process_script(tmp_path):
     if os.name == "nt":
@@ -39,7 +21,7 @@ def bg_process_script(tmp_path):
         shell = "posix"
     script = tmp_path / "bg_test.py"
     script.write_text(f'''
-import sys, os, time
+import sys, os, time, subprocess
 sys.path.insert(0, r"{ROOT / "src"}")
 from keel.runner import RealTools, cleanup_background_processes
 r = RealTools()
@@ -48,7 +30,7 @@ pid = res[1]["process_id"]
 os_pid = res[1]["pid"]
 print(f"STARTED {{pid}} {{os_pid}}", flush=True)
 time.sleep(1)
-# Verify running (without killing)
+# Verify running
 running = False
 try:
     if os.name == "nt":
@@ -66,7 +48,7 @@ print("RUNNING" if running else "NOT_RUNNING", flush=True)
 # Cleanup
 killed = cleanup_background_processes()
 print(f"KILLED {{killed}}", flush=True)
-time.sleep(0.5)
+time.sleep(1)
 # Verify gone
 gone = True
 try:
