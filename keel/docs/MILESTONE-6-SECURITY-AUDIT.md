@@ -63,11 +63,12 @@ All new and modified tools, API routes, workflow, command, MCP, and process-mana
 
 1. **Web search** uses DuckDuckGo HTML scraping — fragile and not a robust search integration. Documented as best-effort.
 2. **MCP resource/prompt injection** into agent context now supports both HTTP and stdio transports with threading timeouts (5s). stdio servers no longer excluded.
-3. **Desktop UI** for management is not implemented; capabilities are API-only. The web mirror (site/app.html) has informational panes for skills/connectors/plugins but no functional management.
+3. **Desktop UI** for management: `site/ui/management.js` provides functional management panel connected to real backend APIs. Skills, commands, workflows, and MCP servers are discoverable and manageable through the UI.
 4. **Process cleanup on shutdown** registered via atexit handler. Background processes tracked in class-level dict. Cleanup tested in E2E scenario.
-5. **Ignore rules** now applied to `search_files`, `list_dir`, and `project_summary`. Not yet applied to `glob` or `grep`.
+5. **Ignore rules** applied to `search_files`, `list_dir`, `project_summary`, `glob`, `grep`.
 6. **No formal penetration testing** performed.
 7. **No live provider or MCP integration tests** (no credentials on host).
+8. **Workflow execution** now routes shell steps through `run_shell` tool (tier-2 enforced). Permission evaluation (allow/ask/deny) requires session context; API endpoint enforces tier-2 safety. Full permission evaluation at API level is a remaining gap.
 
 ## Conclusion
 
