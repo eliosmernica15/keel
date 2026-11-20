@@ -311,6 +311,11 @@ class RealTools:
     _BG_PROCESSES: dict = {}
 
     def _dispatch_extended(self, name: str, tool_input: dict):
+        # Tier-2 safety check before any extended tool execution
+        from .safety import tier2_check
+        check = tier2_check(name, tool_input, tool_registry=None)
+        if not check.allowed:
+            raise ValueError(f"tier-2 refused: {check.reason}")
         handlers = {
             "delete_file": self._delete_file,
             "move_file": self._move_file,
@@ -653,8 +658,28 @@ class RealTools:
         if parsed.scheme not in ("http", "https"):
             raise ValueError("url must be http or https")
         host = parsed.hostname or ""
-        if host in ("localhost", "127.0.0.1", "::1") or host.startswith("10.") or host.startswith("192.168.") or host.startswith("172."):
-            raise ValueError("refusing to fetch local/private address")
+        # Resolve hostname and check all resulting IPs
+        import socket
+        try:
+            infos = socket.getaddrinfo(host, None)
+        except socket.gaierror:
+            raise ValueError(f"cannot resolve hostname: {host}")
+        for info in infos:
+            addr = info[4][0]
+            # Check for private/loopback/link-local/reserved
+            import ipaddress
+            try:
+                ip = ipaddress.ip_address(addr)
+            except ValueError:
+                continue
+            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast or ip.is_unspecified:
+                raise ValueError(f"refusing to fetch private/internal address: {addr}")
+            # Block cloud metadata endpoints
+            if str(ip) in ("169.254.169.254", "fd00:ec2::254"):
+                raise ValueError(f"refusing to fetch cloud metadata endpoint: {addr}")
+        # Also check hostname directly
+        if host.lower() in ("localhost", "127.0.0.1", "::1", "0.0.0.0"):
+            raise ValueError(f"refusing to fetch local address: {host}")
         timeout = int(tool_input.get("timeout", 30))
         max_bytes = int(tool_input.get("max_bytes", 2_000_000))
         req = urllib.request.Request(url, headers={"User-Agent": "Keel/1.0", "Accept": "text/html,application/json,text/plain"})
