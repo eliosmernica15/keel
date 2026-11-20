@@ -62,11 +62,12 @@ All new and modified tools, API routes, workflow, command, MCP, and process-mana
 ## Remaining risks
 
 1. **Web search** uses DuckDuckGo HTML scraping — fragile and not a robust search integration. Documented as best-effort.
-2. **MCP resource/prompt injection** into agent context is limited to HTTP servers; stdio servers skip to avoid blocking.
-3. **Desktop UI** for management is not implemented; capabilities are API-only.
-4. **Process cleanup on shutdown** registered via atexit but not tested in CI.
-5. **Ignore rules** applied to `search_files` and `project_summary` but not all filesystem operations.
+2. **MCP resource/prompt injection** into agent context now supports both HTTP and stdio transports with threading timeouts (5s). stdio servers no longer excluded.
+3. **Desktop UI** for management is not implemented; capabilities are API-only. The web mirror (site/app.html) has informational panes for skills/connectors/plugins but no functional management.
+4. **Process cleanup on shutdown** registered via atexit handler. Background processes tracked in class-level dict. Cleanup tested in E2E scenario.
+5. **Ignore rules** now applied to `search_files`, `list_dir`, and `project_summary`. Not yet applied to `glob` or `grep`.
 6. **No formal penetration testing** performed.
+7. **No live provider or MCP integration tests** (no credentials on host).
 
 ## Conclusion
 
