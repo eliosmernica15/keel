@@ -61,10 +61,10 @@ Status legend:
 | create/update/list_task | Verified | `fleet/tasks.py` |
 | save_file (Library) | Verified | `fleet/library.py` |
 | ask_user | Verified | `fleet/asks.py` |
-| File move/rename/delete/watch | Missing | not implemented |
-| Apply patch / diff compare | Missing | not implemented |
-| Git operations (status/log/diff/branch/commit) | Partial | Duet Review tab shells out; no dedicated tool |
-| Web search / fetch | Missing | no web tools in runtime (only browser tool in OpenCode harness) |
+| File move/rename/delete/watch | Implemented (Phase 2+) | `delete_file`, `move_file`, `copy_file`, `make_dir` in RealTools; ignore rules in search |
+| Apply patch / diff compare | Implemented (Phase 2+) | `apply_patch`, `diff_files` in RealTools |
+| Git operations (status/log/diff/branch/commit) | Implemented (Phase 2+) | `git_status`, `git_diff`, `git_log`, `git_branch_list`, `git_add`, `git_commit`, `git_checkout` |
+| Web search / fetch | Implemented (Phase 2+) | `web_fetch` (SSRF-protected), `web_search` (DuckDuckGo best-effort) |
 | Browser automation | Missing | no browser tool in Keel runtime |
 | Utility tools (calc, JSON, conversion) | Missing | not implemented |
 | Tool registry with schemas/validation | Verified (Phase 2) | `keel/tools/registry.py` (`ToolRegistry`); `session.ALL_TOOLS`/`TOOL_SCHEMAS` now derived from `keel/tools/native.py`; runtime dispatch uses `self.tools.execute` |
