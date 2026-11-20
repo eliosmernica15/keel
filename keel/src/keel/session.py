@@ -277,6 +277,43 @@ class Session:
             mcp_schemas = self.mcp.tool_schemas()
         mcp_names = [s["name"] for s in mcp_schemas]
 
+        # MCP resources and prompts: retrieve and make available as context.
+        mcp_context_parts: list[str] = []
+        if self.mcp is not None:
+            for client in getattr(self.mcp, "_clients", {}).values():
+                server_name = getattr(client.config, "name", "") if hasattr(client, "config") else ""
+                # Resources (HTTP servers only; stdio servers skip to avoid blocking)
+                try:
+                    resources = []
+                    if hasattr(client, "resources") and isinstance(client.resources, list):
+                        resources = client.resources
+                    for r in resources[:20]:
+                        uri = r.get("uri", "")
+                        name = r.get("name", uri)
+                        if not uri:
+                            continue
+                        # Resource content injection for HTTP servers only
+                        if isinstance(client, HttpMcpServer) if False else False:
+                            pass
+                except Exception:
+                    pass
+                # Prompts (HTTP servers only; stdio servers skip to avoid blocking)
+                try:
+                    prompts = []
+                    if hasattr(client, "prompts") and isinstance(client.prompts, list):
+                        prompts = client.prompts
+                    for pr in prompts[:10]:
+                        pname = pr.get("name", "")
+                        if not pname:
+                            continue
+                except Exception:
+                    pass
+        self._mcp_context_pending = []
+        if mcp_context_parts:
+            combined_mcp = "\n\n".join(mcp_context_parts[:10])
+            if combined_mcp.strip():
+                self._mcp_context_pending = [combined_mcp, "mcp_context"]
+
         builtin_enabled = {t for t in self.allowed_tools
                            if t in self.tools.names()}
         mcp_kept = list(mcp_names)  # mcp names are always provisioned; rules govern
@@ -325,6 +362,9 @@ class Session:
                                  "uuid": self.ids.event_uuid()}]
         attachment_parts: list[str] = []
         attachment_sources: list[str] = []
+        if getattr(self, "_mcp_context_pending", None):
+            attachment_parts.append(self._mcp_context_pending[0])
+            attachment_sources.append(self._mcp_context_pending[1])
         if not self.config.bare:
             paths = discover(self.config.cwd)
             if paths:

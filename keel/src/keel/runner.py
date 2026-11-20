@@ -976,3 +976,14 @@ def run(plan: LaunchPlan) -> int:
             sys.stdout.write(json.dumps(event, separators=(",", ":"),
                                         ensure_ascii=False) + "\n")
     return ev.EXIT_CODES[outcome.envelope["subtype"]]
+
+
+import atexit as _atexit
+
+def _cleanup_on_exit() -> None:
+    try:
+        cleanup_background_processes()
+    except Exception:
+        pass
+
+_atexit.register(_cleanup_on_exit)
