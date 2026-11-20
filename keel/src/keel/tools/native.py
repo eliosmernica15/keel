@@ -152,7 +152,12 @@ NATIVE_TOOL_SCHEMAS = [
      "input_schema": {"type": "object", "properties": {"url": {"type": "string"}, "timeout": {"type": "integer"}, "max_bytes": {"type": "integer"}}, "required": ["url"]}},
     {"name": "web_search", "description": "Search the web (DuckDuckGo).",
      "input_schema": {"type": "object", "properties": {"query": {"type": "string"}, "count": {"type": "integer"}}, "required": ["query"]}},
+    {"name": "process_output", "description": "Get output from a background process.",
+     "input_schema": {"type": "object", "properties": {"process_id": {"type": "string"}}, "required": ["process_id"]}},
+    {"name": "process_wait", "description": "Wait for a background process to complete.",
+     "input_schema": {"type": "object", "properties": {"process_id": {"type": "string"}, "timeout": {"type": "integer"}}, "required": ["process_id"]}},
 ]
+
 
 
 NATIVE_TOOL_PERMISSIONS: dict[str, str] = {
@@ -180,6 +185,8 @@ NATIVE_TOOL_PERMISSIONS: dict[str, str] = {
     "install_deps": "execute",
     "background_shell": "execute",
     "process_list": "read",
+    "process_output": "read",
+    "process_wait": "read",
     "process_kill": "execute",
     "git_status": "read",
     "git_diff": "read",

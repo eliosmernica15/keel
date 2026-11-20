@@ -308,6 +308,8 @@ class RealTools:
             "install_deps": self._install_deps,
             "background_shell": self._background_shell,
             "process_list": self._process_list,
+            "process_output": self._process_output,
+            "process_wait": self._process_wait,
             "process_kill": self._process_kill,
             "git_status": self._git_status,
             "git_diff": self._git_diff,
@@ -545,7 +547,22 @@ class RealTools:
         total = 0
         files = 0
         for base, dirs, fs in os.walk(root):
-            dirs[:] = [d for d in dirs if d not in {".git", "node_modules", "__pycache__", ".venv"}]
+            # Load ignore rules from .keelignore or .gitignore
+            ignore_patterns = set([".git", "node_modules", "__pycache__", ".venv"])
+            for ignore_name in (".keelignore", ".gitignore"):
+                ignore_path = os.path.join(root, ignore_name)
+                if os.path.isfile(ignore_path):
+                    try:
+                        with open(ignore_path, "r", encoding="utf-8") as fh:
+                            for line in fh:
+                                line = line.strip()
+                                if line and not line.startswith("#"):
+                                    ignore_patterns.add(line.rstrip("/"))
+                    except OSError:
+                        pass
+            dirs[:] = [d for d in dirs if d not in ignore_patterns and not any(
+                __import__("fnmatch").fnmatch(d, pat) for pat in ignore_patterns)]
+
             for f in fs:
                 files += 1
                 ext = os.path.splitext(f)[1].lower() or "(none)"
@@ -709,7 +726,22 @@ class RealTools:
         content = tool_input.get("content")
         hits = []
         for base, dirs, files in os.walk(root):
-            dirs[:] = [d for d in dirs if d not in {".git", "node_modules", "__pycache__", ".venv"}]
+            # Load ignore rules from .keelignore or .gitignore
+            ignore_patterns = set([".git", "node_modules", "__pycache__", ".venv"])
+            for ignore_name in (".keelignore", ".gitignore"):
+                ignore_path = os.path.join(root, ignore_name)
+                if os.path.isfile(ignore_path):
+                    try:
+                        with open(ignore_path, "r", encoding="utf-8") as fh:
+                            for line in fh:
+                                line = line.strip()
+                                if line and not line.startswith("#"):
+                                    ignore_patterns.add(line.rstrip("/"))
+                    except OSError:
+                        pass
+            dirs[:] = [d for d in dirs if d not in ignore_patterns and not any(
+                __import__("fnmatch").fnmatch(d, pat) for pat in ignore_patterns)]
+
             for fname in files:
                 if not fnmatch.fnmatch(fname, pattern):
                     continue
@@ -729,6 +761,56 @@ class RealTools:
             if len(hits) >= 1000:
                 break
         return "\n".join(hits), {"hits": hits, "numHits": len(hits), "truncated": len(hits) >= 1000}
+
+
+    def _process_output(self, tool_input: dict):
+        pid = tool_input["process_id"]
+        proc = self._BG_PROCESSES.get(pid)
+        if proc is None:
+            raise KeyError(f"unknown process: {pid}")
+        stdout = ""
+        stderr = ""
+        try:
+            if proc.stdout:
+                stdout = proc.stdout.read() or ""
+        except Exception:
+            pass
+        try:
+            if proc.stderr:
+                stderr = proc.stderr.read() or ""
+        except Exception:
+            pass
+        status = "running" if proc.poll() is None else f"exited({proc.returncode})"
+        return stdout + ("\n" if stdout and stderr else "") + stderr, {"process_id": pid, "status": status, "stdout": stdout, "stderr": stderr, "exit_code": proc.returncode}
+
+    def _process_wait(self, tool_input: dict):
+        import time
+        pid = tool_input["process_id"]
+        proc = self._BG_PROCESSES.get(pid)
+        if proc is None:
+            raise KeyError(f"unknown process: {pid}")
+        timeout = int(tool_input.get("timeout", 60))
+        try:
+            proc.wait(timeout=timeout)
+        except Exception:
+            pass
+        status = "running" if proc.poll() is None else f"exited({proc.returncode})"
+        return status, {"process_id": pid, "status": status, "exit_code": proc.returncode}
+
+def cleanup_background_processes() -> int:
+    """Terminate all tracked background processes. Returns count killed."""
+    from keel.runner import RealTools
+    killed = 0
+    for pid, proc in list(RealTools._BG_PROCESSES.items()):
+        try:
+            if proc.poll() is None:
+                proc.kill()
+                killed += 1
+        except Exception:
+            pass
+        del RealTools._BG_PROCESSES[pid]
+    return killed
+
 
 
 def _build_model_client(plan: LaunchPlan):
