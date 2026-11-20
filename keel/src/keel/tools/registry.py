@@ -17,6 +17,22 @@ class Tool:
     available: bool = True
     metadata: dict[str, Any] = field(default_factory=dict)
 
+    def operation_class(self) -> str:
+        """Map registry permission level to permission operation class."""
+        mapping = {
+            "read": "read",
+            "write": "mutate_local",
+            "execute": "execute",
+            "network": "network",
+            "process_control": "process_control",
+            "destructive": "irreversible",
+        }
+        return mapping.get(self.permission, "execute")
+
+    def is_shell_like(self) -> bool:
+        return self.name in {"run_shell", "run_python", "run_tests", "run_build",
+                            "install_deps", "background_shell", "process_kill"}
+
 
 class ToolRegistry:
     """Authoritative registry of tool definitions and dispatch.
@@ -102,6 +118,38 @@ class ToolRegistry:
 
     def clear(self) -> None:
         self._tools.clear()
+
+    def permission_level(self, name: str) -> str:
+        tool = self.get(name)
+        return tool.permission if tool is not None else "execute"
+
+    def operation_class(self, name: str) -> str | None:
+        tool = self.get(name)
+        if tool is None:
+            return None
+        return tool.operation_class()
+
+    def is_shell_like(self, name: str) -> bool:
+        tool = self.get(name)
+        if tool is None:
+            return False
+        return tool.is_shell_like()
+
+    def read_tools(self) -> frozenset[str]:
+        return frozenset(n for n, t in self._tools.items()
+                         if t.permission == "read" and t.available)
+
+    def write_tools(self) -> frozenset[str]:
+        return frozenset(n for n, t in self._tools.items()
+                         if t.permission == "write" and t.available)
+
+    def shell_tools(self) -> frozenset[str]:
+        return frozenset(n for n, t in self._tools.items()
+                         if t.is_shell_like() and t.available)
+
+    def network_tools(self) -> frozenset[str]:
+        return frozenset(n for n, t in self._tools.items()
+                         if t.permission == "network" and t.available)
 
 
 def _validate_schema(schema: Any, value: Any, path: str = "$") -> list[str]:

@@ -74,19 +74,50 @@ def select_skills(task: str, project_root: Path | None = None, limit: int = 5) -
 
 def _target_root(scope: str, project_root: Path | None) -> Path:
     if scope == "user":
-        return Path(os.path.expanduser("~")) / ".keel" / "skills"
-    if scope == "project":
+        root = Path(os.path.expanduser("~")) / ".keel" / "skills"
+    elif scope == "project":
         if project_root is None:
             raise ValueError("project_root is required for project scope")
-        return Path(project_root) / ".keel" / "skills"
+        try:
+            root = Path(project_root).resolve() / ".keel" / "skills"
+        except Exception:
+            raise ValueError("invalid project_root")
+    elif scope == "bundled":
+        raise ValueError("cannot install into bundled scope")
+    else:
+        raise ValueError(f"unknown scope: {scope}")
+    # Ensure the root is contained within expected boundaries
+    try:
+        root.resolve()
+    except Exception:
+        raise ValueError("invalid target root")
+    return root
     if scope == "bundled":
         raise ValueError("cannot install into bundled scope")
     raise ValueError(f"unknown scope: {scope}")
 
 
+def _validate_skill_name(name: str) -> None:
+    """Validate a skill name to prevent path traversal."""
+    if not name or not isinstance(name, str):
+        raise SkillError("skill name is required")
+    if ".." in name or "/" in name or "\\" in name:
+        raise SkillError(f"invalid skill name (path traversal): {name!r}")
+    if os.path.isabs(name):
+        raise SkillError(f"skill name must not be an absolute path: {name!r}")
+    import re
+    if not re.match(r"^[a-z0-9][a-z0-9-]{0,63}$", name):
+        raise SkillError(f"invalid skill name: {name!r}")
+
+
 def install(source: str | Path, scope: str = "user",
            project_root: Path | None = None, name: str | None = None) -> Skill:
     src = Path(source)
+    # Resolve and validate source path
+    try:
+        src = src.resolve()
+    except Exception:
+        raise SkillError(f"invalid source path: {source}")
     if src.is_file():
         if src.name != "SKILL.md":
             raise SkillError(f"expected SKILL.md, got {src.name}")
@@ -98,6 +129,12 @@ def install(source: str | Path, scope: str = "user",
     else:
         raise SkillError(f"source not found: {src}")
 
+    # Validate skill name from frontmatter
+    raw = (skill_dir_src / "SKILL.md").read_text(encoding="utf-8")
+    fm, _ = skills_mod._parse_frontmatter(raw)
+    skill_name = name or str(fm.get("name", "")).strip().lower()
+    _validate_skill_name(skill_name)
+
     # Determine name from frontmatter if not given
     raw = (skill_dir_src / "SKILL.md").read_text(encoding="utf-8")
     fm, _ = skills_mod._parse_frontmatter(raw)
@@ -108,9 +145,29 @@ def install(source: str | Path, scope: str = "user",
     root = _target_root(scope, project_root)
     root.mkdir(parents=True, exist_ok=True)
     dest = root / skill_name
-    if dest.exists():
-        shutil.rmtree(dest)
-    shutil.copytree(skill_dir_src, dest)
+    # Validate destination containment
+    try:
+        dest.resolve().relative_to(root.resolve())
+    except ValueError:
+        raise SkillError(f"path traversal in destination: {skill_name!r}")
+    # Stage to temp first, then replace
+    staging = root / f".staging-{skill_name}"
+    if staging.exists():
+        shutil.rmtree(staging)
+    try:
+        shutil.copytree(skill_dir_src, staging)
+        # Validate the staged skill
+        staged_skill = _load_file(staging / "SKILL.md", scope)
+        errs = validate_skill(staged_skill)
+        if errs:
+            raise SkillError("; ".join(errs))
+        # Now replace
+        if dest.exists():
+            shutil.rmtree(dest)
+        staging.rename(dest)
+    except Exception:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
 
     skill = _load_file(dest / "SKILL.md", scope)
     errs = validate_skill(skill)
@@ -121,8 +178,14 @@ def install(source: str | Path, scope: str = "user",
 
 
 def remove(name: str, scope: str = "user", project_root: Path | None = None) -> bool:
+    _validate_skill_name(name)
     root = _target_root(scope, project_root)
-    target = root / name
+    target = (root / name).resolve()
+    # Ensure target is contained within root
+    try:
+        target.relative_to(root.resolve())
+    except ValueError:
+        raise SkillError(f"path traversal detected: {name!r}")
     if not target.exists():
         return False
     if target.is_dir():
