@@ -386,15 +386,26 @@ class RealTools:
         return f"moved {src} -> {dst}", {"type": "text", "from": src, "to": dst}
 
     def _list_dir(self, tool_input: dict):
+        import fnmatch
         import os
         path = self._safe_path(tool_input.get("path", "."))
         recursive = bool(tool_input.get("recursive", False))
         max_entries = int(tool_input.get("max_entries", 500))
+        ignore_patterns = {".git", "node_modules", "__pycache__", ".venv"}
         entries = []
+
+        def _ignored(name: str, full: str) -> bool:
+            return any(fnmatch.fnmatch(name, pat) or fnmatch.fnmatch(full, pat)
+                       for pat in ignore_patterns)
+
         if recursive:
             for base, dirs, files in os.walk(path):
+                dirs[:] = [d for d in dirs if not _ignored(d, os.path.join(base, d))]
                 for name in dirs + files:
-                    entries.append(os.path.join(base, name))
+                    full = os.path.join(base, name)
+                    if _ignored(name, full):
+                        continue
+                    entries.append(full)
                     if len(entries) >= max_entries:
                         break
                 if len(entries) >= max_entries:
@@ -402,7 +413,7 @@ class RealTools:
         else:
             for name in sorted(os.listdir(path)):
                 full = os.path.join(path, name)
-                if any(fnmatch.fnmatch(name, pat) or fnmatch.fnmatch(full, pat) for pat in ignore_patterns):
+                if _ignored(name, full):
                     continue
                 entries.append(full)
                 if len(entries) >= max_entries:

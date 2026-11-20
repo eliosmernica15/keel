@@ -148,6 +148,7 @@ class McpServer:
         self._lock = threading.Lock()
         self._next_id = 1
         self.tools: list[dict] = []
+        self.capabilities: dict = {}
         self._started = False
 
     @property
@@ -165,11 +166,12 @@ class McpServer:
             text=True, encoding="utf-8", errors="replace",
             bufsize=1)
         try:
-            self._request("initialize", {
+            init_result = self._request("initialize", {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {},
                 "clientInfo": {"name": "keel", "version": "0.1.0a0"},
             })
+            self.capabilities = dict(init_result.get("capabilities") or {})
             self._notify("notifications/initialized", {})
             result = self._request("tools/list", {})
             self.tools = list(result.get("tools", []))

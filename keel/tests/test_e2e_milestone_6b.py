@@ -146,6 +146,10 @@ for line in sys.stdin:
         assert out.events[0]["subtype"] == "init"
         assert "mcp__fake__echo" in out.events[0]["tools"]
         assert out.events[0]["mcp_servers"][0]["status"] == "connected"
+        # MCP resources/prompts must reach the real model-turn context.
+        first_turn = json.dumps(model.seen_messages[0])
+        assert "resource content here" in first_turn
+        assert "prompt text here" in first_turn
         # Verify skill loading worked
         tool_results = [blk for e in out.events if e.get("type") == "user"
                         for blk in (e.get("message", {}).get("content", []) if isinstance(e.get("message", {}).get("content"), list) else [])

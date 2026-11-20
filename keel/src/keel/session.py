@@ -18,6 +18,7 @@ from .instructions import build_attachment, discover, notes_attachment
 from .permissions import (MODE_DONT_ASK, dont_ask_tools, evaluate,
                           Decision, manifest_tools, normalize_mode, parse_rules)
 from .hooks import fire
+from .mcp import HttpMcpServer
 from .safety import tier2_check
 from .toolresult import Persist, machine_error, render_failure, render_success
 from .transcript import TranscriptWriter
@@ -285,8 +286,11 @@ class Session:
                 # Resources (with timeout for stdio servers)
                 try:
                     resources = []
+                    capabilities = getattr(client, "capabilities", {}) or {}
                     if isinstance(client, HttpMcpServer):
                         resources = getattr(client, "resources", []) or []
+                    elif "resources" not in capabilities:
+                        resources = []
                     else:
                         # stdio: attempt with timeout via threading
                         import threading as _th
@@ -350,8 +354,11 @@ class Session:
                 # Prompts (with timeout for stdio)
                 try:
                     prompts = []
+                    capabilities = getattr(client, "capabilities", {}) or {}
                     if isinstance(client, HttpMcpServer):
                         prompts = getattr(client, "prompts", []) or []
+                    elif "prompts" not in capabilities:
+                        prompts = []
                     else:
                         import threading as _th3
                         result_holder = [None]
