@@ -28,10 +28,13 @@ MCP_OUTPUT_CAP = 100_000  # bytes of tool output kept for the model
 @dataclass(frozen=True)
 class McpServerConfig:
     name: str
-    command: str
+    command: str = ""
     args: tuple[str, ...] = ()
     env: dict[str, str] | None = None
     scope: str = "user"          # user | project (project is inert until approved)
+    transport: str = "stdio"     # stdio | http
+    url: str = ""
+    headers: dict[str, str] | None = None
 
 
 def approval_key(config: McpServerConfig) -> str:
@@ -92,6 +95,20 @@ def parse_servers(raw: Any) -> list[McpServerConfig]:
     for name, spec_raw in raw.items():
         if not isinstance(spec_raw, dict):
             continue
+        transport = str(spec_raw.get("transport", "stdio")).lower()
+        scope = "user" if spec_raw.get("scope") in (None, "user") else "project"
+        headers = spec_raw.get("headers")
+        if headers is not None and not isinstance(headers, dict):
+            headers = None
+        if transport == "http":
+            url = spec_raw.get("url")
+            if not url or not isinstance(url, str):
+                continue
+            out.append(McpServerConfig(
+                name=str(name), transport="http", url=url,
+                headers={str(k): str(v) for k, v in (headers or {}).items()},
+                scope=scope))
+            continue
         command = spec_raw.get("command")
         if not command or not isinstance(command, str):
             continue
@@ -101,12 +118,11 @@ def parse_servers(raw: Any) -> list[McpServerConfig]:
         env = spec_raw.get("env")
         if env is not None and not isinstance(env, dict):
             env = None
-        scope = "user" if spec_raw.get("scope") in (None, "user") else "project"
         out.append(McpServerConfig(
             name=str(name), command=command,
             args=tuple(str(a) for a in args),
             env={str(k): str(v) for k, v in (env or {}).items()},
-            scope=scope))
+            scope=scope, transport="stdio"))
     return out
 
 
@@ -298,7 +314,8 @@ class McpManager:
             return statuses
 
         def _start_one(config):
-            client = McpServer(config)
+            client = (HttpMcpServer(config) if getattr(config, "transport", "stdio") == "http"
+                      else McpServer(config))
             try:
                 client.start()
                 return config.name, "connected", client
@@ -365,3 +382,134 @@ def _content_text(result: dict) -> str:
         parts.append(json.dumps(result["structuredContent"],
                                 separators=(",", ":")))
     return "\n".join(parts)
+
+
+class HttpMcpServer:
+    """Minimal HTTP MCP server (JSON-RPC over POST).
+
+    Supports basic initialize/tools/list/tools/call/resources/list/prompts/list.
+    Reconnection and health checks are best-effort. SSE/streamable transports
+    are not implemented in this phase.
+    """
+
+    def __init__(self, config: McpServerConfig, *, timeout: float = 30.0):
+        self.config = config
+        self.timeout = timeout
+        self.tools: list[dict] = []
+        self.resources: list[dict] = []
+        self.prompts: list[dict] = []
+        self._started = False
+        self._session_id: str | None = None
+
+    @property
+    def running(self) -> bool:
+        return self._started
+
+    def _headers(self) -> dict[str, str]:
+        h = {"Content-Type": "application/json", "Accept": "application/json"}
+        if self.config.headers:
+            h.update(self.config.headers)
+        if self._session_id:
+            h["Mcp-Session-Id"] = self._session_id
+        return h
+
+    def _post(self, method: str, params: dict, *, notify: bool = False):
+        import json as _json
+        import urllib.request
+        import urllib.error
+        frame = {"jsonrpc": "2.0", "method": method, "params": params}
+        if not notify:
+            frame["id"] = 1
+        data = _json.dumps(frame).encode("utf-8")
+        req = urllib.request.Request(self.config.url, data=data, headers=self._headers())
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        try:
+            with opener.open(req, timeout=self.timeout) as resp:
+                sid = resp.headers.get("Mcp-Session-Id")
+                if sid:
+                    self._session_id = sid
+                raw = resp.read()
+        except urllib.error.HTTPError as exc:
+            raise McpError(f"http {exc.code}: {exc.read().decode('utf-8', 'replace')[:200]}") from None
+        except Exception as exc:
+            raise McpError(str(exc)) from None
+        if notify or not raw:
+            return {}
+        try:
+            obj = _json.loads(raw)
+        except Exception as exc:
+            raise McpError(f"invalid json: {exc}") from None
+        if "error" in obj:
+            err = obj["error"]
+            msg = err.get("message", "unknown") if isinstance(err, dict) else str(err)
+            raise McpError(str(msg))
+        return obj.get("result", {})
+
+    def start(self) -> None:
+        try:
+            self._post("initialize", {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": {"name": "keel", "version": "0.1.0a0"},
+            })
+            self._post("notifications/initialized", {}, notify=True)
+            result = self._post("tools/list", {})
+            self.tools = list(result.get("tools", []))
+            try:
+                rres = self._post("resources/list", {})
+                self.resources = list(rres.get("resources", []))
+            except Exception:
+                self.resources = []
+            try:
+                pres = self._post("prompts/list", {})
+                self.prompts = list(pres.get("prompts", []))
+            except Exception:
+                self.prompts = []
+            self._started = True
+        except Exception:
+            self._started = False
+            raise
+
+    def call_tool(self, tool: str, arguments: dict) -> tuple[bool, str]:
+        if not self._started:
+            self.start()
+        try:
+            result = self._post("tools/call", {"name": tool, "arguments": arguments})
+        except McpError as exc:
+            return False, f"mcp error: {exc}"
+        text = _content_text(result)
+        is_error = bool(result.get("isError", False))
+        capped = text[:MCP_OUTPUT_CAP]
+        if len(text) > MCP_OUTPUT_CAP:
+            capped += f"\n[mcp: output truncated at {MCP_OUTPUT_CAP} bytes]"
+        return (not is_error, capped)
+
+    def health(self) -> bool:
+        try:
+            if not self._started:
+                self.start()
+            self._post("tools/list", {})
+            return True
+        except Exception:
+            self._started = False
+            return False
+
+    def reconnect(self) -> bool:
+        self.shutdown()
+        try:
+            self.start()
+            return True
+        except Exception:
+            return False
+
+    def shutdown(self) -> None:
+        self._started = False
+        self._session_id = None
+
+    def tool_schemas(self) -> list[dict]:
+        out = []
+        for t in self.tools:
+            out.append({"name": tool_name_for(self.config.name, t.get("name", "")),
+                        "description": t.get("description", ""),
+                        "input_schema": t.get("inputSchema", {"type": "object"})})
+        return out

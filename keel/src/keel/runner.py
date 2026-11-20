@@ -204,6 +204,9 @@ class RealTools:
 
     def invoke(self, name: str, tool_input: dict):
         self.calls.append((name, tool_input))
+        dispatched = self._dispatch_extended(name, tool_input or {})
+        if dispatched is not None:
+            return dispatched
         if name == "read_file":
             path = tool_input["path"]
             with open(path, "rb") as fh:
@@ -289,6 +292,287 @@ class RealTools:
                             "interrupted": interrupted,
                             "isImage": False, "noOutputExpected": False}
         raise KeyError(f"unknown real tool {name!r}")
+
+    _BG_PROCESSES: dict = {}
+
+    def _dispatch_extended(self, name: str, tool_input: dict):
+        handlers = {
+            "delete_file": self._delete_file,
+            "move_file": self._move_file,
+            "list_dir": self._list_dir,
+            "apply_patch": self._apply_patch,
+            "diff_files": self._diff_files,
+            "run_python": self._run_python,
+            "run_tests": self._run_tests,
+            "run_build": self._run_build,
+            "install_deps": self._install_deps,
+            "background_shell": self._background_shell,
+            "process_list": self._process_list,
+            "process_kill": self._process_kill,
+            "git_status": self._git_status,
+            "git_diff": self._git_diff,
+            "git_log": self._git_log,
+            "git_branch_list": self._git_branch_list,
+            "git_add": self._git_add,
+            "git_commit": self._git_commit,
+            "git_checkout": self._git_checkout,
+            "project_summary": self._project_summary,
+            "symbol_search": self._symbol_search,
+        }
+        handler = handlers.get(name)
+        if handler is None:
+            return None
+        return handler(tool_input or {})
+
+    def _safe_path(self, raw: str) -> str:
+        import os
+        from .safety import _classify_target, _expand
+        path = os.path.expanduser(str(raw))
+        kind = _classify_target(_expand(path))
+        if kind:
+            raise ValueError(f"path refused ({kind}): {raw}")
+        return path
+
+    def _delete_file(self, tool_input: dict):
+        import os
+        path = self._safe_path(tool_input["path"])
+        if not os.path.isfile(path):
+            raise FileNotFoundError(f"not a file: {path}")
+        os.remove(path)
+        return f"deleted {path}", {"type": "text", "file": {"filePath": path}}
+
+    def _move_file(self, tool_input: dict):
+        import os, shutil
+        src = self._safe_path(tool_input["src"])
+        dst = self._safe_path(tool_input["dst"])
+        if not os.path.exists(src):
+            raise FileNotFoundError(f"source not found: {src}")
+        os.makedirs(os.path.dirname(dst) or ".", exist_ok=True)
+        if os.path.exists(dst):
+            raise FileExistsError(f"destination exists: {dst}")
+        shutil.move(src, dst)
+        return f"moved {src} -> {dst}", {"type": "text", "from": src, "to": dst}
+
+    def _list_dir(self, tool_input: dict):
+        import os
+        path = self._safe_path(tool_input.get("path", "."))
+        recursive = bool(tool_input.get("recursive", False))
+        max_entries = int(tool_input.get("max_entries", 500))
+        entries = []
+        if recursive:
+            for base, dirs, files in os.walk(path):
+                for name in dirs + files:
+                    entries.append(os.path.join(base, name))
+                    if len(entries) >= max_entries:
+                        break
+                if len(entries) >= max_entries:
+                    break
+        else:
+            for name in sorted(os.listdir(path)):
+                entries.append(os.path.join(path, name))
+                if len(entries) >= max_entries:
+                    break
+        return "\n".join(entries), {"entries": entries, "numEntries": len(entries), "truncated": len(entries) >= max_entries}
+
+    def _apply_patch(self, tool_input: dict):
+        path = self._safe_path(tool_input["path"])
+        old = tool_input["old_string"]
+        new = tool_input["new_string"]
+        with open(path, "r", encoding="utf-8") as fh:
+            text = fh.read()
+        count = text.count(old)
+        if count != 1:
+            raise ValueError(f"old_string matched {count} times; expected exactly 1")
+        updated = text.replace(old, new, 1)
+        with open(path, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(updated)
+        return f"patched {path}", {"type": "text", "file": {"filePath": path, "content": updated, "oldContent": text, "newContent": updated}}
+
+    def _diff_files(self, tool_input: dict):
+        import difflib
+        a = self._safe_path(tool_input["a"])
+        b = self._safe_path(tool_input["b"])
+        with open(a, "r", encoding="utf-8", errors="replace") as fh:
+            la = fh.readlines()
+        with open(b, "r", encoding="utf-8", errors="replace") as fh:
+            lb = fh.readlines()
+        diff = list(difflib.unified_diff(la, lb, fromfile=a, tofile=b))
+        text = "".join(diff)
+        return text, {"diff": text, "numLines": len(diff)}
+
+    def _run_python(self, tool_input: dict):
+        import subprocess, sys
+        code = tool_input["code"]
+        timeout = int(tool_input.get("timeout", 120))
+        try:
+            proc = subprocess.run([sys.executable, "-c", code], capture_output=True, timeout=timeout, check=False)
+            stdout = proc.stdout.decode("utf-8", errors="replace")
+            stderr = proc.stderr.decode("utf-8", errors="replace")
+            interrupted = False
+        except subprocess.TimeoutExpired:
+            stdout, stderr, interrupted = "", "python timed out", True
+        output = stdout + ("\n" if stdout and stderr else "") + stderr
+        return output, {"stdout": stdout, "stderr": stderr, "interrupted": interrupted, "isImage": False, "noOutputExpected": False}
+
+    def _run_tests(self, tool_input: dict):
+        import subprocess, os
+        command = tool_input.get("command") or "python -m pytest -q"
+        cwd = tool_input.get("cwd")
+        timeout = int(tool_input.get("timeout", 300))
+        if os.name == "nt":
+            argv = ["cmd.exe", "/d", "/c", command]
+        else:
+            argv = ["sh", "-c", command]
+        try:
+            proc = subprocess.run(argv, capture_output=True, timeout=timeout, check=False, cwd=cwd)
+            stdout = proc.stdout.decode("utf-8", errors="replace")
+            stderr = proc.stderr.decode("utf-8", errors="replace")
+            interrupted = False
+        except subprocess.TimeoutExpired:
+            stdout, stderr, interrupted = "", "tests timed out", True
+        output = stdout + ("\n" if stdout and stderr else "") + stderr
+        return output, {"stdout": stdout, "stderr": stderr, "interrupted": interrupted, "exit_code": getattr(proc, "returncode", None)}
+
+    def _run_build(self, tool_input: dict):
+        return self._run_tests({"command": tool_input.get("command", ""), "cwd": tool_input.get("cwd"), "timeout": tool_input.get("timeout", 600)})
+
+    def _install_deps(self, tool_input: dict):
+        import subprocess, sys
+        manager = str(tool_input.get("manager", "pip")).lower()
+        packages = tool_input.get("packages") or []
+        if not isinstance(packages, list) or not packages:
+            raise ValueError("packages must be a non-empty list")
+        for p in packages:
+            if not isinstance(p, str) or not p.strip():
+                raise ValueError("package names must be non-empty strings")
+        if manager == "pip":
+            argv = [sys.executable, "-m", "pip", "install", *packages]
+        elif manager == "npm":
+            argv = ["npm", "install", *packages]
+        else:
+            raise ValueError(f"unsupported manager: {manager}")
+        proc = subprocess.run(argv, capture_output=True, timeout=int(tool_input.get("timeout", 300)), check=False)
+        stdout = proc.stdout.decode("utf-8", errors="replace")
+        stderr = proc.stderr.decode("utf-8", errors="replace")
+        output = stdout + ("\n" if stdout and stderr else "") + stderr
+        return output, {"stdout": stdout, "stderr": stderr, "exit_code": proc.returncode}
+
+    def _background_shell(self, tool_input: dict):
+        import subprocess, uuid
+        command = tool_input["command"]
+        shell = tool_input.get("shell", "posix")
+        if shell == "powershell":
+            argv = ["powershell", "-NoProfile", "-NonInteractive", "-Command", command]
+        elif shell == "cmd":
+            argv = ["cmd.exe", "/d", "/c", command]
+        else:
+            argv = ["sh", "-c", command]
+        proc = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        pid = f"bg-{uuid.uuid4().hex[:8]}"
+        self._BG_PROCESSES[pid] = proc
+        return f"started {pid} (os pid {proc.pid})", {"process_id": pid, "pid": proc.pid, "command": command}
+
+    def _process_list(self, tool_input: dict):
+        out = []
+        for pid, proc in list(self._BG_PROCESSES.items()):
+            status = "running" if proc.poll() is None else f"exited({proc.returncode})"
+            out.append(f"{pid}: {status}")
+        return "\n".join(out), {"processes": [{"id": pid, "status": ("running" if p.poll() is None else f"exited({p.returncode})")} for pid, p in self._BG_PROCESSES.items()]}
+
+    def _process_kill(self, tool_input: dict):
+        pid = tool_input["process_id"]
+        proc = self._BG_PROCESSES.get(pid)
+        if proc is None:
+            raise KeyError(f"unknown process: {pid}")
+        if proc.poll() is None:
+            proc.kill()
+        del self._BG_PROCESSES[pid]
+        return f"killed {pid}", {"process_id": pid}
+
+    def _git(self, args, cwd=None):
+        import subprocess
+        proc = subprocess.run(["git", *args], capture_output=True, timeout=120, check=False, cwd=cwd)
+        stdout = proc.stdout.decode("utf-8", errors="replace")
+        stderr = proc.stderr.decode("utf-8", errors="replace")
+        output = stdout + ("\n" if stdout and stderr else "") + stderr
+        if proc.returncode != 0:
+            raise RuntimeError(f"git {' '.join(args)} failed: {output}")
+        return output, {"stdout": stdout, "stderr": stderr, "exit_code": proc.returncode}
+
+    def _git_status(self, tool_input: dict):
+        return self._git(["status", "--short", "--branch"], tool_input.get("cwd"))
+
+    def _git_diff(self, tool_input: dict):
+        args = ["diff"]
+        if tool_input.get("staged"):
+            args.append("--cached")
+        if tool_input.get("path"):
+            args += ["--", str(tool_input["path"])]
+        return self._git(args, tool_input.get("cwd"))
+
+    def _git_log(self, tool_input: dict):
+        n = int(tool_input.get("limit", 20))
+        return self._git(["log", f"-{n}", "--oneline", "--decorate"], tool_input.get("cwd"))
+
+    def _git_branch_list(self, tool_input: dict):
+        return self._git(["branch", "-a"], tool_input.get("cwd"))
+
+    def _git_add(self, tool_input: dict):
+        paths = tool_input.get("paths", ["."])
+        if isinstance(paths, str):
+            paths = [paths]
+        return self._git(["add", *paths], tool_input.get("cwd"))
+
+    def _git_commit(self, tool_input: dict):
+        return self._git(["commit", "-m", tool_input["message"]], tool_input.get("cwd"))
+
+    def _git_checkout(self, tool_input: dict):
+        return self._git(["checkout", tool_input["ref"]], tool_input.get("cwd"))
+
+    def _project_summary(self, tool_input: dict):
+        import os
+        root = self._safe_path(tool_input.get("root", "."))
+        counts = {}
+        total = 0
+        files = 0
+        for base, dirs, fs in os.walk(root):
+            dirs[:] = [d for d in dirs if d not in {".git", "node_modules", "__pycache__", ".venv"}]
+            for f in fs:
+                files += 1
+                ext = os.path.splitext(f)[1].lower() or "(none)"
+                counts[ext] = counts.get(ext, 0) + 1
+                try:
+                    total += os.path.getsize(os.path.join(base, f))
+                except OSError:
+                    pass
+        lines = [f"root: {root}", f"files: {files}", f"total_bytes: {total}", "extensions:"]
+        for ext, n in sorted(counts.items(), key=lambda kv: -kv[1])[:25]:
+            lines.append(f"  {ext}: {n}")
+        return "\n".join(lines), {"files": files, "total_bytes": total, "extensions": counts}
+
+    def _symbol_search(self, tool_input: dict):
+        import os, re, fnmatch
+        pattern = re.compile(tool_input["pattern"])
+        root = self._safe_path(tool_input.get("root", "."))
+        glob_pat = tool_input.get("glob")
+        hits = []
+        for base, _, files in os.walk(root):
+            for fname in files:
+                if glob_pat and not fnmatch.fnmatch(fname, glob_pat):
+                    continue
+                fpath = os.path.join(base, fname)
+                try:
+                    with open(fpath, "r", encoding="utf-8", errors="strict") as fh:
+                        for lineno, line in enumerate(fh, 1):
+                            if pattern.search(line):
+                                hits.append(f"{fpath}:{lineno}:{line.rstrip()}")
+                                if len(hits) >= 1000:
+                                    break
+                except (UnicodeDecodeError, OSError):
+                    continue
+            if len(hits) >= 1000:
+                break
+        return "\n".join(hits), {"hits": hits, "numHits": len(hits), "truncated": len(hits) >= 1000}
 
 
 def _build_model_client(plan: LaunchPlan):
