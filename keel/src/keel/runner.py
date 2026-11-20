@@ -380,7 +380,10 @@ class RealTools:
                     break
         else:
             for name in sorted(os.listdir(path)):
-                entries.append(os.path.join(path, name))
+                full = os.path.join(path, name)
+                if any(fnmatch.fnmatch(name, pat) or fnmatch.fnmatch(full, pat) for pat in ignore_patterns):
+                    continue
+                entries.append(full)
                 if len(entries) >= max_entries:
                     break
         return "\n".join(entries), {"entries": entries, "numEntries": len(entries), "truncated": len(entries) >= max_entries}
@@ -746,6 +749,9 @@ class RealTools:
                 if not fnmatch.fnmatch(fname, pattern):
                     continue
                 fpath = os.path.join(base, fname)
+                # Apply ignore rules to files
+                if any(fnmatch.fnmatch(fname, pat) or fnmatch.fnmatch(fpath, pat) for pat in ignore_patterns):
+                    continue
                 if content:
                     try:
                         with open(fpath, "r", encoding="utf-8", errors="strict") as fh:
