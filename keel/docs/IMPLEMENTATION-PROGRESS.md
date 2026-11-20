@@ -49,3 +49,18 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 **Verification:** `python -m pytest tests/test_m2_api_integration.py tests/test_m2_provider_config.py tests/test_webapp.py -q` → `38 passed`.
 
 **Remaining from defect register:** secret storage, hook coverage, distribution/signing gaps.
+
+## Batch 4 — Encrypted provider secret storage
+
+**v5 requirement:** §8 free path (`keyring` master key, AES-256-GCM via `cryptography`, passphrase fallback) and §11 control 5 (secret storage and redaction). No new milestone content was invented.
+
+**Implemented:**
+- `src/keel/secret_store.py`: AES-256-GCM encryption/decryption with 12-byte random nonce; master key from OS keyring when available, `KEEL_MASTER_PASSPHRASE` or a local 0600 key file otherwise; errors never include secret material.
+- `src/keel/settings_store.py`: saved provider keys are encrypted with `enc: aes256gcm-v1`; legacy plaintext keys remain readable and are migrated on the next save; env application and public projections use decrypted/material-free values only.
+- `pyproject.toml`: added `cryptography>=42.0` and `keyring>=24.0` (both named by v5).
+- `tests/test_secret_storage.py`: encryption-at-rest, legacy migration, public-view redaction, and env application tests.
+- `docs/proprietary/THIRD_PARTY_NOTICES.draft.md`: added dependency notices.
+
+**Verification:** `python -m pytest tests/test_secret_storage.py tests/test_fleet_credentials.py tests/test_settings.py tests/test_m2_provider_config.py -q` → `49 passed`.
+
+**Remaining from defect register:** hook coverage, distribution/signing gaps.

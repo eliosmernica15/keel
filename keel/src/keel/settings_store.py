@@ -25,6 +25,7 @@ import time
 from pathlib import Path
 from typing import Any, Optional
 
+from . import secret_store
 from .jsonc import loads as jsonc_loads
 
 STATE_DIR = Path(os.environ.get("KEEL_STATE_DIR", Path.home() / ".keel"))
@@ -100,13 +101,19 @@ def get_provider_keys(doc: Optional[dict] = None) -> dict:
     return keys if isinstance(keys, dict) else {}
 
 
+def _entry_key(entry: Any) -> Optional[str]:
+    if not isinstance(entry, dict):
+        return None
+    key = entry.get("key")
+    if not isinstance(key, str) or not key.strip():
+        return None
+    if entry.get("enc") == secret_store.ENC_MARKER:
+        return secret_store.decrypt_secret(key, state_dir=STATE_DIR).strip()
+    return key.strip()
+
+
 def stored_key(name: str) -> Optional[str]:
-    entry = get_provider_keys().get(name)
-    if isinstance(entry, dict):
-        key = entry.get("key")
-        if isinstance(key, str) and key.strip():
-            return key.strip()
-    return None
+    return _entry_key(get_provider_keys().get(name))
 
 
 def stored_key_hint(name: str) -> Optional[str]:
@@ -139,7 +146,8 @@ def save_provider_key(name: str, key: str) -> None:
     doc = load()
     keys = get_provider_keys(doc)
     keys[name] = {
-        "key": key,
+        "key": secret_store.encrypt_secret(key, state_dir=STATE_DIR),
+        "enc": secret_store.ENC_MARKER,
         "hint": key[-4:] if len(key) >= 4 else key,
         "savedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
@@ -185,7 +193,7 @@ def apply_stored_keys(*, env_var_for: Optional[dict[str, str]] = None) -> list[s
         if not env_var:
             continue
         existing = os.environ.get(env_var, "").strip()
-        stored = entry.get("key") if isinstance(entry, dict) else None
+        stored = _entry_key(entry)
         if not stored:
             continue
         if existing and existing != stored:

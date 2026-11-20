@@ -16,6 +16,8 @@ that must keep its own license notices inside any proprietary binary.
 | Vendored skills (18) | pinned commit | Apache-2.0 | `resources/default-skills/*/LICENSE.txt` and `UPSTREAM_THIRD_PARTY_NOTICES.md` |
 | Canvas fonts | pinned | SIL OFL 1.1 | `resources/default-skills/canvas-design/canvas-fonts/*-OFL.txt` |
 | models.dev catalog data | 2026-11-20 | MIT, Copyright (c) 2025 models.dev | `resources/catalog/LICENSE.models-dev.txt`, source URL and attribution in `resources/catalog/providers.json` |
+| cryptography | installed version | Apache-2.0 OR BSD-3-Clause | installed distribution metadata; AES-256-GCM secret encryption |
+| keyring | optional installed version | MIT | installed distribution metadata; OS keyring master-key source |
 
 ## Build-only tools
 
