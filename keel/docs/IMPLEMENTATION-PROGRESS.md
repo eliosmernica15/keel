@@ -30,4 +30,22 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 
 **Verification:** `python scripts/check_version_sync.py` → `OK - all sources agree on version 0.1.1`; `python -m pytest tests/test_version_sync.py tests/test_release_controls.py tests/test_website_download_only.py -q` → `26 passed`. Windows packaging verification is running separately.
 
-**Remaining from defect register:** M2 API/UI integration, secret storage, hook coverage, distribution/signing gaps, and the known hook/version-adjacent items remain for later batches.
+**Remaining from defect register:** secret storage, hook coverage, distribution/signing gaps, and the known hook/version-adjacent items remain for later batches.
+
+## Batch 3 — M2 provider catalog reaches the real bridge/UI
+
+**v5 requirement:** §7.1 M2 — JSONC + schema, `provider/model` naming, bundled offline provider catalog. No missing milestone content was invented.
+
+**Implemented:**
+- `src/keel/webapp.py`: added authenticated bridge endpoints:
+  - `GET /api/model-catalog` (catalog metadata and provider summaries),
+  - `GET /api/model-catalog/<provider>` (offline model identifiers),
+  - `GET /api/settings/schema` (bundled settings schema),
+  - `GET /api/models/resolve?ref=provider/model` (resolver result or clear 400).
+- `site/ui/app.js`: `fetchCatalog()` now queries the local Keel bridge first and falls back to the provider's live catalog only for the public mirror.
+- `tests/test_m2_api_integration.py`: real `webapp.make_server()` tests for all endpoints, auth, catalog-only rejection, and UI source integration.
+- `node --check site/ui/app.js` passes.
+
+**Verification:** `python -m pytest tests/test_m2_api_integration.py tests/test_m2_provider_config.py tests/test_webapp.py -q` → `38 passed`.
+
+**Remaining from defect register:** secret storage, hook coverage, distribution/signing gaps.

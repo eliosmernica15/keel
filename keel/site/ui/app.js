@@ -153,9 +153,14 @@ function bumpTokens(n) {
 function fetchCatalog(name) {
   const def = MIRROR_PROVIDER_DEFS[name];
   const key = getProviders()[name]?.key || "";
-  return fetch(def.catalogUrl(key), { headers: def.catalogHeaders() })
-    .then((r) => { if (!r.ok) throw new Error(`catalog http ${r.status}`); return r.json(); })
-    .then((doc) => def.parseCatalog(doc).filter(Boolean).slice(0, 300));
+  // Local Keel bridge first: the bundled offline catalog works without network.
+  // The public mirror falls back to the provider's live catalog.
+  return fetch(`/api/model-catalog/${encodeURIComponent(name)}`, { headers: fsHeaders() })
+    .then((r) => { if (!r.ok) throw new Error(`offline catalog ${r.status}`); return r.json(); })
+    .then((doc) => (Array.isArray(doc?.models) ? doc.models : []).filter(Boolean).slice(0, 300))
+    .catch(() => fetch(def.catalogUrl(key), { headers: def.catalogHeaders() })
+      .then((r) => { if (!r.ok) throw new Error(`catalog http ${r.status}`); return r.json(); })
+      .then((doc) => def.parseCatalog(doc).filter(Boolean).slice(0, 300)));
 }
 
 /* local(Storage)-only helpers used across modules */

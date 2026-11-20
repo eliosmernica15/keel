@@ -258,6 +258,71 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     return
                 self._send_json({"providers": provider_registry.list_providers()})
                 return
+            if path == "/api/model-catalog":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                from .provider_catalog import catalog_info, load_catalog
+
+                doc = load_catalog()
+                info = catalog_info()
+                providers = [
+                    {key: value for key, value in entry.items()
+                     if key != "models"} | {
+                        "model_count": len(entry.get("models", []))}
+                    for name, entry in sorted(doc["providers"].items())
+                ]
+                self._send_json({
+                    "version": info.version,
+                    "provider_count": info.provider_count,
+                    "model_count": info.model_count,
+                    "source": {
+                        "name": info.source_name,
+                        "url": info.source_url,
+                        "license": info.license,
+                    },
+                    "notice": info.notice,
+                    "providers": providers,
+                })
+                return
+            if path.startswith("/api/model-catalog/"):
+                if not self._authorized():
+                    self._refuse()
+                    return
+                from .provider_catalog import model_ids
+
+                provider = urllib.parse.unquote(path[len("/api/model-catalog/"):])
+                try:
+                    models = model_ids(provider)
+                except ValueError as exc:
+                    self._send_json({"error": str(exc)},
+                                    HTTPStatus.NOT_FOUND)
+                    return
+                self._send_json({"provider": provider, "models": models})
+                return
+            if path == "/api/settings/schema":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                from .config_schema import load_schema
+
+                self._send_json(load_schema())
+                return
+            if path == "/api/models/resolve":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                query = urllib.parse.urlparse(self.path).query
+                ref = (urllib.parse.parse_qs(query).get("ref") or [""])[0]
+                try:
+                    from .providers.base import ProviderError
+                    from .providers.registry import resolve_provider_model
+
+                    self._send_json(resolve_provider_model(ref))
+                except (ProviderError, ValueError) as exc:
+                    self._send_json({"error": str(exc)},
+                                    HTTPStatus.BAD_REQUEST)
+                return
             if path == "/api/fs/roots":
                 if not self._authorized():
                     self._refuse()
