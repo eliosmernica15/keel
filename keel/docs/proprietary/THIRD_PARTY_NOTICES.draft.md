@@ -15,6 +15,7 @@ that must keep its own license notices inside any proprietary binary.
 | certifi | installed metadata | MPL-2.0 | `certifi-*.dist-info/licenses/LICENSE` — **not yet embedded in sidecar** |
 | Vendored skills (18) | pinned commit | Apache-2.0 | `resources/default-skills/*/LICENSE.txt` and `UPSTREAM_THIRD_PARTY_NOTICES.md` |
 | Canvas fonts | pinned | SIL OFL 1.1 | `resources/default-skills/canvas-design/canvas-fonts/*-OFL.txt` |
+| models.dev catalog data | 2026-11-20 | MIT, Copyright (c) 2025 models.dev | `resources/catalog/LICENSE.models-dev.txt`, source URL and attribution in `resources/catalog/providers.json` |
 
 ## Build-only tools
 

@@ -12,8 +12,9 @@ Monotonic keys resolve to the most restrictive value across scopes.
 from __future__ import annotations
 
 import copy
-import json
 import os
+
+from .jsonc import JsoncError, loads as jsonc_loads
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
@@ -237,12 +238,11 @@ def _load_json_file(path: Path, scope: str,
     except OSError:
         return None  # absent is fine
     try:
-        data = json.loads(raw)
-    except json.JSONDecodeError as exc:
+        data = jsonc_loads(raw)
+    except JsoncError as exc:
         diagnostics.append(Diagnostic(
             "warning", "settings_json_invalid",
-            f"{path}: invalid JSON at line {exc.lineno} col {exc.colno}; "
-            "file ignored, other scopes still resolve", scope))
+            f"{path}: {exc}; file ignored, other scopes still resolve", scope))
         return None
     if not isinstance(data, dict):
         diagnostics.append(Diagnostic(

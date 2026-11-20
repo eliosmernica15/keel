@@ -17,6 +17,9 @@ from .gemini import GeminiAdapter
 from .model_client import ProviderModelClient
 from .openai_compatible import OpenAICompatibleAdapter
 from .. import settings_store
+from ..config_schema import validate as validate_settings
+from ..model_ids import ModelIdError, parse_model_ref
+from ..provider_catalog import get_provider as catalog_provider
 
 _PROVIDERS: dict[str, CapabilityRecord] = {
     "openrouter": CapabilityRecord(
@@ -177,4 +180,67 @@ def smoke(name: str, *, model: str | None = None,
         "text": "".join(text_parts),
         "latency_ms": latency_ms,
         "key_source": f"env:{cap.env_var}",
+    }
+
+
+def validate_configuration(doc: dict) -> list[str]:
+    """Return configuration diagnostics; values are never included."""
+    return [str(item) for item in validate_settings(doc)]
+
+
+def resolve_provider_model(identifier: str, *,
+                           provider_config: dict | None = None) -> dict:
+    """Resolve a bare model or provider/model id to an executable adapter.
+
+    Catalog entries are informational. A provider present only in the offline
+    catalog is rejected with a clear error; it is never treated as executable.
+    """
+    try:
+        ref = parse_model_ref(identifier)
+    except ModelIdError as exc:
+        raise ProviderError(str(exc)) from None
+
+    config = provider_config if provider_config is not None \
+        else settings_store.get_provider_config()
+    configured = str(config.get("defaultProvider") or "").strip().lower()
+    default_provider = configured or os.environ.get("KEEL_DEFAULT_PROVIDER", "auto").lower()
+
+    provider = "" if ref.provider in (None, "auto") else ref.provider
+    model = ref.model
+    auto = not provider
+
+    if not provider and default_provider != "auto":
+        provider = default_provider
+
+    cap = _PROVIDERS.get(provider) if provider else None
+    if provider and cap is None:
+        if catalog_provider(provider) is not None:
+            raise ProviderError(
+                f"provider {provider!r} is listed in the offline catalog "
+                "but has no executable Keel runtime adapter")
+        raise ProviderError(
+            f"unknown provider {provider!r} "
+            f"(runnable: {', '.join(sorted(_PROVIDERS))})")
+
+    if cap is None:
+        chain = resolve_chain(None)
+        if not chain:
+            raise ProviderError(
+                "no configured runtime provider; set a provider key or choose "
+                "a catalog-only provider is not sufficient to execute")
+        cap = chain[0]
+        provider = cap.name
+
+    chosen_model = model or cap.default_model
+    if not chosen_model:
+        raise ProviderError(
+            f"provider {provider!r} requires an explicit model id")
+    catalog_entry = catalog_provider(provider)
+    return {
+        "provider": provider,
+        "model": chosen_model,
+        "qualified": f"{provider}/{chosen_model}",
+        "runtime_adapter": provider,
+        "catalog_listed": catalog_entry is not None,
+        "default_used": not model,
     }

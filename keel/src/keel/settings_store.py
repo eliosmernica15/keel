@@ -25,6 +25,8 @@ import time
 from pathlib import Path
 from typing import Any, Optional
 
+from .jsonc import loads as jsonc_loads
+
 STATE_DIR = Path(os.environ.get("KEEL_STATE_DIR", Path.home() / ".keel"))
 SETTINGS_PATH = STATE_DIR / "settings.json"
 BACKUP_PATH = STATE_DIR / "settings.json.bak"
@@ -39,7 +41,7 @@ _APPLIED_FROM_STORE: set[str] = set()
 def _parse_bytes(raw: bytes) -> Optional[dict]:
     try:
         text = raw.lstrip(b"\xef\xbb\xbf")
-        doc = json.loads(text.decode("utf-8"))
+        doc = jsonc_loads(text.decode("utf-8"))
         return doc if isinstance(doc, dict) else None
     except Exception:
         return None

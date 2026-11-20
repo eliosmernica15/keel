@@ -21,6 +21,8 @@ hiddenimports += ["keel.__main__", "keel.webapp", "keel.cli.main"]
 # in the extraction directory. skills.bundled_root() resolves this layout.
 datas = [
     (str(ROOT / "resources" / "default-skills"), "keel/resources/default-skills"),
+    (str(ROOT / "resources" / "schema"), "keel/resources/schema"),
+    (str(ROOT / "resources" / "catalog"), "keel/resources/catalog"),
 ]
 
 a = Analysis(

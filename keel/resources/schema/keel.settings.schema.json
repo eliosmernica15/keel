@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keel.local/schemas/keel.settings.schema.json",
+  "title": "Keel settings (JSONC)",
+  "description": "Supported Keel settings sections. Unknown top-level sections are preserved for compatibility.",
+  "type": "object",
+  "properties": {
+    "model": {
+      "type": "string",
+      "description": "Default model. Accepts a bare model id or provider/model."
+    },
+    "defaultProvider": {
+      "type": "string",
+      "description": "Default provider id or 'auto'."
+    },
+    "providerConfig": {
+      "type": "object",
+      "description": "User provider/model preferences stored by Keel.",
+      "properties": {
+        "defaultProvider": {
+          "type": "string"
+        },
+        "models": {
+          "type": "object",
+          "description": "Map of provider id to default model id.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "customEndpoints": {
+          "type": "object",
+          "description": "Custom OpenAI-compatible endpoints.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "baseUrl": { "type": "string" },
+              "apiKeyEnv": { "type": "string" },
+              "model": { "type": "string" }
+            },
+            "required": ["baseUrl"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "mcpServers": {
+      "type": "object"
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "allow": { "type": "array", "items": { "type": "string" } },
+        "ask": { "type": "array", "items": { "type": "string" } },
+        "deny": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}
