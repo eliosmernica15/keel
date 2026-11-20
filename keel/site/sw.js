@@ -13,6 +13,7 @@ const SHELL = [
   "/ui/landing.css",
   "/ui/landing.js",
   "/ui/landing-download.js",
+  "/ui/management.js",
   "/ui/style.css",
   "/ui/app.js",
   "/ui/download.js",
