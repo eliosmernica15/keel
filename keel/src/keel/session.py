@@ -282,30 +282,134 @@ class Session:
         if self.mcp is not None:
             for client in getattr(self.mcp, "_clients", {}).values():
                 server_name = getattr(client.config, "name", "") if hasattr(client, "config") else ""
-                # Resources (HTTP servers only; stdio servers skip to avoid blocking)
+                # Resources (with timeout for stdio servers)
                 try:
                     resources = []
-                    if hasattr(client, "resources") and isinstance(client.resources, list):
-                        resources = client.resources
+                    if isinstance(client, HttpMcpServer):
+                        resources = getattr(client, "resources", []) or []
+                    else:
+                        # stdio: attempt with timeout via threading
+                        import threading as _th
+                        result_holder = [None]
+                        def _fetch():
+                            try:
+                                if hasattr(client, "_request"):
+                                    r = client._request("resources/list", {})
+                                    result_holder[0] = r.get("resources", []) if isinstance(r, dict) else []
+                            except Exception:
+                                result_holder[0] = []
+                        t = _th.Thread(target=_fetch, daemon=True)
+                        t.start()
+                        t.join(timeout=5)
+                        if t.is_alive():
+                            resources = []  # timed out
+                        else:
+                            resources = result_holder[0] or []
                     for r in resources[:20]:
                         uri = r.get("uri", "")
                         name = r.get("name", uri)
                         if not uri:
                             continue
-                        # Resource content injection for HTTP servers only
-                        if isinstance(client, HttpMcpServer) if False else False:
+                        # Try to read resource content (HTTP only, or stdio with timeout)
+                        content = ""
+                        try:
+                            if isinstance(client, HttpMcpServer):
+                                rres = client._post("resources/read", {"uri": uri}) if hasattr(client, "_post") else {}
+                                contents = rres.get("contents", []) if isinstance(rres, dict) else []
+                                for c in contents[:3]:
+                                    text = c.get("text", "")
+                                    if text:
+                                        content += text[:1000] + "\n"
+                            else:
+                                # stdio with timeout
+                                import threading as _th2
+                                rh = [None]
+                                def _read():
+                                    try:
+                                        if hasattr(client, "_request"):
+                                            rres = client._request("resources/read", {"uri": uri})
+                                            contents = rres.get("contents", []) if isinstance(rres, dict) else []
+                                            for c in contents[:3]:
+                                                text = c.get("text", "")
+                                                if text:
+                                                    rh[0] = (rh[0] or "") + text[:1000] + "\n"
+                                    except Exception:
+                                        rh[0] = None
+                                t2 = _th2.Thread(target=_read, daemon=True)
+                                t2.start()
+                                t2.join(timeout=5)
+                                if not t2.is_alive() and rh[0]:
+                                    content = rh[0]
+                            if content.strip():
+                                mcp_context_parts.append(
+                                    f"[MCP resource: {server_name}/{name}]\n{content.strip()[:1500]}")
+                        except Exception:
                             pass
                 except Exception:
                     pass
-                # Prompts (HTTP servers only; stdio servers skip to avoid blocking)
+                # Prompts (with timeout for stdio)
                 try:
                     prompts = []
-                    if hasattr(client, "prompts") and isinstance(client.prompts, list):
-                        prompts = client.prompts
+                    if isinstance(client, HttpMcpServer):
+                        prompts = getattr(client, "prompts", []) or []
+                    else:
+                        import threading as _th3
+                        result_holder = [None]
+                        def _fetch_p():
+                            try:
+                                if hasattr(client, "_request"):
+                                    r = client._request("prompts/list", {})
+                                    result_holder[0] = r.get("prompts", []) if isinstance(r, dict) else []
+                            except Exception:
+                                result_holder[0] = []
+                        t = _th3.Thread(target=_fetch_p, daemon=True)
+                        t.start()
+                        t.join(timeout=5)
+                        if t.is_alive():
+                            prompts = []
+                        else:
+                            prompts = result_holder[0] or []
                     for pr in prompts[:10]:
                         pname = pr.get("name", "")
                         if not pname:
                             continue
+                        # Try to get prompt content
+                        try:
+                            text = ""
+                            if isinstance(client, HttpMcpServer):
+                                if hasattr(client, "_post"):
+                                    pres = client._post("prompts/get", {"name": pname})
+                                    messages = pres.get("messages", []) if isinstance(pres, dict) else []
+                                    for m in messages[:3]:
+                                        content = m.get("content", {})
+                                        t = content.get("text", "") if isinstance(content, dict) else str(content)
+                                        if t:
+                                            text += t[:500] + "\n"
+                            else:
+                                import threading as _th4
+                                rh = [None]
+                                def _get_p():
+                                    try:
+                                        if hasattr(client, "_request"):
+                                            pres = client._request("prompts/get", {"name": pname})
+                                            messages = pres.get("messages", []) if isinstance(pres, dict) else []
+                                            for m in messages[:3]:
+                                                content = m.get("content", {})
+                                                t = content.get("text", "") if isinstance(content, dict) else str(content)
+                                                if t:
+                                                    rh[0] = (rh[0] or "") + t[:500] + "\n"
+                                    except Exception:
+                                        rh[0] = None
+                                t4 = _th4.Thread(target=_get_p, daemon=True)
+                                t4.start()
+                                t4.join(timeout=5)
+                                if not t4.is_alive() and rh[0]:
+                                    text = rh[0]
+                            if text.strip():
+                                mcp_context_parts.append(
+                                    f"[MCP prompt: {server_name}/{pname}]\n{text.strip()[:800]}")
+                        except Exception:
+                            pass
                 except Exception:
                     pass
         self._mcp_context_pending = []
