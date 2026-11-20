@@ -1495,8 +1495,150 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
         _send(handler, {"servers": out})
         return True
 
-    return False
+    if parts == ["api", "fleet", "skills", "install"]:
+        from .. import skills_manager as _sm
+        payload, err = _read_json(handler, limit=64_000)
+        if err:
+            _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
+            return True
+        source = payload.get("source")
+        scope = str(payload.get("scope", "user"))
+        project_root = payload.get("project_root")
+        name = payload.get("name")
+        if not source:
+            _send(handler, {"error": "source is required"}, HTTPStatus.BAD_REQUEST)
+            return True
+        try:
+            from pathlib import Path as _P
+            skill = _sm.install(source, scope=scope,
+                                project_root=_P(project_root) if project_root else None,
+                                name=name)
+        except Exception as exc:
+            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return True
+        _send(handler, {"ok": True, "name": skill.name, "scope": scope,
+                        "path": str(skill.path)})
+        return True
 
+    if parts == ["api", "fleet", "skills", "remove"]:
+        from .. import skills_manager as _sm
+        payload, err = _read_json(handler, limit=4096)
+        if err:
+            _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
+            return True
+        name = payload.get("name")
+        scope = str(payload.get("scope", "user"))
+        project_root = payload.get("project_root")
+        if not name:
+            _send(handler, {"error": "name is required"}, HTTPStatus.BAD_REQUEST)
+            return True
+        try:
+            from pathlib import Path as _P
+            removed = _sm.remove(name, scope=scope,
+                                 project_root=_P(project_root) if project_root else None)
+        except Exception as exc:
+            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return True
+        _send(handler, {"ok": True, "removed": removed})
+        return True
+
+    if parts == ["api", "fleet", "skills", "enable"]:
+        from .. import skills_manager as _sm
+        payload, err = _read_json(handler, limit=4096)
+        if err:
+            _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
+            return True
+        name = payload.get("name")
+        enabled = bool(payload.get("enabled", True))
+        if not name:
+            _send(handler, {"error": "name is required"}, HTTPStatus.BAD_REQUEST)
+            return True
+        _sm.set_enabled(name, enabled)
+        _send(handler, {"ok": True, "name": name, "enabled": enabled})
+        return True
+
+    if parts == ["api", "fleet", "commands", "execute"]:
+        from .. import commands as _cmds
+        payload, err = _read_json(handler, limit=64_000)
+        if err:
+            _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
+            return True
+        name = payload.get("name")
+        args = str(payload.get("args", ""))
+        project_root = payload.get("project_root")
+        if not name:
+            _send(handler, {"error": "name is required"}, HTTPStatus.BAD_REQUEST)
+            return True
+        from pathlib import Path as _P
+        root = _P(project_root) if project_root else _P.cwd()
+        cmd = _cmds.find(name, root)
+        if cmd is None:
+            _send(handler, {"error": "command not found"}, HTTPStatus.NOT_FOUND)
+            return True
+        try:
+            if cmd.source == "builtin":
+                result = _cmds.execute_builtin(cmd.name, args, root)
+            else:
+                result = _cmds.render_custom(cmd, args)
+        except Exception as exc:
+            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return True
+        _send(handler, {"ok": True, "name": name, "result": result})
+        return True
+
+    if parts == ["api", "fleet", "workflows", "execute"]:
+        from .. import workflows as _wfs
+        payload, err = _read_json(handler, limit=64_000)
+        if err:
+            _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
+            return True
+        name = payload.get("name")
+        project_root = payload.get("project_root")
+        if not name:
+            _send(handler, {"error": "name is required"}, HTTPStatus.BAD_REQUEST)
+            return True
+        from pathlib import Path as _P
+        root = _P(project_root) if project_root else None
+        wf = _wfs.find(name, root)
+        if wf is None:
+            _send(handler, {"error": "workflow not found"}, HTTPStatus.NOT_FOUND)
+            return True
+        def _exec_tool(n, inp):
+            # Delegate to the real tool registry via a temporary executor
+            from keel.runner import RealTools
+            return RealTools().invoke(n, inp)
+        try:
+            results = _wfs.execute_workflow(wf, tool_executor=_exec_tool,
+                                           project_root=root)
+        except Exception as exc:
+            _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return True
+        ok = all(r.get("ok") for r in results)
+        _send(handler, {"ok": ok, "name": name, "results": results})
+        return True
+
+    if parts == ["api", "fleet", "mcp", "health"]:
+        from .. import settings_store as _ss
+        from ..mcp import parse_servers, McpManager
+        try:
+            settings = _ss.load()
+        except Exception:
+            settings = {}
+        servers = parse_servers(settings.get("mcpServers", {}))
+        mgr = McpManager(servers)
+        try:
+            mgr.start_all()
+        except Exception:
+            pass
+        health = mgr.health_all()
+        _send(handler, {"health": health})
+        try:
+            mgr.shutdown_all()
+        except Exception:
+            pass
+        return True
+
+    return False
 
 def _serve_fleet_file(handler, path: Path, token: str = "") -> None:
     suffix = path.suffix.lower()
