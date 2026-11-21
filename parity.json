@@ -1985,7 +1985,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/workbench.py"
+        "src/keel/db_explorer.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1994,10 +1994,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_workbench.py"
+        "tests/test_db_sarif.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Read-only SQLite table explorer",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real read-only SQLite explorer with query safety",
       "owner_approval_required": false
     },
     {
@@ -4689,7 +4689,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/dev_tools.py"
+        "src/keel/sarif.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -4698,10 +4698,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_dev_tools.py"
+        "tests/test_db_sarif.py tests/test_dev_tools.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "SARIF result summarisation",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real SARIF 2.1.0 emission and ingestion",
       "owner_approval_required": false
     },
     {
