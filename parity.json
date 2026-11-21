@@ -257,7 +257,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/integrations.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -266,10 +266,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_integrations.py"
       ],
-      "implementation_tier": "external_dependency",
-      "verification_evidence": "Headless CI mode descriptor for user's own CI",
+      "implementation_tier": "local_module",
+      "verification_evidence": "CI adapter with local transport and mock-based integration tests (own CI required for live run)",
       "owner_approval_required": false
     },
     {
@@ -1721,7 +1721,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/last_features.py"
+        "src/keel/integrations.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1730,10 +1730,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_last_features.py"
+        "tests/test_integrations.py"
       ],
-      "implementation_tier": "external_dependency",
-      "verification_evidence": "Optional user-installed local image generation descriptor",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Local image-generation command adapter (user-installed engine)",
       "owner_approval_required": false
     },
     {
@@ -2585,7 +2585,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/integrations.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2594,10 +2594,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_integrations.py"
       ],
       "implementation_tier": "external_dependency",
-      "verification_evidence": "LAN phone companion descriptor with required pairing",
+      "verification_evidence": "LAN phone companion explicit pairing payload",
       "owner_approval_required": false
     },
     {
@@ -4497,7 +4497,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/integrations.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -4506,10 +4506,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_integrations.py"
       ],
-      "implementation_tier": "external_dependency",
-      "verification_evidence": "User-owned remote target descriptors",
+      "implementation_tier": "local_module",
+      "verification_evidence": "SSH/WSL/devcontainer adapters with mock integration tests",
       "owner_approval_required": false
     },
     {
