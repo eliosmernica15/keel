@@ -63,6 +63,8 @@ IMPLEMENTED = {
              "Local egress log of data sent to remote providers"),
     "B3.3": ("src/keel/session.py", "tests/test_dry_run.py",
              "Dry-run mode: plan every tool side effect, execute none"),
+    "B3.4": ("src/keel/egress.py", "tests/test_read_only.py",
+             "Read-only sessions and per-project network egress allowlist"),
 }
 
 

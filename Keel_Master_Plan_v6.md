@@ -119,7 +119,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B3.12 | Immutable, exportable audit bundle with verification tool | M3 | P1 | not_started |
 | B3.2 | Container sandbox with CPU, memory, time and network limits (optional Podman) | M5 | P1 | not_started |
 | B3.3 | **Dry-run mode**: agent plans and shows every side effect, executes none | M7 | P0 | verified |
-| B3.4 | Read-only session mode and per-project **network egress allowlist** per tool | M3 | P0 | not_started |
+| B3.4 | Read-only session mode and per-project **network egress allowlist** per tool | M3 | P0 | verified |
 | B3.5 | **Egress log / privacy dashboard**: exactly what was sent to which provider and when | M21 | P0 | verified |
 | B3.6 | PII/secret **redaction before sending to any remote provider** (regex + small local classifier), with preview | M3 | P0 | verified |
 | B3.7 | Local prompt-injection classifier and canary tokens in fetched content | M3 | P1 | not_started |

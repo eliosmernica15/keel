@@ -34,6 +34,14 @@ from .tools.native import NATIVE_TOOL_NAMES, NATIVE_TOOL_SCHEMAS
 ALL_TOOLS = list(NATIVE_TOOL_NAMES)
 TOOL_SCHEMAS = NATIVE_TOOL_SCHEMAS
 
+# B3.4: tools that produce no local side effects, permitted in read-only mode.
+_READ_ONLY_TOOLS = frozenset({
+    "read_file", "list_dir", "glob", "grep", "diff_files", "project_summary",
+    "git_status", "git_diff", "git_log", "git_branch_list", "process_list",
+    "web_fetch", "web_search", "list_skills", "load_skill", "list_tasks",
+    "ask_user", "context_pack", "symbol_search", "model_catalog",
+})
+
 
 
 @dataclass
@@ -77,6 +85,8 @@ class SessionConfig:
     egress_logging: bool = True
     # B3.3: plan every tool side effect but execute none of them.
     dry_run: bool = False
+    # B3.4: refuse every tool with local side effects.
+    read_only: bool = False
 
 
 @dataclass
@@ -827,7 +837,27 @@ class Session:
                                 "approval decider failed; refused closed",
                                 "fleet", None, None, False)
                     meta = [decision.record_meta(tool_use_id)]
-                    if (getattr(self.config, "dry_run", False)
+                    if (getattr(self.config, "read_only", False)
+                            and decision.decision == "allow"
+                            and block["name"] not in _READ_ONLY_TOOLS):
+                        reason = ("read-only session: "
+                                  + block["name"] + " is not permitted")
+                        try:
+                            emit(ev.system_informational(
+                                text=reason, session_id=self.config.session_id,
+                                uuid=self.ids.event_uuid(),
+                                timestamp=self.clock.now_iso(), level="warn"),
+                                {"type": "system", "subtype": "informational",
+                                 "content": reason,
+                                 "sessionId": self.config.session_id})
+                        except Exception:
+                            pass
+                        rendered = render_failure(
+                            tool_use_id, machine_error(reason), self.persist)
+                        tool_result_content = rendered["content"]
+                        tool_use_result = rendered["toolUseResult"]
+                        is_error = True
+                    elif (getattr(self.config, "dry_run", False)
                             and decision.decision == "allow"):
                         # B3.3: record the side effect and return a simulated
                         # result; no tool, MCP call or subagent is executed.

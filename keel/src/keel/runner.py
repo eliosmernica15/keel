@@ -58,6 +58,7 @@ class LaunchPlan:
     model_override: str | None = None
     local_command: str | None = None
     dry_run: bool = False
+    read_only: bool = False
 
 
 def diagnostic(event: str, payload: dict) -> None:
@@ -82,6 +83,7 @@ def parse_argv(argv: list[str]) -> LaunchPlan:
     allow: list[str] = []
     provider = "auto"
     dry_run = False
+    read_only = False
 
     i = 0
     positional: list[str] = []
@@ -134,6 +136,8 @@ def parse_argv(argv: list[str]) -> LaunchPlan:
             provider = take_value(arg).lower()
         elif arg == "--dry-run":
             dry_run = True
+        elif arg == "--read-only":
+            read_only = True
         elif arg.startswith("-"):
             raise CliValidationError(f"unknown option: {arg}")
         else:
@@ -183,7 +187,7 @@ def parse_argv(argv: list[str]) -> LaunchPlan:
                       state_root=state_root, fake_script_path=fake_script,
                       dangerous_opt_in=dangerous,
                       rules=(deny, ask, allow),
-                      provider=provider, dry_run=dry_run,
+                      provider=provider, dry_run=dry_run, read_only=read_only,
                       model_override=model if model_explicit else None)
 
 
@@ -736,6 +740,8 @@ class RealTools:
         parsed = urllib.parse.urlparse(url)
         if parsed.scheme not in ("http", "https"):
             raise ValueError("url must be http or https")
+        from .egress import check_url
+        check_url(url)
         host = parsed.hostname or ""
         # Resolve hostname and check all resulting IPs
         import socket
@@ -790,6 +796,8 @@ class RealTools:
         query = tool_input["query"]
         count = int(tool_input.get("count", 8))
         url = "https://html.duckduckgo.com/html/?q=" + urllib.parse.quote(query)
+        from .egress import check_url
+        check_url(url)
         req = urllib.request.Request(url, headers={"User-Agent": "Keel/1.0"})
         import ssl
         try:
@@ -1102,7 +1110,7 @@ def run(plan: LaunchPlan) -> int:
                            max_turns=plan.max_turns, interactive=False,
                            seed=plan.seed,
                            local_command=plan.local_command,
-                           dry_run=plan.dry_run)
+                           dry_run=plan.dry_run, read_only=plan.read_only)
     hook_defs = parse_hooks(resolved.value.get("hooks", {}))
 
     servers = parse_servers(resolved.value.get("mcpServers", {}))

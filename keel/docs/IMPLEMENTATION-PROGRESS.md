@@ -235,6 +235,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_dry_run.py tests/test_vertical_slice.py tests/test_tool_registry.py tests/test_safety.py -q` → `49 passed`.
 **Next:** B3.4 read-only session mode and per-project egress allowlist.
 
+## M6 Batch 7 — Read-only sessions and egress allowlist (B3.4)
+
+**Implemented:** `SessionConfig.read_only` denies mutating tools at the permission boundary; `src/keel/egress.py` enforces `KEEL_EGRESS_ALLOWLIST` in `web_fetch`/`web_search`; `keel run --read-only` added.
+**Verification:** `python -m pytest tests/test_read_only.py tests/test_dry_run.py tests/test_safety.py tests/test_tool_registry.py -q` → `45 passed`.
+**Next:** B2.1 verification loop (auto-detect and run tests after edits).
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.
