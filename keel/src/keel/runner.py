@@ -1116,6 +1116,16 @@ def run(plan: LaunchPlan) -> int:
                                     "reason": reason})
             return 1
 
+    # B1.3: opt-in difficulty-based model routing. Off by default so existing
+    # behaviour is unchanged; when enabled, log the chosen tier for telemetry.
+    if os.environ.get("KEEL_MODEL_ROUTING", "0").strip().lower() in (
+            "1", "true", "yes", "on"):
+        from .model_router import route
+
+        routing = route(plan.prompt, tool_count=len(plan.rules[2]))
+        diagnostic("model_routing", {"tier": routing.tier,
+                                     "reason": routing.reason})
+
     model, model_name = _build_model_client(plan)
     executor = RealTools()
     session_id = plan.session_id or \
