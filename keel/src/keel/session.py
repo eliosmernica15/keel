@@ -177,6 +177,47 @@ class Session:
                             project_slug(self.config.cwd),
                             f"{self.config.session_id}.jsonl")
 
+    def _run_duet(self, tool_input: dict, tool_use_id: str, emit) -> dict:
+        """B2.3: builder turn followed by an independent reviewer turn."""
+        from .duet import (BUILDER_PROMPT, REVIEWER_PROMPT,
+                           builder_allowlist, review_allowlist)
+        from .subagent import run_subagent
+        from .toolresult import render_failure, render_success
+
+        task = str(tool_input.get("task") or "").strip()
+        if not task:
+            return render_failure(
+                tool_use_id, machine_error("Duet needs a non-empty task"),
+                self.persist)
+        builder = run_subagent(
+            parent=self, prompt=BUILDER_PROMPT + task,
+            parent_tool_use_id=tool_use_id + "-builder",
+            tool_allowlist=builder_allowlist())
+        builder_text = builder.envelope.get("result") or "(no builder summary)"
+        reviewer = run_subagent(
+            parent=self,
+            prompt=REVIEWER_PROMPT + task + "\n\nBuilder's report:\n"
+                   + builder_text[:4000],
+            parent_tool_use_id=tool_use_id + "-reviewer",
+            tool_allowlist=review_allowlist())
+        review_text = reviewer.envelope.get("result") or "(no reviewer summary)"
+        if self._event_sink is not None:
+            self._event_sink.extend(builder.events)
+            self._event_sink.extend(reviewer.events)
+        text = "## Builder\n" + builder_text + "\n\n## Reviewer\n" + review_text
+        try:
+            emit(ev.system_informational(
+                text=text[:4000], session_id=self.config.session_id,
+                uuid=self.ids.event_uuid(), timestamp=self.clock.now_iso(),
+                level="info"),
+                {"type": "system", "subtype": "informational",
+                 "content": text[:4000], "sessionId": self.config.session_id})
+        except Exception:
+            pass
+        return render_success(
+            tool_use_id, {"builder": builder_text, "reviewer": review_text},
+            text, self.persist)
+
     def _run_memory(self, tool_input: dict, tool_use_id: str,
                     emit, *, action: str) -> dict:
         """C6.5: store or recall memory with explicit provenance."""
@@ -1014,7 +1055,13 @@ class Session:
                         tool_use_result = rendered["toolUseResult"]
                         is_error = rendered["isError"]
                     elif decision.decision == "allow":
-                        if block["name"] in ("remember", "recall"):
+                        if block["name"] == "Duet":
+                            rendered = self._run_duet(
+                                tool_input, tool_use_id, emit)
+                            tool_result_content = rendered["content"]
+                            tool_use_result = rendered["toolUseResult"]
+                            is_error = rendered["isError"]
+                        elif block["name"] in ("remember", "recall"):
                             rendered = self._run_memory(
                                 tool_input, tool_use_id, emit,
                                 action=block["name"])

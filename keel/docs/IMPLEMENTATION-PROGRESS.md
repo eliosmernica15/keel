@@ -367,6 +367,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Evidence:** `python -m pytest tests/test_compaction.py tests/test_compat_runtime.py -q` → `19 passed`. No code duplication.
 **Next:** B2.3 Duet default design (builder and independent reviewer agents).
 
+## M6 Batch 29 — Duet builder and reviewer (B2.3)
+
+**Implemented:** `src/keel/duet.py` defines builder and independent read-only reviewer roles; the `Duet` tool runs both via subagents with recursion excluded and returns both evidence-bearing summaries.
+**Verification:** `python -m pytest tests/test_duet.py tests/test_subagent.py tests/test_tool_registry.py -q` → `26 passed`.
+**Next:** A1.22 internal AGENTS.md builder instructions.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

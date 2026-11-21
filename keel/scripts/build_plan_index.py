@@ -111,6 +111,8 @@ IMPLEMENTED = {
              "Local E2E harness exercising real bridge chat/settings/viewer flows"),
     "B1.5": ("src/keel/context.py", "tests/test_compaction.py",
              "Verified existing budget, preserved-tail compaction and thrash guard"),
+    "B2.3": ("src/keel/duet.py", "tests/test_duet.py",
+             "Duet builder plus independent read-only reviewer agents"),
 }
 
 

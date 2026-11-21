@@ -20,7 +20,7 @@ from .session import ALL_TOOLS, Session, SessionConfig
 
 
 def run_subagent(*, parent: Session, prompt: str,
-                 parent_tool_use_id: str):
+                 parent_tool_use_id: str, tool_allowlist=None):
     sub_config = SessionConfig(
         cwd=parent.config.cwd,
         state_root=parent.config.state_root,
@@ -32,7 +32,9 @@ def run_subagent(*, parent: Session, prompt: str,
         interactive=parent.config.interactive,
         seed=parent.config.seed + 1,
         parent_tool_use_id=parent_tool_use_id,
-        tool_allowlist=tuple(n for n in ALL_TOOLS if n != "Task"),
+        tool_allowlist=(tuple(tool_allowlist) if tool_allowlist is not None
+                        else tuple(n for n in ALL_TOOLS
+                                   if n not in ("Task", "Duet"))),
         # F1: the child inherits the parent's approval gate verbatim —
         # a subagent never gets a weaker gate than its caller.
         approval_decider=parent.config.approval_decider,
