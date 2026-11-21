@@ -38,16 +38,20 @@
       "source_feature_id": "A1.10",
       "milestone": "M5",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/todos.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement `todo` tool (agent keeps a visible task checklist), separate from the plan according to Keel_Plan_v5_Addendum_Missed_Features.md feature A1.10",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_todo.py"
+      ],
+      "verification_evidence": "Visible persistent task checklist via the todo tool",
       "owner_approval_required": false
     },
     {

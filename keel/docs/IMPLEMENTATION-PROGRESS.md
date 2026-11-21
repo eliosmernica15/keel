@@ -247,6 +247,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_verification.py tests/test_dry_run.py tests/test_read_only.py tests/test_resilience.py -q` → `18 passed`.
 **Next:** A1.10 visible task checklist (`todo` tool).
 
+## M6 Batch 9 — Visible task checklist (A1.10)
+
+**Implemented:** `src/keel/todos.py` persists a normalised checklist under `state_root/todos.json`; `todo` native tool and session handler render the checklist and emit it as an informational event.
+**Verification:** `python -m pytest tests/test_todo.py tests/test_tool_registry.py tests/test_hooks.py tests/test_verification.py -q` → `47 passed`.
+**Next:** A1.5 `/init` command generating AGENTS.md.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

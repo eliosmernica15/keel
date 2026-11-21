@@ -31,7 +31,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | ID | Feature | Milestone | Priority | Status |
 | --- | --- | --- | --- | --- |
 | A1.1 | Non-interactive run mode (`keel run "prompt"`, pipes, JSON output, exit codes) for scripts and CI | M20 | P0 | verified |
-| A1.10 | `todo` tool (agent keeps a visible task checklist), separate from the plan | M5 | P0 | not_started |
+| A1.10 | `todo` tool (agent keeps a visible task checklist), separate from the plan | M5 | P0 | verified |
 | A1.11 | `webfetch` tool and `websearch` tool with **free** backends | M5 | P0 | verified |
 | A1.12 | Per-agent tool enable/disable and per-agent permission overrides | M7 | P0 | not_started |
 | A1.13 | Custom tools as code files dropped in `.keel/tools/` (Python) | M10 | P0 | not_started |

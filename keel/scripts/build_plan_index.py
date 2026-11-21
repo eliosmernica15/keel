@@ -67,6 +67,8 @@ IMPLEMENTED = {
              "Read-only sessions and per-project network egress allowlist"),
     "B2.1": ("src/keel/verification.py", "tests/test_verification.py",
              "Auto-detected verification commands run after file edits"),
+    "A1.10": ("src/keel/todos.py", "tests/test_todo.py",
+              "Visible persistent task checklist via the todo tool"),
 }
 
 

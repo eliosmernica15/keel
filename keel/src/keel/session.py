@@ -39,7 +39,7 @@ _READ_ONLY_TOOLS = frozenset({
     "read_file", "list_dir", "glob", "grep", "diff_files", "project_summary",
     "git_status", "git_diff", "git_log", "git_branch_list", "process_list",
     "web_fetch", "web_search", "list_skills", "load_skill", "list_tasks",
-    "ask_user", "context_pack", "symbol_search", "model_catalog",
+    "ask_user", "context_pack", "symbol_search", "model_catalog", "todo",
 })
 
 
@@ -175,6 +175,31 @@ class Session:
         return os.path.join(self.config.state_root, "projects",
                             project_slug(self.config.cwd),
                             f"{self.config.session_id}.jsonl")
+
+    def _run_todo(self, tool_input: dict, tool_use_id: str,
+                  emit) -> dict:
+        """A1.10: update and render the session's visible task checklist."""
+        from .todos import TodoStore, render_todos
+        from .toolresult import render_success
+
+        store = TodoStore(self.config.state_root)
+        items = tool_input.get("items")
+        if isinstance(items, list):
+            items = store.replace(items)
+        else:
+            items = store.load()
+        text = render_todos(items)
+        try:
+            emit(ev.system_informational(
+                text=text, session_id=self.config.session_id,
+                uuid=self.ids.event_uuid(), timestamp=self.clock.now_iso(),
+                level="info"),
+                {"type": "system", "subtype": "informational",
+                 "content": text, "sessionId": self.config.session_id})
+        except Exception:
+            pass
+        return render_success(
+            tool_use_id, {"todos": items, "display": text}, text, self.persist)
 
     def _run_task(self, *, prompt: str, description: str,
                   tool_use_id: str) -> dict:
@@ -892,7 +917,13 @@ class Session:
                         tool_use_result = rendered["toolUseResult"]
                         is_error = rendered["isError"]
                     elif decision.decision == "allow":
-                        if block["name"] == "Task":
+                        if block["name"] == "todo":
+                            rendered = self._run_todo(tool_input, tool_use_id,
+                                                      emit)
+                            tool_result_content = rendered["content"]
+                            tool_use_result = rendered["toolUseResult"]
+                            is_error = rendered["isError"]
+                        elif block["name"] == "Task":
                             rendered = self._run_task(
                                 prompt=str(tool_input.get("prompt") or ""),
                                 description=str(tool_input.get("description")
