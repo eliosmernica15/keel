@@ -37,6 +37,45 @@ def deliver_with_fallback(chain: list[str], send: object,
     return attempts
 
 
+def outbox_path(state_root: str | Path) -> Path:
+    return Path(state_root) / "outbox.jsonl"
+
+
+def deliver_to_outbox(state_root: str | Path, channel: str, message: str,
+                      *, destination: str = "") -> DeliveryAttempt:
+    """Really persist a message to the local outbox — no fake success.
+
+    This is a genuine local delivery surface: the message is durably written
+    with its channel, destination and timestamp, and can be inspected or
+    forwarded by an operator. External channels (SMTP, webhook) are separate
+    opt-in adapters; this function never claims to have sent anything online.
+    """
+    import time
+
+    target = outbox_path(state_root)
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        record = {
+            "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "channel": channel, "destination": destination,
+            "message": str(message)[:10000], "status": "queued_local",
+        }
+        with open(target, "a", encoding="utf-8") as handle:
+            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+        return DeliveryAttempt(channel, True, f"written to {target}")
+    except OSError as exc:
+        return DeliveryAttempt(channel, False, f"outbox write failed: {exc}")
+
+
+def deliver_chain_to_outbox(state_root: str | Path, chain: list[str],
+                            message: str, *, destination: str = "") -> list[dict]:
+    """Deliver via the fallback chain using the real local outbox sender."""
+    attempts = deliver_with_fallback(
+        chain, lambda channel: deliver_to_outbox(
+            state_root, channel, message, destination=destination))
+    return [a.__dict__ for a in attempts]
+
+
 class SubscriptionStore:
     def __init__(self, state_root: str | Path):
         self.path = Path(state_root) / "webhook-subscriptions.json"

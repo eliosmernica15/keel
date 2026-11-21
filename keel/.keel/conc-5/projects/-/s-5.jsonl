@@ -1,0 +1,12 @@
+{"type":"system","subtype":"init","sessionId":"s-5","uuid":"5bc8fbbc-bde5-c099-4164-d8399f767c45","cwd":".","tools":["git_add","git_status","rag_index","git_commit","list_dir","Task","read_file","background_shell","save_file","process_list","recall","list_tasks","web_fetch","git_diff","load_skill","todo","run_python","remember","delete_file","install_deps","process_output","run_build","edit_file","send_to_bot","symbol_search","write_file","diff_files","list_skills","move_file","git_branch_list","apply_patch","grep","process_kill","Duet","run_tests","glob","run_workflow","web_search","update_task","create_task","ask_user","git_checkout","run_shell","rag_search","project_summary","git_log","process_wait"],"model":"fake"}
+{"type":"permission-mode","permissionMode":"default","sessionId":"s-5"}
+{"type":"attachment","kind":"context","sources":["rigor_contract"],"sessionId":"s-5"}
+{"type":"user","message":{"role":"user","content":"go"},"uuid":"d76d4330-f144-6bea-b0c1-1fdecb91ce37","sessionId":"s-5"}
+{"type":"assistant","message":{"id":"msg_87b0b125-ec1d-7da0-a6eb-8c9ebd69fe29","content":[{"type":"text","text":"result-5"}]},"sessionId":"s-5","parentToolUseId":null}
+{"type":"cost-state","sessionId":"s-5","totalCostUsd":0.0}
+{"type":"system","subtype":"init","sessionId":"s-5","uuid":"5bc8fbbc-bde5-c099-4164-d8399f767c45","cwd":".","tools":["send_to_bot","git_branch_list","ask_user","move_file","web_fetch","Duet","git_commit","read_file","run_build","process_list","load_skill","run_tests","glob","write_file","run_shell","git_diff","rag_search","symbol_search","process_wait","project_summary","run_python","rag_index","git_log","list_skills","grep","remember","todo","process_kill","git_checkout","create_task","update_task","git_status","edit_file","Task","apply_patch","background_shell","git_add","process_output","save_file","web_search","list_tasks","run_workflow","list_dir","install_deps","recall","delete_file","diff_files"],"model":"fake"}
+{"type":"permission-mode","permissionMode":"default","sessionId":"s-5"}
+{"type":"attachment","kind":"context","sources":["rigor_contract"],"sessionId":"s-5"}
+{"type":"user","message":{"role":"user","content":"go"},"uuid":"d76d4330-f144-6bea-b0c1-1fdecb91ce37","sessionId":"s-5"}
+{"type":"assistant","message":{"id":"msg_87b0b125-ec1d-7da0-a6eb-8c9ebd69fe29","content":[{"type":"text","text":"result-5"}]},"sessionId":"s-5","parentToolUseId":null}
+{"type":"cost-state","sessionId":"s-5","totalCostUsd":0.0}

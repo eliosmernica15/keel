@@ -504,7 +504,7 @@ def _git_commit(p, ctx):
 
 
 @capability("code.sandbox.run", "sandbox_exec", "code", "execute",
-            "Run Python in a bounded local subprocess")
+            "Run Python in a bounded subprocess with isolated cwd (not a hardened boundary)")
 def _sandbox_run(p, ctx):
     from .sandbox_exec import run_python
     r = run_python(str(p.get("code", "")), timeout_s=float(p.get("timeout_s", 5)))
@@ -1089,16 +1089,22 @@ def _wh_send(p, ctx):
 
 # ---------------------------------------------------------------- external ready
 @capability("external.ci.run", "integrations", "external", "execute",
-            "Run a prompt through a CI adapter transport")
+            "Run a prompt through the real local CLI (mock only if explicit)")
 def _ci_run(p, ctx):
     from .integrations import CIAdapter, MockTransport
-    if p.get("mock", True):
+
+    prompt = str(p.get("prompt", ""))
+    if not prompt:
+        raise CapabilityError("prompt must not be empty", code="bad_params")
+    # Mock is opt-in and clearly labelled; the default is the real local CLI.
+    if p.get("mock") is True:
         transport = MockTransport(ok=bool(p.get("ok", True)),
                                   output=str(p.get("output", "keel-ok")))
-    else:
-        transport = None
-    result = CIAdapter(transport=transport).run(str(p.get("prompt", "")))
-    return {"ok": result.ok, "detail": result.detail}
+        result = CIAdapter(transport=transport).run(prompt)
+        return {"ok": result.ok, "detail": result.detail,
+                "mock": True, "note": "mock transport — not a real run"}
+    result = CIAdapter().run(prompt)
+    return {"ok": result.ok, "detail": result.detail, "mock": False}
 
 
 @capability("external.remote.cmd", "integrations", "external", "read",
@@ -1162,14 +1168,24 @@ def _idle(p, ctx):
 
 
 @capability("cowork.channel.deliver", "channel_ops", "cowork", "execute",
-            "Try a channel delivery fallback chain")
+            "Deliver a message via a fallback chain to the real local outbox")
 def _channel_deliver(p, ctx):
-    from .channel_ops import deliver_with_fallback
+    from .channel_ops import deliver_chain_to_outbox
+
     chain = p.get("chain", [])
-    # No real send function can be serialized; report the chain and require
-    # an explicit in-process caller for actual delivery.
-    return {"chain": chain,
-            "note": "delivery requires an in-process send callable"}
+    if not chain:
+        raise CapabilityError("delivery chain must not be empty",
+                              code="bad_params")
+    message = str(p.get("message", ""))
+    if not message:
+        raise CapabilityError("message must not be empty", code="bad_params")
+    attempts = deliver_chain_to_outbox(
+        ctx.get("state_root", ".keel"), chain, message,
+        destination=str(p.get("destination", "")))
+    return {"attempts": attempts,
+            "delivered": any(a["ok"] for a in attempts),
+            "note": "written to local outbox; external delivery requires " +
+                    "an opt-in channel adapter"}
 
 
 @capability("cowork.channel.troubleshoot", "channel_ops", "cowork", "read",
