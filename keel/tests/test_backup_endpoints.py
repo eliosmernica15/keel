@@ -42,10 +42,12 @@ def test_backup_create_restore_over_bridge(tmp_path, monkeypatch):
     time.sleep(0.2)
     try:
         status, meta = _post(port, "/api/backups/create", {
-            "source": "work", "target": "backup.json", "passphrase": "pw"})
+            "source": "work", "target": str(tmp_path / "backup.json"),
+            "passphrase": "pw"})
         assert status == 200 and meta["files"] == 1
         status, result = _post(port, "/api/backups/restore", {
-            "backup": "backup.json", "target": "recovered", "passphrase": "pw"})
+            "backup": str(tmp_path / "backup.json"),
+            "target": str(tmp_path / "recovered"), "passphrase": "pw"})
         assert status == 200 and result["restored"] == ["data.txt"]
         assert (tmp_path / "recovered" / "data.txt").read_text() == "important"
     finally:
