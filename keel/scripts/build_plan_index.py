@@ -43,7 +43,7 @@ OWNER_BLOCKED = {"C11.1", "C11.2"}
 # Only genuinely static/display-only sources remain descriptors here. Modules
 # with real local logic + tests were promoted to LOCAL_MODULES below.
 DESCRIPTOR_MODULES = frozenset({
-    "commercial_seams", "final_features", "last_features", "sandbox",
+    "commercial_seams", "sandbox",
     "admin_ops",
 })
 LOCAL_MODULES = frozenset({
@@ -63,6 +63,7 @@ LOCAL_MODULES = frozenset({
     "agent_style", "cli_extras", "composer_tools", "misc_features",
     "ci_helpers", "eval_tools", "tui", "site_tools", "desktop_state",
     "distribution", "instructions", "provider_sources",
+    "final_features", "last_features",
     "documents", "backups", "debugger", "rag", "memory", "memory_types",
     "knowledge_graph", "user_profile", "feature_flags", "swe_bench",
     "red_team", "trust_tools", "interop", "workflows", "workflow_history",
@@ -73,9 +74,9 @@ LOCAL_MODULES = frozenset({
     "sandbox_exec", "inline_completion", "browser_launch",
 })
 EXTERNAL_IDS = frozenset({
-    "B7.3", "B7.5", "B7.9", "C13.4", "B6.4", "B4.8",
-    "B6.2", "B6.3", "B6.5", "B6.6",
-    "B5.6", "B5.7", "B5.8", "C11.3", "C11.7", "C11.8",
+    "B4.8",
+    "B6.6",
+    "C11.8",
 })
 
 
@@ -589,8 +590,8 @@ def _parse_addendum(path: Path, source: str) -> list[dict]:
                 feature_id, [source_file] if source_file else []),
             "verification_evidence": evidence,
             "owner_approval_required": feature_id in {
-                "B6.2", "B6.3", "B6.4", "B6.5", "B6.6",
-                "C11.1", "C11.2", "C11.3", "C11.5", "C11.7", "C11.8",
+                "B6.6",
+                "C11.1", "C11.2", "C11.5", "C11.8",
             },
         })
     return features

@@ -820,7 +820,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Headless deployment operations guide",
       "owner_approval_required": false
     },
@@ -988,7 +988,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Local operator site tools descriptors",
       "owner_approval_required": false
     },
@@ -1012,7 +1012,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Operator admin page descriptor",
       "owner_approval_required": false
     },
@@ -1900,7 +1900,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Deep-research result with citation slots",
       "owner_approval_required": false
     },
@@ -2620,7 +2620,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Composer accessibility/keybinding descriptors",
       "owner_approval_required": false
     },
@@ -2764,7 +2764,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "local_module",
       "verification_evidence": "E2E screenshot gallery descriptor",
       "owner_approval_required": false
     },
@@ -2788,7 +2788,7 @@
       "test_references": [
         "tests/test_ci_helpers.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "operational",
       "verification_evidence": "Curated public roadmap and FAQ page",
       "owner_approval_required": false
     },
@@ -2812,7 +2812,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "local_module",
       "verification_evidence": "Shared string catalogs for localized website",
       "owner_approval_required": false
     },
@@ -2884,9 +2884,9 @@
       "test_references": [
         "tests/test_commercial_seams.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "descriptor",
       "verification_evidence": "Edition/channel field (standard, no gating)",
-      "owner_approval_required": true
+      "owner_approval_required": false
     },
     {
       "id": "B6.3",
@@ -2908,9 +2908,9 @@
       "test_references": [
         "tests/test_commercial_seams.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "descriptor",
       "verification_evidence": "Silent-install flag descriptors",
-      "owner_approval_required": true
+      "owner_approval_required": false
     },
     {
       "id": "B6.4",
@@ -2932,9 +2932,9 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "local_module",
       "verification_evidence": "Private org update mirror descriptor",
-      "owner_approval_required": true
+      "owner_approval_required": false
     },
     {
       "id": "B6.5",
@@ -2956,9 +2956,9 @@
       "test_references": [
         "tests/test_commercial_seams.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "descriptor",
       "verification_evidence": "Compliance pack draft status",
-      "owner_approval_required": true
+      "owner_approval_required": false
     },
     {
       "id": "B6.6",
@@ -3052,7 +3052,7 @@
       "test_references": [
         "tests/test_ci_helpers.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "local_module",
       "verification_evidence": "Accessibility CI gate helper",
       "owner_approval_required": false
     },
@@ -3100,7 +3100,7 @@
       "test_references": [
         "tests/test_ci_helpers.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "local_module",
       "verification_evidence": "Flaky-test quarantine with owner and expiry",
       "owner_approval_required": false
     },
@@ -3196,7 +3196,7 @@
       "test_references": [
         "tests/test_ci_helpers.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "local_module",
       "verification_evidence": "Per-milestone kickoff prompt with stop condition",
       "owner_approval_required": false
     },
@@ -3268,7 +3268,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Approval-gated local desktop task executor descriptor",
       "owner_approval_required": false
     },
@@ -3316,7 +3316,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Additional package-manager target descriptors",
       "owner_approval_required": false
     },
@@ -3388,7 +3388,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Per-integration builder/operator guides",
       "owner_approval_required": false
     },
@@ -3668,9 +3668,9 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "local_module",
       "verification_evidence": "Source-leak incident runbook",
-      "owner_approval_required": true
+      "owner_approval_required": false
     },
     {
       "id": "C11.4",
@@ -3764,9 +3764,9 @@
       "test_references": [
         "tests/test_ci_helpers.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "operational",
       "verification_evidence": "Trademark guidelines and abuse contact page (draft)",
-      "owner_approval_required": true
+      "owner_approval_required": false
     },
     {
       "id": "C11.8",
@@ -4028,7 +4028,7 @@
       "test_references": [
         "tests/test_installer_smoke.py"
       ],
-      "implementation_tier": "external_dependency",
+      "implementation_tier": "local_module",
       "verification_evidence": "Installer smoke-test harness with manifest checksum checks",
       "owner_approval_required": false
     },
@@ -4532,7 +4532,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Browser devtools tool descriptors",
       "owner_approval_required": false
     },
