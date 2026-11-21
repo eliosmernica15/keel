@@ -19,11 +19,12 @@ from keel.runner import RealTools
 TOKEN = "conc-token"
 
 
-def test_many_concurrent_sessions_isolated():
+def test_many_concurrent_sessions_isolated(tmp_path):
     """50 concurrent sessions each get their own result, no cross-talk."""
 
     def run(i):
-        cfg = SessionConfig(cwd=".", state_root=f".keel/conc-{i}",
+        cfg = SessionConfig(cwd=str(tmp_path),
+                            state_root=str(tmp_path / f"conc-{i}"),
                             bare=True, session_id=f"s-{i}", model="fake",
                             seed=i)
         model = ScriptedModel([[{"type": "text", "text": f"result-{i}"}]],
