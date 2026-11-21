@@ -1,0 +1,117 @@
+"""Generate PLAN-INDEX.json and parity.json from the authoritative plan sources.
+
+The addenda are the source of feature IDs. This script never edits them.
+parity.json is a synchronized projection of PLAN-INDEX.json, not an independent
+registry.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+DOWNLOADS = Path(r"C:\Users\Admin\Downloads")
+V5 = DOWNLOADS / "Keel_Master_Plan_v5.md"
+ADDENDUM1 = DOWNLOADS / "Keel_Plan_v5_Addendum_Missed_Features.md"
+ADDENDUM2 = DOWNLOADS / "Keel_Plan_v5_Addendum_2_More_Features.md"
+OUT = REPO / "PLAN-INDEX.json"
+PARITY = REPO / "parity.json"
+
+ID_RE = re.compile(r"^[ABC]\d+\.\d+$")
+M_RE = re.compile(r"\bM\d+\b")
+
+# Verified-existing implementation evidence from the current repository.
+IMPLEMENTED = {
+    "A1.1": ("src/keel/runner.py", "tests/test_vertical_slice.py",
+             "Non-interactive print-mode runner with stream-json and exit codes"),
+    "A1.11": ("src/keel/runner.py", "tests/test_safety.py",
+              "SSRF-safe web_fetch and web_search tools"),
+    "A3.3": ("src/keel/fakes.py", "tests/test_compat_runtime.py",
+             "Deterministic fake/scripted provider for tests"),
+    "A3.4": ("src/keel/fleet/tools.py", "tests/test_fleet_ask_user.py",
+             "ask_user question flow with timeout and answer API"),
+    "A4.6": ("src/keel/fleet/routes.py", "tests/test_fleet_credentials.py",
+             "Provider credential test-fire endpoint"),
+    "B7.6": ("PLAN-INDEX.json", "tests/test_plan_index.py",
+             "Machine-readable feature registry"),
+    "B7.7": (".pre-commit-config.yaml", "tests/test_release_controls.py",
+             "Pinned gitleaks pre-commit hook and repo hygiene config"),
+    "C7.3": ("src/keel/skills.py", "tests/test_skills.py",
+             "SKILL.md-compatible skill format and markdown commands"),
+    "C11.4": ("keel/docs/proprietary/THIRD_PARTY_NOTICES.draft.md",
+              "tests/test_release_controls.py",
+              "Proprietary notices draft and dependency license inventory"),
+    "C12.6": ("src/keel/release/cli.py", "tests/test_release_controls.py",
+              "Release dry-run/build/check-artifacts commands"),
+}
+
+
+def _parse_addendum(path: Path, source: str) -> list[dict]:
+    features = []
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if not cells or not ID_RE.match(cells[0]):
+            continue
+        feature_id = cells[0]
+        name = cells[1]
+        milestones = sorted({m for cell in cells for m in M_RE.findall(cell)})
+        priority = next((c for c in cells if c in {"P0", "P1", "P2"}), "P2")
+        source_file, test_file, evidence = IMPLEMENTED.get(
+            feature_id, ("", "", ""))
+        status = "verified" if evidence else "not_started"
+        features.append({
+            "id": feature_id,
+            "feature": name,
+            "source_document": source,
+            "source_feature_id": feature_id,
+            "milestone": milestones[0] if milestones else "unassigned",
+            "priority": priority,
+            "status": status,
+            "source_files": [source_file] if source_file else [],
+            "dependencies": [],
+            "acceptance_criteria": [
+                f"Implement {name} according to {source} feature {feature_id}",
+                "Automated test coverage exists and passes",
+                "Behavior is verified in the real application/runtime where applicable",
+            ],
+            "test_references": [test_file] if test_file else [],
+            "verification_evidence": evidence,
+            "owner_approval_required": feature_id in {
+                "B6.1", "B6.2", "B6.3", "B6.4", "B6.5", "B6.6",
+                "C11.1", "C11.2", "C11.3", "C11.5", "C11.7", "C11.8",
+            },
+        })
+    return features
+
+
+def build() -> dict:
+    features = _parse_addendum(ADDENDUM1, "Keel_Plan_v5_Addendum_Missed_Features.md")
+    features += _parse_addendum(ADDENDUM2, "Keel_Plan_v5_Addendum_2_More_Features.md")
+    features.sort(key=lambda f: f["id"])
+    return {
+        "schema_version": 1,
+        "authoritative_plan": "Keel_Master_Plan_v6.md",
+        "source_documents": [
+            "Keel_Master_Plan_v5.md",
+            "Keel_Plan_v5_Addendum_Missed_Features.md",
+            "Keel_Plan_v5_Addendum_2_More_Features.md",
+        ],
+        "note": "v5 Sections 12-16, Section 13 mapping and Appendices A-D remain missing from the supplied source and are not reconstructed here.",
+        "features": features,
+    }
+
+
+def main() -> None:
+    doc = build()
+    OUT.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+    PARITY.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+    print(f"wrote {len(doc['features'])} features to PLAN-INDEX.json and parity.json")
+
+
+if __name__ == "__main__":
+    main()
