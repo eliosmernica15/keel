@@ -98,6 +98,34 @@ def _fire_config_hook(payload: dict) -> None:
         pass  # hooks are advisory; settings persistence must not fail
 
 
+def _safe_workspace_path(raw: str) -> Path | None:
+    """Resolve a path inside the bound workspace (or CWD) for read endpoints."""
+    if not raw:
+        return None
+    base = Path(_WORKDIR).resolve() if _WORKDIR else Path(os.getcwd()).resolve()
+    try:
+        target = (base / raw).resolve()
+    except OSError:
+        return None
+    if target != base and base not in target.parents:
+        return None
+    return target if target.is_file() else None
+
+
+def _resolve_workspace_path(raw: str) -> Path | None:
+    """Resolve a path inside the bound workspace without requiring a file."""
+    if not raw:
+        return None
+    base = Path(_WORKDIR).resolve() if _WORKDIR else Path(os.getcwd()).resolve()
+    try:
+        target = (base / raw).resolve()
+    except OSError:
+        return None
+    if target != base and base not in target.parents:
+        return None
+    return target
+
+
 def _fs_roots() -> list[str]:
     if os.name == "nt":
         roots = []
@@ -377,6 +405,29 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     self._send_json({"error": str(exc)},
                                     HTTPStatus.BAD_REQUEST)
                 return
+            if path in ("/api/docx/read", "/api/xlsx/read"):
+                if not self._authorized():
+                    self._refuse()
+                    return
+                params = urllib.parse.parse_qs(
+                    urllib.parse.urlparse(self.path).query)
+                name = (params.get("path") or [""])[0]
+                target = _safe_workspace_path(name)
+                if target is None:
+                    self._send_json({"error": "path outside workspace"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                try:
+                    from .documents import read_docx, read_xlsx
+                    self._send_json({
+                        "path": str(target),
+                        "content": (read_docx(target) if path == "/api/docx/read"
+                                    else read_xlsx(target)),
+                    })
+                except (OSError, ValueError, KeyError) as exc:
+                    self._send_json({"error": str(exc)[:300]},
+                                    HTTPStatus.BAD_REQUEST)
+                return
             if path == "/api/fs/roots":
                 if not self._authorized():
                     self._refuse()
@@ -451,6 +502,27 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._refuse()
                 return
             path = self.path.split("?", 1)[0]
+            if path in ("/api/backups/create", "/api/backups/restore"):
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                if length > 64_000:
+                    self._send_json({"error": "body too large"},
+                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    return
+                try:
+                    request = json.loads(
+                        self.rfile.read(length) if length else b"{}")
+                except json.JSONDecodeError:
+                    self._send_json({"error": "invalid json"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                try:
+                    result = self._backup_action(path, request)
+                except Exception as exc:
+                    self._send_json({"error": str(exc)[:300]},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                self._send_json(result)
+                return
             # ---------------- Keel v2 compat surface
             if path.startswith("/api/v2/sessions") or path == "/api/v2/sessions":
                 from . import compat
@@ -694,6 +766,28 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             data = _json.dumps(event, separators=(",", ":"),
                                ensure_ascii=False).encode("utf-8")
             self._sse_raw(b"data: " + data + b"\n\n")
+
+        def _backup_action(self, path: str, request: dict) -> dict:
+            from .backups import create_backup, restore_backup
+
+            state_root = os.environ.get(
+                "KEEL_STATE_DIR", str(Path.home() / ".keel"))
+            if path.endswith("/create"):
+                source = _resolve_workspace_path(str(request.get("source", "")))
+                if source is None or not source.is_dir():
+                    return {"error": "source directory not in workspace"}
+                target = _resolve_workspace_path(str(request.get("target", "")))
+                if target is None:
+                    return {"error": "target must be inside workspace"}
+                return create_backup(source, target,
+                                     str(request.get("passphrase", "")))
+            target = _resolve_workspace_path(str(request.get("target", "")))
+            backup = _resolve_workspace_path(str(request.get("backup", "")))
+            if target is None or backup is None:
+                return {"error": "backup/target must be inside workspace"}
+            files = restore_backup(backup, target,
+                                   str(request.get("passphrase", "")))
+            return {"restored": files}
 
         def _v2_sessions(self, path: str, sid: str, compat) -> None:
             """OpenCode-compatible sessions surface (tracer bullet)."""

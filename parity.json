@@ -2354,10 +2354,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_backups.py tests/test_e2e_operations.py"
+        "tests/test_backups.py tests/test_backup_endpoints.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Real AES-256-GCM encrypted backup and verified restore",
+      "verification_evidence": "Real encrypted backup/restore exposed through the HTTP bridge",
       "owner_approval_required": false
     },
     {
@@ -4074,10 +4074,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_documents.py tests/test_e2e_operations.py"
+        "tests/test_documents.py tests/test_document_endpoints.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Real DOCX/XLSX/CSV workflows plus Cowork surface",
+      "verification_evidence": "Real DOCX/XLSX/CSV workflows exposed through the HTTP bridge",
       "owner_approval_required": false
     },
     {
