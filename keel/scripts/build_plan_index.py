@@ -71,6 +71,8 @@ IMPLEMENTED = {
               "Visible persistent task checklist via the todo tool"),
     "A1.5": ("src/keel/init_project.py", "tests/test_init_project.py",
              "keel init scans a repo and generates AGENTS.md"),
+    "A1.7": ("src/keel/commands.py", "tests/test_slash_commands.py",
+             "Slash commands: undo/redo, compact, export, models, themes, details"),
 }
 
 

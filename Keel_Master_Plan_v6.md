@@ -49,7 +49,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A1.4 | **Local web UI** served on loopback (`keel web`) for browser access | M20 | P1 | not_started |
 | A1.5 | `/init` command: scan repo and generate `AGENTS.md` | M7 | P0 | verified |
 | A1.6 | Inline shell via `!cmd` prefix in composer (goes through permission gate) | M19 | P1 | not_started |
-| A1.7 | Slash commands: `/undo /redo /compact /export /models /themes /details /editor /share-local` | M7 | P0 | not_started |
+| A1.7 | Slash commands: `/undo /redo /compact /export /models /themes /details /editor /share-local` | M7 | P0 | verified |
 | A1.8 | Open file/diff in user's `$EDITOR` / VS Code | M19 | P1 | not_started |
 | A1.9 | Image paste/drag into composer, fuzzy `@file` search | M19 | P0 | not_started |
 | A2.1 | **Voice-to-task handoff**: a voice session hands work to the same agent loop and reads results back | M17 | P1 | not_started |

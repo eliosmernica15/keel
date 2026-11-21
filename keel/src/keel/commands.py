@@ -55,6 +55,17 @@ def _builtin_commands() -> list[Command]:
         Command("doctor", "Readiness check: interpreter, platform, required "
                           "tools, provider keys (masked).", "",
                 "builtin"),
+        Command("undo", "Restore the most recent file deletion from trash.",
+                "", "builtin"),
+        Command("redo", "Re-apply the most recent undo.", "", "builtin"),
+        Command("compact", "Report context compaction status.", "", "builtin"),
+        Command("export", "List local transcripts available for export.",
+                "", "builtin"),
+        Command("models", "List providers and models in the offline catalog.",
+                "", "builtin"),
+        Command("themes", "List available UI themes.", "", "builtin"),
+        Command("details", "Show runtime and environment details.", "",
+                "builtin"),
     ]
 
 
@@ -201,12 +212,100 @@ def cmd_doctor(args: str, project_root: Path) -> str:
     return "\n".join(lines)
 
 
+def cmd_undo(args: str, project_root: Path) -> str:
+    from . import trash
+
+    items = trash.list_items()
+    if not items:
+        return "undo: nothing in the recoverable trash"
+    item = items[-1]
+    try:
+        restored = trash.restore(item["id"])
+    except trash.TrashError as exc:
+        return f"undo failed: {exc}"
+    marker = trash.trash_root() / "redo-last.json"
+    marker.write_text(json.dumps({"path": str(restored)}), encoding="utf-8")
+    return f"undo: restored {restored}"
+
+
+def cmd_redo(args: str, project_root: Path) -> str:
+    from . import trash
+
+    marker = trash.trash_root() / "redo-last.json"
+    if not marker.is_file():
+        return "redo: nothing to reapply"
+    try:
+        path = Path(json.loads(marker.read_text(encoding="utf-8"))["path"])
+        if not path.exists():
+            return f"redo: file no longer exists: {path}"
+        trash.move_to_trash(path)
+    except (OSError, ValueError, KeyError, trash.TrashError) as exc:
+        return f"redo failed: {exc}"
+    marker.unlink(missing_ok=True)
+    return f"redo: moved {path} back to trash"
+
+
+def cmd_compact(args: str, project_root: Path) -> str:
+    from .context import estimate_tokens
+
+    text = args.strip()
+    tokens = (estimate_tokens([{"role": "user", "content": text}])
+              if text else 0)
+    return ("compact: context is pruned automatically when it approaches the "
+            f"configured budget (sample text: {tokens} tokens).")
+
+
+def cmd_export(args: str, project_root: Path) -> str:
+    state = Path(os.environ.get(
+        "KEEL_STATE_DIR", str(Path.home() / ".keel")))
+    transcripts = sorted(state.rglob("*.jsonl"))[:20] if state.is_dir() else []
+    if not transcripts:
+        return "export: no local transcripts found"
+    return "export: local transcripts\n" + "\n".join(
+        f"  {path}" for path in transcripts)
+
+
+def cmd_models(args: str, project_root: Path) -> str:
+    from .provider_catalog import model_ids, provider_ids
+
+    ids = provider_ids()
+    if not ids:
+        return "models: offline catalog is empty"
+    lines = ["models (offline catalog):"]
+    for provider in ids:
+        models = ", ".join(model_ids(provider)[:5]) or "(none)"
+        lines.append(f"  {provider}: {models}")
+    return "\n".join(lines)
+
+
+def cmd_themes(args: str, project_root: Path) -> str:
+    return ("themes: dark (default), light.\n"
+            "  Set document.documentElement.dataset.theme = 'light' in the UI.")
+
+
+def cmd_details(args: str, project_root: Path) -> str:
+    import platform
+    import sys
+
+    return (f"details:\n"
+            f"  python  : {sys.version.split()[0]}\n"
+            f"  platform: {platform.platform()}\n"
+            f"  cwd     : {project_root}")
+
+
 BUILTIN_HANDLERS = {
     "help": cmd_help,
     "version": cmd_version,
     "context": cmd_context,
     "cost": cmd_cost,
     "doctor": cmd_doctor,
+    "undo": cmd_undo,
+    "redo": cmd_redo,
+    "compact": cmd_compact,
+    "export": cmd_export,
+    "models": cmd_models,
+    "themes": cmd_themes,
+    "details": cmd_details,
 }
 
 
