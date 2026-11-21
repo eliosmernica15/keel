@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import threading
 import time
 
@@ -506,3 +507,31 @@ def test_tasks_survive_restart(bridge, tmp_path):
     assert body["task"]["status"] == "in_progress"
     assert body["task"]["progress"] == 30
     assert body["events"], "event history must survive restarts"
+
+
+def test_task_lifecycle_hooks_fire(bridge, tmp_path, monkeypatch):
+    log_path = tmp_path / "task-hooks.log"
+    script = tmp_path / "log_task_hook.py"
+    script.write_text(
+        "import json, sys\n"
+        "payload = json.load(sys.stdin)\n"
+        "with open(sys.argv[1], 'a', encoding='utf-8') as fh:\n"
+        "    fh.write(payload['hook_event_name'] + '\\n')\n",
+        encoding="utf-8")
+    command = f'"{sys.executable}" "{script}" "{log_path}"'
+    monkeypatch.setattr("keel.settings_store.load", lambda: {
+        "hooks": {
+            "TaskCreated": [{"command": command}],
+            "TaskCompleted": [{"command": command}],
+        },
+    })
+
+    status, body = _post(bridge, "/api/fleet/tasks",
+                         {"title": "Hook task"}, webapp.token())
+    assert status == 201
+    tid = body["task"]["id"]
+    _post(bridge, f"/api/fleet/tasks/{tid}/update",
+          {"status": "completed"}, webapp.token())
+
+    assert log_path.read_text(encoding="utf-8").splitlines() == [
+        "TaskCreated", "TaskCompleted"]

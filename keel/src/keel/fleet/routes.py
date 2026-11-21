@@ -29,6 +29,19 @@ FLEET_UI_DIR = Path(__file__).resolve().parents[3] / "desktop" / "fleet"
 _store: Optional[FleetStore] = None
 
 
+def _fire_task_hook(event: str, payload: dict) -> None:
+    """Fire a configured task lifecycle hook without blocking the request."""
+    try:
+        from .. import settings_store
+        from ..hooks import fire, parse_hooks
+
+        hooks = parse_hooks(settings_store.load().get("hooks", {}))
+        if hooks:
+            fire(hooks, event, payload)
+    except Exception:
+        pass  # hooks are advisory; task CRUD must remain reliable
+
+
 def store() -> FleetStore:
     global _store
     if _store is None:
@@ -997,6 +1010,12 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
                         f"(id {task['id']})",
                 "level": "info",
                 "icon": "task"})
+        _fire_task_hook("TaskCreated", {
+            "task_id": task["id"],
+            "title": task["title"],
+            "status": task.get("status", "pending"),
+            "source": "user",
+        })
         _send(handler, {"task": task}, HTTPStatus.CREATED)
         return True
 
@@ -1058,6 +1077,14 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
             except (ValueError, TypeError) as exc:
                 _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
                 return True
+            if (str(updated.get("status", "")).lower() == "completed"
+                    and str(task.get("status", "")).lower() != "completed"):
+                _fire_task_hook("TaskCompleted", {
+                    "task_id": tid,
+                    "title": updated.get("title", ""),
+                    "status": "completed",
+                    "source": "user",
+                })
             _send(handler, {"task": updated})
             return True
         if action == "assign":

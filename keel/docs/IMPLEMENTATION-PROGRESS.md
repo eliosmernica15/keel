@@ -162,3 +162,13 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 - `tests/test_subagent.py`: verifies hook ordering relative to parent tool execution and completion.
 
 **Verification:** `python -m pytest tests/test_subagent.py -q` → `5 passed`.
+
+## Batch 13 — Fleet task lifecycle hooks
+
+**v5 requirement:** §6 architecture (hooks in the Python daemon) and existing Fleet task lifecycle; no new milestone content was invented.
+
+**Implemented:**
+- `src/keel/fleet/routes.py`: fires `TaskCreated` on task creation and `TaskCompleted` on the transition to `completed`, using configured hooks through a non-blocking helper.
+- `tests/test_fleet_tasks.py`: end-to-end bridge test for both events and their ordering.
+
+**Verification:** `python -m pytest tests/test_fleet_tasks.py -q` → `15 passed`.
