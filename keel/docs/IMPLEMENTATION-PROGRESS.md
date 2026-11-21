@@ -287,13 +287,19 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 
 **Implemented:** `src/keel/circuit_breaker.py` tracks per-provider health with closed/open/half-open states; `ProviderModelClient` consults the breaker, records outcomes, and fails fast while open.
 **Verification:** `python -m pytest tests/test_circuit_breaker.py tests/test_providers.py tests/test_vertical_slice.py -q` → `20 passed`.
-**Next:** C6.5 memory provenance and tainted-source tracking.
+**Next:** C6.5 memory provenance and tainted-source tracking (deferred to batch 17).
 
 ## M6 Batch 16 — Zero-secrets release scan (A4.8)
 
 **Implemented:** extended secret detection (Google/Slack/JWT shapes) and wired `scan_secret_markers()` into `check-artifacts` and `release dry-run`, so a staged release with a planted credential fails locally before publication.
 **Verification:** `python -m pytest tests/test_release_no_secrets.py tests/test_release_hardening.py tests/test_release_signing.py -q` → `14 passed`; existing `release/` and `dist/win-unpacked` scan clean.
 **Next:** C6.5 memory provenance and tainted-source tracking.
+
+## M6 Batch 17 — Memory provenance and taint (C6.5)
+
+**Implemented:** `src/keel/memory.py` stores local JSONL memories with session/tool/source provenance and taints untrusted sources; `remember`/`recall` native tools expose it in-session, with review/forget controls.
+**Verification:** `python -m pytest tests/test_memory.py tests/test_todo.py tests/test_tool_registry.py tests/test_read_only.py -q` → `30 passed`.
+**Next:** A2.2 voice-to-task handoff and push-to-talk dictation.
 
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 

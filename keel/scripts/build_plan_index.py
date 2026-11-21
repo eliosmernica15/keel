@@ -85,6 +85,8 @@ IMPLEMENTED = {
               "Provider circuit breaker with health score and fail-fast"),
     "A4.8": ("src/keel/release/artifacts.py", "tests/test_release_no_secrets.py",
              "Release scan proving zero clear-text secrets in artifacts"),
+    "C6.5": ("src/keel/memory.py", "tests/test_memory.py",
+             "Memory provenance and tainted-source tracking"),
 }
 
 

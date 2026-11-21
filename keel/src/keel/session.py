@@ -40,6 +40,7 @@ _READ_ONLY_TOOLS = frozenset({
     "git_status", "git_diff", "git_log", "git_branch_list", "process_list",
     "web_fetch", "web_search", "list_skills", "load_skill", "list_tasks",
     "ask_user", "context_pack", "symbol_search", "model_catalog", "todo",
+    "recall",
 })
 
 
@@ -175,6 +176,40 @@ class Session:
         return os.path.join(self.config.state_root, "projects",
                             project_slug(self.config.cwd),
                             f"{self.config.session_id}.jsonl")
+
+    def _run_memory(self, tool_input: dict, tool_use_id: str,
+                    emit, *, action: str) -> dict:
+        """C6.5: store or recall memory with explicit provenance."""
+        from .memory import MemoryStore
+        from .toolresult import render_success
+
+        store = MemoryStore(self.config.state_root)
+        if action == "remember":
+            record = store.add(
+                tool_input.get("content", ""),
+                source=str(tool_input.get("source") or "assistant"),
+                session_id=self.config.session_id,
+                trust=str(tool_input.get("trust") or "trusted"),
+                tags=tool_input.get("tags") or [])
+            text = f"remembered {record['id']} (tainted={record['tainted']})"
+            typed = {"memory": record}
+        else:
+            records = store.search(
+                tool_input.get("query", ""),
+                include_tainted=bool(tool_input.get("include_tainted")))
+            text = ("\n\n".join(r["content"] for r in records)
+                    or "no matching memories")
+            typed = {"memories": records}
+        try:
+            emit(ev.system_informational(
+                text=text, session_id=self.config.session_id,
+                uuid=self.ids.event_uuid(), timestamp=self.clock.now_iso(),
+                level="info"),
+                {"type": "system", "subtype": "informational",
+                 "content": text, "sessionId": self.config.session_id})
+        except Exception:
+            pass
+        return render_success(tool_use_id, typed, text, self.persist)
 
     def _run_todo(self, tool_input: dict, tool_use_id: str,
                   emit) -> dict:
@@ -917,7 +952,14 @@ class Session:
                         tool_use_result = rendered["toolUseResult"]
                         is_error = rendered["isError"]
                     elif decision.decision == "allow":
-                        if block["name"] == "todo":
+                        if block["name"] in ("remember", "recall"):
+                            rendered = self._run_memory(
+                                tool_input, tool_use_id, emit,
+                                action=block["name"])
+                            tool_result_content = rendered["content"]
+                            tool_use_result = rendered["toolUseResult"]
+                            is_error = rendered["isError"]
+                        elif block["name"] == "todo":
                             rendered = self._run_todo(tool_input, tool_use_id,
                                                       emit)
                             tool_result_content = rendered["content"]
