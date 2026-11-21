@@ -115,7 +115,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B2.9 | Read-only **database explorer** tool (SQLite, Postgres, MySQL via user's own connection), write needs approval | M15 | P1 | not_started |
 | B3.1 | **WASM/Pyodide sandbox** for running untrusted generated code with no Docker | M5 | P1 | not_started |
 | B3.10 | Optional app-lock passphrase and auto-lock on idle | M3 | P2 | not_started |
-| B3.11 | Provider **circuit breaker**, retry/backoff, health score, automatic failover | M2 | P0 | not_started |
+| B3.11 | Provider **circuit breaker**, retry/backoff, health score, automatic failover | M2 | P0 | verified |
 | B3.12 | Immutable, exportable audit bundle with verification tool | M3 | P1 | not_started |
 | B3.2 | Container sandbox with CPU, memory, time and network limits (optional Podman) | M5 | P1 | not_started |
 | B3.3 | **Dry-run mode**: agent plans and shows every side effect, executes none | M7 | P0 | verified |

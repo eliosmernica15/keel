@@ -283,6 +283,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_kill_switch.py tests/test_webapp.py tests/test_fleet_ask_user.py -q` → `22 passed`; `node --check` clean.
 **Next:** B3.11 provider circuit breaker with retry/backoff and health scoring.
 
+## M6 Batch 15 — Provider circuit breaker (B3.11)
+
+**Implemented:** `src/keel/circuit_breaker.py` tracks per-provider health with closed/open/half-open states; `ProviderModelClient` consults the breaker, records outcomes, and fails fast while open.
+**Verification:** `python -m pytest tests/test_circuit_breaker.py tests/test_providers.py tests/test_vertical_slice.py -q` → `20 passed`.
+**Next:** C6.5 memory provenance and tainted-source tracking.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

@@ -81,6 +81,8 @@ IMPLEMENTED = {
              "Global kill switch cancelling all in-flight agent turns"),
     "A3.6": ("src/keel/webapp.py", "tests/test_kill_switch.py",
              "Revoke all client tokens by rotating the bridge token"),
+    "B3.11": ("src/keel/circuit_breaker.py", "tests/test_circuit_breaker.py",
+              "Provider circuit breaker with health score and fail-fast"),
 }
 
 

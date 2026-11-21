@@ -19,7 +19,8 @@ class ProviderModelClient:
                  max_output_tokens: int = 4096,
                  delta_sink: Any = None,
                  reasoning_effort: str | None = None,
-                 cancel_event: Any = None):
+                 cancel_event: Any = None,
+                 breaker: Any = None, provider_name: str = ""):
         self.adapter = adapter
         self.model = model
         self.max_output_tokens = max_output_tokens
@@ -33,8 +34,32 @@ class ProviderModelClient:
         self.reasoning_effort = reasoning_effort
         # when set, Stop aborts generation mid-stream, not just at round boundaries
         self.cancel_event = cancel_event
+        # B3.11: per-provider circuit breaker; opt-in via ``breaker`` or by
+        # naming the provider so a shared breaker can be looked up.
+        self.breaker = breaker
+        if self.breaker is None and provider_name:
+            from ..circuit_breaker import breaker_for
+            self.breaker = breaker_for(provider_name)
 
     def complete(self, messages: list[dict], tools: list[dict]) -> list[dict]:
+        """Provider call guarded by the circuit breaker."""
+        from .base import RETRY_SERVER, ProviderError
+
+        if self.breaker is not None and not self.breaker.allow():
+            raise ProviderError(
+                f"circuit breaker open for {self.breaker.name}",
+                RETRY_SERVER, 503, retryable=False)
+        try:
+            result = self._complete_inner(messages, tools)
+        except Exception:
+            if self.breaker is not None:
+                self.breaker.record_failure()
+            raise
+        if self.breaker is not None:
+            self.breaker.record_success()
+        return result
+
+    def _complete_inner(self, messages: list[dict], tools: list[dict]) -> list[dict]:
         self.request_count += 1
         request = ProviderRequest(
             model=self.model,

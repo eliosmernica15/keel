@@ -1674,16 +1674,20 @@
       "source_feature_id": "B3.11",
       "milestone": "M2",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/circuit_breaker.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Provider **circuit breaker**, retry/backoff, health score, automatic failover according to Keel_Plan_v5_Addendum_Missed_Features.md feature B3.11",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_circuit_breaker.py"
+      ],
+      "verification_evidence": "Provider circuit breaker with health score and fail-fast",
       "owner_approval_required": false
     },
     {
