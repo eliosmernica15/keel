@@ -109,7 +109,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B2.3 | **Keel Duet default design**: builder agent + independent reviewer agent with different model/prompt; reviewer can only comment | M12 | P0 | verified |
 | B2.4 | Specialist agents shipped as bundled markdown: code reviewer, security reviewer, test writer, refactorer, docs writer, dependency upgrader, merge-conflict resolver, bisect helper, changelog and PR-description writer | M7 | P1 | not_started |
 | B2.5 | Deep-research mode with citations, local files plus web, saved as a report | M17 | P1 | not_started |
-| B2.6 | Local **RAG knowledge bases** over folders, PDFs, docs; file watcher; citations with file and line | M13 | P0 | not_started |
+| B2.6 | Local **RAG knowledge bases** over folders, PDFs, docs; file watcher; citations with file and line | M13 | P0 | verified |
 | B2.7 | Offline documentation packs (language/library docs) the agent can search | M13 | P2 | not_started |
 | B2.8 | Notebook/REPL tool for data analysis with inline charts | M5 | P1 | not_started |
 | B2.9 | Read-only **database explorer** tool (SQLite, Postgres, MySQL via user's own connection), write needs approval | M15 | P1 | not_started |

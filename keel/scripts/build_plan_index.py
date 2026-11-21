@@ -127,6 +127,8 @@ IMPLEMENTED = {
              "Verified layered account/user config inheritance"),
     "A5.5": ("src/keel/message_state.py", "tests/test_message_state.py",
              "Outbound message state machine with queued/sent/delivered/read/failed"),
+    "B2.6": ("src/keel/rag.py", "tests/test_rag.py",
+             "Local RAG knowledge bases with deterministic lexical embeddings"),
 }
 
 

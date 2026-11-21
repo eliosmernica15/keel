@@ -415,6 +415,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_message_state.py tests/test_webhooks.py -q` → `9 passed`.
 **Next:** B2.6 local RAG knowledge bases.
 
+## M6 Batch 37 — Local RAG knowledge bases (B2.6)
+
+**Implemented:** `src/keel/rag.py` indexes folders with deterministic local TF-IDF-style embeddings, persists named JSON indexes under state, and supports scored search; `rag_index`/`rag_search` tools registered.
+**Verification:** `python -m pytest tests/test_rag.py tests/test_tool_registry.py -q` → `23 passed`.
+**Next:** A1.16 session statistics/import-export verification.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.
