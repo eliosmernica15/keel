@@ -116,3 +116,15 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 - `tests/test_fleet_credentials.py`: offline discovery works with no key and no network; unknown providers fail clearly.
 
 **Verification:** `python -m pytest tests/test_fleet_credentials.py tests/test_m2_api_integration.py tests/test_m2_provider_config.py -q` → `39 passed`.
+
+## Batch 9 — Updater core
+
+**v5 requirement:** §11 update security — signed manifest, HTTPS-only, version monotonicity, hash check before install, atomic swap, rollback. No production keys or endpoints were created.
+
+**Implemented:**
+- `src/keel/release/updater.py`: signed manifest verification, newest-version selection, verified artifact download with SHA-256 and optional detached Ed25519 signature, atomic directory staging, and rollback.
+- `tests/test_updater.py`: loopback HTTP signed update, tampered manifest rejection, atomic install/rollback, and failed-install restoration.
+
+**Verification:** `python -m pytest tests/test_updater.py tests/test_release_signing.py tests/test_release_manager.py -q` → `20 passed`.
+
+**Not done:** Electron-side update wiring and production key/endpoint configuration remain owner-gated or later implementation work.
