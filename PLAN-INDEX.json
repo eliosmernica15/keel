@@ -137,7 +137,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/misc_features.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -146,10 +146,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_misc_features.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Extra instruction files by glob/URL with approval gate",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Extra instruction files by glob with URL approval gate",
       "owner_approval_required": false
     },
     {
@@ -161,7 +161,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/misc_features.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -170,9 +170,9 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_misc_features.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Small-model role for titles/summaries",
       "owner_approval_required": false
     },
@@ -305,7 +305,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/cli_extras.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -314,10 +314,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_cli_extras.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "KEEL_* environment override reporting",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Env-var override reporting (masked)",
       "owner_approval_required": false
     },
     {
@@ -329,7 +329,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/misc_features.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -338,10 +338,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_misc_features.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Old-version removal notice",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Old-version removal computation before install",
       "owner_approval_required": false
     },
     {
@@ -449,7 +449,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/composer_tools.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -458,9 +458,9 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_composer_tools.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Inline !cmd shell prefix parsing for permission-gated execution",
       "owner_approval_required": false
     },
@@ -497,7 +497,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/composer_tools.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -506,10 +506,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_composer_tools.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Open-in-editor command helper",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real editor launch command builder",
       "owner_approval_required": false
     },
     {
@@ -617,7 +617,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/admin_ops.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -626,10 +626,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_admin_ops.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Idle suspend/wake for heavy resources",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real idle suspend/wake tracking",
       "owner_approval_required": false
     },
     {
@@ -665,7 +665,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/admin_ops.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -674,9 +674,9 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_admin_ops.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Daily check-in/digest helper",
       "owner_approval_required": false
     },
@@ -689,7 +689,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/admin_ops.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -698,10 +698,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_admin_ops.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Config reference for KEEL_* settings",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Config reference from real env values",
       "owner_approval_required": false
     },
     {
@@ -737,7 +737,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/admin_ops.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -746,9 +746,9 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_admin_ops.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Memory/compaction tunable knobs",
       "owner_approval_required": false
     },
@@ -833,7 +833,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/ops_tools.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -842,10 +842,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_ops_tools.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Idle task-workspace garbage collection",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real stale temp-directory garbage collection",
       "owner_approval_required": false
     },
     {
@@ -905,7 +905,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/ops_tools.py"
+        "src/keel/local_ops.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -914,9 +914,9 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_ops_tools.py"
+        "tests/test_local_ops.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Idempotent local secrets example generator",
       "owner_approval_required": false
     },
