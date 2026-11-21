@@ -1673,7 +1673,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/knowledge_work.py"
+        "src/keel/charts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1682,10 +1682,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_knowledge_work.py"
+        "tests/test_charts.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Offline Mermaid diagram descriptor",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real offline SVG flow diagrams and charts",
       "owner_approval_required": false
     },
     {
@@ -4041,7 +4041,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/eval_tools.py"
+        "src/keel/charts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -4050,10 +4050,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_eval_tools.py"
+        "tests/test_charts.py tests/test_eval_tools.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Release startup/memory/size trend storage",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Release trend storage with rendered charts",
       "owner_approval_required": false
     },
     {
