@@ -12,6 +12,7 @@ import socket
 import threading
 import time
 import urllib.request
+from pathlib import Path
 
 import pytest
 
@@ -151,6 +152,27 @@ def test_delete_bot(bridge):
     assert status == 200 and body["deleted"] is True
     status, body = _get(bridge, f"/api/fleet/bots/{bot_id}")
     assert status == 404
+
+
+def test_delete_bot_purges_library_files(tmp_path, monkeypatch):
+    from keel.fleet import library
+    from keel.fleet.service import FleetStore
+
+    monkeypatch.setenv("KEEL_FLEET_LIBRARY", str(tmp_path / "library"))
+    store = FleetStore(tmp_path / "fleet.db")
+    bot = store.create_bot(name="Deleteme", engine="echo")
+    path, _, _ = library.write_bytes(bot["id"], "file-1", b"data")
+    monkeypatch.setattr(store, "list_library", lambda **kwargs: [{"id": "file-1"}])
+
+    assert store.delete_bot(bot["id"]) is True
+    assert not path.exists()
+
+
+def test_delete_bot_has_single_implementation():
+    source = (Path(__file__).resolve().parents[1] / "src" / "keel" /
+              "fleet" / "service.py").read_text(encoding="utf-8")
+    assert source.count("def delete_bot(") == 1
+    assert "purge the bot's Library files" in source
 
 
 def test_persistence_across_restart(bridge, tmp_path):

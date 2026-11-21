@@ -236,12 +236,6 @@ class FleetStore:
                     (kind,)).fetchall()
         return [_row_to_dict(r) for r in rows]
 
-    def delete_bot(self, bot_id: str) -> bool:
-        with self._lock:
-            cur = self._conn.execute("DELETE FROM bots WHERE id = ?", (bot_id,))
-            self._conn.commit()
-            return cur.rowcount > 0
-
     def _bot_exists(self, bot_id: str) -> bool:
         with self._lock:
             row = self._conn.execute(

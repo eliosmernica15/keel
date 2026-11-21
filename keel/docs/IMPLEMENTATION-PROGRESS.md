@@ -142,3 +142,13 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 **Verification:** `python -m pytest tests/test_updater.py tests/test_release_signing.py -q` → `10 passed`.
 
 **Not done:** production key/endpoint, auto-install UI, version display, and rollback UI remain pending owner decisions or later work.
+
+## Batch 11 — Fleet deletion correctness
+
+**v5 requirement:** §6 canonical SQLite persistence and preservation of user data; no new milestone content was invented.
+
+**Implemented:**
+- `src/keel/fleet/service.py`: removed the shadowed early `delete_bot` definition so the library-purging implementation is the only one in effect.
+- `tests/test_fleet.py`: behavioral test verifies Library files are purged when a bot is deleted, plus a source-level guard against reintroducing a duplicate definition.
+
+**Verification:** `python -m pytest tests/test_fleet.py tests/test_fleet_library.py -q` → `40 passed`.
