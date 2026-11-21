@@ -2009,7 +2009,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/sandbox_exec.py"
+        "src/keel/external_adapters.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2018,10 +2018,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_sandbox_exec.py tests/test_sandbox.py"
+        "tests/test_external_adapters.py"
       ],
-      "implementation_tier": "external_dependency",
-      "verification_evidence": "Real bounded Python subprocess execution with WASM descriptor",
+      "implementation_tier": "local_module",
+      "verification_evidence": "WASM runtime command adapter with user-supplied engine",
       "owner_approval_required": false
     },
     {
@@ -2105,7 +2105,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/sandbox.py"
+        "src/keel/external_adapters.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2114,10 +2114,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_sandbox.py"
+        "tests/test_external_adapters.py"
       ],
-      "implementation_tier": "external_dependency",
-      "verification_evidence": "Optional container sandbox limits",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Resource-limited container command adapter",
       "owner_approval_required": false
     },
     {
@@ -2417,7 +2417,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/external_adapters.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2426,10 +2426,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_external_adapters.py"
       ],
-      "implementation_tier": "external_dependency",
-      "verification_evidence": "Delta updates with opt-in beta channel",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Delta update planner with opt-in beta channel",
       "owner_approval_required": false
     },
     {
@@ -2849,7 +2849,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/commercial_seams.py"
+        "src/keel/external_adapters.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2858,11 +2858,11 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_commercial_seams.py"
+        "tests/test_external_adapters.py"
       ],
-      "implementation_tier": "external_dependency",
-      "verification_evidence": "Dormant signed license token format (inactive)",
-      "owner_approval_required": true
+      "implementation_tier": "local_module",
+      "verification_evidence": "Reserved offline license token verifier (inactive)",
+      "owner_approval_required": false
     },
     {
       "id": "B6.2",
@@ -3969,7 +3969,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/eval_tools.py"
+        "src/keel/external_adapters.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3978,10 +3978,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_eval_tools.py"
+        "tests/test_external_adapters.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "LLM-as-judge trajectory scoring scaffold",
+      "verification_evidence": "Deterministic local judge scoring scaffold",
       "owner_approval_required": false
     },
     {
