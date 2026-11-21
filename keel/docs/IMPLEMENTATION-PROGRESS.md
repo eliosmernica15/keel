@@ -632,3 +632,47 @@ two tiers:
 recorded in the batch commit history). No push, release publication, deployment,
 visibility change, history rewrite, credential rotation or production signing
 occurred.
+
+---
+
+## Operational completion phase — history reconciliation
+
+**Actual Git history (verified with `git rev-list`/`git log`):**
+- `origin/main` = `79200c3`; HEAD before this phase = `07de3ab`;
+  HEAD was **59 commits ahead** of the remote (not 17). The earlier "17 ahead"
+  report was the state at `0b026d0`, the baseline when the v6 task started —
+  17 commits predated v6, then +1 plan commit, then +41 batch commits = 59.
+- The "110 batches" figure counts **ledger batch numbers, not commits**. Many
+  batches were combined into grouped commits: e.g. batches 1–3 → `676f845`;
+  39–51 → `5ee3879`; 52–64 → `e00b648`; 65–74 → `ff7d489`; 75–89 → `5dd62a7`;
+  90–110 → `07de3ab`. Most batches 4–38 have individual commits. No history was
+  rewritten; the working tree is clean.
+
+## Operational completion — tier classification and real upgrades
+
+The registry now records `implementation_tier` per feature (honest, not inferred
+from passing unit tests): 49 operational, 45 local modules, 109 descriptors,
+23 external-dependency, 2 owner-gated.
+
+**Upgraded from descriptor/scaffold to real local functionality:**
+- `C2.1` Cowork — real DOCX/XLSX read+write, CSV conversion, cell statistics and
+  cited document Q&A (`src/keel/documents.py`), exercised over the real backend.
+- `B4.11` backups — real AES-256-GCM encrypted backup/restore with PBKDF2 and
+  per-file SHA-256 verification (`src/keel/backups.py`), exercised E2E.
+- `C4.1` debugging — real Python debugger with breakpoints, stepping and frame
+  inspection via `bdb` (`src/keel/debugger.py`).
+- `B3.1/B3.2` sandbox — real bounded subprocess execution with time/memory/CPU
+  limits (`src/keel/sandbox_exec.py`).
+- `C2.3` Duet — real local inline completion and reviewer comments
+  (`src/keel/inline_completion.py`).
+- `A2.3` browser — real persistent profile management and opt-in launch of a
+  locally installed browser (`src/keel/browser_launch.py`).
+- `A2.8` E2E — `tests/test_e2e_operations.py` starts the real backend and
+  exercises sessions, real tool paths, permission denials, provider failures,
+  DLP, Cowork files, backup/recovery, update policy and secret-leak checks.
+
+**Source-document recovery defect fixed:** the original Downloads copies of v5
+and both addenda disappeared. They were reconstructed byte-exactly from v6's
+preserved appendices into `keel/docs/plan-sources/` (hashes: v5
+`da1dd5dc…427f`, addenda `e4e314a5…` and `b4221915…`), and the builders now
+prefer those canonical in-repo copies. A regression test pins all three hashes.

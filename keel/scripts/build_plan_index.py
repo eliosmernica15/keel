@@ -12,10 +12,19 @@ import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+SOURCES = REPO / "keel" / "docs" / "plan-sources"
 DOWNLOADS = Path(r"C:\Users\Admin\Downloads")
-V5 = DOWNLOADS / "Keel_Master_Plan_v5.md"
-ADDENDUM1 = DOWNLOADS / "Keel_Plan_v5_Addendum_Missed_Features.md"
-ADDENDUM2 = DOWNLOADS / "Keel_Plan_v5_Addendum_2_More_Features.md"
+
+
+def _source(name: str) -> Path:
+    """Prefer the in-repo canonical copy; fall back to the original Downloads."""
+    in_repo = SOURCES / name
+    return in_repo if in_repo.is_file() else DOWNLOADS / name
+
+
+V5 = _source("Keel_Master_Plan_v5.md")
+ADDENDUM1 = _source("Keel_Plan_v5_Addendum_Missed_Features.md")
+ADDENDUM2 = _source("Keel_Plan_v5_Addendum_2_More_Features.md")
 OUT = REPO / "PLAN-INDEX.json"
 PARITY = REPO / "parity.json"
 
@@ -26,6 +35,53 @@ M_RE = re.compile(r"\bM\d+\b")
 # changes Keel must not make unilaterally (hosting choice, repo security
 # enforcement, legal terms). They are reported as blocked, not fabricated.
 OWNER_BLOCKED = {"C11.1", "C11.2"}
+
+# Implementation tiers distinguish truly integrated features from local
+# modules and descriptors. A passing unit test does not make a scaffold
+# operational. Values: operational | local_module | descriptor |
+# external_dependency | owner_gated.
+DESCRIPTOR_MODULES = frozenset({
+    "commercial_seams", "final_features", "last_features", "misc_features",
+    "sandbox", "distribution", "site_tools", "desktop_state", "admin_ops",
+    "ops_tools", "ci_helpers", "eval_tools", "tui", "agent_style",
+    "browser_profiles", "resource_caps", "virtual_list",
+    "performance_budgets", "golden", "onboarding", "tutorial", "cli_extras",
+    "composer_tools", "provider_sources", "channel_ops", "build_repro",
+    "knowledge_work", "workbench", "context_packs", "agent_intelligence",
+    "agent_roles", "best_of_n", "arena", "model_router", "hardware",
+    "embeddings", "prefix_cache", "model_manager", "markdown_render",
+    "terminal_replay", "issue_to_change", "dev_tools", "code_intel",
+    "supply_chain", "installer_smoke", "instructions",
+})
+LOCAL_MODULES = frozenset({
+    "documents", "backups", "debugger", "rag", "memory", "memory_types",
+    "knowledge_graph", "user_profile", "feature_flags", "swe_bench",
+    "red_team", "trust_tools", "interop", "workflows", "workflow_history",
+    "automation", "resilience", "content_skills", "release_feed",
+    "diagnostics", "start_health", "model_downloads", "verification",
+    "custom_tools", "session_export", "signing", "updater", "artifacts",
+    "circuit_breaker", "cost_caps", "redaction", "trash", "egress",
+    "sandbox_exec", "inline_completion", "browser_launch",
+})
+EXTERNAL_IDS = frozenset({
+    "A1.19", "B7.3", "B7.5", "B7.9", "C13.4", "B6.4", "C4.10", "B4.8",
+    "B2.13", "B3.1", "B3.2", "B6.1", "B6.2", "B6.3", "B6.5", "B6.6",
+    "B4.14", "B5.6", "B5.7", "B5.8", "C11.3", "C11.7", "C11.8",
+})
+
+
+def classify_tier(feature_id: str, source_files: list[str]) -> str:
+    if feature_id in OWNER_BLOCKED:
+        return "owner_gated"
+    if feature_id in EXTERNAL_IDS:
+        return "external_dependency"
+    for source in source_files:
+        name = source.replace("src/keel/", "").replace(".py", "")
+        if name in DESCRIPTOR_MODULES:
+            return "descriptor"
+        if name in LOCAL_MODULES:
+            return "local_module"
+    return "operational"
 
 # Verified-existing implementation evidence from the current repository.
 IMPLEMENTED = {
@@ -112,8 +168,8 @@ IMPLEMENTED = {
              "Resumable model downloads with SHA-256 integrity verification"),
     "A4.4": ("src/keel/instructions.py", "tests/test_rigor.py",
              "Evidence-before-claims rigor contract in agent persona"),
-    "A2.8": ("tests/test_e2e_local.py", "tests/test_e2e_local.py",
-             "Local E2E harness exercising real bridge chat/settings/viewer flows"),
+    "A2.8": ("tests/test_e2e_operations.py", "tests/test_e2e_operations.py tests/test_e2e_local.py",
+             "Operational E2E: backend, sessions, tools, permissions, Cowork, backup, DLP"),
     "B1.5": ("src/keel/context.py", "tests/test_compaction.py",
              "Verified existing budget, preserved-tail compaction and thrash guard"),
     "B2.3": ("src/keel/duet.py", "tests/test_duet.py",
@@ -168,16 +224,16 @@ IMPLEMENTED = {
              "Best-of-N candidate generation with test-based selection"),
     "C8.8": ("src/keel/red_team.py", "tests/test_red_team.py",
              "Local deterministic red-team evaluation suite"),
-    "C2.1": ("src/keel/surfaces.py", "tests/test_surfaces.py",
-             "Verified Cowork surface with knowledge-work tool set"),
+    "C2.1": ("src/keel/documents.py", "tests/test_documents.py tests/test_e2e_operations.py",
+             "Real DOCX/XLSX/CSV workflows plus Cowork surface"),
     "C2.2": ("src/keel/surfaces.py", "tests/test_surfaces.py",
              "Verified Code surface with engineering tool set"),
     "C2.4": ("src/keel/surfaces.py", "tests/test_surfaces.py",
              "Verified Fleet surface with delegation/task tools"),
     "B4.5": ("src/keel/markdown_render.py", "tests/test_markdown_render.py",
              "Rich rendering detection with HTML escaping for Markdown/Mermaid/LaTeX"),
-    "A2.3": ("src/keel/browser_profiles.py", "tests/test_browser_profiles.py",
-             "Persistent per-agent browser profiles and workspace folders"),
+    "A2.3": ("src/keel/browser_launch.py", "tests/test_browser_launch.py tests/test_browser_profiles.py",
+             "Real persistent browser profiles with opt-in local browser launch"),
     "B7.4": ("src/keel/performance_budgets.py", "tests/test_performance_budgets.py",
              "Performance budgets with measured-value checker"),
     "B7.2": ("src/keel/golden.py", "tests/test_golden_chaos.py",
@@ -362,8 +418,8 @@ IMPLEMENTED = {
              "Offline docs search index"),
     "B5.9": ("src/keel/site_tools.py", "tests/test_site_tools.py",
              "Static status page descriptor"),
-    "B3.1": ("src/keel/sandbox.py", "tests/test_sandbox.py",
-             "WASM sandbox descriptor with no host I/O"),
+    "B3.1": ("src/keel/sandbox_exec.py", "tests/test_sandbox_exec.py tests/test_sandbox.py",
+             "Real bounded Python subprocess execution with WASM descriptor"),
     "B3.2": ("src/keel/sandbox.py", "tests/test_sandbox.py",
              "Optional container sandbox limits"),
     "B3.10": ("src/keel/sandbox.py", "tests/test_sandbox.py",
@@ -418,8 +474,8 @@ IMPLEMENTED = {
              "Fleet view descriptors"),
     "B4.7": ("src/keel/misc_features.py", "tests/test_misc_features.py",
              "Observability view descriptors"),
-    "C4.1": ("src/keel/misc_features.py", "tests/test_misc_features.py",
-             "DAP breakpoint descriptor"),
+    "C4.1": ("src/keel/debugger.py", "tests/test_debugger.py",
+             "Real Python debugger with breakpoints, stepping and inspection"),
     "C4.9": ("src/keel/misc_features.py", "tests/test_misc_features.py",
              "Git extras descriptor"),
     "C8.3": ("src/keel/misc_features.py", "tests/test_misc_features.py",
@@ -446,8 +502,8 @@ IMPLEMENTED = {
              "LAN phone companion descriptor with required pairing"),
     "B4.9": ("src/keel/final_features.py", "tests/test_final_features.py",
              "Composer accessibility/keybinding descriptors"),
-    "B4.11": ("src/keel/final_features.py", "tests/test_final_features.py",
-              "Scheduled encrypted backup descriptor"),
+    "B4.11": ("src/keel/backups.py", "tests/test_backups.py tests/test_e2e_operations.py",
+              "Real AES-256-GCM encrypted backup and verified restore"),
     "B4.14": ("src/keel/final_features.py", "tests/test_final_features.py",
               "Delta updates with opt-in beta channel"),
     "B5.8": ("src/keel/final_features.py", "tests/test_final_features.py",
@@ -470,8 +526,8 @@ IMPLEMENTED = {
               "Browser devtools tool descriptors"),
     "C1.6": ("src/keel/agent_style.py", "tests/test_agent_style.py",
              "Verified agent avatar/color/voice looks and preview"),
-    "C2.3": ("src/keel/duet.py", "tests/test_duet.py",
-             "Verified Keel Duet builder/reviewer pair mode"),
+    "C2.3": ("src/keel/inline_completion.py", "tests/test_inline_completion.py tests/test_duet.py",
+             "Duet builder/reviewer with real local inline completion"),
     "A3.11": ("src/keel/last_features.py", "tests/test_last_features.py",
               "Headless deployment operations guide"),
     "A3.8": ("src/keel/last_features.py", "tests/test_last_features.py",
@@ -520,6 +576,8 @@ def _parse_addendum(path: Path, source: str) -> list[dict]:
                 "Behavior is verified in the real application/runtime where applicable",
             ],
             "test_references": [test_file] if test_file else [],
+            "implementation_tier": classify_tier(
+                feature_id, [source_file] if source_file else []),
             "verification_evidence": evidence,
             "owner_approval_required": feature_id in {
                 "B6.1", "B6.2", "B6.3", "B6.4", "B6.5", "B6.6",

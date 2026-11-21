@@ -28,6 +28,7 @@
       "test_references": [
         "tests/test_vertical_slice.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Non-interactive print-mode runner with stream-json and exit codes",
       "owner_approval_required": false
     },
@@ -51,6 +52,7 @@
       "test_references": [
         "tests/test_todo.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Visible persistent task checklist via the todo tool",
       "owner_approval_required": false
     },
@@ -74,6 +76,7 @@
       "test_references": [
         "tests/test_resource_limits.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Browser tab and workspace resource budgets",
       "owner_approval_required": false
     },
@@ -97,6 +100,7 @@
       "test_references": [
         "tests/test_fleet_approvals.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Verified existing per-agent tool policies and permission overrides",
       "owner_approval_required": false
     },
@@ -120,6 +124,7 @@
       "test_references": [
         "tests/test_custom_tools.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Custom Python tools from .keel/tools with approval gating",
       "owner_approval_required": false
     },
@@ -143,6 +148,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Extra instruction files by glob/URL with approval gate",
       "owner_approval_required": false
     },
@@ -166,6 +172,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Small-model role for titles/summaries",
       "owner_approval_required": false
     },
@@ -189,6 +196,7 @@
       "test_references": [
         "tests/test_session_export.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Session import/export bundles and statistics",
       "owner_approval_required": false
     },
@@ -212,6 +220,7 @@
       "test_references": [
         "tests/test_cli_extras.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Usage statistics by model/day",
       "owner_approval_required": false
     },
@@ -235,6 +244,7 @@
       "test_references": [
         "tests/test_cli_extras.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Agent creation spec helper",
       "owner_approval_required": false
     },
@@ -258,6 +268,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Headless CI mode descriptor for user's own CI",
       "owner_approval_required": false
     },
@@ -281,6 +292,7 @@
       "test_references": [
         "tests/test_attach.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Attach a CLI client to a running Keel daemon",
       "owner_approval_required": false
     },
@@ -304,6 +316,7 @@
       "test_references": [
         "tests/test_cli_extras.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "KEEL_* environment override reporting",
       "owner_approval_required": false
     },
@@ -327,6 +340,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Old-version removal notice",
       "owner_approval_required": false
     },
@@ -350,6 +364,7 @@
       "test_references": [
         "tests/test_builder_guide.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Internal builder guide with repo layout and conventions",
       "owner_approval_required": false
     },
@@ -373,6 +388,7 @@
       "test_references": [
         "tests/test_tui.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Terminal UI transcript renderer",
       "owner_approval_required": false
     },
@@ -396,6 +412,7 @@
       "test_references": [
         "tests/test_tui.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Local web UI alias (keel web)",
       "owner_approval_required": false
     },
@@ -419,6 +436,7 @@
       "test_references": [
         "tests/test_init_project.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "keel init scans a repo and generates AGENTS.md",
       "owner_approval_required": false
     },
@@ -442,6 +460,7 @@
       "test_references": [
         "tests/test_composer_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Inline !cmd shell prefix parsing for permission-gated execution",
       "owner_approval_required": false
     },
@@ -465,6 +484,7 @@
       "test_references": [
         "tests/test_slash_commands.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Slash commands: undo/redo, compact, export, models, themes, details",
       "owner_approval_required": false
     },
@@ -488,6 +508,7 @@
       "test_references": [
         "tests/test_composer_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Open-in-editor command helper",
       "owner_approval_required": false
     },
@@ -511,6 +532,7 @@
       "test_references": [
         "tests/test_attachments_ui.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Image paste/drag into composer and fuzzy @file search",
       "owner_approval_required": false
     },
@@ -534,6 +556,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Voice-to-task handoff to the same agent",
       "owner_approval_required": false
     },
@@ -557,6 +580,7 @@
       "test_references": [
         "tests/test_voice.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Push-to-talk dictation and voice-to-task handoff",
       "owner_approval_required": false
     },
@@ -569,7 +593,7 @@
       "priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/browser_profiles.py"
+        "src/keel/browser_launch.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -578,9 +602,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_browser_profiles.py"
+        "tests/test_browser_launch.py tests/test_browser_profiles.py"
       ],
-      "verification_evidence": "Persistent per-agent browser profiles and workspace folders",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real persistent browser profiles with opt-in local browser launch",
       "owner_approval_required": false
     },
     {
@@ -603,6 +628,7 @@
       "test_references": [
         "tests/test_admin_ops.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Idle suspend/wake for heavy resources",
       "owner_approval_required": false
     },
@@ -626,6 +652,7 @@
       "test_references": [
         "tests/test_mention_guard.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Group-chat loop guards for repeated agent @mentions",
       "owner_approval_required": false
     },
@@ -649,6 +676,7 @@
       "test_references": [
         "tests/test_admin_ops.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Daily check-in/digest helper",
       "owner_approval_required": false
     },
@@ -672,6 +700,7 @@
       "test_references": [
         "tests/test_admin_ops.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Config reference for KEEL_* settings",
       "owner_approval_required": false
     },
@@ -684,7 +713,7 @@
       "priority": "P0",
       "status": "verified",
       "source_files": [
-        "tests/test_e2e_local.py"
+        "tests/test_e2e_operations.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -693,9 +722,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_e2e_local.py"
+        "tests/test_e2e_operations.py tests/test_e2e_local.py"
       ],
-      "verification_evidence": "Local E2E harness exercising real bridge chat/settings/viewer flows",
+      "implementation_tier": "operational",
+      "verification_evidence": "Operational E2E: backend, sessions, tools, permissions, Cowork, backup, DLP",
       "owner_approval_required": false
     },
     {
@@ -718,6 +748,7 @@
       "test_references": [
         "tests/test_admin_ops.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Memory/compaction tunable knobs",
       "owner_approval_required": false
     },
@@ -741,6 +772,7 @@
       "test_references": [
         "tests/test_ops_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Webhook retry/backoff helper",
       "owner_approval_required": false
     },
@@ -764,6 +796,7 @@
       "test_references": [
         "tests/test_cost_caps.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Per-vendor daily/monthly cost caps with local usage ledger",
       "owner_approval_required": false
     },
@@ -787,6 +820,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Headless deployment operations guide",
       "owner_approval_required": false
     },
@@ -810,6 +844,7 @@
       "test_references": [
         "tests/test_ops_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Idle task-workspace garbage collection",
       "owner_approval_required": false
     },
@@ -833,6 +868,7 @@
       "test_references": [
         "tests/test_compat_runtime.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Deterministic fake/scripted provider for tests",
       "owner_approval_required": false
     },
@@ -856,6 +892,7 @@
       "test_references": [
         "tests/test_fleet_ask_user.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "ask_user question flow with timeout and answer API",
       "owner_approval_required": false
     },
@@ -879,6 +916,7 @@
       "test_references": [
         "tests/test_ops_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Idempotent local secrets example generator",
       "owner_approval_required": false
     },
@@ -902,6 +940,7 @@
       "test_references": [
         "tests/test_kill_switch.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Revoke all client tokens by rotating the bridge token",
       "owner_approval_required": false
     },
@@ -925,6 +964,7 @@
       "test_references": [
         "tests/test_ops_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Honest project status descriptor",
       "owner_approval_required": false
     },
@@ -948,6 +988,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Local operator site tools descriptors",
       "owner_approval_required": false
     },
@@ -971,6 +1012,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Operator admin page descriptor",
       "owner_approval_required": false
     },
@@ -994,6 +1036,7 @@
       "test_references": [
         "tests/test_webhooks.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Signed outgoing webhooks with replay protection",
       "owner_approval_required": false
     },
@@ -1017,6 +1060,7 @@
       "test_references": [
         "tests/test_build_repro.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Reproducible build manifest with stable digest",
       "owner_approval_required": false
     },
@@ -1040,6 +1084,7 @@
       "test_references": [
         "tests/test_mcp_presets.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "MCP presets catalog of free/self-hosted servers",
       "owner_approval_required": false
     },
@@ -1063,6 +1108,7 @@
       "test_references": [
         "tests/test_rigor.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Evidence-before-claims rigor contract in agent persona",
       "owner_approval_required": false
     },
@@ -1086,6 +1132,7 @@
       "test_references": [
         "tests/test_build_repro.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Coding-agent routing rules by task type",
       "owner_approval_required": false
     },
@@ -1109,6 +1156,7 @@
       "test_references": [
         "tests/test_fleet_credentials.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Provider credential test-fire endpoint",
       "owner_approval_required": false
     },
@@ -1132,6 +1180,7 @@
       "test_references": [
         "tests/test_provider_sources.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Secret provider choice descriptors",
       "owner_approval_required": false
     },
@@ -1155,6 +1204,7 @@
       "test_references": [
         "tests/test_release_no_secrets.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Release scan proving zero clear-text secrets in artifacts",
       "owner_approval_required": false
     },
@@ -1178,6 +1228,7 @@
       "test_references": [
         "tests/test_gateway.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Gateway process with status/start/stop lifecycle",
       "owner_approval_required": false
     },
@@ -1201,6 +1252,7 @@
       "test_references": [
         "tests/test_provider_sources.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Channel install from git URL or local link, dormant until approved",
       "owner_approval_required": false
     },
@@ -1224,6 +1276,7 @@
       "test_references": [
         "tests/test_settings.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Verified layered account/user config inheritance",
       "owner_approval_required": false
     },
@@ -1247,6 +1300,7 @@
       "test_references": [
         "tests/test_channel_ops.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Channel delivery fallback chain",
       "owner_approval_required": false
     },
@@ -1270,6 +1324,7 @@
       "test_references": [
         "tests/test_message_state.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Outbound message state machine with queued/sent/delivered/read/failed",
       "owner_approval_required": false
     },
@@ -1293,6 +1348,7 @@
       "test_references": [
         "tests/test_channel_ops.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Webhook subscription helper with secret rotation",
       "owner_approval_required": false
     },
@@ -1316,6 +1372,7 @@
       "test_references": [
         "tests/test_channel_ops.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Per-channel troubleshooting checklists",
       "owner_approval_required": false
     },
@@ -1339,6 +1396,7 @@
       "test_references": [
         "tests/test_tool_json.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Tightened tool schemas with additionalProperties=false",
       "owner_approval_required": false
     },
@@ -1362,6 +1420,7 @@
       "test_references": [
         "tests/test_prefix_cache.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Opt-in speculative decoding toggle",
       "owner_approval_required": false
     },
@@ -1385,6 +1444,7 @@
       "test_references": [
         "tests/test_tool_json.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Tolerant tool-call JSON repair, validation and coercion",
       "owner_approval_required": false
     },
@@ -1408,6 +1468,7 @@
       "test_references": [
         "tests/test_model_router.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Difficulty-based model routing with local heuristics",
       "owner_approval_required": false
     },
@@ -1431,6 +1492,7 @@
       "test_references": [
         "tests/test_prefix_cache.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Prefix/KV-cache reuse helper",
       "owner_approval_required": false
     },
@@ -1454,6 +1516,7 @@
       "test_references": [
         "tests/test_compaction.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Verified existing budget, preserved-tail compaction and thrash guard",
       "owner_approval_required": false
     },
@@ -1477,6 +1540,7 @@
       "test_references": [
         "tests/test_model_downloads.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Resumable model downloads with SHA-256 integrity verification",
       "owner_approval_required": false
     },
@@ -1500,6 +1564,7 @@
       "test_references": [
         "tests/test_hardware.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Hardware detection and quantization advice",
       "owner_approval_required": false
     },
@@ -1523,6 +1588,7 @@
       "test_references": [
         "tests/test_embeddings.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Deterministic local embeddings and reranker",
       "owner_approval_required": false
     },
@@ -1546,6 +1612,7 @@
       "test_references": [
         "tests/test_arena.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Compare mode (arena) for local candidate comparison",
       "owner_approval_required": false
     },
@@ -1569,6 +1636,7 @@
       "test_references": [
         "tests/test_verification.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Auto-detected verification commands run after file edits",
       "owner_approval_required": false
     },
@@ -1592,6 +1660,7 @@
       "test_references": [
         "tests/test_knowledge_work.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "HTTP/API tester request spec with approval gate",
       "owner_approval_required": false
     },
@@ -1615,6 +1684,7 @@
       "test_references": [
         "tests/test_knowledge_work.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Offline Mermaid diagram descriptor",
       "owner_approval_required": false
     },
@@ -1638,6 +1708,7 @@
       "test_references": [
         "tests/test_knowledge_work.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "OCR document parsing descriptor",
       "owner_approval_required": false
     },
@@ -1661,6 +1732,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Optional user-installed local image generation descriptor",
       "owner_approval_required": false
     },
@@ -1684,6 +1756,7 @@
       "test_references": [
         "tests/test_workbench.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Prompt library with variables",
       "owner_approval_required": false
     },
@@ -1707,6 +1780,7 @@
       "test_references": [
         "tests/test_knowledge_work.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Macro recorder from chat steps",
       "owner_approval_required": false
     },
@@ -1730,6 +1804,7 @@
       "test_references": [
         "tests/test_knowledge_work.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Bundled offline template gallery",
       "owner_approval_required": false
     },
@@ -1753,6 +1828,7 @@
       "test_references": [
         "tests/test_workbench.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Spec-driven plan scaffold with approval gate",
       "owner_approval_required": false
     },
@@ -1776,6 +1852,7 @@
       "test_references": [
         "tests/test_duet.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Duet builder plus independent read-only reviewer agents",
       "owner_approval_required": false
     },
@@ -1799,6 +1876,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Bundled specialist agent prompts",
       "owner_approval_required": false
     },
@@ -1822,6 +1900,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Deep-research result with citation slots",
       "owner_approval_required": false
     },
@@ -1845,6 +1924,7 @@
       "test_references": [
         "tests/test_rag.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Local RAG knowledge bases with deterministic lexical embeddings",
       "owner_approval_required": false
     },
@@ -1868,6 +1948,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Offline documentation pack descriptors",
       "owner_approval_required": false
     },
@@ -1891,6 +1972,7 @@
       "test_references": [
         "tests/test_workbench.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Notebook cell parser",
       "owner_approval_required": false
     },
@@ -1914,6 +1996,7 @@
       "test_references": [
         "tests/test_workbench.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Read-only SQLite table explorer",
       "owner_approval_required": false
     },
@@ -1926,7 +2009,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/sandbox.py"
+        "src/keel/sandbox_exec.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1935,9 +2018,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_sandbox.py"
+        "tests/test_sandbox_exec.py tests/test_sandbox.py"
       ],
-      "verification_evidence": "WASM sandbox descriptor with no host I/O",
+      "implementation_tier": "external_dependency",
+      "verification_evidence": "Real bounded Python subprocess execution with WASM descriptor",
       "owner_approval_required": false
     },
     {
@@ -1960,6 +2044,7 @@
       "test_references": [
         "tests/test_sandbox.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "App-lock passphrase with auto-lock on idle",
       "owner_approval_required": false
     },
@@ -1983,6 +2068,7 @@
       "test_references": [
         "tests/test_circuit_breaker.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Provider circuit breaker with health score and fail-fast",
       "owner_approval_required": false
     },
@@ -2006,6 +2092,7 @@
       "test_references": [
         "tests/test_trust_tools.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Verifiable immutable audit bundles",
       "owner_approval_required": false
     },
@@ -2029,6 +2116,7 @@
       "test_references": [
         "tests/test_sandbox.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Optional container sandbox limits",
       "owner_approval_required": false
     },
@@ -2052,6 +2140,7 @@
       "test_references": [
         "tests/test_dry_run.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Dry-run mode: plan every tool side effect, execute none",
       "owner_approval_required": false
     },
@@ -2075,6 +2164,7 @@
       "test_references": [
         "tests/test_read_only.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Read-only sessions and per-project network egress allowlist",
       "owner_approval_required": false
     },
@@ -2098,6 +2188,7 @@
       "test_references": [
         "tests/test_redaction.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Local egress log of data sent to remote providers",
       "owner_approval_required": false
     },
@@ -2121,6 +2212,7 @@
       "test_references": [
         "tests/test_redaction.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Credential/PII redaction of outbound provider messages",
       "owner_approval_required": false
     },
@@ -2144,6 +2236,7 @@
       "test_references": [
         "tests/test_trust_tools.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Prompt-injection classifier and canary tokens",
       "owner_approval_required": false
     },
@@ -2167,6 +2260,7 @@
       "test_references": [
         "tests/test_redaction.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Output DLP refusing secrets in written files",
       "owner_approval_required": false
     },
@@ -2190,6 +2284,7 @@
       "test_references": [
         "tests/test_kill_switch.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Global kill switch cancelling all in-flight agent turns",
       "owner_approval_required": false
     },
@@ -2213,6 +2308,7 @@
       "test_references": [
         "tests/test_desktop_state.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Quick-ask overlay descriptor",
       "owner_approval_required": false
     },
@@ -2236,6 +2332,7 @@
       "test_references": [
         "tests/test_desktop_state.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Multiple profiles with separate data dirs",
       "owner_approval_required": false
     },
@@ -2248,7 +2345,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/backups.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2257,9 +2354,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_backups.py tests/test_e2e_operations.py"
       ],
-      "verification_evidence": "Scheduled encrypted backup descriptor",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real AES-256-GCM encrypted backup and verified restore",
       "owner_approval_required": false
     },
     {
@@ -2282,6 +2380,7 @@
       "test_references": [
         "tests/test_diagnostics.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Redacted diagnostics bundle via keel doctor --bundle",
       "owner_approval_required": false
     },
@@ -2305,6 +2404,7 @@
       "test_references": [
         "tests/test_start_health.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Auto-rollback after repeated failed starts",
       "owner_approval_required": false
     },
@@ -2328,6 +2428,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Delta updates with opt-in beta channel",
       "owner_approval_required": false
     },
@@ -2351,6 +2452,7 @@
       "test_references": [
         "tests/test_site_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "keel:// deep link parsing",
       "owner_approval_required": false
     },
@@ -2374,6 +2476,7 @@
       "test_references": [
         "tests/test_desktop_state.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Saved workspace layouts",
       "owner_approval_required": false
     },
@@ -2397,6 +2500,7 @@
       "test_references": [
         "tests/test_desktop_state.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Conversation tags/folders state",
       "owner_approval_required": false
     },
@@ -2420,6 +2524,7 @@
       "test_references": [
         "tests/test_markdown_render.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Rich rendering detection with HTML escaping for Markdown/Mermaid/LaTeX",
       "owner_approval_required": false
     },
@@ -2443,6 +2548,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Fleet view descriptors",
       "owner_approval_required": false
     },
@@ -2466,6 +2572,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Observability view descriptors",
       "owner_approval_required": false
     },
@@ -2489,6 +2596,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "LAN phone companion descriptor with required pairing",
       "owner_approval_required": false
     },
@@ -2512,6 +2620,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Composer accessibility/keybinding descriptors",
       "owner_approval_required": false
     },
@@ -2535,6 +2644,7 @@
       "test_references": [
         "tests/test_download_detect.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Download page OS/CPU auto-detection and recommendation",
       "owner_approval_required": false
     },
@@ -2558,6 +2668,7 @@
       "test_references": [
         "tests/test_release_feed.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "latest.json, version history and RSS release feed",
       "owner_approval_required": false
     },
@@ -2581,6 +2692,7 @@
       "test_references": [
         "tests/test_requirements_page.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "System requirements, model-size guide and first-run guide",
       "owner_approval_required": false
     },
@@ -2604,6 +2716,7 @@
       "test_references": [
         "tests/test_site_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Offline docs search index",
       "owner_approval_required": false
     },
@@ -2627,6 +2740,7 @@
       "test_references": [
         "tests/test_legal_pages.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Privacy, EULA and third-party notices site pages (drafts)",
       "owner_approval_required": false
     },
@@ -2650,6 +2764,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "E2E screenshot gallery descriptor",
       "owner_approval_required": false
     },
@@ -2673,6 +2788,7 @@
       "test_references": [
         "tests/test_ci_helpers.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Curated public roadmap and FAQ page",
       "owner_approval_required": false
     },
@@ -2696,6 +2812,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Shared string catalogs for localized website",
       "owner_approval_required": false
     },
@@ -2719,6 +2836,7 @@
       "test_references": [
         "tests/test_site_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Static status page descriptor",
       "owner_approval_required": false
     },
@@ -2742,6 +2860,7 @@
       "test_references": [
         "tests/test_commercial_seams.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Dormant signed license token format (inactive)",
       "owner_approval_required": true
     },
@@ -2765,6 +2884,7 @@
       "test_references": [
         "tests/test_commercial_seams.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Edition/channel field (standard, no gating)",
       "owner_approval_required": true
     },
@@ -2788,6 +2908,7 @@
       "test_references": [
         "tests/test_commercial_seams.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Silent-install flag descriptors",
       "owner_approval_required": true
     },
@@ -2811,6 +2932,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Private org update mirror descriptor",
       "owner_approval_required": true
     },
@@ -2834,6 +2956,7 @@
       "test_references": [
         "tests/test_commercial_seams.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Compliance pack draft status",
       "owner_approval_required": true
     },
@@ -2857,6 +2980,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Per-org audit export/retention descriptor",
       "owner_approval_required": true
     },
@@ -2880,6 +3004,7 @@
       "test_references": [
         "tests/test_property_safety.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Seeded fuzz tests for path containment and command safety",
       "owner_approval_required": false
     },
@@ -2903,6 +3028,7 @@
       "test_references": [
         "tests/test_golden_chaos.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Golden-file snapshots and deterministic chaos fault injection",
       "owner_approval_required": false
     },
@@ -2926,6 +3052,7 @@
       "test_references": [
         "tests/test_ci_helpers.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Accessibility CI gate helper",
       "owner_approval_required": false
     },
@@ -2949,6 +3076,7 @@
       "test_references": [
         "tests/test_performance_budgets.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Performance budgets with measured-value checker",
       "owner_approval_required": false
     },
@@ -2972,6 +3100,7 @@
       "test_references": [
         "tests/test_ci_helpers.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Flaky-test quarantine with owner and expiry",
       "owner_approval_required": false
     },
@@ -2995,6 +3124,7 @@
       "test_references": [
         "tests/test_plan_index.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Machine-readable feature registry",
       "owner_approval_required": false
     },
@@ -3018,6 +3148,7 @@
       "test_references": [
         "tests/test_release_controls.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Pinned gitleaks pre-commit hook and repo hygiene config",
       "owner_approval_required": false
     },
@@ -3041,6 +3172,7 @@
       "test_references": [
         "tests/test_feature_flags.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Feature-flag registry with kill-switch config",
       "owner_approval_required": false
     },
@@ -3064,6 +3196,7 @@
       "test_references": [
         "tests/test_ci_helpers.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Per-milestone kickoff prompt with stop condition",
       "owner_approval_required": false
     },
@@ -3087,6 +3220,7 @@
       "test_references": [
         "tests/test_repo_hygiene.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Editorconfig, changelog, patch policy and lint/type config",
       "owner_approval_required": false
     },
@@ -3110,6 +3244,7 @@
       "test_references": [
         "tests/test_content_skills.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Draft-only content skills that never auto-publish",
       "owner_approval_required": false
     },
@@ -3133,6 +3268,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Approval-gated local desktop task executor descriptor",
       "owner_approval_required": false
     },
@@ -3156,6 +3292,7 @@
       "test_references": [
         "tests/test_pairing.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Explicit LAN/headless client pairing allowlist with revocation",
       "owner_approval_required": false
     },
@@ -3179,6 +3316,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Additional package-manager target descriptors",
       "owner_approval_required": false
     },
@@ -3202,6 +3340,7 @@
       "test_references": [
         "tests/test_agent_style.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Deterministic agent avatars, colors and voice previews",
       "owner_approval_required": false
     },
@@ -3225,6 +3364,7 @@
       "test_references": [
         "tests/test_screen_safe_mode.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Screen-share/recording safe mode masking sensitive UI fields",
       "owner_approval_required": false
     },
@@ -3248,6 +3388,7 @@
       "test_references": [
         "tests/test_last_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Per-integration builder/operator guides",
       "owner_approval_required": false
     },
@@ -3271,6 +3412,7 @@
       "test_references": [
         "tests/test_agent_style.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Verified agent avatar/color/voice looks and preview",
       "owner_approval_required": false
     },
@@ -3294,6 +3436,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Meeting recorder descriptor with speaker labels",
       "owner_approval_required": false
     },
@@ -3317,6 +3460,7 @@
       "test_references": [
         "tests/test_content_skills.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Notes vault backlinks",
       "owner_approval_required": false
     },
@@ -3340,6 +3484,7 @@
       "test_references": [
         "tests/test_content_skills.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Plugin presets bundle",
       "owner_approval_required": false
     },
@@ -3363,6 +3508,7 @@
       "test_references": [
         "tests/test_tutorial.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Interactive tutorial scaffold",
       "owner_approval_required": false
     },
@@ -3386,6 +3532,7 @@
       "test_references": [
         "tests/test_onboarding.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Stable offline error catalog",
       "owner_approval_required": false
     },
@@ -3409,6 +3556,7 @@
       "test_references": [
         "tests/test_onboarding.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Contextual help linked to offline docs",
       "owner_approval_required": false
     },
@@ -3432,6 +3580,7 @@
       "test_references": [
         "tests/test_onboarding.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Local feedback with redacted export",
       "owner_approval_required": false
     },
@@ -3455,6 +3604,7 @@
       "test_references": [
         "tests/test_tutorial.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Voice accessibility descriptors with opt-in responses",
       "owner_approval_required": false
     },
@@ -3474,6 +3624,7 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [],
+      "implementation_tier": "owner_gated",
       "verification_evidence": "",
       "owner_approval_required": true
     },
@@ -3493,6 +3644,7 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [],
+      "implementation_tier": "owner_gated",
       "verification_evidence": "",
       "owner_approval_required": true
     },
@@ -3516,6 +3668,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Source-leak incident runbook",
       "owner_approval_required": true
     },
@@ -3539,6 +3692,7 @@
       "test_references": [
         "tests/test_release_controls.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Proprietary notices draft and dependency license inventory",
       "owner_approval_required": false
     },
@@ -3562,6 +3716,7 @@
       "test_references": [
         "tests/test_eula.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Local EULA acceptance state with version re-prompt",
       "owner_approval_required": true
     },
@@ -3585,6 +3740,7 @@
       "test_references": [
         "tests/test_eval_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Official-build hash verification",
       "owner_approval_required": false
     },
@@ -3608,6 +3764,7 @@
       "test_references": [
         "tests/test_ci_helpers.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Trademark guidelines and abuse contact page (draft)",
       "owner_approval_required": true
     },
@@ -3631,6 +3788,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Deterrent-only obfuscation status",
       "owner_approval_required": true
     },
@@ -3654,6 +3812,7 @@
       "test_references": [
         "tests/test_release_hardening.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Manifest min_version, blocked_versions and rollout policy fields",
       "owner_approval_required": false
     },
@@ -3677,6 +3836,7 @@
       "test_references": [
         "tests/test_distribution.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Air-gapped offline bundle descriptor",
       "owner_approval_required": false
     },
@@ -3700,6 +3860,7 @@
       "test_references": [
         "tests/test_distribution.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Static signed APT/YUM repo layout check",
       "owner_approval_required": false
     },
@@ -3723,6 +3884,7 @@
       "test_references": [
         "tests/test_release_hardening.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Mirror failover with signature verification on every mirror",
       "owner_approval_required": false
     },
@@ -3746,6 +3908,7 @@
       "test_references": [
         "tests/test_distribution.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Portable build manifest",
       "owner_approval_required": false
     },
@@ -3769,6 +3932,7 @@
       "test_references": [
         "tests/test_release_hardening.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Release dry-run command with local checks and no publish",
       "owner_approval_required": false
     },
@@ -3792,6 +3956,7 @@
       "test_references": [
         "tests/test_swe_bench.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Local SWE-task benchmark suite with per-model leaderboard",
       "owner_approval_required": false
     },
@@ -3815,6 +3980,7 @@
       "test_references": [
         "tests/test_eval_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "LLM-as-judge trajectory scoring scaffold",
       "owner_approval_required": false
     },
@@ -3838,6 +4004,7 @@
       "test_references": [
         "tests/test_eval_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Prompt regression snapshots",
       "owner_approval_required": false
     },
@@ -3861,6 +4028,7 @@
       "test_references": [
         "tests/test_installer_smoke.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "Installer smoke-test harness with manifest checksum checks",
       "owner_approval_required": false
     },
@@ -3884,6 +4052,7 @@
       "test_references": [
         "tests/test_eval_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Release startup/memory/size trend storage",
       "owner_approval_required": false
     },
@@ -3896,7 +4065,7 @@
       "priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/surfaces.py"
+        "src/keel/documents.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3905,9 +4074,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_surfaces.py"
+        "tests/test_documents.py tests/test_e2e_operations.py"
       ],
-      "verification_evidence": "Verified Cowork surface with knowledge-work tool set",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real DOCX/XLSX/CSV workflows plus Cowork surface",
       "owner_approval_required": false
     },
     {
@@ -3930,6 +4100,7 @@
       "test_references": [
         "tests/test_surfaces.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Verified Code surface with engineering tool set",
       "owner_approval_required": false
     },
@@ -3942,7 +4113,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/duet.py"
+        "src/keel/inline_completion.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3951,9 +4122,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_duet.py"
+        "tests/test_inline_completion.py tests/test_duet.py"
       ],
-      "verification_evidence": "Verified Keel Duet builder/reviewer pair mode",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Duet builder/reviewer with real local inline completion",
       "owner_approval_required": false
     },
     {
@@ -3976,6 +4148,7 @@
       "test_references": [
         "tests/test_surfaces.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Verified Fleet surface with delegation/task tools",
       "owner_approval_required": false
     },
@@ -3999,6 +4172,7 @@
       "test_references": [
         "tests/test_surfaces.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Unified surface switcher with per-surface agents and permissions",
       "owner_approval_required": false
     },
@@ -4022,6 +4196,7 @@
       "test_references": [
         "tests/test_best_of_n.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Best-of-N candidate generation with test-based selection",
       "owner_approval_required": false
     },
@@ -4045,6 +4220,7 @@
       "test_references": [
         "tests/test_agent_intelligence.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Uncertainty policy",
       "owner_approval_required": false
     },
@@ -4068,6 +4244,7 @@
       "test_references": [
         "tests/test_agent_intelligence.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Project style learning",
       "owner_approval_required": false
     },
@@ -4091,6 +4268,7 @@
       "test_references": [
         "tests/test_context_packs.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Context packs with budget tracking",
       "owner_approval_required": false
     },
@@ -4114,6 +4292,7 @@
       "test_references": [
         "tests/test_resilience.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "Doom-loop hint and abort on repeated identical tool calls",
       "owner_approval_required": false
     },
@@ -4137,6 +4316,7 @@
       "test_references": [
         "tests/test_agent_roles.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Goal and overnight mode with approval checkpoints",
       "owner_approval_required": false
     },
@@ -4160,6 +4340,7 @@
       "test_references": [
         "tests/test_agent_intelligence.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Think-harder effort controls",
       "owner_approval_required": false
     },
@@ -4183,6 +4364,7 @@
       "test_references": [
         "tests/test_agent_roles.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Planner/critic/executor role prompts",
       "owner_approval_required": false
     },
@@ -4206,6 +4388,7 @@
       "test_references": [
         "tests/test_agent_roles.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Map-reduce chunking for refactors",
       "owner_approval_required": false
     },
@@ -4229,6 +4412,7 @@
       "test_references": [
         "tests/test_agent_roles.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Reflection with approval gate",
       "owner_approval_required": false
     },
@@ -4252,6 +4436,7 @@
       "test_references": [
         "tests/test_agent_intelligence.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Failure postmortems stored per project",
       "owner_approval_required": false
     },
@@ -4275,6 +4460,7 @@
       "test_references": [
         "tests/test_agent_intelligence.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Pre-run cost/time estimates with confidence",
       "owner_approval_required": false
     },
@@ -4287,7 +4473,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/misc_features.py"
+        "src/keel/debugger.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -4296,9 +4482,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_misc_features.py"
+        "tests/test_debugger.py"
       ],
-      "verification_evidence": "DAP breakpoint descriptor",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real Python debugger with breakpoints, stepping and inspection",
       "owner_approval_required": false
     },
     {
@@ -4321,6 +4508,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "external_dependency",
       "verification_evidence": "User-owned remote target descriptors",
       "owner_approval_required": false
     },
@@ -4344,6 +4532,7 @@
       "test_references": [
         "tests/test_final_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Browser devtools tool descriptors",
       "owner_approval_required": false
     },
@@ -4367,6 +4556,7 @@
       "test_references": [
         "tests/test_terminal_and_issues.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Terminal session recording and replay",
       "owner_approval_required": false
     },
@@ -4390,6 +4580,7 @@
       "test_references": [
         "tests/test_terminal_and_issues.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Issue-to-change draft planning",
       "owner_approval_required": false
     },
@@ -4413,6 +4604,7 @@
       "test_references": [
         "tests/test_dev_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Generated architecture snapshot",
       "owner_approval_required": false
     },
@@ -4436,6 +4628,7 @@
       "test_references": [
         "tests/test_code_intel.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Local symbol and dependency graph with impact analysis",
       "owner_approval_required": false
     },
@@ -4459,6 +4652,7 @@
       "test_references": [
         "tests/test_code_intel.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Change-risk scoring from dependency impact",
       "owner_approval_required": false
     },
@@ -4482,6 +4676,7 @@
       "test_references": [
         "tests/test_code_intel.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Structural search across source",
       "owner_approval_required": false
     },
@@ -4505,6 +4700,7 @@
       "test_references": [
         "tests/test_dev_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "SARIF result summarisation",
       "owner_approval_required": false
     },
@@ -4528,6 +4724,7 @@
       "test_references": [
         "tests/test_dev_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Local project secret scan",
       "owner_approval_required": false
     },
@@ -4551,6 +4748,7 @@
       "test_references": [
         "tests/test_eval_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Local profiling helper",
       "owner_approval_required": false
     },
@@ -4574,6 +4772,7 @@
       "test_references": [
         "tests/test_dev_tools.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Port/service health probe",
       "owner_approval_required": false
     },
@@ -4597,6 +4796,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Git extras descriptor",
       "owner_approval_required": false
     },
@@ -4620,6 +4820,7 @@
       "test_references": [
         "tests/test_workflow_nodes.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Deterministic map/loop workflow nodes with typed inputs",
       "owner_approval_required": false
     },
@@ -4643,6 +4844,7 @@
       "test_references": [
         "tests/test_workflow_nodes.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Human-task workflow node with timeout and default",
       "owner_approval_required": false
     },
@@ -4666,6 +4868,7 @@
       "test_references": [
         "tests/test_workflow_history.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Workflow versioning and history",
       "owner_approval_required": false
     },
@@ -4689,6 +4892,7 @@
       "test_references": [
         "tests/test_automation.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "File/git/schedule triggers",
       "owner_approval_required": false
     },
@@ -4712,6 +4916,7 @@
       "test_references": [
         "tests/test_automation.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Internal event bus",
       "owner_approval_required": false
     },
@@ -4735,6 +4940,7 @@
       "test_references": [
         "tests/test_automation.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Notification rules with quiet hours",
       "owner_approval_required": false
     },
@@ -4758,6 +4964,7 @@
       "test_references": [
         "tests/test_memory_types.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Episodic, semantic and procedural memory types",
       "owner_approval_required": false
     },
@@ -4781,6 +4988,7 @@
       "test_references": [
         "tests/test_knowledge_graph.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Local entity/relation knowledge graph",
       "owner_approval_required": false
     },
@@ -4804,6 +5012,7 @@
       "test_references": [
         "tests/test_memory_types.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Importance scoring, decay and dreaming consolidation",
       "owner_approval_required": false
     },
@@ -4827,6 +5036,7 @@
       "test_references": [
         "tests/test_user_profile.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Editable local user profile with opt-in context",
       "owner_approval_required": false
     },
@@ -4850,6 +5060,7 @@
       "test_references": [
         "tests/test_memory.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Memory provenance and tainted-source tracking",
       "owner_approval_required": false
     },
@@ -4873,6 +5084,7 @@
       "test_references": [
         "tests/test_instruction_imports.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Import other tools' instruction files as untrusted context",
       "owner_approval_required": false
     },
@@ -4896,6 +5108,7 @@
       "test_references": [
         "tests/test_interop.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "MCP config import/export and settings interchange",
       "owner_approval_required": false
     },
@@ -4919,6 +5132,7 @@
       "test_references": [
         "tests/test_skills.py"
       ],
+      "implementation_tier": "operational",
       "verification_evidence": "SKILL.md-compatible skill format and markdown commands",
       "owner_approval_required": false
     },
@@ -4942,6 +5156,7 @@
       "test_references": [
         "tests/test_interop.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "OpenAPI-to-tools generator with dormant approval gate",
       "owner_approval_required": false
     },
@@ -4965,6 +5180,7 @@
       "test_references": [
         "tests/test_interop.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Standards support checklist",
       "owner_approval_required": false
     },
@@ -4988,6 +5204,7 @@
       "test_references": [
         "tests/test_trash.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Recoverable trash for agent file deletions with restore",
       "owner_approval_required": false
     },
@@ -5011,6 +5228,7 @@
       "test_references": [
         "tests/test_workflow_history.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Anomaly detection heuristic",
       "owner_approval_required": false
     },
@@ -5034,6 +5252,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Behavior anomaly detection",
       "owner_approval_required": false
     },
@@ -5057,6 +5276,7 @@
       "test_references": [
         "tests/test_resilience.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Canary files that must never be read",
       "owner_approval_required": false
     },
@@ -5080,6 +5300,7 @@
       "test_references": [
         "tests/test_supply_chain.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Plugin/skill capability review with permission diffs",
       "owner_approval_required": false
     },
@@ -5103,6 +5324,7 @@
       "test_references": [
         "tests/test_resilience.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Content-addressable artifact store with integrity",
       "owner_approval_required": false
     },
@@ -5126,6 +5348,7 @@
       "test_references": [
         "tests/test_resilience.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "SQLite integrity check and backup",
       "owner_approval_required": false
     },
@@ -5149,6 +5372,7 @@
       "test_references": [
         "tests/test_red_team.py"
       ],
+      "implementation_tier": "local_module",
       "verification_evidence": "Local deterministic red-team evaluation suite",
       "owner_approval_required": false
     },
@@ -5172,6 +5396,7 @@
       "test_references": [
         "tests/test_model_manager.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Local model manager with RAM budget and idle unload",
       "owner_approval_required": false
     },
@@ -5195,6 +5420,7 @@
       "test_references": [
         "tests/test_virtual_list.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Virtualized list windowing and streaming backpressure",
       "owner_approval_required": false
     },
@@ -5218,6 +5444,7 @@
       "test_references": [
         "tests/test_resource_caps.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Low-power mode and resource meter descriptors",
       "owner_approval_required": false
     },
@@ -5241,6 +5468,7 @@
       "test_references": [
         "tests/test_resource_caps.py"
       ],
+      "implementation_tier": "descriptor",
       "verification_evidence": "Per-feature resource caps with visible meters",
       "owner_approval_required": false
     }

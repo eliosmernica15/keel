@@ -6,10 +6,18 @@ import json
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+SOURCES = REPO / "keel" / "docs" / "plan-sources"
 DOWNLOADS = Path(r"C:\Users\Admin\Downloads")
-V5 = DOWNLOADS / "Keel_Master_Plan_v5.md"
-ADD1 = DOWNLOADS / "Keel_Plan_v5_Addendum_Missed_Features.md"
-ADD2 = DOWNLOADS / "Keel_Plan_v5_Addendum_2_More_Features.md"
+
+
+def _source(name: str) -> Path:
+    in_repo = SOURCES / name
+    return in_repo if in_repo.is_file() else DOWNLOADS / name
+
+
+V5 = _source("Keel_Master_Plan_v5.md")
+ADD1 = _source("Keel_Plan_v5_Addendum_Missed_Features.md")
+ADD2 = _source("Keel_Plan_v5_Addendum_2_More_Features.md")
 INDEX = REPO / "PLAN-INDEX.json"
 OUT = REPO / "Keel_Master_Plan_v6.md"
 
