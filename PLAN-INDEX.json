@@ -545,7 +545,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/voice_tasks.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -554,10 +554,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_voice_tasks.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Voice-to-task handoff to the same agent",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real confirmed voice-to-task handoff queue",
       "owner_approval_required": false
     },
     {
@@ -761,7 +761,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/ops_tools.py"
+        "src/keel/webhook_delivery.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -770,10 +770,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_ops_tools.py"
+        "tests/test_webhook_delivery.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Webhook retry/backoff helper",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real signed webhook delivery with retry/backoff and delivery log",
       "owner_approval_required": false
     },
     {
@@ -3425,7 +3425,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/cowork_channels.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3434,10 +3434,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_cowork_channels.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Meeting recorder descriptor with speaker labels",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real WAV meeting audio and ICS calendar parsing",
       "owner_approval_required": false
     },
     {
@@ -4881,7 +4881,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/automation.py"
+        "src/keel/file_watcher.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -4890,10 +4890,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_automation.py"
+        "tests/test_file_watcher.py tests/test_automation.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "File/git/schedule triggers",
+      "verification_evidence": "Real polling file watcher with event dispatch",
       "owner_approval_required": false
     },
     {
@@ -5385,7 +5385,7 @@
       "priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/model_manager.py"
+        "src/keel/model_runtime.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -5394,10 +5394,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_model_manager.py"
+        "tests/test_model_runtime.py tests/test_model_manager.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Local model manager with RAM budget and idle unload",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real model runtime with RAM budget, LRU eviction and opt-in launch",
       "owner_approval_required": false
     },
     {
