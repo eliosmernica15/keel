@@ -34,7 +34,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A1.10 | `todo` tool (agent keeps a visible task checklist), separate from the plan | M5 | P0 | verified |
 | A1.11 | `webfetch` tool and `websearch` tool with **free** backends | M5 | P0 | verified |
 | A1.12 | Per-agent tool enable/disable and per-agent permission overrides | M7 | P0 | not_started |
-| A1.13 | Custom tools as code files dropped in `.keel/tools/` (Python) | M10 | P0 | not_started |
+| A1.13 | Custom tools as code files dropped in `.keel/tools/` (Python) | M10 | P0 | verified |
 | A1.14 | `instructions` config: extra instruction files by glob or URL | M7 | P1 | not_started |
 | A1.15 | `small_model` for titles/summaries (already a role) plus per-agent model override | M2 | P1 | not_started |
 | A1.16 | Configurable leader-key keybinds, custom theme JSON files | M19 | P1 | not_started |

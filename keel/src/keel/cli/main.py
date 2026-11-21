@@ -20,6 +20,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if argv and argv[0] == "init":
         return _init_cmd(argv[1:])
+    if argv and argv[0] == "tools":
+        return _tools_cmd(argv[1:])
     if argv and argv[0] == "provider":
         return _provider_cmd(argv[1:])
     if argv and argv[0] == "skills":
@@ -81,6 +83,43 @@ def main(argv: list[str] | None = None) -> int:
         diagnostic("cli_validation", {"errors": str(exc)})
         return 1
     return run(plan)
+
+
+def _tools_cmd(argv: list[str]) -> int:
+    import os
+    from pathlib import Path
+
+    from .. import custom_tools
+
+    usage = ("usage: keel tools list\n"
+             "       keel tools approve <name>\n"
+             "       keel tools revoke <name>\n")
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(usage)
+        return 0
+    command, cwd = argv[0], Path(os.getcwd())
+    specs = custom_tools.discover(cwd)
+    by_name = {spec["name"]: spec for spec in specs}
+    if command == "list":
+        sys.stdout.write(json.dumps(specs, indent=2) + "\n")
+        return 0
+    if command in ("approve", "revoke") and len(argv) > 1:
+        name = argv[1]
+        if name not in by_name and command == "revoke":
+            sys.stderr.write(f"unknown custom tool: {name}\n")
+            return 1
+        if command == "approve":
+            if name not in by_name:
+                sys.stderr.write(f"unknown custom tool: {name}\n")
+                return 1
+            custom_tools.approve(by_name[name]["path"])
+            sys.stdout.write(f"approved {name}\n")
+        else:
+            sys.stdout.write(
+                f"{'revoked' if custom_tools.revoke(name) else 'unknown'} {name}\n")
+        return 0
+    sys.stderr.write(usage)
+    return 1
 
 
 def _init_cmd(argv: list[str]) -> int:

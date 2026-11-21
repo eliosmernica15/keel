@@ -313,6 +313,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_mention_guard.py tests/test_fleet_groups.py tests/test_fleet_approvals.py -q` → `34 passed`.
 **Next:** A1.13 custom tools from `.keel/tools/`.
 
+## M6 Batch 20 — Custom Python tools (A1.13)
+
+**Implemented:** `src/keel/custom_tools.py` discovers `.keel/tools/*.py` via AST only, requires explicit content-hash approval before any import, and registers approved tools with `execute` permission; `keel tools list/approve/revoke` added.
+**Verification:** `python -m pytest tests/test_custom_tools.py tests/test_tool_registry.py tests/test_commands.py -q` → `31 passed`.
+**Next:** A1.12 per-agent tool enable/disable and permission overrides.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

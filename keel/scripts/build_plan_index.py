@@ -91,6 +91,8 @@ IMPLEMENTED = {
              "Push-to-talk dictation and voice-to-task handoff"),
     "A2.5": ("src/keel/fleet/mention_guard.py", "tests/test_mention_guard.py",
              "Group-chat loop guards for repeated agent @mentions"),
+    "A1.13": ("src/keel/custom_tools.py", "tests/test_custom_tools.py",
+              "Custom Python tools from .keel/tools with approval gating"),
 }
 
 

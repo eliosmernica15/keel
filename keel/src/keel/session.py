@@ -589,8 +589,47 @@ class Session:
             except Exception:
                 pass
 
-        tools = manifest_tools([t for t in builtin_enabled] + mcp_kept,
-                               self.deny_rules)
+        # A1.13: project-scope custom Python tools, only when approved.
+        custom_names: list[str] = []
+        try:
+            from . import custom_tools
+            from .tools.registry import Tool
+
+            for spec in custom_tools.discover(self.config.cwd):
+                if not spec.get("approved"):
+                    continue
+                name, tool_path = spec["name"], spec["path"]
+
+                def _custom_handler(tool_input, _p=tool_path):
+                    run = custom_tools.load_callable(_p)
+                    context = {"cwd": self.config.cwd,
+                               "session_id": self.config.session_id}
+                    result = run(tool_input, context)
+                    if isinstance(result, tuple) and len(result) == 2:
+                        return result
+                    return str(result), {"ok": True, "result": result}
+
+                self.tools.register(Tool(
+                    name=name,
+                    description=spec["description"],
+                    input_schema=spec["input_schema"],
+                    handler=_custom_handler,
+                    permission="execute",
+                    category="custom",
+                    origin="custom",
+                ), replace=True)
+                all_schemas[name] = {
+                    "name": name,
+                    "description": spec["description"],
+                    "input_schema": spec["input_schema"],
+                }
+                custom_names.append(name)
+        except Exception:
+            custom_names = []
+
+        tools = manifest_tools(
+            [t for t in builtin_enabled] + mcp_kept + custom_names,
+            self.deny_rules)
         if mode == MODE_DONT_ASK:
             tools = dont_ask_tools(tools, self.allow_rules)
         init = ev.system_init(
