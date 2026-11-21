@@ -68,7 +68,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A3.3 | **Mock/scripted agent** for UI development and tests (deterministic scripted runs) | M19 | P0 | verified |
 | A3.4 | Interactive **questions** from agent mid-task with timeout and default answer | M5 | P0 | verified |
 | A3.5 | Setup script that generates local secrets idempotently and prints what is missing (`keel setup`) | M3 | P1 | not_started |
-| A3.6 | "Sign out everywhere / disconnect" equivalent: **revoke all client tokens** and reset daemon key | M3 | P0 | not_started |
+| A3.6 | "Sign out everywhere / disconnect" equivalent: **revoke all client tokens** and reset daemon key | M3 | P0 | verified |
 | A3.7 | Honest "Project status" page listing what is proven end-to-end vs built-but-unproven | M26 | P1 | not_started |
 | A3.8 | Site tools: secrets manager, DB browser, scheduled jobs, analytics, element editor for generated sites | M18 | P2 | not_started |
 | A3.9 | Operator-style **Admin page** (limits, alerts, health, background job table) | M21 | P1 | not_started |
@@ -124,7 +124,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B3.6 | PII/secret **redaction before sending to any remote provider** (regex + small local classifier), with preview | M3 | P0 | verified |
 | B3.7 | Local prompt-injection classifier and canary tokens in fetched content | M3 | P1 | not_started |
 | B3.8 | Output DLP: block agent from writing secrets into files, commits or messages | M3 | P0 | verified |
-| B3.9 | **Global kill switch** (hotkey and tray): stop all agents, revoke tokens, freeze scheduler | M14 | P0 | not_started |
+| B3.9 | **Global kill switch** (hotkey and tray): stop all agents, revoke tokens, freeze scheduler | M14 | P0 | verified |
 | B4.1 | Global quick-ask hotkey overlay (spotlight style) | M19 | P1 | not_started |
 | B4.10 | Portable mode, multiple profiles (work/personal data dirs), relocatable data dir | M22 | P1 | not_started |
 | B4.11 | Scheduled **encrypted backups** with restore wizard; optional E2EE folder sync of settings/memory via the user's own synced folder | M14 | P1 | not_started |

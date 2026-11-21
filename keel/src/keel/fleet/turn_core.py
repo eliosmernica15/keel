@@ -68,6 +68,15 @@ def cancel_active_turn(bot_id: str) -> bool:
     return True
 
 
+def cancel_all_turns() -> int:
+    """B3.9 global kill switch: signal every in-flight Fleet turn at once."""
+    with _ACTIVE_LOCK:
+        events = list(_ACTIVE_CANCEL.values())
+    for event in events:
+        event.set()
+    return len(events)
+
+
 def _normalize_permission_mode(mode: str | None) -> str:
     m = (mode or "").strip().lower()
     if m in ("dontAsk", "dont_ask", "dontask"):

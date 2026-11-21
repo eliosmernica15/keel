@@ -2378,6 +2378,22 @@ loadSettings().then(() => { refreshProviders(); hydrateGeneral(); refreshUsage()
 const stopBtn = $("btn-stop");
 if (stopBtn) stopBtn.addEventListener("click", () => { agentStopRun(); });
 
+/* B3.9/A3.6 — global stop: cancel every turn and rotate the client token. */
+const killBtn = $("btn-kill");
+if (killBtn) killBtn.addEventListener("click", async () => {
+  if (!bridge.live) { systemNote("global stop needs the local bridge", "denied", state.surface); return; }
+  try {
+    const res = await fetch("/api/kill-switch", {
+      method: "POST", headers: jsonHeaders(), body: "{}" });
+    if (!res.ok) throw new Error(String(res.status));
+    const doc = await res.json();
+    if (doc.token) {
+      sessionStorage.setItem("keel_token", doc.token);
+      systemNote(`stopped ${doc.cancelled} agent turn(s); all client tokens revoked`, "system", state.surface);
+    }
+  } catch (err) { systemNote(`global stop failed: ${err}`, "denied", state.surface); }
+});
+
 agentProbe().then(() => {
   refreshBridgeStatus();
   refreshSystem();

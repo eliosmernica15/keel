@@ -277,6 +277,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_surfaces.py tests/test_webapp.py tests/test_settings.py -q` → `35 passed`; `node --check` clean.
 **Next:** C1.3 agent avatars/colors/voices and C2.3 voice previews.
 
+## M6 Batch 14 — Global stop and token revocation (B3.9, A3.6)
+
+**Implemented:** `cancel_all_turns()` signals every in-flight Fleet turn; `POST /api/kill-switch` stops all turns and rotates the bridge token, revoking existing client credentials; a header "Stop all" button wires it into the UI.
+**Verification:** `python -m pytest tests/test_kill_switch.py tests/test_webapp.py tests/test_fleet_ask_user.py -q` → `22 passed`; `node --check` clean.
+**Next:** B3.11 provider circuit breaker with retry/backoff and health scoring.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

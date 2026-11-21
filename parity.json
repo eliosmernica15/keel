@@ -769,16 +769,20 @@
       "source_feature_id": "A3.6",
       "milestone": "M3",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/webapp.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement \"Sign out everywhere / disconnect\" equivalent: **revoke all client tokens** and reset daemon key according to Keel_Plan_v5_Addendum_Missed_Features.md feature A3.6",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_kill_switch.py"
+      ],
+      "verification_evidence": "Revoke all client tokens by rotating the bridge token",
       "owner_approval_required": false
     },
     {
@@ -1861,16 +1865,20 @@
       "source_feature_id": "B3.9",
       "milestone": "M14",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/fleet/turn_core.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Global kill switch** (hotkey and tray): stop all agents, revoke tokens, freeze scheduler according to Keel_Plan_v5_Addendum_Missed_Features.md feature B3.9",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_kill_switch.py"
+      ],
+      "verification_evidence": "Global kill switch cancelling all in-flight agent turns",
       "owner_approval_required": false
     },
     {

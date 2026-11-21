@@ -185,6 +185,13 @@ def token() -> str:
     return _TOKEN
 
 
+def rotate_token() -> str:
+    """A3.6: revoke every existing client credential by rotating the token."""
+    global _TOKEN
+    _TOKEN = secrets.token_urlsafe(24)
+    return _TOKEN
+
+
 def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
     """Create (but do not start) the bridge server. Port 0 = ephemeral."""
     class Handler(BaseHTTPRequestHandler):
@@ -442,6 +449,13 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 from . import compat
                 sid = path[len("/api/v2/sessions"):].strip("/")
                 return self._v2_sessions(path, sid, compat)
+            if path == "/api/kill-switch":
+                from .fleet import turn_core
+                cancelled = turn_core.cancel_all_turns()
+                new_token = rotate_token()
+                self._send_json({"ok": True, "cancelled": cancelled,
+                                 "token": new_token})
+                return
             if path.startswith("/api/surfaces/"):
                 name = path[len("/api/surfaces/"):].strip("/")
                 from . import surfaces as surfaces_mod

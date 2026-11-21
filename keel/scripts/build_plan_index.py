@@ -77,6 +77,10 @@ IMPLEMENTED = {
              "Image paste/drag into composer and fuzzy @file search"),
     "C2.5": ("src/keel/surfaces.py", "tests/test_surfaces.py",
              "Unified surface switcher with per-surface agents and permissions"),
+    "B3.9": ("src/keel/fleet/turn_core.py", "tests/test_kill_switch.py",
+             "Global kill switch cancelling all in-flight agent turns"),
+    "A3.6": ("src/keel/webapp.py", "tests/test_kill_switch.py",
+             "Revoke all client tokens by rotating the bridge token"),
 }
 
 
