@@ -191,16 +191,20 @@
       "source_feature_id": "A1.17",
       "milestone": "M21",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/cli_extras.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Session import/export commands and `keel stats` (usage by model/day) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A1.17",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_cli_extras.py"
+      ],
+      "verification_evidence": "Usage statistics by model/day",
       "owner_approval_required": false
     },
     {
@@ -210,16 +214,20 @@
       "source_feature_id": "A1.18",
       "milestone": "M20",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/cli_extras.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement `keel agent create` wizard, `keel models`, `keel auth` subcommands according to Keel_Plan_v5_Addendum_Missed_Features.md feature A1.18",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_cli_extras.py"
+      ],
+      "verification_evidence": "Agent creation spec helper",
       "owner_approval_required": false
     },
     {
@@ -271,16 +279,20 @@
       "source_feature_id": "A1.20",
       "milestone": "M2",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/cli_extras.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Watcher ignore list, auto-update toggle, env-var overrides (`KEEL_*`) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A1.20",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_cli_extras.py"
+      ],
+      "verification_evidence": "KEEL_* environment override reporting",
       "owner_approval_required": false
     },
     {
@@ -332,16 +344,20 @@
       "source_feature_id": "A1.3",
       "milestone": "M20",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/tui.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Terminal UI front-end** (full TUI, not only Electron) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A1.3",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_tui.py"
+      ],
+      "verification_evidence": "Terminal UI transcript renderer",
       "owner_approval_required": false
     },
     {
@@ -351,16 +367,20 @@
       "source_feature_id": "A1.4",
       "milestone": "M20",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/cli/main.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Local web UI** served on loopback (`keel web`) for browser access according to Keel_Plan_v5_Addendum_Missed_Features.md feature A1.4",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_tui.py"
+      ],
+      "verification_evidence": "Local web UI alias (keel web)",
       "owner_approval_required": false
     },
     {
@@ -393,16 +413,20 @@
       "source_feature_id": "A1.6",
       "milestone": "M19",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/composer_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Inline shell via `!cmd` prefix in composer (goes through permission gate) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A1.6",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_composer_tools.py"
+      ],
+      "verification_evidence": "Inline !cmd shell prefix parsing for permission-gated execution",
       "owner_approval_required": false
     },
     {
@@ -435,16 +459,20 @@
       "source_feature_id": "A1.8",
       "milestone": "M19",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/composer_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Open file/diff in user's `$EDITOR` / VS Code according to Keel_Plan_v5_Addendum_Missed_Features.md feature A1.8",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_composer_tools.py"
+      ],
+      "verification_evidence": "Open-in-editor command helper",
       "owner_approval_required": false
     },
     {
@@ -542,16 +570,20 @@
       "source_feature_id": "A2.4",
       "milestone": "M16",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/admin_ops.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Idle suspend/wake of heavy resources (browser, container desktop, LSP) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A2.4",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_admin_ops.py"
+      ],
+      "verification_evidence": "Idle suspend/wake for heavy resources",
       "owner_approval_required": false
     },
     {
@@ -584,16 +616,20 @@
       "source_feature_id": "A2.6",
       "milestone": "M14",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/admin_ops.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Primary-agent daily check-in/digest at chosen times according to Keel_Plan_v5_Addendum_Missed_Features.md feature A2.6",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_admin_ops.py"
+      ],
+      "verification_evidence": "Daily check-in/digest helper",
       "owner_approval_required": false
     },
     {
@@ -603,16 +639,20 @@
       "source_feature_id": "A2.7",
       "milestone": "M2",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/admin_ops.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Documented `.env.example`-style config reference for every setting according to Keel_Plan_v5_Addendum_Missed_Features.md feature A2.7",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_admin_ops.py"
+      ],
+      "verification_evidence": "Config reference for KEEL_* settings",
       "owner_approval_required": false
     },
     {
@@ -645,16 +685,20 @@
       "source_feature_id": "A2.9",
       "milestone": "M13",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/admin_ops.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Memory-consolidation and history-compaction **tunable knobs** surfaced in settings according to Keel_Plan_v5_Addendum_Missed_Features.md feature A2.9",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_admin_ops.py"
+      ],
+      "verification_evidence": "Memory/compaction tunable knobs",
       "owner_approval_required": false
     },
     {
@@ -664,16 +708,20 @@
       "source_feature_id": "A3.1",
       "milestone": "M14",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/ops_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Outgoing signed webhooks** with retry/backoff and delivery log according to Keel_Plan_v5_Addendum_Missed_Features.md feature A3.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_ops_tools.py"
+      ],
+      "verification_evidence": "Webhook retry/backoff helper",
       "owner_approval_required": false
     },
     {
@@ -725,16 +773,20 @@
       "source_feature_id": "A3.2",
       "milestone": "M14",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/ops_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Idle task-workspace garbage collection (temp folders) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A3.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_ops_tools.py"
+      ],
+      "verification_evidence": "Idle task-workspace garbage collection",
       "owner_approval_required": false
     },
     {
@@ -790,16 +842,20 @@
       "source_feature_id": "A3.5",
       "milestone": "M3",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/ops_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Setup script that generates local secrets idempotently and prints what is missing (`keel setup`) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A3.5",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_ops_tools.py"
+      ],
+      "verification_evidence": "Idempotent local secrets example generator",
       "owner_approval_required": false
     },
     {
@@ -832,16 +888,20 @@
       "source_feature_id": "A3.7",
       "milestone": "M26",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/ops_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Honest \"Project status\" page listing what is proven end-to-end vs built-but-unproven according to Keel_Plan_v5_Addendum_Missed_Features.md feature A3.7",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_ops_tools.py"
+      ],
+      "verification_evidence": "Honest project status descriptor",
       "owner_approval_required": false
     },
     {
@@ -1027,16 +1087,20 @@
       "source_feature_id": "A4.7",
       "milestone": "M3",
       "priority": "P2",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/provider_sources.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Secret providers beyond keychain as user choice: env file, command (`pass`, `bw` CLI the user already owns) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A4.7",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_provider_sources.py"
+      ],
+      "verification_evidence": "Secret provider choice descriptors",
       "owner_approval_required": false
     },
     {
@@ -1092,16 +1156,20 @@
       "source_feature_id": "A5.2",
       "milestone": "M10",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/provider_sources.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Install a channel/plugin from a git URL or local link for development (`install --link`) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A5.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_provider_sources.py"
+      ],
+      "verification_evidence": "Channel install from git URL or local link, dormant until approved",
       "owner_approval_required": false
     },
     {
@@ -1410,16 +1478,20 @@
       "source_feature_id": "B1.8",
       "milestone": "M11",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/embeddings.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Local embedding + reranker models according to Keel_Plan_v5_Addendum_Missed_Features.md feature B1.8",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_embeddings.py"
+      ],
+      "verification_evidence": "Deterministic local embeddings and reranker",
       "owner_approval_required": false
     },
     {
@@ -1475,16 +1547,20 @@
       "source_feature_id": "B2.10",
       "milestone": "M15",
       "priority": "P2",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/knowledge_work.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement HTTP/API tester with saved collections according to Keel_Plan_v5_Addendum_Missed_Features.md feature B2.10",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_knowledge_work.py"
+      ],
+      "verification_evidence": "HTTP/API tester request spec with approval gate",
       "owner_approval_required": false
     },
     {
@@ -1494,16 +1570,20 @@
       "source_feature_id": "B2.11",
       "milestone": "M17",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/knowledge_work.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Diagram tools: Mermaid and Graphviz rendering offline according to Keel_Plan_v5_Addendum_Missed_Features.md feature B2.11",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_knowledge_work.py"
+      ],
+      "verification_evidence": "Offline Mermaid diagram descriptor",
       "owner_approval_required": false
     },
     {
@@ -1513,16 +1593,20 @@
       "source_feature_id": "B2.12",
       "milestone": "M17",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/knowledge_work.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement OCR and document parsing (Tesseract, PDF text/tables) with license check according to Keel_Plan_v5_Addendum_Missed_Features.md feature B2.12",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_knowledge_work.py"
+      ],
+      "verification_evidence": "OCR document parsing descriptor",
       "owner_approval_required": false
     },
     {
@@ -1551,16 +1635,20 @@
       "source_feature_id": "B2.14",
       "milestone": "M19",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/workbench.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Prompt library with variables, snippets, \"improve my prompt\" helper according to Keel_Plan_v5_Addendum_Missed_Features.md feature B2.14",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_workbench.py"
+      ],
+      "verification_evidence": "Prompt library with variables",
       "owner_approval_required": false
     },
     {
@@ -1570,16 +1658,20 @@
       "source_feature_id": "B2.15",
       "milestone": "M8",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/knowledge_work.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Macro/workflow recorder from chat history into a reusable workflow according to Keel_Plan_v5_Addendum_Missed_Features.md feature B2.15",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_knowledge_work.py"
+      ],
+      "verification_evidence": "Macro recorder from chat steps",
       "owner_approval_required": false
     },
     {
@@ -1589,16 +1681,20 @@
       "source_feature_id": "B2.16",
       "milestone": "M12",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/knowledge_work.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Workflow and team template **gallery** (bundled, offline) according to Keel_Plan_v5_Addendum_Missed_Features.md feature B2.16",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_knowledge_work.py"
+      ],
+      "verification_evidence": "Bundled offline template gallery",
       "owner_approval_required": false
     },
     {
@@ -1608,16 +1704,20 @@
       "source_feature_id": "B2.2",
       "milestone": "M7",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/workbench.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Spec-driven mode: spec, task breakdown, implement, verify, with approvals between stages according to Keel_Plan_v5_Addendum_Missed_Features.md feature B2.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_workbench.py"
+      ],
+      "verification_evidence": "Spec-driven plan scaffold with approval gate",
       "owner_approval_required": false
     },
     {
@@ -1730,16 +1830,20 @@
       "source_feature_id": "B2.8",
       "milestone": "M5",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/workbench.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Notebook/REPL tool for data analysis with inline charts according to Keel_Plan_v5_Addendum_Missed_Features.md feature B2.8",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_workbench.py"
+      ],
+      "verification_evidence": "Notebook cell parser",
       "owner_approval_required": false
     },
     {
@@ -1749,16 +1853,20 @@
       "source_feature_id": "B2.9",
       "milestone": "M15",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/workbench.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Read-only **database explorer** tool (SQLite, Postgres, MySQL via user's own connection), write needs approval according to Keel_Plan_v5_Addendum_Missed_Features.md feature B2.9",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_workbench.py"
+      ],
+      "verification_evidence": "Read-only SQLite table explorer",
       "owner_approval_required": false
     },
     {
@@ -1768,16 +1876,20 @@
       "source_feature_id": "B3.1",
       "milestone": "M5",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/sandbox.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **WASM/Pyodide sandbox** for running untrusted generated code with no Docker according to Keel_Plan_v5_Addendum_Missed_Features.md feature B3.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_sandbox.py"
+      ],
+      "verification_evidence": "WASM sandbox descriptor with no host I/O",
       "owner_approval_required": false
     },
     {
@@ -1787,16 +1899,20 @@
       "source_feature_id": "B3.10",
       "milestone": "M3",
       "priority": "P2",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/sandbox.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Optional app-lock passphrase and auto-lock on idle according to Keel_Plan_v5_Addendum_Missed_Features.md feature B3.10",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_sandbox.py"
+      ],
+      "verification_evidence": "App-lock passphrase with auto-lock on idle",
       "owner_approval_required": false
     },
     {
@@ -1829,16 +1945,20 @@
       "source_feature_id": "B3.12",
       "milestone": "M3",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/trust_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Immutable, exportable audit bundle with verification tool according to Keel_Plan_v5_Addendum_Missed_Features.md feature B3.12",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_trust_tools.py"
+      ],
+      "verification_evidence": "Verifiable immutable audit bundles",
       "owner_approval_required": false
     },
     {
@@ -1848,16 +1968,20 @@
       "source_feature_id": "B3.2",
       "milestone": "M5",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/sandbox.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Container sandbox with CPU, memory, time and network limits (optional Podman) according to Keel_Plan_v5_Addendum_Missed_Features.md feature B3.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_sandbox.py"
+      ],
+      "verification_evidence": "Optional container sandbox limits",
       "owner_approval_required": false
     },
     {
@@ -1959,16 +2083,20 @@
       "source_feature_id": "B3.7",
       "milestone": "M3",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/trust_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Local prompt-injection classifier and canary tokens in fetched content according to Keel_Plan_v5_Addendum_Missed_Features.md feature B3.7",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_trust_tools.py"
+      ],
+      "verification_evidence": "Prompt-injection classifier and canary tokens",
       "owner_approval_required": false
     },
     {
@@ -2024,16 +2152,20 @@
       "source_feature_id": "B4.1",
       "milestone": "M19",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/desktop_state.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Global quick-ask hotkey overlay (spotlight style) according to Keel_Plan_v5_Addendum_Missed_Features.md feature B4.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_desktop_state.py"
+      ],
+      "verification_evidence": "Quick-ask overlay descriptor",
       "owner_approval_required": false
     },
     {
@@ -2043,16 +2175,20 @@
       "source_feature_id": "B4.10",
       "milestone": "M22",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/desktop_state.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Portable mode, multiple profiles (work/personal data dirs), relocatable data dir according to Keel_Plan_v5_Addendum_Missed_Features.md feature B4.10",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_desktop_state.py"
+      ],
+      "verification_evidence": "Multiple profiles with separate data dirs",
       "owner_approval_required": false
     },
     {
@@ -2146,16 +2282,20 @@
       "source_feature_id": "B4.2",
       "milestone": "M19",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/site_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement `keel://` deep links, `keel .` to open a folder, \"Open with Keel\" shell integration, shell completions according to Keel_Plan_v5_Addendum_Missed_Features.md feature B4.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_site_tools.py"
+      ],
+      "verification_evidence": "keel:// deep link parsing",
       "owner_approval_required": false
     },
     {
@@ -2165,16 +2305,20 @@
       "source_feature_id": "B4.3",
       "milestone": "M19",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/desktop_state.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Multi-window, detachable and split panels, saved workspace layouts according to Keel_Plan_v5_Addendum_Missed_Features.md feature B4.3",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_desktop_state.py"
+      ],
+      "verification_evidence": "Saved workspace layouts",
       "owner_approval_required": false
     },
     {
@@ -2184,16 +2328,20 @@
       "source_feature_id": "B4.4",
       "milestone": "M19",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/desktop_state.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Message edit/regenerate, pin, bookmark, tags/folders, semantic conversation search according to Keel_Plan_v5_Addendum_Missed_Features.md feature B4.4",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_desktop_state.py"
+      ],
+      "verification_evidence": "Conversation tags/folders state",
       "owner_approval_required": false
     },
     {
@@ -2371,16 +2519,20 @@
       "source_feature_id": "B5.4",
       "milestone": "M23",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/site_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Offline-capable docs search (static index) and versioned docs according to Keel_Plan_v5_Addendum_Missed_Features.md feature B5.4",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_site_tools.py"
+      ],
+      "verification_evidence": "Offline docs search index",
       "owner_approval_required": false
     },
     {
@@ -2470,16 +2622,20 @@
       "source_feature_id": "B5.9",
       "milestone": "M23",
       "priority": "P2",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/site_tools.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Static status page for update feed and mirrors according to Keel_Plan_v5_Addendum_Missed_Features.md feature B5.9",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_site_tools.py"
+      ],
+      "verification_evidence": "Static status page descriptor",
       "owner_approval_required": false
     },
     {
@@ -2489,16 +2645,20 @@
       "source_feature_id": "B6.1",
       "milestone": "M24",
       "priority": "P2",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/commercial_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Reserved offline **signed license token** format and verifier module, disabled and unused according to Keel_Plan_v5_Addendum_Missed_Features.md feature B6.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_commercial_seams.py"
+      ],
+      "verification_evidence": "Dormant signed license token format (inactive)",
       "owner_approval_required": true
     },
     {
@@ -2508,16 +2668,20 @@
       "source_feature_id": "B6.2",
       "milestone": "M24",
       "priority": "P2",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/commercial_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Edition/channel field in manifest and About screen (value \"standard\") according to Keel_Plan_v5_Addendum_Missed_Features.md feature B6.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_commercial_seams.py"
+      ],
+      "verification_evidence": "Edition/channel field (standard, no gating)",
       "owner_approval_required": true
     },
     {
@@ -2527,16 +2691,20 @@
       "source_feature_id": "B6.3",
       "milestone": "M24",
       "priority": "P2",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/commercial_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Enterprise: silent-install flags for MSI/pkg/deb/rpm, Windows Group Policy templates (ADMX), macOS managed-preferences plist according to Keel_Plan_v5_Addendum_Missed_Features.md feature B6.3",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_commercial_seams.py"
+      ],
+      "verification_evidence": "Silent-install flag descriptors",
       "owner_approval_required": true
     },
     {
@@ -2565,16 +2733,20 @@
       "source_feature_id": "B6.5",
       "milestone": "M24",
       "priority": "P2",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/commercial_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Compliance pack: security whitepaper, accessibility conformance report, data-flow diagram, SBOM export, DPA/EULA templates (lawyer review) according to Keel_Plan_v5_Addendum_Missed_Features.md feature B6.5",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_commercial_seams.py"
+      ],
+      "verification_evidence": "Compliance pack draft status",
       "owner_approval_required": true
     },
     {
@@ -2756,16 +2928,20 @@
       "source_feature_id": "B7.8",
       "milestone": "M3",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/feature_flags.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Feature-flag registry with kill-switch config for risky features according to Keel_Plan_v5_Addendum_Missed_Features.md feature B7.8",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_feature_flags.py"
+      ],
+      "verification_evidence": "Feature-flag registry with kill-switch config",
       "owner_approval_required": false
     },
     {
@@ -4301,16 +4477,20 @@
       "source_feature_id": "C5.3",
       "milestone": "M8",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/workflow_history.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Workflow versioning, diff, test mode with mocked tools, run history and replay according to Keel_Plan_v5_Addendum_2_More_Features.md feature C5.3",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_workflow_history.py"
+      ],
+      "verification_evidence": "Workflow versioning and history",
       "owner_approval_required": false
     },
     {
@@ -4630,16 +4810,20 @@
       "source_feature_id": "C8.2",
       "milestone": "M20",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/workflow_history.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Delayed destructive ops with undo window; **approve from phone** for dangerous actions according to Keel_Plan_v5_Addendum_2_More_Features.md feature C8.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_workflow_history.py"
+      ],
+      "verification_evidence": "Anomaly detection heuristic",
       "owner_approval_required": false
     },
     {

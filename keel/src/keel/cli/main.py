@@ -45,6 +45,9 @@ def main(argv: list[str] | None = None) -> int:
         return _settings_cmd(argv[1:])
     if argv and argv[0] == "mcp":
         return _mcp_cmd(argv[1:])
+    if argv and argv[0] == "web":
+        # A1.4: local web UI alias — same loopback server as `keel serve`.
+        argv = ["serve", *argv[1:]]
     if argv and argv[0] == "serve":
         from ..webapp import serve
         port = 8739

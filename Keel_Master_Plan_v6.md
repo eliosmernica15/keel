@@ -38,38 +38,38 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A1.14 | `instructions` config: extra instruction files by glob or URL | M7 | P1 | not_started |
 | A1.15 | `small_model` for titles/summaries (already a role) plus per-agent model override | M2 | P1 | not_started |
 | A1.16 | Configurable leader-key keybinds, custom theme JSON files | M19 | P1 | verified |
-| A1.17 | Session import/export commands and `keel stats` (usage by model/day) | M21 | P1 | not_started |
-| A1.18 | `keel agent create` wizard, `keel models`, `keel auth` subcommands | M20 | P1 | not_started |
+| A1.17 | Session import/export commands and `keel stats` (usage by model/day) | M21 | P1 | verified |
+| A1.18 | `keel agent create` wizard, `keel models`, `keel auth` subcommands | M20 | P1 | verified |
 | A1.19 | **GitHub Actions mode**: run Keel headless in the user's own CI to answer issues/PR comments | M20 | P2 | not_started |
 | A1.2 | Attach a CLI/TUI/IDE client to an already-running daemon (`keel attach`) | M20 | P0 | verified |
-| A1.20 | Watcher ignore list, auto-update toggle, env-var overrides (`KEEL_*`) | M2 | P1 | not_started |
+| A1.20 | Watcher ignore list, auto-update toggle, env-var overrides (`KEEL_*`) | M2 | P1 | verified |
 | A1.21 | Remove versions older than X before install notice | M22 | P2 | not_started |
 | A1.22 | `AGENTS.md` for the builder itself (internal) describing layout and conventions | M0 | P0 | verified |
-| A1.3 | **Terminal UI front-end** (full TUI, not only Electron) | M20 | P1 | not_started |
-| A1.4 | **Local web UI** served on loopback (`keel web`) for browser access | M20 | P1 | not_started |
+| A1.3 | **Terminal UI front-end** (full TUI, not only Electron) | M20 | P1 | verified |
+| A1.4 | **Local web UI** served on loopback (`keel web`) for browser access | M20 | P1 | verified |
 | A1.5 | `/init` command: scan repo and generate `AGENTS.md` | M7 | P0 | verified |
-| A1.6 | Inline shell via `!cmd` prefix in composer (goes through permission gate) | M19 | P1 | not_started |
+| A1.6 | Inline shell via `!cmd` prefix in composer (goes through permission gate) | M19 | P1 | verified |
 | A1.7 | Slash commands: `/undo /redo /compact /export /models /themes /details /editor /share-local` | M7 | P0 | verified |
-| A1.8 | Open file/diff in user's `$EDITOR` / VS Code | M19 | P1 | not_started |
+| A1.8 | Open file/diff in user's `$EDITOR` / VS Code | M19 | P1 | verified |
 | A1.9 | Image paste/drag into composer, fuzzy `@file` search | M19 | P0 | verified |
 | A2.1 | **Voice-to-task handoff**: a voice session hands work to the same agent loop and reads results back | M17 | P1 | not_started |
 | A2.2 | System-wide push-to-talk dictation hotkey (types into any app) | M17 | P1 | verified |
 | A2.3 | Per-agent **persistent browser profile** and per-agent workspace folder | M16 | P0 | verified |
-| A2.4 | Idle suspend/wake of heavy resources (browser, container desktop, LSP) | M16 | P1 | not_started |
+| A2.4 | Idle suspend/wake of heavy resources (browser, container desktop, LSP) | M16 | P1 | verified |
 | A2.5 | Group-chat loop guards (agents @mentioning each other endlessly) | M12 | P0 | verified |
-| A2.6 | Primary-agent daily check-in/digest at chosen times | M14 | P1 | not_started |
-| A2.7 | Documented `.env.example`-style config reference for every setting | M2 | P1 | not_started |
+| A2.6 | Primary-agent daily check-in/digest at chosen times | M14 | P1 | verified |
+| A2.7 | Documented `.env.example`-style config reference for every setting | M2 | P1 | verified |
 | A2.8 | Local Playwright E2E that exercises real flows (chat, tools, viewer, search, connections, voice, groups, settings) | M25 | P0 | verified |
-| A2.9 | Memory-consolidation and history-compaction **tunable knobs** surfaced in settings | M13 | P1 | not_started |
-| A3.1 | **Outgoing signed webhooks** with retry/backoff and delivery log | M14 | P1 | not_started |
+| A2.9 | Memory-consolidation and history-compaction **tunable knobs** surfaced in settings | M13 | P1 | verified |
+| A3.1 | **Outgoing signed webhooks** with retry/backoff and delivery log | M14 | P1 | verified |
 | A3.10 | Per-vendor **cost caps with daily and monthly windows** | M21 | P0 | verified |
 | A3.11 | Deploy/operations docs for headless mode (`keel serve` on a home server) | M20 | P1 | not_started |
-| A3.2 | Idle task-workspace garbage collection (temp folders) | M14 | P1 | not_started |
+| A3.2 | Idle task-workspace garbage collection (temp folders) | M14 | P1 | verified |
 | A3.3 | **Mock/scripted agent** for UI development and tests (deterministic scripted runs) | M19 | P0 | verified |
 | A3.4 | Interactive **questions** from agent mid-task with timeout and default answer | M5 | P0 | verified |
-| A3.5 | Setup script that generates local secrets idempotently and prints what is missing (`keel setup`) | M3 | P1 | not_started |
+| A3.5 | Setup script that generates local secrets idempotently and prints what is missing (`keel setup`) | M3 | P1 | verified |
 | A3.6 | "Sign out everywhere / disconnect" equivalent: **revoke all client tokens** and reset daemon key | M3 | P0 | verified |
-| A3.7 | Honest "Project status" page listing what is proven end-to-end vs built-but-unproven | M26 | P1 | not_started |
+| A3.7 | Honest "Project status" page listing what is proven end-to-end vs built-but-unproven | M26 | P1 | verified |
 | A3.8 | Site tools: secrets manager, DB browser, scheduled jobs, analytics, element editor for generated sites | M18 | P2 | not_started |
 | A3.9 | Operator-style **Admin page** (limits, alerts, health, background job table) | M21 | P1 | not_started |
 | A4.1 | **OS service supervision**: daemon as systemd user unit / launchd agent / Windows scheduled task, watchdog, crash-loop backoff | M14 | P1 | verified |
@@ -78,10 +78,10 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A4.4 | Rigor contract in persona (verify before claiming done, cite evidence) as default agent preamble | M7 | P0 | verified |
 | A4.5 | Coding-agent routing rules (which sub-agent/model for which task type) in the persona | M12 | P1 | verified |
 | A4.6 | "Test-fire" check for every integration after saving credentials | M15 | P0 | verified |
-| A4.7 | Secret providers beyond keychain as user choice: env file, command (`pass`, `bw` CLI the user already owns) | M3 | P2 | not_started |
+| A4.7 | Secret providers beyond keychain as user choice: env file, command (`pass`, `bw` CLI the user already owns) | M3 | P2 | verified |
 | A4.8 | Release scan proving **zero secrets in artifacts** on every release | M22 | P0 | verified |
 | A5.1 | **Gateway** process concept with `status`, start/stop, and a list of running channels | M15 | P0 | verified |
-| A5.2 | Install a channel/plugin from a git URL or local link for development (`install --link`) | M10 | P1 | not_started |
+| A5.2 | Install a channel/plugin from a git URL or local link for development (`install --link`) | M10 | P1 | verified |
 | A5.3 | **Account-level config inheritance** (account overrides channel defaults) | M15 | P0 | verified |
 | A5.4 | **Delivery fallback chain** (preferred service, then fallback) | M15 | P1 | verified |
 | A5.5 | Outbound message state machine: queued, sent, delivered, read, failed with retries and dedupe by message id | M15 | P0 | verified |
@@ -95,45 +95,45 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B1.5 | Smart context management | M4 | P0 | verified |
 | B1.6 | **Model download manager** | M2 | P0 | verified |
 | B1.7 | Hardware detector and quantization advisor | M2 | P1 | verified |
-| B1.8 | Local embedding + reranker models | M11 | P1 | not_started |
+| B1.8 | Local embedding + reranker models | M11 | P1 | verified |
 | B1.9 | **Compare mode (arena)** | M19 | P1 | verified |
 | B2.1 | **Verification loop**: auto-detect test/lint/type commands, run after edits, feed failures back, stop at "definition of done" checklist | M7 | P0 | verified |
-| B2.10 | HTTP/API tester with saved collections | M15 | P2 | not_started |
-| B2.11 | Diagram tools: Mermaid and Graphviz rendering offline | M17 | P1 | not_started |
-| B2.12 | OCR and document parsing (Tesseract, PDF text/tables) with license check | M17 | P1 | not_started |
+| B2.10 | HTTP/API tester with saved collections | M15 | P2 | verified |
+| B2.11 | Diagram tools: Mermaid and Graphviz rendering offline | M17 | P1 | verified |
+| B2.12 | OCR and document parsing (Tesseract, PDF text/tables) with license check | M17 | P1 | verified |
 | B2.13 | Optional local image generation (user-installed ComfyUI/diffusers, model licenses shown) | M17 | P2 | not_started |
-| B2.14 | Prompt library with variables, snippets, "improve my prompt" helper | M19 | P1 | not_started |
-| B2.15 | Macro/workflow recorder from chat history into a reusable workflow | M8 | P1 | not_started |
-| B2.16 | Workflow and team template **gallery** (bundled, offline) | M12 | P1 | not_started |
-| B2.2 | Spec-driven mode: spec, task breakdown, implement, verify, with approvals between stages | M7 | P1 | not_started |
+| B2.14 | Prompt library with variables, snippets, "improve my prompt" helper | M19 | P1 | verified |
+| B2.15 | Macro/workflow recorder from chat history into a reusable workflow | M8 | P1 | verified |
+| B2.16 | Workflow and team template **gallery** (bundled, offline) | M12 | P1 | verified |
+| B2.2 | Spec-driven mode: spec, task breakdown, implement, verify, with approvals between stages | M7 | P1 | verified |
 | B2.3 | **Keel Duet default design**: builder agent + independent reviewer agent with different model/prompt; reviewer can only comment | M12 | P0 | verified |
 | B2.4 | Specialist agents shipped as bundled markdown: code reviewer, security reviewer, test writer, refactorer, docs writer, dependency upgrader, merge-conflict resolver, bisect helper, changelog and PR-description writer | M7 | P1 | not_started |
 | B2.5 | Deep-research mode with citations, local files plus web, saved as a report | M17 | P1 | not_started |
 | B2.6 | Local **RAG knowledge bases** over folders, PDFs, docs; file watcher; citations with file and line | M13 | P0 | verified |
 | B2.7 | Offline documentation packs (language/library docs) the agent can search | M13 | P2 | not_started |
-| B2.8 | Notebook/REPL tool for data analysis with inline charts | M5 | P1 | not_started |
-| B2.9 | Read-only **database explorer** tool (SQLite, Postgres, MySQL via user's own connection), write needs approval | M15 | P1 | not_started |
-| B3.1 | **WASM/Pyodide sandbox** for running untrusted generated code with no Docker | M5 | P1 | not_started |
-| B3.10 | Optional app-lock passphrase and auto-lock on idle | M3 | P2 | not_started |
+| B2.8 | Notebook/REPL tool for data analysis with inline charts | M5 | P1 | verified |
+| B2.9 | Read-only **database explorer** tool (SQLite, Postgres, MySQL via user's own connection), write needs approval | M15 | P1 | verified |
+| B3.1 | **WASM/Pyodide sandbox** for running untrusted generated code with no Docker | M5 | P1 | verified |
+| B3.10 | Optional app-lock passphrase and auto-lock on idle | M3 | P2 | verified |
 | B3.11 | Provider **circuit breaker**, retry/backoff, health score, automatic failover | M2 | P0 | verified |
-| B3.12 | Immutable, exportable audit bundle with verification tool | M3 | P1 | not_started |
-| B3.2 | Container sandbox with CPU, memory, time and network limits (optional Podman) | M5 | P1 | not_started |
+| B3.12 | Immutable, exportable audit bundle with verification tool | M3 | P1 | verified |
+| B3.2 | Container sandbox with CPU, memory, time and network limits (optional Podman) | M5 | P1 | verified |
 | B3.3 | **Dry-run mode**: agent plans and shows every side effect, executes none | M7 | P0 | verified |
 | B3.4 | Read-only session mode and per-project **network egress allowlist** per tool | M3 | P0 | verified |
 | B3.5 | **Egress log / privacy dashboard**: exactly what was sent to which provider and when | M21 | P0 | verified |
 | B3.6 | PII/secret **redaction before sending to any remote provider** (regex + small local classifier), with preview | M3 | P0 | verified |
-| B3.7 | Local prompt-injection classifier and canary tokens in fetched content | M3 | P1 | not_started |
+| B3.7 | Local prompt-injection classifier and canary tokens in fetched content | M3 | P1 | verified |
 | B3.8 | Output DLP: block agent from writing secrets into files, commits or messages | M3 | P0 | verified |
 | B3.9 | **Global kill switch** (hotkey and tray): stop all agents, revoke tokens, freeze scheduler | M14 | P0 | verified |
-| B4.1 | Global quick-ask hotkey overlay (spotlight style) | M19 | P1 | not_started |
-| B4.10 | Portable mode, multiple profiles (work/personal data dirs), relocatable data dir | M22 | P1 | not_started |
+| B4.1 | Global quick-ask hotkey overlay (spotlight style) | M19 | P1 | verified |
+| B4.10 | Portable mode, multiple profiles (work/personal data dirs), relocatable data dir | M22 | P1 | verified |
 | B4.11 | Scheduled **encrypted backups** with restore wizard; optional E2EE folder sync of settings/memory via the user's own synced folder | M14 | P1 | not_started |
 | B4.12 | `keel doctor --bundle`: redacted diagnostics zip the user can send to support | M21 | P0 | verified |
 | B4.13 | Auto-rollback if a new version fails to start 3 times | M22 | P0 | verified |
 | B4.14 | Delta updates and optional beta channel (opt-in) | M22 | P2 | not_started |
-| B4.2 | `keel://` deep links, `keel .` to open a folder, "Open with Keel" shell integration, shell completions | M19 | P1 | not_started |
-| B4.3 | Multi-window, detachable and split panels, saved workspace layouts | M19 | P1 | not_started |
-| B4.4 | Message edit/regenerate, pin, bookmark, tags/folders, semantic conversation search | M19 | P1 | not_started |
+| B4.2 | `keel://` deep links, `keel .` to open a folder, "Open with Keel" shell integration, shell completions | M19 | P1 | verified |
+| B4.3 | Multi-window, detachable and split panels, saved workspace layouts | M19 | P1 | verified |
+| B4.4 | Message edit/regenerate, pin, bookmark, tags/folders, semantic conversation search | M19 | P1 | verified |
 | B4.5 | Rich rendering: Markdown, Mermaid, LaTeX, image/PDF preview, copy and apply buttons on code blocks | M19 | P0 | verified |
 | B4.6 | Fleet views: kanban task board, agent org chart, cost per agent, live "agent wall" | M12 | P1 | not_started |
 | B4.7 | Observability views: token waterfall, flame graph, prompt diff between turns, slow-tool detector | M21 | P1 | not_started |
@@ -142,17 +142,17 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B5.1 | Download page with OS and CPU auto-detect, file size, SHA-256, "how to verify" guide for Windows/macOS/Linux | M23 | P0 | verified |
 | B5.2 | `latest.json` plus release-notes RSS/JSON feed and version history | M23 | P0 | verified |
 | B5.3 | System requirements, model-size guide, first-run guide for unsigned installers (SmartScreen, Gatekeeper) | M23 | P0 | verified |
-| B5.4 | Offline-capable docs search (static index) and versioned docs | M23 | P1 | not_started |
+| B5.4 | Offline-capable docs search (static index) and versioned docs | M23 | P1 | verified |
 | B5.5 | Privacy page ("what Keel does not collect"), EULA page, third-party notices page, SBOM download | M23 | P0 | verified |
 | B5.6 | Auto-generated screenshot gallery from E2E runs; short recorded demo replays | M23 | P1 | not_started |
 | B5.7 | Curated public roadmap and FAQ, comparison page, press kit, `mailto` support (no third-party form service) | M23 | P2 | not_started |
 | B5.8 | Localized website using the same string catalogs | M25 | P2 | not_started |
-| B5.9 | Static status page for update feed and mirrors | M23 | P2 | not_started |
-| B6.1 | Reserved offline **signed license token** format and verifier module, disabled and unused | M24 | P2 | not_started |
-| B6.2 | Edition/channel field in manifest and About screen (value "standard") | M24 | P2 | not_started |
-| B6.3 | Enterprise: silent-install flags for MSI/pkg/deb/rpm, Windows Group Policy templates (ADMX), macOS managed-preferences plist | M24 | P2 | not_started |
+| B5.9 | Static status page for update feed and mirrors | M23 | P2 | verified |
+| B6.1 | Reserved offline **signed license token** format and verifier module, disabled and unused | M24 | P2 | verified |
+| B6.2 | Edition/channel field in manifest and About screen (value "standard") | M24 | P2 | verified |
+| B6.3 | Enterprise: silent-install flags for MSI/pkg/deb/rpm, Windows Group Policy templates (ADMX), macOS managed-preferences plist | M24 | P2 | verified |
 | B6.4 | Private org **update mirror** (signed manifests, custom feed URL) and private extension registry | M24 | P2 | not_started |
-| B6.5 | Compliance pack: security whitepaper, accessibility conformance report, data-flow diagram, SBOM export, DPA/EULA templates (lawyer review) | M24 | P2 | not_started |
+| B6.5 | Compliance pack: security whitepaper, accessibility conformance report, data-flow diagram, SBOM export, DPA/EULA templates (lawyer review) | M24 | P2 | verified |
 | B6.6 | Per-organization audit export format and retention settings | M24 | P2 | not_started |
 | B7.1 | Property-based and fuzz tests for path containment and the command analyzer; mutation testing on the permission gate | M25 | P0 | verified |
 | B7.2 | Golden-file tests for prompt assembly; chaos tests (kill daemon mid-turn, disk full, DB locked); soak tests | M25 | P0 | verified |
@@ -161,7 +161,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B7.5 | Flaky-test quarantine with owner and expiry | M25 | P1 | not_started |
 | B7.6 | Machine-readable task index (`PLAN-INDEX.json`): one entry per feature ID with status, evidence path, test path | M0 | P0 | verified |
 | B7.7 | Architecture Decision Records (ADRs), commit convention, pre-commit hooks, devcontainer-free dev setup script | M0 | P1 | verified |
-| B7.8 | Feature-flag registry with kill-switch config for risky features | M3 | P1 | not_started |
+| B7.8 | Feature-flag registry with kill-switch config for risky features | M3 | P1 | verified |
 | B7.9 | Per-milestone kickoff prompt file for the AI builder with explicit "stop and ask" points | M0 | P1 | not_started |
 | C1.1 | Repo hygiene stack seen in opencode: pre-commit hooks, editorconfig, linters, lockfiles, dependency **patch** folder, changelog file, release scripts folder | M0 | P0 | verified |
 | C1.10 | Draft-only social/content skills (posts, threads, SEO notes); nothing posts without approval | M9 | P2 | verified |
@@ -232,7 +232,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C4.9 | Git extras: stacked commits, hunk staging, conflict resolver, blame-aware context, submodule and monorepo awareness, signed commits with the user's own key | M11 | P1 | not_started |
 | C5.1 | Deterministic (no-LLM) nodes, loop/map nodes, sub-workflows, typed inputs/outputs with JSON Schema | M8 | P0 | verified |
 | C5.2 | Human-task node (wait for approval/answer, timeout and default) | M8 | P0 | verified |
-| C5.3 | Workflow versioning, diff, test mode with mocked tools, run history and replay | M8 | P1 | not_started |
+| C5.3 | Workflow versioning, diff, test mode with mocked tools, run history and replay | M8 | P1 | verified |
 | C5.4 | Triggers: file-watcher, folder "inbox" (drop files to process), git hook, email, clipboard, schedule | M14 | P1 | not_started |
 | C5.5 | Internal event bus exposed to plugins and hooks | M10 | P1 | not_started |
 | C5.6 | Notification rules: quiet hours, digests, per-channel routing; optional free push through a self-hosted or public ntfy-style service the user chooses | M14 | P1 | not_started |
@@ -247,7 +247,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C7.4 | OpenAPI-to-tools generator (point at a spec, get tools, dormant until approved) | M15 | P1 | verified |
 | C7.5 | Standards checklist: AGENTS.md, MCP, ACP, LSP, DAP, OpenTelemetry GenAI conventions, SARIF, CycloneDX, SPDX, OpenAPI, JSON Schema, ICS | M25 | P1 | verified |
 | C8.1 | **Recoverable trash**: every agent delete goes to a Keel trash for N days; automatic git/stash snapshot before bulk operations | M5 | P0 | verified |
-| C8.2 | Delayed destructive ops with undo window; **approve from phone** for dangerous actions | M20 | P1 | not_started |
+| C8.2 | Delayed destructive ops with undo window; **approve from phone** for dangerous actions | M20 | P1 | verified |
 | C8.3 | Behavior anomaly detection (sudden mass file reads, unusual network, repeated denials) pauses the agent | M3 | P1 | not_started |
 | C8.4 | Honeypot/canary files that should never be read; alert if touched | M3 | P2 | not_started |
 | C8.5 | Plugin/skill supply chain: capability review UI with **permission diff on update**, trust levels (bundled, signed, local, unsigned), static scan of skill scripts, signed **revocation list** delivered via the update feed | M10 | P0 | verified |
