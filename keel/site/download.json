@@ -34,9 +34,40 @@
       "available": false,
       "verified": false,
       "verified_at": null,
-      "notes": "Not publicly hosted yet; there is nothing to download. Installers will appear here after verification.",
+      "notes": "Built for Apple Silicon (arm64) and Intel (x64). Unsigned - Gatekeeper will block first launch on both architectures.",
       "installation": "Open the DMG, drag Keel into Applications, then right-click Keel and choose Open the first time (Gatekeeper).",
-      "alternatives": []
+      "alternatives": [
+        {
+          "file": "Keel-0.1.1-macos-arm64.zip",
+          "arch": "arm64",
+          "label": "Apple Silicon (ZIP)",
+          "size": null,
+          "sha256": null,
+          "url": null,
+          "available": false,
+          "verified": false
+        },
+        {
+          "file": "Keel-0.1.1-macos-x64.dmg",
+          "arch": "x64",
+          "label": "Intel (DMG)",
+          "size": null,
+          "sha256": null,
+          "url": null,
+          "available": false,
+          "verified": false
+        },
+        {
+          "file": "Keel-0.1.1-macos-x64.zip",
+          "arch": "x64",
+          "label": "Intel (ZIP)",
+          "size": null,
+          "sha256": null,
+          "url": null,
+          "available": false,
+          "verified": false
+        }
+      ]
     },
     "linux": {
       "name": "Linux x86_64",
@@ -49,9 +80,30 @@
       "available": false,
       "verified": false,
       "verified_at": null,
-      "notes": "Not publicly hosted yet; there is nothing to download. Installers will appear here after verification.",
-      "installation": "Make the AppImage executable and run it. On Debian/Ubuntu the .deb can be installed with your package manager instead.",
-      "alternatives": []
+      "notes": "Built as AppImage, .deb and .rpm. Unsigned; your distribution may show a policy warning.",
+      "installation": "Make the AppImage executable and run it. On Debian/Ubuntu use the .deb; on Fedora/RHEL use the .rpm with your package manager.",
+      "alternatives": [
+        {
+          "file": "Keel-0.1.1-linux-amd64.deb",
+          "arch": "x86_64",
+          "label": "DEB",
+          "size": null,
+          "sha256": null,
+          "url": null,
+          "available": false,
+          "verified": false
+        },
+        {
+          "file": "Keel-0.1.1-linux-x86_64.rpm",
+          "arch": "x86_64",
+          "label": "RPM",
+          "size": null,
+          "sha256": null,
+          "url": null,
+          "available": false,
+          "verified": false
+        }
+      ]
     }
   }
 }

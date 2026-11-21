@@ -62,10 +62,15 @@ def electron_build(platform_name: str) -> None:
     if platform_name == "windows":
         run_cmd(["npx", "electron-builder", "--win", "--publish", "never"], cwd=desktop)
     elif platform_name == "macos":
-        run_cmd(["npx", "electron-builder", "--mac", "--publish", "never"], cwd=desktop)
+        run_cmd(
+            ["npx", "electron-builder", "--mac", "--arm64", "--x64",
+             "--publish", "never"],
+            cwd=desktop,
+        )
     elif platform_name == "linux":
         run_cmd(
-            ["npx", "electron-builder", "--linux", "AppImage", "deb", "--publish", "never"],
+            ["npx", "electron-builder", "--linux", "AppImage", "deb", "rpm",
+             "--publish", "never"],
             cwd=desktop,
         )
     else:
@@ -132,6 +137,17 @@ def build_command(args: argparse.Namespace) -> int:
     (out_dir / "RELEASE-MANIFEST.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
+    signing_key = getattr(args, "signing_key", None)
+    if signing_key:
+        from .signing import (load_private_key, sign_bytes, sign_manifest)
+
+        private_key = load_private_key(Path(signing_key))
+        for name, artifact in sorted(artifacts.items()):
+            (out_dir / f"{name}.sig").write_bytes(
+                sign_bytes(artifact.read_bytes(), private_key))
+        signed_manifest = sign_manifest(manifest, private_key)
+        (out_dir / "RELEASE-MANIFEST.json").write_text(
+            json.dumps(signed_manifest, indent=2) + "\n", encoding="utf-8")
     platform_required = set()
     for channel in CHANNELS:
         if channel["key"] == platform_name:

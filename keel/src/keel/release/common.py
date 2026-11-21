@@ -29,13 +29,13 @@ WINDOWS_NOTES = (
     "SmartScreen."
 )
 MACOS_NOTES = (
-    "Built in CI; the app bundle was inspected but the DMG was never mounted on a "
-    "Mac. Unsigned - Gatekeeper will block. Intel Macs are not supported by this "
-    "build."
+    "Built in CI for Apple Silicon (arm64) and Intel (x64). Unsigned - "
+    "Gatekeeper will block first launch on both architectures."
 )
 LINUX_NOTES = (
-    "Built in CI; AppImage and .deb were structure-inspected but not launched on "
-    "desktop Linux. Unsigned; your distribution may show a policy warning."
+    "Built in CI as AppImage, .deb and .rpm; artifacts are structure-inspected "
+    "but not launched on desktop Linux. Unsigned; your distribution may show a "
+    "policy warning."
 )
 
 WINDOWS_INSTALL = (
@@ -47,8 +47,8 @@ MACOS_INSTALL = (
     "Open the first time (Gatekeeper)."
 )
 LINUX_INSTALL = (
-    "Make the AppImage executable and run it. On Debian/Ubuntu the .deb can be "
-    "installed with your package manager instead."
+    "Make the AppImage executable and run it. On Debian/Ubuntu use the .deb; on "
+    "Fedora/RHEL use the .rpm with your package manager."
 )
 
 CHANNELS = [
@@ -64,7 +64,11 @@ CHANNELS = [
     {
         "key": "macos",
         "primary": "Keel-{version}-macos-arm64.dmg",
-        "alternatives": ["Keel-{version}-macos-arm64.zip"],
+        "alternatives": [
+            "Keel-{version}-macos-arm64.zip",
+            "Keel-{version}-macos-x64.dmg",
+            "Keel-{version}-macos-x64.zip",
+        ],
         "arch": "arm64",
         "name": "macOS arm64 (Apple Silicon)",
         "notes": MACOS_NOTES,
@@ -73,7 +77,10 @@ CHANNELS = [
     {
         "key": "linux",
         "primary": "Keel-{version}-linux-x86_64.AppImage",
-        "alternatives": ["Keel-{version}-linux-amd64.deb"],
+        "alternatives": [
+            "Keel-{version}-linux-amd64.deb",
+            "Keel-{version}-linux-x86_64.rpm",
+        ],
         "arch": "x86_64",
         "name": "Linux x86_64",
         "notes": LINUX_NOTES,
