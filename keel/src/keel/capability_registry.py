@@ -17,6 +17,14 @@ def _s(state_root, *parts):
     return Path(state_root or ".keel").joinpath(*parts)
 
 
+def _resolve(value: str, ctx: dict) -> str:
+    """Resolve a user-provided path against the context cwd when relative."""
+    path = Path(value)
+    if path.is_absolute():
+        return str(path)
+    return str((Path(ctx.get("cwd") or ".") / path).resolve())
+
+
 # ---------------------------------------------------------------- core/system
 @capability("core.hardware.detect", "hardware", "core", "read",
             "Detect local hardware capabilities")
@@ -219,28 +227,31 @@ def _cap_log(p, ctx):
             "Read text from a DOCX file")
 def _docx_read(p, ctx):
     from .documents import read_docx
-    return {"text": read_docx(str(p.get("path", "")))}
+    return {"text": read_docx(_resolve(str(p.get("path", "")), ctx))}
 
 
 @capability("cowork.doc.write", "documents", "cowork", "write",
             "Write a DOCX file", mutates=True)
 def _docx_write(p, ctx):
     from .documents import write_docx
-    return {"path": str(write_docx(str(p["path"]), str(p.get("text", ""))))}
+    return {"path": str(write_docx(_resolve(str(p["path"]), ctx),
+                                   str(p.get("text", ""))))}
 
 
 @capability("cowork.sheet.read", "documents", "cowork", "read",
             "Read an XLSX worksheet")
 def _xlsx_read(p, ctx):
     from .documents import read_xlsx
-    return {"grid": read_xlsx(str(p.get("path", "")), sheet=int(p.get("sheet", 0)))}
+    return {"grid": read_xlsx(_resolve(str(p.get("path", "")), ctx),
+                              sheet=int(p.get("sheet", 0)))}
 
 
 @capability("cowork.sheet.write", "documents", "cowork", "write",
             "Write an XLSX workbook", mutates=True)
 def _xlsx_write(p, ctx):
     from .documents import write_xlsx
-    return {"path": str(write_xlsx(str(p["path"]), p.get("rows", [])))}
+    return {"path": str(write_xlsx(_resolve(str(p["path"]), ctx),
+                                   p.get("rows", [])))}
 
 
 @capability("cowork.sheet.stats", "documents", "cowork", "read",
@@ -346,14 +357,14 @@ def _draft(p, ctx):
             "List tables in a local SQLite database")
 def _db_tables(p, ctx):
     from .db_explorer import DBExplorer
-    return {"tables": DBExplorer(str(p["path"])).tables()}
+    return {"tables": DBExplorer(_resolve(str(p["path"]), ctx)).tables()}
 
 
 @capability("cowork.db.query", "db_explorer", "cowork", "read",
             "Run a read-only SELECT against a local SQLite database")
 def _db_query(p, ctx):
     from .db_explorer import DBExplorer
-    return {"rows": DBExplorer(str(p["path"])).query(
+    return {"rows": DBExplorer(_resolve(str(p["path"]), ctx)).query(
         str(p["sql"]), limit=int(p.get("limit", 100)))}
 
 
@@ -1045,14 +1056,17 @@ def _revoke(p, ctx):
             "Create an encrypted local backup", mutates=True)
 def _backup_create(p, ctx):
     from .backups import create_backup
-    return create_backup(str(p["source"]), str(p["target"]), str(p["passphrase"]))
+    return create_backup(_resolve(str(p["source"]), ctx),
+                         _resolve(str(p["target"]), ctx),
+                         str(p["passphrase"]))
 
 
 @capability("release.backups.restore", "backups", "release", "write",
             "Restore an encrypted local backup with verification", mutates=True)
 def _backup_restore(p, ctx):
     from .backups import restore_backup
-    return {"restored": restore_backup(str(p["backup"]), str(p["target"]),
+    return {"restored": restore_backup(_resolve(str(p["backup"]), ctx),
+                                       _resolve(str(p["target"]), ctx),
                                        str(p["passphrase"]))}
 
 

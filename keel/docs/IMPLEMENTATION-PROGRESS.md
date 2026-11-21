@@ -707,6 +707,36 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Final integration phase — capability hub and E2E workflows
+
+**Disconnected-module audit:** found 77 of 134 runtime modules imported only by
+tests. Built `capabilities.py` + `capability_registry.py`: a single permission-
+aware capability hub with 158 capabilities covering all 77 modules (read/write/
+execute tiers, lazy imports, explicit errors, audit log).
+
+**Integration across surfaces:**
+- Web bridge: `GET /api/capabilities` (with surface filter) and
+  `POST /api/capabilities/invoke` (token + origin auth, permission gating,
+  confirmation for mutating capabilities, audit to `capability-audit.jsonl`).
+- CLI: `keel capability list/describe/invoke` with `--params`/`--confirm`.
+- TUI: `/capabilities` and `/invoke <id> [json]` commands.
+- Desktop/web UI: a "Modules" browser (Ctrl+Shift+M) listing every capability,
+  parameter editor, confirmation checkbox, result view.
+
+**E2E workflow tests (`test_workflows_e2e.py`):** real Cowork document lifecycle
+(write/read/Q&A/xlsx stats), Code (snapshot/codemod/git/sandbox), Duet (inline
+completion/reviewer/best-of-N/roles), Fleet (workflow versions/anomaly/events),
+desktop profiles/layout, backup→loss→restore, and audit verification — all
+through the real HTTP bridge with capabilities.
+
+**Reliability/security (`test_reliability_e2e.py`):** corrupt persisted JSON,
+permission denial (tool not executed), capability permission enforcement,
+concurrent session isolation, interrupted agent recovery, large-file cap,
+egress secret redaction. **Desktop artifacts (`test_desktop_artifacts.py`)** verify
+the real packaged Electron app, sidecar `--version`, and clean artifacts.
+
+**Verification:** full suite **1061 passed, 10 skipped**. No push/release/deploy.
+
 Further real local upgrades after the first operational pass: model routing
 wired into the CLI (opt-in `KEEL_MODEL_ROUTING`), read-only SQLite explorer with
 query safety (`db_explorer.py`), SARIF 2.1.0 emission/ingestion (`sarif.py`),
