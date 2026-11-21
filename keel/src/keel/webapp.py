@@ -444,6 +444,19 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 status, payload = _fs_list_payload(raw_path)
                 self._send_json(payload, status)
                 return
+            if path == "/api/profiles":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                from .agent_profiles import AgentProfiles
+                import os
+
+                state = os.environ.get("KEEL_STATE_DIR",
+                                       str(Path.home() / ".keel"))
+                manager = AgentProfiles(state)
+                self._send_json({"profiles": manager.list(),
+                                 "active": manager.active()})
+                return
             if path == "/api/gateway":
                 if not self._authorized():
                     self._refuse()
@@ -502,6 +515,33 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._refuse()
                 return
             path = self.path.split("?", 1)[0]
+            if path in ("/api/profiles/create", "/api/profiles/activate",
+                        "/api/profiles/remove"):
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                try:
+                    request = json.loads(
+                        self.rfile.read(length) if length else b"{}")
+                except json.JSONDecodeError:
+                    self._send_json({"error": "invalid json"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                from .agent_profiles import AgentProfiles
+                import os
+
+                state = os.environ.get("KEEL_STATE_DIR",
+                                       str(Path.home() / ".keel"))
+                manager = AgentProfiles(state)
+                name = str(request.get("name", ""))
+                if path.endswith("/create"):
+                    profile = manager.create(
+                        name, agents=request.get("agents") or None,
+                        layout=str(request.get("layout", "split")))
+                    self._send_json({"profile": profile})
+                elif path.endswith("/activate"):
+                    self._send_json({"ok": manager.activate(name)})
+                else:
+                    self._send_json({"ok": manager.remove(name)})
+                return
             if path in ("/api/sessions/import", "/api/sessions/stats"):
                 length = int(self.headers.get("Content-Length", "0") or 0)
                 if length > 2_000_000:
@@ -736,6 +776,27 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._send_json({"ok": True, "path": str(target),
                                  "bytes": len(data)})
                 return
+            if path == "/api/quick-ask":
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                if length > 128_000:
+                    self._send_json({"error": "prompt too large"},
+                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    return
+                try:
+                    request = json.loads(
+                        self.rfile.read(length) if length else b"{}")
+                except json.JSONDecodeError:
+                    self._send_json({"error": "invalid json"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                prompt = str(request.get("prompt", "")).strip()
+                if not prompt:
+                    self._send_json({"error": "prompt must not be empty"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                self._send_json(self._run_sync(
+                    prompt, str(request.get("provider", "auto"))))
+                return
             if path != "/api/run":
                 self._send_json({"error": "not_found"}, HTTPStatus.NOT_FOUND)
                 return
@@ -760,6 +821,36 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             accept_risk = bool(request.get("accept_risk", False))
             model = str(request.get("model", "") or "").strip()
             self._stream_run(prompt, provider, permission_mode, accept_risk, model)
+
+        def _run_sync(self, prompt: str, provider: str = "auto") -> dict:
+            """Run a prompt synchronously and return a single JSON result."""
+            args = [sys.executable, "-m", "keel", "-p", prompt,
+                    "--output-format", "json", "--provider", provider,
+                    "--seed", "0"]
+            fake_script = os.environ.get("KEEL_FAKE_SCRIPT")
+            if fake_script:
+                args += ["--fake-script", fake_script]
+            kwargs = {}
+            if _WORKDIR and Path(_WORKDIR).is_dir():
+                kwargs["cwd"] = _WORKDIR
+            try:
+                proc = subprocess.run(
+                    args, capture_output=True, text=True, timeout=120,
+                    **kwargs)
+            except (OSError, subprocess.TimeoutExpired) as exc:
+                return {"ok": False, "error": str(exc)[:300]}
+            lines = [line for line in proc.stdout.splitlines() if line.strip()]
+            if not lines:
+                return {"ok": False, "error": (proc.stderr or "no output")[:300]}
+            try:
+                envelope = json.loads(lines[-1])
+            except json.JSONDecodeError:
+                return {"ok": False, "error": "invalid runtime output"}
+            return {"ok": not envelope.get("is_error", False),
+                    "result": envelope.get("result"),
+                    "subtype": envelope.get("subtype"),
+                    "permission_denials": envelope.get("permission_denials", 0),
+                    "errors": envelope.get("errors", [])}
 
         # ---------------- internals
 

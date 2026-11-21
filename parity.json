@@ -386,10 +386,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_tui.py"
+        "tests/test_tui_functional.py tests/test_tui.py"
       ],
       "implementation_tier": "descriptor",
-      "verification_evidence": "Terminal UI transcript renderer",
+      "verification_evidence": "Full functional TUI driving the real runtime with persistence",
       "owner_approval_required": false
     },
     {
@@ -2297,7 +2297,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/desktop_state.py"
+        "site/ui/app.js"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2306,10 +2306,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_desktop_state.py"
+        "tests/test_quick_ask.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Quick-ask overlay descriptor",
+      "implementation_tier": "operational",
+      "verification_evidence": "Quick Ask overlay wired to real /api/quick-ask runtime",
       "owner_approval_required": false
     },
     {
@@ -2321,7 +2321,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/desktop_state.py"
+        "src/keel/agent_profiles.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2330,10 +2330,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_desktop_state.py"
+        "tests/test_profile_endpoints.py tests/test_agent_profiles.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Multiple profiles with separate data dirs",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Persistent agent profiles with management over the HTTP bridge",
       "owner_approval_required": false
     },
     {
@@ -3401,7 +3401,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/agent_style.py"
+        "src/keel/agent_profiles.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3410,10 +3410,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_agent_style.py"
+        "tests/test_agent_profiles.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Verified agent avatar/color/voice looks and preview",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Agent looks (avatar/color/voice) in persisted profiles",
       "owner_approval_required": false
     },
     {

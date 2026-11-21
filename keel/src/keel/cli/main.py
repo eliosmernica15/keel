@@ -37,6 +37,14 @@ def main(argv: list[str] | None = None) -> int:
             return _doctor_bundle_cmd(argv)
     if argv and argv[0] == "session":
         return _session_cmd(argv[1:])
+    if argv and argv[0] == "tui":
+        from ..tui import Tui
+
+        if "--help" in argv:
+            sys.stderr.write("usage: keel tui  (interactive terminal UI)\n")
+            return 0
+        Tui().run()
+        return 0
     if argv and argv[0] == "provider":
         return _provider_cmd(argv[1:])
     if argv and argv[0] == "skills":

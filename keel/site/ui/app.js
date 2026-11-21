@@ -2394,6 +2394,58 @@ if (killBtn) killBtn.addEventListener("click", async () => {
   } catch (err) { systemNote(`global stop failed: ${err}`, "denied", state.surface); }
 });
 
+/* B4.1 — Quick Ask overlay: real prompts through the backend runtime. */
+function openQuickAsk() {
+  const overlay = $("quick-overlay");
+  if (!overlay) return;
+  overlay.hidden = false;
+  const result = $("quick-result");
+  if (result) result.hidden = true;
+  const status = $("quick-status");
+  if (status) status.textContent = "";
+  $("quick-input")?.focus();
+}
+function closeQuickAsk() {
+  const overlay = $("quick-overlay");
+  if (overlay) overlay.hidden = true;
+}
+async function submitQuickAsk() {
+  const input = $("quick-input");
+  const prompt = (input?.value || "").trim();
+  if (!prompt) return;
+  const status = $("quick-status");
+  const result = $("quick-result");
+  if (status) status.textContent = "Working…";
+  try {
+    const res = await fetch("/api/quick-ask", {
+      method: "POST", headers: jsonHeaders(),
+      body: JSON.stringify({ prompt }) });
+    const doc = await res.json();
+    if (!res.ok || !doc.ok) throw new Error(doc.error || String(res.status));
+    if (result) { result.textContent = doc.result || "(no result)"; result.hidden = false; }
+    if (status) status.textContent = doc.subtype || "done";
+    if (input) input.value = "";
+  } catch (err) {
+    if (status) status.textContent = `Error: ${err.message}`;
+    if (result) { result.textContent = String(err.message || err); result.hidden = false; }
+  }
+}
+const quickBtn = $("btn-quick");
+if (quickBtn) quickBtn.addEventListener("click", openQuickAsk);
+$("quick-input")?.addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter") { ev.preventDefault(); submitQuickAsk(); }
+  else if (ev.key === "Escape") { ev.preventDefault(); closeQuickAsk(); }
+});
+$("quick-overlay")?.addEventListener("click", (ev) => {
+  if (ev.target === $("quick-overlay")) closeQuickAsk();
+});
+document.addEventListener("keydown", (ev) => {
+  if (ev.ctrlKey && ev.shiftKey && String(ev.key).toLowerCase() === "k") {
+    ev.preventDefault();
+    $("quick-overlay")?.hidden ? openQuickAsk() : closeQuickAsk();
+  }
+});
+
 /* A2.2 — push-to-talk dictation and voice-to-task handoff (opt-in). */
 const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
 const voiceState = { surface: null, recognition: null, text: "", sendOnDone: false };

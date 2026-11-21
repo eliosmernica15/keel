@@ -114,6 +114,7 @@
     <div class="right">
       <button id="btn-stop" class="btn-stop" hidden aria-label="Stop the running agent turn">Stop</button>
       <button id="btn-kill" class="btn-stop" aria-label="Stop all agents and revoke client tokens">Stop all</button>
+      <button id="btn-quick" class="btn-stop" aria-label="Quick Ask (Ctrl+Shift+K)">Quick Ask</button>
       <button id="btn-term" aria-label="Terminal"><svg viewBox="0 0 16 16"><path d="M2.5 4.5l4 3.5-4 3.5M8 12h5.5"/></svg></button>
       <button id="btn-files" aria-label="Files"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg></button>
       <span class="gap"></span>
@@ -522,6 +523,15 @@
     <span id="session-id-label">no session</span>
     <span id="status-dot" class="dot dot-ok" title="state"></span>
   </footer>
+</div>
+
+<!-- Quick Ask overlay — sends prompts to the real backend via /api/quick-ask -->
+<div id="quick-overlay" class="quick-overlay" hidden role="dialog" aria-label="Quick Ask">
+  <div class="quick-panel">
+    <input id="quick-input" type="text" placeholder="Ask Keel anything…" aria-label="Quick question" autocomplete="off" />
+    <pre id="quick-result" class="quick-result" hidden></pre>
+    <div id="quick-status" class="quick-status"></div>
+  </div>
 </div>
 
 <script src="/ui/app.js"></script>
