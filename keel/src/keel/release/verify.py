@@ -170,6 +170,7 @@ def verify_release_manifest(
     retries: int = 1,
     retry_delay: int = 5,
     timeout: int = 300,
+    public_key=None,
 ) -> list[str]:
     errors: list[str] = []
     files = manifest.get("files")
@@ -227,6 +228,14 @@ def verify_release_manifest(
             errors.append(f"{name}: size mismatch (manifest {size}, downloaded {downloaded_size})")
         if hashlib.sha256(data).hexdigest().upper() != sha.upper():
             errors.append(f"{name}: sha256 mismatch")
+        if public_key is not None:
+            from .signing import verify_bytes
+
+            sig_result = download(url + ".sig")
+            if sig_result is None:
+                errors.append(f"{name}: signature download failed")
+            elif not verify_bytes(data, sig_result[0], public_key):
+                errors.append(f"{name}: Ed25519 signature invalid")
 
     return errors
 
@@ -247,6 +256,17 @@ def load_manifest(path_or_url: str, *, allow_http: bool, timeout: int) -> dict[s
 
 def verify_command(args: argparse.Namespace) -> int:
     manifest = load_manifest(args.manifest, allow_http=args.allow_http, timeout=args.timeout)
+    public_key = None
+    public_key_path = getattr(args, "public_key", None)
+    if public_key_path:
+        from pathlib import Path
+
+        from .signing import load_public_key, verify_manifest as verify_sig
+
+        public_key = load_public_key(Path(public_key_path))
+        if not verify_sig(manifest, public_key):
+            print("ERROR: release manifest signature invalid", file=sys.stderr)
+            return 1
     if args.compare:
         other = load_manifest(args.compare, allow_http=args.allow_http, timeout=args.timeout)
         if manifest != other:
@@ -271,6 +291,7 @@ def verify_command(args: argparse.Namespace) -> int:
             retries=args.retries,
             retry_delay=args.retry_delay,
             timeout=args.timeout,
+            public_key=public_key,
         )
     else:
         errors = ["unrecognized manifest format"]

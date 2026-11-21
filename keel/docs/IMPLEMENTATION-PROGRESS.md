@@ -92,3 +92,17 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 - `tests/test_platform_targets.py` and updated `tests/test_release_manager.py` cover config, manifest filenames, fallback channels, and build flags.
 
 **Verification:** `python -m pytest tests/test_platform_targets.py tests/test_release_controls.py tests/test_release_manager.py tests/test_website_download_only.py -q` → `41 passed`. Cross-platform build artifacts remain CI-verified only on macOS/Linux; no local macOS/Linux build available.
+
+## Batch 7 — Ed25519 signing infrastructure
+
+**v5 requirement:** §0.4 (release manifests, checksums, integrity) and §11 update security (owner-held Ed25519 signatures, signed manifest, signature verification before install). Production-key custody remains an owner decision; this batch implements the technical chain with ephemeral test keys only.
+
+**Implemented:**
+- `src/keel/release/signing.py`: Ed25519 keypair generation for tests/dev, detached artifact signatures, manifest signing, canonical JSON, and verification helpers.
+- `src/keel/release/build.py`: optional `--signing-key` produces `.sig` files for each artifact and signs `RELEASE-MANIFEST.json`.
+- `src/keel/release/verify.py` + `cli.py`: optional `--public-key` verifies the manifest signature and detached artifact signatures in addition to HTTPS/size/SHA-256.
+- `tests/test_release_signing.py`: roundtrip, tamper detection, detached-signature verification over loopback HTTP, and CLI option coverage.
+
+**Verification:** `python -m pytest tests/test_release_signing.py tests/test_release_manager.py tests/test_release_controls.py -q` → `35 passed`.
+
+**Not done (owner-gated):** no production key generated, deployed, or configured; no release published; updater/rollback still pending.

@@ -27,6 +27,9 @@ def build_parser() -> argparse.ArgumentParser:
     build.add_argument("--repo", default=None)
     build.add_argument("--tag", default=None)
     build.add_argument("--base-url", default=None)
+    build.add_argument(
+        "--signing-key", default=None,
+        help="optional owner-supplied Ed25519 private key PEM (release signing)")
     build.set_defaults(func=build_command)
 
     publish = sub.add_parser("publish", help="publish a verified release to GitHub Releases")
@@ -45,6 +48,9 @@ def build_parser() -> argparse.ArgumentParser:
     verify.add_argument("--retry-delay", type=int, default=5)
     verify.add_argument("--timeout", type=int, default=300)
     verify.add_argument("--require-available", action="store_true")
+    verify.add_argument(
+        "--public-key", default=None,
+        help="optional owner-supplied Ed25519 public key PEM for signature verification")
     verify.set_defaults(func=verify_command)
 
     licenses = sub.add_parser("licenses", help="write a dependency license inventory")
