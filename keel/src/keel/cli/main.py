@@ -28,6 +28,8 @@ def main(argv: list[str] | None = None) -> int:
         return _costs_cmd(argv[1:])
     if argv and argv[0] == "model":
         return _model_cmd(argv[1:])
+    if argv and argv[0] == "gateway":
+        return _gateway_cmd(argv[1:])
     if argv and argv[0] == "provider":
         return _provider_cmd(argv[1:])
     if argv and argv[0] == "skills":
@@ -89,6 +91,47 @@ def main(argv: list[str] | None = None) -> int:
         diagnostic("cli_validation", {"errors": str(exc)})
         return 1
     return run(plan)
+
+
+def _gateway_cmd(argv: list[str]) -> int:
+    import os
+
+    from ..attach import AttachError, request
+
+    usage = ("usage: keel gateway status [--port N] [--token TOK]\n")
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(usage)
+        return 0
+    if argv[0] != "status":
+        sys.stderr.write(usage)
+        return 1
+    token = os.environ.get("KEEL_TOKEN", "")
+    port = 8739
+    index = 1
+    while index < len(argv):
+        item = argv[index]
+        if item in ("--port", "--token") and index + 1 < len(argv):
+            if item == "--port":
+                try:
+                    port = int(argv[index + 1])
+                except ValueError:
+                    sys.stderr.write("--port must be an integer\n")
+                    return 1
+            else:
+                token = argv[index + 1]
+            index += 2
+            continue
+        index += 1
+    if not token:
+        sys.stderr.write("gateway status needs --token or KEEL_TOKEN\n")
+        return 1
+    try:
+        sys.stdout.write(json.dumps(
+            request(port, token, "/api/gateway"), indent=2) + "\n")
+        return 0
+    except AttachError as exc:
+        sys.stderr.write(str(exc) + "\n")
+        return 1
 
 
 def _model_cmd(argv: list[str]) -> int:

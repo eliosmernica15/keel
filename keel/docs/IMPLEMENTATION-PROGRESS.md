@@ -391,6 +391,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_repo_hygiene.py tests/test_release_controls.py -q` → `22 passed`.
 **Next:** A5.1 gateway process concept with status/start/stop.
 
+## M6 Batch 33 — Gateway lifecycle (A5.1)
+
+**Implemented:** `src/keel/gateway.py` manages the scheduler in a supervised background thread with status/start/stop; authenticated `/api/gateway*` endpoints and `keel gateway status` expose it.
+**Verification:** `python -m pytest tests/test_gateway.py tests/test_fleet_routines.py tests/test_webapp.py -q` → `52 passed`.
+**Next:** A4.1 signed outgoing webhooks and A5.3 account-level config inheritance.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

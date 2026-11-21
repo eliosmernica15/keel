@@ -393,6 +393,13 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 status, payload = _fs_list_payload(raw_path)
                 self._send_json(payload, status)
                 return
+            if path == "/api/gateway":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                from .gateway import gateway
+                self._send_json(gateway().status())
+                return
             if path == "/api/surfaces":
                 if not self._authorized():
                     self._refuse()
@@ -449,6 +456,14 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 from . import compat
                 sid = path[len("/api/v2/sessions"):].strip("/")
                 return self._v2_sessions(path, sid, compat)
+            if path in ("/api/gateway/start", "/api/gateway/stop"):
+                from .gateway import gateway
+                service = gateway()
+                changed = (service.start() if path.endswith("/start")
+                           else service.stop())
+                self._send_json({"changed": changed,
+                                 "status": service.status()})
+                return
             if path == "/api/kill-switch":
                 from .fleet import turn_core
                 cancelled = turn_core.cancel_all_turns()
