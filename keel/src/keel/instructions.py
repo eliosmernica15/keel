@@ -67,9 +67,10 @@ def discover(cwd: str | Path) -> list[Path]:
     chain: list[Path] = []
     current = Path(cwd).resolve()
     while True:
-        candidate = current / "CLAUDE.md"
-        if candidate.is_file():
-            chain.append(candidate)
+        for name in ("CLAUDE.md", "AGENTS.md"):
+            candidate = current / name
+            if candidate.is_file():
+                chain.append(candidate)
         if current.parent == current:
             break
         current = current.parent

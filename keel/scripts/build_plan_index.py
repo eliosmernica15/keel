@@ -113,6 +113,8 @@ IMPLEMENTED = {
              "Verified existing budget, preserved-tail compaction and thrash guard"),
     "B2.3": ("src/keel/duet.py", "tests/test_duet.py",
              "Duet builder plus independent read-only reviewer agents"),
+    "A1.22": ("AGENTS.md", "tests/test_builder_guide.py",
+              "Internal builder guide with repo layout and conventions"),
 }
 
 

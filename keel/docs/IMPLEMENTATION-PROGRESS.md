@@ -373,6 +373,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_duet.py tests/test_subagent.py tests/test_tool_registry.py -q` → `26 passed`.
 **Next:** A1.22 internal AGENTS.md builder instructions.
 
+## M6 Batch 30 — Internal builder guide (A1.22)
+
+**Implemented:** `keel/AGENTS.md` documents layout, commands, conventions and evidence rules; instruction discovery now finds AGENTS.md alongside CLAUDE.md.
+**Verification:** `python -m pytest tests/test_builder_guide.py tests/test_rigor.py tests/test_compaction.py -q` → `12 passed`.
+**Next:** C7.1 import other tools' instruction formats and C1.1 repo hygiene stack verification.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

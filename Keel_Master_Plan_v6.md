@@ -44,7 +44,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A1.2 | Attach a CLI/TUI/IDE client to an already-running daemon (`keel attach`) | M20 | P0 | verified |
 | A1.20 | Watcher ignore list, auto-update toggle, env-var overrides (`KEEL_*`) | M2 | P1 | not_started |
 | A1.21 | Remove versions older than X before install notice | M22 | P2 | not_started |
-| A1.22 | `AGENTS.md` for the builder itself (internal) describing layout and conventions | M0 | P0 | not_started |
+| A1.22 | `AGENTS.md` for the builder itself (internal) describing layout and conventions | M0 | P0 | verified |
 | A1.3 | **Terminal UI front-end** (full TUI, not only Electron) | M20 | P1 | not_started |
 | A1.4 | **Local web UI** served on loopback (`keel web`) for browser access | M20 | P1 | not_started |
 | A1.5 | `/init` command: scan repo and generate `AGENTS.md` | M7 | P0 | verified |
