@@ -325,6 +325,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Evidence:** `python -m pytest tests/test_fleet_approvals.py -q` → `15 passed` (including always/never policies, isolation and revocation). No code duplication.
 **Next:** A1.2 attach to a running Keel session (`keel attach`).
 
+## M6 Batch 22 — CLI attach to a running daemon (A1.2)
+
+**Implemented:** `src/keel/attach.py` and `keel attach` list sessions, show history, and send messages through the authenticated local v2 sessions API of a running daemon.
+**Verification:** `python -m pytest tests/test_attach.py tests/test_compat_runtime.py tests/test_compat_tracer.py tests/test_webapp.py -q` → `35 passed`.
+**Next:** A3.10 per-vendor cost caps with daily/monthly windows.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

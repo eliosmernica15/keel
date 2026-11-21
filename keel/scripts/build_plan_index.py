@@ -95,6 +95,8 @@ IMPLEMENTED = {
               "Custom Python tools from .keel/tools with approval gating"),
     "A1.12": ("src/keel/fleet/service.py", "tests/test_fleet_approvals.py",
               "Verified existing per-agent tool policies and permission overrides"),
+    "A1.2": ("src/keel/attach.py", "tests/test_attach.py",
+             "Attach a CLI client to a running Keel daemon"),
 }
 
 

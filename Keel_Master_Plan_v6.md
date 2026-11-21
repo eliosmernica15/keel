@@ -41,7 +41,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A1.17 | Session import/export commands and `keel stats` (usage by model/day) | M21 | P1 | not_started |
 | A1.18 | `keel agent create` wizard, `keel models`, `keel auth` subcommands | M20 | P1 | not_started |
 | A1.19 | **GitHub Actions mode**: run Keel headless in the user's own CI to answer issues/PR comments | M20 | P2 | not_started |
-| A1.2 | Attach a CLI/TUI/IDE client to an already-running daemon (`keel attach`) | M20 | P0 | not_started |
+| A1.2 | Attach a CLI/TUI/IDE client to an already-running daemon (`keel attach`) | M20 | P0 | verified |
 | A1.20 | Watcher ignore list, auto-update toggle, env-var overrides (`KEEL_*`) | M2 | P1 | not_started |
 | A1.21 | Remove versions older than X before install notice | M22 | P2 | not_started |
 | A1.22 | `AGENTS.md` for the builder itself (internal) describing layout and conventions | M0 | P0 | not_started |

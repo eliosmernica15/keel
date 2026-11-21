@@ -22,6 +22,8 @@ def main(argv: list[str] | None = None) -> int:
         return _init_cmd(argv[1:])
     if argv and argv[0] == "tools":
         return _tools_cmd(argv[1:])
+    if argv and argv[0] == "attach":
+        return _attach_cmd(argv[1:])
     if argv and argv[0] == "provider":
         return _provider_cmd(argv[1:])
     if argv and argv[0] == "skills":
@@ -83,6 +85,62 @@ def main(argv: list[str] | None = None) -> int:
         diagnostic("cli_validation", {"errors": str(exc)})
         return 1
     return run(plan)
+
+
+def _attach_cmd(argv: list[str]) -> int:
+    import os
+
+    from .. import attach
+
+    usage = ("usage: keel attach [--port N] [--token TOK]\n"
+             "       keel attach <session-id> [--port N] [--token TOK]\n"
+             "       keel attach <session-id> -p \"message\" [--port N]\n")
+    if argv and argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(usage)
+        return 0
+    token = os.environ.get("KEEL_TOKEN", "")
+    port = 8739
+    prompt = ""
+    positional: list[str] = []
+    index = 0
+    while index < len(argv):
+        item = argv[index]
+        if item in ("--port", "--token", "-p", "--print"):
+            if index + 1 >= len(argv):
+                sys.stderr.write(f"{item} requires a value\n")
+                return 1
+            value = argv[index + 1]
+            if item == "--port":
+                try:
+                    port = int(value)
+                except ValueError:
+                    sys.stderr.write("--port must be an integer\n")
+                    return 1
+            elif item == "--token":
+                token = value
+            else:
+                prompt = value
+            index += 2
+            continue
+        positional.append(item)
+        index += 1
+    if not token:
+        sys.stderr.write("attach needs --token or KEEL_TOKEN (see `keel serve`)\n")
+        return 1
+    try:
+        if not positional:
+            sessions = attach.list_sessions(port, token)
+            sys.stdout.write(json.dumps(sessions, indent=2) + "\n")
+            return 0
+        sid = positional[0]
+        if prompt:
+            attach.send_message(sid, prompt, port, token)
+        detail = attach.session_detail(sid, port, token)
+        sys.stdout.write(json.dumps(detail, indent=2) + "\n")
+        return 0
+    except attach.AttachError as exc:
+        sys.stderr.write(str(exc) + "\n")
+        return 1
 
 
 def _tools_cmd(argv: list[str]) -> int:
