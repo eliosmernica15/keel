@@ -152,3 +152,13 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 - `tests/test_fleet.py`: behavioral test verifies Library files are purged when a bot is deleted, plus a source-level guard against reintroducing a duplicate definition.
 
 **Verification:** `python -m pytest tests/test_fleet.py tests/test_fleet_library.py -q` → `40 passed`.
+
+## Batch 12 — Subagent lifecycle hooks
+
+**v5 requirement:** §6 subagents as a trust boundary and the existing hook architecture; no new milestone content was invented.
+
+**Implemented:**
+- `src/keel/subagent.py`: emits `SubagentStart` and `SubagentStop` around the real child `Session.run`, including on failure via `finally`.
+- `tests/test_subagent.py`: verifies hook ordering relative to parent tool execution and completion.
+
+**Verification:** `python -m pytest tests/test_subagent.py -q` → `5 passed`.

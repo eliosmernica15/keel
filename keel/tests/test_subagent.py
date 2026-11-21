@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import pytest
 
 from keel.fakes import ScriptedModel, SeededRng, VirtualClock
+from keel.hooks import HookDefinition
 from keel.session import Session, SessionConfig
 
 
@@ -66,6 +70,41 @@ class _ParentModel:
             next_blocks = self._script.pop(0)
             return next_blocks
         return [{"type": "text", "text": "done"}]
+
+
+def test_subagent_lifecycle_hooks_fire_in_order(tmp_path):
+    log_path = tmp_path / "subagent-hooks.log"
+    script = tmp_path / "log_hook.py"
+    script.write_text(
+        "import json, sys\n"
+        "payload = json.load(sys.stdin)\n"
+        "with open(sys.argv[1], 'a', encoding='utf-8') as fh:\n"
+        "    fh.write(payload['hook_event_name'] + '\\n')\n",
+        encoding="utf-8")
+    command = f'"{sys.executable}" "{script}" "{log_path}"'
+    hooks = [
+        HookDefinition(event=event, matcher=None, command=command)
+        for event in ("SessionStart", "PreToolUse", "SubagentStart",
+                      "SubagentStop", "PostToolUse", "SessionEnd")
+    ]
+
+    model = _ParentModel(script=[
+        [{"type": "tool_use", "name": "Task",
+          "input": {"description": "compute", "prompt": "do work"}}],
+        [{"type": "text", "text": "child result"}],
+        [{"type": "text", "text": "all done"}],
+    ])
+    session = Session(model_client=model, executor=_Executor(),
+                      config=_cfg(tmp_path), hooks=hooks,
+                      rules=((), (), ("Task", "read_file")),
+                      clock=VirtualClock(), rng=SeededRng(0))
+    session.run("delegate this")
+
+    seen = log_path.read_text(encoding="utf-8").splitlines()
+    assert "SubagentStart" in seen and "SubagentStop" in seen
+    assert seen.index("SubagentStart") < seen.index("SubagentStop")
+    assert seen.index("PreToolUse") < seen.index("SubagentStart")
+    assert seen.index("SubagentStop") < seen.index("PostToolUse")
 
 
 def test_task_denied_by_default(tmp_path):

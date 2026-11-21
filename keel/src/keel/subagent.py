@@ -15,6 +15,7 @@ Design constraints, deliberately tight for this slice:
 
 from __future__ import annotations
 
+from .hooks import fire
 from .session import ALL_TOOLS, Session, SessionConfig
 
 
@@ -48,4 +49,19 @@ def run_subagent(*, parent: Session, prompt: str,
         hooks=parent.hooks,
         mcp=parent.mcp,
     )
-    return sub.run(prompt)
+    if parent.hooks:
+        fire(parent.hooks, "SubagentStart", {
+            "session_id": parent.config.session_id,
+            "cwd": parent.config.cwd,
+            "parent_tool_use_id": parent_tool_use_id,
+            "prompt": prompt,
+        })
+    try:
+        return sub.run(prompt)
+    finally:
+        if parent.hooks:
+            fire(parent.hooks, "SubagentStop", {
+                "session_id": parent.config.session_id,
+                "cwd": parent.config.cwd,
+                "parent_tool_use_id": parent_tool_use_id,
+            })
