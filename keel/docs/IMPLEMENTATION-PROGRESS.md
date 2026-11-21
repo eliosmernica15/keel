@@ -385,6 +385,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_instruction_imports.py tests/test_builder_guide.py tests/test_rigor.py tests/test_compaction.py -q` → `15 passed`.
 **Next:** C1.1 repository hygiene stack verification.
 
+## M6 Batch 32 — Repository hygiene stack (C1.1)
+
+**Implemented:** added `.editorconfig`, changelog, patch policy, and ruff/mypy configuration; `scripts/check_repo_hygiene.py` verifies the stack locally.
+**Verification:** `python -m pytest tests/test_repo_hygiene.py tests/test_release_controls.py -q` → `22 passed`.
+**Next:** A5.1 gateway process concept with status/start/stop.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

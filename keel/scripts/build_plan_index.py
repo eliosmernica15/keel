@@ -117,6 +117,8 @@ IMPLEMENTED = {
               "Internal builder guide with repo layout and conventions"),
     "C7.1": ("src/keel/instructions.py", "tests/test_instruction_imports.py",
              "Import other tools' instruction files as untrusted context"),
+    "C1.1": ("scripts/check_repo_hygiene.py", "tests/test_repo_hygiene.py",
+             "Editorconfig, changelog, patch policy and lint/type config"),
 }
 
 

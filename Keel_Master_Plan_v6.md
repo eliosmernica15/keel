@@ -163,7 +163,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B7.7 | Architecture Decision Records (ADRs), commit convention, pre-commit hooks, devcontainer-free dev setup script | M0 | P1 | verified |
 | B7.8 | Feature-flag registry with kill-switch config for risky features | M3 | P1 | not_started |
 | B7.9 | Per-milestone kickoff prompt file for the AI builder with explicit "stop and ask" points | M0 | P1 | not_started |
-| C1.1 | Repo hygiene stack seen in opencode: pre-commit hooks, editorconfig, linters, lockfiles, dependency **patch** folder, changelog file, release scripts folder | M0 | P0 | not_started |
+| C1.1 | Repo hygiene stack seen in opencode: pre-commit hooks, editorconfig, linters, lockfiles, dependency **patch** folder, changelog file, release scripts folder | M0 | P0 | verified |
 | C1.10 | Draft-only social/content skills (posts, threads, SEO notes); nothing posts without approval | M9 | P2 | not_started |
 | C1.11 | Local task executor inside the container desktop for faster desktop actions (orgo "planned") | M16 | P2 | not_started |
 | C1.12 | Client pairing allowlist for LAN/headless access (analog of orgo's `ALLOWED_EMAILS`) | M20 | P0 | not_started |
