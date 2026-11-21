@@ -87,8 +87,8 @@ def classify_tier(feature_id: str, source_files: list[str]) -> str:
 
 # Verified-existing implementation evidence from the current repository.
 IMPLEMENTED = {
-    "A1.1": ("src/keel/runner.py", "tests/test_vertical_slice.py",
-             "Non-interactive print-mode runner with stream-json and exit codes"),
+    "A1.1": ("src/keel/runner.py", "tests/test_cli_e2e.py tests/test_vertical_slice.py",
+             "Non-interactive print-mode runner with real subprocess E2E tool execution"),
     "A1.11": ("src/keel/runner.py", "tests/test_safety.py",
               "SSRF-safe web_fetch and web_search tools"),
     "A3.3": ("src/keel/fakes.py", "tests/test_compat_runtime.py",

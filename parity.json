@@ -26,10 +26,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_vertical_slice.py"
+        "tests/test_cli_e2e.py tests/test_vertical_slice.py"
       ],
       "implementation_tier": "operational",
-      "verification_evidence": "Non-interactive print-mode runner with stream-json and exit codes",
+      "verification_evidence": "Non-interactive print-mode runner with real subprocess E2E tool execution",
       "owner_approval_required": false
     },
     {
