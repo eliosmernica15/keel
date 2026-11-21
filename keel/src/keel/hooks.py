@@ -4,9 +4,11 @@ Event set is the 33 spec names (spec §7.1, open set: unrecognised configured
 events are ignored, never fatal). The Session turn loop wires the lifecycle
 events that have real execution paths: SessionStart, UserPromptSubmit,
 PreToolUse, PermissionRequest, PermissionDenied, PostToolUse,
-PostToolUseFailure, PostToolBatch, PreCompact, PostCompact, Stop, StopFailure
-and SessionEnd. Other declared events remain available for future runtime
-surfaces; configuring them is harmless.
+PostToolUseFailure, PostToolBatch, PreCompact, PostCompact, Stop, StopFailure,
+SessionEnd, FileChanged, ConfigChange, InstructionsLoaded, SubagentStart,
+SubagentStop, TaskCreated, TaskCompleted, Elicitation and ElicitationResult.
+Other declared events remain available for future runtime surfaces; configuring
+them is harmless.
 
 Verdict protocol (spec §7.4): exit 0 = proceed; exit 2 = block (reason is
 stderr); anything else / timeout / crash = proceed + report. Combining:

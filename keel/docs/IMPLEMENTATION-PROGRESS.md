@@ -195,3 +195,13 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 **Verification:** `python -m pytest tests/test_hooks.py tests/test_safety.py tests/test_tool_registry.py -q` → `57 passed`.
 
 Windows installer rebuilt successfully after accumulated release/updater changes.
+
+## Batch 16 — Elicitation hooks
+
+**v5 requirement:** §6 architecture (hooks in the Python daemon) and existing operator-question flow; no new milestone content was invented.
+
+**Implemented:**
+- `src/keel/fleet/tools.py`: fires `Elicitation` before an `ask_user` question and `ElicitationResult` after an answer or timeout.
+- `tests/test_fleet_ask_user.py`: end-to-end hook ordering test through the real bridge and approval/answer API.
+
+**Verification:** `python -m pytest tests/test_fleet_ask_user.py -q` → `2 passed`.

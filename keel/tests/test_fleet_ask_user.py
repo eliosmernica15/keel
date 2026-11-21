@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import threading
 import time
 
@@ -125,6 +126,40 @@ def _wait(predicate, timeout=10.0, interval=0.05):
 
 
 import os  # noqa: E402 — used by fixtures above
+
+
+def test_elicitation_hooks_fire(bridge, tmp_path, monkeypatch):
+    log_path = tmp_path / "elicitation.log"
+    script = tmp_path / "log_elicitation.py"
+    script.write_text(
+        "import json, sys\n"
+        "payload = json.load(sys.stdin)\n"
+        "with open(sys.argv[1], 'a', encoding='utf-8') as fh:\n"
+        "    fh.write(payload['hook_event_name'] + '\\n')\n",
+        encoding="utf-8")
+    command = f'"{sys.executable}" "{script}" "{log_path}"'
+    monkeypatch.setattr("keel.settings_store.load", lambda: {
+        "hooks": {
+            "Elicitation": [{"command": command}],
+            "ElicitationResult": [{"command": command}],
+        },
+    })
+
+    _, created = _post(bridge, "/api/fleet/bots",
+                       {"name": "HookAsk", "engine": "provider"})
+    bot_id = created["bot"]["id"]
+    _post(bridge, f"/api/fleet/bots/{bot_id}/messages", {"content": "hi"})
+    ok = _wait(lambda: any(r["kind"] == "ask" and r["body"].get("status") == "pending"
+                           for r in _rows(bridge, bot_id)), timeout=8)
+    assert ok
+    ask = next(r for r in _rows(bridge, bot_id)
+               if r["kind"] == "ask" and r["body"].get("status") == "pending")
+    _post(bridge, f"/api/fleet/bots/{bot_id}/asks/{ask['body']['ask_id']}/answer",
+          {"answer": "A"})
+    _wait(lambda: any(r["kind"] == "turn_end" for r in _rows(bridge, bot_id)),
+          timeout=8)
+    assert log_path.read_text(encoding="utf-8").splitlines() == [
+        "Elicitation", "ElicitationResult"]
 
 
 def test_ask_user_pauses_and_operator_answer_closes_it(bridge):

@@ -26,6 +26,18 @@ from . import shells as _shells
 _MAX_DELEGATION_DEPTH = 2
 
 
+def _fire_elicitation_hook(event: str, payload: dict) -> None:
+    try:
+        from .. import settings_store
+        from ..hooks import fire, parse_hooks
+
+        hooks = parse_hooks(settings_store.load().get("hooks", {}))
+        if hooks:
+            fire(hooks, event, payload)
+    except Exception:
+        pass  # hooks are advisory; operator questions must remain reliable
+
+
 def _input_summary(tool_input) -> str:
     try:
         text = json.dumps(tool_input, ensure_ascii=False,
@@ -261,9 +273,16 @@ class FleetTools(RealTools):
         if not isinstance(options, list):
             options = [options]
         options = [str(o).strip() for o in options if str(o).strip()][:6]
+        _fire_elicitation_hook("Elicitation", {
+            "question": question,
+            "options": options,
+            "bot_id": self.bot["id"],
+        })
         ask_id = _asks.broker.ask(self.store, self.bot, question, options)
         answer = _asks.broker.wait(ask_id, timeout_s=300)
         if answer is None:
+            _fire_elicitation_hook("ElicitationResult", {
+                "ask_id": ask_id, "status": "timeout"})
             try:
                 self.store.append_row(self.bot["id"], "ask", {
                     "ask_id": ask_id,
@@ -291,6 +310,8 @@ class FleetTools(RealTools):
             })
         except Exception:
             pass
+        _fire_elicitation_hook("ElicitationResult", {
+            "ask_id": ask_id, "status": "answered"})
         return (f"operator answered: {answer}",
                 {"ok": True, "ask_id": ask_id, "answer": answer})
 
