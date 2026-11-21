@@ -115,6 +115,8 @@ IMPLEMENTED = {
              "Duet builder plus independent read-only reviewer agents"),
     "A1.22": ("AGENTS.md", "tests/test_builder_guide.py",
               "Internal builder guide with repo layout and conventions"),
+    "C7.1": ("src/keel/instructions.py", "tests/test_instruction_imports.py",
+             "Import other tools' instruction files as untrusted context"),
 }
 
 

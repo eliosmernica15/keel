@@ -9,6 +9,20 @@ from pathlib import Path
 
 CAP_BYTES = 50 * 1024
 
+# C7.1: instruction files used by other coding tools, read as untrusted
+# project context. Order within a directory is deterministic.
+INSTRUCTION_FILES = (
+    "CLAUDE.md",
+    "AGENTS.md",
+    ".cursorrules",
+    ".windsurfrules",
+    ".github/copilot-instructions.md",
+)
+
+INSTRUCTION_GLOBS = (
+    ".cursor/rules/*.md",
+)
+
 
 _FLEET_GUIDANCE = """\
 <fleet-guidance>
@@ -67,10 +81,12 @@ def discover(cwd: str | Path) -> list[Path]:
     chain: list[Path] = []
     current = Path(cwd).resolve()
     while True:
-        for name in ("CLAUDE.md", "AGENTS.md"):
+        for name in INSTRUCTION_FILES:
             candidate = current / name
             if candidate.is_file():
                 chain.append(candidate)
+        for pattern in INSTRUCTION_GLOBS:
+            chain.extend(sorted(current.glob(pattern)))
         if current.parent == current:
             break
         current = current.parent
@@ -150,7 +166,9 @@ def build_attachment(paths: list[Path]) -> str:
             raw = path.read_bytes()[:CAP_BYTES]
             text = raw.decode("utf-8", errors="replace")
         except OSError as exc:
-            parts.append(f"Instructions from {path}: <unreadable: {exc}>")
+            parts.append(f"Instructions from {path} "
+                         "(untrusted project context): <unreadable: {exc}>")
             continue
-        parts.append(f"Instructions from {path}:\n{text}")
+        parts.append(f"Instructions from {path} "
+                     f"(untrusted project context):\n{text}")
     return "\n\n".join(parts)

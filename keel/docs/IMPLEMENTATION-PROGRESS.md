@@ -379,6 +379,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_builder_guide.py tests/test_rigor.py tests/test_compaction.py -q` → `12 passed`.
 **Next:** C7.1 import other tools' instruction formats and C1.1 repo hygiene stack verification.
 
+## M6 Batch 31 — Other tools' instruction formats (C7.1)
+
+**Implemented:** instruction discovery now reads `.cursorrules`, `.windsurfrules`, `.github/copilot-instructions.md` and `.cursor/rules/*.md` root-first, and imported files are explicitly labelled untrusted context.
+**Verification:** `python -m pytest tests/test_instruction_imports.py tests/test_builder_guide.py tests/test_rigor.py tests/test_compaction.py -q` → `15 passed`.
+**Next:** C1.1 repository hygiene stack verification.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

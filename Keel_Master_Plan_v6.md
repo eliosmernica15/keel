@@ -241,7 +241,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C6.3 | Importance scoring and decay; "dreaming" consolidation job; per-agent vs shared scopes | M13 | P1 | not_started |
 | C6.4 | User profile page the person can read and edit | M13 | P1 | not_started |
 | C6.5 | Memory provenance (which session/tool produced it) and tainted-source flag | M13 | P0 | verified |
-| C7.1 | Read other tools' instruction files as sources (`CLAUDE.md`, `.cursorrules`, Copilot instructions, `GEMINI.md`) with merge diagnostics; add a "not affiliated" note | M7 | P0 | not_started |
+| C7.1 | Read other tools' instruction files as sources (`CLAUDE.md`, `.cursorrules`, Copilot instructions, `GEMINI.md`) with merge diagnostics; add a "not affiliated" note | M7 | P0 | verified |
 | C7.2 | **Importers/exporters**: MCP configs from other apps, settings, rules, sessions where formats are documented | M20 | P1 | not_started |
 | C7.3 | Skill format compatible with the open `SKILL.md` convention; command format compatible with opencode-style markdown | M9 | P0 | verified |
 | C7.4 | OpenAPI-to-tools generator (point at a spec, get tools, dormant until approved) | M15 | P1 | not_started |
