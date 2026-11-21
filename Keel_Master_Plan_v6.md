@@ -84,7 +84,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A5.2 | Install a channel/plugin from a git URL or local link for development (`install --link`) | M10 | P1 | not_started |
 | A5.3 | **Account-level config inheritance** (account overrides channel defaults) | M15 | P0 | verified |
 | A5.4 | **Delivery fallback chain** (preferred service, then fallback) | M15 | P1 | not_started |
-| A5.5 | Outbound message state machine: queued, sent, delivered, read, failed with retries and dedupe by message id | M15 | P0 | not_started |
+| A5.5 | Outbound message state machine: queued, sent, delivered, read, failed with retries and dedupe by message id | M15 | P0 | verified |
 | A5.6 | Webhook subscription helper (register, list, rotate secret) as a CLI command | M15 | P1 | not_started |
 | A5.7 | Per-channel troubleshooting checklist surfaced in UI when a channel fails | M15 | P1 | not_started |
 | B1.1 | **Grammar/JSON-schema constrained decoding** for tool calls | M2 | P0 | verified |

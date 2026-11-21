@@ -130,9 +130,19 @@ def _webhook_cmd(argv: list[str]) -> int:
     except json.JSONDecodeError:
         sys.stderr.write("--payload must be valid JSON\n")
         return 1
+    from .. import settings as settings_mod
+    from ..message_state import MessageStates
+
+    state_root = os.environ.get(
+        "KEEL_STATE_DIR", str(settings_mod.default_state_root()))
+    states = MessageStates(state_root)
+    record = states.queue(channel="webhook", destination=argv[1],
+                          size=len(payload_text))
     try:
         result = deliver(argv[1], payload, secret, allow_http=allow_http)
+        states.advance(record["id"], "sent")
     except WebhookError as exc:
+        states.advance(record["id"], "failed")
         sys.stderr.write(str(exc) + "\n")
         return 1
     sys.stdout.write(json.dumps(result, indent=2) + "\n")

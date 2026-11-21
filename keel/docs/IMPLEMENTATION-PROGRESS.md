@@ -409,6 +409,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Evidence:** `python -m pytest tests/test_settings.py -q` → `14 passed`. No code duplication.
 **Next:** A5.5 outbound message state machine.
 
+## M6 Batch 36 — Outbound message state machine (A5.5)
+
+**Implemented:** `src/keel/message_state.py` tracks queued→sent→delivered→read with failed/retry paths in a local JSONL ledger; webhook sends now record their lifecycle.
+**Verification:** `python -m pytest tests/test_message_state.py tests/test_webhooks.py -q` → `9 passed`.
+**Next:** B2.6 local RAG knowledge bases.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

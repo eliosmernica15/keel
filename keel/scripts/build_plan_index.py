@@ -125,6 +125,8 @@ IMPLEMENTED = {
              "Signed outgoing webhooks with replay protection"),
     "A5.3": ("src/keel/settings.py", "tests/test_settings.py",
              "Verified layered account/user config inheritance"),
+    "A5.5": ("src/keel/message_state.py", "tests/test_message_state.py",
+             "Outbound message state machine with queued/sent/delivered/read/failed"),
 }
 
 
