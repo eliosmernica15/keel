@@ -476,16 +476,20 @@
       "source_feature_id": "A2.2",
       "milestone": "M17",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "site/ui/app.js"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement System-wide push-to-talk dictation hotkey (types into any app) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A2.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_voice.py"
+      ],
+      "verification_evidence": "Push-to-talk dictation and voice-to-task handoff",
       "owner_approval_required": false
     },
     {

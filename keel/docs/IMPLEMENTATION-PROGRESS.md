@@ -301,6 +301,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_memory.py tests/test_todo.py tests/test_tool_registry.py tests/test_read_only.py -q` → `30 passed`.
 **Next:** A2.2 voice-to-task handoff and push-to-talk dictation.
 
+## M6 Batch 18 — Voice dictation and voice-to-task (A2.2)
+
+**Implemented:** opt-in push-to-talk dictation in both composers using the browser SpeechRecognition API, with explicit consent notice, live transcript visibility, cancel, and Shift+hold to send the dictated text as a task.
+**Verification:** `python -m pytest tests/test_voice.py tests/test_attachments_ui.py tests/test_screen_safe_mode.py -q` → `13 passed`; `node --check` clean.
+**Next:** A2.5 group-chat loop prevention.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

@@ -53,7 +53,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A1.8 | Open file/diff in user's `$EDITOR` / VS Code | M19 | P1 | not_started |
 | A1.9 | Image paste/drag into composer, fuzzy `@file` search | M19 | P0 | verified |
 | A2.1 | **Voice-to-task handoff**: a voice session hands work to the same agent loop and reads results back | M17 | P1 | not_started |
-| A2.2 | System-wide push-to-talk dictation hotkey (types into any app) | M17 | P1 | not_started |
+| A2.2 | System-wide push-to-talk dictation hotkey (types into any app) | M17 | P1 | verified |
 | A2.3 | Per-agent **persistent browser profile** and per-agent workspace folder | M16 | P0 | not_started |
 | A2.4 | Idle suspend/wake of heavy resources (browser, container desktop, LSP) | M16 | P1 | not_started |
 | A2.5 | Group-chat loop guards (agents @mentioning each other endlessly) | M12 | P0 | not_started |

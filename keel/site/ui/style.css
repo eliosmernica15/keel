@@ -616,6 +616,14 @@ main { position: fixed; top: 38px; bottom: 26px; left: var(--sidew); right: 0; z
 /* C2.5 — per-surface agent/permission badge. */
 .surface-agent-badge{font:10px var(--mono);color:var(--muted);margin-left:12px;letter-spacing:.03em}
 
+/* A2.2 — push-to-talk dictation. */
+.composer .mic,.comp .mic{width:30px;height:30px;border:1px solid var(--edge-dim);border-radius:8px;
+  background:var(--panel-2);color:var(--muted);display:inline-grid;place-items:center;cursor:pointer;padding:0}
+.composer .mic svg,.comp .mic svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5}
+.composer .mic:hover,.comp .mic:hover{color:var(--accent)}
+.voice-status{font:11px var(--mono);color:var(--accent);margin-left:8px;max-width:60%;overflow:hidden;
+  white-space:nowrap;text-overflow:ellipsis}
+
 /* C1.4 — screen-share / recording safe mode (Ctrl+Shift+S). */
 body.safe-screen [data-sensitive],
 body.safe-screen .provider-src,

@@ -2394,6 +2394,110 @@ if (killBtn) killBtn.addEventListener("click", async () => {
   } catch (err) { systemNote(`global stop failed: ${err}`, "denied", state.surface); }
 });
 
+/* A2.2 — push-to-talk dictation and voice-to-task handoff (opt-in). */
+const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+const voiceState = { surface: null, recognition: null, text: "", sendOnDone: false };
+function showVoiceStatus(surface, text) {
+  const node = $(`voice-status-${surface}`);
+  if (!node) return;
+  node.hidden = false;
+  node.textContent = text;
+}
+function hideVoiceStatus() {
+  for (const surface of ["chat", "code"]) {
+    const node = $(`voice-status-${surface}`);
+    if (node) node.hidden = true;
+  }
+}
+function voiceConsent() {
+  try { return localStorage.getItem("keel_voice_consent") === "yes"; } catch { return false; }
+}
+function grantVoiceConsent() {
+  try { localStorage.setItem("keel_voice_consent", "yes"); } catch { /* private mode */ }
+}
+function startVoice(surface, sendOnDone) {
+  if (!SpeechRecognitionCtor) {
+    systemNote("speech recognition is not available in this browser", "denied", surface);
+    return;
+  }
+  if (!voiceConsent()) {
+    const ok = window.confirm(
+      "Dictation uses your browser's speech service. Audio may be processed by that service, not by Keel. Enable it only if you are comfortable with this; Keel never records audio itself.");
+    if (!ok) return;
+    grantVoiceConsent();
+  }
+  if (voiceState.recognition) return;
+  const recognition = new SpeechRecognitionCtor();
+  recognition.lang = navigator.language || "en-US";
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  voiceState.surface = surface;
+  voiceState.text = "";
+  voiceState.sendOnDone = Boolean(sendOnDone);
+  recognition.onresult = (event) => {
+    let finalText = "", interim = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const item = event.results[i];
+      if (item.isFinal) finalText += item[0].transcript;
+      else interim += item[0].transcript;
+    }
+    if (finalText) voiceState.text += finalText;
+    showVoiceStatus(voiceState.surface, `Listening… ${(voiceState.text + interim).slice(-80)}`);
+  };
+  recognition.onerror = (event) => {
+    hideVoiceStatus();
+    systemNote(`dictation error: ${event.error}`, "denied", voiceState.surface || surface);
+  };
+  recognition.onend = () => {
+    const target = voiceState.surface || surface;
+    const text = voiceState.text.trim();
+    voiceState.recognition = null;
+    hideVoiceStatus();
+    if (!text) return;
+    const input = prompts[target];
+    if (input) {
+      const prefix = input.value && !input.value.endsWith(" ") ? " " : "";
+      input.value = input.value + prefix + text;
+      input.focus();
+    }
+    if (voiceState.sendOnDone) {
+      const form = $(`form-${target}`);
+      if (form) form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event("submit", { cancelable: true }));
+    }
+  };
+  voiceState.recognition = recognition;
+  showVoiceStatus(surface, "Listening…");
+  try { recognition.start(); } catch (err) {
+    voiceState.recognition = null;
+    hideVoiceStatus();
+    systemNote(`dictation could not start: ${err}`, "denied", surface);
+  }
+}
+function stopVoice() {
+  if (voiceState.recognition) {
+    try { voiceState.recognition.stop(); } catch { /* already stopped */ }
+  }
+}
+for (const surface of ["chat", "code"]) {
+  const button = $(`mic-${surface}`);
+  if (!button) continue;
+  if (!SpeechRecognitionCtor) {
+    button.disabled = true;
+    button.title = "Speech recognition is not available in this browser";
+    continue;
+  }
+  button.addEventListener("pointerdown", (ev) => { ev.preventDefault(); startVoice(surface, ev.shiftKey); });
+  button.addEventListener("pointerup", (ev) => { ev.preventDefault(); stopVoice(); });
+  button.addEventListener("pointerleave", () => stopVoice());
+  button.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter" || ev.key === " ") {
+      ev.preventDefault();
+      if (voiceState.recognition) stopVoice();
+      else startVoice(surface, ev.shiftKey);
+    }
+  });
+}
+
 agentProbe().then(() => {
   refreshBridgeStatus();
   refreshSystem();

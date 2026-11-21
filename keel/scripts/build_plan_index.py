@@ -87,6 +87,8 @@ IMPLEMENTED = {
              "Release scan proving zero clear-text secrets in artifacts"),
     "C6.5": ("src/keel/memory.py", "tests/test_memory.py",
              "Memory provenance and tainted-source tracking"),
+    "A2.2": ("site/ui/app.js", "tests/test_voice.py",
+             "Push-to-talk dictation and voice-to-task handoff"),
 }
 
 
