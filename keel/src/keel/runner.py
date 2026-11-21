@@ -29,6 +29,10 @@ from .session import ALL_TOOLS, Session, SessionConfig
 from .toolresult import Persist
 
 OUTPUT_FORMATS = ("text", "json", "stream-json")
+_FILE_CHANGE_TOOLS = frozenset({
+    "write_file", "edit_file", "apply_patch", "delete_file", "move_file",
+    "copy_file", "make_dir",
+})
 DIAG_PREFIX = "[keel"
 
 
@@ -224,6 +228,7 @@ class RealTools:
             content = tool_input["content"]
             with open(path, "w", encoding="utf-8", newline="\n") as fh:
                 fh.write(content)
+            self._fire_file_changed("write_file", tool_input)
             return f"wrote {path} ({len(content)} chars)", \
                 {"type": "text", "file": {"filePath": path, "content": content}}
         if name == "edit_file":
@@ -238,6 +243,7 @@ class RealTools:
             updated = text.replace(old, new, 1)
             with open(path, "w", encoding="utf-8", newline="\n") as fh:
                 fh.write(updated)
+            self._fire_file_changed("edit_file", tool_input)
             return f"edited {path}", {"type": "text",
                                       "file": {"filePath": path, "content": updated,
                                                "oldContent": text,
@@ -311,6 +317,22 @@ class RealTools:
 
     _BG_PROCESSES: dict = {}
 
+    def _fire_file_changed(self, operation: str, tool_input: dict) -> None:
+        try:
+            from . import settings_store
+            from .hooks import fire, parse_hooks
+
+            hooks = parse_hooks(settings_store.load().get("hooks", {}))
+            if not hooks:
+                return
+            path = tool_input.get("path") or tool_input.get("src") or ""
+            fire(hooks, "FileChanged", {
+                "operation": operation,
+                "path": str(path),
+            })
+        except Exception:
+            pass  # hooks are advisory; file operations must remain reliable
+
     def _dispatch_extended(self, name: str, tool_input: dict):
         # Tier-2 safety check before any extended tool execution
         from .safety import tier2_check
@@ -354,7 +376,10 @@ class RealTools:
         handler = handlers.get(name)
         if handler is None:
             return None
-        return handler(tool_input or {})
+        result = handler(tool_input or {})
+        if name in _FILE_CHANGE_TOOLS:
+            self._fire_file_changed(name, tool_input or {})
+        return result
 
     def _safe_path(self, raw: str) -> str:
         import os

@@ -183,3 +183,15 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 - `tests/test_hooks.py`: tests for both events and payload safety.
 
 **Verification:** `python -m pytest tests/test_hooks.py tests/test_webapp.py -q` → `34 passed`.
+
+## Batch 15 — FileChanged tool hooks
+
+**v5 requirement:** §6 architecture (hooks in the Python daemon) and existing filesystem tool surface; no new milestone content was invented.
+
+**Implemented:**
+- `src/keel/runner.py`: `FileChanged` fires after successful write/edit and after successful extended file mutations (delete/move/copy/apply_patch/make_dir). Hooks are advisory and never block the file operation.
+- `tests/test_hooks.py`: verifies the event fires after a real `write_file` invocation.
+
+**Verification:** `python -m pytest tests/test_hooks.py tests/test_safety.py tests/test_tool_registry.py -q` → `57 passed`.
+
+Windows installer rebuilt successfully after accumulated release/updater changes.

@@ -93,6 +93,29 @@ def test_instructions_loaded_hook_fires(tmp_path):
         "SessionStart", "InstructionsLoaded"]
 
 
+def test_file_changed_hook_fires_after_write(tmp_path, monkeypatch):
+    from keel import settings_store
+    from keel.runner import RealTools
+
+    log_path = tmp_path / "file.log"
+    script = tmp_path / "log_file_hook.py"
+    script.write_text(
+        "import json, sys\n"
+        "payload = json.load(sys.stdin)\n"
+        "with open(sys.argv[1], 'a', encoding='utf-8') as fh:\n"
+        "    fh.write(payload['hook_event_name'] + ':' +\n"
+        "             payload['operation'] + '\\n')\n",
+        encoding="utf-8")
+    command = f'"{sys.executable}" "{script}" "{log_path}"'
+    monkeypatch.setattr(settings_store, "load", lambda: {
+        "hooks": {"FileChanged": [{"command": command}]},
+    })
+
+    target = tmp_path / "written.txt"
+    RealTools().invoke("write_file", {"path": str(target), "content": "hello"})
+    assert log_path.read_text(encoding="utf-8").strip() == "FileChanged:write_file"
+
+
 def test_config_change_hook_fires(tmp_path, monkeypatch):
     from keel import settings_store, webapp
 
