@@ -551,6 +551,27 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
             _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
             return True
         name = str(payload.get("name", "")).strip().lower()
+        source = str(payload.get("source", "live")).strip().lower()
+        if source == "offline":
+            from ..provider_catalog import CatalogError, catalog_info, model_ids
+
+            try:
+                models = model_ids(name)
+            except CatalogError as exc:
+                _send(handler, {"ok": False, "error": "unknown_provider",
+                                "detail": str(exc)},
+                      HTTPStatus.BAD_REQUEST)
+                return True
+            info = catalog_info()
+            _send(handler, {
+                "ok": True,
+                "provider": name,
+                "source": "offline",
+                "catalog_version": info.version,
+                "models": models,
+                "model_count": len(models),
+            })
+            return True
         cap = provider_registry.capability(name)
         if cap is None:
             _send(handler, {"ok": False, "error": "unknown_provider",

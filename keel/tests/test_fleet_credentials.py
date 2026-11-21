@@ -238,6 +238,28 @@ def test_catalog_uses_env_key_without_echoing_it(bridge, monkeypatch):
     assert b"env-key-abc" not in raw
 
 
+def test_catalog_offline_works_without_key_or_network(bridge, monkeypatch):
+    server, token = bridge
+    monkeypatch.delenv("KEEL_OPENROUTER_API_KEY", raising=False)
+    monkeypatch.setattr(session_keys, "_http_json",
+                        lambda *a, **k: (_ for _ in ()).throw(
+                            AssertionError("network must not be used")))
+    status, body = _req(server, "POST", "/api/fleet/providers/catalog",
+                        {"name": "google", "source": "offline"}, token)
+    assert status == 200
+    assert body["ok"] is True
+    assert body["source"] == "offline"
+    assert any("gemini" in m for m in body["models"])
+
+
+def test_catalog_offline_unknown_provider(bridge):
+    server, token = bridge
+    status, body = _req(server, "POST", "/api/fleet/providers/catalog",
+                        {"name": "not-a-provider", "source": "offline"}, token)
+    assert body["ok"] is False
+    assert body["error"] == "unknown_provider"
+
+
 def test_catalog_without_key_reports_not_configured(bridge):
     server, token = bridge
     status, body = _req(server, "POST", "/api/fleet/providers/catalog",

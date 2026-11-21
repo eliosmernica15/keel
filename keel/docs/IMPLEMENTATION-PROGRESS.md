@@ -106,3 +106,13 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 **Verification:** `python -m pytest tests/test_release_signing.py tests/test_release_manager.py tests/test_release_controls.py -q` → `35 passed`.
 
 **Not done (owner-gated):** no production key generated, deployed, or configured; no release published; updater/rollback still pending.
+
+## Batch 8 — Offline catalog in Fleet provider endpoint
+
+**v5 requirement:** §7.1 M2 — bundled offline provider catalog; provider/model discovery without internet. No new milestone content was invented.
+
+**Implemented:**
+- `src/keel/fleet/routes.py`: `POST /api/fleet/providers/catalog` now accepts `source: "offline"` and returns models from the bundled catalog without requiring a key or making a network call. Existing live behavior remains the default for compatibility.
+- `tests/test_fleet_credentials.py`: offline discovery works with no key and no network; unknown providers fail clearly.
+
+**Verification:** `python -m pytest tests/test_fleet_credentials.py tests/test_m2_api_integration.py tests/test_m2_provider_config.py -q` → `39 passed`.
