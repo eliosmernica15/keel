@@ -331,6 +331,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_attach.py tests/test_compat_runtime.py tests/test_compat_tracer.py tests/test_webapp.py -q` → `35 passed`.
 **Next:** A3.10 per-vendor cost caps with daily/monthly windows.
 
+## M6 Batch 23 — Per-vendor cost caps (A3.10)
+
+**Implemented:** `src/keel/cost_caps.py` keeps local caps and a JSONL usage ledger, estimates costs from tokens, enforces caps at the CLI run boundary, and adds `keel costs status/cap`.
+**Verification:** `python -m pytest tests/test_cost_caps.py tests/test_vertical_slice.py tests/test_commands.py -q` → `21 passed`.
+**Next:** B1.1 grammar/JSON-schema-constrained tool calls with tolerant parsing.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

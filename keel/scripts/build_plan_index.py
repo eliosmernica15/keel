@@ -97,6 +97,8 @@ IMPLEMENTED = {
               "Verified existing per-agent tool policies and permission overrides"),
     "A1.2": ("src/keel/attach.py", "tests/test_attach.py",
              "Attach a CLI client to a running Keel daemon"),
+    "A3.10": ("src/keel/cost_caps.py", "tests/test_cost_caps.py",
+              "Per-vendor daily/monthly cost caps with local usage ledger"),
 }
 
 

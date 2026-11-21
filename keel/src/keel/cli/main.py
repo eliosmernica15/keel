@@ -24,6 +24,8 @@ def main(argv: list[str] | None = None) -> int:
         return _tools_cmd(argv[1:])
     if argv and argv[0] == "attach":
         return _attach_cmd(argv[1:])
+    if argv and argv[0] == "costs":
+        return _costs_cmd(argv[1:])
     if argv and argv[0] == "provider":
         return _provider_cmd(argv[1:])
     if argv and argv[0] == "skills":
@@ -85,6 +87,52 @@ def main(argv: list[str] | None = None) -> int:
         diagnostic("cli_validation", {"errors": str(exc)})
         return 1
     return run(plan)
+
+
+def _costs_cmd(argv: list[str]) -> int:
+    import os
+
+    from .. import settings as settings_mod
+    from ..cost_caps import CostCaps
+
+    usage = ("usage: keel costs status\n"
+             "       keel costs cap <provider> [--daily USD] [--monthly USD]\n")
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(usage)
+        return 0
+    state = os.environ.get("KEEL_STATE_DIR",
+                           str(settings_mod.default_state_root()))
+    manager = CostCaps(state)
+    command = argv[0]
+    if command == "status":
+        doc = {}
+        for provider in manager.caps():
+            doc[provider] = {
+                "caps": manager.caps()[provider],
+                "daily_usd": manager.totals(provider, "daily"),
+                "monthly_usd": manager.totals(provider, "monthly"),
+            }
+        sys.stdout.write(json.dumps(doc, indent=2) + "\n")
+        return 0
+    if command == "cap" and len(argv) >= 2:
+        daily = monthly = None
+        rest = argv[2:]
+        for index, item in enumerate(rest):
+            if item in ("--daily", "--monthly") and index + 1 < len(rest):
+                try:
+                    value = float(rest[index + 1])
+                except ValueError:
+                    sys.stderr.write(f"{item} must be a number\n")
+                    return 1
+                if item == "--daily":
+                    daily = value
+                else:
+                    monthly = value
+        manager.set_cap(argv[1], daily=daily, monthly=monthly)
+        sys.stdout.write(json.dumps(manager.caps()[argv[1]], indent=2) + "\n")
+        return 0
+    sys.stderr.write(usage)
+    return 1
 
 
 def _attach_cmd(argv: list[str]) -> int:

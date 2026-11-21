@@ -62,7 +62,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A2.8 | Local Playwright E2E that exercises real flows (chat, tools, viewer, search, connections, voice, groups, settings) | M25 | P0 | not_started |
 | A2.9 | Memory-consolidation and history-compaction **tunable knobs** surfaced in settings | M13 | P1 | not_started |
 | A3.1 | **Outgoing signed webhooks** with retry/backoff and delivery log | M14 | P1 | not_started |
-| A3.10 | Per-vendor **cost caps with daily and monthly windows** | M21 | P0 | not_started |
+| A3.10 | Per-vendor **cost caps with daily and monthly windows** | M21 | P0 | verified |
 | A3.11 | Deploy/operations docs for headless mode (`keel serve` on a home server) | M20 | P1 | not_started |
 | A3.2 | Idle task-workspace garbage collection (temp folders) | M14 | P1 | not_started |
 | A3.3 | **Mock/scripted agent** for UI development and tests (deterministic scripted runs) | M19 | P0 | verified |

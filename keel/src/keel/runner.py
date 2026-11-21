@@ -1105,6 +1105,17 @@ def run(plan: LaunchPlan) -> int:
                          "provider": effective_provider,
                          "rules": resolved_rules})
 
+    # A3.10: refuse a run when the provider's cost window is exhausted.
+    from .cost_caps import CostCaps
+
+    cost_caps = CostCaps(state_root)
+    if effective_provider and effective_provider != "auto":
+        allowed, reason = cost_caps.check(effective_provider)
+        if not allowed:
+            diagnostic("cost_cap", {"provider": effective_provider,
+                                    "reason": reason})
+            return 1
+
     model, model_name = _build_model_client(plan)
     executor = RealTools()
     session_id = plan.session_id or \
@@ -1142,6 +1153,23 @@ def run(plan: LaunchPlan) -> int:
                 diagnostic("mcp", {"failed": mcp.failed,
                                    "info": "server(s) did not start; "
                                            "their tools were not offered"})
+
+    if not plan.dry_run and effective_provider and effective_provider != "auto":
+        try:
+            from .cost_caps import estimate_cost
+
+            usage = outcome.envelope.get("usage_tokens") or {}
+            spent = estimate_cost(
+                effective_provider,
+                int(usage.get("input_tokens") or 0),
+                int(usage.get("output_tokens") or 0))
+            if spent:
+                cost_caps.record(
+                    effective_provider, spent, model=plan.model,
+                    input_tokens=int(usage.get("input_tokens") or 0),
+                    output_tokens=int(usage.get("output_tokens") or 0))
+        except Exception:
+            pass  # cost tracking must never break a run
 
     out_format = plan.output_format
     if plan.dry_run:

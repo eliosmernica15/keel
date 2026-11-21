@@ -667,16 +667,20 @@
       "source_feature_id": "A3.10",
       "milestone": "M21",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/cost_caps.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Per-vendor **cost caps with daily and monthly windows** according to Keel_Plan_v5_Addendum_Missed_Features.md feature A3.10",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_cost_caps.py"
+      ],
+      "verification_evidence": "Per-vendor daily/monthly cost caps with local usage ledger",
       "owner_approval_required": false
     },
     {
