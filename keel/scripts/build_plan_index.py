@@ -99,6 +99,10 @@ IMPLEMENTED = {
              "Attach a CLI client to a running Keel daemon"),
     "A3.10": ("src/keel/cost_caps.py", "tests/test_cost_caps.py",
               "Per-vendor daily/monthly cost caps with local usage ledger"),
+    "B1.1": ("src/keel/tool_json.py", "tests/test_tool_json.py",
+             "Tightened tool schemas with additionalProperties=false"),
+    "B1.2": ("src/keel/tool_json.py", "tests/test_tool_json.py",
+             "Tolerant tool-call JSON repair, validation and coercion"),
 }
 
 

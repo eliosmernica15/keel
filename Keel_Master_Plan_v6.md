@@ -87,9 +87,9 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A5.5 | Outbound message state machine: queued, sent, delivered, read, failed with retries and dedupe by message id | M15 | P0 | not_started |
 | A5.6 | Webhook subscription helper (register, list, rotate secret) as a CLI command | M15 | P1 | not_started |
 | A5.7 | Per-channel troubleshooting checklist surfaced in UI when a channel fails | M15 | P1 | not_started |
-| B1.1 | **Grammar/JSON-schema constrained decoding** for tool calls | M2 | P0 | not_started |
+| B1.1 | **Grammar/JSON-schema constrained decoding** for tool calls | M2 | P0 | verified |
 | B1.10 | Speculative/draft decoding toggle where the runtime supports it | M2 | P2 | not_started |
-| B1.2 | Tolerant tool-call parser + **repair loop** | M2 | P0 | not_started |
+| B1.2 | Tolerant tool-call parser + **repair loop** | M2 | P0 | verified |
 | B1.3 | Difficulty-based **model router** | M2 | P1 | not_started |
 | B1.4 | Prefix/KV-cache reuse | M2 | P1 | not_started |
 | B1.5 | Smart context management | M4 | P0 | not_started |

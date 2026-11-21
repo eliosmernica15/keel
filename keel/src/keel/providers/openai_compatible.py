@@ -152,10 +152,13 @@ class OpenAICompatibleAdapter:
         for idx in sorted(tool_acc):
             acc = tool_acc[idx]
             try:
-                parsed = json.loads(acc["args"]) if acc["args"].strip() else {}
+                from ..tool_json import repair_json
+
+                parsed = (repair_json(acc["args"])
+                          if acc["args"].strip() else {})
                 if not isinstance(parsed, dict):
                     parsed = {"_raw": acc["args"]}
-            except json.JSONDecodeError:
+            except (ValueError, TypeError):
                 parsed = {"_raw": acc["args"]}
             block_index = next_block_index
             next_block_index += 1

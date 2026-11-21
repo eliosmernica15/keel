@@ -770,7 +770,10 @@ class Session:
                                     if isinstance(m, dict)))
                         except Exception:
                             pass  # egress logging must never break a turn
-                blocks = self.model.complete(outbound_messages, tool_schemas)
+                from .tool_json import constrain_tool_schemas
+
+                blocks = self.model.complete(
+                    outbound_messages, constrain_tool_schemas(tool_schemas))
             except Exception as exc:
                 # operator Stop mid-round: don't treat it as a provider
                 # error — route back through the loop-top check, which
@@ -870,6 +873,21 @@ class Session:
                 block = blocks[block_idx]
                 tool_use_id = tool_use_ids[block_idx]
                 tool_input = block.get("input", {})
+                # B1.2: repair malformed local-model JSON before any
+                # permission or safety check sees the tool input.
+                from .tool_json import (coerce_tool_input, repair_json,
+                                        validate_tool_input)
+
+                _tool_schema = (all_schemas.get(block["name"]) or {}).get(
+                    "input_schema")
+                if isinstance(tool_input, str):
+                    tool_input = repair_json(tool_input)
+                elif isinstance(tool_input, dict) and set(tool_input) == {"_raw"}:
+                    tool_input = repair_json(tool_input["_raw"])
+                if not isinstance(tool_input, dict):
+                    tool_input = {"_raw": tool_input}
+                tool_input = coerce_tool_input(tool_input, _tool_schema)
+                input_errors = validate_tool_input(tool_input, _tool_schema)
                 hook_blocked_reason: str | None = None
 
                 if self.hooks is not None and self.hooks:
@@ -1060,11 +1078,19 @@ class Session:
                                                 tool_use_id, machine_error(text),
                                                 self.persist)
                                     else:
-                                        inline, typed = self.tools.execute(
-                                            block["name"], tool_input)
-                                        rendered = render_success(
-                                            tool_use_id, typed, inline,
-                                            self.persist)
+                                        if input_errors:
+                                            rendered = render_failure(
+                                                tool_use_id,
+                                                machine_error(
+                                                    "invalid tool input: "
+                                                    + "; ".join(input_errors)),
+                                                self.persist)
+                                        else:
+                                            inline, typed = self.tools.execute(
+                                                block["name"], tool_input)
+                                            rendered = render_success(
+                                                tool_use_id, typed, inline,
+                                                self.persist)
                                 except Exception as exc:  # tool crash -> is_error
                                     rendered = render_failure(
                                         tool_use_id, machine_error(str(exc)),
