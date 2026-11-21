@@ -2044,7 +2044,7 @@
       "test_references": [
         "tests/test_sandbox.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "App-lock passphrase with auto-lock on idle",
       "owner_approval_required": false
     },
