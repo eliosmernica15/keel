@@ -128,3 +128,17 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 **Verification:** `python -m pytest tests/test_updater.py tests/test_release_signing.py tests/test_release_manager.py -q` → `20 passed`.
 
 **Not done:** Electron-side update wiring and production key/endpoint configuration remain owner-gated or later implementation work.
+
+## Batch 10 — Updater CLI and opt-in Electron check
+
+**v5 requirement:** §11 update security — verify before install, no mandatory hosted service, owner-controlled endpoint/key. No production endpoint or key was configured.
+
+**Implemented:**
+- `src/keel/release/cli.py`: `update-check` and `update-download` commands using signed manifests and verified artifacts.
+- `desktop-app/main.js`: advisory startup update check, disabled unless `KEEL_UPDATE_MANIFEST_URL` is supplied; stores plan metadata in `update-state.json` and never auto-installs.
+- `tests/test_updater.py`: CLI check against loopback signed manifest and Electron opt-in wiring test.
+- `node --check desktop-app/main.js` passes.
+
+**Verification:** `python -m pytest tests/test_updater.py tests/test_release_signing.py -q` → `10 passed`.
+
+**Not done:** production key/endpoint, auto-install UI, version display, and rollback UI remain pending owner decisions or later work.

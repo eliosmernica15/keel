@@ -7,7 +7,7 @@ import { app, BrowserWindow, shell, Menu } from "electron";
 import { spawn } from "child_process";
 import { randomBytes } from "crypto";
 import { join, dirname } from "path";
-import { existsSync, createWriteStream } from "fs";
+import { existsSync, createWriteStream, writeFileSync } from "fs";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -110,6 +110,47 @@ function startSidecar() {
   return waitForSidecarUrl(sidecar);
 }
 
+function updatePlatform() {
+  if (process.platform === "win32") return "windows";
+  if (process.platform === "darwin") return "macos";
+  return "linux";
+}
+
+function checkForUpdates() {
+  const manifest = process.env.KEEL_UPDATE_MANIFEST_URL;
+  if (!manifest) return; // disabled by default: no owner endpoint configured
+  const key = process.env.KEEL_UPDATE_PUBLIC_KEY_PATH || "";
+  const binary = bundledSidecar();
+  const args = binary
+    ? [binary, "release", "update-check"]
+    : [process.env.KEEL_PYTHON || "python", "-m", "keel", "release", "update-check"];
+  args.push("--manifest", manifest, "--current", app.getVersion(),
+            "--platform", updatePlatform());
+  if (key) args.push("--public-key", key);
+  if (process.env.KEEL_UPDATE_ALLOW_HTTP === "1") args.push("--allow-http");
+
+  let stdout = "";
+  const child = spawn(args[0], args.slice(1), {
+    env: { ...process.env, KEEL_NO_BANNER: "1" },
+    stdio: ["ignore", "pipe", "ignore"],
+    windowsHide: true,
+  });
+  child.stdout.on("data", (chunk) => { stdout += chunk.toString(); });
+  child.on("close", (code) => {
+    if (code !== 0 || !stdout.trim()) return;
+    try {
+      const plan = JSON.parse(stdout.trim());
+      const statePath = join(app.getPath("userData"), "update-state.json");
+      writeFileSync(statePath, JSON.stringify({
+        checkedAt: new Date().toISOString(),
+        plan,
+      }, null, 2));
+    } catch {
+      // Update metadata is advisory; a malformed response must never break startup.
+    }
+  });
+}
+
 function createSplash(iconPath) {
   splash = new BrowserWindow({
     width: 480,
@@ -178,6 +219,7 @@ if (!gotLock) {
       const m = url.match(/^(http:\/\/127\.0\.0\.1:(\d+)\/\?t=[A-Za-z0-9_-]+)/);
       if (m) sidecarPort = Number(m[2]), sidecarToken = new URL(url).searchParams.get("t") || sidecarToken;
       createWindow();
+      checkForUpdates();
       if (splash) splash.close();
     } catch (err) {
       if (splash) splash.close();

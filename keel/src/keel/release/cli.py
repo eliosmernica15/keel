@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 from .artifacts import scan_sidecar_payload, scan_tree
@@ -61,6 +63,25 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("path", help="directory to scan")
     check.set_defaults(func=check_artifacts_command)
 
+    update_check = sub.add_parser("update-check", help="check a signed release manifest")
+    update_check.add_argument("--manifest", required=True)
+    update_check.add_argument("--current", required=True)
+    update_check.add_argument(
+        "--platform", required=True,
+        choices=["windows", "macos", "linux"])
+    update_check.add_argument("--public-key", default=None)
+    update_check.add_argument("--allow-http", action="store_true")
+    update_check.add_argument("--timeout", type=int, default=60)
+    update_check.set_defaults(func=update_check_command)
+
+    update_download = sub.add_parser("update-download", help="download a verified update artifact")
+    update_download.add_argument("--plan", required=True, help="path to an update plan JSON file")
+    update_download.add_argument("--out", required=True)
+    update_download.add_argument("--public-key", default=None)
+    update_download.add_argument("--allow-http", action="store_true")
+    update_download.add_argument("--timeout", type=int, default=300)
+    update_download.set_defaults(func=update_download_command)
+
     return parser
 
 
@@ -74,6 +95,44 @@ def check_artifacts_command(args) -> int:
         print(f"prohibited files: {len(violations)}", file=sys.stderr)
         return 1
     print(f"artifact scan clean: {args.path}")
+    return 0
+
+
+def _optional_public_key(path: str | None):
+    if not path:
+        return None
+    from .signing import load_public_key
+
+    return load_public_key(Path(path))
+
+
+def update_check_command(args) -> int:
+    from .updater import check_for_update
+
+    plan = check_for_update(
+        args.manifest,
+        current_version=args.current,
+        platform=args.platform,
+        public_key=_optional_public_key(args.public_key),
+        allow_http=args.allow_http,
+        timeout=args.timeout,
+    )
+    print(json.dumps(asdict(plan) if plan else {"available": False}))
+    return 0
+
+
+def update_download_command(args) -> int:
+    from .updater import UpdatePlan, download_update
+
+    plan = UpdatePlan(**json.loads(Path(args.plan).read_text(encoding="utf-8")))
+    target = download_update(
+        plan,
+        Path(args.out),
+        public_key=_optional_public_key(args.public_key),
+        allow_http=args.allow_http,
+        timeout=args.timeout,
+    )
+    print(f"downloaded {target}")
     return 0
 
 

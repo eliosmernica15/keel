@@ -84,6 +84,32 @@ def test_check_rejects_tampered_manifest(signed_release, tmp_path):
             allow_http=True)
 
 
+def test_update_check_cli(signed_release, tmp_path):
+    import subprocess
+    import sys
+
+    _, manifest_url, _ = signed_release
+    public_key = tmp_path / "test.pub.pem"
+    root = Path(__file__).resolve().parents[1]
+    result = subprocess.run(
+        [sys.executable, "-m", "keel.release", "update-check",
+         "--manifest", manifest_url, "--current", "0.1.1",
+         "--platform", "windows", "--public-key", str(public_key),
+         "--allow-http"],
+        cwd=root, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    plan = json.loads(result.stdout)
+    assert plan["available"] if "available" in plan else plan["version"] == "0.1.2"
+
+
+def test_electron_update_check_is_opt_in():
+    source = (Path(__file__).resolve().parents[1] / "desktop-app" /
+              "main.js").read_text(encoding="utf-8")
+    assert "KEEL_UPDATE_MANIFEST_URL" in source
+    assert "checkForUpdates();" in source
+    assert "if (!manifest) return;" in source
+
+
 def test_atomic_install_and_rollback(tmp_path):
     install = tmp_path / "install"
     backup = tmp_path / "backup"
