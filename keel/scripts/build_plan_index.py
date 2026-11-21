@@ -121,6 +121,8 @@ IMPLEMENTED = {
              "Editorconfig, changelog, patch policy and lint/type config"),
     "A5.1": ("src/keel/gateway.py", "tests/test_gateway.py",
              "Gateway process with status/start/stop lifecycle"),
+    "A4.1": ("src/keel/webhooks.py", "tests/test_webhooks.py",
+             "Signed outgoing webhooks with replay protection"),
 }
 
 

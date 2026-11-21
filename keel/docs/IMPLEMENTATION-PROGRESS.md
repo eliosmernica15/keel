@@ -397,6 +397,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_gateway.py tests/test_fleet_routines.py tests/test_webapp.py -q` → `52 passed`.
 **Next:** A4.1 signed outgoing webhooks and A5.3 account-level config inheritance.
 
+## M6 Batch 34 — Signed outgoing webhooks (A4.1)
+
+**Implemented:** `src/keel/webhooks.py` signs payloads with HMAC-SHA256 over timestamp+body, verifies signatures with replay window, and delivers opt-in via `keel webhook send` using `KEEL_WEBHOOK_SECRET`.
+**Verification:** `python -m pytest tests/test_webhooks.py tests/test_commands.py -q` → `14 passed`.
+**Next:** A5.3 account-level configuration inheritance.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

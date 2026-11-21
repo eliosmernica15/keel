@@ -72,7 +72,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A3.7 | Honest "Project status" page listing what is proven end-to-end vs built-but-unproven | M26 | P1 | not_started |
 | A3.8 | Site tools: secrets manager, DB browser, scheduled jobs, analytics, element editor for generated sites | M18 | P2 | not_started |
 | A3.9 | Operator-style **Admin page** (limits, alerts, health, background job table) | M21 | P1 | not_started |
-| A4.1 | **OS service supervision**: daemon as systemd user unit / launchd agent / Windows scheduled task, watchdog, crash-loop backoff | M14 | P1 | not_started |
+| A4.1 | **OS service supervision**: daemon as systemd user unit / launchd agent / Windows scheduled task, watchdog, crash-loop backoff | M14 | P1 | verified |
 | A4.2 | Deterministic, reproducible template/package build (stable tarball, pinned versions) | M22 | P1 | not_started |
 | A4.3 | MCP presets catalog limited to free/self-hosted servers (filesystem, git, fetch, SQLite, time, memory, Playwright, sequential-thinking, etc.), one-click add, dormant until configured | M6 | P0 | not_started |
 | A4.4 | Rigor contract in persona (verify before claiming done, cite evidence) as default agent preamble | M7 | P0 | verified |

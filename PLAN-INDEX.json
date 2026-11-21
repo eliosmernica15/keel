@@ -881,16 +881,20 @@
       "source_feature_id": "A4.1",
       "milestone": "M14",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/webhooks.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **OS service supervision**: daemon as systemd user unit / launchd agent / Windows scheduled task, watchdog, crash-loop backoff according to Keel_Plan_v5_Addendum_Missed_Features.md feature A4.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_webhooks.py"
+      ],
+      "verification_evidence": "Signed outgoing webhooks with replay protection",
       "owner_approval_required": false
     },
     {

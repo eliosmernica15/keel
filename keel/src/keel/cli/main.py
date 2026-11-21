@@ -30,6 +30,8 @@ def main(argv: list[str] | None = None) -> int:
         return _model_cmd(argv[1:])
     if argv and argv[0] == "gateway":
         return _gateway_cmd(argv[1:])
+    if argv and argv[0] == "webhook":
+        return _webhook_cmd(argv[1:])
     if argv and argv[0] == "provider":
         return _provider_cmd(argv[1:])
     if argv and argv[0] == "skills":
@@ -91,6 +93,50 @@ def main(argv: list[str] | None = None) -> int:
         diagnostic("cli_validation", {"errors": str(exc)})
         return 1
     return run(plan)
+
+
+def _webhook_cmd(argv: list[str]) -> int:
+    import os
+
+    from ..webhooks import WebhookError, deliver
+
+    usage = ("usage: keel webhook send <url> --payload JSON "
+             "[--allow-http]\n"
+             "  secret is read from KEEL_WEBHOOK_SECRET\n")
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(usage)
+        return 0
+    if argv[0] != "send" or len(argv) < 2:
+        sys.stderr.write(usage)
+        return 1
+    secret = os.environ.get("KEEL_WEBHOOK_SECRET", "")
+    if not secret:
+        sys.stderr.write("KEEL_WEBHOOK_SECRET is required\n")
+        return 1
+    payload_text = ""
+    allow_http = False
+    index = 2
+    while index < len(argv):
+        item = argv[index]
+        if item == "--payload" and index + 1 < len(argv):
+            payload_text = argv[index + 1]
+            index += 2
+            continue
+        if item == "--allow-http":
+            allow_http = True
+        index += 1
+    try:
+        payload = json.loads(payload_text or "{}")
+    except json.JSONDecodeError:
+        sys.stderr.write("--payload must be valid JSON\n")
+        return 1
+    try:
+        result = deliver(argv[1], payload, secret, allow_http=allow_http)
+    except WebhookError as exc:
+        sys.stderr.write(str(exc) + "\n")
+        return 1
+    sys.stdout.write(json.dumps(result, indent=2) + "\n")
+    return 0
 
 
 def _gateway_cmd(argv: list[str]) -> int:
