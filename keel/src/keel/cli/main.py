@@ -26,6 +26,8 @@ def main(argv: list[str] | None = None) -> int:
         return _attach_cmd(argv[1:])
     if argv and argv[0] == "costs":
         return _costs_cmd(argv[1:])
+    if argv and argv[0] == "model":
+        return _model_cmd(argv[1:])
     if argv and argv[0] == "provider":
         return _provider_cmd(argv[1:])
     if argv and argv[0] == "skills":
@@ -87,6 +89,47 @@ def main(argv: list[str] | None = None) -> int:
         diagnostic("cli_validation", {"errors": str(exc)})
         return 1
     return run(plan)
+
+
+def _model_cmd(argv: list[str]) -> int:
+    from ..model_downloads import DownloadError, download
+
+    usage = ("usage: keel model download <url> --dest PATH "
+             "[--sha256 HASH] [--allow-http]\n")
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(usage)
+        return 0
+    if argv[0] != "download" or len(argv) < 2:
+        sys.stderr.write(usage)
+        return 1
+    url = argv[1]
+    dest = ""
+    checksum = ""
+    allow_http = False
+    index = 2
+    while index < len(argv):
+        item = argv[index]
+        if item in ("--dest", "--sha256") and index + 1 < len(argv):
+            if item == "--dest":
+                dest = argv[index + 1]
+            else:
+                checksum = argv[index + 1]
+            index += 2
+            continue
+        if item == "--allow-http":
+            allow_http = True
+        index += 1
+    if not dest:
+        sys.stderr.write("--dest is required\n")
+        return 1
+    try:
+        path = download(url, dest, sha256=checksum or None,
+                        allow_http=allow_http)
+    except DownloadError as exc:
+        sys.stderr.write(str(exc) + "\n")
+        return 1
+    sys.stdout.write(f"downloaded {path}\n")
+    return 0
 
 
 def _costs_cmd(argv: list[str]) -> int:

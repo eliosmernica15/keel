@@ -103,6 +103,8 @@ IMPLEMENTED = {
              "Tightened tool schemas with additionalProperties=false"),
     "B1.2": ("src/keel/tool_json.py", "tests/test_tool_json.py",
              "Tolerant tool-call JSON repair, validation and coercion"),
+    "B1.6": ("src/keel/model_downloads.py", "tests/test_model_downloads.py",
+             "Resumable model downloads with SHA-256 integrity verification"),
 }
 
 

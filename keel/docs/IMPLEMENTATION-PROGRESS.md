@@ -343,6 +343,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_tool_json.py tests/test_providers.py tests/test_vertical_slice.py tests/test_hooks.py tests/test_safety.py -q` → `60 passed`.
 **Next:** B1.6 model download manager with resume and integrity verification.
 
+## M6 Batch 25 — Resumable model downloads (B1.6)
+
+**Implemented:** `src/keel/model_downloads.py` supports HTTP Range resume, `.part` staging and SHA-256 verification before publish; `keel model download` exposes it with explicit `--allow-http` opt-in.
+**Verification:** `python -m pytest tests/test_model_downloads.py tests/test_commands.py tests/test_vertical_slice.py -q` → `23 passed`.
+**Next:** A4.4 rigor contract in persona and A2.8 local Playwright-style E2E scaffold.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.
