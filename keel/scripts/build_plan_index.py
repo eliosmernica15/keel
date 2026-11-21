@@ -69,6 +69,8 @@ IMPLEMENTED = {
              "Auto-detected verification commands run after file edits"),
     "A1.10": ("src/keel/todos.py", "tests/test_todo.py",
               "Visible persistent task checklist via the todo tool"),
+    "A1.5": ("src/keel/init_project.py", "tests/test_init_project.py",
+             "keel init scans a repo and generates AGENTS.md"),
 }
 
 

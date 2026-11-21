@@ -18,6 +18,8 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.write(f"keel {__version__}\n")
         return 0
 
+    if argv and argv[0] == "init":
+        return _init_cmd(argv[1:])
     if argv and argv[0] == "provider":
         return _provider_cmd(argv[1:])
     if argv and argv[0] == "skills":
@@ -79,6 +81,25 @@ def main(argv: list[str] | None = None) -> int:
         diagnostic("cli_validation", {"errors": str(exc)})
         return 1
     return run(plan)
+
+
+def _init_cmd(argv: list[str]) -> int:
+    import os
+
+    from ..init_project import write_agents_md
+
+    if argv and argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write("usage: keel init [--force]\n"
+                         "  scan the current repo and generate AGENTS.md\n")
+        return 0
+    force = "--force" in argv
+    try:
+        target = write_agents_md(os.getcwd(), force=force)
+    except FileExistsError as exc:
+        sys.stderr.write(str(exc) + "\n")
+        return 1
+    sys.stdout.write(f"wrote {target}\n")
+    return 0
 
 
 def _settings_cmd(argv: list[str]) -> int:

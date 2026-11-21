@@ -47,7 +47,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A1.22 | `AGENTS.md` for the builder itself (internal) describing layout and conventions | M0 | P0 | not_started |
 | A1.3 | **Terminal UI front-end** (full TUI, not only Electron) | M20 | P1 | not_started |
 | A1.4 | **Local web UI** served on loopback (`keel web`) for browser access | M20 | P1 | not_started |
-| A1.5 | `/init` command: scan repo and generate `AGENTS.md` | M7 | P0 | not_started |
+| A1.5 | `/init` command: scan repo and generate `AGENTS.md` | M7 | P0 | verified |
 | A1.6 | Inline shell via `!cmd` prefix in composer (goes through permission gate) | M19 | P1 | not_started |
 | A1.7 | Slash commands: `/undo /redo /compact /export /models /themes /details /editor /share-local` | M7 | P0 | not_started |
 | A1.8 | Open file/diff in user's `$EDITOR` / VS Code | M19 | P1 | not_started |

@@ -253,6 +253,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_todo.py tests/test_tool_registry.py tests/test_hooks.py tests/test_verification.py -q` → `47 passed`.
 **Next:** A1.5 `/init` command generating AGENTS.md.
 
+## M6 Batch 10 — Repository init (A1.5)
+
+**Implemented:** `src/keel/init_project.py` scans manifests, directories and test folders and renders `AGENTS.md`; `keel init [--force]` writes it, refusing to overwrite by default.
+**Verification:** `python -m pytest tests/test_init_project.py tests/test_vertical_slice.py tests/test_tool_registry.py -q` → `31 passed`.
+**Next:** A1.7 slash commands and A1.9 image/file attachment workflow.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.
