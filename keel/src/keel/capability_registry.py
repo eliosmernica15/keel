@@ -503,11 +503,19 @@ def _git_commit(p, ctx):
         allow_write=bool(p.get("allow_write")))}
 
 
+@capability("code.sandbox.status", "sandbox_policy", "code", "read",
+            "Report exactly which sandbox controls are enforced locally")
+def _sandbox_status(p, ctx):
+    from .sandbox_policy import sandbox_status
+    return sandbox_status()
+
+
 @capability("code.sandbox.run", "sandbox_exec", "code", "execute",
-            "Run Python in a bounded subprocess with isolated cwd (not a hardened boundary)")
+            "Run Python under the audit-hook sandbox (Python-level boundary)")
 def _sandbox_run(p, ctx):
     from .sandbox_exec import run_python
-    r = run_python(str(p.get("code", "")), timeout_s=float(p.get("timeout_s", 5)))
+    r = run_python(str(p.get("code", "")), timeout_s=float(p.get("timeout_s", 5)),
+                   allow_network=bool(p.get("allow_network")))
     return {"ok": r.ok, "stdout": r.stdout[:4000], "stderr": r.stderr[:4000],
             "exit_code": r.exit_code, "timed_out": r.timed_out}
 

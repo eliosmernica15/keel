@@ -62,7 +62,7 @@ LOCAL_MODULES = frozenset({
     "agent_style", "cli_extras", "composer_tools", "misc_features",
     "ci_helpers", "eval_tools", "tui", "site_tools", "desktop_state",
     "distribution", "instructions", "provider_sources",
-    "final_features", "last_features", "sandbox",
+    "final_features", "last_features", "sandbox", "sandbox_policy",
     "documents", "backups", "debugger", "rag", "memory", "memory_types",
     "knowledge_graph", "user_profile", "feature_flags", "swe_bench",
     "red_team", "trust_tools", "interop", "workflows", "workflow_history",
