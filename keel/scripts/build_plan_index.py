@@ -105,6 +105,8 @@ IMPLEMENTED = {
              "Tolerant tool-call JSON repair, validation and coercion"),
     "B1.6": ("src/keel/model_downloads.py", "tests/test_model_downloads.py",
              "Resumable model downloads with SHA-256 integrity verification"),
+    "A4.4": ("src/keel/instructions.py", "tests/test_rigor.py",
+             "Evidence-before-claims rigor contract in agent persona"),
 }
 
 

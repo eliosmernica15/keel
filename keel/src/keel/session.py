@@ -661,6 +661,11 @@ class Session:
                                  "uuid": self.ids.event_uuid()}]
         attachment_parts: list[str] = []
         attachment_sources: list[str] = []
+        # A4.4: evidence-before-claims contract is always in the persona.
+        from .instructions import rigor_attachment
+
+        attachment_parts.append(rigor_attachment())
+        attachment_sources.append("rigor_contract")
         if getattr(self, "_mcp_context_pending", None):
             attachment_parts.append(self._mcp_context_pending[0])
             attachment_sources.append(self._mcp_context_pending[1])

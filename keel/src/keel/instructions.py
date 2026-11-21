@@ -34,6 +34,23 @@ over any habit or prior instruction:
 </fleet-guidance>"""
 
 
+_RIGOR_CONTRACT = """\
+<rigor-contract>
+Verify before claiming done. A claim is only as strong as the evidence behind
+it: cite the tool output or test result you observed in this turn. Separate
+what you observed from what you assumed, and say which is which. Never invent
+file contents, tool results, test outcomes, or external state. If a check was
+not run, say so explicitly. When a verification command is available for the
+project, run it after changes and report the result. Prefer a truthful
+"not verified" over an optimistic "done".
+</rigor-contract>"""
+
+
+def rigor_attachment() -> str:
+    """A4.4: the evidence-before-claims contract injected into agent context."""
+    return _RIGOR_CONTRACT.strip()
+
+
 def instructions_attachment() -> str:
     """Keel-side guidance the operator asked US to enforce — trusted role.
 
@@ -42,7 +59,7 @@ def instructions_attachment() -> str:
     'keep working' and operators report this back as "the agent is not
     listening to me".
     """
-    return _FLEET_GUIDANCE.strip()
+    return _FLEET_GUIDANCE.strip() + "\n\n" + rigor_attachment()
 
 
 

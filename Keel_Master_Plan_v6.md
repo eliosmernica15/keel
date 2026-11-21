@@ -75,7 +75,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A4.1 | **OS service supervision**: daemon as systemd user unit / launchd agent / Windows scheduled task, watchdog, crash-loop backoff | M14 | P1 | not_started |
 | A4.2 | Deterministic, reproducible template/package build (stable tarball, pinned versions) | M22 | P1 | not_started |
 | A4.3 | MCP presets catalog limited to free/self-hosted servers (filesystem, git, fetch, SQLite, time, memory, Playwright, sequential-thinking, etc.), one-click add, dormant until configured | M6 | P0 | not_started |
-| A4.4 | Rigor contract in persona (verify before claiming done, cite evidence) as default agent preamble | M7 | P0 | not_started |
+| A4.4 | Rigor contract in persona (verify before claiming done, cite evidence) as default agent preamble | M7 | P0 | verified |
 | A4.5 | Coding-agent routing rules (which sub-agent/model for which task type) in the persona | M12 | P1 | not_started |
 | A4.6 | "Test-fire" check for every integration after saving credentials | M15 | P0 | verified |
 | A4.7 | Secret providers beyond keychain as user choice: env file, command (`pass`, `bw` CLI the user already owns) | M3 | P2 | not_started |

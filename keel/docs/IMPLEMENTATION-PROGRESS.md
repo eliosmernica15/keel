@@ -349,6 +349,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_model_downloads.py tests/test_commands.py tests/test_vertical_slice.py -q` → `23 passed`.
 **Next:** A4.4 rigor contract in persona and A2.8 local Playwright-style E2E scaffold.
 
+## M6 Batch 26 — Rigor contract in persona (A4.4)
+
+**Implemented:** `rigor_attachment()` requires evidence before completion claims and forbids fabricated results; injected into Fleet guidance and every Session's context with an `InstructionsLoaded` source.
+**Verification:** `python -m pytest tests/test_rigor.py tests/test_compaction.py tests/test_vertical_slice.py tests/test_hooks.py -q` → `39 passed`.
+**Next:** A2.8 local E2E flow scaffold.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.
