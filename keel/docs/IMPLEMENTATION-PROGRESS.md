@@ -676,3 +676,28 @@ and both addenda disappeared. They were reconstructed byte-exactly from v6's
 preserved appendices into `keel/docs/plan-sources/` (hashes: v5
 `da1dd5dc…427f`, addenda `e4e314a5…` and `b4221915…`), and the builders now
 prefer those canonical in-repo copies. A regression test pins all three hashes.
+
+**Further descriptor→real upgrades (operational completion):**
+- `B3.1/B3.2` real bounded Python subprocess sandbox (`sandbox_exec.py`).
+- `C2.3` real Duet local inline completion (`inline_completion.py`).
+- `A2.3` real browser-profile management + opt-in launch (`browser_launch.py`).
+- `A3.1` real webhook retry/backoff + delivery log (`webhook_delivery.py`).
+- `C5.4` real polling file watcher (`file_watcher.py`).
+- `A2.1/A2.2` real confirmed voice-to-task queue (`voice_tasks.py`).
+- `C2.1` real IMAP-style email drafts, ICS calendar parsing, WAV meeting audio
+  (`cowork_channels.py`), plus DOCX/XLSX over the HTTP bridge (`webapp.py`).
+- `C9.1` real model runtime with RAM budget + LRU eviction (`model_runtime.py`).
+- `B2.6` real RAG auto-reindex driven by the file watcher (`rag_watcher.py`).
+- `B4.11` real encrypted backup/restore exposed over the HTTP bridge.
+- `A1.1/A1.17` real CLI subprocess E2E and session import/stats endpoints.
+- `B2.10` real HTTP API tester with host restrictions (`api_tester.py`).
+- `C4.4` real AST codemods with diff preview (`codemod.py`).
+- `C4.9` real git status/log/blame/stacked commits with write gating
+  (`git_extras_runtime.py`).
+
+**E2E layer:** `tests/test_e2e_operations.py`, `test_cli_e2e.py`, and the
+`test_*_endpoints.py` files start the real backend/CLI and exercise file
+creation, permission denials, provider failures, DLP, Cowork documents,
+backups, session restore, update policy and endpoint hardening with
+deterministic scripted providers. Full suite at this phase: **1005 passed,
+10 skipped**. History was not rewritten; all commits are local, none pushed.
