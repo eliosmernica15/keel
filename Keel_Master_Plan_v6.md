@@ -92,7 +92,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B1.2 | Tolerant tool-call parser + **repair loop** | M2 | P0 | verified |
 | B1.3 | Difficulty-based **model router** | M2 | P1 | not_started |
 | B1.4 | Prefix/KV-cache reuse | M2 | P1 | not_started |
-| B1.5 | Smart context management | M4 | P0 | not_started |
+| B1.5 | Smart context management | M4 | P0 | verified |
 | B1.6 | **Model download manager** | M2 | P0 | verified |
 | B1.7 | Hardware detector and quantization advisor | M2 | P1 | not_started |
 | B1.8 | Local embedding + reranker models | M11 | P1 | not_started |

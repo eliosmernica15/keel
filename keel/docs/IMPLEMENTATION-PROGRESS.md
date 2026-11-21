@@ -361,6 +361,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_e2e_local.py -q` → `4 passed`.
 **Next:** A3.3 mock/scripted agents (verification) and B1.5 smart context management.
 
+## M6 Batch 28 — Context and mock-agent verification (B1.5, A3.3, verification only)
+
+**Verified existing implementations:** `context.py` budget/compaction/thrash guard and `fakes.py` deterministic scripted providers.
+**Evidence:** `python -m pytest tests/test_compaction.py tests/test_compat_runtime.py -q` → `19 passed`. No code duplication.
+**Next:** B2.3 Duet default design (builder and independent reviewer agents).
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

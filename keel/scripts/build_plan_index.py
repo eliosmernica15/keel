@@ -109,6 +109,8 @@ IMPLEMENTED = {
              "Evidence-before-claims rigor contract in agent persona"),
     "A2.8": ("tests/test_e2e_local.py", "tests/test_e2e_local.py",
              "Local E2E harness exercising real bridge chat/settings/viewer flows"),
+    "B1.5": ("src/keel/context.py", "tests/test_compaction.py",
+             "Verified existing budget, preserved-tail compaction and thrash guard"),
 }
 
 
