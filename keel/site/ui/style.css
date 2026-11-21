@@ -613,6 +613,9 @@ main { position: fixed; top: 38px; bottom: 26px; left: var(--sidew); right: 0; z
   background:transparent;color:var(--text);font:11px var(--mono);cursor:pointer}
 .at-row:hover,.at-row.active{background:var(--panel-3);color:var(--accent)}
 
+/* C2.5 — per-surface agent/permission badge. */
+.surface-agent-badge{font:10px var(--mono);color:var(--muted);margin-left:12px;letter-spacing:.03em}
+
 /* C1.4 — screen-share / recording safe mode (Ctrl+Shift+S). */
 body.safe-screen [data-sensitive],
 body.safe-screen .provider-src,

@@ -75,6 +75,8 @@ IMPLEMENTED = {
              "Slash commands: undo/redo, compact, export, models, themes, details"),
     "A1.9": ("site/ui/app.js", "tests/test_attachments_ui.py",
              "Image paste/drag into composer and fuzzy @file search"),
+    "C2.5": ("src/keel/surfaces.py", "tests/test_surfaces.py",
+             "Unified surface switcher with per-surface agents and permissions"),
 }
 
 

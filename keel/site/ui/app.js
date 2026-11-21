@@ -190,7 +190,28 @@ function setSurface(name, { focus = true } = {}) {
     ? `session ${String(state.sessionId).slice(0, 8)}`
     : surfaceName[name];
   try { localStorage.setItem("keel_surface", name); } catch { /* private mode */ }
+  applySurfaceBadge();
   if (focus) prompts[name]?.focus();
+}
+
+/* C2.5 — per-surface agent and permission defaults from the Python runtime. */
+let surfaceConfig = {};
+function applySurfaceBadge() {
+  const badge = document.querySelector(".surface-agent-badge");
+  if (!badge) return;
+  const cfg = surfaceConfig[state.surface];
+  badge.textContent = cfg
+    ? `${cfg.name} · ${cfg.default_agent} · ${cfg.permission_mode}` : "";
+}
+async function loadSurfaceConfig() {
+  if (!bridge.live) return;
+  try {
+    const res = await fetch("/api/surfaces", { headers: fsHeaders() });
+    if (!res.ok) return;
+    const doc = await res.json();
+    surfaceConfig = Object.fromEntries((doc.surfaces || []).map((s) => [s.id, s]));
+    applySurfaceBadge();
+  } catch { /* the mirror works without the bridge */ }
 }
 $("seg-chat").addEventListener("click", () => setSurface("chat"));
 $("seg-code").addEventListener("click", () => setSurface("code"));
@@ -2360,6 +2381,7 @@ if (stopBtn) stopBtn.addEventListener("click", () => { agentStopRun(); });
 agentProbe().then(() => {
   refreshBridgeStatus();
   refreshSystem();
+  loadSurfaceConfig().catch(() => {});
   restoreAgentSession("chat").catch(() => {});
   restoreAgentSession("code").catch(() => {});
 

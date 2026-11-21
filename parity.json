@@ -3390,16 +3390,20 @@
       "source_feature_id": "C2.5",
       "milestone": "M19",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/surfaces.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Surface switcher with per-surface default agents, tools and permissions according to Keel_Plan_v5_Addendum_2_More_Features.md feature C2.5",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_surfaces.py"
+      ],
+      "verification_evidence": "Unified surface switcher with per-surface agents and permissions",
       "owner_approval_required": false
     },
     {

@@ -386,6 +386,13 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 status, payload = _fs_list_payload(raw_path)
                 self._send_json(payload, status)
                 return
+            if path == "/api/surfaces":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                from . import surfaces as surfaces_mod
+                self._send_json({"surfaces": surfaces_mod.list_surfaces()})
+                return
             if path == "/api/files/search":
                 if not self._authorized():
                     self._refuse()
@@ -435,6 +442,33 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 from . import compat
                 sid = path[len("/api/v2/sessions"):].strip("/")
                 return self._v2_sessions(path, sid, compat)
+            if path.startswith("/api/surfaces/"):
+                name = path[len("/api/surfaces/"):].strip("/")
+                from . import surfaces as surfaces_mod
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                if length > 16_000:
+                    self._send_json({"error": "body too large"},
+                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    return
+                try:
+                    request = json.loads(
+                        self.rfile.read(length) if length else b"{}")
+                except json.JSONDecodeError:
+                    self._send_json({"error": "invalid json"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                try:
+                    updated = surfaces_mod.update_surface(name, request)
+                except KeyError:
+                    self._send_json({"error": "unknown surface"},
+                                    HTTPStatus.NOT_FOUND)
+                    return
+                except ValueError as exc:
+                    self._send_json({"error": str(exc)},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                self._send_json({"surface": updated})
+                return
             if path == "/api/settings":
                 from . import settings_store
                 length = int(self.headers.get("Content-Length", "0") or 0)

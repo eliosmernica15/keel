@@ -203,7 +203,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C2.2 | **Keel Code** | M11 | P0 | not_started |
 | C2.3 | **Keel Duet** (assumed pair mode, confirm D4) | M12 | P1 | not_started |
 | C2.4 | **Fleet** | M12 | P0 | not_started |
-| C2.5 | Surface switcher with per-surface default agents, tools and permissions | M19 | P0 | not_started |
+| C2.5 | Surface switcher with per-surface default agents, tools and permissions | M19 | P0 | verified |
 | C3.1 | **Best-of-N with test selection** | M7 | P0 | not_started |
 | C3.10 | Uncertainty policy | M7 | P1 | not_started |
 | C3.11 | Style learning | M11 | P2 | not_started |
