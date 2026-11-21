@@ -289,6 +289,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_circuit_breaker.py tests/test_providers.py tests/test_vertical_slice.py -q` → `20 passed`.
 **Next:** C6.5 memory provenance and tainted-source tracking.
 
+## M6 Batch 16 — Zero-secrets release scan (A4.8)
+
+**Implemented:** extended secret detection (Google/Slack/JWT shapes) and wired `scan_secret_markers()` into `check-artifacts` and `release dry-run`, so a staged release with a planted credential fails locally before publication.
+**Verification:** `python -m pytest tests/test_release_no_secrets.py tests/test_release_hardening.py tests/test_release_signing.py -q` → `14 passed`; existing `release/` and `dist/win-unpacked` scan clean.
+**Next:** C6.5 memory provenance and tainted-source tracking.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

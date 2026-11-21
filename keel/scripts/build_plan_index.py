@@ -83,6 +83,8 @@ IMPLEMENTED = {
              "Revoke all client tokens by rotating the bridge token"),
     "B3.11": ("src/keel/circuit_breaker.py", "tests/test_circuit_breaker.py",
               "Provider circuit breaker with health score and fail-fast"),
+    "A4.8": ("src/keel/release/artifacts.py", "tests/test_release_no_secrets.py",
+             "Release scan proving zero clear-text secrets in artifacts"),
 }
 
 

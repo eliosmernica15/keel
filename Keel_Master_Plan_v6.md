@@ -79,7 +79,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A4.5 | Coding-agent routing rules (which sub-agent/model for which task type) in the persona | M12 | P1 | not_started |
 | A4.6 | "Test-fire" check for every integration after saving credentials | M15 | P0 | verified |
 | A4.7 | Secret providers beyond keychain as user choice: env file, command (`pass`, `bw` CLI the user already owns) | M3 | P2 | not_started |
-| A4.8 | Release scan proving **zero secrets in artifacts** on every release | M22 | P0 | not_started |
+| A4.8 | Release scan proving **zero secrets in artifacts** on every release | M22 | P0 | verified |
 | A5.1 | **Gateway** process concept with `status`, start/stop, and a list of running channels | M15 | P0 | not_started |
 | A5.2 | Install a channel/plugin from a git URL or local link for development (`install --link`) | M10 | P1 | not_started |
 | A5.3 | **Account-level config inheritance** (account overrides channel defaults) | M15 | P0 | not_started |

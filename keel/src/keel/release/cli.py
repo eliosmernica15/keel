@@ -6,7 +6,7 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-from .artifacts import scan_sidecar_payload, scan_tree
+from .artifacts import scan_secret_markers, scan_sidecar_payload, scan_tree
 from .build import build_command
 from .licenses import licenses_command
 from .publish import publish_command
@@ -97,7 +97,7 @@ def build_parser() -> argparse.ArgumentParser:
 def check_artifacts_command(args) -> int:
     root = Path(args.path)
     violations = (scan_sidecar_payload(root) if root.name == "keel-sidecar"
-                  else scan_tree(root))
+                  else scan_tree(root) + scan_secret_markers(root))
     if violations:
         for item in violations:
             print(item)
@@ -119,7 +119,8 @@ def dry_run_command(args) -> int:
     if not artifacts.is_absolute():
         artifacts = Path(common.PROJECT_ROOT) / artifacts
 
-    violations = scan_tree(dist) + scan_tree(artifacts)
+    violations = (scan_tree(dist) + scan_secret_markers(dist)
+                  + scan_tree(artifacts) + scan_secret_markers(artifacts))
     if violations:
         print("prohibited files: " + ", ".join(violations[:20]), file=sys.stderr)
         return 1
