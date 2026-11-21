@@ -421,6 +421,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_rag.py tests/test_tool_registry.py -q` → `23 passed`.
 **Next:** A1.16 session statistics/import-export verification.
 
+## M6 Batch 38 — Session import/export and statistics (A1.16)
+
+**Implemented:** `src/keel/session_export.py` exports/imports local JSON session bundles and computes row/token statistics; `keel session export/import/stats` commands added.
+**Verification:** `python -m pytest tests/test_session_export.py tests/test_compat_runtime.py -q` → `16 passed`.
+**Next:** A1.11 browser and workspace resource management.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

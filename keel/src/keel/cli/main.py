@@ -32,6 +32,8 @@ def main(argv: list[str] | None = None) -> int:
         return _gateway_cmd(argv[1:])
     if argv and argv[0] == "webhook":
         return _webhook_cmd(argv[1:])
+    if argv and argv[0] == "session":
+        return _session_cmd(argv[1:])
     if argv and argv[0] == "provider":
         return _provider_cmd(argv[1:])
     if argv and argv[0] == "skills":
@@ -93,6 +95,46 @@ def main(argv: list[str] | None = None) -> int:
         diagnostic("cli_validation", {"errors": str(exc)})
         return 1
     return run(plan)
+
+
+def _session_cmd(argv: list[str]) -> int:
+    from ..fleet import routes as fleet_routes
+    from ..session_export import (SessionExportError, export_bundle,
+                                  import_bundle, read_bundle, statistics,
+                                  write_bundle)
+
+    usage = ("usage: keel session export <id> --file PATH\n"
+             "       keel session import <file>\n"
+             "       keel session stats <id>\n")
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(usage)
+        return 0
+    action = argv[0]
+    store = fleet_routes.store()
+    try:
+        if action == "export" and len(argv) >= 2:
+            target = ""
+            if "--file" in argv and argv.index("--file") + 1 < len(argv):
+                target = argv[argv.index("--file") + 1]
+            if not target:
+                sys.stderr.write("--file is required\n")
+                return 1
+            path = write_bundle(export_bundle(store, argv[1]), target)
+            sys.stdout.write(f"exported {path}\n")
+            return 0
+        if action == "import" and len(argv) >= 2:
+            bot = import_bundle(store, read_bundle(argv[1]))
+            sys.stdout.write(json.dumps(bot, indent=2) + "\n")
+            return 0
+        if action == "stats" and len(argv) >= 2:
+            sys.stdout.write(json.dumps(
+                statistics(store, argv[1]), indent=2) + "\n")
+            return 0
+    except SessionExportError as exc:
+        sys.stderr.write(str(exc) + "\n")
+        return 1
+    sys.stderr.write(usage)
+    return 1
 
 
 def _webhook_cmd(argv: list[str]) -> int:

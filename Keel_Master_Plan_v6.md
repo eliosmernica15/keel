@@ -37,7 +37,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A1.13 | Custom tools as code files dropped in `.keel/tools/` (Python) | M10 | P0 | verified |
 | A1.14 | `instructions` config: extra instruction files by glob or URL | M7 | P1 | not_started |
 | A1.15 | `small_model` for titles/summaries (already a role) plus per-agent model override | M2 | P1 | not_started |
-| A1.16 | Configurable leader-key keybinds, custom theme JSON files | M19 | P1 | not_started |
+| A1.16 | Configurable leader-key keybinds, custom theme JSON files | M19 | P1 | verified |
 | A1.17 | Session import/export commands and `keel stats` (usage by model/day) | M21 | P1 | not_started |
 | A1.18 | `keel agent create` wizard, `keel models`, `keel auth` subcommands | M20 | P1 | not_started |
 | A1.19 | **GitHub Actions mode**: run Keel headless in the user's own CI to answer issues/PR comments | M20 | P2 | not_started |

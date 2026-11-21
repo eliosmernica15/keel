@@ -129,6 +129,8 @@ IMPLEMENTED = {
              "Outbound message state machine with queued/sent/delivered/read/failed"),
     "B2.6": ("src/keel/rag.py", "tests/test_rag.py",
              "Local RAG knowledge bases with deterministic lexical embeddings"),
+    "A1.16": ("src/keel/session_export.py", "tests/test_session_export.py",
+              "Session import/export bundles and statistics"),
 }
 
 
