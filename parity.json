@@ -1745,7 +1745,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/workbench.py"
+        "src/keel/authoring.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1754,10 +1754,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_workbench.py"
+        "tests/test_authoring.py tests/test_workbench.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Prompt library with variables",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Prompt library with variables and improvement helper",
       "owner_approval_required": false
     },
     {
@@ -1769,7 +1769,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/knowledge_work.py"
+        "src/keel/authoring.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1778,10 +1778,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_knowledge_work.py"
+        "tests/test_authoring.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Macro recorder from chat steps",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Macro recorder extracted from real chat transcripts",
       "owner_approval_required": false
     },
     {
@@ -1817,7 +1817,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/workbench.py"
+        "src/keel/authoring.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1826,10 +1826,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_workbench.py"
+        "tests/test_authoring.py tests/test_workbench.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Spec-driven plan scaffold with approval gate",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Spec-driven scaffold with approval gate",
       "owner_approval_required": false
     },
     {
