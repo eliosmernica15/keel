@@ -207,6 +207,19 @@ class RealTools:
     def __init__(self):
         self.calls: list[tuple[str, dict]] = []
 
+    @staticmethod
+    def _check_dlp(text: str) -> None:
+        """B3.8: refuse to persist text containing credential-shaped data."""
+        from .redaction import check_output_dlp, output_dlp_enabled
+
+        if not output_dlp_enabled():
+            return
+        kinds = check_output_dlp(text)
+        if kinds:
+            raise ValueError(
+                "output DLP: refusing to write detected secret(s): "
+                + ", ".join(kinds))
+
     def invoke(self, name: str, tool_input: dict):
         self.calls.append((name, tool_input))
         dispatched = self._dispatch_extended(name, tool_input or {})
@@ -226,6 +239,7 @@ class RealTools:
         if name == "write_file":
             path = tool_input["path"]
             content = tool_input["content"]
+            self._check_dlp(content)
             with open(path, "w", encoding="utf-8", newline="\n") as fh:
                 fh.write(content)
             self._fire_file_changed("write_file", tool_input)
@@ -241,6 +255,7 @@ class RealTools:
             if count != 1:
                 raise ValueError(f"old_string matched {count} times; expected exactly 1")
             updated = text.replace(old, new, 1)
+            self._check_dlp(updated)
             with open(path, "w", encoding="utf-8", newline="\n") as fh:
                 fh.write(updated)
             self._fire_file_changed("edit_file", tool_input)
@@ -460,6 +475,7 @@ class RealTools:
         if count != 1:
             raise ValueError(f"old_string matched {count} times; expected exactly 1")
         updated = text.replace(old, new, 1)
+        self._check_dlp(updated)
         with open(path, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(updated)
         return f"patched {path}", {"type": "text", "file": {"filePath": path, "content": updated, "oldContent": text, "newContent": updated}}

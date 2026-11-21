@@ -1745,16 +1745,20 @@
       "source_feature_id": "B3.5",
       "milestone": "M21",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/redaction.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Egress log / privacy dashboard**: exactly what was sent to which provider and when according to Keel_Plan_v5_Addendum_Missed_Features.md feature B3.5",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_redaction.py"
+      ],
+      "verification_evidence": "Local egress log of data sent to remote providers",
       "owner_approval_required": false
     },
     {
@@ -1764,16 +1768,20 @@
       "source_feature_id": "B3.6",
       "milestone": "M3",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/redaction.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement PII/secret **redaction before sending to any remote provider** (regex + small local classifier), with preview according to Keel_Plan_v5_Addendum_Missed_Features.md feature B3.6",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_redaction.py"
+      ],
+      "verification_evidence": "Credential/PII redaction of outbound provider messages",
       "owner_approval_required": false
     },
     {
@@ -1802,16 +1810,20 @@
       "source_feature_id": "B3.8",
       "milestone": "M3",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runner.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Output DLP: block agent from writing secrets into files, commits or messages according to Keel_Plan_v5_Addendum_Missed_Features.md feature B3.8",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_redaction.py"
+      ],
+      "verification_evidence": "Output DLP refusing secrets in written files",
       "owner_approval_required": false
     },
     {

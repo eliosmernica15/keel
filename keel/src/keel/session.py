@@ -71,6 +71,10 @@ class SessionConfig:
     # F3 (Fleet collaboration): delegation chain for the Fleet send_to_bot
     # tool — ids of the agents that delegated into this turn, oldest first.
     delegation_chain: tuple = ()
+    # B3.5/B3.6: redact credentials from outbound provider messages and keep
+    # a local egress record of what left the machine.
+    redact_outbound: bool = True
+    egress_logging: bool = True
 
 
 @dataclass
@@ -627,7 +631,26 @@ class Session:
             if self.config.auto_compact and not self.compaction.disabled:
                 messages = self._maybe_compact(messages, emit)
             try:
-                blocks = self.model.complete(messages, tool_schemas)
+                outbound_messages = messages
+                if getattr(self.config, "redact_outbound", True):
+                    from .redaction import (log_egress, redact_messages)
+                    outbound_messages, redactions = redact_messages(messages)
+                    if redactions and getattr(self.config, "egress_logging", True):
+                        try:
+                            log_egress(
+                                self.config.state_root,
+                                provider=getattr(self.model, "name",
+                                                 type(self.model).__name__),
+                                model=self.config.model,
+                                message_count=len(outbound_messages),
+                                redactions=redactions,
+                                outbound_bytes=sum(
+                                    len(str(m.get("content", "")))
+                                    for m in outbound_messages
+                                    if isinstance(m, dict)))
+                        except Exception:
+                            pass  # egress logging must never break a turn
+                blocks = self.model.complete(outbound_messages, tool_schemas)
             except Exception as exc:
                 # operator Stop mid-round: don't treat it as a provider
                 # error — route back through the loop-top check, which

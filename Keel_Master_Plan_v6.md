@@ -120,10 +120,10 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B3.2 | Container sandbox with CPU, memory, time and network limits (optional Podman) | M5 | P1 | not_started |
 | B3.3 | **Dry-run mode**: agent plans and shows every side effect, executes none | M7 | P0 | not_started |
 | B3.4 | Read-only session mode and per-project **network egress allowlist** per tool | M3 | P0 | not_started |
-| B3.5 | **Egress log / privacy dashboard**: exactly what was sent to which provider and when | M21 | P0 | not_started |
-| B3.6 | PII/secret **redaction before sending to any remote provider** (regex + small local classifier), with preview | M3 | P0 | not_started |
+| B3.5 | **Egress log / privacy dashboard**: exactly what was sent to which provider and when | M21 | P0 | verified |
+| B3.6 | PII/secret **redaction before sending to any remote provider** (regex + small local classifier), with preview | M3 | P0 | verified |
 | B3.7 | Local prompt-injection classifier and canary tokens in fetched content | M3 | P1 | not_started |
-| B3.8 | Output DLP: block agent from writing secrets into files, commits or messages | M3 | P0 | not_started |
+| B3.8 | Output DLP: block agent from writing secrets into files, commits or messages | M3 | P0 | verified |
 | B3.9 | **Global kill switch** (hotkey and tray): stop all agents, revoke tokens, freeze scheduler | M14 | P0 | not_started |
 | B4.1 | Global quick-ask hotkey overlay (spotlight style) | M19 | P1 | not_started |
 | B4.10 | Portable mode, multiple profiles (work/personal data dirs), relocatable data dir | M22 | P1 | not_started |

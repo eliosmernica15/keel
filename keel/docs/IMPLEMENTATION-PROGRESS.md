@@ -218,6 +218,17 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_trash.py tests/test_safety.py tests/test_tool_registry.py -q` → `39 passed`.
 **Next:** C3.2 doom-loop detection.
 
+## M6 Batch 4 — Screen-share safe mode (C1.4)
+
+**Implemented:** Ctrl+Shift+S toggle masks key hints, endpoints and local paths during screen share/recording; badge indicator added.
+**Verification:** `python -m pytest tests/test_screen_safe_mode.py -q` → `4 passed`; `node --check` clean.
+
+## M6 Batch 5 — Outbound redaction, output DLP, egress log (B3.6, B3.8, B3.5)
+
+**Implemented:** `src/keel/redaction.py` with narrow credential detection; `Session` redacts a copy of outbound messages (original transcript stays intact) and records egress JSONL; `RealTools` write/edit/apply_patch refuse credential-shaped content, with `KEEL_OUTPUT_DLP` opt-out.
+**Verification:** `python -m pytest tests/test_redaction.py tests/test_safety.py tests/test_tool_registry.py tests/test_resilience.py -q` → `49 passed`.
+**Next:** B3.3 dry-run mode.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

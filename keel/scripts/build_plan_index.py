@@ -55,6 +55,12 @@ IMPLEMENTED = {
              "Doom-loop hint and abort on repeated identical tool calls"),
     "C1.4": ("site/ui/app.js", "tests/test_screen_safe_mode.py",
              "Screen-share/recording safe mode masking sensitive UI fields"),
+    "B3.6": ("src/keel/redaction.py", "tests/test_redaction.py",
+             "Credential/PII redaction of outbound provider messages"),
+    "B3.8": ("src/keel/runner.py", "tests/test_redaction.py",
+             "Output DLP refusing secrets in written files"),
+    "B3.5": ("src/keel/redaction.py", "tests/test_redaction.py",
+             "Local egress log of data sent to remote providers"),
 }
 
 
