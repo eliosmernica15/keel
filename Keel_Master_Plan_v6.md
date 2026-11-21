@@ -82,7 +82,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A4.8 | Release scan proving **zero secrets in artifacts** on every release | M22 | P0 | verified |
 | A5.1 | **Gateway** process concept with `status`, start/stop, and a list of running channels | M15 | P0 | verified |
 | A5.2 | Install a channel/plugin from a git URL or local link for development (`install --link`) | M10 | P1 | not_started |
-| A5.3 | **Account-level config inheritance** (account overrides channel defaults) | M15 | P0 | not_started |
+| A5.3 | **Account-level config inheritance** (account overrides channel defaults) | M15 | P0 | verified |
 | A5.4 | **Delivery fallback chain** (preferred service, then fallback) | M15 | P1 | not_started |
 | A5.5 | Outbound message state machine: queued, sent, delivered, read, failed with retries and dedupe by message id | M15 | P0 | not_started |
 | A5.6 | Webhook subscription helper (register, list, rotate secret) as a CLI command | M15 | P1 | not_started |

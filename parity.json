@@ -1091,16 +1091,20 @@
       "source_feature_id": "A5.3",
       "milestone": "M15",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/settings.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Account-level config inheritance** (account overrides channel defaults) according to Keel_Plan_v5_Addendum_Missed_Features.md feature A5.3",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_settings.py"
+      ],
+      "verification_evidence": "Verified layered account/user config inheritance",
       "owner_approval_required": false
     },
     {

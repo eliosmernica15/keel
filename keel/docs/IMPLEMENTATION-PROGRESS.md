@@ -403,6 +403,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_webhooks.py tests/test_commands.py -q` → `14 passed`.
 **Next:** A5.3 account-level configuration inheritance.
 
+## M6 Batch 35 — Settings inheritance verification (A5.3, verification only)
+
+**Verified existing implementation:** `settings.py` resolves managed/flags/local/project/user/env scopes with provenance and restrictive-key rules.
+**Evidence:** `python -m pytest tests/test_settings.py -q` → `14 passed`. No code duplication.
+**Next:** A5.5 outbound message state machine.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

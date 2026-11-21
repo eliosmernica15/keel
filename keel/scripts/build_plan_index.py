@@ -123,6 +123,8 @@ IMPLEMENTED = {
              "Gateway process with status/start/stop lifecycle"),
     "A4.1": ("src/keel/webhooks.py", "tests/test_webhooks.py",
              "Signed outgoing webhooks with replay protection"),
+    "A5.3": ("src/keel/settings.py", "tests/test_settings.py",
+             "Verified layered account/user config inheritance"),
 }
 
 
