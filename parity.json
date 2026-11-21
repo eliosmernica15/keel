@@ -209,7 +209,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/cli_extras.py"
+        "src/keel/session_export.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -218,10 +218,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_cli_extras.py"
+        "tests/test_session_endpoints.py tests/test_cli_extras.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Usage statistics by model/day",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Session import/stats exposed through the HTTP bridge",
       "owner_approval_required": false
     },
     {

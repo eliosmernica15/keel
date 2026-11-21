@@ -502,6 +502,27 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._refuse()
                 return
             path = self.path.split("?", 1)[0]
+            if path in ("/api/sessions/import", "/api/sessions/stats"):
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                if length > 2_000_000:
+                    self._send_json({"error": "body too large"},
+                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    return
+                try:
+                    request = json.loads(
+                        self.rfile.read(length) if length else b"{}")
+                except json.JSONDecodeError:
+                    self._send_json({"error": "invalid json"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                try:
+                    result = self._session_action(path, request)
+                except Exception as exc:
+                    self._send_json({"error": str(exc)[:300]},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                self._send_json(result)
+                return
             if path in ("/api/backups/create", "/api/backups/restore"):
                 length = int(self.headers.get("Content-Length", "0") or 0)
                 if length > 64_000:
@@ -766,6 +787,19 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             data = _json.dumps(event, separators=(",", ":"),
                                ensure_ascii=False).encode("utf-8")
             self._sse_raw(b"data: " + data + b"\n\n")
+
+        def _session_action(self, path: str, request: dict) -> dict:
+            from .session_export import import_bundle, statistics
+
+            store = _fleet_routes.store()
+            if path.endswith("/import"):
+                bundle = request.get("bundle")
+                if not isinstance(bundle, dict):
+                    return {"error": "bundle must be an object"}
+                bot = import_bundle(store, bundle)
+                return {"session": bot}
+            sid = str(request.get("session_id", ""))
+            return statistics(store, sid)
 
         def _backup_action(self, path: str, request: dict) -> dict:
             from .backups import create_backup, restore_backup
