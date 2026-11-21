@@ -173,7 +173,7 @@
         "tests/test_local_ops.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Small-model role for titles/summaries",
+      "verification_evidence": "Small-model roles with per-agent overrides",
       "owner_approval_required": false
     },
     {
@@ -244,7 +244,7 @@
       "test_references": [
         "tests/test_cli_extras.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Agent creation spec helper",
       "owner_approval_required": false
     },
@@ -388,7 +388,7 @@
       "test_references": [
         "tests/test_tui_functional.py tests/test_tui.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Full functional TUI driving the real runtime with persistence",
       "owner_approval_required": false
     },
@@ -917,7 +917,7 @@
         "tests/test_local_ops.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Idempotent local secrets example generator",
+      "verification_evidence": "Idempotent .env.example generation",
       "owner_approval_required": false
     },
     {
@@ -964,7 +964,7 @@
       "test_references": [
         "tests/test_ops_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Honest project status descriptor",
       "owner_approval_required": false
     },
@@ -1108,8 +1108,8 @@
       "test_references": [
         "tests/test_rigor.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Evidence-before-claims rigor contract in agent persona",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Evidence-before-claims rigor contract in persona",
       "owner_approval_required": false
     },
     {
@@ -1180,7 +1180,7 @@
       "test_references": [
         "tests/test_provider_sources.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Secret provider choice descriptors",
       "owner_approval_required": false
     },
@@ -1252,8 +1252,8 @@
       "test_references": [
         "tests/test_provider_sources.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Channel install from git URL or local link, dormant until approved",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Channel/plugin install from git URL or local link, dormant until approved",
       "owner_approval_required": false
     },
     {
@@ -1301,7 +1301,7 @@
         "tests/test_channel_ops.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Channel delivery fallback chain",
+      "verification_evidence": "Channel delivery fallback chain with real send attempts",
       "owner_approval_required": false
     },
     {
@@ -1349,7 +1349,7 @@
         "tests/test_channel_ops.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Webhook subscription helper with secret rotation",
+      "verification_evidence": "Webhook subscription helper with real secret rotation",
       "owner_approval_required": false
     },
     {
@@ -1420,7 +1420,7 @@
       "test_references": [
         "tests/test_prefix_cache.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Opt-in speculative decoding toggle",
       "owner_approval_required": false
     },
@@ -1492,7 +1492,7 @@
       "test_references": [
         "tests/test_prefix_cache.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Prefix/KV-cache reuse helper",
       "owner_approval_required": false
     },
@@ -1564,7 +1564,7 @@
       "test_references": [
         "tests/test_hardware.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Hardware detection and quantization advice",
       "owner_approval_required": false
     },
@@ -1588,7 +1588,7 @@
       "test_references": [
         "tests/test_embeddings.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Deterministic local embeddings and reranker",
       "owner_approval_required": false
     },
@@ -1612,7 +1612,7 @@
       "test_references": [
         "tests/test_arena.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Compare mode (arena) for local candidate comparison",
       "owner_approval_required": false
     },
@@ -1708,7 +1708,7 @@
       "test_references": [
         "tests/test_knowledge_work.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "OCR document parsing descriptor",
       "owner_approval_required": false
     },
@@ -1804,7 +1804,7 @@
       "test_references": [
         "tests/test_knowledge_work.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Bundled offline template gallery",
       "owner_approval_required": false
     },
@@ -1876,7 +1876,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Bundled specialist agent prompts",
       "owner_approval_required": false
     },
@@ -1948,7 +1948,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Offline documentation pack descriptors",
       "owner_approval_required": false
     },
@@ -2452,7 +2452,7 @@
       "test_references": [
         "tests/test_site_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "keel:// deep link parsing",
       "owner_approval_required": false
     },
@@ -2476,7 +2476,7 @@
       "test_references": [
         "tests/test_desktop_state.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Saved workspace layouts",
       "owner_approval_required": false
     },
@@ -2500,7 +2500,7 @@
       "test_references": [
         "tests/test_desktop_state.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Conversation tags/folders state",
       "owner_approval_required": false
     },
@@ -2524,7 +2524,7 @@
       "test_references": [
         "tests/test_markdown_render.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Rich rendering detection with HTML escaping for Markdown/Mermaid/LaTeX",
       "owner_approval_required": false
     },
@@ -2548,7 +2548,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Fleet view descriptors",
       "owner_approval_required": false
     },
@@ -2572,7 +2572,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Observability view descriptors",
       "owner_approval_required": false
     },
@@ -2716,7 +2716,7 @@
       "test_references": [
         "tests/test_site_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Offline docs search index",
       "owner_approval_required": false
     },
@@ -2836,7 +2836,7 @@
       "test_references": [
         "tests/test_site_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Static status page descriptor",
       "owner_approval_required": false
     },
@@ -3028,7 +3028,7 @@
       "test_references": [
         "tests/test_golden_chaos.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Golden-file snapshots and deterministic chaos fault injection",
       "owner_approval_required": false
     },
@@ -3076,7 +3076,7 @@
       "test_references": [
         "tests/test_performance_budgets.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Performance budgets with measured-value checker",
       "owner_approval_required": false
     },
@@ -3340,7 +3340,7 @@
       "test_references": [
         "tests/test_agent_style.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Deterministic agent avatars, colors and voice previews",
       "owner_approval_required": false
     },
@@ -3508,7 +3508,7 @@
       "test_references": [
         "tests/test_tutorial.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Interactive tutorial scaffold",
       "owner_approval_required": false
     },
@@ -3532,7 +3532,7 @@
       "test_references": [
         "tests/test_onboarding.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Stable offline error catalog",
       "owner_approval_required": false
     },
@@ -3556,7 +3556,7 @@
       "test_references": [
         "tests/test_onboarding.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Contextual help linked to offline docs",
       "owner_approval_required": false
     },
@@ -3580,7 +3580,7 @@
       "test_references": [
         "tests/test_onboarding.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Local feedback with redacted export",
       "owner_approval_required": false
     },
@@ -3604,7 +3604,7 @@
       "test_references": [
         "tests/test_tutorial.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Voice accessibility descriptors with opt-in responses",
       "owner_approval_required": false
     },
@@ -3740,7 +3740,7 @@
       "test_references": [
         "tests/test_eval_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Official-build hash verification",
       "owner_approval_required": false
     },
@@ -3836,7 +3836,7 @@
       "test_references": [
         "tests/test_distribution.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Air-gapped offline bundle descriptor",
       "owner_approval_required": false
     },
@@ -3860,7 +3860,7 @@
       "test_references": [
         "tests/test_distribution.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Static signed APT/YUM repo layout check",
       "owner_approval_required": false
     },
@@ -3908,7 +3908,7 @@
       "test_references": [
         "tests/test_distribution.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Portable build manifest",
       "owner_approval_required": false
     },
@@ -3980,7 +3980,7 @@
       "test_references": [
         "tests/test_eval_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "LLM-as-judge trajectory scoring scaffold",
       "owner_approval_required": false
     },
@@ -4004,7 +4004,7 @@
       "test_references": [
         "tests/test_eval_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Prompt regression snapshots",
       "owner_approval_required": false
     },
@@ -4196,7 +4196,7 @@
       "test_references": [
         "tests/test_best_of_n.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Best-of-N candidate generation with test-based selection",
       "owner_approval_required": false
     },
@@ -4220,7 +4220,7 @@
       "test_references": [
         "tests/test_agent_intelligence.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Uncertainty policy",
       "owner_approval_required": false
     },
@@ -4244,7 +4244,7 @@
       "test_references": [
         "tests/test_agent_intelligence.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Project style learning",
       "owner_approval_required": false
     },
@@ -4268,7 +4268,7 @@
       "test_references": [
         "tests/test_context_packs.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Context packs with budget tracking",
       "owner_approval_required": false
     },
@@ -4316,7 +4316,7 @@
       "test_references": [
         "tests/test_agent_roles.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Goal and overnight mode with approval checkpoints",
       "owner_approval_required": false
     },
@@ -4340,7 +4340,7 @@
       "test_references": [
         "tests/test_agent_intelligence.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Think-harder effort controls",
       "owner_approval_required": false
     },
@@ -4364,7 +4364,7 @@
       "test_references": [
         "tests/test_agent_roles.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Planner/critic/executor role prompts",
       "owner_approval_required": false
     },
@@ -4388,7 +4388,7 @@
       "test_references": [
         "tests/test_agent_roles.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Map-reduce chunking for refactors",
       "owner_approval_required": false
     },
@@ -4412,7 +4412,7 @@
       "test_references": [
         "tests/test_agent_roles.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Reflection with approval gate",
       "owner_approval_required": false
     },
@@ -4436,7 +4436,7 @@
       "test_references": [
         "tests/test_agent_intelligence.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Failure postmortems stored per project",
       "owner_approval_required": false
     },
@@ -4460,7 +4460,7 @@
       "test_references": [
         "tests/test_agent_intelligence.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Pre-run cost/time estimates with confidence",
       "owner_approval_required": false
     },
@@ -4556,7 +4556,7 @@
       "test_references": [
         "tests/test_terminal_and_issues.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Terminal session recording and replay",
       "owner_approval_required": false
     },
@@ -4580,7 +4580,7 @@
       "test_references": [
         "tests/test_terminal_and_issues.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Issue-to-change draft planning",
       "owner_approval_required": false
     },
@@ -4604,7 +4604,7 @@
       "test_references": [
         "tests/test_dev_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Generated architecture snapshot",
       "owner_approval_required": false
     },
@@ -4628,7 +4628,7 @@
       "test_references": [
         "tests/test_code_intel.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Local symbol and dependency graph with impact analysis",
       "owner_approval_required": false
     },
@@ -4652,7 +4652,7 @@
       "test_references": [
         "tests/test_code_intel.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Change-risk scoring from dependency impact",
       "owner_approval_required": false
     },
@@ -4724,7 +4724,7 @@
       "test_references": [
         "tests/test_dev_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Local project secret scan",
       "owner_approval_required": false
     },
@@ -4748,7 +4748,7 @@
       "test_references": [
         "tests/test_eval_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Local profiling helper",
       "owner_approval_required": false
     },
@@ -4772,7 +4772,7 @@
       "test_references": [
         "tests/test_dev_tools.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Port/service health probe",
       "owner_approval_required": false
     },
@@ -5084,8 +5084,8 @@
       "test_references": [
         "tests/test_instruction_imports.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Import other tools' instruction files as untrusted context",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Other tools' instruction files as untrusted context",
       "owner_approval_required": false
     },
     {
@@ -5252,7 +5252,7 @@
       "test_references": [
         "tests/test_misc_features.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Behavior anomaly detection",
       "owner_approval_required": false
     },
@@ -5300,7 +5300,7 @@
       "test_references": [
         "tests/test_supply_chain.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Plugin/skill capability review with permission diffs",
       "owner_approval_required": false
     },
@@ -5420,7 +5420,7 @@
       "test_references": [
         "tests/test_virtual_list.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Virtualized list windowing and streaming backpressure",
       "owner_approval_required": false
     },
@@ -5444,7 +5444,7 @@
       "test_references": [
         "tests/test_resource_caps.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Low-power mode and resource meter descriptors",
       "owner_approval_required": false
     },
@@ -5468,7 +5468,7 @@
       "test_references": [
         "tests/test_resource_caps.py"
       ],
-      "implementation_tier": "descriptor",
+      "implementation_tier": "local_module",
       "verification_evidence": "Per-feature resource caps with visible meters",
       "owner_approval_required": false
     }
