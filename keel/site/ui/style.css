@@ -603,6 +603,21 @@ main { position: fixed; top: 38px; bottom: 26px; left: var(--sidew); right: 0; z
 .provider-name{font-weight:500;font-size:13px}
 .provider-src{font-family:var(--mono);font-size:10px;color:var(--ok);margin-left:auto;letter-spacing:.04em}
 .provider-src.unset{color:var(--muted)}
+
+/* C1.4 — screen-share / recording safe mode (Ctrl+Shift+S). */
+body.safe-screen [data-sensitive],
+body.safe-screen .provider-src,
+body.safe-screen .endpoint-list code,
+body.safe-screen [data-local-path]{
+  color:transparent !important;
+  background:var(--muted) !important;
+  border-radius:4px;
+  user-select:none;
+}
+body.safe-screen [data-sensitive]::after,
+body.safe-screen .provider-src::after{content:"••••••";position:absolute;margin-left:-38px;color:var(--text)}
+.safe-mode-badge{position:fixed;top:10px;right:12px;z-index:9999;padding:6px 10px;border-radius:8px;
+  background:#7a1f1f;color:#fff;font:600 11px var(--sans);letter-spacing:.06em;box-shadow:0 2px 12px rgba(0,0,0,.4)}
 .provider-model{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:4px}
 .provider-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .provider-verify{display:none;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}

@@ -53,6 +53,8 @@ IMPLEMENTED = {
              "Recoverable trash for agent file deletions with restore"),
     "C3.2": ("src/keel/session.py", "tests/test_resilience.py",
              "Doom-loop hint and abort on repeated identical tool calls"),
+    "C1.4": ("site/ui/app.js", "tests/test_screen_safe_mode.py",
+             "Screen-share/recording safe mode masking sensitive UI fields"),
 }
 
 

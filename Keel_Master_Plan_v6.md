@@ -169,7 +169,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C1.12 | Client pairing allowlist for LAN/headless access (analog of orgo's `ALLOWED_EMAILS`) | M20 | P0 | not_started |
 | C1.2 | More package-manager distribution: Scoop, Chocolatey, Flatpak, Snap, AUR (binary PKGBUILD), Nix flake (opencode ships several) | M22 | P1 | not_started |
 | C1.3 | Dev-container-free contributor setup script and `AGENTS.md` for AI builders | M0 | P1 | not_started |
-| C1.4 | **Screen-share/recording safe mode** (orgo-teammates warns never to show `.env`/dashboards on screen): mask secrets, emails, paths and tokens in UI while on | M19 | P0 | not_started |
+| C1.4 | **Screen-share/recording safe mode** (orgo-teammates warns never to show `.env`/dashboards on screen): mask secrets, emails, paths and tokens in UI while on | M19 | P0 | verified |
 | C1.5 | Per-integration **builder/operator guides** (orgo ships separate integration guides) | M15 | P1 | not_started |
 | C1.6 | Agent "looks": avatar, color, voice per agent, voice preview and speed | M12 | P1 | not_started |
 | C1.7 | Meeting recorder: capture system/mic audio, local transcript, **speaker labels** (optional), summary, action items, link to project | M17 | P1 | not_started |

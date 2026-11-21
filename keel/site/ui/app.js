@@ -1658,7 +1658,7 @@ const PROVIDER_DEFS = [
 
 function providerStatusLine(p) {
   if (!p) return { text: "not linked", cls: "unset" };
-  return { text: `saved •• ${p.key_hint || "…"} — this browser only`, cls: "" };
+  return { text: `saved •• ${p.key_hint || "…"} — this browser only`, cls: "", sensitive: true };
 }
 
 async function refreshProviders() {
@@ -1684,7 +1684,7 @@ async function refreshProviders() {
     row.innerHTML = `
       <div class="provider-head">
         <span class="provider-name">${def.label}</span>
-        <span class="provider-src${st.cls === "unset" ? " unset" : ""}">${st.text}</span>
+        <span class="provider-src${st.cls === "unset" ? " unset" : ""}"${st.sensitive ? ' data-sensitive="true"' : ""}>${st.text}</span>
       </div>
       <div class="provider-model">${info && info.default_model ? `default: ${info.default_model}` : ""}${def.tag ? " · " + def.tag : ""}</div>
       <div class="provider-actions">
@@ -2279,3 +2279,18 @@ if (!bridge.live) {
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
+
+// C1.4: screen-share / recording safe mode. Masks key hints, tokens and local
+// paths while presenting or recording. Toggle with Ctrl+Shift+S.
+function setSafeScreen(enabled) {
+  document.body.classList.toggle("safe-screen", Boolean(enabled));
+  const badge = document.querySelector(".safe-mode-badge");
+  if (badge) badge.hidden = !enabled;
+}
+window.__keelSetSafeScreen = setSafeScreen;
+document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey && event.shiftKey && String(event.key).toLowerCase() === "s") {
+    event.preventDefault();
+    setSafeScreen(!document.body.classList.contains("safe-screen"));
+  }
+});
