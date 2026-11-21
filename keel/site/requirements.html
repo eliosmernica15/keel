@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Keel System Requirements &amp; First Run</title>
+  <link rel="stylesheet" href="/ui/style.css">
+</head>
+<body class="legal-page">
+  <main class="legal">
+    <h1>System Requirements</h1>
+    <table>
+      <tr><th>Platform</th><th>Requirement</th></tr>
+      <tr><td>Windows</td><td>Windows 10 or newer, 64-bit, 4 GB RAM</td></tr>
+      <tr><td>macOS</td><td>macOS 12+ (Apple Silicon or Intel), 4 GB RAM</td></tr>
+      <tr><td>Linux</td><td>glibc 2.31+, 64-bit, 4 GB RAM (AppImage/DEB/RPM)</td></tr>
+    </table>
+    <p>Keel runs locally. A model provider key is optional — a deterministic
+      built-in fake supports offline evaluation.</p>
+
+    <h2>Model size guide</h2>
+    <ul>
+      <li>Small (3B–7B, Q4): ~4–6 GB RAM, everyday tasks.</li>
+      <li>Medium (13B, Q4): ~8–12 GB RAM, stronger reasoning.</li>
+      <li>Large (30B+, Q4): 16 GB+ RAM, best quality.</li>
+    </ul>
+
+    <h2>First run (unsigned builds)</h2>
+    <ol>
+      <li>Download the installer for your platform from /download and verify
+        its SHA-256.</li>
+      <li>Install and launch Keel. On macOS, right-click → Open the first time
+        (Gatekeeper) because community builds are unsigned.</li>
+      <li>Open Settings → Providers and add your own key, or stay offline with
+        the built-in fake.</li>
+      <li>Bind a workspace folder; Keel tools run only inside it.</li>
+    </ol>
+    <p><a href="/download">Download</a> · <a href="/privacy">Privacy</a></p>
+  </main>
+</body>
+</html>

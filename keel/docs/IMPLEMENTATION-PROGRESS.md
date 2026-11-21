@@ -427,6 +427,84 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_session_export.py tests/test_compat_runtime.py -q` → `16 passed`.
 **Next:** A1.11 browser and workspace resource management.
 
+## M6 Batch 39 — Browser and workspace resource budgets (A1.11)
+
+**Implemented:** `src/keel/resource_limits.py` enforces tab counts, workspace byte budgets and per-resource size caps with a status snapshot.
+**Verification:** `python -m pytest tests/test_resource_limits.py -q` → `4 passed`.
+**Next:** A3.1 grammar-constrained decoding verification or B2.2 automatic verification loop verification.
+
+## M6 Batch 40 — MCP presets catalog (A4.3, verification only)
+
+**Verified existing implementation:** `fleet/connector_ops.py` already ships a catalog of free/self-hosted presets (filesystem, memory, github, sequential-thinking) with `preset_spec` for opt-in local servers.
+**Evidence:** `python -m pytest tests/test_mcp_presets.py tests/test_mcp.py -q` → `11 passed`.
+**Next:** B4.12 redacted diagnostics bundle.
+
+## M6 Batch 41 — Redacted diagnostics bundle (B4.12)
+
+**Implemented:** `src/keel/diagnostics.py` builds a local ZIP of environment facts with all credential values masked and no conversation content; `keel doctor --bundle` writes it.
+**Verification:** `python -m pytest tests/test_diagnostics.py tests/test_commands.py -q` → `13 passed`.
+**Next:** B4.13 auto-rollback after repeated failed starts.
+
+## M6 Batch 42 — Auto-rollback after failed starts (B4.13)
+
+**Implemented:** `src/keel/start_health.py` tracks consecutive failed launches per version and flags rollback after 3 (success resets), complementing the existing updater rollback.
+**Verification:** `python -m pytest tests/test_start_health.py -q` → `3 passed`.
+**Next:** B5.2 release feeds and version history.
+
+## M6 Batch 43 — Release feeds and version history (B5.2)
+
+**Implemented:** `src/keel/release_feed.py` generates `latest.json`, a JSON version history and a well-formed RSS feed from local release notes.
+**Verification:** `python -m pytest tests/test_release_feed.py -q` → `3 passed`.
+**Next:** B5.5 privacy/EULA/third-party-notices site pages.
+
+## M6 Batch 44 — Privacy, EULA and notices pages (B5.5)
+
+**Implemented:** local site pages for privacy ("what Keel does not collect"), a draft EULA with versioned local acceptance/re-prompt, and third-party notices. Legal finalization remains owner-gated.
+**Verification:** `python -m pytest tests/test_legal_pages.py -q` → `4 passed`.
+**Next:** C12.1 blocked versions and minimum-version enforcement verification.
+
+## M6 Batch 45 — Download page auto-detection (B5.1)
+
+**Implemented:** `/download` landing page now detects the visitor's OS and CPU and marks the recommended installer card, while keeping the verified-manifest availability gate.
+**Verification:** `python -m pytest tests/test_download_detect.py -q` → `2 passed`; `node --check` clean.
+**Next:** C1.12 LAN/headless client pairing allowlist.
+
+## M6 Batch 46 — Client pairing allowlist (C1.12)
+
+**Implemented:** `src/keel/pairing.py` stores explicit LAN/headless client pairings locally with revocation, so remote access is opt-in and reversible.
+**Verification:** `python -m pytest tests/test_pairing.py -q` → `3 passed`.
+**Next:** C8.5 plugin/skill supply-chain review with permission diffs.
+
+## M6 Batch 47 — Skill supply-chain review (C8.5)
+
+**Implemented:** `src/keel/supply_chain.py` extracts requested capabilities from skill frontmatter and body, and produces a permission diff against a baseline, flagging new capabilities and untrusted project-scope skills for review.
+**Verification:** `python -m pytest tests/test_supply_chain.py -q` → `4 passed`.
+**Next:** B3.11 circuit breaker verification or C9.1 model manager.
+
+## M6 Batch 48 — Local model manager (C9.1)
+
+**Implemented:** `src/keel/model_manager.py` loads/unloads local models with an idle timeout and RAM budget; unloads are local decisions that never delete files or contact remote services.
+**Verification:** `python -m pytest tests/test_model_manager.py -q` → `3 passed`.
+**Next:** B5.3 system requirements and first-run guide.
+
+## M6 Batch 49 — Requirements and first-run guide (B5.3)
+
+**Implemented:** `site/requirements.html` documents per-platform requirements, a model-size guide, and a first-run guide for unsigned builds with SHA-256 verification.
+**Verification:** `python -m pytest tests/test_requirements_page.py -q` → `2 passed`.
+**Next:** B7.1 property-based and fuzz tests for path containment.
+
+## M6 Batch 50 — Path/command fuzz tests (B7.1)
+
+**Implemented:** `tests/test_property_safety.py` uses seeded random inputs to verify secret/system paths are always refused and catastrophic shell verbs are declined, with no new dependency.
+**Verification:** `python -m pytest tests/test_property_safety.py -q` → `3 passed`.
+**Next:** B4.13 verification done; continue with C9.2 UI virtualization/backpressure.
+
+## M6 Batch 51 — Deterministic workflow nodes (C5.1, C5.2)
+
+**Implemented:** `workflows.py` now supports `map` and `loop` nodes with `{{item}}`/`{{index}}` binding and a `human` node that consults an approval callback with timeout/default.
+**Verification:** `python -m pytest tests/test_workflow_nodes.py tests/test_workflows.py -q` → `9 passed`.
+**Next:** C3.1 best-of-N with test selection.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

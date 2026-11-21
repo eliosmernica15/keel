@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Keel Privacy</title>
+  <link rel="stylesheet" href="/ui/style.css">
+</head>
+<body class="legal-page">
+  <main class="legal">
+    <h1>Privacy — what Keel does not collect</h1>
+    <p>Keel is a local-first AI workspace. Your conversations, files and
+      credentials stay on your machine unless you explicitly choose to send
+      them to a provider or channel.</p>
+    <h2>Keel does not</h2>
+    <ul>
+      <li>send telemetry, analytics or crash reports to Keel;</li>
+      <li>require an account, cloud service or subscription;</li>
+      <li>read your files except through tools you approve;</li>
+      <li>store your provider keys anywhere except your own local settings;</li>
+      <li>record audio or screen content — dictation runs in your browser.</li>
+    </ul>
+    <h2>What leaves your machine</h2>
+    <p>When you use a remote model provider, the prompt and tool schemas are
+      sent to that provider. Keel redacts credential-shaped content before
+      sending, and records an egress log locally so you can see what left.</p>
+    <p>Optional integrations (webhooks, email, calendars, channels) send data
+      only when you configure them and only to the destination you specify.</p>
+    <h2>Your controls</h2>
+    <ul>
+      <li>Read-only sessions, dry-run mode and an egress allowlist;</li>
+      <li>global kill switch to stop all agents and revoke client tokens;</li>
+      <li>recoverable trash, undo and an immutable audit trail;</li>
+      <li>local diagnostics bundles you choose whether to share.</li>
+    </ul>
+    <p><a href="/">Back to Keel</a></p>
+  </main>
+</body>
+</html>

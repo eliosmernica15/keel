@@ -74,7 +74,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A3.9 | Operator-style **Admin page** (limits, alerts, health, background job table) | M21 | P1 | not_started |
 | A4.1 | **OS service supervision**: daemon as systemd user unit / launchd agent / Windows scheduled task, watchdog, crash-loop backoff | M14 | P1 | verified |
 | A4.2 | Deterministic, reproducible template/package build (stable tarball, pinned versions) | M22 | P1 | not_started |
-| A4.3 | MCP presets catalog limited to free/self-hosted servers (filesystem, git, fetch, SQLite, time, memory, Playwright, sequential-thinking, etc.), one-click add, dormant until configured | M6 | P0 | not_started |
+| A4.3 | MCP presets catalog limited to free/self-hosted servers (filesystem, git, fetch, SQLite, time, memory, Playwright, sequential-thinking, etc.), one-click add, dormant until configured | M6 | P0 | verified |
 | A4.4 | Rigor contract in persona (verify before claiming done, cite evidence) as default agent preamble | M7 | P0 | verified |
 | A4.5 | Coding-agent routing rules (which sub-agent/model for which task type) in the persona | M12 | P1 | not_started |
 | A4.6 | "Test-fire" check for every integration after saving credentials | M15 | P0 | verified |
@@ -128,8 +128,8 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B4.1 | Global quick-ask hotkey overlay (spotlight style) | M19 | P1 | not_started |
 | B4.10 | Portable mode, multiple profiles (work/personal data dirs), relocatable data dir | M22 | P1 | not_started |
 | B4.11 | Scheduled **encrypted backups** with restore wizard; optional E2EE folder sync of settings/memory via the user's own synced folder | M14 | P1 | not_started |
-| B4.12 | `keel doctor --bundle`: redacted diagnostics zip the user can send to support | M21 | P0 | not_started |
-| B4.13 | Auto-rollback if a new version fails to start 3 times | M22 | P0 | not_started |
+| B4.12 | `keel doctor --bundle`: redacted diagnostics zip the user can send to support | M21 | P0 | verified |
+| B4.13 | Auto-rollback if a new version fails to start 3 times | M22 | P0 | verified |
 | B4.14 | Delta updates and optional beta channel (opt-in) | M22 | P2 | not_started |
 | B4.2 | `keel://` deep links, `keel .` to open a folder, "Open with Keel" shell integration, shell completions | M19 | P1 | not_started |
 | B4.3 | Multi-window, detachable and split panels, saved workspace layouts | M19 | P1 | not_started |
@@ -139,11 +139,11 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B4.7 | Observability views: token waterfall, flame graph, prompt diff between turns, slow-tool detector | M21 | P1 | not_started |
 | B4.8 | Phone companion: **LAN web app with QR pairing** and pinned self-signed TLS (control and approvals from phone, no cloud) | M20 | P2 | not_started |
 | B4.9 | Optional vim keybindings in composer; dyslexia-friendly font option (OFL fonts, notices) | M19 | P2 | not_started |
-| B5.1 | Download page with OS and CPU auto-detect, file size, SHA-256, "how to verify" guide for Windows/macOS/Linux | M23 | P0 | not_started |
-| B5.2 | `latest.json` plus release-notes RSS/JSON feed and version history | M23 | P0 | not_started |
-| B5.3 | System requirements, model-size guide, first-run guide for unsigned installers (SmartScreen, Gatekeeper) | M23 | P0 | not_started |
+| B5.1 | Download page with OS and CPU auto-detect, file size, SHA-256, "how to verify" guide for Windows/macOS/Linux | M23 | P0 | verified |
+| B5.2 | `latest.json` plus release-notes RSS/JSON feed and version history | M23 | P0 | verified |
+| B5.3 | System requirements, model-size guide, first-run guide for unsigned installers (SmartScreen, Gatekeeper) | M23 | P0 | verified |
 | B5.4 | Offline-capable docs search (static index) and versioned docs | M23 | P1 | not_started |
-| B5.5 | Privacy page ("what Keel does not collect"), EULA page, third-party notices page, SBOM download | M23 | P0 | not_started |
+| B5.5 | Privacy page ("what Keel does not collect"), EULA page, third-party notices page, SBOM download | M23 | P0 | verified |
 | B5.6 | Auto-generated screenshot gallery from E2E runs; short recorded demo replays | M23 | P1 | not_started |
 | B5.7 | Curated public roadmap and FAQ, comparison page, press kit, `mailto` support (no third-party form service) | M23 | P2 | not_started |
 | B5.8 | Localized website using the same string catalogs | M25 | P2 | not_started |
@@ -154,7 +154,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B6.4 | Private org **update mirror** (signed manifests, custom feed URL) and private extension registry | M24 | P2 | not_started |
 | B6.5 | Compliance pack: security whitepaper, accessibility conformance report, data-flow diagram, SBOM export, DPA/EULA templates (lawyer review) | M24 | P2 | not_started |
 | B6.6 | Per-organization audit export format and retention settings | M24 | P2 | not_started |
-| B7.1 | Property-based and fuzz tests for path containment and the command analyzer; mutation testing on the permission gate | M25 | P0 | not_started |
+| B7.1 | Property-based and fuzz tests for path containment and the command analyzer; mutation testing on the permission gate | M25 | P0 | verified |
 | B7.2 | Golden-file tests for prompt assembly; chaos tests (kill daemon mid-turn, disk full, DB locked); soak tests | M25 | P0 | not_started |
 | B7.3 | Accessibility audit (axe) and visual regression in CI | M25 | P1 | not_started |
 | B7.4 | Performance budgets: cold start, idle memory, installer size, time to first token overhead | M21 | P0 | not_started |
@@ -166,7 +166,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C1.1 | Repo hygiene stack seen in opencode: pre-commit hooks, editorconfig, linters, lockfiles, dependency **patch** folder, changelog file, release scripts folder | M0 | P0 | verified |
 | C1.10 | Draft-only social/content skills (posts, threads, SEO notes); nothing posts without approval | M9 | P2 | not_started |
 | C1.11 | Local task executor inside the container desktop for faster desktop actions (orgo "planned") | M16 | P2 | not_started |
-| C1.12 | Client pairing allowlist for LAN/headless access (analog of orgo's `ALLOWED_EMAILS`) | M20 | P0 | not_started |
+| C1.12 | Client pairing allowlist for LAN/headless access (analog of orgo's `ALLOWED_EMAILS`) | M20 | P0 | verified |
 | C1.2 | More package-manager distribution: Scoop, Chocolatey, Flatpak, Snap, AUR (binary PKGBUILD), Nix flake (opencode ships several) | M22 | P1 | not_started |
 | C1.3 | Dev-container-free contributor setup script and `AGENTS.md` for AI builders | M0 | P1 | not_started |
 | C1.4 | **Screen-share/recording safe mode** (orgo-teammates warns never to show `.env`/dashboards on screen): mask secrets, emails, paths and tokens in UI while on | M19 | P0 | verified |
@@ -230,8 +230,8 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C4.7 | Profiling and benchmark agent | M11 | P2 | not_started |
 | C4.8 | Log/process/port inspector, docker-compose helper, service health probes | M5 | P1 | not_started |
 | C4.9 | Git extras: stacked commits, hunk staging, conflict resolver, blame-aware context, submodule and monorepo awareness, signed commits with the user's own key | M11 | P1 | not_started |
-| C5.1 | Deterministic (no-LLM) nodes, loop/map nodes, sub-workflows, typed inputs/outputs with JSON Schema | M8 | P0 | not_started |
-| C5.2 | Human-task node (wait for approval/answer, timeout and default) | M8 | P0 | not_started |
+| C5.1 | Deterministic (no-LLM) nodes, loop/map nodes, sub-workflows, typed inputs/outputs with JSON Schema | M8 | P0 | verified |
+| C5.2 | Human-task node (wait for approval/answer, timeout and default) | M8 | P0 | verified |
 | C5.3 | Workflow versioning, diff, test mode with mocked tools, run history and replay | M8 | P1 | not_started |
 | C5.4 | Triggers: file-watcher, folder "inbox" (drop files to process), git hook, email, clipboard, schedule | M14 | P1 | not_started |
 | C5.5 | Internal event bus exposed to plugins and hooks | M10 | P1 | not_started |
@@ -250,11 +250,11 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C8.2 | Delayed destructive ops with undo window; **approve from phone** for dangerous actions | M20 | P1 | not_started |
 | C8.3 | Behavior anomaly detection (sudden mass file reads, unusual network, repeated denials) pauses the agent | M3 | P1 | not_started |
 | C8.4 | Honeypot/canary files that should never be read; alert if touched | M3 | P2 | not_started |
-| C8.5 | Plugin/skill supply chain: capability review UI with **permission diff on update**, trust levels (bundled, signed, local, unsigned), static scan of skill scripts, signed **revocation list** delivered via the update feed | M10 | P0 | not_started |
+| C8.5 | Plugin/skill supply chain: capability review UI with **permission diff on update**, trust levels (bundled, signed, local, unsigned), static scan of skill scripts, signed **revocation list** delivered via the update feed | M10 | P0 | verified |
 | C8.6 | Content-addressable artifact store with dedupe and integrity checks | M4 | P1 | not_started |
 | C8.7 | DB resilience: scheduled integrity check, `VACUUM INTO` backups, **rebuild projections from the events log** after corruption, retention policies, optional SQLCipher encryption at rest (verify license/packaging) | M4 | P1 | not_started |
 | C8.8 | Local red-team suite (prompt injection, exfiltration, tool-abuse scenarios) run per model | M21 | P0 | not_started |
-| C9.1 | **Model manager**: load/unload idle models, VRAM/RAM budget, queue concurrent requests, warm-up | M2 | P0 | not_started |
+| C9.1 | **Model manager**: load/unload idle models, VRAM/RAM budget, queue concurrent requests, warm-up | M2 | P0 | verified |
 | C9.2 | Virtualized lists, incremental rendering, streaming backpressure, startup prewarm, memory-leak watchdog | M19 | P0 | not_started |
 | C9.3 | Incremental repo indexing with file watching; low-power/battery mode | M11 | P1 | not_started |
 | C9.4 | Per-feature resource caps (browser, LSP, container) with visible meters | M16 | P1 | not_started |

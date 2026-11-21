@@ -32,6 +32,9 @@ def main(argv: list[str] | None = None) -> int:
         return _gateway_cmd(argv[1:])
     if argv and argv[0] == "webhook":
         return _webhook_cmd(argv[1:])
+    if argv and argv[0] in ("doctor", "diagnostics"):
+        if "--bundle" in argv:
+            return _doctor_bundle_cmd(argv)
     if argv and argv[0] == "session":
         return _session_cmd(argv[1:])
     if argv and argv[0] == "provider":
@@ -95,6 +98,21 @@ def main(argv: list[str] | None = None) -> int:
         diagnostic("cli_validation", {"errors": str(exc)})
         return 1
     return run(plan)
+
+
+def _doctor_bundle_cmd(argv: list[str]) -> int:
+    from ..diagnostics import write_bundle
+
+    path = "keel-diagnostics.zip"
+    if "--file" in argv and argv.index("--file") + 1 < len(argv):
+        path = argv[argv.index("--file") + 1]
+    try:
+        target = write_bundle(path)
+    except OSError as exc:
+        sys.stderr.write(f"cannot write diagnostics bundle: {exc}\n")
+        return 1
+    sys.stdout.write(f"wrote redacted diagnostics bundle {target}\n")
+    return 0
 
 
 def _session_cmd(argv: list[str]) -> int:

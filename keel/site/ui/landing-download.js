@@ -126,11 +126,38 @@ function updateCard(card, channel) {
   }
 }
 
+function detectPlatform() {
+  const ua = (navigator.userAgentData?.platform || navigator.platform || "").toLowerCase();
+  let os = null;
+  if (/win/.test(ua)) os = "windows";
+  else if (/mac|iphone|ipad/.test(ua)) os = "macos";
+  else if (/linux|x11|android/.test(ua)) os = "linux";
+  if (!os) return null;
+  let arch = navigator.userAgentData?.architecture || "";
+  if (!arch) {
+    const bits = navigator.userAgent.match(/(WOW64|Win64|x86_64|x64|arm64|aarch64)/i);
+    arch = bits ? bits[0] : (os === "macos" ? "arm64" : "x64");
+  }
+  return { os, arch: String(arch) };
+}
+
 async function main() {
   const manifest = await fetchManifest();
   if (!manifest) return;
 
   const cards = document.querySelectorAll("#platform-grid [data-os]");
+  // B5.1: auto-detect the visitor's OS and CPU and highlight the best card.
+  const detected = detectPlatform();
+  if (detected) {
+    const card = document.querySelector(`#platform-grid [data-os="${detected.os}"]`);
+    if (card) {
+      card.classList.add("recommended");
+      const tag = document.createElement("span");
+      tag.className = "recommend-tag";
+      tag.textContent = `Recommended for you · ${detected.arch}`;
+      card.prepend(tag);
+    }
+  }
   let anyAvailable = false;
   for (const card of cards) {
     const channel = manifest.channels[card.dataset.os];

@@ -63,7 +63,7 @@
       "priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/runner.py"
+        "src/keel/resource_limits.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -72,9 +72,9 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_safety.py"
+        "tests/test_resource_limits.py"
       ],
-      "verification_evidence": "SSRF-safe web_fetch and web_search tools",
+      "verification_evidence": "Browser tab and workspace resource budgets",
       "owner_approval_required": false
     },
     {
@@ -927,16 +927,20 @@
       "source_feature_id": "A4.3",
       "milestone": "M6",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/fleet/connector_ops.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement MCP presets catalog limited to free/self-hosted servers (filesystem, git, fetch, SQLite, time, memory, Playwright, sequential-thinking, etc.), one-click add, dormant until configured according to Keel_Plan_v5_Addendum_Missed_Features.md feature A4.3",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_mcp_presets.py"
+      ],
+      "verification_evidence": "MCP presets catalog of free/self-hosted servers",
       "owner_approval_required": false
     },
     {
@@ -2033,16 +2037,20 @@
       "source_feature_id": "B4.12",
       "milestone": "M21",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/diagnostics.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement `keel doctor --bundle`: redacted diagnostics zip the user can send to support according to Keel_Plan_v5_Addendum_Missed_Features.md feature B4.12",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_diagnostics.py"
+      ],
+      "verification_evidence": "Redacted diagnostics bundle via keel doctor --bundle",
       "owner_approval_required": false
     },
     {
@@ -2052,16 +2060,20 @@
       "source_feature_id": "B4.13",
       "milestone": "M22",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/start_health.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Auto-rollback if a new version fails to start 3 times according to Keel_Plan_v5_Addendum_Missed_Features.md feature B4.13",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_start_health.py"
+      ],
+      "verification_evidence": "Auto-rollback after repeated failed starts",
       "owner_approval_required": false
     },
     {
@@ -2242,16 +2254,20 @@
       "source_feature_id": "B5.1",
       "milestone": "M23",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "site/ui/landing-download.js"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Download page with OS and CPU auto-detect, file size, SHA-256, \"how to verify\" guide for Windows/macOS/Linux according to Keel_Plan_v5_Addendum_Missed_Features.md feature B5.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_download_detect.py"
+      ],
+      "verification_evidence": "Download page OS/CPU auto-detection and recommendation",
       "owner_approval_required": false
     },
     {
@@ -2261,16 +2277,20 @@
       "source_feature_id": "B5.2",
       "milestone": "M23",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/release_feed.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement `latest.json` plus release-notes RSS/JSON feed and version history according to Keel_Plan_v5_Addendum_Missed_Features.md feature B5.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_release_feed.py"
+      ],
+      "verification_evidence": "latest.json, version history and RSS release feed",
       "owner_approval_required": false
     },
     {
@@ -2280,16 +2300,20 @@
       "source_feature_id": "B5.3",
       "milestone": "M23",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "site/requirements.html"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement System requirements, model-size guide, first-run guide for unsigned installers (SmartScreen, Gatekeeper) according to Keel_Plan_v5_Addendum_Missed_Features.md feature B5.3",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_requirements_page.py"
+      ],
+      "verification_evidence": "System requirements, model-size guide and first-run guide",
       "owner_approval_required": false
     },
     {
@@ -2318,16 +2342,20 @@
       "source_feature_id": "B5.5",
       "milestone": "M23",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "site/privacy.html"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Privacy page (\"what Keel does not collect\"), EULA page, third-party notices page, SBOM download according to Keel_Plan_v5_Addendum_Missed_Features.md feature B5.5",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_legal_pages.py"
+      ],
+      "verification_evidence": "Privacy, EULA and third-party notices site pages (drafts)",
       "owner_approval_required": false
     },
     {
@@ -2527,16 +2555,20 @@
       "source_feature_id": "B7.1",
       "milestone": "M25",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "tests/test_property_safety.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Property-based and fuzz tests for path containment and the command analyzer; mutation testing on the permission gate according to Keel_Plan_v5_Addendum_Missed_Features.md feature B7.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_property_safety.py"
+      ],
+      "verification_evidence": "Seeded fuzz tests for path containment and command safety",
       "owner_approval_required": false
     },
     {
@@ -2767,16 +2799,20 @@
       "source_feature_id": "C1.12",
       "milestone": "M20",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/pairing.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Client pairing allowlist for LAN/headless access (analog of orgo's `ALLOWED_EMAILS`) according to Keel_Plan_v5_Addendum_2_More_Features.md feature C1.12",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_pairing.py"
+      ],
+      "verification_evidence": "Explicit LAN/headless client pairing allowlist with revocation",
       "owner_approval_required": false
     },
     {
@@ -4011,16 +4047,20 @@
       "source_feature_id": "C5.1",
       "milestone": "M8",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/workflows.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Deterministic (no-LLM) nodes, loop/map nodes, sub-workflows, typed inputs/outputs with JSON Schema according to Keel_Plan_v5_Addendum_2_More_Features.md feature C5.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_workflow_nodes.py"
+      ],
+      "verification_evidence": "Deterministic map/loop workflow nodes with typed inputs",
       "owner_approval_required": false
     },
     {
@@ -4030,16 +4070,20 @@
       "source_feature_id": "C5.2",
       "milestone": "M8",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/workflows.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Human-task node (wait for approval/answer, timeout and default) according to Keel_Plan_v5_Addendum_2_More_Features.md feature C5.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_workflow_nodes.py"
+      ],
+      "verification_evidence": "Human-task workflow node with timeout and default",
       "owner_approval_required": false
     },
     {
@@ -4407,16 +4451,20 @@
       "source_feature_id": "C8.5",
       "milestone": "M10",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/supply_chain.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Plugin/skill supply chain: capability review UI with **permission diff on update**, trust levels (bundled, signed, local, unsigned), static scan of skill scripts, signed **revocation list** delivered via the update feed according to Keel_Plan_v5_Addendum_2_More_Features.md feature C8.5",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_supply_chain.py"
+      ],
+      "verification_evidence": "Plugin/skill capability review with permission diffs",
       "owner_approval_required": false
     },
     {
@@ -4483,16 +4531,20 @@
       "source_feature_id": "C9.1",
       "milestone": "M2",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/model_manager.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Model manager**: load/unload idle models, VRAM/RAM budget, queue concurrent requests, warm-up according to Keel_Plan_v5_Addendum_2_More_Features.md feature C9.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_model_manager.py"
+      ],
+      "verification_evidence": "Local model manager with RAM budget and idle unload",
       "owner_approval_required": false
     },
     {

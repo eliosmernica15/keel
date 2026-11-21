@@ -11,11 +11,17 @@ from .commands import discover as discover_commands, find as find_command, rende
 
 @dataclass
 class WorkflowStep:
-    kind: str  # tool | command | shell
+    kind: str  # tool | command | shell | map | loop | human
     name: str = ""
     input: dict[str, Any] = field(default_factory=dict)
     command: str = ""
     args: str = ""
+    # C5.1/C5.2: deterministic data-flow controls.
+    items: list[Any] = field(default_factory=list)
+    steps: list[dict[str, Any]] = field(default_factory=list)
+    times: int = 1
+    timeout_s: int = 300
+    default: Any = None
 
 
 @dataclass
@@ -58,6 +64,11 @@ def discover(project_root: Path | None = None) -> list[Workflow]:
                     input=raw.get("input", {}) if isinstance(raw.get("input", {}), dict) else {},
                     command=str(raw.get("command", "")),
                     args=str(raw.get("args", "")),
+                    items=raw.get("items", []) if isinstance(raw.get("items", []), list) else [],
+                    steps=raw.get("steps", []) if isinstance(raw.get("steps", []), list) else [],
+                    times=max(0, min(1000, int(raw.get("times", 1) or 1))),
+                    timeout_s=max(0, int(raw.get("timeout_s", 300) or 300)),
+                    default=raw.get("default"),
                 ))
             out.append(Workflow(name=name, description=str(doc.get("description", "")),
                                steps=steps, source=scope))
@@ -69,6 +80,18 @@ def find(name: str, project_root: Path | None = None) -> Workflow | None:
         if wf.name == name:
             return wf
     return None
+
+
+def _bind(value: Any, item: Any) -> Any:
+    """Recursively bind ``{{item}}``/``{{index}}`` placeholders in inputs."""
+    if isinstance(value, str):
+        return (value.replace("{{item}}", str(item))
+                     .replace("{{index}}", str(item)))
+    if isinstance(value, dict):
+        return {key: _bind(val, item) for key, val in value.items()}
+    if isinstance(value, list):
+        return [_bind(val, item) for val in value]
+    return value
 
 
 def execute_workflow(workflow: Workflow, *, tool_executor: Callable[[str, dict], Any] | None = None,
@@ -101,6 +124,55 @@ def execute_workflow(workflow: Workflow, *, tool_executor: Callable[[str, dict],
                 result = tool_executor("run_shell", {"command": step.command, "shell": "posix"})
                 entry["result"] = result
                 entry["ok"] = True
+            elif step.kind == "map":
+                # Deterministic: run sub-steps once per item with {{item}} bound.
+                mapped = []
+                for item in step.items[:1000]:
+                    sub = Workflow(name=f"map[{i}]", steps=[
+                        WorkflowStep(
+                            kind=str(s.get("kind", "tool")),
+                            name=str(s.get("name", "")),
+                            input=_bind(s.get("input", {}), item),
+                            command=str(s.get("command", "")),
+                            args=str(s.get("args", "")).replace("{{item}}", str(item)),
+                        ) for s in step.steps if isinstance(s, dict)])
+                    mapped.append(execute_workflow(
+                        sub, tool_executor=tool_executor,
+                        project_root=project_root, cwd=cwd))
+                entry["result"] = mapped
+                entry["ok"] = True
+            elif step.kind == "loop":
+                loop_results = []
+                for n in range(step.times):
+                    sub = Workflow(name=f"loop[{i}:{n}]", steps=[
+                        WorkflowStep(
+                            kind=str(s.get("kind", "tool")),
+                            name=str(s.get("name", "")),
+                            input=_bind(s.get("input", {}), n),
+                            command=str(s.get("command", "")),
+                            args=str(s.get("args", "")).replace("{{index}}", str(n)),
+                        ) for s in step.steps if isinstance(s, dict)])
+                    loop_results.append(execute_workflow(
+                        sub, tool_executor=tool_executor,
+                        project_root=project_root, cwd=cwd))
+                entry["result"] = loop_results
+                entry["ok"] = True
+            elif step.kind == "human":
+                # A human-task node: consult a callback (approval/answer),
+                # with a bounded timeout and a default when no one answers.
+                responder = (tool_executor if callable(tool_executor) else None)
+                if responder is None:
+                    entry["result"] = step.default
+                    entry["ok"] = True
+                    entry["defaulted"] = True
+                else:
+                    answer = responder("ask_user", {
+                        "question": step.name or "Approve this step?",
+                        "options": step.input.get("options", []),
+                        "timeout": step.timeout_s,
+                    })
+                    entry["result"] = answer
+                    entry["ok"] = True
             else:
                 raise ValueError(f"unknown step kind: {step.kind}")
         except Exception as exc:  # noqa: BLE001
