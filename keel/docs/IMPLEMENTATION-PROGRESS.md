@@ -307,6 +307,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_voice.py tests/test_attachments_ui.py tests/test_screen_safe_mode.py -q` → `13 passed`; `node --check` clean.
 **Next:** A2.5 group-chat loop prevention.
 
+## M6 Batch 19 — Group-chat loop guards (A2.5)
+
+**Implemented:** `src/keel/fleet/mention_guard.py` caps agent @mentions per pair and per round; Fleet group sinks replace runaway mentions with a `loop_guard` system row, and the group brief warns agents about the cap.
+**Verification:** `python -m pytest tests/test_mention_guard.py tests/test_fleet_groups.py tests/test_fleet_approvals.py -q` → `34 passed`.
+**Next:** A1.13 custom tools from `.keel/tools/`.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

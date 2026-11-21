@@ -89,6 +89,8 @@ IMPLEMENTED = {
              "Memory provenance and tainted-source tracking"),
     "A2.2": ("site/ui/app.js", "tests/test_voice.py",
              "Push-to-talk dictation and voice-to-task handoff"),
+    "A2.5": ("src/keel/fleet/mention_guard.py", "tests/test_mention_guard.py",
+             "Group-chat loop guards for repeated agent @mentions"),
 }
 
 
