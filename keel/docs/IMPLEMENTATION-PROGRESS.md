@@ -601,3 +601,34 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.
 **Verification:** `python -m pytest tests/test_resilience.py tests/test_vertical_slice.py tests/test_compaction.py -q` → `20 passed`.
 **Next:** C1.4 screen-share safe mode.
+
+---
+
+## M6 expansion — final registry status
+
+**Feature registry (`PLAN-INDEX.json` / `parity.json`):** 228 addendum feature IDs
+preserved, 226 `verified`, 2 `blocked`, 0 `not_started`. `Keel_Master_Plan_v6.md`
+is generated from the registry; v5 and both addenda remain unchanged on disk.
+
+**Two blocked features (genuine owner decisions, not fabricated):**
+- `C11.1` — source-hosting choice (GitHub free-tier caveats vs a different forge).
+- `C11.2` — repository security enforcement (mandatory 2FA, signed commits,
+  protected branches, release reviewers). Both require owner account decisions
+  the agent must not make unilaterally.
+
+**Honesty note on verification depth.** A `verified` status means the feature's
+automated tests pass and its behaviour was checked locally. Features fall into
+two tiers:
+- **Runtime-integrated** — wired into the live Python runtime (hooks, redaction,
+  trash, circuit breaker, dry-run, cost caps, RAG, workflows, memory, etc.).
+- **Local descriptor/scaffold** — features that inherently need an external
+  service or owner environment (CI runners, clean VMs, hosted forges, optional
+  container/WASM runtimes, phone companions, paid/licensing seams). For these,
+  the local data model, gating and tests exist and are verified, but the real
+  external integration is explicitly marked as requiring that environment.
+  Legal texts (EULA, trademark, notices) are drafts pending owner review.
+
+**Full suite:** `python -m pytest -q` green throughout the expansion (final run
+recorded in the batch commit history). No push, release publication, deployment,
+visibility change, history rewrite, credential rotation or production signing
+occurred.
