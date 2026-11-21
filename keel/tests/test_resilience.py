@@ -57,6 +57,32 @@ def test_unexpected_exception_produces_bad_envelope_not_crash(tmp_path):
     assert env["terminal_reason"] == "provider_error"
 
 
+def test_repeated_identical_tool_calls_are_stopped(tmp_path):
+    class LoopModel:
+        def complete(self, messages, tools):
+            return [{"type": "tool_use", "name": "read_file",
+                     "input": {"path": str(tmp_path)}} for _ in range(6)]
+
+    executor = _Executor()
+    original_invoke = executor.invoke
+    calls = []
+
+    def counting_invoke(name, tool_input):
+        calls.append(name)
+        return original_invoke(name, tool_input)
+
+    executor.invoke = counting_invoke
+    session = Session(model_client=LoopModel(), executor=executor,
+                      config=_cfg(tmp_path),
+                      rules=((), (), ("read_file",)),
+                      clock=VirtualClock(), rng=SeededRng(0))
+    out = session.run("loop")
+    assert out.envelope["terminal_reason"] == "doom_loop"
+    assert len(calls) == 5
+    assert any("Possible loop" in str(e.get("content", ""))
+               for e in out.events if e.get("subtype") == "informational")
+
+
 def test_exit_code_mapping_is_1():
     from keel import events
     assert events.EXIT_CODES["error_during_execution"] == 1

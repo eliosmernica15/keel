@@ -205,3 +205,21 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 - `tests/test_fleet_ask_user.py`: end-to-end hook ordering test through the real bridge and approval/answer API.
 
 **Verification:** `python -m pytest tests/test_fleet_ask_user.py -q` → `2 passed`.
+
+## M6 Batch 1 — Release manifest hardening (C12.1, C12.4, C12.6)
+
+**Implemented:** min_version/blocked_versions/rollout manifest fields, deterministic rollout bucketing, mirror failover with signature checks, and `keel release dry-run`.
+**Verification:** `python -m pytest tests/test_release_hardening.py tests/test_updater.py tests/test_release_signing.py -q` → `16 passed`; registry regenerated and consistency tests pass.
+**Next:** C8.1 recoverable trash for agent deletions.
+
+## M6 Batch 2 — Recoverable trash (C8.1)
+
+**Implemented:** `src/keel/trash.py` with move/list/restore; `delete_file` now returns a recoverable trash id.
+**Verification:** `python -m pytest tests/test_trash.py tests/test_safety.py tests/test_tool_registry.py -q` → `39 passed`.
+**Next:** C3.2 doom-loop detection.
+
+## M6 Batch 3 — Doom-loop detection (C3.2)
+
+**Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.
+**Verification:** `python -m pytest tests/test_resilience.py tests/test_vertical_slice.py tests/test_compaction.py -q` → `20 passed`.
+**Next:** C1.4 screen-share safe mode.

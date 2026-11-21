@@ -392,11 +392,16 @@ class RealTools:
 
     def _delete_file(self, tool_input: dict):
         import os
+
+        from .trash import move_to_trash
+
         path = self._safe_path(tool_input["path"])
         if not os.path.isfile(path):
             raise FileNotFoundError(f"not a file: {path}")
-        os.remove(path)
-        return f"deleted {path}", {"type": "text", "file": {"filePath": path}}
+        meta = move_to_trash(Path(path))
+        return (f"moved {path} to recoverable trash ({meta['id']})",
+                {"type": "text", "file": {"filePath": path},
+                 "trash_id": meta["id"], "recoverable": True})
 
     def _move_file(self, tool_input: dict):
         import os, shutil

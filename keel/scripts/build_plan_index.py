@@ -43,8 +43,16 @@ IMPLEMENTED = {
     "C11.4": ("keel/docs/proprietary/THIRD_PARTY_NOTICES.draft.md",
               "tests/test_release_controls.py",
               "Proprietary notices draft and dependency license inventory"),
-    "C12.6": ("src/keel/release/cli.py", "tests/test_release_controls.py",
-              "Release dry-run/build/check-artifacts commands"),
+    "C12.1": ("src/keel/release/common.py", "tests/test_release_hardening.py",
+              "Manifest min_version, blocked_versions and rollout policy fields"),
+    "C12.4": ("src/keel/release/updater.py", "tests/test_release_hardening.py",
+              "Mirror failover with signature verification on every mirror"),
+    "C12.6": ("src/keel/release/cli.py", "tests/test_release_hardening.py",
+              "Release dry-run command with local checks and no publish"),
+    "C8.1": ("src/keel/trash.py", "tests/test_trash.py",
+             "Recoverable trash for agent file deletions with restore"),
+    "C3.2": ("src/keel/session.py", "tests/test_resilience.py",
+             "Doom-loop hint and abort on repeated identical tool calls"),
 }
 
 

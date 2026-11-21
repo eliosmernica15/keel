@@ -243,6 +243,17 @@ def build_release_manifest(
         "version": version,
         "tag": tag,
         "generated": "release-pipeline",
+        "min_version": os.environ.get("KEEL_MIN_VERSION", "0.1.0"),
+        "blocked_versions": [
+            v.strip() for v in os.environ.get(
+                "KEEL_BLOCKED_VERSIONS", "").split(",") if v.strip()],
+        "security_advisories": {},
+        "rollout": {
+            "mode": os.environ.get("KEEL_ROLLOUT_MODE", "full"),
+            "percentage": min(100, max(0, int(
+                os.environ.get("KEEL_ROLLOUT_PERCENTAGE", "100") or "100"))),
+            "bucket_count": 100,
+        },
         "files": entries,
         "checksums_file": checksums_file,
     }

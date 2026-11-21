@@ -3049,16 +3049,20 @@
       "source_feature_id": "C12.1",
       "milestone": "M22",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/release/common.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Manifest fields for **blocked versions**, `min_version`, security advisories, and **staged rollout** (deterministic client bucket) with no server logic according to Keel_Plan_v5_Addendum_2_More_Features.md feature C12.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_release_hardening.py"
+      ],
+      "verification_evidence": "Manifest min_version, blocked_versions and rollout policy fields",
       "owner_approval_required": false
     },
     {
@@ -3106,16 +3110,20 @@
       "source_feature_id": "C12.4",
       "milestone": "M22",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/release/updater.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Mirror list with automatic failover and signature check on every mirror according to Keel_Plan_v5_Addendum_2_More_Features.md feature C12.4",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_release_hardening.py"
+      ],
+      "verification_evidence": "Mirror failover with signature verification on every mirror",
       "owner_approval_required": false
     },
     {
@@ -3155,9 +3163,9 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_release_controls.py"
+        "tests/test_release_hardening.py"
       ],
-      "verification_evidence": "Release dry-run/build/check-artifacts commands",
+      "verification_evidence": "Release dry-run command with local checks and no publish",
       "owner_approval_required": false
     },
     {
@@ -3433,16 +3441,20 @@
       "source_feature_id": "C3.2",
       "milestone": "M4",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/session.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Doom-loop and stuck detector** according to Keel_Plan_v5_Addendum_2_More_Features.md feature C3.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_resilience.py"
+      ],
+      "verification_evidence": "Doom-loop hint and abort on repeated identical tool calls",
       "owner_approval_required": false
     },
     {
@@ -4159,16 +4171,20 @@
       "source_feature_id": "C8.1",
       "milestone": "M5",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/trash.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Recoverable trash**: every agent delete goes to a Keel trash for N days; automatic git/stash snapshot before bulk operations according to Keel_Plan_v5_Addendum_2_More_Features.md feature C8.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_trash.py"
+      ],
+      "verification_evidence": "Recoverable trash for agent file deletions with restore",
       "owner_approval_required": false
     },
     {

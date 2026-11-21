@@ -188,10 +188,10 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C11.6 | "Verified official build" indicator in About (app verifies its own hash/signature against the signed manifest); website page explaining how to recognize official downloads; typosquat/fake-site guidance | M22 | P1 | not_started |
 | C11.7 | Trademark usage guidelines page; takedown/abuse contact; export-control and privacy notes (lawyer review) | M23 | P2 | not_started |
 | C11.8 | Obfuscation depth (deterrent only): Nuitka-compiled core, bytecode-compiled Electron main, asar integrity, string encryption for sensitive constants, per-build canary identifiers | M22 | P1 | not_started |
-| C12.1 | Manifest fields for **blocked versions**, `min_version`, security advisories, and **staged rollout** (deterministic client bucket) with no server logic | M22 | P0 | not_started |
+| C12.1 | Manifest fields for **blocked versions**, `min_version`, security advisories, and **staged rollout** (deterministic client bucket) with no server logic | M22 | P0 | verified |
 | C12.2 | **Air-gapped install and update**: offline installer bundle, sideload update file verified by signature, model import from USB/folder | M22 | P1 | not_started |
 | C12.3 | Self-hosted APT and YUM repositories (static files, signed) | M22 | P1 | not_started |
-| C12.4 | Mirror list with automatic failover and signature check on every mirror | M22 | P0 | not_started |
+| C12.4 | Mirror list with automatic failover and signature check on every mirror | M22 | P0 | verified |
 | C12.5 | Portable zip builds for Windows and Linux | M22 | P2 | not_started |
 | C12.6 | Release dry-run command that builds everything and runs the artifact allowlist and secret scans without publishing | M22 | P0 | verified |
 | C13.1 | Local SWE-task benchmark suite (small repos with failing tests) with per-model leaderboard | M21 | P0 | not_started |
@@ -208,7 +208,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C3.10 | Uncertainty policy | M7 | P1 | not_started |
 | C3.11 | Style learning | M11 | P2 | not_started |
 | C3.12 | Context packs and a **context budget UI** | M19 | P1 | not_started |
-| C3.2 | **Doom-loop and stuck detector** | M4 | P0 | not_started |
+| C3.2 | **Doom-loop and stuck detector** | M4 | P0 | verified |
 | C3.3 | **Goal mode / overnight mode** | M14 | P1 | not_started |
 | C3.4 | Think-harder slider | M19 | P1 | not_started |
 | C3.5 | Planner / critic / executor roles | M7 | P1 | not_started |
@@ -246,7 +246,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C7.3 | Skill format compatible with the open `SKILL.md` convention; command format compatible with opencode-style markdown | M9 | P0 | verified |
 | C7.4 | OpenAPI-to-tools generator (point at a spec, get tools, dormant until approved) | M15 | P1 | not_started |
 | C7.5 | Standards checklist: AGENTS.md, MCP, ACP, LSP, DAP, OpenTelemetry GenAI conventions, SARIF, CycloneDX, SPDX, OpenAPI, JSON Schema, ICS | M25 | P1 | not_started |
-| C8.1 | **Recoverable trash**: every agent delete goes to a Keel trash for N days; automatic git/stash snapshot before bulk operations | M5 | P0 | not_started |
+| C8.1 | **Recoverable trash**: every agent delete goes to a Keel trash for N days; automatic git/stash snapshot before bulk operations | M5 | P0 | verified |
 | C8.2 | Delayed destructive ops with undo window; **approve from phone** for dangerous actions | M20 | P1 | not_started |
 | C8.3 | Behavior anomaly detection (sudden mass file reads, unusual network, repeated denials) pauses the agent | M3 | P1 | not_started |
 | C8.4 | Honeypot/canary files that should never be read; alert if touched | M3 | P2 | not_started |

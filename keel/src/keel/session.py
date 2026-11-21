@@ -598,6 +598,9 @@ class Session:
                              reserved_output=self.config.reserved_output)
         self.compaction = CompactionState()
         num_turns = 0
+        tool_signatures: dict[str, int] = {}
+        doom_loop_hint_sent = False
+        doom_loop_detected = False
         final_text = None
         stop_reason = "end_turn"
         subtype = "success"
@@ -953,6 +956,42 @@ class Session:
                                      "tool_use_id": tool_use_id,
                                      "tool_name": block["name"],
                                      "content": tool_result_content})
+                signature = block["name"] + ":" + json.dumps(
+                    tool_input, sort_keys=True, default=str)[:1000]
+                tool_signatures[signature] = tool_signatures.get(signature, 0) + 1
+                repeats = tool_signatures[signature]
+                if repeats == 3 and not doom_loop_hint_sent:
+                    doom_loop_hint_sent = True
+                    hint = (f"Possible loop: {block['name']} repeated three times "
+                            "with the same input. Change approach or stop.")
+                    emit(ev.system_informational(
+                        text=hint, session_id=self.config.session_id,
+                        uuid=self.ids.event_uuid(),
+                        timestamp=self.clock.now_iso(), level="warn"),
+                        {"type": "system", "subtype": "informational",
+                         "content": hint, "sessionId": self.config.session_id})
+                if repeats >= 5:
+                    doom_loop_detected = True
+                    break
+
+            if doom_loop_detected:
+                errors = [{"code": "doom_loop", "category": "no_progress",
+                           "message": "repeated identical tool calls; stopping",
+                           "retryable": False}]
+                envelope = ev.result(
+                    subtype="error_during_execution",
+                    session_id=self.config.session_id,
+                    uuid=self.ids.event_uuid(),
+                    timestamp=self.clock.now_iso(),
+                    num_turns=num_turns,
+                    duration_ms=int((self.clock.monotonic() - t0) * 1000),
+                    duration_api_ms=0, stop_reason=None,
+                    terminal_reason="doom_loop", result_text=None,
+                    model=self.config.model, permission_denials=denials,
+                    errors=errors, local_command=self.config.local_command,
+                    safety_stops=self.safety_stops)
+                envelope["timestamp"] = self.clock.now_iso()
+                return finish(envelope, ok=False)
 
             if tool_blocks:
                 if self.hooks:

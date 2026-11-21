@@ -37,14 +37,52 @@ def _version_tuple(value: str) -> tuple[int, ...]:
     return parts or (0,)
 
 
-def check_for_update(manifest_url: str, *, current_version: str,
+def rollout_bucket(version: str, client_id: str, bucket_count: int = 100) -> int:
+    """Stable deterministic bucket for staged rollout decisions."""
+    import hashlib
+
+    digest = hashlib.sha256(f"{client_id}:{version}".encode("utf-8")).digest()
+    return int.from_bytes(digest[:2], "big") % max(1, bucket_count)
+
+
+def check_for_update(manifest_url: str | list[str], *, current_version: str,
                      platform: str, public_key=None,
-                     allow_http: bool = False, timeout: int = 60) -> UpdatePlan | None:
-    """Return the newest signed artifact for *platform*, or None if up to date."""
-    manifest = verify.load_manifest(
-        manifest_url, allow_http=allow_http, timeout=timeout)
-    if public_key is not None and not verify_manifest(manifest, public_key):
-        raise UpdateError("release manifest signature is invalid")
+                     allow_http: bool = False, timeout: int = 60,
+                     client_id: str = "") -> UpdatePlan | None:
+    """Return the newest signed artifact for *platform*, or None if up to date.
+
+    Multiple URLs are tried in order (mirror failover). Every successfully
+    loaded manifest is signature-verified before it can influence the result.
+    """
+    urls = [manifest_url] if isinstance(manifest_url, str) else list(manifest_url)
+    if not urls:
+        raise UpdateError("no manifest URLs configured")
+
+    manifest = None
+    last_error: Exception | None = None
+    for url in urls:
+        try:
+            candidate = verify.load_manifest(
+                url, allow_http=allow_http, timeout=timeout)
+            if public_key is not None and not verify_manifest(candidate, public_key):
+                raise UpdateError(f"release manifest signature invalid at {url}")
+            manifest = candidate
+            break
+        except Exception as exc:  # try the next mirror
+            last_error = exc
+    if manifest is None:
+        raise UpdateError(f"all manifest mirrors failed: {last_error}")
+
+    blocked = {str(v) for v in manifest.get("blocked_versions", [])}
+    min_version = str(manifest.get("min_version", ""))
+    if min_version and _version_tuple(current_version) < _version_tuple(min_version):
+        raise UpdateError(
+            f"installation {current_version} is below minimum {min_version}")
+
+    rollout = manifest.get("rollout") if isinstance(
+        manifest.get("rollout"), dict) else {}
+    percentage = int(rollout.get("percentage", 100) or 100)
+    bucket_count = int(rollout.get("bucket_count", 100) or 100)
 
     candidates = []
     for entry in manifest.get("files", []):
@@ -53,13 +91,18 @@ def check_for_update(manifest_url: str, *, current_version: str,
         if entry.get("platform") != platform:
             continue
         version = str(entry.get("version") or manifest.get("version") or "")
-        if not version or _version_tuple(version) <= _version_tuple(current_version):
+        if not version or version in blocked:
+            continue
+        if _version_tuple(version) <= _version_tuple(current_version):
             continue
         candidates.append((version, entry))
 
     if not candidates:
         return None
     version, entry = max(candidates, key=lambda item: _version_tuple(item[0]))
+    if percentage < 100 and rollout_bucket(
+            version, client_id or "keel-client", bucket_count) >= percentage:
+        return None
     return UpdatePlan(
         version=version,
         platform=platform,

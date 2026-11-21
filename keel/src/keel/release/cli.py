@@ -63,6 +63,13 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("path", help="directory to scan")
     check.set_defaults(func=check_artifacts_command)
 
+    dry_run = sub.add_parser(
+        "dry-run", help="run local release checks without publishing")
+    dry_run.add_argument("--dist", default="dist")
+    dry_run.add_argument("--artifacts", default="release")
+    dry_run.add_argument("--public-key", default=None)
+    dry_run.set_defaults(func=dry_run_command)
+
     update_check = sub.add_parser("update-check", help="check a signed release manifest")
     update_check.add_argument("--manifest", required=True)
     update_check.add_argument("--current", required=True)
@@ -70,6 +77,8 @@ def build_parser() -> argparse.ArgumentParser:
         "--platform", required=True,
         choices=["windows", "macos", "linux"])
     update_check.add_argument("--public-key", default=None)
+    update_check.add_argument("--mirror", action="append", default=[])
+    update_check.add_argument("--client-id", default="keel-client")
     update_check.add_argument("--allow-http", action="store_true")
     update_check.add_argument("--timeout", type=int, default=60)
     update_check.set_defaults(func=update_check_command)
@@ -98,6 +107,42 @@ def check_artifacts_command(args) -> int:
     return 0
 
 
+def dry_run_command(args) -> int:
+    from . import common
+    from .artifacts import scan_tree
+
+    version = common.validate_version()
+    dist = Path(args.dist)
+    if not dist.is_absolute():
+        dist = Path(common.PROJECT_ROOT) / dist
+    artifacts = Path(args.artifacts)
+    if not artifacts.is_absolute():
+        artifacts = Path(common.PROJECT_ROOT) / artifacts
+
+    violations = scan_tree(dist) + scan_tree(artifacts)
+    if violations:
+        print("prohibited files: " + ", ".join(violations[:20]), file=sys.stderr)
+        return 1
+
+    manifest_path = artifacts / "RELEASE-MANIFEST.json"
+    if manifest_path.is_file():
+        doc = json.loads(manifest_path.read_text(encoding="utf-8"))
+        public_key = _optional_public_key(args.public_key)
+        if public_key:
+            from .signing import verify_manifest
+
+            if not verify_manifest(doc, public_key):
+                print("manifest signature invalid", file=sys.stderr)
+                return 1
+        for field in ("min_version", "blocked_versions", "rollout"):
+            if field not in doc:
+                print(f"manifest missing {field}", file=sys.stderr)
+                return 1
+
+    print(f"OK - dry run passed for {version}; no release published")
+    return 0
+
+
 def _optional_public_key(path: str | None):
     if not path:
         return None
@@ -110,12 +155,13 @@ def update_check_command(args) -> int:
     from .updater import check_for_update
 
     plan = check_for_update(
-        args.manifest,
+        [args.manifest, *args.mirror],
         current_version=args.current,
         platform=args.platform,
         public_key=_optional_public_key(args.public_key),
         allow_http=args.allow_http,
         timeout=args.timeout,
+        client_id=args.client_id,
     )
     print(json.dumps(asdict(plan) if plan else {"available": False}))
     return 0
