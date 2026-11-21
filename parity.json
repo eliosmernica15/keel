@@ -1649,7 +1649,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/knowledge_work.py"
+        "src/keel/api_tester.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1658,10 +1658,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_knowledge_work.py"
+        "tests/test_api_tester.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "HTTP/API tester request spec with approval gate",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real HTTP/API tester with saved collections and host restrictions",
       "owner_approval_required": false
     },
     {
@@ -4665,7 +4665,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/code_intel.py"
+        "src/keel/codemod.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -4674,10 +4674,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_code_intel.py"
+        "tests/test_codemod.py tests/test_code_intel.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Structural search across source",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real AST codemods with diff preview and structural search",
       "owner_approval_required": false
     },
     {
@@ -4785,7 +4785,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/misc_features.py"
+        "src/keel/git_extras_runtime.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -4794,10 +4794,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_misc_features.py"
+        "tests/test_git_extras_runtime.py"
       ],
-      "implementation_tier": "descriptor",
-      "verification_evidence": "Git extras descriptor",
+      "implementation_tier": "local_module",
+      "verification_evidence": "Real git extras (status/log/blame/commit) with write gating",
       "owner_approval_required": false
     },
     {
