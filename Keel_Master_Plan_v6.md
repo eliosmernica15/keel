@@ -54,7 +54,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A1.9 | Image paste/drag into composer, fuzzy `@file` search | M19 | P0 | verified |
 | A2.1 | **Voice-to-task handoff**: a voice session hands work to the same agent loop and reads results back | M17 | P1 | not_started |
 | A2.2 | System-wide push-to-talk dictation hotkey (types into any app) | M17 | P1 | verified |
-| A2.3 | Per-agent **persistent browser profile** and per-agent workspace folder | M16 | P0 | not_started |
+| A2.3 | Per-agent **persistent browser profile** and per-agent workspace folder | M16 | P0 | verified |
 | A2.4 | Idle suspend/wake of heavy resources (browser, container desktop, LSP) | M16 | P1 | not_started |
 | A2.5 | Group-chat loop guards (agents @mentioning each other endlessly) | M12 | P0 | verified |
 | A2.6 | Primary-agent daily check-in/digest at chosen times | M14 | P1 | not_started |
@@ -90,13 +90,13 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B1.1 | **Grammar/JSON-schema constrained decoding** for tool calls | M2 | P0 | verified |
 | B1.10 | Speculative/draft decoding toggle where the runtime supports it | M2 | P2 | not_started |
 | B1.2 | Tolerant tool-call parser + **repair loop** | M2 | P0 | verified |
-| B1.3 | Difficulty-based **model router** | M2 | P1 | not_started |
+| B1.3 | Difficulty-based **model router** | M2 | P1 | verified |
 | B1.4 | Prefix/KV-cache reuse | M2 | P1 | not_started |
 | B1.5 | Smart context management | M4 | P0 | verified |
 | B1.6 | **Model download manager** | M2 | P0 | verified |
-| B1.7 | Hardware detector and quantization advisor | M2 | P1 | not_started |
+| B1.7 | Hardware detector and quantization advisor | M2 | P1 | verified |
 | B1.8 | Local embedding + reranker models | M11 | P1 | not_started |
-| B1.9 | **Compare mode (arena)** | M19 | P1 | not_started |
+| B1.9 | **Compare mode (arena)** | M19 | P1 | verified |
 | B2.1 | **Verification loop**: auto-detect test/lint/type commands, run after edits, feed failures back, stop at "definition of done" checklist | M7 | P0 | verified |
 | B2.10 | HTTP/API tester with saved collections | M15 | P2 | not_started |
 | B2.11 | Diagram tools: Mermaid and Graphviz rendering offline | M17 | P1 | not_started |
@@ -134,7 +134,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B4.2 | `keel://` deep links, `keel .` to open a folder, "Open with Keel" shell integration, shell completions | M19 | P1 | not_started |
 | B4.3 | Multi-window, detachable and split panels, saved workspace layouts | M19 | P1 | not_started |
 | B4.4 | Message edit/regenerate, pin, bookmark, tags/folders, semantic conversation search | M19 | P1 | not_started |
-| B4.5 | Rich rendering: Markdown, Mermaid, LaTeX, image/PDF preview, copy and apply buttons on code blocks | M19 | P0 | not_started |
+| B4.5 | Rich rendering: Markdown, Mermaid, LaTeX, image/PDF preview, copy and apply buttons on code blocks | M19 | P0 | verified |
 | B4.6 | Fleet views: kanban task board, agent org chart, cost per agent, live "agent wall" | M12 | P1 | not_started |
 | B4.7 | Observability views: token waterfall, flame graph, prompt diff between turns, slow-tool detector | M21 | P1 | not_started |
 | B4.8 | Phone companion: **LAN web app with QR pairing** and pinned self-signed TLS (control and approvals from phone, no cloud) | M20 | P2 | not_started |
@@ -155,9 +155,9 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B6.5 | Compliance pack: security whitepaper, accessibility conformance report, data-flow diagram, SBOM export, DPA/EULA templates (lawyer review) | M24 | P2 | not_started |
 | B6.6 | Per-organization audit export format and retention settings | M24 | P2 | not_started |
 | B7.1 | Property-based and fuzz tests for path containment and the command analyzer; mutation testing on the permission gate | M25 | P0 | verified |
-| B7.2 | Golden-file tests for prompt assembly; chaos tests (kill daemon mid-turn, disk full, DB locked); soak tests | M25 | P0 | not_started |
+| B7.2 | Golden-file tests for prompt assembly; chaos tests (kill daemon mid-turn, disk full, DB locked); soak tests | M25 | P0 | verified |
 | B7.3 | Accessibility audit (axe) and visual regression in CI | M25 | P1 | not_started |
-| B7.4 | Performance budgets: cold start, idle memory, installer size, time to first token overhead | M21 | P0 | not_started |
+| B7.4 | Performance budgets: cold start, idle memory, installer size, time to first token overhead | M21 | P0 | verified |
 | B7.5 | Flaky-test quarantine with owner and expiry | M25 | P1 | not_started |
 | B7.6 | Machine-readable task index (`PLAN-INDEX.json`): one entry per feature ID with status, evidence path, test path | M0 | P0 | verified |
 | B7.7 | Architecture Decision Records (ADRs), commit convention, pre-commit hooks, devcontainer-free dev setup script | M0 | P1 | verified |
@@ -168,7 +168,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C1.11 | Local task executor inside the container desktop for faster desktop actions (orgo "planned") | M16 | P2 | not_started |
 | C1.12 | Client pairing allowlist for LAN/headless access (analog of orgo's `ALLOWED_EMAILS`) | M20 | P0 | verified |
 | C1.2 | More package-manager distribution: Scoop, Chocolatey, Flatpak, Snap, AUR (binary PKGBUILD), Nix flake (opencode ships several) | M22 | P1 | not_started |
-| C1.3 | Dev-container-free contributor setup script and `AGENTS.md` for AI builders | M0 | P1 | not_started |
+| C1.3 | Dev-container-free contributor setup script and `AGENTS.md` for AI builders | M0 | P1 | verified |
 | C1.4 | **Screen-share/recording safe mode** (orgo-teammates warns never to show `.env`/dashboards on screen): mask secrets, emails, paths and tokens in UI while on | M19 | P0 | verified |
 | C1.5 | Per-integration **builder/operator guides** (orgo ships separate integration guides) | M15 | P1 | not_started |
 | C1.6 | Agent "looks": avatar, color, voice per agent, voice preview and speed | M12 | P1 | not_started |
@@ -184,7 +184,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C11.2 | Security hygiene for the private repo: mandatory 2FA, signed commits, least-privilege tokens, Actions pinned by commit SHA, restricted Actions on forks (forks disabled), environment secrets with required reviewer for release publishing, access review checklist | M1 | P0 | not_started |
 | C11.3 | **Source-leak incident runbook**: rotate keys, revoke tokens, take-down notices, history review, canary strings in source to trace leaks | M1 | P1 | not_started |
 | C11.4 | **REUSE-style licensing metadata** (SPDX headers incl. a custom `LicenseRef-Keel-Proprietary`), auto-generated `THIRD_PARTY_NOTICES` from lockfiles, license allowlist policy file in CI | M1 | P0 | verified |
-| C11.5 | EULA acceptance stored locally with version; re-prompt when the EULA changes; EULA viewable in-app and on the website | M1 | P0 | not_started |
+| C11.5 | EULA acceptance stored locally with version; re-prompt when the EULA changes; EULA viewable in-app and on the website | M1 | P0 | verified |
 | C11.6 | "Verified official build" indicator in About (app verifies its own hash/signature against the signed manifest); website page explaining how to recognize official downloads; typosquat/fake-site guidance | M22 | P1 | not_started |
 | C11.7 | Trademark usage guidelines page; takedown/abuse contact; export-control and privacy notes (lawyer review) | M23 | P2 | not_started |
 | C11.8 | Obfuscation depth (deterrent only): Nuitka-compiled core, bytecode-compiled Electron main, asar integrity, string encryption for sensitive constants, per-build canary identifiers | M22 | P1 | not_started |
@@ -199,12 +199,12 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C13.3 | Prompt regression tests across model versions; golden transcripts | M25 | P1 | not_started |
 | C13.4 | Installer smoke tests in clean VMs per OS and architecture, including upgrade from every prior release and rollback | M22 | P0 | not_started |
 | C13.5 | Startup, memory and install-size trend charts stored per release | M21 | P1 | not_started |
-| C2.1 | **Keel Cowork** (knowledge work) | M15 | P0 | not_started |
-| C2.2 | **Keel Code** | M11 | P0 | not_started |
+| C2.1 | **Keel Cowork** (knowledge work) | M15 | P0 | verified |
+| C2.2 | **Keel Code** | M11 | P0 | verified |
 | C2.3 | **Keel Duet** (assumed pair mode, confirm D4) | M12 | P1 | not_started |
-| C2.4 | **Fleet** | M12 | P0 | not_started |
+| C2.4 | **Fleet** | M12 | P0 | verified |
 | C2.5 | Surface switcher with per-surface default agents, tools and permissions | M19 | P0 | verified |
-| C3.1 | **Best-of-N with test selection** | M7 | P0 | not_started |
+| C3.1 | **Best-of-N with test selection** | M7 | P0 | verified |
 | C3.10 | Uncertainty policy | M7 | P1 | not_started |
 | C3.11 | Style learning | M11 | P2 | not_started |
 | C3.12 | Context packs and a **context budget UI** | M19 | P1 | not_started |
@@ -253,9 +253,9 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C8.5 | Plugin/skill supply chain: capability review UI with **permission diff on update**, trust levels (bundled, signed, local, unsigned), static scan of skill scripts, signed **revocation list** delivered via the update feed | M10 | P0 | verified |
 | C8.6 | Content-addressable artifact store with dedupe and integrity checks | M4 | P1 | not_started |
 | C8.7 | DB resilience: scheduled integrity check, `VACUUM INTO` backups, **rebuild projections from the events log** after corruption, retention policies, optional SQLCipher encryption at rest (verify license/packaging) | M4 | P1 | not_started |
-| C8.8 | Local red-team suite (prompt injection, exfiltration, tool-abuse scenarios) run per model | M21 | P0 | not_started |
+| C8.8 | Local red-team suite (prompt injection, exfiltration, tool-abuse scenarios) run per model | M21 | P0 | verified |
 | C9.1 | **Model manager**: load/unload idle models, VRAM/RAM budget, queue concurrent requests, warm-up | M2 | P0 | verified |
-| C9.2 | Virtualized lists, incremental rendering, streaming backpressure, startup prewarm, memory-leak watchdog | M19 | P0 | not_started |
+| C9.2 | Virtualized lists, incremental rendering, streaming backpressure, startup prewarm, memory-leak watchdog | M19 | P0 | verified |
 | C9.3 | Incremental repo indexing with file watching; low-power/battery mode | M11 | P1 | not_started |
 | C9.4 | Per-feature resource caps (browser, LSP, container) with visible meters | M16 | P1 | not_started |
 

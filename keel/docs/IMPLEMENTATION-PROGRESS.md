@@ -505,6 +505,84 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_workflow_nodes.py tests/test_workflows.py -q` → `9 passed`.
 **Next:** C3.1 best-of-N with test selection.
 
+## M6 Batch 52 — Best-of-N selection (C3.1)
+
+**Implemented:** `src/keel/best_of_n.py` generates N candidates via a pluggable local generator and selects the best by a test-based score, returning the chosen value with evidence.
+**Verification:** `python -m pytest tests/test_best_of_n.py -q` → `4 passed`.
+**Next:** C8.8 local red-team evaluation suite.
+
+## M6 Batch 53 — Best-of-N and red-team suite (C3.1, C8.8)
+
+**Implemented:** `best_of_n.py` selects candidates by test-based scoring; `red_team.py` runs deterministic adversarial cases (secret redaction, path refusal, mention loops, output DLP) locally with no provider.
+**Verification:** `python -m pytest tests/test_best_of_n.py tests/test_red_team.py -q` → `7 passed`.
+**Next:** C2.1/C2.2/C2.4 Keel Cowork/Code/Fleet surface tooling verification.
+
+## M6 Batch 54 — Product surfaces verification (C2.1, C2.2, C2.4)
+
+**Verified existing implementations:** `surfaces.py` defines Cowork, Code, Duet and Fleet surfaces with per-surface default agents, permission modes and tool sets, exercised end-to-end in `test_surfaces.py` and `test_e2e_local.py`.
+**Evidence:** `python -m pytest tests/test_surfaces.py -q` → `6 passed`.
+**Next:** C9.2 UI virtualization/backpressure and B4.5 rich rendering.
+
+## M6 Batch 55 — Rich rendering primitives (B4.5)
+
+**Implemented:** `src/keel/markdown_render.py` detects Markdown fences, Mermaid, LaTeX and image/PDF previews and emits HTML-escaped scaffolds with copy controls.
+**Verification:** `python -m pytest tests/test_markdown_render.py -q` → `4 passed`.
+**Next:** A2.3 persistent per-agent browser profiles.
+
+## M6 Batch 56 — Per-agent browser profiles (A2.3)
+
+**Implemented:** `src/keel/browser_profiles.py` creates and persists isolated browser-profile and workspace directories per agent, with reset and listing.
+**Verification:** `python -m pytest tests/test_browser_profiles.py -q` → `3 passed`.
+**Next:** B7.4 performance budgets and B7.2 golden/chaos tests.
+
+## M6 Batch 57 — Performance budgets (B7.4)
+
+**Implemented:** `src/keel/performance_budgets.py` defines cold-start, idle-memory, installer-size and first-token budgets with a checker for caller-supplied measurements.
+**Verification:** `python -m pytest tests/test_performance_budgets.py -q` → `3 passed`.
+**Next:** B7.2 golden-file and chaos tests.
+
+## M6 Batch 58 — Golden and chaos helpers (B7.2)
+
+**Implemented:** `src/keel/golden.py` provides deterministic snapshot normalisation/digest, golden-file check with update mode, diff output, and a chaos fault injector for mid-turn failure tests.
+**Verification:** `python -m pytest tests/test_golden_chaos.py -q` → `3 passed`.
+**Next:** C11.5 EULA acceptance state (owner-gated legal finalization stays blocked).
+
+## M6 Batch 59 — Local EULA acceptance (C11.5)
+
+**Implemented:** `src/keel/eula.py` stores acceptance of a specific EULA version locally and flags re-prompt when the version changes; the legal text itself remains owner-gated.
+**Verification:** `python -m pytest tests/test_eula.py -q` → `3 passed`.
+**Next:** C9.2 UI virtualization/backpressure.
+
+## M6 Batch 60 — UI virtualization and backpressure (C9.2)
+
+**Implemented:** `src/keel/virtual_list.py` computes visible list slices with overscan and a token-bucket backpressure limiter for streaming updates.
+**Verification:** `python -m pytest tests/test_virtual_list.py -q` → `3 passed`.
+**Next:** Remaining P1/P2 features; continue through the registry.
+
+## M6 Batch 61 — Agent style and voice previews (C1.3)
+
+**Implemented:** `src/keel/agent_style.py` deterministically assigns avatars, accent colors and voices to agents and produces preview descriptors for the UI.
+**Verification:** `python -m pytest tests/test_agent_style.py -q` → `3 passed`.
+**Next:** B1.5 difficulty-based model routing or C5.x workflow versioning.
+
+## M6 Batch 62 — Difficulty-based model routing (B1.3)
+
+**Implemented:** `src/keel/model_router.py` selects an easy/medium/hard model tier from local signals (prompt size, tool count, verification need) with no hosted router.
+**Verification:** `python -m pytest tests/test_model_router.py -q` → `3 passed`.
+**Next:** B1.7 hardware detector and quantization advisor.
+
+## M6 Batch 63 — Hardware detection and quantization advice (B1.7)
+
+**Implemented:** `src/keel/hardware.py` reads local platform/CPU/RAM signals and recommends a quantization level, labelling unknown RAM honestly.
+**Verification:** `python -m pytest tests/test_hardware.py -q` → `3 passed`.
+**Next:** B1.9 compare mode (arena) and other local-model reliability tools.
+
+## M6 Batch 64 — Compare mode (B1.9)
+
+**Implemented:** `src/keel/arena.py` runs a prompt through two caller-supplied local generators, collects both outputs and an optional preference winner.
+**Verification:** `python -m pytest tests/test_arena.py -q` → `3 passed`.
+**Next:** B1.4 prefix/KV-cache reuse and B1.10 speculative decoding toggle.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

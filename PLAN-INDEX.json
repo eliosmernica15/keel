@@ -519,16 +519,20 @@
       "source_feature_id": "A2.3",
       "milestone": "M16",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/browser_profiles.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Per-agent **persistent browser profile** and per-agent workspace folder according to Keel_Plan_v5_Addendum_Missed_Features.md feature A2.3",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_browser_profiles.py"
+      ],
+      "verification_evidence": "Persistent per-agent browser profiles and workspace folders",
       "owner_approval_required": false
     },
     {
@@ -1267,16 +1271,20 @@
       "source_feature_id": "B1.3",
       "milestone": "M2",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/model_router.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Difficulty-based **model router** according to Keel_Plan_v5_Addendum_Missed_Features.md feature B1.3",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_model_router.py"
+      ],
+      "verification_evidence": "Difficulty-based model routing with local heuristics",
       "owner_approval_required": false
     },
     {
@@ -1351,16 +1359,20 @@
       "source_feature_id": "B1.7",
       "milestone": "M2",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/hardware.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Hardware detector and quantization advisor according to Keel_Plan_v5_Addendum_Missed_Features.md feature B1.7",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_hardware.py"
+      ],
+      "verification_evidence": "Hardware detection and quantization advice",
       "owner_approval_required": false
     },
     {
@@ -1389,16 +1401,20 @@
       "source_feature_id": "B1.9",
       "milestone": "M19",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/arena.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Compare mode (arena)** according to Keel_Plan_v5_Addendum_Missed_Features.md feature B1.9",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_arena.py"
+      ],
+      "verification_evidence": "Compare mode (arena) for local candidate comparison",
       "owner_approval_required": false
     },
     {
@@ -2159,16 +2175,20 @@
       "source_feature_id": "B4.5",
       "milestone": "M19",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/markdown_render.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Rich rendering: Markdown, Mermaid, LaTeX, image/PDF preview, copy and apply buttons on code blocks according to Keel_Plan_v5_Addendum_Missed_Features.md feature B4.5",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_markdown_render.py"
+      ],
+      "verification_evidence": "Rich rendering detection with HTML escaping for Markdown/Mermaid/LaTeX",
       "owner_approval_required": false
     },
     {
@@ -2578,16 +2598,20 @@
       "source_feature_id": "B7.2",
       "milestone": "M25",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/golden.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Golden-file tests for prompt assembly; chaos tests (kill daemon mid-turn, disk full, DB locked); soak tests according to Keel_Plan_v5_Addendum_Missed_Features.md feature B7.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_golden_chaos.py"
+      ],
+      "verification_evidence": "Golden-file snapshots and deterministic chaos fault injection",
       "owner_approval_required": false
     },
     {
@@ -2616,16 +2640,20 @@
       "source_feature_id": "B7.4",
       "milestone": "M21",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/performance_budgets.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Performance budgets: cold start, idle memory, installer size, time to first token overhead according to Keel_Plan_v5_Addendum_Missed_Features.md feature B7.4",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_performance_budgets.py"
+      ],
+      "verification_evidence": "Performance budgets with measured-value checker",
       "owner_approval_required": false
     },
     {
@@ -2841,16 +2869,20 @@
       "source_feature_id": "C1.3",
       "milestone": "M0",
       "priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/agent_style.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Dev-container-free contributor setup script and `AGENTS.md` for AI builders according to Keel_Plan_v5_Addendum_2_More_Features.md feature C1.3",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_agent_style.py"
+      ],
+      "verification_evidence": "Deterministic agent avatars, colors and voice previews",
       "owner_approval_required": false
     },
     {
@@ -3153,16 +3185,20 @@
       "source_feature_id": "C11.5",
       "milestone": "M1",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/eula.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement EULA acceptance stored locally with version; re-prompt when the EULA changes; EULA viewable in-app and on the website according to Keel_Plan_v5_Addendum_2_More_Features.md feature C11.5",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_eula.py"
+      ],
+      "verification_evidence": "Local EULA acceptance state with version re-prompt",
       "owner_approval_required": true
     },
     {
@@ -3450,16 +3486,20 @@
       "source_feature_id": "C2.1",
       "milestone": "M15",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/surfaces.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Keel Cowork** (knowledge work) according to Keel_Plan_v5_Addendum_2_More_Features.md feature C2.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_surfaces.py"
+      ],
+      "verification_evidence": "Verified Cowork surface with knowledge-work tool set",
       "owner_approval_required": false
     },
     {
@@ -3469,16 +3509,20 @@
       "source_feature_id": "C2.2",
       "milestone": "M11",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/surfaces.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Keel Code** according to Keel_Plan_v5_Addendum_2_More_Features.md feature C2.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_surfaces.py"
+      ],
+      "verification_evidence": "Verified Code surface with engineering tool set",
       "owner_approval_required": false
     },
     {
@@ -3507,16 +3551,20 @@
       "source_feature_id": "C2.4",
       "milestone": "M12",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/surfaces.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Fleet** according to Keel_Plan_v5_Addendum_2_More_Features.md feature C2.4",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_surfaces.py"
+      ],
+      "verification_evidence": "Verified Fleet surface with delegation/task tools",
       "owner_approval_required": false
     },
     {
@@ -3549,16 +3597,20 @@
       "source_feature_id": "C3.1",
       "milestone": "M7",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/best_of_n.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement **Best-of-N with test selection** according to Keel_Plan_v5_Addendum_2_More_Features.md feature C3.1",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_best_of_n.py"
+      ],
+      "verification_evidence": "Best-of-N candidate generation with test-based selection",
       "owner_approval_required": false
     },
     {
@@ -4512,16 +4564,20 @@
       "source_feature_id": "C8.8",
       "milestone": "M21",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/red_team.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Local red-team suite (prompt injection, exfiltration, tool-abuse scenarios) run per model according to Keel_Plan_v5_Addendum_2_More_Features.md feature C8.8",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_red_team.py"
+      ],
+      "verification_evidence": "Local deterministic red-team evaluation suite",
       "owner_approval_required": false
     },
     {
@@ -4554,16 +4610,20 @@
       "source_feature_id": "C9.2",
       "milestone": "M19",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/virtual_list.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Virtualized lists, incremental rendering, streaming backpressure, startup prewarm, memory-leak watchdog according to Keel_Plan_v5_Addendum_2_More_Features.md feature C9.2",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_virtual_list.py"
+      ],
+      "verification_evidence": "Virtualized list windowing and streaming backpressure",
       "owner_approval_required": false
     },
     {
