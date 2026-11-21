@@ -107,6 +107,8 @@ IMPLEMENTED = {
              "Resumable model downloads with SHA-256 integrity verification"),
     "A4.4": ("src/keel/instructions.py", "tests/test_rigor.py",
              "Evidence-before-claims rigor contract in agent persona"),
+    "A2.8": ("tests/test_e2e_local.py", "tests/test_e2e_local.py",
+             "Local E2E harness exercising real bridge chat/settings/viewer flows"),
 }
 
 

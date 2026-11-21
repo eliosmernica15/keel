@@ -59,7 +59,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A2.5 | Group-chat loop guards (agents @mentioning each other endlessly) | M12 | P0 | verified |
 | A2.6 | Primary-agent daily check-in/digest at chosen times | M14 | P1 | not_started |
 | A2.7 | Documented `.env.example`-style config reference for every setting | M2 | P1 | not_started |
-| A2.8 | Local Playwright E2E that exercises real flows (chat, tools, viewer, search, connections, voice, groups, settings) | M25 | P0 | not_started |
+| A2.8 | Local Playwright E2E that exercises real flows (chat, tools, viewer, search, connections, voice, groups, settings) | M25 | P0 | verified |
 | A2.9 | Memory-consolidation and history-compaction **tunable knobs** surfaced in settings | M13 | P1 | not_started |
 | A3.1 | **Outgoing signed webhooks** with retry/backoff and delivery log | M14 | P1 | not_started |
 | A3.10 | Per-vendor **cost caps with daily and monthly windows** | M21 | P0 | verified |

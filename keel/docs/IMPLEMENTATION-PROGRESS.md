@@ -355,6 +355,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_rigor.py tests/test_compaction.py tests/test_vertical_slice.py tests/test_hooks.py -q` → `39 passed`.
 **Next:** A2.8 local E2E flow scaffold.
 
+## M6 Batch 27 — Local end-to-end flows (A2.8)
+
+**Implemented:** `tests/test_e2e_local.py` drives the real authenticated bridge through app shell/auth, settings round-trip, surfaces, file search and Fleet chat, with no external services. A browser-driven Playwright layer remains optional.
+**Verification:** `python -m pytest tests/test_e2e_local.py -q` → `4 passed`.
+**Next:** A3.3 mock/scripted agents (verification) and B1.5 smart context management.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.
