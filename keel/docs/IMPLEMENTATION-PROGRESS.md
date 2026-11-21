@@ -583,6 +583,19 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_arena.py -q` → `3 passed`.
 **Next:** B1.4 prefix/KV-cache reuse and B1.10 speculative decoding toggle.
 
+## M6 Batch 65 — SWE benchmark and installer smoke harness (C13.1, C13.4)
+
+**Implemented:** `swe_bench.py` runs tiny local tasks through a pluggable agent and records a per-model leaderboard; `installer_smoke.py` validates staged installer checksums and upgrade policy, and declares CI-only clean-VM checks.
+**Verification:** `python -m pytest tests/test_swe_bench.py tests/test_installer_smoke.py -q` → `6 passed`.
+**Owner-gated:** C11.1 (hosting choice) and C11.2 (repo security enforcement) marked `blocked` — require owner decisions.
+**Next:** B1.4 prefix/KV-cache reuse and B1.10 speculative decoding toggle.
+
+## M6 Batch 66 — Prefix cache and speculative toggle (B1.4, B1.10)
+
+**Implemented:** `src/keel/prefix_cache.py` finds the longest shared prompt prefix with bounded storage and exposes an opt-in (`KEEL_SPECULATIVE_DECODING`) speculative-decoding flag, off by default.
+**Verification:** `python -m pytest tests/test_prefix_cache.py -q` → `3 passed`.
+**Next:** More P1/P2 features from the registry.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

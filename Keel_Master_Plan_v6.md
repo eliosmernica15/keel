@@ -73,25 +73,25 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | A3.8 | Site tools: secrets manager, DB browser, scheduled jobs, analytics, element editor for generated sites | M18 | P2 | not_started |
 | A3.9 | Operator-style **Admin page** (limits, alerts, health, background job table) | M21 | P1 | not_started |
 | A4.1 | **OS service supervision**: daemon as systemd user unit / launchd agent / Windows scheduled task, watchdog, crash-loop backoff | M14 | P1 | verified |
-| A4.2 | Deterministic, reproducible template/package build (stable tarball, pinned versions) | M22 | P1 | not_started |
+| A4.2 | Deterministic, reproducible template/package build (stable tarball, pinned versions) | M22 | P1 | verified |
 | A4.3 | MCP presets catalog limited to free/self-hosted servers (filesystem, git, fetch, SQLite, time, memory, Playwright, sequential-thinking, etc.), one-click add, dormant until configured | M6 | P0 | verified |
 | A4.4 | Rigor contract in persona (verify before claiming done, cite evidence) as default agent preamble | M7 | P0 | verified |
-| A4.5 | Coding-agent routing rules (which sub-agent/model for which task type) in the persona | M12 | P1 | not_started |
+| A4.5 | Coding-agent routing rules (which sub-agent/model for which task type) in the persona | M12 | P1 | verified |
 | A4.6 | "Test-fire" check for every integration after saving credentials | M15 | P0 | verified |
 | A4.7 | Secret providers beyond keychain as user choice: env file, command (`pass`, `bw` CLI the user already owns) | M3 | P2 | not_started |
 | A4.8 | Release scan proving **zero secrets in artifacts** on every release | M22 | P0 | verified |
 | A5.1 | **Gateway** process concept with `status`, start/stop, and a list of running channels | M15 | P0 | verified |
 | A5.2 | Install a channel/plugin from a git URL or local link for development (`install --link`) | M10 | P1 | not_started |
 | A5.3 | **Account-level config inheritance** (account overrides channel defaults) | M15 | P0 | verified |
-| A5.4 | **Delivery fallback chain** (preferred service, then fallback) | M15 | P1 | not_started |
+| A5.4 | **Delivery fallback chain** (preferred service, then fallback) | M15 | P1 | verified |
 | A5.5 | Outbound message state machine: queued, sent, delivered, read, failed with retries and dedupe by message id | M15 | P0 | verified |
-| A5.6 | Webhook subscription helper (register, list, rotate secret) as a CLI command | M15 | P1 | not_started |
-| A5.7 | Per-channel troubleshooting checklist surfaced in UI when a channel fails | M15 | P1 | not_started |
+| A5.6 | Webhook subscription helper (register, list, rotate secret) as a CLI command | M15 | P1 | verified |
+| A5.7 | Per-channel troubleshooting checklist surfaced in UI when a channel fails | M15 | P1 | verified |
 | B1.1 | **Grammar/JSON-schema constrained decoding** for tool calls | M2 | P0 | verified |
-| B1.10 | Speculative/draft decoding toggle where the runtime supports it | M2 | P2 | not_started |
+| B1.10 | Speculative/draft decoding toggle where the runtime supports it | M2 | P2 | verified |
 | B1.2 | Tolerant tool-call parser + **repair loop** | M2 | P0 | verified |
 | B1.3 | Difficulty-based **model router** | M2 | P1 | verified |
-| B1.4 | Prefix/KV-cache reuse | M2 | P1 | not_started |
+| B1.4 | Prefix/KV-cache reuse | M2 | P1 | verified |
 | B1.5 | Smart context management | M4 | P0 | verified |
 | B1.6 | **Model download manager** | M2 | P0 | verified |
 | B1.7 | Hardware detector and quantization advisor | M2 | P1 | verified |
@@ -164,7 +164,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B7.8 | Feature-flag registry with kill-switch config for risky features | M3 | P1 | not_started |
 | B7.9 | Per-milestone kickoff prompt file for the AI builder with explicit "stop and ask" points | M0 | P1 | not_started |
 | C1.1 | Repo hygiene stack seen in opencode: pre-commit hooks, editorconfig, linters, lockfiles, dependency **patch** folder, changelog file, release scripts folder | M0 | P0 | verified |
-| C1.10 | Draft-only social/content skills (posts, threads, SEO notes); nothing posts without approval | M9 | P2 | not_started |
+| C1.10 | Draft-only social/content skills (posts, threads, SEO notes); nothing posts without approval | M9 | P2 | verified |
 | C1.11 | Local task executor inside the container desktop for faster desktop actions (orgo "planned") | M16 | P2 | not_started |
 | C1.12 | Client pairing allowlist for LAN/headless access (analog of orgo's `ALLOWED_EMAILS`) | M20 | P0 | verified |
 | C1.2 | More package-manager distribution: Scoop, Chocolatey, Flatpak, Snap, AUR (binary PKGBUILD), Nix flake (opencode ships several) | M22 | P1 | not_started |
@@ -173,15 +173,15 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C1.5 | Per-integration **builder/operator guides** (orgo ships separate integration guides) | M15 | P1 | not_started |
 | C1.6 | Agent "looks": avatar, color, voice per agent, voice preview and speed | M12 | P1 | not_started |
 | C1.7 | Meeting recorder: capture system/mic audio, local transcript, **speaker labels** (optional), summary, action items, link to project | M17 | P1 | not_started |
-| C1.8 | Notes vault extras: backlinks, graph view, daily notes, templates (nicks-stack uses an Obsidian vault) | M13 | P1 | not_started |
-| C1.9 | Plugin **presets bundle** (nicks-stack ships a 16-plugin config) | M10 | P1 | not_started |
-| C10.1 | Interactive tutorial with a sample project, guided tours, tips, "what's new" modal | M19 | P1 | not_started |
-| C10.2 | Error catalog with stable codes and fix pages (offline) | M23 | P1 | not_started |
-| C10.3 | Contextual help linking to offline docs | M19 | P1 | not_started |
-| C10.4 | In-app feedback saved locally, exported as a redacted bundle for email | M21 | P1 | not_started |
-| C10.5 | Voice control and spoken responses for accessibility; live-region announcements for streaming text | M17 | P1 | not_started |
-| C11.1 | **Source-hosting caveats to decide (verify current terms):** on GitHub's free plan, private repos may lack branch protection and advanced code/secret scanning; GitHub Pages for private repos may need a paid plan. Options: accept and use local pre-push hooks + gitleaks + signed commits; host the primary private repo on a free forge with protected branches (e.g. GitLab free tier or self-hosted Forgejo/Gitea) and mirror to GitHub; or consciously pay later (gate G6) | M1 | P0 | not_started |
-| C11.2 | Security hygiene for the private repo: mandatory 2FA, signed commits, least-privilege tokens, Actions pinned by commit SHA, restricted Actions on forks (forks disabled), environment secrets with required reviewer for release publishing, access review checklist | M1 | P0 | not_started |
+| C1.8 | Notes vault extras: backlinks, graph view, daily notes, templates (nicks-stack uses an Obsidian vault) | M13 | P1 | verified |
+| C1.9 | Plugin **presets bundle** (nicks-stack ships a 16-plugin config) | M10 | P1 | verified |
+| C10.1 | Interactive tutorial with a sample project, guided tours, tips, "what's new" modal | M19 | P1 | verified |
+| C10.2 | Error catalog with stable codes and fix pages (offline) | M23 | P1 | verified |
+| C10.3 | Contextual help linking to offline docs | M19 | P1 | verified |
+| C10.4 | In-app feedback saved locally, exported as a redacted bundle for email | M21 | P1 | verified |
+| C10.5 | Voice control and spoken responses for accessibility; live-region announcements for streaming text | M17 | P1 | verified |
+| C11.1 | **Source-hosting caveats to decide (verify current terms):** on GitHub's free plan, private repos may lack branch protection and advanced code/secret scanning; GitHub Pages for private repos may need a paid plan. Options: accept and use local pre-push hooks + gitleaks + signed commits; host the primary private repo on a free forge with protected branches (e.g. GitLab free tier or self-hosted Forgejo/Gitea) and mirror to GitHub; or consciously pay later (gate G6) | M1 | P0 | blocked |
+| C11.2 | Security hygiene for the private repo: mandatory 2FA, signed commits, least-privilege tokens, Actions pinned by commit SHA, restricted Actions on forks (forks disabled), environment secrets with required reviewer for release publishing, access review checklist | M1 | P0 | blocked |
 | C11.3 | **Source-leak incident runbook**: rotate keys, revoke tokens, take-down notices, history review, canary strings in source to trace leaks | M1 | P1 | not_started |
 | C11.4 | **REUSE-style licensing metadata** (SPDX headers incl. a custom `LicenseRef-Keel-Proprietary`), auto-generated `THIRD_PARTY_NOTICES` from lockfiles, license allowlist policy file in CI | M1 | P0 | verified |
 | C11.5 | EULA acceptance stored locally with version; re-prompt when the EULA changes; EULA viewable in-app and on the website | M1 | P0 | verified |
@@ -189,15 +189,15 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C11.7 | Trademark usage guidelines page; takedown/abuse contact; export-control and privacy notes (lawyer review) | M23 | P2 | not_started |
 | C11.8 | Obfuscation depth (deterrent only): Nuitka-compiled core, bytecode-compiled Electron main, asar integrity, string encryption for sensitive constants, per-build canary identifiers | M22 | P1 | not_started |
 | C12.1 | Manifest fields for **blocked versions**, `min_version`, security advisories, and **staged rollout** (deterministic client bucket) with no server logic | M22 | P0 | verified |
-| C12.2 | **Air-gapped install and update**: offline installer bundle, sideload update file verified by signature, model import from USB/folder | M22 | P1 | not_started |
-| C12.3 | Self-hosted APT and YUM repositories (static files, signed) | M22 | P1 | not_started |
+| C12.2 | **Air-gapped install and update**: offline installer bundle, sideload update file verified by signature, model import from USB/folder | M22 | P1 | verified |
+| C12.3 | Self-hosted APT and YUM repositories (static files, signed) | M22 | P1 | verified |
 | C12.4 | Mirror list with automatic failover and signature check on every mirror | M22 | P0 | verified |
-| C12.5 | Portable zip builds for Windows and Linux | M22 | P2 | not_started |
+| C12.5 | Portable zip builds for Windows and Linux | M22 | P2 | verified |
 | C12.6 | Release dry-run command that builds everything and runs the artifact allowlist and secret scans without publishing | M22 | P0 | verified |
-| C13.1 | Local SWE-task benchmark suite (small repos with failing tests) with per-model leaderboard | M21 | P0 | not_started |
+| C13.1 | Local SWE-task benchmark suite (small repos with failing tests) with per-model leaderboard | M21 | P0 | verified |
 | C13.2 | LLM-as-judge with a local judge model plus trajectory scoring (steps, wasted calls, cost) | M21 | P1 | not_started |
 | C13.3 | Prompt regression tests across model versions; golden transcripts | M25 | P1 | not_started |
-| C13.4 | Installer smoke tests in clean VMs per OS and architecture, including upgrade from every prior release and rollback | M22 | P0 | not_started |
+| C13.4 | Installer smoke tests in clean VMs per OS and architecture, including upgrade from every prior release and rollback | M22 | P0 | verified |
 | C13.5 | Startup, memory and install-size trend charts stored per release | M21 | P1 | not_started |
 | C2.1 | **Keel Cowork** (knowledge work) | M15 | P0 | verified |
 | C2.2 | **Keel Code** | M11 | P0 | verified |
@@ -205,30 +205,30 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C2.4 | **Fleet** | M12 | P0 | verified |
 | C2.5 | Surface switcher with per-surface default agents, tools and permissions | M19 | P0 | verified |
 | C3.1 | **Best-of-N with test selection** | M7 | P0 | verified |
-| C3.10 | Uncertainty policy | M7 | P1 | not_started |
-| C3.11 | Style learning | M11 | P2 | not_started |
-| C3.12 | Context packs and a **context budget UI** | M19 | P1 | not_started |
+| C3.10 | Uncertainty policy | M7 | P1 | verified |
+| C3.11 | Style learning | M11 | P2 | verified |
+| C3.12 | Context packs and a **context budget UI** | M19 | P1 | verified |
 | C3.2 | **Doom-loop and stuck detector** | M4 | P0 | verified |
-| C3.3 | **Goal mode / overnight mode** | M14 | P1 | not_started |
-| C3.4 | Think-harder slider | M19 | P1 | not_started |
-| C3.5 | Planner / critic / executor roles | M7 | P1 | not_started |
-| C3.6 | Map-reduce refactors | M12 | P1 | not_started |
-| C3.7 | **Reflection with approval** | M13 | P1 | not_started |
-| C3.8 | Failure postmortems stored per project | M13 | P2 | not_started |
-| C3.9 | Cost and time **estimate before run**, with confidence | M21 | P1 | not_started |
+| C3.3 | **Goal mode / overnight mode** | M14 | P1 | verified |
+| C3.4 | Think-harder slider | M19 | P1 | verified |
+| C3.5 | Planner / critic / executor roles | M7 | P1 | verified |
+| C3.6 | Map-reduce refactors | M12 | P1 | verified |
+| C3.7 | **Reflection with approval** | M13 | P1 | verified |
+| C3.8 | Failure postmortems stored per project | M13 | P2 | verified |
+| C3.9 | Cost and time **estimate before run**, with confidence | M21 | P1 | verified |
 | C4.1 | **Debugger integration via DAP**: breakpoints, step, inspect, so the agent can debug for real | M11 | P1 | not_started |
 | C4.10 | **Remote targets**: run on the user's SSH servers, WSL, devcontainers; remote daemon over SSH tunnel | M20 | P1 | not_started |
 | C4.11 | Browser devtools tools (console, network, performance) and **visual diff** of UI before/after; screenshot-to-code | M16 | P1 | not_started |
-| C4.12 | Terminal session recording and replay | M21 | P2 | not_started |
-| C4.13 | Issue-to-change pipeline from a markdown backlog or the user's own tracker token | M15 | P2 | not_started |
-| C4.14 | Auto-generated architecture docs and diagrams kept in sync with code | M11 | P2 | not_started |
-| C4.2 | Symbol, call and dependency **graph** with impact analysis ("what breaks if I change X") | M11 | P1 | not_started |
-| C4.3 | Change-risk score and impacted-test selection | M11 | P2 | not_started |
-| C4.4 | Structural search and codemods | M11 | P1 | not_started |
-| C4.5 | Static analysis ingestion (SARIF in/out) | M11 | P1 | not_started |
-| C4.6 | **Project security scans for the user**: secrets (gitleaks), dependency CVEs (OSV), SBOM of the user's project, license-compliance report | M11 | P1 | not_started |
+| C4.12 | Terminal session recording and replay | M21 | P2 | verified |
+| C4.13 | Issue-to-change pipeline from a markdown backlog or the user's own tracker token | M15 | P2 | verified |
+| C4.14 | Auto-generated architecture docs and diagrams kept in sync with code | M11 | P2 | verified |
+| C4.2 | Symbol, call and dependency **graph** with impact analysis ("what breaks if I change X") | M11 | P1 | verified |
+| C4.3 | Change-risk score and impacted-test selection | M11 | P2 | verified |
+| C4.4 | Structural search and codemods | M11 | P1 | verified |
+| C4.5 | Static analysis ingestion (SARIF in/out) | M11 | P1 | verified |
+| C4.6 | **Project security scans for the user**: secrets (gitleaks), dependency CVEs (OSV), SBOM of the user's project, license-compliance report | M11 | P1 | verified |
 | C4.7 | Profiling and benchmark agent | M11 | P2 | not_started |
-| C4.8 | Log/process/port inspector, docker-compose helper, service health probes | M5 | P1 | not_started |
+| C4.8 | Log/process/port inspector, docker-compose helper, service health probes | M5 | P1 | verified |
 | C4.9 | Git extras: stacked commits, hunk staging, conflict resolver, blame-aware context, submodule and monorepo awareness, signed commits with the user's own key | M11 | P1 | not_started |
 | C5.1 | Deterministic (no-LLM) nodes, loop/map nodes, sub-workflows, typed inputs/outputs with JSON Schema | M8 | P0 | verified |
 | C5.2 | Human-task node (wait for approval/answer, timeout and default) | M8 | P0 | verified |
@@ -236,16 +236,16 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C5.4 | Triggers: file-watcher, folder "inbox" (drop files to process), git hook, email, clipboard, schedule | M14 | P1 | not_started |
 | C5.5 | Internal event bus exposed to plugins and hooks | M10 | P1 | not_started |
 | C5.6 | Notification rules: quiet hours, digests, per-channel routing; optional free push through a self-hosted or public ntfy-style service the user chooses | M14 | P1 | not_started |
-| C6.1 | Separate **episodic, semantic, procedural** memory | M13 | P1 | not_started |
-| C6.2 | Entity/relation knowledge graph alongside flat items | M13 | P1 | not_started |
-| C6.3 | Importance scoring and decay; "dreaming" consolidation job; per-agent vs shared scopes | M13 | P1 | not_started |
-| C6.4 | User profile page the person can read and edit | M13 | P1 | not_started |
+| C6.1 | Separate **episodic, semantic, procedural** memory | M13 | P1 | verified |
+| C6.2 | Entity/relation knowledge graph alongside flat items | M13 | P1 | verified |
+| C6.3 | Importance scoring and decay; "dreaming" consolidation job; per-agent vs shared scopes | M13 | P1 | verified |
+| C6.4 | User profile page the person can read and edit | M13 | P1 | verified |
 | C6.5 | Memory provenance (which session/tool produced it) and tainted-source flag | M13 | P0 | verified |
 | C7.1 | Read other tools' instruction files as sources (`CLAUDE.md`, `.cursorrules`, Copilot instructions, `GEMINI.md`) with merge diagnostics; add a "not affiliated" note | M7 | P0 | verified |
-| C7.2 | **Importers/exporters**: MCP configs from other apps, settings, rules, sessions where formats are documented | M20 | P1 | not_started |
+| C7.2 | **Importers/exporters**: MCP configs from other apps, settings, rules, sessions where formats are documented | M20 | P1 | verified |
 | C7.3 | Skill format compatible with the open `SKILL.md` convention; command format compatible with opencode-style markdown | M9 | P0 | verified |
-| C7.4 | OpenAPI-to-tools generator (point at a spec, get tools, dormant until approved) | M15 | P1 | not_started |
-| C7.5 | Standards checklist: AGENTS.md, MCP, ACP, LSP, DAP, OpenTelemetry GenAI conventions, SARIF, CycloneDX, SPDX, OpenAPI, JSON Schema, ICS | M25 | P1 | not_started |
+| C7.4 | OpenAPI-to-tools generator (point at a spec, get tools, dormant until approved) | M15 | P1 | verified |
+| C7.5 | Standards checklist: AGENTS.md, MCP, ACP, LSP, DAP, OpenTelemetry GenAI conventions, SARIF, CycloneDX, SPDX, OpenAPI, JSON Schema, ICS | M25 | P1 | verified |
 | C8.1 | **Recoverable trash**: every agent delete goes to a Keel trash for N days; automatic git/stash snapshot before bulk operations | M5 | P0 | verified |
 | C8.2 | Delayed destructive ops with undo window; **approve from phone** for dangerous actions | M20 | P1 | not_started |
 | C8.3 | Behavior anomaly detection (sudden mass file reads, unusual network, repeated denials) pauses the agent | M3 | P1 | not_started |
@@ -256,8 +256,8 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C8.8 | Local red-team suite (prompt injection, exfiltration, tool-abuse scenarios) run per model | M21 | P0 | verified |
 | C9.1 | **Model manager**: load/unload idle models, VRAM/RAM budget, queue concurrent requests, warm-up | M2 | P0 | verified |
 | C9.2 | Virtualized lists, incremental rendering, streaming backpressure, startup prewarm, memory-leak watchdog | M19 | P0 | verified |
-| C9.3 | Incremental repo indexing with file watching; low-power/battery mode | M11 | P1 | not_started |
-| C9.4 | Per-feature resource caps (browser, LSP, container) with visible meters | M16 | P1 | not_started |
+| C9.3 | Incremental repo indexing with file watching; low-power/battery mode | M11 | P1 | verified |
+| C9.4 | Per-feature resource caps (browser, LSP, container) with visible meters | M16 | P1 | verified |
 
 ## Acceptance framework
 
