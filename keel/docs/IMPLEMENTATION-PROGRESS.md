@@ -699,5 +699,16 @@ prefer those canonical in-repo copies. A regression test pins all three hashes.
 `test_*_endpoints.py` files start the real backend/CLI and exercise file
 creation, permission denials, provider failures, DLP, Cowork documents,
 backups, session restore, update policy and endpoint hardening with
-deterministic scripted providers. Full suite at this phase: **1005 passed,
+deterministic scripted providers.
+
+**Final operational-completion tier counts:** 49 operational, 67 local modules
+(real local logic with persistence/tests), 87 descriptors (UI/CI/data-shape
+items whose real capability needs an external environment), 23 external-
+dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
+
+Further real local upgrades after the first operational pass: model routing
+wired into the CLI (opt-in `KEEL_MODEL_ROUTING`), read-only SQLite explorer with
+query safety (`db_explorer.py`), SARIF 2.1.0 emission/ingestion (`sarif.py`),
+offline SVG charts/diagrams (`charts.py`), and macro/prompt/spec authoring
+helpers (`authoring.py`), plus session import/stats over the bridge.
