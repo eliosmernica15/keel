@@ -55,7 +55,7 @@ DESCRIPTOR_MODULES = frozenset({
 })
 LOCAL_MODULES = frozenset({
     "webhook_delivery", "file_watcher", "voice_tasks", "cowork_channels",
-    "model_runtime",
+    "model_runtime", "rag_watcher",
     "documents", "backups", "debugger", "rag", "memory", "memory_types",
     "knowledge_graph", "user_profile", "feature_flags", "swe_bench",
     "red_team", "trust_tools", "interop", "workflows", "workflow_history",
@@ -190,8 +190,8 @@ IMPLEMENTED = {
              "Verified layered account/user config inheritance"),
     "A5.5": ("src/keel/message_state.py", "tests/test_message_state.py",
              "Outbound message state machine with queued/sent/delivered/read/failed"),
-    "B2.6": ("src/keel/rag.py", "tests/test_rag.py",
-             "Local RAG knowledge bases with deterministic lexical embeddings"),
+    "B2.6": ("src/keel/rag_watcher.py", "tests/test_rag_watcher.py tests/test_rag.py",
+             "Local RAG with file-watcher-driven auto-reindexing"),
     "A1.16": ("src/keel/session_export.py", "tests/test_session_export.py",
               "Session import/export bundles and statistics"),
     "A1.11": ("src/keel/resource_limits.py", "tests/test_resource_limits.py",

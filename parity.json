@@ -1913,7 +1913,7 @@
       "priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/rag.py"
+        "src/keel/rag_watcher.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1922,10 +1922,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_rag.py"
+        "tests/test_rag_watcher.py tests/test_rag.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Local RAG knowledge bases with deterministic lexical embeddings",
+      "verification_evidence": "Local RAG with file-watcher-driven auto-reindexing",
       "owner_approval_required": false
     },
     {
