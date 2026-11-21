@@ -61,6 +61,8 @@ IMPLEMENTED = {
              "Output DLP refusing secrets in written files"),
     "B3.5": ("src/keel/redaction.py", "tests/test_redaction.py",
              "Local egress log of data sent to remote providers"),
+    "B3.3": ("src/keel/session.py", "tests/test_dry_run.py",
+             "Dry-run mode: plan every tool side effect, execute none"),
 }
 
 

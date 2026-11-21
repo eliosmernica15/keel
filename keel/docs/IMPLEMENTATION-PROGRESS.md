@@ -229,6 +229,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_redaction.py tests/test_safety.py tests/test_tool_registry.py tests/test_resilience.py -q` → `49 passed`.
 **Next:** B3.3 dry-run mode.
 
+## M6 Batch 6 — Dry-run mode (B3.3)
+
+**Implemented:** `SessionConfig.dry_run` (opt-in) records planned tool calls, emits a `[dry-run]` notice, and executes nothing; `keel run --dry-run` exposes it, with side effects reported in the result envelope and diagnostics.
+**Verification:** `python -m pytest tests/test_dry_run.py tests/test_vertical_slice.py tests/test_tool_registry.py tests/test_safety.py -q` → `49 passed`.
+**Next:** B3.4 read-only session mode and per-project egress allowlist.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

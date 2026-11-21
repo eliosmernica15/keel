@@ -57,6 +57,7 @@ class LaunchPlan:
     provider: str = "auto"
     model_override: str | None = None
     local_command: str | None = None
+    dry_run: bool = False
 
 
 def diagnostic(event: str, payload: dict) -> None:
@@ -80,6 +81,7 @@ def parse_argv(argv: list[str]) -> LaunchPlan:
     ask: list[str] = []
     allow: list[str] = []
     provider = "auto"
+    dry_run = False
 
     i = 0
     positional: list[str] = []
@@ -130,6 +132,8 @@ def parse_argv(argv: list[str]) -> LaunchPlan:
             allow.append(take_value(arg))
         elif arg == "--provider":
             provider = take_value(arg).lower()
+        elif arg == "--dry-run":
+            dry_run = True
         elif arg.startswith("-"):
             raise CliValidationError(f"unknown option: {arg}")
         else:
@@ -179,7 +183,7 @@ def parse_argv(argv: list[str]) -> LaunchPlan:
                       state_root=state_root, fake_script_path=fake_script,
                       dangerous_opt_in=dangerous,
                       rules=(deny, ask, allow),
-                      provider=provider,
+                      provider=provider, dry_run=dry_run,
                       model_override=model if model_explicit else None)
 
 
@@ -1097,7 +1101,8 @@ def run(plan: LaunchPlan) -> int:
                            session_id=session_id, model=model_name,
                            max_turns=plan.max_turns, interactive=False,
                            seed=plan.seed,
-                           local_command=plan.local_command)
+                           local_command=plan.local_command,
+                           dry_run=plan.dry_run)
     hook_defs = parse_hooks(resolved.value.get("hooks", {}))
 
     servers = parse_servers(resolved.value.get("mcpServers", {}))
@@ -1125,6 +1130,10 @@ def run(plan: LaunchPlan) -> int:
                                            "their tools were not offered"})
 
     out_format = plan.output_format
+    if plan.dry_run:
+        for planned in outcome.envelope.get("dry_run_plan", []):
+            diagnostic("dry-run", {"would_call": planned["tool"],
+                                   "input": planned["input"]})
     if out_format == "text":
         sys.stdout.write((outcome.envelope.get("result") or "") + "\n")
     elif out_format == "json":

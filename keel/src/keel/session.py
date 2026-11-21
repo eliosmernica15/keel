@@ -75,6 +75,8 @@ class SessionConfig:
     # a local egress record of what left the machine.
     redact_outbound: bool = True
     egress_logging: bool = True
+    # B3.3: plan every tool side effect but execute none of them.
+    dry_run: bool = False
 
 
 @dataclass
@@ -309,6 +311,8 @@ class Session:
 
         def finish(envelope: dict, *, ok: bool) -> RunOutcome:
             """Fire terminal hooks, emit the result, and close the transcript."""
+            if getattr(self.config, "dry_run", False):
+                envelope["dry_run_plan"] = self.dry_run_plan
             if self.hooks:
                 terminal_payload = {
                     "session_id": self.config.session_id,
@@ -602,6 +606,7 @@ class Session:
                              reserved_output=self.config.reserved_output)
         self.compaction = CompactionState()
         num_turns = 0
+        self.dry_run_plan: list[dict] = []
         tool_signatures: dict[str, int] = {}
         doom_loop_hint_sent = False
         doom_loop_detected = False
@@ -822,7 +827,35 @@ class Session:
                                 "approval decider failed; refused closed",
                                 "fleet", None, None, False)
                     meta = [decision.record_meta(tool_use_id)]
-                    if decision.decision == "allow":
+                    if (getattr(self.config, "dry_run", False)
+                            and decision.decision == "allow"):
+                        # B3.3: record the side effect and return a simulated
+                        # result; no tool, MCP call or subagent is executed.
+                        planned = {"tool": block["name"], "input": tool_input}
+                        self.dry_run_plan.append(planned)
+                        summary = ("[dry-run] would call " + block["name"]
+                                   + ": " + json.dumps(
+                                       tool_input, ensure_ascii=False,
+                                       default=str)[:300])
+                        try:
+                            emit(ev.system_informational(
+                                text=summary, session_id=self.config.session_id,
+                                uuid=self.ids.event_uuid(),
+                                timestamp=self.clock.now_iso(), level="info"),
+                                {"type": "system", "subtype": "informational",
+                                 "content": summary,
+                                 "sessionId": self.config.session_id})
+                        except Exception:
+                            pass
+                        rendered = render_success(
+                            tool_use_id,
+                            {"dry_run": True, "would_call": block["name"],
+                             "planned_input": tool_input},
+                            summary, self.persist)
+                        tool_result_content = rendered["content"]
+                        tool_use_result = rendered["toolUseResult"]
+                        is_error = rendered["isError"]
+                    elif decision.decision == "allow":
                         if block["name"] == "Task":
                             rendered = self._run_task(
                                 prompt=str(tool_input.get("prompt") or ""),
