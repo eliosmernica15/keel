@@ -65,6 +65,8 @@ IMPLEMENTED = {
              "Dry-run mode: plan every tool side effect, execute none"),
     "B3.4": ("src/keel/egress.py", "tests/test_read_only.py",
              "Read-only sessions and per-project network egress allowlist"),
+    "B2.1": ("src/keel/verification.py", "tests/test_verification.py",
+             "Auto-detected verification commands run after file edits"),
 }
 
 

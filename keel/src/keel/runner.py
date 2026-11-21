@@ -59,6 +59,7 @@ class LaunchPlan:
     local_command: str | None = None
     dry_run: bool = False
     read_only: bool = False
+    no_verify: bool = False
 
 
 def diagnostic(event: str, payload: dict) -> None:
@@ -84,6 +85,7 @@ def parse_argv(argv: list[str]) -> LaunchPlan:
     provider = "auto"
     dry_run = False
     read_only = False
+    no_verify = False
 
     i = 0
     positional: list[str] = []
@@ -138,6 +140,8 @@ def parse_argv(argv: list[str]) -> LaunchPlan:
             dry_run = True
         elif arg == "--read-only":
             read_only = True
+        elif arg == "--no-verify":
+            no_verify = True
         elif arg.startswith("-"):
             raise CliValidationError(f"unknown option: {arg}")
         else:
@@ -188,6 +192,7 @@ def parse_argv(argv: list[str]) -> LaunchPlan:
                       dangerous_opt_in=dangerous,
                       rules=(deny, ask, allow),
                       provider=provider, dry_run=dry_run, read_only=read_only,
+                     no_verify=no_verify,
                       model_override=model if model_explicit else None)
 
 
@@ -1110,7 +1115,8 @@ def run(plan: LaunchPlan) -> int:
                            max_turns=plan.max_turns, interactive=False,
                            seed=plan.seed,
                            local_command=plan.local_command,
-                           dry_run=plan.dry_run, read_only=plan.read_only)
+                           dry_run=plan.dry_run, read_only=plan.read_only,
+                          auto_verify=not plan.no_verify)
     hook_defs = parse_hooks(resolved.value.get("hooks", {}))
 
     servers = parse_servers(resolved.value.get("mcpServers", {}))

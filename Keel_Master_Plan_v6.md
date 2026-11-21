@@ -97,7 +97,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | B1.7 | Hardware detector and quantization advisor | M2 | P1 | not_started |
 | B1.8 | Local embedding + reranker models | M11 | P1 | not_started |
 | B1.9 | **Compare mode (arena)** | M19 | P1 | not_started |
-| B2.1 | **Verification loop**: auto-detect test/lint/type commands, run after edits, feed failures back, stop at "definition of done" checklist | M7 | P0 | not_started |
+| B2.1 | **Verification loop**: auto-detect test/lint/type commands, run after edits, feed failures back, stop at "definition of done" checklist | M7 | P0 | verified |
 | B2.10 | HTTP/API tester with saved collections | M15 | P2 | not_started |
 | B2.11 | Diagram tools: Mermaid and Graphviz rendering offline | M17 | P1 | not_started |
 | B2.12 | OCR and document parsing (Tesseract, PDF text/tables) with license check | M17 | P1 | not_started |

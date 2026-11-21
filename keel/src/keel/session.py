@@ -19,7 +19,7 @@ from .permissions import (MODE_DONT_ASK, dont_ask_tools, evaluate,
                           Decision, manifest_tools, normalize_mode, parse_rules)
 from .hooks import fire
 from .mcp import HttpMcpServer
-from .safety import tier2_check
+from .safety import WRITE_TOOLS, tier2_check
 from .toolresult import Persist, machine_error, render_failure, render_success
 from .transcript import TranscriptWriter
 
@@ -87,6 +87,8 @@ class SessionConfig:
     dry_run: bool = False
     # B3.4: refuse every tool with local side effects.
     read_only: bool = False
+    # B2.1: run detected test/lint commands after a turn that changed files.
+    auto_verify: bool = True
 
 
 @dataclass
@@ -323,6 +325,8 @@ class Session:
             """Fire terminal hooks, emit the result, and close the transcript."""
             if getattr(self.config, "dry_run", False):
                 envelope["dry_run_plan"] = self.dry_run_plan
+            if self.verification_results:
+                envelope["verification"] = self.verification_results
             if self.hooks:
                 terminal_payload = {
                     "session_id": self.config.session_id,
@@ -617,6 +621,8 @@ class Session:
         self.compaction = CompactionState()
         num_turns = 0
         self.dry_run_plan: list[dict] = []
+        self.changed_files: list[str] = []
+        self.verification_results: list[dict] = []
         tool_signatures: dict[str, int] = {}
         doom_loop_hint_sent = False
         doom_loop_detected = False
@@ -989,6 +995,14 @@ class Session:
                         tool_result_content = rendered["content"]
                         tool_use_result = rendered["toolUseResult"]
                         is_error = True
+                if (decision is not None and decision.decision == "allow"
+                        and not is_error
+                        and not getattr(self.config, "dry_run", False)
+                        and block["name"] in WRITE_TOOLS):
+                    changed = (tool_input.get("path") or tool_input.get("dst")
+                               or tool_input.get("file") or "")
+                    if changed:
+                        self.changed_files.append(str(changed))
                 if (self.config.approval_audit is not None
                         and decision is not None
                         and getattr(decision, "source", None) == "fleet"):
@@ -1097,6 +1111,28 @@ class Session:
             final_text = "".join(b.get("text", "") for b in text_blocks)
             break
 
+        if (self.changed_files and getattr(self.config, "auto_verify", True)):
+            try:
+                from .verification import detect_commands, run_verification
+                commands = detect_commands(self.config.cwd)
+                if commands:
+                    self.verification_results = run_verification(
+                        self.config.cwd, commands)
+                    failed = [r for r in self.verification_results if not r["ok"]]
+                    summary = (
+                        "verification: "
+                        + (f"{len(failed)} of {len(self.verification_results)} "
+                           "check(s) failed" if failed else
+                           f"all {len(self.verification_results)} check(s) passed"))
+                    emit(ev.system_informational(
+                        text=summary, session_id=self.config.session_id,
+                        uuid=self.ids.event_uuid(),
+                        timestamp=self.clock.now_iso(),
+                        level="warn" if failed else "info"),
+                        {"type": "system", "subtype": "informational",
+                         "content": summary, "sessionId": self.config.session_id})
+            except Exception:
+                self.verification_results = []  # verification is advisory
         duration_ms = int((self.clock.monotonic() - t0) * 1000)
         client_usage = getattr(self.model, "total_usage", None)
         usage_tokens = None
