@@ -73,6 +73,8 @@ IMPLEMENTED = {
              "keel init scans a repo and generates AGENTS.md"),
     "A1.7": ("src/keel/commands.py", "tests/test_slash_commands.py",
              "Slash commands: undo/redo, compact, export, models, themes, details"),
+    "A1.9": ("site/ui/app.js", "tests/test_attachments_ui.py",
+             "Image paste/drag into composer and fuzzy @file search"),
 }
 
 

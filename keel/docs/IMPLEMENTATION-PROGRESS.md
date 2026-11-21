@@ -265,6 +265,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_slash_commands.py tests/test_commands.py tests/test_vertical_slice.py -q` → `32 passed`.
 **Next:** A1.9 image/file attachment workflow.
 
+## M6 Batch 12 — Composer attachments and @file search (A1.9)
+
+**Implemented:** `GET /api/files/search` provides bounded fuzzy workspace file matching; the composer now accepts pasted/dropped images and shows an `@`-triggered file suggestion dropdown with keyboard selection.
+**Verification:** `python -m pytest tests/test_attachments_ui.py tests/test_webapp.py -q` → `20 passed`; `node --check` clean.
+**Next:** C2.5 unified surface switcher with per-surface agents and permissions.
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.

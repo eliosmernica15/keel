@@ -604,6 +604,15 @@ main { position: fixed; top: 38px; bottom: 26px; left: var(--sidew); right: 0; z
 .provider-src{font-family:var(--mono);font-size:10px;color:var(--ok);margin-left:auto;letter-spacing:.04em}
 .provider-src.unset{color:var(--muted)}
 
+/* A1.9 — composer drag/paste and @file suggestions. */
+.composer.drag-over{outline:2px dashed var(--accent);outline-offset:-4px;background:rgba(111,227,176,.06)}
+.at-menu{position:fixed;z-index:9000;min-width:260px;max-width:420px;max-height:240px;overflow:auto;
+  background:var(--panel-2);border:1px solid var(--edge);border-radius:10px;padding:4px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.at-row{display:block;width:100%;text-align:left;padding:6px 8px;border:0;border-radius:6px;
+  background:transparent;color:var(--text);font:11px var(--mono);cursor:pointer}
+.at-row:hover,.at-row.active{background:var(--panel-3);color:var(--accent)}
+
 /* C1.4 — screen-share / recording safe mode (Ctrl+Shift+S). */
 body.safe-screen [data-sensitive],
 body.safe-screen .provider-src,

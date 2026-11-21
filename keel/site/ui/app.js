@@ -1244,6 +1244,115 @@ attachInput.addEventListener("change", async () => {
   if (skipped.length) noteSkipped(surface, skipped);
 });
 
+/* A1.9 — paste/drag images into the composer and fuzzy @file search. */
+async function ingestFiles(surface, files) {
+  const ready = [], skipped = [];
+  for (const file of files) {
+    try {
+      const result = await fileToAttachment(file);
+      if (result && result.zip) ready.push(...result.zip);
+      else if (result && result.skip) skipped.push(result.skip);
+      else if (result) ready.push(result);
+      else skipped.push(`${file.name || "file"} (binary)`);
+    } catch {
+      skipped.push(`${file.name || "file"} (unreadable)`);
+    }
+  }
+  if (ready.length) addAttachments(surface, ready);
+  if (skipped.length) noteSkipped(surface, skipped);
+}
+
+const atMenu = el("div", { className: "at-menu", hidden: true });
+document.body.appendChild(atMenu);
+let atState = { surface: null, start: -1, items: [], index: 0, seq: 0 };
+function closeAtMenu() {
+  atMenu.hidden = true;
+  atState.items = [];
+}
+async function refreshAtMenu(surface, query) {
+  const seq = ++atState.seq;
+  if (!bridge.live) { closeAtMenu(); return; }
+  try {
+    const res = await fetch(`/api/files/search?query=${encodeURIComponent(query)}&limit=12`, { headers: fsHeaders() });
+    if (!res.ok || seq !== atState.seq) return;
+    const doc = await res.json();
+    atState.items = (doc.files || []).slice(0, 12);
+    atState.index = 0;
+    renderAtMenu();
+  } catch { closeAtMenu(); }
+}
+function renderAtMenu() {
+  if (!atState.items.length) { closeAtMenu(); return; }
+  atMenu.textContent = "";
+  atState.items.forEach((path, i) => {
+    const row = el("button", { type: "button", className: `at-row${i === atState.index ? " active" : ""}` });
+    row.textContent = path;
+    row.addEventListener("mousedown", (ev) => { ev.preventDefault(); insertAtFile(atState.surface, path); });
+    atMenu.appendChild(row);
+  });
+  const input = prompts[atState.surface];
+  const r = input.getBoundingClientRect();
+  atMenu.style.left = `${Math.max(8, Math.min(r.left, window.innerWidth - atMenu.offsetWidth - 8))}px`;
+  atMenu.style.top = `${Math.max(8, r.top - atMenu.offsetHeight - 6)}px`;
+  atMenu.hidden = false;
+}
+function insertAtFile(surface, path) {
+  const input = prompts[surface];
+  const end = input.selectionStart;
+  const before = input.value.slice(0, atState.start) + "@" + path + " ";
+  input.value = before + input.value.slice(end);
+  const pos = before.length;
+  input.setSelectionRange(pos, pos);
+  input.focus();
+  closeAtMenu();
+}
+for (const surface of ["chat", "code"]) {
+  const input = prompts[surface];
+  if (!input) continue;
+  const zone = input.closest(".composer") || input.parentElement;
+  input.addEventListener("paste", (ev) => {
+    const items = Array.from(ev.clipboardData?.items || []);
+    const images = items.filter((i) => i.kind === "file" && i.type.startsWith("image/"))
+      .map((i) => i.getAsFile()).filter(Boolean);
+    if (!images.length) return;
+    ev.preventDefault();
+    images.forEach((f, i) => {
+      if (!f.name) Object.defineProperty(f, "name", { value: `pasted-image-${Date.now()}-${i}.png` });
+    });
+    ingestFiles(surface, images);
+  });
+  zone.addEventListener("dragover", (ev) => {
+    if (Array.from(ev.dataTransfer?.types || []).includes("Files")) {
+      ev.preventDefault();
+      zone.classList.add("drag-over");
+    }
+  });
+  zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
+  zone.addEventListener("drop", (ev) => {
+    const files = Array.from(ev.dataTransfer?.files || []);
+    if (!files.length) return;
+    ev.preventDefault();
+    zone.classList.remove("drag-over");
+    ingestFiles(surface, files);
+  });
+  input.addEventListener("input", () => {
+    const end = input.selectionStart;
+    const prefix = input.value.slice(0, end);
+    const match = /@([^\s@]*)$/.exec(prefix);
+    if (!match) { closeAtMenu(); return; }
+    atState.surface = surface;
+    atState.start = end - match[0].length;
+    refreshAtMenu(surface, match[1]);
+  });
+  input.addEventListener("keydown", (ev) => {
+    if (atMenu.hidden) return;
+    if (ev.key === "Escape") { ev.preventDefault(); closeAtMenu(); }
+    else if (ev.key === "ArrowDown") { ev.preventDefault(); atState.index = (atState.index + 1) % atState.items.length; renderAtMenu(); }
+    else if (ev.key === "ArrowUp") { ev.preventDefault(); atState.index = (atState.index - 1 + atState.items.length) % atState.items.length; renderAtMenu(); }
+    else if (ev.key === "Enter" && atState.items.length) { ev.preventDefault(); insertAtFile(surface, atState.items[atState.index]); }
+  });
+}
+
 /* ================================================================ recents */
 
 const RECENT_KEY = "keel_recents_v1";

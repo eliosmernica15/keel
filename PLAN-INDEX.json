@@ -434,16 +434,20 @@
       "source_feature_id": "A1.9",
       "milestone": "M19",
       "priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "site/ui/app.js"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement Image paste/drag into composer, fuzzy `@file` search according to Keel_Plan_v5_Addendum_Missed_Features.md feature A1.9",
         "Automated test coverage exists and passes",
         "Behavior is verified in the real application/runtime where applicable"
       ],
-      "test_references": [],
-      "verification_evidence": "",
+      "test_references": [
+        "tests/test_attachments_ui.py"
+      ],
+      "verification_evidence": "Image paste/drag into composer and fuzzy @file search",
       "owner_approval_required": false
     },
     {

@@ -112,6 +112,40 @@ def _fs_roots() -> list[str]:
     return ["/"]
 
 
+_SKIP_DIRS = frozenset({
+    ".git", ".hg", ".svn", "node_modules", "__pycache__", ".venv", "venv",
+    "dist", "build", "release", ".pytest_cache", ".mypy_cache",
+})
+
+
+def _fuzzy_match(needle: str, haystack: str) -> bool:
+    iterator = iter(haystack.lower())
+    return all(char in iterator for char in needle.lower())
+
+
+def _search_files(query: str, limit: int = 30) -> list[str]:
+    root = (Path(_WORKDIR).expanduser() if _WORKDIR
+            else Path(os.getcwd())).resolve()
+    if not root.is_dir():
+        return []
+    needle = (query or "").strip()
+    direct: list[str] = []
+    fuzzy: list[str] = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames
+                       if d not in _SKIP_DIRS and not d.startswith(".")]
+        for name in filenames:
+            try:
+                rel = (Path(dirpath) / name).relative_to(root).as_posix()
+            except ValueError:
+                continue
+            if not needle or needle.lower() in rel.lower():
+                direct.append(rel)
+            elif _fuzzy_match(needle, rel):
+                fuzzy.append(rel)
+    return (direct + fuzzy)[:max(1, min(100, limit))]
+
+
 def _fs_list_payload(raw: str):
     raw = (raw or "").strip()
     if not raw:
@@ -351,6 +385,19 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 raw_path = (params.get("path") or [""])[0]
                 status, payload = _fs_list_payload(raw_path)
                 self._send_json(payload, status)
+                return
+            if path == "/api/files/search":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                params = urllib.parse.parse_qs(
+                    urllib.parse.urlparse(self.path).query)
+                query = (params.get("query") or [""])[0]
+                try:
+                    limit = int((params.get("limit") or ["30"])[0])
+                except ValueError:
+                    limit = 30
+                self._send_json({"files": _search_files(query, limit)})
                 return
             if path == "/api/workdir":
                 if not self._authorized():
