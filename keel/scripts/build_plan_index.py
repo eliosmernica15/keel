@@ -93,6 +93,8 @@ IMPLEMENTED = {
              "Group-chat loop guards for repeated agent @mentions"),
     "A1.13": ("src/keel/custom_tools.py", "tests/test_custom_tools.py",
               "Custom Python tools from .keel/tools with approval gating"),
+    "A1.12": ("src/keel/fleet/service.py", "tests/test_fleet_approvals.py",
+              "Verified existing per-agent tool policies and permission overrides"),
 }
 
 

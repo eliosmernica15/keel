@@ -319,6 +319,12 @@ Windows installer rebuilt successfully after accumulated release/updater changes
 **Verification:** `python -m pytest tests/test_custom_tools.py tests/test_tool_registry.py tests/test_commands.py -q` → `31 passed`.
 **Next:** A1.12 per-agent tool enable/disable and permission overrides.
 
+## M6 Batch 21 — Per-agent tool policies (A1.12, verification only)
+
+**Verified existing implementation:** `fleet_policies` storage, `ApprovalBroker.policy_outcome` enforcement, and fleet policy routes already implement per-agent tool enable/disable and standing permission overrides.
+**Evidence:** `python -m pytest tests/test_fleet_approvals.py -q` → `15 passed` (including always/never policies, isolation and revocation). No code duplication.
+**Next:** A1.2 attach to a running Keel session (`keel attach`).
+
 ## M6 Batch 3 — Doom-loop detection (C3.2)
 
 **Implemented:** identical tool-call repetition emits a warning at three repeats and terminates the turn with `terminal_reason=doom_loop` at five.
