@@ -717,6 +717,13 @@ def _provider_cmd(argv: list[str]) -> int:
         rows = provider_registry.list_providers()
         sys.stdout.write(json.dumps(rows, indent=2) + "\n")
         return 0
+    if cmd == "validate":
+        from ..provider_validation import run_validation
+
+        live = "--live" in argv
+        doc = run_validation(live=live)
+        sys.stdout.write(json.dumps(doc, indent=2) + "\n")
+        return 0
     if cmd == "smoke":
         if len(argv) < 2:
             sys.stderr.write("keel provider smoke <name> [--model MODEL]\n")

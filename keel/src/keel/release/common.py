@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import tomllib
 from pathlib import Path
 from urllib.parse import quote
@@ -243,6 +244,9 @@ def build_release_manifest(
         "version": version,
         "tag": tag,
         "generated": "release-pipeline",
+        "published_at": os.environ.get(
+            "KEEL_PUBLISHED_AT",
+            time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())),
         "min_version": os.environ.get("KEEL_MIN_VERSION", "0.1.0"),
         "blocked_versions": [
             v.strip() for v in os.environ.get(

@@ -6,6 +6,7 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
+from . import common
 from .artifacts import scan_secret_markers, scan_sidecar_payload, scan_tree
 from .build import build_command
 from .licenses import licenses_command
@@ -63,6 +64,12 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("path", help="directory to scan")
     check.set_defaults(func=check_artifacts_command)
 
+    integrity = sub.add_parser(
+        "integrity", help="verify local release artifact integrity")
+    integrity.add_argument("--dist", default="dist")
+    integrity.add_argument("--artifacts", default="release")
+    integrity.set_defaults(func=integrity_command)
+
     dry_run = sub.add_parser(
         "dry-run", help="run local release checks without publishing")
     dry_run.add_argument("--dist", default="dist")
@@ -105,6 +112,24 @@ def check_artifacts_command(args) -> int:
         return 1
     print(f"artifact scan clean: {args.path}")
     return 0
+
+
+def integrity_command(args) -> int:
+    from ..release_integrity import run_all
+
+    dist = Path(args.dist)
+    artifacts = Path(args.artifacts)
+    if not dist.is_absolute():
+        dist = Path(common.PROJECT_ROOT) / dist
+    if not artifacts.is_absolute():
+        artifacts = Path(common.PROJECT_ROOT) / artifacts
+    checks = run_all(dist, artifacts)
+    for check in checks:
+        status = "OK" if check.ok else "FAIL"
+        print(f"[{status}] {check.name}: {check.detail}")
+    failed = [c for c in checks if not c.ok]
+    print(f"integrity: {len(checks) - len(failed)}/{len(checks)} passed")
+    return 1 if failed else 0
 
 
 def dry_run_command(args) -> int:
