@@ -172,3 +172,14 @@ Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 cl
 - `tests/test_fleet_tasks.py`: end-to-end bridge test for both events and their ordering.
 
 **Verification:** `python -m pytest tests/test_fleet_tasks.py -q` → `15 passed`.
+
+## Batch 14 — Config and instruction hooks
+
+**v5 requirement:** §6 architecture (hooks in the Python daemon); no new milestone content was invented.
+
+**Implemented:**
+- `src/keel/webapp.py`: fires `ConfigChange` after settings saves with only changed section names, never values.
+- `src/keel/session.py`: fires `InstructionsLoaded` with attached instruction source names before the first model turn.
+- `tests/test_hooks.py`: tests for both events and payload safety.
+
+**Verification:** `python -m pytest tests/test_hooks.py tests/test_webapp.py -q` → `34 passed`.

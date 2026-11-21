@@ -79,6 +79,42 @@ def _logging_hooks(tmp_path, log_path, events):
             for event in events]
 
 
+def test_instructions_loaded_hook_fires(tmp_path):
+    log_path = tmp_path / "instructions.log"
+    hooks = _logging_hooks(tmp_path, log_path, ["SessionStart", "InstructionsLoaded"])
+    cfg = _cfg(tmp_path)
+    cfg.extra_attachment = "extra context from fleet"
+    session = Session(
+        model_client=ScriptedModel([[{"type": "text", "text": "hi"}]]),
+        executor=_Executor(), config=cfg, clock=VirtualClock(),
+        rng=SeededRng(0), hooks=hooks)
+    session.run("hello")
+    assert log_path.read_text(encoding="utf-8").splitlines() == [
+        "SessionStart", "InstructionsLoaded"]
+
+
+def test_config_change_hook_fires(tmp_path, monkeypatch):
+    from keel import settings_store, webapp
+
+    log_path = tmp_path / "config.log"
+    script = tmp_path / "log_config_hook.py"
+    script.write_text(
+        "import json, sys\n"
+        "payload = json.load(sys.stdin)\n"
+        "with open(sys.argv[1], 'a', encoding='utf-8') as fh:\n"
+        "    fh.write(payload['hook_event_name'] + ':' +\n"
+        "             ','.join(payload['changed_sections']) + '\\n')\n",
+        encoding="utf-8")
+    command = f'"{sys.executable}" "{script}" "{log_path}"'
+    monkeypatch.setattr(settings_store, "load", lambda: {
+        "hooks": {"ConfigChange": [{"command": command}]},
+    })
+    webapp._fire_config_hook({
+        "source": "webapp", "changed_sections": ["ui", "providerConfig"]})
+    assert log_path.read_text(encoding="utf-8").strip() == \
+        "ConfigChange:ui,providerConfig"
+
+
 def test_lifecycle_events_fire_in_order(tmp_path):
     log_path = tmp_path / "events.log"
     hooks = _logging_hooks(tmp_path, log_path, [

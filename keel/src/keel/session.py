@@ -557,6 +557,13 @@ class Session:
         if self.config.extra_attachment:
             attachment_parts.append(self.config.extra_attachment)
             attachment_sources.append("fleet_extra")
+        if self.hooks and attachment_sources:
+            fire(self.hooks, "InstructionsLoaded", {
+                "session_id": self.config.session_id,
+                "cwd": self.config.cwd,
+                "sources": attachment_sources,
+                "transcript_path": writer.path,
+            }, emit=hook_emit)
         if attachment_parts:
             combined = "\n\n".join(p.rstrip("\n") for p in attachment_parts)
             if isinstance(prompt, list):

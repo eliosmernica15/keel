@@ -85,6 +85,19 @@ def _safe_upload_name(name: object) -> str:
     return base[:120]
 
 
+def _fire_config_hook(payload: dict) -> None:
+    """Fire ConfigChange hooks. Only section names, never values, are exposed."""
+    try:
+        from . import settings_store
+        from .hooks import fire, parse_hooks
+
+        hooks = parse_hooks(settings_store.load().get("hooks", {}))
+        if hooks:
+            fire(hooks, "ConfigChange", payload)
+    except Exception:
+        pass  # hooks are advisory; settings persistence must not fail
+
+
 def _fs_roots() -> list[str]:
     if os.name == "nt":
         roots = []
@@ -414,6 +427,10 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                     HTTPStatus.BAD_REQUEST)
                     return
                 settings_store.save(doc)
+                _fire_config_hook({
+                    "source": "webapp",
+                    "changed_sections": sorted(request.keys()),
+                })
                 self._send_json({"ok": True, **settings_store.public_view(doc)})
                 return
             if path == "/api/settings/import":
