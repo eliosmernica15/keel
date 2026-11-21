@@ -444,12 +444,24 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 status, payload = _fs_list_payload(raw_path)
                 self._send_json(payload, status)
                 return
+            if path == "/api/capabilities":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                from . import capability_registry  # noqa: F401 - registers all
+                from .capabilities import list_capabilities
+
+                query = urllib.parse.parse_qs(
+                    urllib.parse.urlparse(self.path).query)
+                surface = (query.get("surface") or [None])[0]
+                self._send_json({"capabilities": list_capabilities(
+                    surface=surface)})
+                return
             if path == "/api/profiles":
                 if not self._authorized():
                     self._refuse()
                     return
                 from .agent_profiles import AgentProfiles
-                import os
 
                 state = os.environ.get("KEEL_STATE_DIR",
                                        str(Path.home() / ".keel"))
@@ -507,6 +519,7 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             self._send_json({"error": "not_found"}, HTTPStatus.NOT_FOUND)
 
         def do_POST(self):
+            global _WORKDIR
             if _fleet_routes.dispatch_post(self,
                                            _authorized=self._authorized,
                                            _origin_ok=self._origin_ok):
@@ -515,6 +528,61 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._refuse()
                 return
             path = self.path.split("?", 1)[0]
+            if path == "/api/capabilities/invoke":
+                if not self._origin_ok():
+                    self._send_json({"error": "bad origin"},
+                                    HTTPStatus.FORBIDDEN)
+                    return
+                length = int(self.headers.get("Content-Length", "0") or 0)
+                if length > 2_000_000:
+                    self._send_json({"error": "body too large"},
+                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    return
+                try:
+                    request = json.loads(
+                        self.rfile.read(length) if length else b"{}")
+                except json.JSONDecodeError:
+                    self._send_json({"error": "invalid json"},
+                                    HTTPStatus.BAD_REQUEST)
+                    return
+                from . import capability_registry  # noqa: F401
+                from .capabilities import CapabilityError, invoke, record_audit
+
+                cap_id = str(request.get("id", ""))
+                from .capabilities import get as get_capability
+
+                cap = get_capability(cap_id)
+                needs_confirm = bool(
+                    cap and (cap.permission in ("write", "execute")
+                             or cap.mutates))
+                # Mutating capabilities need an explicit confirm.
+                if needs_confirm and not request.get("confirm"):
+                    self._send_json({
+                        "error": "confirmation_required",
+                        "capability": cap_id,
+                        "permission": cap.permission if cap else None},
+                        HTTPStatus.CONFLICT)
+                    return
+                state_root = os.environ.get(
+                    "KEEL_STATE_DIR", str(Path.home() / ".keel"))
+                try:
+                    result = invoke(
+                        cap_id, request.get("params", {}),
+                        context={"state_root": state_root,
+                                 "cwd": _WORKDIR or os.getcwd()})
+                    record_audit(state_root, {"capability": cap_id,
+                                              "ok": True, "surface": "web"})
+                    self._send_json(result)
+                except CapabilityError as exc:
+                    record_audit(state_root, {"capability": cap_id,
+                                              "ok": False, "code": exc.code,
+                                              "surface": "web"})
+                    status = (HTTPStatus.NOT_FOUND if exc.code == "not_found"
+                              else HTTPStatus.FORBIDDEN if exc.code ==
+                              "permission_denied" else HTTPStatus.BAD_REQUEST)
+                    self._send_json(
+                        {"error": str(exc), "code": exc.code}, status)
+                return
             if path in ("/api/profiles/create", "/api/profiles/activate",
                         "/api/profiles/remove"):
                 length = int(self.headers.get("Content-Length", "0") or 0)
@@ -526,7 +594,6 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                     HTTPStatus.BAD_REQUEST)
                     return
                 from .agent_profiles import AgentProfiles
-                import os
 
                 state = os.environ.get("KEEL_STATE_DIR",
                                        str(Path.home() / ".keel"))
@@ -706,7 +773,6 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._send_json({"ok": True, **view})
                 return
             if path == "/api/workdir":
-                global _WORKDIR
                 length = int(self.headers.get("Content-Length", "0") or 0)
                 if length > 8_000:
                     self._send_json({"error": "body too large"},

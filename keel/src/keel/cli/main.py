@@ -37,6 +37,8 @@ def main(argv: list[str] | None = None) -> int:
             return _doctor_bundle_cmd(argv)
     if argv and argv[0] == "session":
         return _session_cmd(argv[1:])
+    if argv and argv[0] == "capability":
+        return _capability_cmd(argv[1:])
     if argv and argv[0] == "tui":
         from ..tui import Tui
 
@@ -162,6 +164,78 @@ def _session_cmd(argv: list[str]) -> int:
     except SessionExportError as exc:
         sys.stderr.write(str(exc) + "\n")
         return 1
+    sys.stderr.write(usage)
+    return 1
+
+
+def _capability_cmd(argv: list[str]) -> int:
+    from .. import capability_registry  # noqa: F401
+    from ..capabilities import (CapabilityError, audit_path, get, invoke,
+                                list_capabilities, record_audit)
+    import os
+    from pathlib import Path
+
+    usage = ("usage: keel capability list [--surface S]\n"
+             "       keel capability describe <id>\n"
+             "       keel capability invoke <id> [--params JSON] [--confirm]\n")
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(usage)
+        return 0
+
+    cmd = argv[0]
+    if cmd == "list":
+        surface = None
+        if "--surface" in argv and argv.index("--surface") + 1 < len(argv):
+            surface = argv[argv.index("--surface") + 1]
+        for cap in list_capabilities(surface=surface):
+            sys.stdout.write(
+                f"{cap['id']:<38} [{cap['surface']}/{cap['permission']}] "
+                f"{cap['description'][:60]}\n")
+        return 0
+    if cmd == "describe" and len(argv) > 1:
+        cap = get(argv[1])
+        if cap is None:
+            sys.stderr.write(f"unknown capability: {argv[1]}\n")
+            return 1
+        sys.stdout.write(json.dumps({
+            "id": cap.id, "module": cap.module, "surface": cap.surface,
+            "permission": cap.permission, "description": cap.description,
+            "input_schema": cap.input_schema, "mutates": cap.mutates,
+        }, indent=2) + "\n")
+        return 0
+    if cmd == "invoke" and len(argv) > 1:
+        cap_id = argv[1]
+        params = {}
+        if "--params" in argv and argv.index("--params") + 1 < len(argv):
+            try:
+                params = json.loads(argv[argv.index("--params") + 1])
+            except json.JSONDecodeError:
+                sys.stderr.write("--params must be valid JSON\n")
+                return 1
+        cap = get(cap_id)
+        if cap is None:
+            sys.stderr.write(f"unknown capability: {cap_id}\n")
+            return 1
+        if (cap.permission in ("write", "execute") or cap.mutates) \
+                and "--confirm" not in argv:
+            sys.stderr.write(
+                f"{cap_id} requires --confirm ({cap.permission})\n")
+            return 1
+        state_root = os.environ.get("KEEL_STATE_DIR",
+                                    str(Path.home() / ".keel"))
+        try:
+            result = invoke(cap_id, params,
+                            context={"state_root": state_root,
+                                     "cwd": os.getcwd()})
+            record_audit(state_root, {"capability": cap_id, "ok": True,
+                                      "surface": "cli"})
+        except CapabilityError as exc:
+            record_audit(state_root, {"capability": cap_id, "ok": False,
+                                      "code": exc.code, "surface": "cli"})
+            sys.stderr.write(f"{exc.code}: {exc}\n")
+            return 1
+        sys.stdout.write(json.dumps(result, indent=2, default=str) + "\n")
+        return 0
     sys.stderr.write(usage)
     return 1
 

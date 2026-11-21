@@ -2446,6 +2446,95 @@ document.addEventListener("keydown", (ev) => {
   }
 });
 
+/* Final integration — Capability browser: every local module invokable
+   through the real backend with permission and confirmation gating. */
+let capsState = { list: [], selected: null };
+async function loadCapabilities(surface) {
+  const url = "/api/capabilities" + (surface ? "?surface=" + encodeURIComponent(surface) : "");
+  const res = await fetch(url, { headers: fsHeaders() });
+  if (!res.ok) throw new Error(String(res.status));
+  const doc = await res.json();
+  capsState.list = doc.capabilities || [];
+  renderCapabilityList();
+}
+function renderCapabilityList() {
+  const box = $("caps-list");
+  if (!box) return;
+  box.textContent = "";
+  for (const cap of capsState.list) {
+    const row = el("button", { type: "button", className: "cap-row" });
+    row.innerHTML = `<span class="cap-id">${cap.id}</span>` +
+      `<span class="cap-meta">${cap.surface} · ${cap.permission}</span>` +
+      `<span class="cap-desc">${String(cap.description || "").slice(0, 80)}</span>`;
+    row.addEventListener("click", () => selectCapability(cap));
+    box.appendChild(row);
+  }
+}
+function selectCapability(cap) {
+  capsState.selected = cap;
+  const panel = $("caps-invoke");
+  if (!panel) return;
+  panel.hidden = false;
+  $("caps-invoke-title").textContent = `${cap.id} — ${cap.description}`;
+  const props = (cap.input_schema && cap.input_schema.properties) || {};
+  const sample = {};
+  for (const [key, spec] of Object.entries(props)) {
+    sample[key] = spec.type === "integer" || spec.type === "number" ? 0
+      : spec.type === "boolean" ? false : "";
+  }
+  $("caps-params").value = JSON.stringify(sample, null, 2);
+  $("caps-result").hidden = true;
+}
+async function invokeCapability() {
+  const cap = capsState.selected;
+  if (!cap) return;
+  let params;
+  try { params = JSON.parse($("caps-params").value || "{}"); }
+  catch (err) {
+    $("caps-result").textContent = "Invalid JSON: " + err.message;
+    $("caps-result").hidden = false;
+    return;
+  }
+  const body = { id: cap.id, params,
+                 confirm: $("caps-confirm").checked };
+  try {
+    const res = await fetch("/api/capabilities/invoke", {
+      method: "POST", headers: jsonHeaders(), body: JSON.stringify(body) });
+    const doc = await res.json();
+    if (!res.ok) throw new Error(doc.error || String(res.status));
+    $("caps-result").textContent = JSON.stringify(doc.result, null, 2);
+  } catch (err) {
+    $("caps-result").textContent = "Error: " + err.message;
+  }
+  $("caps-result").hidden = false;
+}
+function openCaps() {
+  const overlay = $("caps-overlay");
+  if (!overlay) return;
+  overlay.hidden = false;
+  loadCapabilities($("caps-surface")?.value || "").catch((err) => {
+    $("caps-list").textContent = "Failed to load: " + err.message;
+  });
+}
+function closeCaps() {
+  const overlay = $("caps-overlay");
+  if (overlay) overlay.hidden = true;
+}
+$("btn-caps")?.addEventListener("click", openCaps);
+$("caps-close")?.addEventListener("click", closeCaps);
+$("caps-surface")?.addEventListener("change", () =>
+  loadCapabilities($("caps-surface").value).catch(() => {}));
+$("caps-run")?.addEventListener("click", invokeCapability);
+$("caps-overlay")?.addEventListener("click", (ev) => {
+  if (ev.target === $("caps-overlay")) closeCaps();
+});
+document.addEventListener("keydown", (ev) => {
+  if (ev.ctrlKey && ev.shiftKey && String(ev.key).toLowerCase() === "m") {
+    ev.preventDefault();
+    $("caps-overlay")?.hidden ? openCaps() : closeCaps();
+  }
+});
+
 /* A2.2 — push-to-talk dictation and voice-to-task handoff (opt-in). */
 const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
 const voiceState = { surface: null, recognition: null, text: "", sendOnDone: false };

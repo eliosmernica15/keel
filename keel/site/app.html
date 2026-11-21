@@ -115,6 +115,7 @@
       <button id="btn-stop" class="btn-stop" hidden aria-label="Stop the running agent turn">Stop</button>
       <button id="btn-kill" class="btn-stop" aria-label="Stop all agents and revoke client tokens">Stop all</button>
       <button id="btn-quick" class="btn-stop" aria-label="Quick Ask (Ctrl+Shift+K)">Quick Ask</button>
+      <button id="btn-caps" class="btn-stop" aria-label="Capabilities browser">Modules</button>
       <button id="btn-term" aria-label="Terminal"><svg viewBox="0 0 16 16"><path d="M2.5 4.5l4 3.5-4 3.5M8 12h5.5"/></svg></button>
       <button id="btn-files" aria-label="Files"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg></button>
       <span class="gap"></span>
@@ -526,6 +527,35 @@
 </div>
 
 <!-- Quick Ask overlay — sends prompts to the real backend via /api/quick-ask -->
+<!-- Capability browser — every registered local module, invokable through
+     the real backend with permissions, audit and explicit confirmation. -->
+<div id="caps-overlay" class="quick-overlay" hidden role="dialog" aria-label="Modules">
+  <div class="quick-panel">
+    <div class="caps-head">
+      <h3>Keel modules</h3>
+      <select id="caps-surface" aria-label="Filter by surface">
+        <option value="">All surfaces</option>
+        <option value="cowork">Cowork</option><option value="code">Code</option>
+        <option value="duet">Duet</option><option value="fleet">Fleet</option>
+        <option value="desktop">Desktop</option><option value="web">Web</option>
+        <option value="release">Release</option><option value="core">Core</option>
+        <option value="external">External</option>
+      </select>
+      <button id="caps-close" aria-label="Close">×</button>
+    </div>
+    <div id="caps-list" class="caps-list"></div>
+    <div id="caps-invoke" class="caps-invoke" hidden>
+      <h4 id="caps-invoke-title"></h4>
+      <textarea id="caps-params" rows="5" placeholder='{"key": "value"}'></textarea>
+      <div class="caps-actions">
+        <label><input type="checkbox" id="caps-confirm" /> Confirm mutating action</label>
+        <button id="caps-run">Invoke</button>
+      </div>
+      <pre id="caps-result" class="quick-result" hidden></pre>
+    </div>
+  </div>
+</div>
+
 <div id="quick-overlay" class="quick-overlay" hidden role="dialog" aria-label="Quick Ask">
   <div class="quick-panel">
     <input id="quick-input" type="text" placeholder="Ask Keel anything…" aria-label="Quick question" autocomplete="off" />

@@ -163,7 +163,40 @@ class Tui:
                 self.out("[error] no matching session")
             return True
         if line == "/help":
-            self.out("/new  /sessions  /resume <id>  /history  /quit")
+            self.out("/new  /sessions  /resume <id>  /history  "
+                     "/capabilities  /invoke <id> [json]  /quit")
+            return True
+        if line == "/capabilities":
+            from . import capability_registry  # noqa: F401
+            from .capabilities import list_capabilities
+
+            caps = list_capabilities()
+            self.out(f"{len(caps)} capabilities available")
+            for cap in caps[:25]:
+                self.out(f"  {cap['id']} [{cap['surface']}/{cap['permission']}]")
+            if len(caps) > 25:
+                self.out(f"  ... {len(caps) - 25} more")
+            return True
+        if line.startswith("/invoke "):
+            from . import capability_registry  # noqa: F401
+            from .capabilities import CapabilityError, invoke
+
+            rest = line[len("/invoke "):].strip()
+            parts = rest.split(None, 1)
+            cap_id = parts[0]
+            params = {}
+            if len(parts) > 1:
+                try:
+                    params = json.loads(parts[1])
+                except json.JSONDecodeError:
+                    self.out("[error] invalid JSON params")
+                    return True
+            try:
+                result = invoke(cap_id, params, context={
+                    "state_root": self.state_root, "cwd": self.cwd})
+                self.out(json.dumps(result.get("result"), default=str)[:2000])
+            except CapabilityError as exc:
+                self.out(f"[error] {exc.code}: {exc}")
             return True
         if line == "/history":
             session = self.sessions.get(self.active_id)
