@@ -51,7 +51,7 @@ LOCAL_MODULES = frozenset({
     "git_extras_runtime", "session_export", "model_router",
     "db_explorer", "sarif", "charts", "authoring",
     "channel_ops", "build_repro", "workbench", "notebook", "spec_mode", "views",
-    "judge", "docpacks", "ops_tools",
+    "judge", "docpacks", "notes_vault", "ops_tools",
     "agent_profiles", "local_ops", "integrations",
     "external_adapters",
     "ops_tools", "agent_intelligence", "agent_roles", "best_of_n", "arena",
@@ -353,8 +353,11 @@ IMPLEMENTED = {
              "Per-feature resource caps with visible meters"),
     "C1.10": ("src/keel/content_skills.py", "tests/test_content_skills.py",
               "Draft-only content skills that never auto-publish"),
-    "C1.8": ("src/keel/content_skills.py", "tests/test_content_skills.py",
-             "Notes vault backlinks"),
+    "C1.8": ("src/keel/notes_vault.py",
+             "tests/test_notes_vault.py tests/test_content_skills.py",
+             "Real notes-vault extras: wiki-link backlinks with missing-link "
+             "report, link graph with offline SVG, tag index, orphan "
+             "detection, dated daily notes and templates, capability and CLI"),
     "C1.9": ("src/keel/content_skills.py", "tests/test_content_skills.py",
              "Plugin presets bundle"),
     "A1.17": ("src/keel/session_export.py", "tests/test_session_endpoints.py tests/test_cli_extras.py",

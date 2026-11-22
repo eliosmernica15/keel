@@ -707,6 +707,19 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Phase 2 batch — C1.8 real notes-vault extras (P1)
+
+**Implemented:** `src/keel/notes_vault.py` upgrades the backlinks-only helper
+into a real local vault: `[[wiki link]]` backlinks with a missing-link report,
+tag index, orphan detection, a navigable link graph with offline SVG, dated
+daily notes created from templates, and template rendering with
+`{{title}}`/`{{date}}` substitution. Four `cowork.notes.vault.*` capabilities
+and a `keel vault backlinks|graph|tags|daily|orphans` CLI. Path-traversal-safe
+note names.
+
+**Verification:** 8 new tests (`test_notes_vault.py`) — all pass. C1.8 registry
+evidence updated.
+
 ## Phase 2 batch — B2.7 real searchable offline documentation packs (P2)
 
 **Implemented:** `src/keel/docpacks.py` upgrades the file-listing descriptor

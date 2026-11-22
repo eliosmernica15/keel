@@ -424,6 +424,35 @@ def _backlinks(p, ctx):
     return {"graph": backlinks(p.get("notes", {}))}
 
 
+@capability("cowork.notes.vault.backlinks", "notes_vault", "cowork", "read",
+            "Backlinks and missing-link report for a local Markdown vault")
+def _vault_backlinks(p, ctx):
+    from .notes_vault import Vault
+    return Vault(str(p.get("root", ctx.get("cwd", ".")))).backlinks()
+
+
+@capability("cowork.notes.vault.graph", "notes_vault", "cowork", "read",
+            "Vault link graph with an offline SVG")
+def _vault_graph(p, ctx):
+    from .notes_vault import Vault
+    return Vault(str(p.get("root", ctx.get("cwd", ".")))).graph()
+
+
+@capability("cowork.notes.vault.tags", "notes_vault", "cowork", "read",
+            "Tag index for a local notes vault")
+def _vault_tags(p, ctx):
+    from .notes_vault import Vault
+    return {"tags": Vault(str(p.get("root", ctx.get("cwd", ".")))).tags()}
+
+
+@capability("cowork.notes.vault.daily", "notes_vault", "cowork", "write",
+            "Create or open a dated daily note from a template", mutates=True)
+def _vault_daily(p, ctx):
+    from .notes_vault import Vault
+    return Vault(str(p.get("root", ctx.get("cwd", ".")))).daily(
+        p.get("day"), template=str(p.get("template", "daily")))
+
+
 @capability("cowork.drafts.create", "content_skills", "cowork", "write",
             "Create a draft-only content skill", mutates=True)
 def _draft(p, ctx):

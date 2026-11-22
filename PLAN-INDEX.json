@@ -3449,7 +3449,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/content_skills.py"
+        "src/keel/notes_vault.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3458,10 +3458,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_content_skills.py"
+        "tests/test_notes_vault.py tests/test_content_skills.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Notes vault backlinks",
+      "verification_evidence": "Real notes-vault extras: wiki-link backlinks with missing-link report, link graph with offline SVG, tag index, orphan detection, dated daily notes and templates, capability and CLI",
       "owner_approval_required": false
     },
     {

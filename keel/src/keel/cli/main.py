@@ -55,6 +55,8 @@ def main(argv: list[str] | None = None) -> int:
         return _spec_cmd(argv[1:])
     if argv and argv[0] == "docpack":
         return _docpack_cmd(argv[1:])
+    if argv and argv[0] == "vault":
+        return _vault_cmd(argv[1:])
     if argv and argv[0] == "skills":
         return _skills_cmd(argv[1:])
     if argv and argv[0] == "settings":
@@ -709,6 +711,41 @@ def _skills_cmd(argv: list[str]) -> int:
         return 0
     sys.stderr.write(_SKILLS_USAGE)
     return 1
+
+
+def _vault_cmd(argv: list[str]) -> int:
+    from ..notes_vault import Vault
+
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(
+            "usage: keel vault backlinks <dir>   keel vault graph <dir>\n"
+            "       keel vault tags <dir>         keel vault daily <dir> [date]\n"
+            "       keel vault orphans <dir>\n")
+        return 0
+    cmd = argv[0]
+    try:
+        if len(argv) < 2:
+            return 1
+        vault = Vault(argv[1])
+        if cmd == "backlinks":
+            out = vault.backlinks()
+        elif cmd == "graph":
+            out = vault.graph()
+        elif cmd == "tags":
+            out = vault.tags()
+        elif cmd == "daily":
+            out = vault.daily(argv[2] if len(argv) > 2 else None)
+        elif cmd == "orphans":
+            out = {"orphans": vault.orphans()}
+        else:
+            sys.stderr.write(f"unknown vault command: {cmd}\n")
+            return 1
+        sys.stdout.write(json.dumps(out, indent=2) + "\n")
+        return 0
+    except (OSError, ValueError, IndexError) as exc:
+        diagnostic("vault_error", {"command": cmd, "error": str(exc)})
+        sys.stderr.write(f"vault: {exc}\n")
+        return 1
 
 
 def _docpack_cmd(argv: list[str]) -> int:
