@@ -64,6 +64,26 @@ def test_credentials_not_in_child_env():
     assert r.ok and "LEAK=False" in r.stdout
 
 
+def test_bootstrap_state_not_reachable_via_main(tmp_path):
+    """Regression: untrusted code must not rewrite the audit hook's policy."""
+    secret = tmp_path / "secret.txt"
+    secret.write_text("TOP-SECRET", encoding="utf-8")
+    root = str(tmp_path).replace("\\", "\\\\")
+    target = str(secret).replace("\\", "\\\\")
+    attacks = [
+        f"import __main__; __main__._ROOT='{root}'; "
+        f"print(open('{target}').read())",
+        f"import __main__,sys; sys.modules['__main__']._LIB_DIRS=(); "
+        f"print(open('{target}').read())",
+        f"import __main__; print(hasattr(__main__,'_make_guard')); "
+        f"print(open('{target}').read())",
+    ]
+    for code in attacks:
+        result = run_python(code, timeout_s=10)
+        assert "TOP-SECRET" not in result.stdout
+        assert "PermissionError" in result.stderr or "sandbox:" in result.stderr
+
+
 def test_status_is_honest():
     status = sandbox_policy.sandbox_status()
     assert status["filesystem"]["native_bypass"].startswith("NOT")

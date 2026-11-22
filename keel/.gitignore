@@ -24,3 +24,6 @@ keel/keel/
 /server.js
 /style.css
 
+# electron-builder download cache accidentally materialized under desktop-app
+/desktop-app/true/
+

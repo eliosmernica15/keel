@@ -795,3 +795,75 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .fine{font-size:11px;color:var(--muted);margin:4px 0 0;font-family:var(--mono);line-height:1.5}
 .list-block .card{max-width:none}
+
+/* C10.1 — guided tour, what's-new modal and first-visit tip banner */
+.tour-overlay{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;padding:16px}
+.tour-overlay[hidden]{display:none}
+.tour-backdrop{position:absolute;inset:0;background:rgba(6,4,2,.66);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+.tour-card{position:relative;width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow-y:auto;
+  background:var(--panel,#171310);border:1px solid var(--edge-dim,rgba(255,255,255,.12));border-radius:16px;
+  box-shadow:0 24px 80px rgba(0,0,0,.55);padding:18px 20px 14px}
+.tour-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.tour-kicker{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--accent,#6fe3b0)}
+.tour-body{min-height:150px}
+.tour-status,.tour-loading,.tour-empty{font-family:var(--mono);font-size:12px;color:var(--muted);padding:16px 4px;line-height:1.5;white-space:pre-wrap}
+.tour-status{color:#f0b9a8}
+.tour-count{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted)}
+.tour-card h3{margin:8px 0 8px;font-size:20px;line-height:1.25}
+.tour-card p{margin:0 0 10px;font-size:13.5px;line-height:1.6;color:var(--text)}
+.tour-hint{font-family:var(--mono);font-size:11px;color:var(--muted);border-left:2px solid var(--accent-dim,rgba(111,227,176,.4));padding-left:10px}
+.tour-dots{display:flex;gap:7px;margin-top:16px}
+.tour-dot{width:9px;height:9px;border-radius:50%;border:1px solid var(--edge,rgba(255,255,255,.2));background:transparent;padding:0;cursor:pointer}
+.tour-dot.done{background:var(--accent-dim,rgba(111,227,176,.5))}
+.tour-dot.current{background:var(--accent,#6fe3b0);border-color:var(--accent,#6fe3b0);transform:scale(1.2)}
+.tour-highlight{outline:2px solid var(--accent,#6fe3b0)!important;outline-offset:3px;border-radius:8px;position:relative;z-index:2}
+.tour-foot{display:flex;align-items:center;gap:8px;margin-top:18px;border-top:1px solid var(--edge-dim,rgba(255,255,255,.1));padding-top:14px}
+.tour-spacer{flex:1}
+.tour-remember{font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;margin-right:auto}
+.tour-source{font-family:var(--mono);font-size:10px;color:var(--muted);margin:10px 0 0;text-align:right;line-height:1.4}
+.whatsnew-list{display:flex;flex-direction:column;gap:12px;max-height:50vh;overflow-y:auto}
+.whatsnew-item{border:1px solid var(--edge-dim,rgba(255,255,255,.1));border-radius:10px;padding:10px 12px}
+.whatsnew-item b{display:block;font-size:13px;margin-bottom:4px}
+.whatsnew-item small{font-family:var(--mono);font-size:10px;color:var(--accent)}
+.whatsnew-item p{margin:4px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
+.tip-banner{position:fixed;left:50%;bottom:56px;transform:translateX(-50%);z-index:9400;
+  display:flex;align-items:center;gap:12px;max-width:min(560px,calc(100vw - 32px));
+  background:var(--panel,#171310);border:1px solid var(--accent-dim,rgba(111,227,176,.4));border-radius:12px;
+  padding:10px 12px 10px 16px;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.tip-banner[hidden]{display:none}
+.tip-banner span{font-size:12px;line-height:1.5;color:var(--text)}
+.tip-banner button{background:transparent;border:0;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:0 4px}
+.tip-banner button:hover{color:var(--text)}
+@media(max-width:600px){.tour-card{padding:14px 14px 10px}.tour-card h3{font-size:17px}.tour-remember{display:none}}
+
+/* C10.5 — voice control, live-region and opt-in spoken responses */
+.composer .mic,.comp .mic{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;
+  border:1px solid var(--edge-dim);border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.composer .mic svg,.comp .mic svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
+.composer .mic:hover,.comp .mic:hover{color:var(--accent);border-color:var(--accent-dim)}
+.composer .mic:disabled,.comp .mic:disabled{opacity:.4;cursor:not-allowed}
+.composer .mic.listening,.comp .mic.listening{color:var(--danger);border-color:var(--danger)}
+.voice-status{font:11px var(--mono);color:var(--accent);margin-left:8px;max-width:60%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.voice-status[hidden]{display:none}
+.a11y-live{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.row-line small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+
+/* B4.9 — high-legibility font + vim composer mode */
+@font-face{font-family:'Work Sans';font-style:normal;font-weight:400;font-display:swap;
+  src:url('/ui/fonts/WorkSans-Regular.ttf') format('truetype')}
+body.a11y-legible{font-size:16px;line-height:1.7;letter-spacing:.02em}
+body.a11y-legible #prompt-chat,body.a11y-legible #prompt-code,
+body.a11y-legible textarea,body.a11y-legible input[type=text]{
+  font-family:'Work Sans',system-ui,sans-serif!important;font-size:16px!important;
+  line-height:1.7!important;letter-spacing:.02em!important}
+body.a11y-legible .thread{line-height:1.75}
+body.vim-mode #prompt-chat:focus,body.vim-mode #prompt-code:focus{
+  outline:2px solid var(--accent-dim,rgba(111,227,176,.5));outline-offset:2px}
+.vim-status{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  color:var(--accent);margin-left:8px}
+.vim-status[hidden]{display:none}
+.admin-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.admin-list{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.admin-list .kv{min-height:28px}

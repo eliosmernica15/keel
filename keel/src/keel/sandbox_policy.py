@@ -35,87 +35,99 @@ _SAFE_ENV = (
     "LANG", "LC_ALL", "PYTHONIOENCODING", "HOME", "USERPROFILE",
 )
 
-_BOOTSTRAP = r'''"""Keel sandbox bootstrap — installs an immutable audit hook."""
+_BOOTSTRAP = r'''"""Keel sandbox bootstrap — installs a sealed, immutable audit hook.
+
+Policy state lives only in the hook's closure. No module-level policy names
+survive hook installation, so untrusted code cannot reach them through
+``__main__``, ``sys.modules`` or frame/global introspection. Python audit hooks
+cannot be removed once installed; ``sys.addaudithook`` itself is denied.
+"""
 import os as _os
 import sys as _sys
 
-_ROOT = _os.path.realpath(_os.environ.get("KEEL_SANDBOX_ROOT", _os.getcwd()))
-_LIB_DIRS = tuple(
-    _os.path.realpath(p) for p in _sys.path
-    if p and _os.path.isdir(p)
-)
-_NETWORK_ALLOWED = _os.environ.get("KEEL_SANDBOX_NETWORK") == "1"
 
-_MUTATING_EVENTS = frozenset({
-    "os.mkdir", "os.makedirs", "os.remove", "os.rmdir", "os.rename",
-    "os.replace", "os.symlink", "os.link", "os.truncate", "os.chmod",
-    "os.chown", "os.utime", "os.putenv", "os.unsetenv", "os.setuid",
-    "os.setgid", "os.kill", "os.fork", "os.forkpty", "os.exec",
-    "os.spawn", "os.posix_spawn", "subprocess.Popen",
-})
-_PROCESS_EVENTS = frozenset({
-    "os.fork", "os.forkpty", "os.exec", "os.spawn", "os.posix_spawn",
-    "os.system", "os.kill", "subprocess.Popen",
-})
-_NATIVE_EVENTS = frozenset({
-    "ctypes.dlopen", "ctypes.dlsym", "ctypes.get_func", "sys.addaudithook",
-})
+def _make_guard(_root, _libs, _network_allowed, _os_mod):
+    _root_real = _os_mod.path.realpath(_root)
+    _libs_real = tuple(_os_mod.path.realpath(p) for p in _libs if p)
+    _sep = _os_mod.sep
+    _mutating = frozenset({
+        "os.mkdir", "os.makedirs", "os.remove", "os.rmdir", "os.rename",
+        "os.replace", "os.symlink", "os.link", "os.truncate", "os.chmod",
+        "os.chown", "os.utime", "os.putenv", "os.unsetenv", "os.setuid",
+        "os.setgid", "os.kill", "os.fork", "os.forkpty", "os.exec",
+        "os.spawn", "os.posix_spawn", "subprocess.Popen",
+    })
+    _process = frozenset({
+        "os.fork", "os.forkpty", "os.exec", "os.spawn", "os.posix_spawn",
+        "os.system", "os.kill", "subprocess.Popen",
+    })
+    _native = frozenset({
+        "ctypes.dlopen", "ctypes.dlsym", "ctypes.get_func", "sys.addaudithook",
+    })
 
+    def _within(path, bases):
+        try:
+            real = _os_mod.path.realpath(_os_mod.fspath(path))
+        except (TypeError, ValueError, OSError):
+            return False
+        return any(real == base or real.startswith(base + _sep)
+                   for base in bases)
 
-def _within(path, bases):
-    try:
-        real = _os.path.realpath(_os.fspath(path))
-    except (TypeError, ValueError, OSError):
-        return False
-    for base in bases:
-        if real == base or real.startswith(base + _os.sep):
-            return True
-    return False
+    def _deny(event, args):
+        if event == "open":
+            path = args[0] if args else None
+            if isinstance(path, int):
+                raise PermissionError("sandbox: raw fd access denied")
+            mode = args[1] if len(args) > 1 else "r"
+            flags = args[2] if len(args) > 2 else None
+            write = isinstance(mode, str) and any(c in mode for c in "wax+")
+            if flags is not None:
+                flags = int(flags)
+                write = write or bool(flags & (
+                    _os_mod.O_WRONLY | _os_mod.O_RDWR | _os_mod.O_CREAT |
+                    _os_mod.O_APPEND | _os_mod.O_TRUNC))
+            if not _within(path, (_root_real,) + _libs_real):
+                raise PermissionError(
+                    "sandbox: path outside workspace/library denied: " + str(path))
+            if write and not _within(path, (_root_real,)):
+                raise PermissionError(
+                    "sandbox: write outside workspace denied: " + str(path))
+            return
+        if event in _native or event in _process:
+            raise PermissionError("sandbox: event denied: " + event)
+        if event in _mutating:
+            path = args[0] if args else None
+            if isinstance(path, str) and not _within(path, (_root_real,)):
+                raise PermissionError(
+                    "sandbox: mutating path outside workspace denied: " + str(path))
+            return
+        if event.startswith(("socket.", "urllib.", "http.client.",
+                             "smtplib.", "ftplib.", "asyncio.")):
+            if not _network_allowed:
+                raise PermissionError("sandbox: network access denied: " + event)
+            return
 
-
-def _deny(event, args):
-    if event == "open":
-        path = args[0] if args else None
-        if isinstance(path, int):
-            raise PermissionError("sandbox: raw file-descriptor access denied")
-        mode = args[1] if len(args) > 1 else "r"
-        flags = args[2] if len(args) > 2 else None
-        write = isinstance(mode, str) and any(c in mode for c in "wax+")
-        if flags is not None:
-            flags = int(flags)
-            write = write or bool(flags & (
-                _os.O_WRONLY | _os.O_RDWR | _os.O_CREAT |
-                _os.O_APPEND | _os.O_TRUNC))
-        if not _within(path, (_ROOT,) + _LIB_DIRS):
-            raise PermissionError(
-                "sandbox: path outside workspace/library denied: " + str(path))
-        if write and not _within(path, (_ROOT,)):
-            raise PermissionError(
-                "sandbox: write outside workspace denied: " + str(path))
-        return
-    if event in _NATIVE_EVENTS or event in _PROCESS_EVENTS:
-        raise PermissionError("sandbox: event denied: " + event)
-    if event in _MUTATING_EVENTS:
-        path = args[0] if args else None
-        if isinstance(path, str) and not _within(path, (_ROOT,)):
-            raise PermissionError(
-                "sandbox: mutating path outside workspace denied: " + str(path))
-        return
-    if event.startswith(("socket.", "urllib.", "http.client.",
-                         "smtplib.", "ftplib.", "asyncio.")):
-        if not _NETWORK_ALLOWED:
-            raise PermissionError("sandbox: network access denied: " + event)
-        return
+    return _deny
 
 
-_sys.addaudithook(_deny)
-
-# Execute the submitted code in this restricted interpreter.
-_code_path = _os.path.join(_ROOT, "__USER_CODE_NAME__")
+_root = _os.environ.get("KEEL_SANDBOX_ROOT", _os.getcwd())
+_libs = tuple(_sys.path)
+_network = _os.environ.get("KEEL_SANDBOX_NETWORK") == "1"
+_code_path = _os.path.join(_root, "__USER_CODE_NAME__")
+_source = None
 with open(_code_path, "rb") as _fh:
     _source = _fh.read()
-_compiled = compile(_source, "<sandbox-user-code>", "exec")
-exec(_compiled, {"__name__": "__main__", "__file__": _code_path})
+
+# Install the sealed hook, then remove every installation-time name from the
+# module namespace before user code runs. The hook keeps what it needs in its
+# closure; __main__ becomes an empty namespace to untrusted code.
+_sys.addaudithook(_make_guard(_root, _libs, _network, _os))
+for _name in ("_root", "_libs", "_network", "_fh", "_make_guard",
+              "_os", "_sys", "_name"):
+    globals().pop(_name, None)
+
+exec(compile(_source, "<sandbox-user-code>", "exec"),
+     {"__name__": "__main__", "__file__": _code_path})
 '''
 
 
@@ -153,6 +165,15 @@ def credential_keys_present(env: dict[str, str] | None = None) -> list[str]:
         if any(fragment in key.upper() for fragment in _SECRET_ENV_FRAGMENTS))
 
 
+def _native_support() -> dict:
+    try:
+        from .native_isolation import platform_support
+
+        return platform_support()
+    except Exception as exc:
+        return {"available": False, "reason": type(exc).__name__}
+
+
 def sandbox_status() -> dict:
     """Honest report of what is enforced locally."""
     return {
@@ -164,6 +185,11 @@ def sandbox_status() -> dict:
         },
         "process": {"spawn_denied": True,
                     "native_bypass": "NOT prevented"},
+        "policy_state": {
+            "sealed_in_closure": True,
+            "main_namespace_cleared": True,
+            "note": "__main__/sys.modules introspection cannot rewrite the hook policy",
+        },
         "network": {"denied_by_default": True,
                     "opt_in": "KEEL_SANDBOX_NETWORK=1"},
         "resources": {
@@ -177,5 +203,6 @@ def sandbox_status() -> dict:
             "windows_restricted_token": False,
             "note": "requires an external environment / owner decision",
         },
+        "native_process_limits": _native_support(),
         "python": sys.version.split()[0],
     }

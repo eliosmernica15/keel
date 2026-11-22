@@ -461,7 +461,7 @@
         "tests/test_local_ops.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Inline !cmd shell prefix parsing for permission-gated execution",
+      "verification_evidence": "Inline !cmd shell prefix parsing for permission-gated execution; exec_policy.py adds declarative prefix rules with allow/prompt/forbidden severity, alternatives, justifications and host-executable constraints (adapted from Codex execpolicy); binding at permission + capability boundaries with a real Settings > Policies UI (validate/activate/deactivate/evaluate)",
       "owner_approval_required": false
     },
     {
@@ -977,7 +977,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/last_features.py"
+        "src/keel/platform_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -986,10 +986,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_last_features.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Local operator site tools descriptors",
+      "verification_evidence": "Local site toolkit: encrypted secret probe, read-only DB browser, scheduled jobs, analytics and escaped element editor",
       "owner_approval_required": false
     },
     {
@@ -1001,7 +1001,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/admin_page.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1010,10 +1010,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_admin_page.py tests/test_final_features.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Operator admin page descriptor",
+      "verification_evidence": "Real operator Admin page in both UI trees backed by core.admin.overview aggregating genuine local health, resource meters/limits, idle, flags, capability audit and diagnostics with loading/empty/error/permission-denied states",
       "owner_approval_required": false
     },
     {
@@ -1697,7 +1697,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/knowledge_work.py"
+        "src/keel/document_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1706,10 +1706,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_knowledge_work.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "OCR document parsing descriptor",
+      "verification_evidence": "Real PDF text/table extraction via pypdf and optional user-installed Tesseract OCR with honest tool detection and license notices",
       "owner_approval_required": false
     },
     {
@@ -2165,7 +2165,7 @@
         "tests/test_read_only.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Read-only sessions and per-project network egress allowlist",
+      "verification_evidence": "Read-only sessions and per-project network egress allowlist; declarative network/command policy engine in exec_policy.py adapted from Codex execpolicy (host/protocol decisions, compiled allow/deny domains, load-time self-tests)",
       "owner_approval_required": false
     },
     {
@@ -2585,7 +2585,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/integrations.py"
+        "src/keel/platform_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2594,10 +2594,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_integrations.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "external_dependency",
-      "verification_evidence": "LAN phone companion explicit pairing payload",
+      "verification_evidence": "Locally generated pinned self-signed TLS identity, QR pairing payload, explicit approvals; phone reachability remains external",
       "owner_approval_required": false
     },
     {
@@ -2618,10 +2618,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Composer accessibility/keybinding descriptors",
+      "verification_evidence": "High-legibility OFL Work Sans font option and functional vim composer keybindings in both UI trees, verified in browser",
       "owner_approval_required": false
     },
     {
@@ -2753,7 +2753,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/last_features.py"
+        "src/keel/document_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2762,10 +2762,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_last_features.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "E2E screenshot gallery descriptor",
+      "verification_evidence": "Gallery generated from real screenshots of the running Keel UI, published at site/screenshots/index.html with no stock images",
       "owner_approval_required": false
     },
     {
@@ -2825,7 +2825,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/site_tools.py"
+        "src/keel/release_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2834,10 +2834,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_site_tools.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Static status page descriptor",
+      "verification_evidence": "User-configurable feed/mirror status URLs, real HTTP checks, URL validation, generated static status HTML",
       "owner_approval_required": false
     },
     {
@@ -2882,10 +2882,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_commercial_seams.py"
+        "tests/test_enterprise_seams.py tests/test_commercial_seams.py"
       ],
       "implementation_tier": "descriptor",
-      "verification_evidence": "Edition/channel field (standard, no gating)",
+      "verification_evidence": "Edition field 'standard' with no licensing gate, present in both release and download manifests and exposed via core.edition.info",
       "owner_approval_required": false
     },
     {
@@ -2906,10 +2906,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_commercial_seams.py"
+        "tests/test_enterprise_seams.py tests/test_commercial_seams.py"
       ],
       "implementation_tier": "descriptor",
-      "verification_evidence": "Silent-install flag descriptors",
+      "verification_evidence": "Real per-format silent-install flags (nsi/msi/pkg/deb/rpm), shipped Windows ADMX and macOS plist templates, surface via core.enterprise.templates",
       "owner_approval_required": false
     },
     {
@@ -2954,10 +2954,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_commercial_seams.py"
+        "tests/test_enterprise_seams.py tests/test_commercial_seams.py"
       ],
       "implementation_tier": "descriptor",
-      "verification_evidence": "Compliance pack draft status",
+      "verification_evidence": "Locally generated compliance artifacts: data-flow SVG, SBOM from dependency inventory, accessibility self-assessment; DPA/EULA legal text remains an honest draft pending owner review",
       "owner_approval_required": false
     },
     {
@@ -2969,7 +2969,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/platform_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2978,10 +2978,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "external_dependency",
-      "verification_evidence": "Per-org audit export/retention descriptor",
+      "verification_evidence": "Per-organization audit export (JSONL/CSV) and retention config with real filtering of local audit records",
       "owner_approval_required": true
     },
     {
@@ -3257,7 +3257,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/last_features.py"
+        "src/keel/platform_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3266,10 +3266,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_last_features.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Approval-gated local desktop task executor descriptor",
+      "verification_evidence": "Approval-gated local task executor with program allowlist, shell=False execution, timeouts and persisted results",
       "owner_approval_required": false
     },
     {
@@ -3305,7 +3305,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/release_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3314,10 +3314,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Additional package-manager target descriptors",
+      "verification_evidence": "Generated Scoop/Chocolatey/Flatpak/Snap/AUR/Nix manifests with explicit proprietary-freeware acceptance checks",
       "owner_approval_required": false
     },
     {
@@ -3506,10 +3506,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_tutorial.py"
+        "tests/test_tutorial_ui.py tests/test_tutorial.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Interactive tutorial scaffold",
+      "verification_evidence": "Real interactive tutorial in both UI trees (desktop/ui running app + site public mirror): persisted step progress, guided-tour overlay wired to cowork.tutorial.* capabilities with loading/empty/error/permission-denied states, what's-new modal and first-visit tips; browser-verified with real capability persistence",
       "owner_approval_required": false
     },
     {
@@ -3602,10 +3602,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_tutorial.py"
+        "tests/test_accessibility_ui.py tests/test_tutorial.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Voice accessibility descriptors with opt-in responses",
+      "verification_evidence": "Real voice accessibility in both UI trees: SpeechRecognition dictation with explicit consent and unavailable/error states, opt-in spoken replies and live-region streaming announcements persisted via cowork.accessibility.* capabilities",
       "owner_approval_required": false
     },
     {
@@ -3777,7 +3777,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/platform_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3786,10 +3786,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "external_dependency",
-      "verification_evidence": "Deterrent-only obfuscation status",
+      "verification_evidence": "Per-build deterrent canary identifier and honest status of unapplied obfuscation measures; not a security boundary",
       "owner_approval_required": true
     },
     {
@@ -3825,7 +3825,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/distribution.py"
+        "src/keel/release_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3834,10 +3834,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_distribution.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Air-gapped offline bundle descriptor",
+      "verification_evidence": "Real air-gapped bundle builder with checksum verification, model-folder import and signed sideload manifest",
       "owner_approval_required": false
     },
     {
@@ -4521,7 +4521,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/final_features.py"
+        "src/keel/document_gaps.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -4530,10 +4530,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_final_features.py"
+        "tests/test_gap_closure.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Browser devtools tool descriptors",
+      "verification_evidence": "Real pixel-level UI visual diff with Pillow, console/network event normalization from captured sessions",
       "owner_approval_required": false
     },
     {

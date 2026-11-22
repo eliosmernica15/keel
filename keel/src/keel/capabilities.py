@@ -92,6 +92,19 @@ def invoke(cap_id: str, params: dict | None = None, *,
             f"permission {cap.permission!r} required for {cap_id}",
             code="permission_denied")
     context = context or {}
+    # Saved execution policies bind the capability surface too: a capability
+    # carrying a command or URL is checked before its handler runs.
+    from .policy_enforcement import enforce as _enforce_policy
+
+    enforced = _enforce_policy(
+        cap_id, params,
+        state_root=context.get("state_root"),
+        interactive=bool(context.get("interactive")),
+        confirmed=bool(context.get("confirm")))
+    if enforced is not None and enforced.decision == "deny":
+        raise CapabilityError(
+            f"execution policy denied {cap_id}: {enforced.reason}",
+            code="policy_denied")
     started = time.monotonic()
     try:
         result = cap.handler(params, context)

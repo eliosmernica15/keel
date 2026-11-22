@@ -243,6 +243,7 @@ def build_release_manifest(
         "name": "Keel Desktop",
         "version": version,
         "tag": tag,
+        "edition": "standard",  # B6.2 — no licensing is enforced anywhere
         "generated": "release-pipeline",
         "published_at": os.environ.get(
             "KEEL_PUBLISHED_AT",
@@ -327,6 +328,7 @@ def build_download_manifest(
         "name": "Keel Desktop",
         "version": version,
         "tag": tag,
+        "edition": "standard",  # B6.2
         "generated": generated,
         "published_at": published_at,
         "verified_at": verified_at,

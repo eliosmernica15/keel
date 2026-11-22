@@ -53,6 +53,18 @@ it runs entirely on your machine; its `+` menu uploads files to a local
 itself (e.g. `.zip` via the shell), and its folder picker binds the
 agent's working directory.
 
+## Screenshot gallery
+
+`site/screenshots/index.html` is generated from **actual captures of the running
+Keel desktop UI** (main workspace, accessibility settings, execution policies,
+operator admin) — not stock images. Regenerate it with:
+
+```
+python -c "from keel.document_gaps import build_screenshot_gallery; build_screenshot_gallery(['site/assets/screenshots'],'site/screenshots')"
+```
+
+Captures contain no tokens, credentials or private filesystem paths.
+
 ## State kept in your browser
 
 Recents, settings, provider keys (`keel_mirror_settings_v1`), visit counters

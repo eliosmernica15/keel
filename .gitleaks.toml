@@ -83,3 +83,26 @@ targetRules = ["generic-api-key"]
 description = "Reviewed historical demo UI strings (commit 5443b4b2)"
 commits = ["5443b4b2477b257bda236992d77a3cc0299d0efd"]
 paths = ['''(?:^|/)keel/site/index\.html$''']
+
+# Four reviewed false positives: synthetic fixture strings in pytest files.
+# Scoped to the exact commit, exact path and generic-api-key rule only.
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed fake DLP fixture in release no-secrets test"
+commits = ["13799853aca307915093d414421642355c96035d"]
+paths = ['''(?:^|/)keel/tests/test_release_no_secrets\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed fake redaction fixture string"
+commits = ["902f87180827f05967130775051ed2f7d58fc7ff"]
+paths = ['''(?:^|/)keel/tests/test_redaction\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed fake secret-storage fixture strings"
+commits = ["840cd5d6f4251e38fa6be22c21d5f94b2e1aa393"]
+paths = ['''(?:^|/)keel/tests/test_secret_storage\.py$''']

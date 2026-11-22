@@ -15,6 +15,17 @@ def test_surface_labels_match_products():
     assert "Keel Desktop: upload" not in js
 
 
+def test_desktop_ui_labels_match_products():
+    """The real Electron UI tree must use the same product labels as the mirror."""
+    desktop = Path(__file__).resolve().parents[1] / "desktop" / "ui"
+    js = (desktop / "app.js").read_text(encoding="utf-8")
+    html = (desktop / "index.html").read_text(encoding="utf-8")
+    assert 'chat: "Keel Cowork"' in js
+    assert "Keel Desktop: upload" not in js
+    assert 'aria-label="Keel Cowork"' in html
+    assert 'id="head-title">Keel Cowork<' in html
+
+
 def test_aria_labels_match():
     html = (SITE / "app.html").read_text(encoding="utf-8")
     assert 'aria-label="Keel Cowork"' in html
