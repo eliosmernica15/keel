@@ -52,7 +52,7 @@ LOCAL_MODULES = frozenset({
     "db_explorer", "sarif", "charts", "authoring",
     "channel_ops", "build_repro", "workbench", "notebook", "spec_mode", "views",
     "judge", "docpacks", "notes_vault", "repo_index", "openapi_tools",
-    "secret_providers", "ops_tools",
+    "secret_providers", "status_page", "ops_tools",
     "agent_profiles", "local_ops", "integrations",
     "external_adapters",
     "ops_tools", "agent_intelligence", "agent_roles", "best_of_n", "arena",
@@ -406,8 +406,12 @@ IMPLEMENTED = {
              "Real stale temp-directory garbage collection"),
     "A3.5": ("src/keel/local_ops.py", "tests/test_local_ops.py",
              "Idempotent .env.example generation"),
-    "A3.7": ("src/keel/ops_tools.py", "tests/test_ops_tools.py",
-             "Honest project status descriptor"),
+    "A3.7": ("src/keel/status_page.py",
+             "tests/test_status_page.py tests/test_ops_tools.py",
+             "Real registry-driven honest project status: counts by status/"
+             "tier/priority, separates verified end-to-end from built-but-"
+             "unproven descriptors/external items, lists blocked owner gates, "
+             "Markdown status page and capability; cannot drift from registry"),
     "B3.7": ("src/keel/trust_tools.py", "tests/test_trust_tools.py",
              "Prompt-injection classifier and canary tokens"),
     "B3.12": ("src/keel/trust_tools.py", "tests/test_trust_tools.py",

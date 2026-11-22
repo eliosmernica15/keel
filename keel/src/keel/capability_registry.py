@@ -118,6 +118,14 @@ def _feedback_export(p, ctx):
         if line.strip()] or []}
 
 
+@capability("core.status.project", "status_page", "core", "read",
+            "Honest registry-driven project status (verified vs unproven)")
+def _project_status(p, ctx):
+    from .status_page import build_status, render_markdown
+    status = build_status(p.get("registry"))
+    return {**status, "markdown": render_markdown(status)}
+
+
 @capability("core.secrets.providers", "secret_providers", "core", "read",
             "Describe configured local secret providers (no values)")
 def _secrets_providers(p, ctx):

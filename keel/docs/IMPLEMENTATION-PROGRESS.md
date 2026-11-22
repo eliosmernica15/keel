@@ -707,6 +707,18 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Phase 2 batch — A3.7 real honest project status page (P1)
+
+**Implemented:** `src/keel/status_page.py` generates status directly from the
+canonical `PLAN-INDEX.json`, so claims cannot drift from verification state. It
+reports counts by status/tier/priority, separates genuinely verified end-to-end
+features from built-but-unproven descriptors/external dependencies, and lists
+blocked items with their owner/external gate. Markdown renderer and a
+`core.status.project` capability.
+
+**Verification:** 5 new tests (`test_status_page.py`) — all pass, including
+non-double-counting and the C11.1/C11.2 blocked gate check.
+
 ## Phase 2 batch — A4.7 real local secret providers (P2)
 
 **Implemented:** `src/keel/secret_providers.py` makes the provider choice real:

@@ -953,7 +953,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/ops_tools.py"
+        "src/keel/status_page.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -962,10 +962,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_ops_tools.py"
+        "tests/test_status_page.py tests/test_ops_tools.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Honest project status descriptor",
+      "verification_evidence": "Real registry-driven honest project status: counts by status/tier/priority, separates verified end-to-end from built-but-unproven descriptors/external items, lists blocked owner gates, Markdown status page and capability; cannot drift from registry",
       "owner_approval_required": false
     },
     {
