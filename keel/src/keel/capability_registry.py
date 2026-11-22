@@ -295,6 +295,35 @@ def _doc_qa(p, ctx):
                                     str(p.get("text", "")))}
 
 
+@capability("cowork.docpack.build", "docpacks", "cowork", "write",
+            "Build a searchable offline documentation pack from local Markdown",
+            mutates=True)
+def _docpack_build(p, ctx):
+    from .docpacks import DocPackStore, build_pack
+    pack = build_pack(str(p.get("root", "")), str(p.get("name", "docs")),
+                      max_files=int(p.get("max_files", 500)))
+    store = DocPackStore(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    store.save(pack)
+    return {"name": pack["name"], "doc_count": pack["doc_count"]}
+
+
+@capability("cowork.docpack.search", "docpacks", "cowork", "read",
+            "Search a saved offline documentation pack with BM25 ranking")
+def _docpack_search(p, ctx):
+    from .docpacks import DocPackStore, search
+    store = DocPackStore(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    pack = store.load(str(p.get("name", "docs")))
+    return search(pack, str(p.get("query", "")), limit=int(p.get("limit", 5)))
+
+
+@capability("cowork.docpack.list", "docpacks", "cowork", "read",
+            "List saved offline documentation packs")
+def _docpack_list(p, ctx):
+    from .docpacks import DocPackStore
+    store = DocPackStore(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    return {"names": store.list()}
+
+
 @capability("cowork.notebook.execute", "notebook", "cowork", "execute",
             "Execute a markdown notebook in the sandbox with inline SVG charts")
 def _notebook_execute(p, ctx):

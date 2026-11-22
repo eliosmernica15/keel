@@ -1937,7 +1937,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/misc_features.py"
+        "src/keel/docpacks.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1946,10 +1946,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_misc_features.py"
+        "tests/test_docpacks.py tests/test_misc_features.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Offline documentation pack descriptors",
+      "verification_evidence": "Real offline documentation packs: local Markdown indexing with BM25 ranking, highlighted snippet search, persisted packs, capability and CLI surfaces",
       "owner_approval_required": false
     },
     {

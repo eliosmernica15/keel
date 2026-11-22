@@ -707,6 +707,17 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Phase 2 batch — B2.7 real searchable offline documentation packs (P2)
+
+**Implemented:** `src/keel/docpacks.py` upgrades the file-listing descriptor
+into real search: local Markdown indexing with a BM25 inverted index (tokenize,
+IDF/TF ranking), ranked hits with matched terms and highlighted snippets,
+persisted packs (`DocPackStore`), three `cowork.docpack.*` capabilities and a
+`keel docpack build|search|list` CLI. Fully local, no embeddings/model/network.
+
+**Verification:** 7 new tests (`test_docpacks.py`) — all pass. Registry B2.7
+evidence updated from descriptor to real search.
+
 ## Phase 2 batch — C13.2 real deterministic trajectory judge (P1)
 
 **Implemented:** `src/keel/judge.py` upgrades the scoring scaffold into a

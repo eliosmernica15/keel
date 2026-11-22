@@ -53,6 +53,8 @@ def main(argv: list[str] | None = None) -> int:
         return _notebook_cmd(argv[1:])
     if argv and argv[0] == "spec":
         return _spec_cmd(argv[1:])
+    if argv and argv[0] == "docpack":
+        return _docpack_cmd(argv[1:])
     if argv and argv[0] == "skills":
         return _skills_cmd(argv[1:])
     if argv and argv[0] == "settings":
@@ -706,6 +708,48 @@ def _skills_cmd(argv: list[str]) -> int:
         sys.stdout.write(skills_mod.render_prompt(skill, arguments))
         return 0
     sys.stderr.write(_SKILLS_USAGE)
+    return 1
+
+
+def _docpack_cmd(argv: list[str]) -> int:
+    import os
+
+    from ..docpacks import DocPackStore, build_pack, search
+
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(
+            "usage: keel docpack build <name> <dir>\n"
+            "       keel docpack search <name> <query> [--limit N]\n"
+            "       keel docpack list\n")
+        return 0
+    cmd = argv[0]
+    store = DocPackStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+    try:
+        if cmd == "build":
+            pack = build_pack(argv[2], argv[1])
+            store.save(pack)
+            sys.stdout.write(json.dumps({"name": pack["name"],
+                                         "doc_count": pack["doc_count"]}) + "\n")
+            return 0
+        if cmd == "search":
+            limit = 5
+            query_parts = list(argv[2:])
+            if "--limit" in query_parts:
+                idx = query_parts.index("--limit")
+                limit = int(query_parts[idx + 1])
+                del query_parts[idx:idx + 2]
+            result = search(store.load(argv[1]), " ".join(query_parts),
+                            limit=limit)
+            sys.stdout.write(json.dumps(result, indent=2) + "\n")
+            return 0
+        if cmd == "list":
+            sys.stdout.write(json.dumps(store.list()) + "\n")
+            return 0
+    except (OSError, ValueError, KeyError, IndexError) as exc:
+        diagnostic("docpack_error", {"command": cmd, "error": str(exc)})
+        sys.stderr.write(f"docpack: {exc}\n")
+        return 1
+    sys.stderr.write(f"unknown docpack command: {cmd}\n")
     return 1
 
 

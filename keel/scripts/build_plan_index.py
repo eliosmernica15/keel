@@ -51,7 +51,7 @@ LOCAL_MODULES = frozenset({
     "git_extras_runtime", "session_export", "model_router",
     "db_explorer", "sarif", "charts", "authoring",
     "channel_ops", "build_repro", "workbench", "notebook", "spec_mode", "views",
-    "judge", "ops_tools",
+    "judge", "docpacks", "ops_tools",
     "agent_profiles", "local_ops", "integrations",
     "external_adapters",
     "ops_tools", "agent_intelligence", "agent_roles", "best_of_n", "arena",
@@ -490,8 +490,11 @@ IMPLEMENTED = {
              "Old-version removal computation before install"),
     "B2.4": ("src/keel/misc_features.py", "tests/test_misc_features.py",
              "Bundled specialist agent prompts"),
-    "B2.7": ("src/keel/misc_features.py", "tests/test_misc_features.py",
-             "Offline documentation pack descriptors"),
+    "B2.7": ("src/keel/docpacks.py",
+             "tests/test_docpacks.py tests/test_misc_features.py",
+             "Real offline documentation packs: local Markdown indexing with "
+             "BM25 ranking, highlighted snippet search, persisted packs, "
+             "capability and CLI surfaces"),
     "B4.6": ("src/keel/views.py",
              "tests/test_views.py tests/test_misc_features.py",
              "Real fleet views: kanban board, nested agent org chart, "
