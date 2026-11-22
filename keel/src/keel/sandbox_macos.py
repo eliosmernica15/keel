@@ -166,7 +166,7 @@ def build_profile(
         ";; dyld/libSystem runtime support (metadata only, no file contents)",
         "(allow file-read-metadata)",
         "(allow mach-lookup)",
-        "(allow ipc-posix-shm*)",
+        "(allow ipc-posix-shm)",
         "(allow system-socket)",
         "",
         ";; the authorized workspace is the only writable area",
@@ -243,6 +243,49 @@ def _tail(data: bytes | None, size: int = 400) -> str:
     return (data or b"").decode("utf-8", errors="replace")[-size:]
 
 
+def _diagnose_profile(sandbox_exec: str, profile: str) -> str:
+    """Find the first SBPL rule that makes ``sandbox-exec`` abort.
+
+    Used only on a failed pre-flight, so CI logs carry a precise BLOCKED
+    reason instead of a silent SIGABRT (an invalid SBPL rule aborts with no
+    stderr on modern macOS).
+    """
+    known_good = [
+        "(version 1)",
+        "(deny default)",
+        "(allow process-exec)",
+        "(allow file-read*)",
+    ]
+    rules = [
+        line for line in profile.splitlines()
+        if line and not line.startswith(";") and line not in known_good
+    ]
+    try:
+        base = subprocess.run(
+            [sandbox_exec, "-p", "\n".join(known_good) + "\n", "/usr/bin/true"],
+            capture_output=True, timeout=10, check=False,
+        )
+        if base.returncode != 0:
+            return f"baseline probe itself failed (exit={base.returncode})"
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return f"baseline probe error: {exc!r}"
+    for rule in rules:
+        candidate = "\n".join([*known_good, rule]) + "\n"
+        try:
+            result = subprocess.run(
+                [sandbox_exec, "-p", candidate, "/usr/bin/true"],
+                capture_output=True, timeout=10, check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return f"rule {rule!r} probe error: {exc!r}"
+        if result.returncode != 0:
+            return (f"first failing SBPL rule: {rule!r} "
+                    f"(exit={result.returncode}, "
+                    f"stderr={_tail(result.stderr)!r})")
+        known_good.append(rule)
+    return "every rule compiles individually; failure requires the full profile"
+
+
 def run_confined(
     argv: list[str],
     *,
@@ -292,26 +335,13 @@ def run_confined(
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise SandboxUnavailable(f"sandbox-exec pre-flight failed: {exc}") from exc
     if probe.returncode != 0:
-        # A control probe with a known-good minimal profile distinguishes a
-        # broken SBPL rule from a host where sandbox-exec cannot be used at
-        # all. Both are reported verbatim so CI logs carry the exact error.
-        control_text = ("(version 1)\n(deny default)\n(allow process-exec)\n"
-                        "(allow file-read*)\n")
-        try:
-            control = subprocess.run(
-                [sandbox_exec, "-p", control_text, "/usr/bin/true"],
-                capture_output=True, timeout=10, check=False,
-            )
-            control_info = (f"exit={control.returncode}, "
-                            f"stderr={_tail(control.stderr)!r}, "
-                            f"stdout={_tail(control.stdout)!r}")
-        except (OSError, subprocess.TimeoutExpired) as exc:
-            control_info = f"error={exc!r}"
+        # An invalid SBPL rule makes sandbox-exec abort with an empty stderr;
+        # isolate the offending rule so CI logs carry an exact BLOCKED reason.
+        diag = _diagnose_profile(sandbox_exec, profile)
         raise SandboxUnavailable(
             f"sandbox-exec profile could not launch a probe "
             f"(exit={probe.returncode}, stderr={_tail(probe.stderr)!r}, "
-            f"stdout={_tail(probe.stdout)!r}); control_probe=({control_info}); "
-            f"profile:\n{profile}")
+            f"stdout={_tail(probe.stdout)!r}); {diag}; profile:\n{profile}")
 
     scratch = ws_path / ".tmp"
     scratch.mkdir(exist_ok=True)

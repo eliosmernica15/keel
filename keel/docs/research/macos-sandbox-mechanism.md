@@ -72,7 +72,7 @@ Profile (generated, not hand-fixed):
 | `sysctl-read` | yes | dyld/CPython host introspection |
 | `file-read-metadata` | yes, **global** | dyld and CPython stat ancestor paths; reveals names/sizes, never contents |
 | `file-ioctl` | yes | libSystem/tty handling on pipes |
-| `mach-lookup`, `ipc-posix-shm*`, `system-socket` | yes, broad | dyld/libSystem startup and directory services; **not confined** (documented) |
+| `mach-lookup`, `ipc-posix-shm`, `system-socket` | yes, broad | dyld/libSystem startup and directory services; **not confined** (documented) |
 | `file-read*` | workspace + interpreter roots + `/System`, `/Library`, `/usr`, `/bin`, `/sbin`, `/opt`, `/etc`, `/private/etc`, dyld/timezone DB dirs + `/dev/{null,zero,random,urandom}` | dyld cache, system dylibs, stdlib, zoneinfo, entropy |
 | `file-write*` | workspace only | authorized mutation; raw `/dev` devices deliberately not writable/readable |
 | `network*` | **denied** by default; all-or-nothing `allow network*` on `allow_network=True` | no per-host filtering in SBPL |
