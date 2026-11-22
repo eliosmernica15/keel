@@ -159,9 +159,11 @@ def build_profile(
     roots: list[str] = []
     for candidate in (*_SYSTEM_READ_ROOTS, *read_roots):
         path = _sbpl_path(candidate)
-        if path == ws or any(
+        if (path == ws or path in roots or any(
             path.startswith(other.rstrip("/") + "/") for other in roots
-        ):
+        )):
+            # Duplicate filters are not harmless: the SBPL compiler aborts
+            # (SIGABRT, empty stderr) when the same filter is repeated.
             continue
         roots.append(path)
 
@@ -336,7 +338,7 @@ def run_confined(
     ws_path.mkdir(parents=True, exist_ok=True)
     ws = _sbpl_path(ws_path)
 
-    read_roots = tuple(_SYSTEM_READ_ROOTS) + tuple(_runtime_read_roots(argv))
+    read_roots = tuple(_runtime_read_roots(argv))  # system roots added by build_profile
     profile = build_profile(ws, read_roots=read_roots, allow_network=allow_network)
     limitations = _limitations(memory_mb, allow_network=allow_network)
     as_cap_mb = max(int(memory_mb), _MACOS_AS_FLOOR_MB)

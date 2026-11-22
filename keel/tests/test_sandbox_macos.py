@@ -72,6 +72,11 @@ def test_build_profile_is_restrictive(tmp_path):
     assert '(literal "/dev/null")' in profile
     assert '(subpath "/dev")' not in profile
     assert profile.count("(allow file-read*") == 3  # workspace + roots + devices
+
+    # Duplicate SBPL filters make sandbox-exec abort with SIGABRT (no stderr).
+    dedup = build_profile(tmp_path, read_roots=["/usr", "/usr/lib", "/usr"])
+    assert dedup.count('(subpath "/usr")') == 1
+    assert dedup.count('(subpath "/usr/lib")') == 1
     assert build_profile(tmp_path, allow_network=True).count("(allow network*)") == 1
 
 
