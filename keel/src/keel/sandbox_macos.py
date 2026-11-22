@@ -153,6 +153,20 @@ def build_profile(
     that cannot be enumerated in advance (this is recorded as PARTIAL).
     """
     ws = _sbpl_path(workspace)
+    # Keep the rule count small: the SBPL compiler aborts (SIGABRT, no stderr)
+    # on large filter sets. Merge filters into one rule per kind and drop roots
+    # already covered by a broader system root.
+    roots: list[str] = []
+    for candidate in (*_SYSTEM_READ_ROOTS, *read_roots):
+        path = _sbpl_path(candidate)
+        if path == ws or any(
+            path.startswith(other.rstrip("/") + "/") for other in roots
+        ):
+            continue
+        roots.append(path)
+
+    read_filters = " ".join(f'(subpath "{root}")' for root in roots)
+    device_filters = " ".join(f'(literal "{d}")' for d in _DEVICE_READ_PATHS)
     lines = [
         "(version 1)",
         "(deny default)",
@@ -174,13 +188,11 @@ def build_profile(
         f'(allow file-write* (subpath "{ws}"))',
         "",
         ";; read-only interpreter/OS roots needed to start a process",
+        f"(allow file-read* {read_filters})",
+        f"(allow file-read* {device_filters})",
+        "",
+        "(allow network*)" if allow_network else "(deny network*)",
     ]
-    for root in read_roots:
-        lines.append(f'(allow file-read* (subpath "{_sbpl_path(root)}"))')
-    for device in _DEVICE_READ_PATHS:
-        lines.append(f'(allow file-read* (literal "{device}"))')
-    lines.append("")
-    lines.append("(allow network*)" if allow_network else "(deny network*)")
     return "\n".join(lines) + "\n"
 
 
@@ -244,46 +256,52 @@ def _tail(data: bytes | None, size: int = 400) -> str:
 
 
 def _diagnose_profile(sandbox_exec: str, profile: str) -> str:
-    """Find the first SBPL rule that makes ``sandbox-exec`` abort.
+    """Isolate the SBPL rule interaction that makes ``sandbox-exec`` abort.
 
-    Used only on a failed pre-flight, so CI logs carry a precise BLOCKED
-    reason instead of a silent SIGABRT (an invalid SBPL rule aborts with no
-    stderr on modern macOS).
+    An invalid/conflicting SBPL rule aborts with an empty stderr on modern
+    macOS. This runs only after a failed pre-flight so CI logs carry an exact
+    BLOCKED reason rather than a silent signal.
     """
-    known_good = [
-        "(version 1)",
-        "(deny default)",
-        "(allow process-exec)",
-        "(allow file-read*)",
-    ]
-    rules = [
-        line for line in profile.splitlines()
-        if line and not line.startswith(";") and line not in known_good
-    ]
-    try:
-        base = subprocess.run(
-            [sandbox_exec, "-p", "\n".join(known_good) + "\n", "/usr/bin/true"],
-            capture_output=True, timeout=10, check=False,
-        )
-        if base.returncode != 0:
-            return f"baseline probe itself failed (exit={base.returncode})"
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        return f"baseline probe error: {exc!r}"
-    for rule in rules:
-        candidate = "\n".join([*known_good, rule]) + "\n"
+    def compiles(rules: list[str]) -> bool:
         try:
             result = subprocess.run(
-                [sandbox_exec, "-p", candidate, "/usr/bin/true"],
+                [sandbox_exec, "-p", "\n".join(rules) + "\n", "/usr/bin/true"],
                 capture_output=True, timeout=10, check=False,
             )
-        except (OSError, subprocess.TimeoutExpired) as exc:
-            return f"rule {rule!r} probe error: {exc!r}"
-        if result.returncode != 0:
-            return (f"first failing SBPL rule: {rule!r} "
-                    f"(exit={result.returncode}, "
-                    f"stderr={_tail(result.stderr)!r})")
-        known_good.append(rule)
-    return "every rule compiles individually; failure requires the full profile"
+        except (OSError, subprocess.TimeoutExpired):
+            return False
+        return result.returncode == 0
+
+    all_rules = [
+        line for line in profile.splitlines()
+        if line and not line.startswith(";")
+    ]
+    if compiles(all_rules):
+        return "the full profile compiles in isolation"
+
+    # Which single rule, when removed, makes the profile compile?
+    culprits = []
+    for i, rule in enumerate(all_rules):
+        if compiles(all_rules[:i] + all_rules[i + 1:]):
+            culprits.append(rule)
+    if culprits:
+        return "removing any of these rules makes it compile: " + repr(culprits)
+
+    # Otherwise shrink in chunks while it still fails (keep the essentials).
+    essential = {"(version 1)", "(deny default)", "(allow process-exec)"}
+    current = list(all_rules)
+    changed = True
+    while changed and len(current) > 4:
+        changed = False
+        chunk = max(1, (len(current) - 3) // 2)
+        for i in range(0, len(current), chunk):
+            trial = current[:i] + current[i + chunk:]
+            if any(r in essential for r in trial) and len(trial) > 3 and not compiles(trial):
+                current = trial
+                changed = True
+                break
+    return (f"no single-rule culprit; minimal failing core "
+            f"({len(current)} rules):\n" + "\n".join(current))
 
 
 def run_confined(

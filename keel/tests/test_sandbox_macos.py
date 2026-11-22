@@ -68,8 +68,10 @@ def test_build_profile_is_restrictive(tmp_path):
     # No global content reads: only narrow subpaths / device literals.
     assert "(allow file-read*)" not in profile
     assert f'(allow file-write* (subpath "{tmp_path}"))' in profile
-    assert '(allow file-read* (subpath "/usr/lib"))' in profile
-    assert '(allow file-read* (subpath "/dev"))' not in profile
+    assert '(subpath "/usr/lib")' in profile
+    assert '(literal "/dev/null")' in profile
+    assert '(subpath "/dev")' not in profile
+    assert profile.count("(allow file-read*") == 3  # workspace + roots + devices
     assert build_profile(tmp_path, allow_network=True).count("(allow network*)") == 1
 
 
