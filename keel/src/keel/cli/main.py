@@ -61,6 +61,8 @@ def main(argv: list[str] | None = None) -> int:
         return _repoindex_cmd(argv[1:])
     if argv and argv[0] == "openapi":
         return _openapi_cmd(argv[1:])
+    if argv and argv[0] == "secrets":
+        return _secrets_cmd(argv[1:])
     if argv and argv[0] == "skills":
         return _skills_cmd(argv[1:])
     if argv and argv[0] == "settings":
@@ -714,6 +716,48 @@ def _skills_cmd(argv: list[str]) -> int:
         sys.stdout.write(skills_mod.render_prompt(skill, arguments))
         return 0
     sys.stderr.write(_SKILLS_USAGE)
+    return 1
+
+
+def _secrets_cmd(argv: list[str]) -> int:
+    import os
+
+    from ..secret_providers import (EnvProvider, ProviderChain, ProviderConfig,
+                                    chain_from_config)
+
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(
+            "usage: keel secrets providers\n"
+            "       keel secrets has <KEY>\n"
+            "       keel secrets get <KEY>   (reveals value to stdout)\n")
+        return 0
+    cmd = argv[0]
+    config = ProviderConfig(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+    try:
+        if cmd == "providers":
+            configured = config.load()
+            if configured.get("providers"):
+                chain = chain_from_config(configured)
+            else:
+                chain = ProviderChain([EnvProvider()])
+            sys.stdout.write(json.dumps(chain.describe(), indent=2) + "\n")
+            return 0
+        if cmd in ("has", "get"):
+            configured = config.load()
+            chain = (chain_from_config(configured) if configured.get("providers")
+                     else ProviderChain([EnvProvider()]))
+            result = chain.resolve(argv[1], reveal=(cmd == "get"))
+            if cmd == "get" and not result["present"]:
+                sys.stderr.write("secret not found\n")
+                return 1
+            sys.stdout.write(result["value"] if cmd == "get"
+                             else json.dumps(result) + "\n")
+            return 0
+    except (OSError, ValueError, KeyError, IndexError) as exc:
+        diagnostic("secrets_error", {"command": cmd, "error": str(exc)})
+        sys.stderr.write(f"secrets: {exc}\n")
+        return 1
+    sys.stderr.write(f"unknown secrets command: {cmd}\n")
     return 1
 
 

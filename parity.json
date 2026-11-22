@@ -1169,7 +1169,7 @@
       "priority": "P2",
       "status": "verified",
       "source_files": [
-        "src/keel/provider_sources.py"
+        "src/keel/secret_providers.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1178,10 +1178,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_provider_sources.py"
+        "tests/test_secret_providers.py tests/test_provider_sources.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Secret provider choice descriptors",
+      "verification_evidence": "Real local secret providers: env, .env file and opt-in user-owned command with shell=False/timeout, provider chain with presence-only diagnostics (no values in listings or capabilities), persisted provider choice, CLI get/has",
       "owner_approval_required": false
     },
     {

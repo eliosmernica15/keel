@@ -707,6 +707,20 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Phase 2 batch — A4.7 real local secret providers (P2)
+
+**Implemented:** `src/keel/secret_providers.py` makes the provider choice real:
+`EnvProvider`, `EnvFileProvider` (comment/export/quote-aware `.env` parsing),
+and `CommandProvider` (opt-in, `shell=False`, timeout, key passed as the only
+argument). A `ProviderChain` resolves from the first provider with a value;
+diagnostics and capability surfaces are presence-only (value never returned
+unless the caller explicitly calls `resolve(reveal=True)` or `keel secrets get`).
+`ProviderConfig` persists the choice with no secret values. Two `core.secrets.*`
+capabilities (describe/has) and a `keel secrets providers|has|get` CLI.
+
+**Verification:** 8 new tests (`test_secret_providers.py`) — all pass,
+including the assertion that capability results contain no secret value.
+
 ## Phase 2 batch — C7.4 real OpenAPI-to-tools with approval gating (P1)
 
 **Implemented:** `src/keel/openapi_tools.py` upgrades the empty-schema

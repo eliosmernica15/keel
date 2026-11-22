@@ -52,7 +52,7 @@ LOCAL_MODULES = frozenset({
     "db_explorer", "sarif", "charts", "authoring",
     "channel_ops", "build_repro", "workbench", "notebook", "spec_mode", "views",
     "judge", "docpacks", "notes_vault", "repo_index", "openapi_tools",
-    "ops_tools",
+    "secret_providers", "ops_tools",
     "agent_profiles", "local_ops", "integrations",
     "external_adapters",
     "ops_tools", "agent_intelligence", "agent_roles", "best_of_n", "arena",
@@ -380,8 +380,12 @@ IMPLEMENTED = {
              "Inline !cmd shell prefix parsing for permission-gated execution"),
     "A1.8": ("src/keel/local_ops.py", "tests/test_local_ops.py",
              "Real editor launch command builder"),
-    "A4.7": ("src/keel/provider_sources.py", "tests/test_provider_sources.py",
-             "Secret provider choice descriptors"),
+    "A4.7": ("src/keel/secret_providers.py",
+             "tests/test_secret_providers.py tests/test_provider_sources.py",
+             "Real local secret providers: env, .env file and opt-in "
+             "user-owned command with shell=False/timeout, provider chain "
+             "with presence-only diagnostics (no values in listings or "
+             "capabilities), persisted provider choice, CLI get/has"),
     "A5.2": ("src/keel/provider_sources.py", "tests/test_provider_sources.py",
              "Channel/plugin install from git URL or local link, dormant until approved"),
     "A1.3": ("src/keel/tui.py", "tests/test_tui_functional.py tests/test_tui.py",

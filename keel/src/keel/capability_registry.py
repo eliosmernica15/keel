@@ -118,6 +118,31 @@ def _feedback_export(p, ctx):
         if line.strip()] or []}
 
 
+@capability("core.secrets.providers", "secret_providers", "core", "read",
+            "Describe configured local secret providers (no values)")
+def _secrets_providers(p, ctx):
+    from .secret_providers import (EnvProvider, ProviderChain, ProviderConfig,
+                                   chain_from_config)
+    config = ProviderConfig(str(p.get("state_root",
+                                       ctx.get("state_root", ".keel")))).load()
+    chain = (chain_from_config(config) if config.get("providers")
+             else ProviderChain([EnvProvider()]))
+    return {"providers": chain.describe()}
+
+
+@capability("core.secrets.has", "secret_providers", "core", "read",
+            "Check whether a secret is present without revealing its value")
+def _secrets_has(p, ctx):
+    from .secret_providers import (EnvProvider, ProviderChain, ProviderConfig,
+                                   chain_from_config)
+    config = ProviderConfig(str(p.get("state_root",
+                                       ctx.get("state_root", ".keel")))).load()
+    chain = (chain_from_config(config) if config.get("providers")
+             else ProviderChain([EnvProvider()]))
+    result = chain.resolve(str(p.get("key", "")))
+    return {k: result[k] for k in ("key", "source", "present", "length")}
+
+
 @capability("core.providers.validate", "provider_validation", "core", "read",
             "Run the provider validation matrix (no live calls without credentials)")
 def _providers_validate(p, ctx):
