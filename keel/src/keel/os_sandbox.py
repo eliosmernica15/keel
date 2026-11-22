@@ -201,13 +201,10 @@ def _macos_profile(workspace: str) -> str:
 (deny default)
 (allow process*)
 (allow sysctl-read)
-(allow file-read* (subpath "{workspace}"))
-(allow file-read* (subpath "/usr"))
-(allow file-read* (subpath "/bin"))
-(allow file-read* (subpath "/System"))
-(allow file-read* (subpath "/opt"))
-(allow file-read* (subpath "/Library"))
+(allow file-read*)
 (allow file-write* (subpath "{workspace}"))
+(allow mach-lookup)
+(allow ipc-posix-shm*)
 (deny network*)
 """
 
