@@ -79,8 +79,18 @@ jobs:
           if ($un) { Start-Process $un.FullName -ArgumentList "/S" -Wait }
           Start-Sleep -Seconds 2
           Write-Host "UNINSTALL_ATTEMPTED=$([bool]$un)"
+          # PyInstaller onefile launches a child process; stopping the parent
+          # leaves the child, so terminate any process still running from the
+          # validation install directory before asserting cleanup.
+          Get-CimInstance Win32_Process | Where-Object {
+            $_.ExecutablePath -and $_.ExecutablePath.StartsWith($dest)
+          } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+          Start-Sleep -Seconds 1
+          $left = Get-CimInstance Win32_Process | Where-Object {
+            $_.ExecutablePath -and $_.ExecutablePath.StartsWith($dest)
+          }
+          if ($left) { throw "leftover keel process from $dest" }
           Remove-Item -Recurse -Force $dest -ErrorAction SilentlyContinue
-          if (Get-Process keel -ErrorAction SilentlyContinue) { throw "leftover keel process" }
           Write-Host "CLEANUP_PASS"
 
   macos-package:
@@ -123,7 +133,9 @@ jobs:
           test -n "$APPIMAGE"
           chmod +x "$APPIMAGE"
           "$APPIMAGE" --appimage-extract >/dev/null
-          test -x squashfs-root/Keel
+          test -x squashfs-root/keel-desktop
+          test -x squashfs-root/resources/keel/keel
+          squashfs-root/resources/keel/keel --version
           DEB=$(find artifacts -name "*.deb" | head -1)
           test -n "$DEB"
           dpkg-deb -c "$DEB" | grep -q "Keel"
