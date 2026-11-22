@@ -59,6 +59,8 @@ def main(argv: list[str] | None = None) -> int:
         return _vault_cmd(argv[1:])
     if argv and argv[0] == "repoindex":
         return _repoindex_cmd(argv[1:])
+    if argv and argv[0] == "openapi":
+        return _openapi_cmd(argv[1:])
     if argv and argv[0] == "skills":
         return _skills_cmd(argv[1:])
     if argv and argv[0] == "settings":
@@ -712,6 +714,60 @@ def _skills_cmd(argv: list[str]) -> int:
         sys.stdout.write(skills_mod.render_prompt(skill, arguments))
         return 0
     sys.stderr.write(_SKILLS_USAGE)
+    return 1
+
+
+def _openapi_cmd(argv: list[str]) -> int:
+    import os
+    from pathlib import Path
+
+    from ..openapi_tools import (ToolRegistry, approve_tool, build_request,
+                                 generate_tools)
+
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(
+            "usage: keel openapi generate <name> <spec.json>\n"
+            "       keel openapi approve <name> <tool>\n"
+            "       keel openapi request <name> <tool> <args.json>\n"
+            "       keel openapi list\n")
+        return 0
+    cmd = argv[0]
+    store = ToolRegistry(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+    try:
+        if cmd == "generate":
+            spec = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
+            tools = generate_tools(spec)
+            store.save(argv[1], tools)
+            sys.stdout.write(json.dumps({"count": len(tools),
+                                         "dormant": True}) + "\n")
+            return 0
+        if cmd == "approve":
+            tools = store.load(argv[1])
+            tool = next((t for t in tools if t["name"] == argv[2]), None)
+            if tool is None:
+                raise KeyError(argv[2])
+            approve_tool(tool, approver=os.environ.get(
+                "KEEL_TOOL_APPROVER", "owner"))
+            store.save(argv[1], tools)
+            sys.stdout.write(json.dumps({"approved": True}) + "\n")
+            return 0
+        if cmd == "request":
+            tools = store.load(argv[1])
+            tool = next((t for t in tools if t["name"] == argv[2]), None)
+            if tool is None:
+                raise KeyError(argv[2])
+            args = json.loads(Path(argv[3]).read_text(encoding="utf-8"))
+            sys.stdout.write(json.dumps(build_request(tool, args),
+                                        indent=2) + "\n")
+            return 0
+        if cmd == "list":
+            sys.stdout.write(json.dumps(store.list()) + "\n")
+            return 0
+    except (OSError, ValueError, KeyError, IndexError) as exc:
+        diagnostic("openapi_error", {"command": cmd, "error": str(exc)})
+        sys.stderr.write(f"openapi: {exc}\n")
+        return 1
+    sys.stderr.write(f"unknown openapi command: {cmd}\n")
     return 1
 
 

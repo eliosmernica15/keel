@@ -5145,7 +5145,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/interop.py"
+        "src/keel/openapi_tools.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -5154,10 +5154,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_interop.py"
+        "tests/test_openapi_tools.py tests/test_interop.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "OpenAPI-to-tools generator with dormant approval gate",
+      "verification_evidence": "Real OpenAPI 3 to tools generator: parameter/request-body JSON Schemas, local $ref resolution, request descriptor builder, explicit named approval before use, persisted tool sets, capability and CLI surfaces; no network calls made",
       "owner_approval_required": false
     },
     {

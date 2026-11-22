@@ -51,7 +51,8 @@ LOCAL_MODULES = frozenset({
     "git_extras_runtime", "session_export", "model_router",
     "db_explorer", "sarif", "charts", "authoring",
     "channel_ops", "build_repro", "workbench", "notebook", "spec_mode", "views",
-    "judge", "docpacks", "notes_vault", "repo_index", "ops_tools",
+    "judge", "docpacks", "notes_vault", "repo_index", "openapi_tools",
+    "ops_tools",
     "agent_profiles", "local_ops", "integrations",
     "external_adapters",
     "ops_tools", "agent_intelligence", "agent_roles", "best_of_n", "arena",
@@ -289,8 +290,12 @@ IMPLEMENTED = {
              "Importance scoring, decay and dreaming consolidation"),
     "C7.2": ("src/keel/interop.py", "tests/test_interop.py",
              "MCP config import/export and settings interchange"),
-    "C7.4": ("src/keel/interop.py", "tests/test_interop.py",
-             "OpenAPI-to-tools generator with dormant approval gate"),
+    "C7.4": ("src/keel/openapi_tools.py",
+             "tests/test_openapi_tools.py tests/test_interop.py",
+             "Real OpenAPI 3 to tools generator: parameter/request-body JSON "
+             "Schemas, local $ref resolution, request descriptor builder, "
+             "explicit named approval before use, persisted tool sets, "
+             "capability and CLI surfaces; no network calls made"),
     "C7.5": ("src/keel/interop.py", "tests/test_interop.py",
              "Standards support checklist"),
     "C4.2": ("src/keel/code_intel.py", "tests/test_code_intel.py",

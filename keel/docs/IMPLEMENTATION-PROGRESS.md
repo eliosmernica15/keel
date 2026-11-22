@@ -707,6 +707,20 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Phase 2 batch — C7.4 real OpenAPI-to-tools with approval gating (P1)
+
+**Implemented:** `src/keel/openapi_tools.py` upgrades the empty-schema
+descriptor into a real generator: path/query/header parameters and request
+bodies become JSON Schema input schemas with required fields, local `$ref`s
+resolve, and a request builder renders method/URL/query/headers/body from
+arguments (no network call). Every generated tool is dormant and needs an
+explicit named approval before a request can be built. Persisted `ToolRegistry`,
+four `code.openapi.*` capabilities and a `keel openapi` CLI. `interop.openapi_to_tools`
+now delegates while keeping its dormant keys.
+
+**Verification:** 8 new tests (`test_openapi_tools.py`) plus existing
+`test_interop.py` — 11 pass. C7.4 registry evidence updated.
+
 ## Phase 2 batch — C9.3 real incremental repository indexing (P1)
 
 **Implemented:** `src/keel/repo_index.py` supplies the concrete indexing half

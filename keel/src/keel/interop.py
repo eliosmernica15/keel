@@ -35,25 +35,13 @@ def export_config(doc: dict) -> dict:
 
 
 def openapi_to_tools(spec: dict) -> list[dict]:
-    """Turn OpenAPI paths into dormant tool descriptors."""
-    tools = []
-    for path, methods in (spec.get("paths", {}) or {}).items():
-        if not isinstance(methods, dict):
-            continue
-        for method, operation in methods.items():
-            if method.lower() not in ("get", "post", "put", "patch", "delete"):
-                continue
-            if not isinstance(operation, dict):
-                continue
-            op_id = operation.get("operationId") or f"{method}_{path.strip('/')}"
-            tools.append({
-                "name": str(op_id)[:64],
-                "description": str(operation.get("summary", ""))[:200],
-                "input_schema": {"type": "object", "properties": {}},
-                "method": method.lower(), "path": path,
-                "dormant": True, "approved": False,
-            })
-    return tools
+    """Turn OpenAPI paths into dormant tool descriptors.
+
+    Backward-compatible entry point; delegates to the real generator in
+    :mod:`keel.openapi_tools` (full schemas, request builder, approval gating).
+    """
+    from .openapi_tools import generate_tools
+    return generate_tools(spec)
 
 
 STANDARDS = ["AGENTS.md", "MCP", "ACP", "LSP", "DAP", "OpenTelemetry",

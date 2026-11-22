@@ -806,6 +806,54 @@ def _openapi(p, ctx):
     return {"tools": openapi_to_tools(p.get("spec", {}))}
 
 
+@capability("code.openapi.generate", "openapi_tools", "code", "write",
+            "Generate real approval-gated tools from an OpenAPI 3 document",
+            mutates=True)
+def _openapi_generate(p, ctx):
+    from .openapi_tools import ToolRegistry, generate_tools
+    tools = generate_tools(p.get("spec", {}))
+    store = ToolRegistry(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    name = str(p.get("name", "api"))
+    store.save(name, tools)
+    return {"name": name, "count": len(tools), "dormant": True}
+
+
+@capability("code.openapi.approve", "openapi_tools", "code", "execute",
+            "Explicitly approve a generated tool", mutates=True)
+def _openapi_approve(p, ctx):
+    from .openapi_tools import ToolRegistry, approve_tool
+    store = ToolRegistry(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    name = str(p.get("name", "api"))
+    tools = store.load(name)
+    tool = next((t for t in tools if t["name"] == p.get("tool")), None)
+    if tool is None:
+        raise KeyError(p.get("tool"))
+    approve_tool(tool, approver=str(p.get("approver", "owner")),
+                 note=str(p.get("note", "")))
+    store.save(name, tools)
+    return {"name": tool["name"], "approved": True}
+
+
+@capability("code.openapi.request", "openapi_tools", "code", "read",
+            "Build a request descriptor from an approved tool (no network call)")
+def _openapi_request(p, ctx):
+    from .openapi_tools import ToolRegistry, build_request
+    store = ToolRegistry(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    tools = store.load(str(p.get("name", "api")))
+    tool = next((t for t in tools if t["name"] == p.get("tool")), None)
+    if tool is None:
+        raise KeyError(p.get("tool"))
+    return build_request(tool, p.get("arguments", {}))
+
+
+@capability("code.openapi.list", "openapi_tools", "code", "read",
+            "List saved OpenAPI tool sets")
+def _openapi_list(p, ctx):
+    from .openapi_tools import ToolRegistry
+    store = ToolRegistry(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    return {"names": store.list()}
+
+
 @capability("code.interop.import_mcp", "interop", "code", "read",
             "Normalize another app's MCP config")
 def _mcp_import(p, ctx):
