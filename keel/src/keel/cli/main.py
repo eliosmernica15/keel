@@ -51,6 +51,8 @@ def main(argv: list[str] | None = None) -> int:
         return _provider_cmd(argv[1:])
     if argv and argv[0] == "notebook":
         return _notebook_cmd(argv[1:])
+    if argv and argv[0] == "spec":
+        return _spec_cmd(argv[1:])
     if argv and argv[0] == "skills":
         return _skills_cmd(argv[1:])
     if argv and argv[0] == "settings":
@@ -705,6 +707,62 @@ def _skills_cmd(argv: list[str]) -> int:
         return 0
     sys.stderr.write(_SKILLS_USAGE)
     return 1
+
+
+def _spec_cmd(argv: list[str]) -> int:
+    import os
+
+    from ..spec_mode import (SpecStore, approve, break_down_tasks, create_spec,
+                             record_evidence, set_task_status, status)
+
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(
+            "usage: keel spec new <name> <goal> [--requirements a,b]\n"
+            "       keel spec plan <name>        keel spec approve <name>\n"
+            "       keel spec task <name> <task-id> <status>\n"
+            "       keel spec evidence <name> <task-id> <text>\n"
+            "       keel spec status <name>       keel spec list\n")
+        return 0
+    cmd = argv[0]
+    store = SpecStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+    try:
+        if cmd == "new":
+            if len(argv) < 3:
+                return 1
+            reqs = None
+            if "--requirements" in argv:
+                reqs = argv[argv.index("--requirements") + 1].split(",")
+            spec = create_spec(argv[2], requirements=reqs, name=argv[1])
+            sys.stdout.write(json.dumps(status(spec), indent=2) + "\n")
+            store.save(spec)
+            return 0
+        if cmd == "list":
+            sys.stdout.write(json.dumps(store.list()) + "\n")
+            return 0
+        if cmd == "status":
+            sys.stdout.write(json.dumps(status(store.load(argv[1])),
+                                        indent=2) + "\n")
+            return 0
+        spec = store.load(argv[1])
+        if cmd == "plan":
+            break_down_tasks(spec)
+        elif cmd == "approve":
+            approve(spec, approver=os.environ.get("KEEL_SPEC_APPROVER",
+                                                  "owner"))
+        elif cmd == "task":
+            set_task_status(spec, argv[2], argv[3])
+        elif cmd == "evidence":
+            record_evidence(spec, argv[2], " ".join(argv[3:]))
+        else:
+            sys.stderr.write(f"unknown spec command: {cmd}\n")
+            return 1
+        store.save(spec)
+        sys.stdout.write(json.dumps(status(spec), indent=2) + "\n")
+        return 0
+    except (OSError, ValueError, KeyError, IndexError) as exc:
+        diagnostic("spec_error", {"command": cmd, "error": str(exc)})
+        sys.stderr.write(f"spec: {exc}\n")
+        return 1
 
 
 def _notebook_cmd(argv: list[str]) -> int:

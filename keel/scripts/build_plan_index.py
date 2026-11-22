@@ -50,7 +50,7 @@ LOCAL_MODULES = frozenset({
     "model_runtime", "rag_watcher", "api_tester", "codemod",
     "git_extras_runtime", "session_export", "model_router",
     "db_explorer", "sarif", "charts", "authoring",
-    "channel_ops", "build_repro", "workbench", "notebook", "ops_tools",
+    "channel_ops", "build_repro", "workbench", "notebook", "spec_mode", "ops_tools",
     "agent_profiles", "local_ops", "integrations",
     "external_adapters",
     "ops_tools", "agent_intelligence", "agent_roles", "best_of_n", "arena",
@@ -394,8 +394,12 @@ IMPLEMENTED = {
              "Prompt-injection classifier and canary tokens"),
     "B3.12": ("src/keel/trust_tools.py", "tests/test_trust_tools.py",
               "Verifiable immutable audit bundles"),
-    "B2.2": ("src/keel/authoring.py", "tests/test_authoring.py tests/test_workbench.py",
-             "Spec-driven scaffold with approval gate"),
+    "B2.2": ("src/keel/spec_mode.py",
+             "tests/test_spec_mode.py tests/test_authoring.py",
+             "Real spec-driven workflow: structured spec, dependency-ordered "
+             "task breakdown, explicit attributed approval gates between "
+             "phases, required verification evidence, persistent state, "
+             "capability and CLI surfaces"),
     "B2.8": ("src/keel/notebook.py",
              "tests/test_notebook.py tests/test_workbench.py",
              "Real notebook execution in the hardened sandbox with per-cell "

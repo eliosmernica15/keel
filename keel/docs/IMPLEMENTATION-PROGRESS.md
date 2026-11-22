@@ -707,6 +707,20 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Phase 2 batch — B2.2 real spec-driven mode (P1)
+
+**Implemented:** `src/keel/spec_mode.py` upgrades the descriptor into a real
+persistent workflow: structured spec with requirement IDs, dependency-ordered
+task breakdown, explicit attributed approval gates between every phase
+(spec→tasks→implement→verify→done), task status with dependency enforcement,
+and mandatory verification evidence before the verify phase can complete.
+`SpecStore` persists to local JSON. Integrated via five `code.spec.*`
+capabilities and a `keel spec new|plan|approve|task|evidence|status|list` CLI.
+
+**Verification:** 8 new tests (`test_spec_mode.py`) covering structure,
+dependencies, approval gating, evidence enforcement, store roundtrip,
+capability invoke and CLI E2E — all pass. Registry B2.2 evidence updated.
+
 ## Phase 2 batch — B2.8 real notebook execution (P1)
 
 **Milestone:** next locally achievable feature per Master Plan v6 prioritized

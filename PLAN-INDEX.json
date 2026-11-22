@@ -1817,7 +1817,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/authoring.py"
+        "src/keel/spec_mode.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1826,10 +1826,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_authoring.py tests/test_workbench.py"
+        "tests/test_spec_mode.py tests/test_authoring.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Spec-driven scaffold with approval gate",
+      "verification_evidence": "Real spec-driven workflow: structured spec, dependency-ordered task breakdown, explicit attributed approval gates between phases, required verification evidence, persistent state, capability and CLI surfaces",
       "owner_approval_required": false
     },
     {

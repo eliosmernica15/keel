@@ -633,6 +633,47 @@ def _secscan(p, ctx):
     return security_scan(str(p.get("root", ctx.get("cwd", "."))))
 
 
+@capability("code.spec.create", "spec_mode", "code", "read",
+            "Create a structured spec with requirements and an approval gate")
+def _spec_create(p, ctx):
+    from .spec_mode import create_spec
+    return create_spec(str(p.get("goal", "")),
+                       requirements=p.get("requirements"),
+                       out_of_scope=p.get("out_of_scope"),
+                       name=str(p.get("name", "spec")))
+
+
+@capability("code.spec.plan", "spec_mode", "code", "read",
+            "Break a spec into dependency-ordered tasks")
+def _spec_plan(p, ctx):
+    from .spec_mode import break_down_tasks
+    return break_down_tasks(p["spec"])
+
+
+@capability("code.spec.approve", "spec_mode", "code", "execute",
+            "Record an approval and advance the spec workflow phase",
+            mutates=True)
+def _spec_approve(p, ctx):
+    from .spec_mode import approve
+    return approve(p["spec"], approver=str(p.get("approver", "owner")),
+                   note=str(p.get("note", "")))
+
+
+@capability("code.spec.evidence", "spec_mode", "code", "write",
+            "Attach verification evidence to a spec task", mutates=True)
+def _spec_evidence(p, ctx):
+    from .spec_mode import record_evidence
+    return record_evidence(p["spec"], str(p.get("task_id", "")),
+                           str(p.get("evidence", "")))
+
+
+@capability("code.spec.status", "spec_mode", "code", "read",
+            "Summarize spec workflow progress")
+def _spec_status(p, ctx):
+    from .spec_mode import status
+    return status(p["spec"])
+
+
 @capability("code.issue.plan", "issue_to_change", "code", "read",
             "Turn an issue into a change plan")
 def _issue(p, ctx):
