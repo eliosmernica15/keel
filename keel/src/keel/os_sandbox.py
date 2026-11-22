@@ -107,9 +107,9 @@ class _LandlockRulesetAttr(ctypes.Structure):
 
 
 class _LandlockPathBeneathAttr(ctypes.Structure):
-    _fields_ = [("parent_fd", ctypes.c_int32),
-                ("allowed_access", ctypes.c_uint64),
-                ("reserved", ctypes.c_uint64)]
+    # Kernel ABI: __u64 allowed_access; __s32 parent_fd; (padding)
+    _fields_ = [("allowed_access", ctypes.c_uint64),
+                ("parent_fd", ctypes.c_int32)]
 
 
 # Landlock filesystem rights (kernel ABI).
@@ -177,7 +177,11 @@ def _seccomp_deny_network(libc) -> None:
         insns.append((0x05, 0, 0, 1))              # ja +1 (skip ret)
         insns.append((0x06, 0, 0, 1))              # ret EPERM
     insns.append((0x06, 0, 0, 0x7fff0000))        # ret ALLOW
-    sock_filter = ctypes.c_ulong * 3
+    class SockFilter(ctypes.Structure):
+        _fields_ = [("code", ctypes.c_ushort), ("jt", ctypes.c_ubyte),
+                    ("jf", ctypes.c_ubyte), ("k", ctypes.c_uint32)]
+
+    sock_filter = SockFilter
     arr = (sock_filter * len(insns))()
     for i, (code, jt, jf, k) in enumerate(insns):
         arr[i] = sock_filter(code, jt, jf, k)
@@ -198,8 +202,12 @@ def _macos_profile(workspace: str) -> str:
 (allow process*)
 (allow sysctl-read)
 (allow file-read* (subpath "{workspace}"))
+(allow file-read* (subpath "/usr"))
+(allow file-read* (subpath "/bin"))
+(allow file-read* (subpath "/System"))
+(allow file-read* (subpath "/opt"))
+(allow file-read* (subpath "/Library"))
 (allow file-write* (subpath "{workspace}"))
-(allow file-read* (literal "/usr/bin") (literal "/bin") (literal "/usr/lib"))
 (deny network*)
 """
 
@@ -243,6 +251,18 @@ def run_confined(argv: list[str], *, workspace: str | Path | None = None,
         if not caps["linux_landlock"] or not caps["linux_seccomp"]:
             raise SandboxUnavailable(
                 "Linux requires Landlock + seccomp for enforced confinement")
+        # Pre-flight the kernel boundary in a disposable child. Landlock
+        # add_rule can fail even when create_ruleset succeeds (kernel ABI
+        # differences); fail closed rather than launching an unbounded task.
+        probe = subprocess.run(
+            [sys.executable, "-c",
+             "import sys; from keel.os_sandbox import _linux_confine; "
+             "_linux_confine(sys.argv[1])", workspace],
+            capture_output=True, timeout=10, check=False)
+        if probe.returncode != 0:
+            raise SandboxUnavailable(
+                "Landlock/seccomp could not be applied on this host: "
+                + probe.stderr.decode("utf-8", errors="replace")[-300:])
         cmd = argv
         preexec_fn = preexec
     elif os.name == "nt":

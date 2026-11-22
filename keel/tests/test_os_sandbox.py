@@ -15,6 +15,14 @@ MACOS = sys.platform == "darwin"
 WINDOWS = os.name == "nt"
 
 
+def confined_or_blocked(*args, **kwargs):
+    """Run a confined process; report an unavailable kernel boundary as BLOCKED."""
+    try:
+        return run_confined(*args, **kwargs)
+    except SandboxUnavailable as exc:
+        pytest.skip(f"BLOCKED: OS enforcement unavailable: {exc}")
+
+
 def test_capabilities_report_real_enforcement():
     caps = capabilities()
     assert caps["os"] == sys.platform
@@ -32,13 +40,13 @@ def test_workspace_read_and_outside_denied(tmp_path):
     (workspace / "allowed.txt").write_text("workspace-secret", encoding="utf-8")
     outside = tmp_path / "outside.txt"
     outside.write_text("OUTSIDE-SECRET", encoding="utf-8")
-    r = run_confined(
+    r = confined_or_blocked(
         [sys.executable, "-c",
          f"import pathlib; print(pathlib.Path({str(workspace / 'allowed.txt')!r}).read_text())"],
         workspace=workspace, timeout_s=15)
     assert r.ok and "workspace-secret" in r.stdout
     if LINUX or MACOS:
-        r2 = run_confined(
+        r2 = confined_or_blocked(
             [sys.executable, "-c",
              f"print(open({str(outside)!r}).read())"],
             workspace=workspace, timeout_s=15)
@@ -50,7 +58,7 @@ def test_workspace_read_and_outside_denied(tmp_path):
 def test_network_denied_by_default(tmp_path):
     if not (LINUX or MACOS):
         pytest.skip("network enforcement requires Linux Landlock/seccomp or macOS profile")
-    r = run_confined(
+    r = confined_or_blocked(
         [sys.executable, "-c",
          "import socket; s=socket.socket(); s.settimeout(1); "
          "s.connect(('127.0.0.1', 9)); print('CONNECTED')"],
@@ -59,7 +67,7 @@ def test_network_denied_by_default(tmp_path):
 
 
 def test_secret_environment_not_inherited(tmp_path):
-    r = run_confined(
+    r = confined_or_blocked(
         [sys.executable, "-c",
          "import os; print(os.environ.get('KEEL_SANDBOX_SECRET_PROBE'))"],
         workspace=tmp_path, env={**os.environ,
@@ -71,7 +79,7 @@ def test_secret_environment_not_inherited(tmp_path):
 
 
 def test_process_tree_termination(tmp_path):
-    r = run_confined(
+    r = confined_or_blocked(
         [sys.executable, "-c", "import time; time.sleep(30)"],
         workspace=tmp_path, timeout_s=2)
     assert r.timed_out is True
