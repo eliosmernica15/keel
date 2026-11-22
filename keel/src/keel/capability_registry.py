@@ -643,6 +643,29 @@ def _companion_identity(p, ctx):
                                     ctx.get("state_root", ".keel")))
 
 
+@capability("core.os.sandbox.capabilities", "os_sandbox", "core", "read",
+            "Report kernel-enforced sandbox mechanisms and limitations")
+def _os_sandbox_capabilities(p, ctx):
+    from .os_sandbox import capabilities
+    return capabilities()
+
+
+@capability("core.os.sandbox.run", "os_sandbox", "core", "execute",
+            "Execute a command under enforced OS isolation", mutates=True)
+def _os_sandbox_run(p, ctx):
+    from .os_sandbox import run_confined
+    argv = p.get("argv") or []
+    if not isinstance(argv, list) or not argv:
+        raise ValueError("argv must be a non-empty list")
+    result = run_confined([str(a) for a in argv],
+                          workspace=p.get("workspace"),
+                          timeout_s=float(p.get("timeout_s", 15)))
+    return {"ok": result.ok, "exit_code": result.exit_code,
+            "timed_out": result.timed_out, "mechanism": result.mechanism,
+            "limitations": result.limitations,
+            "stdout": result.stdout[:4000], "stderr": result.stderr[:4000]}
+
+
 @capability("core.isolation.status", "native_isolation", "core", "read",
             "Report native OS-level process-isolation support")
 def _isolation_status(p, ctx):

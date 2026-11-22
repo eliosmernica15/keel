@@ -79,3 +79,63 @@ jobs:
           $sidecar = Join-Path $dest "resources\keel\keel.exe"
           & $sidecar --version
           Write-Host "REINSTALL_PASS"
+
+  macos-lifecycle:
+    runs-on: macos-latest
+    steps:
+      - name: Download final macOS artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: gh run download "$RUN_ID" --repo "${{ github.repository }}" -n keel-macos -D final-artifact
+      - name: Download previous release DMG
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download v0.1.1 --repo "${{ github.repository }}" --pattern "*.dmg" -D previous
+      - name: Install previous, upgrade, rollback, reinstall
+        run: |
+          set -euo pipefail
+          OLD=$(find previous -name '*.dmg' | head -1)
+          NEW=$(find final-artifact -name '*.dmg' | head -1)
+          test -n "$OLD" && test -n "$NEW"
+          hdiutil attach "$OLD" -mountpoint /tmp/keel-old -nobrowse
+          cp -R /tmp/keel-old/Keel.app "$HOME/KeelLifecycle.app"
+          hdiutil detach /tmp/keel-old
+          mkdir -p "$HOME/.keel"
+          echo lifecycle-marker > "$HOME/.keel/lifecycle-marker.txt"
+          hdiutil attach "$NEW" -mountpoint /tmp/keel-new -nobrowse
+          rm -rf "$HOME/KeelLifecycle.app"
+          cp -R /tmp/keel-new/Keel.app "$HOME/KeelLifecycle.app"
+          hdiutil detach /tmp/keel-new
+          test -f "$HOME/.keel/lifecycle-marker.txt"
+          "$HOME/KeelLifecycle.app/Contents/Resources/keel/keel" --version
+          echo "MACOS_LIFECYCLE_PASS"
+
+  linux-lifecycle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download final Linux artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: gh run download "$RUN_ID" --repo "${{ github.repository }}" -n keel-linux -D final-artifact
+      - name: Download previous release deb
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download v0.1.1 --repo "${{ github.repository }}" --pattern "*.deb" -D previous
+      - name: Install previous, create data, upgrade, rollback
+        run: |
+          set -euo pipefail
+          OLD=$(find previous -name '*.deb' | head -1)
+          NEW=$(find final-artifact -name '*.deb' | head -1)
+          test -n "$OLD" && test -n "$NEW"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq "$OLD" >/dev/null
+          mkdir -p "$HOME/.keel"
+          echo lifecycle-marker > "$HOME/.keel/lifecycle-marker.txt"
+          sudo apt-get install -y -qq --allow-downgrades "$NEW" >/dev/null
+          test -f "$HOME/.keel/lifecycle-marker.txt"
+          /usr/bin/keel-desktop --version || true
+          sudo apt-get install -y -qq --allow-downgrades "$OLD" >/dev/null
+          test "$(cat "$HOME/.keel/lifecycle-marker.txt")" = lifecycle-marker
+          echo "LINUX_LIFECYCLE_PASS"
