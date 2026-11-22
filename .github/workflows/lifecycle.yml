@@ -130,12 +130,14 @@ jobs:
           NEW=$(find final-artifact -name '*.deb' | head -1)
           test -n "$OLD" && test -n "$NEW"
           sudo apt-get update -qq
-          sudo apt-get install -y -qq "$OLD" >/dev/null
+          OLD_ABS=$(realpath "$OLD")
+          NEW_ABS=$(realpath "$NEW")
+          sudo apt-get install -y -qq "$OLD_ABS" >/dev/null
           mkdir -p "$HOME/.keel"
           echo lifecycle-marker > "$HOME/.keel/lifecycle-marker.txt"
-          sudo apt-get install -y -qq --allow-downgrades "$NEW" >/dev/null
+          sudo apt-get install -y -qq --allow-downgrades "$NEW_ABS" >/dev/null
           test -f "$HOME/.keel/lifecycle-marker.txt"
           /usr/bin/keel-desktop --version || true
-          sudo apt-get install -y -qq --allow-downgrades "$OLD" >/dev/null
+          sudo apt-get install -y -qq --allow-downgrades "$OLD_ABS" >/dev/null
           test "$(cat "$HOME/.keel/lifecycle-marker.txt")" = lifecycle-marker
           echo "LINUX_LIFECYCLE_PASS"
