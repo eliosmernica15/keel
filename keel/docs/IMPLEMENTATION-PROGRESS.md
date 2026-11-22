@@ -707,6 +707,27 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Phase 2 batch — B2.8 real notebook execution (P1)
+
+**Milestone:** next locally achievable feature per Master Plan v6 prioritized
+build order (all P0 items verified or owner-gated; first P1 local_module with
+only a descriptor). No new roadmap invented; feature ID `B2.8` unchanged.
+
+**Implemented:** `src/keel/notebook.py` — a real Notebook/REPL tool that
+executes markdown notebooks. Prose/code cells are parsed properly (fenced
+blocks, superseding the keyword heuristic); all code cells run together in the
+hardened sandbox with per-cell stdout capture and error isolation and shared
+state like a REPL; `chart(...)` calls emit specs rendered to inline offline SVG
+via `keel.charts`; `NotebookStore` persists notebooks in local state with
+recoverable deletion. Integrated through four `cowork.*` capabilities and a
+`keel notebook run|save|load|list|delete` CLI. No new dependencies.
+
+**Verification:** 10 new tests (`test_notebook.py`) including real sandbox
+execution, error isolation, inline SVG rendering, filesystem-write denial,
+store roundtrip/recoverable delete, capability invoke and CLI subprocess E2E.
+All pass. Registry B2.8 promoted from "Notebook cell parser" to real execution
+evidence; `test_plan_index.py` 5 passed; full suite re-run below.
+
 ## External validation & distribution preparation phase
 
 **Sandbox security decision:** implemented the strongest pure-Python boundary —

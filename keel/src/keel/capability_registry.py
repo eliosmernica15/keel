@@ -295,6 +295,39 @@ def _doc_qa(p, ctx):
                                     str(p.get("text", "")))}
 
 
+@capability("cowork.notebook.execute", "notebook", "cowork", "execute",
+            "Execute a markdown notebook in the sandbox with inline SVG charts")
+def _notebook_execute(p, ctx):
+    from .notebook import execute_notebook
+    return execute_notebook(str(p.get("source", "")),
+                            timeout_s=float(p.get("timeout_s", 15)))
+
+
+@capability("cowork.notebook.save", "notebook", "cowork", "write",
+            "Persist a named notebook in local state")
+def _notebook_save(p, ctx):
+    from .notebook import NotebookStore
+    root = str(p.get("state_root", ctx.get("state_root", ".keel")))
+    return NotebookStore(root).save(str(p.get("name", "")),
+                                    str(p.get("source", "")))
+
+
+@capability("cowork.notebook.load", "notebook", "cowork", "read",
+            "Load a saved notebook's markdown source")
+def _notebook_load(p, ctx):
+    from .notebook import NotebookStore
+    root = str(p.get("state_root", ctx.get("state_root", ".keel")))
+    return {"source": NotebookStore(root).load(str(p.get("name", "")))}
+
+
+@capability("cowork.notebook.list", "notebook", "cowork", "read",
+            "List saved notebook names")
+def _notebook_list(p, ctx):
+    from .notebook import NotebookStore
+    root = str(p.get("state_root", ctx.get("state_root", ".keel")))
+    return {"names": NotebookStore(root).list()}
+
+
 @capability("cowork.email.compose", "cowork_channels", "cowork", "read",
             "Compose an RFC-5322 email draft")
 def _email_compose(p, ctx):

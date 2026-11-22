@@ -49,6 +49,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if argv and argv[0] == "provider":
         return _provider_cmd(argv[1:])
+    if argv and argv[0] == "notebook":
+        return _notebook_cmd(argv[1:])
     if argv and argv[0] == "skills":
         return _skills_cmd(argv[1:])
     if argv and argv[0] == "settings":
@@ -702,6 +704,65 @@ def _skills_cmd(argv: list[str]) -> int:
         sys.stdout.write(skills_mod.render_prompt(skill, arguments))
         return 0
     sys.stderr.write(_SKILLS_USAGE)
+    return 1
+
+
+def _notebook_cmd(argv: list[str]) -> int:
+    import os
+    from pathlib import Path
+
+    from ..notebook import NotebookStore, execute_notebook
+
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(
+            "usage: keel notebook run <file.md> [--json] [--html]\n"
+            "       keel notebook save <name> <file.md>\n"
+            "       keel notebook load <name>\n"
+            "       keel notebook list\n"
+            "       keel notebook delete <name>\n")
+        return 0
+    cmd = argv[0]
+    state_root = str(os.environ.get("KEEL_STATE_DIR", ".keel"))
+    try:
+        if cmd == "run":
+            if len(argv) < 2:
+                sys.stderr.write("keel notebook run <file.md>\n")
+                return 1
+            source = Path(argv[1]).read_text(encoding="utf-8")
+            result = execute_notebook(source)
+            if "--json" in argv:
+                sys.stdout.write(json.dumps(result, indent=2) + "\n")
+            elif "--html" in argv:
+                sys.stdout.write(result["html"] + "\n")
+            else:
+                sys.stdout.write(result["markdown"] + "\n")
+            return 0 if result["ok"] else 1
+        store = NotebookStore(state_root)
+        if cmd == "save":
+            if len(argv) < 3:
+                sys.stderr.write("keel notebook save <name> <file.md>\n")
+                return 1
+            doc = store.save(argv[1], Path(argv[2]).read_text(encoding="utf-8"))
+            sys.stdout.write(json.dumps(doc) + "\n")
+            return 0
+        if cmd == "load":
+            if len(argv) < 2:
+                return 1
+            sys.stdout.write(store.load(argv[1]) + "\n")
+            return 0
+        if cmd == "list":
+            sys.stdout.write(json.dumps(store.list()) + "\n")
+            return 0
+        if cmd == "delete":
+            if len(argv) < 2:
+                return 1
+            sys.stdout.write(json.dumps(store.delete(argv[1])) + "\n")
+            return 0
+    except (OSError, ValueError, KeyError) as exc:
+        diagnostic("notebook_error", {"command": cmd, "error": str(exc)})
+        sys.stderr.write(f"notebook: {exc}\n")
+        return 1
+    sys.stderr.write(f"unknown notebook command: {cmd}\n")
     return 1
 
 

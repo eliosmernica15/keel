@@ -1961,7 +1961,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/workbench.py"
+        "src/keel/notebook.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -1970,10 +1970,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_workbench.py"
+        "tests/test_notebook.py tests/test_workbench.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Notebook cell parser",
+      "verification_evidence": "Real notebook execution in the hardened sandbox with per-cell stdout capture, error isolation, inline offline SVG charts, persistence with recoverable deletion, capability and CLI surfaces",
       "owner_approval_required": false
     },
     {

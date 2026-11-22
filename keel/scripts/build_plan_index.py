@@ -50,7 +50,7 @@ LOCAL_MODULES = frozenset({
     "model_runtime", "rag_watcher", "api_tester", "codemod",
     "git_extras_runtime", "session_export", "model_router",
     "db_explorer", "sarif", "charts", "authoring",
-    "channel_ops", "build_repro", "workbench", "ops_tools",
+    "channel_ops", "build_repro", "workbench", "notebook", "ops_tools",
     "agent_profiles", "local_ops", "integrations",
     "external_adapters",
     "ops_tools", "agent_intelligence", "agent_roles", "best_of_n", "arena",
@@ -396,8 +396,11 @@ IMPLEMENTED = {
               "Verifiable immutable audit bundles"),
     "B2.2": ("src/keel/authoring.py", "tests/test_authoring.py tests/test_workbench.py",
              "Spec-driven scaffold with approval gate"),
-    "B2.8": ("src/keel/workbench.py", "tests/test_workbench.py",
-             "Notebook cell parser"),
+    "B2.8": ("src/keel/notebook.py",
+             "tests/test_notebook.py tests/test_workbench.py",
+             "Real notebook execution in the hardened sandbox with per-cell "
+             "stdout capture, error isolation, inline offline SVG charts, "
+             "persistence with recoverable deletion, capability and CLI surfaces"),
     "B2.9": ("src/keel/db_explorer.py", "tests/test_db_sarif.py",
              "Real read-only SQLite explorer with query safety"),
     "B2.14": ("src/keel/authoring.py", "tests/test_authoring.py tests/test_workbench.py",
