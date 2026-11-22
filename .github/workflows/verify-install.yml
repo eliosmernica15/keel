@@ -33,7 +33,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
-        run: gh run download "$env:RUN_ID" -n keel-windows -D artifacts
+        run: gh run download "$env:RUN_ID" --repo "${{ github.repository }}" -n keel-windows -D artifacts
       - name: Install silently
         shell: powershell
         run: |
@@ -91,7 +91,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
-        run: gh run download "$RUN_ID" -n keel-macos -D artifacts
+        run: gh run download "$RUN_ID" --repo "${{ github.repository }}" -n keel-macos -D artifacts
       - name: Mount DMG and inspect app bundle
         run: |
           set -euo pipefail
@@ -113,7 +113,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
-        run: gh run download "$RUN_ID" -n keel-linux -D artifacts
+        run: gh run download "$RUN_ID" --repo "${{ github.repository }}" -n keel-linux -D artifacts
       - name: Validate AppImage and deb contents
         run: |
           set -euo pipefail
