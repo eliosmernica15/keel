@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- B6.3 — Keel enterprise policy template (standard edition, no licensing gate). -->
+<policyDefinitions xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   revision="1.0" schemaVersion="1.0"
+                   xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <policyNamespaces>
+    <target prefix="keel" namespace="Keel.Policies.Keel" />
+    <using prefix="windows" namespace="Microsoft.Policies.Windows" />
+  </policyNamespaces>
+  <supersededAdm fileName="" />
+  <resources minRevision="1" />
+  <categories>
+    <category name="Keel">Keel</category>
+  </categories>
+  <policies>
+    <policy name="KeelUpdateFeed" class="Machine" key="Software\Policies\Keel"
+            valueName="UpdateFeedUrl" supportedOn="Vista" displayName="Update feed URL">
+      <description>Override the update manifest URL for managed installations.</description>
+      <elements>
+        <text id="KeelUpdateFeed_Text" valueName="UpdateFeedUrl" required="true" />
+      </elements>
+    </policy>
+    <policy name="KeelAllowNetworkEgress" class="Machine"
+            key="Software\Policies\Keel" valueName="AllowNetworkEgress"
+            supportedOn="Vista" displayName="Allow network egress">
+      <description>Set to 0 to block all network egress from the agent runtime.</description>
+      <elements>
+        <boolean id="KeelAllowNetworkEgress_Bool" valueName="AllowNetworkEgress">
+          <trueValue text="Allowed" value="1" />
+          <falseValue text="Blocked" value="0" />
+        </boolean>
+      </elements>
+    </policy>
+  </policies>
+</policyDefinitions>

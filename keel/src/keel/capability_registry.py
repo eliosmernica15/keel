@@ -586,11 +586,283 @@ def _rag_index(p, ctx):
                          p.get("name", "default")).index(str(p["folder"]))
 
 
+@capability("core.packages.manifests", "release_gaps", "core", "write",
+            "Generate package-manager manifests locally (C1.2)", mutates=True)
+def _packages_manifests(p, ctx):
+    from .release_gaps import package_manager_manifests
+    return package_manager_manifests(
+        p.get("release_dir", "release"), p.get("out_dir", "release/packages"))
+
+
+@capability("core.airgap.bundle", "release_gaps", "core", "write",
+            "Build and verify an air-gapped install bundle (C12.2)", mutates=True)
+def _airgap_bundle(p, ctx):
+    from .release_gaps import airgap_bundle, verify_sideload
+    doc = airgap_bundle(p.get("release_dir", "release"),
+                        p.get("out_dir", "release/airgap"),
+                        p.get("model_folders"))
+    return {**doc, "verification": verify_sideload(p.get("out_dir", "release/airgap"))}
+
+
+@capability("core.status.check", "release_gaps", "core", "read",
+            "Check configured update feed/mirror status (B5.9)")
+def _status_check(p, ctx):
+    from .release_gaps import StatusConfig, check_status
+    config = StatusConfig(p.get("state_root",
+                                 ctx.get("state_root", ".keel"))).load()
+    return check_status(config)
+
+
+@capability("core.ocr.status", "document_gaps", "core", "read",
+            "Report local OCR/PDF tool availability (B2.12)")
+def _ocr_status(p, ctx):
+    from .document_gaps import ocr_tool_status
+    return ocr_tool_status()
+
+
+@capability("core.canary.info", "platform_gaps", "core", "read",
+            "Read the per-build deterrent canary (C11.8)")
+def _canary_info(p, ctx):
+    from .platform_gaps import build_canary
+    return build_canary(p.get("state_root", ctx.get("state_root", ".keel")))
+
+
+@capability("core.site.tools", "platform_gaps", "core", "read",
+            "Local site-toolkit status (A3.8)")
+def _site_tools(p, ctx):
+    from .platform_gaps import SiteToolkit
+    toolkit = SiteToolkit(p.get("state_root", ctx.get("state_root", ".keel")))
+    return {"jobs": toolkit.scheduled_jobs()}
+
+
+@capability("core.companion.identity", "platform_gaps", "core", "read",
+            "Local LAN companion identity and pairing payload (B4.8)")
+def _companion_identity(p, ctx):
+    from .platform_gaps import companion_identity
+    return companion_identity(p.get("state_root",
+                                    ctx.get("state_root", ".keel")))
+
+
+@capability("core.isolation.status", "native_isolation", "core", "read",
+            "Report native OS-level process-isolation support")
+def _isolation_status(p, ctx):
+    from .native_isolation import platform_support
+    return platform_support()
+
+
+@capability("core.edition.info", "commercial_seams", "core", "read",
+            "Edition and licensing metadata (standard, inactive)")
+def _edition_info(p, ctx):
+    from .commercial_seams import edition_field, license_token_format
+    return {"edition": edition_field(), "license_token": license_token_format()}
+
+
+@capability("core.enterprise.templates", "commercial_seams", "core", "read",
+            "Windows ADMX and macOS managed-preferences templates (B6.3)")
+def _enterprise_templates(p, ctx):
+    from .commercial_seams import enterprise_templates, silent_install_matrix
+    return {"templates": enterprise_templates(), "flags": silent_install_matrix()}
+
+
+@capability("core.compliance.pack", "commercial_seams", "core", "read",
+            "Locally generated compliance artifacts (B6.5)")
+def _compliance_pack(p, ctx):
+    from .commercial_seams import compliance_pack
+    pack = compliance_pack()
+    return {k: v for k, v in pack.items() if k != "data_flow_svg"} | {
+        "data_flow_svg_len": len(pack["data_flow_svg"])}
+
+
+@capability("core.execpolicy.validate", "exec_policy", "core", "read",
+            "Validate an execution policy document and its self-tests")
+def _execpolicy_validate(p, ctx):
+    from .exec_policy import from_dict
+    policy = from_dict(p.get("policy", {}))
+    return {"ok": True, "fingerprint": policy.fingerprint(),
+            "allowed_prefixes": policy.allowed_prefixes()}
+
+
+@capability("core.execpolicy.activate", "exec_policy", "core", "write",
+            "Activate a saved policy as the binding runtime policy", mutates=True)
+def _execpolicy_activate(p, ctx):
+    from .exec_policy import ExecPolicyStore, from_dict
+    store = ExecPolicyStore(str(p.get("state_root",
+                                       ctx.get("state_root", ".keel"))))
+    name = str(p.get("name", "default"))
+    doc = store.document(name)
+    from_dict(doc)  # re-validate before activation
+    return {"active": name, "fingerprint": from_dict(doc).fingerprint()}
+
+
+@capability("core.execpolicy.active", "exec_policy", "core", "read",
+            "Report the currently active runtime execution policy")
+def _execpolicy_active(p, ctx):
+    from .policy_enforcement import active_policy
+    policy = active_policy(p.get("state_root",
+                                 ctx.get("state_root", ".keel")))
+    return {"active": policy is not None,
+            "fingerprint": policy.fingerprint() if policy else None}
+
+
+@capability("core.execpolicy.document", "exec_policy", "core", "read",
+            "Read the active policy document for editing")
+def _execpolicy_document(p, ctx):
+    from .policy_enforcement import policy_path
+
+    path = policy_path(p.get("state_root", ctx.get("state_root", ".keel")))
+    if not path.is_file():
+        return {"active": False, "document": None}
+    return {"active": True,
+            "document": json.loads(path.read_text(encoding="utf-8"))}
+
+
+@capability("core.execpolicy.deactivate", "exec_policy", "core", "write",
+            "Deactivate the binding runtime policy (moved to trash)", mutates=True)
+def _execpolicy_deactivate(p, ctx):
+    from .policy_enforcement import policy_path
+
+    path = policy_path(p.get("state_root", ctx.get("state_root", ".keel")))
+    if not path.is_file():
+        return {"active": False}
+    from .trash import move_to_trash
+
+    move_to_trash(path)
+    return {"active": False}
+
+
+@capability("core.execpolicy.evaluate", "exec_policy", "core", "read",
+            "Evaluate a command against an execution policy")
+def _execpolicy_evaluate(p, ctx):
+    from .exec_policy import ExecPolicyStore, from_dict
+    if p.get("name"):
+        store = ExecPolicyStore(str(p.get("state_root",
+                                           ctx.get("state_root", ".keel"))))
+        policy = store.load(str(p["name"]))
+    elif p.get("policy"):
+        policy = from_dict(p["policy"])
+    else:
+        from .policy_enforcement import active_policy
+
+        policy = active_policy(p.get("state_root",
+                                     ctx.get("state_root", ".keel"))) \
+            or from_dict({})
+    result = policy.check(p.get("command", ""),
+                          resolve_host_executables=bool(
+                              p.get("resolve_host_executables")))
+    return result.to_dict()
+
+
+@capability("core.execpolicy.network", "exec_policy", "core", "read",
+            "Evaluate a network destination against an execution policy")
+def _execpolicy_network(p, ctx):
+    from .exec_policy import ExecPolicyStore, from_dict, normalize_host
+    if p.get("name"):
+        store = ExecPolicyStore(str(p.get("state_root",
+                                           ctx.get("state_root", ".keel"))))
+        policy = store.load(str(p["name"]))
+    elif p.get("policy"):
+        policy = from_dict(p["policy"])
+    else:
+        from .policy_enforcement import active_policy
+
+        policy = active_policy(p.get("state_root",
+                                     ctx.get("state_root", ".keel"))) \
+            or from_dict({})
+    host = normalize_host(str(p.get("host", "")))
+    allowed, denied = policy.compiled_network_domains()
+    return {"host": host, "protocol": str(p.get("protocol", "https")),
+            "decision": policy.evaluate_network(
+                host, str(p.get("protocol", "https"))),
+            "allowed_domains": allowed, "denied_domains": denied}
+
+
+@capability("core.execpolicy.save", "exec_policy", "core", "write",
+            "Validate and save a named execution policy", mutates=True)
+def _execpolicy_save(p, ctx):
+    from .exec_policy import ExecPolicyStore, from_dict
+    store = ExecPolicyStore(str(p.get("state_root",
+                                       ctx.get("state_root", ".keel"))))
+    name = str(p.get("name", "default"))
+    store.save(name, p.get("policy", {}))
+    return {"name": name, "saved": True,
+            "fingerprint": from_dict(p.get("policy", {})).fingerprint()}
+
+
+@capability("core.execpolicy.list", "exec_policy", "core", "read",
+            "List saved execution policies")
+def _execpolicy_list(p, ctx):
+    from .exec_policy import ExecPolicyStore
+    store = ExecPolicyStore(str(p.get("state_root",
+                                       ctx.get("state_root", ".keel"))))
+    return {"names": store.list()}
+
+
+@capability("core.admin.overview", "admin_page", "core", "read",
+            "Aggregate real local health, resource, flag and audit state (A3.9)")
+def _admin_overview(p, ctx):
+    from .admin_page import admin_overview
+    return admin_overview(str(p.get("state_root",
+                                     ctx.get("state_root", ".keel"))))
+
+
+@capability("cowork.accessibility.get", "tutorial", "cowork", "read",
+            "Get voice/live-region accessibility settings")
+def _accessibility_get(p, ctx):
+    from .tutorial import AccessibilityStore
+    return AccessibilityStore(str(p.get("state_root",
+                                         ctx.get("state_root", ".keel")))).load()
+
+
+@capability("cowork.accessibility.set", "tutorial", "cowork", "write",
+            "Set opt-in voice/live-region accessibility settings", mutates=True)
+def _accessibility_set(p, ctx):
+    from .tutorial import AccessibilityStore
+    return AccessibilityStore(str(p.get("state_root",
+                                         ctx.get("state_root", ".keel")))).save(
+        p.get("settings", {}))
+
+
 @capability("cowork.tutorial.state", "tutorial", "cowork", "read",
-            "Get interactive tutorial progress")
+            "Get interactive tutorial progress (stored or supplied)")
 def _tutorial(p, ctx):
-    from .tutorial import tutorial_state
+    from .tutorial import TutorialStore, tutorial_state
+    if p.get("persist"):
+        store = TutorialStore(str(p.get("state_root",
+                                         ctx.get("state_root", ".keel"))))
+        return store.load()
     return tutorial_state(p.get("completed", []))
+
+
+@capability("cowork.tutorial.complete", "tutorial", "cowork", "write",
+            "Mark a tutorial step complete and persist progress", mutates=True)
+def _tutorial_complete(p, ctx):
+    from .tutorial import TutorialStore
+    store = TutorialStore(str(p.get("state_root",
+                                     ctx.get("state_root", ".keel"))))
+    return store.mark(str(p.get("step_id", "")))
+
+
+@capability("cowork.tutorial.reset", "tutorial", "cowork", "write",
+            "Reset stored tutorial progress", mutates=True)
+def _tutorial_reset(p, ctx):
+    from .tutorial import TutorialStore
+    store = TutorialStore(str(p.get("state_root",
+                                     ctx.get("state_root", ".keel"))))
+    return store.reset()
+
+
+@capability("cowork.tutorial.tips", "tutorial", "cowork", "read",
+            "Get contextual onboarding tips")
+def _tutorial_tips(p, ctx):
+    from .tutorial import tips
+    return {"tips": tips()}
+
+
+@capability("cowork.tutorial.whats_new", "tutorial", "cowork", "read",
+            "Get the honest what's-new record for the UI modal")
+def _tutorial_whats_new(p, ctx):
+    from .tutorial import whats_new
+    return whats_new()
 
 
 # ---------------------------------------------------------------- code

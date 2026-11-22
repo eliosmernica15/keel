@@ -1,0 +1,130 @@
+name: Verify installed packages (clean runners)
+
+# Release acceptance: download the artifacts produced by build-desktop.yml in
+# the triggering run, install them on a fresh native runner, start the bundled
+# Python sidecar, verify authenticated UI serving, then uninstall/clean up.
+# Build success alone is NOT treated as installation validation.
+
+on:
+  workflow_run:
+    workflows: ["Build desktop installers"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run ID of a completed Build desktop installers workflow"
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: verify-install-${{ github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  windows-install:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: windows-latest
+    steps:
+      - name: Download Windows artifact from build run
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+        run: gh run download "$env:RUN_ID" -n keel-windows -D artifacts
+      - name: Install silently
+        shell: powershell
+        run: |
+          $installer = Get-ChildItem artifacts -Recurse -Filter "Keel-Setup-*.exe" |
+            Where-Object { $_.Name -notlike "*uninstaller*" } | Select-Object -First 1
+          if (-not $installer) { throw "installer not found" }
+          $dest = Join-Path $env:LOCALAPPDATA "KeelCiValidation"
+          Start-Process $installer.FullName -ArgumentList "/S", "/D=$dest" -Wait
+          if (-not (Test-Path (Join-Path $dest "Keel.exe"))) { throw "Keel.exe missing after install" }
+          Write-Host "INSTALLED=$dest"
+      - name: Start bundled sidecar and verify authenticated UI
+        shell: powershell
+        run: |
+          $dest = Join-Path $env:LOCALAPPDATA "KeelCiValidation"
+          $sidecar = Join-Path $dest "resources\keel\keel.exe"
+          if (-not (Test-Path $sidecar)) { throw "bundled sidecar missing" }
+          & $sidecar --version
+          $env:KEEL_TOKEN = "ci-install-token"
+          $proc = Start-Process -FilePath $sidecar -ArgumentList "serve --port 8895" -PassThru -RedirectStandardError sidecar.log
+          try {
+            $ok = $false
+            for ($i=0; $i -lt 40; $i++) {
+              try {
+                $r = Invoke-WebRequest -Uri "http://127.0.0.1:8895/api/health" -Headers @{ "X-Keel-Token"="ci-install-token" } -UseBasicParsing
+                if ($r.StatusCode -eq 200) { $ok = $true; break }
+              } catch { Start-Sleep -Milliseconds 500 }
+            }
+            if (-not $ok) { throw "sidecar health failed" }
+            $page = Invoke-WebRequest -Uri "http://127.0.0.1:8895/" -Headers @{ "X-Keel-Token"="ci-install-token" } -UseBasicParsing
+            if ($page.Content -notlike "*Keel Cowork*") { throw "canonical UI not served" }
+            $noauth = $null
+            try { Invoke-WebRequest -Uri "http://127.0.0.1:8895/" -UseBasicParsing -ErrorAction Stop } catch { $noauth = $_.Exception.Response.StatusCode.value__ }
+            if ($noauth -ne 403) { throw "unauthenticated request was not refused" }
+            Write-Host "UI_AND_AUTH_PASS"
+          } finally {
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+          }
+      - name: Uninstall and verify cleanup
+        shell: powershell
+        run: |
+          $dest = Join-Path $env:LOCALAPPDATA "KeelCiValidation"
+          $un = Get-ChildItem $dest -Filter "unins*.exe" | Select-Object -First 1
+          if ($un) { Start-Process $un.FullName -ArgumentList "/S" -Wait }
+          Start-Sleep -Seconds 2
+          Write-Host "UNINSTALL_ATTEMPTED=$([bool]$un)"
+          Remove-Item -Recurse -Force $dest -ErrorAction SilentlyContinue
+          if (Get-Process keel -ErrorAction SilentlyContinue) { throw "leftover keel process" }
+          Write-Host "CLEANUP_PASS"
+
+  macos-package:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: macos-latest
+    steps:
+      - name: Download macOS artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+        run: gh run download "$RUN_ID" -n keel-macos -D artifacts
+      - name: Mount DMG and inspect app bundle
+        run: |
+          set -euo pipefail
+          DMG=$(find artifacts -name "*.dmg" | head -1)
+          if [ -z "$DMG" ]; then echo "no dmg found"; exit 1; fi
+          hdiutil attach "$DMG" -mountpoint /tmp/keel-dmg -nobrowse
+          APP=$(find /tmp/keel-dmg -name "Keel.app" -maxdepth 2 | head -1)
+          test -n "$APP"
+          test -x "$APP/Contents/MacOS/Keel"
+          find "$APP" -name keel -type f | head -1 | xargs -I{} sh -c '{} --version'
+          hdiutil detach /tmp/keel-dmg
+          echo "MACOS_PACKAGE_CONTENT_PASS"
+
+  linux-package:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Linux artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+        run: gh run download "$RUN_ID" -n keel-linux -D artifacts
+      - name: Validate AppImage and deb contents
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libarchive-tools desktop-file-utils rpm >/dev/null
+          APPIMAGE=$(find artifacts -name "*.AppImage" | head -1)
+          test -n "$APPIMAGE"
+          chmod +x "$APPIMAGE"
+          "$APPIMAGE" --appimage-extract >/dev/null
+          test -x squashfs-root/Keel
+          DEB=$(find artifacts -name "*.deb" | head -1)
+          test -n "$DEB"
+          dpkg-deb -c "$DEB" | grep -q "Keel"
+          echo "LINUX_PACKAGE_CONTENT_PASS"

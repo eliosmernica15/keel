@@ -1680,6 +1680,8 @@ function showPane(name) {
   if (name === "skills") loadSkills();
   if (name === "connectors") loadConnectors();
   if (name === "system") refreshSystem();
+  if (name === "admin") loadAdmin();
+  if (name === "policies") loadPolicy();
   if (name === "privacy") refreshStorageUsage();
   if (name === "usage") refreshUsage();
   if (name === "keel-code" || name === "keel-desktop") refreshBridgeStatus();
@@ -2538,6 +2540,268 @@ document.addEventListener("keydown", (ev) => {
   }
 });
 
+/* ====================================================================
+   C10.1 — Interactive tutorial. Steps and progress come from the real
+   `cowork.tutorial.*` capabilities when the local bridge is available.
+   The public mirror ships the same real step content and stores progress in
+   localStorage only, and labels that state honestly.
+   ==================================================================== */
+const TOUR_STEPS_FALLBACK = [
+  { id: "welcome", title: "Welcome to Keel",
+    text: "Keel is local-first. Your files stay on your machine.",
+    target: "#head-title", hint: "This header shows the active product surface." },
+  { id: "workspace", title: "Bind a workspace",
+    text: "Select a folder; tools run only inside it.",
+    target: "#chip-folder", hint: "In Keel Code, choose the working folder here." },
+  { id: "first_prompt", title: "Send a prompt",
+    text: "Ask a question or request a change; approve tool calls.",
+    target: "#prompt-chat", hint: "Type your request and press Send." },
+  { id: "verify", title: "Verify the result",
+    text: "Keel runs detected checks after edits; review the evidence.",
+    target: "#btn-caps", hint: "Open Modules to inspect real local capabilities." },
+];
+const TOUR_KEY = "keel_tutorial_progress_v1";
+const TOUR_SEEN = "keel_tutorial_seen_v1";
+const WHATSNEW_SEEN = "keel_whatsnew_seen_v1";
+const TIP_SEEN = "keel_tip_seen_v1";
+const tour = { steps: TOUR_STEPS_FALLBACK, completed: new Set(),
+               index: 0, backend: false, source: "", busy: false };
+
+function tourReadLocal() {
+  try {
+    const value = JSON.parse(localStorage.getItem(TOUR_KEY) || "[]");
+    return Array.isArray(value) ? value.filter((x) => typeof x === "string") : [];
+  } catch { return []; }
+}
+function tourWriteLocal(ids) {
+  try { localStorage.setItem(TOUR_KEY, JSON.stringify(ids)); } catch { /* private mode */ }
+}
+async function tourInvoke(id, params) {
+  const res = await fetch("/api/capabilities/invoke", {
+    method: "POST", headers: jsonHeaders(),
+    body: JSON.stringify({ id, params, confirm: true }),
+  });
+  const doc = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(String(doc.error || "http " + res.status));
+    err.denied = res.status === 403;
+    throw err;
+  }
+  return doc.result;
+}
+async function tourLoad() {
+  const status = $("tour-status"), loading = $("tour-loading");
+  const content = $("tour-content"), empty = $("tour-empty");
+  if (status) { status.hidden = true; status.textContent = ""; }
+  if (loading) loading.hidden = false;
+  if (content) content.hidden = true;
+  if (empty) empty.hidden = true;
+  const local = tourReadLocal();
+  tour.completed = new Set(local);
+  try {
+    const doc = await tourInvoke("cowork.tutorial.state", { persist: true });
+    tour.backend = true;
+    tour.steps = Array.isArray(doc.steps) && doc.steps.length ? doc.steps : TOUR_STEPS_FALLBACK;
+    if (Array.isArray(doc.completed)) {
+      tour.completed = new Set(doc.completed);
+      tourWriteLocal(doc.completed);
+    }
+    tour.source = "Progress saved to your local Keel state";
+  } catch (err) {
+    tour.backend = false;
+    tour.steps = TOUR_STEPS_FALLBACK;
+    tour.source = err.denied
+      ? "Permission denied by the local bridge — showing this browser's progress only"
+      : "Local bridge unavailable — progress is stored in this browser only";
+  }
+  if (loading) loading.hidden = true;
+  tour.index = tour.steps.findIndex((s) => !tour.completed.has(s.id));
+  if (tour.index < 0) tour.index = Math.max(0, tour.steps.length - 1);
+  if (!tour.steps.length) { if (empty) empty.hidden = false; return; }
+  if (content) content.hidden = false;
+  tourRender();
+}
+function tourHighlight() {
+  els(".tour-highlight").forEach((n) => n.classList.remove("tour-highlight"));
+  const step = tour.steps[tour.index];
+  if (!step || !step.target) return;
+  try { document.querySelector(step.target)?.classList.add("tour-highlight"); } catch { /* bad selector */ }
+}
+function tourRender() {
+  const step = tour.steps[tour.index];
+  if (!step) return;
+  const count = $("tour-step-count"); if (count) count.textContent =
+    `STEP ${tour.index + 1} OF ${tour.steps.length}`;
+  const title = $("tour-title"); if (title) title.textContent = String(step.title || "");
+  const text = $("tour-text"); if (text) text.textContent = String(step.text || "");
+  const hint = $("tour-hint");
+  if (hint) { hint.textContent = String(step.hint || ""); hint.hidden = !step.hint; }
+  const dots = $("tour-dots");
+  if (dots) {
+    dots.textContent = "";
+    tour.steps.forEach((s, i) => {
+      const dot = el("button", { type: "button", className: "tour-dot" +
+        (tour.completed.has(s.id) ? " done" : "") + (i === tour.index ? " current" : ""),
+        "aria-label": "Step " + (i + 1) + ": " + s.title, role: "tab",
+        "aria-selected": String(i === tour.index) });
+      dot.addEventListener("click", () => { tour.index = i; tourRender(); });
+      dots.appendChild(dot);
+    });
+  }
+  const back = $("tour-back"); if (back) back.hidden = tour.index === 0;
+  const next = $("tour-next"); if (next) next.textContent =
+    tour.index === tour.steps.length - 1 ? "Finish" : "Next";
+  const source = $("tour-source"); if (source) source.textContent = tour.source;
+  tourHighlight();
+}
+function tourSetBusy(busy, message) {
+  tour.busy = busy;
+  for (const id of ["tour-next", "tour-back", "tour-skip"]) {
+    const btn = $(id); if (btn) btn.disabled = busy;
+  }
+  const status = $("tour-status");
+  if (status) { status.hidden = !message; status.textContent = message || ""; }
+}
+async function tourCompleteCurrent() {
+  const step = tour.steps[tour.index];
+  if (!step) return;
+  tour.completed.add(step.id);
+  const ids = [...tour.completed];
+  tourWriteLocal(ids);
+  if (tour.backend) {
+    tourSetBusy(true, "");
+    try { await tourInvoke("cowork.tutorial.complete", { step_id: step.id }); }
+    catch (err) {
+      tour.backend = false;
+      tour.source = err.denied
+        ? "Could not save progress (permission denied) — kept in this browser"
+        : "Local bridge unavailable — kept in this browser";
+      const src = $("tour-source"); if (src) src.textContent = tour.source;
+    } finally { tourSetBusy(false); }
+  }
+}
+async function tourNext() {
+  if (tour.busy) return;
+  await tourCompleteCurrent();
+  if (tour.index >= tour.steps.length - 1) { closeTour(); return; }
+  tour.index += 1;
+  tourRender();
+}
+function tourBack() {
+  if (tour.busy || tour.index === 0) return;
+  tour.index -= 1;
+  tourRender();
+}
+async function tourSkip() {
+  if (tour.busy) return;
+  tourSetBusy(true, "");
+  if (tour.backend) {
+    try { await tourInvoke("cowork.tutorial.reset", {}); } catch { /* local only */ }
+  }
+  tourWriteLocal([]);
+  tour.completed = new Set();
+  tourSetBusy(false);
+  closeTour();
+}
+function openTour() {
+  const overlay = $("tutorial-overlay");
+  if (!overlay) return;
+  overlay.hidden = false;
+  tourLoad().catch((err) => {
+    const status = $("tour-status");
+    if (status) { status.hidden = false; status.textContent = "Error: " + err.message; }
+  });
+}
+function closeTour() {
+  const overlay = $("tutorial-overlay");
+  if (overlay) overlay.hidden = true;
+  els(".tour-highlight").forEach((n) => n.classList.remove("tour-highlight"));
+  try { localStorage.setItem(TOUR_SEEN, "1"); } catch { /* private mode */ }
+  showFirstTip();
+}
+$("nav-tutorial")?.addEventListener("click", openTour);
+$("btn-tutorial")?.addEventListener("click", openTour);
+$("tour-close")?.addEventListener("click", closeTour);
+$("tour-backdrop")?.addEventListener("click", closeTour);
+$("tour-next")?.addEventListener("click", tourNext);
+$("tour-back")?.addEventListener("click", tourBack);
+$("tour-skip")?.addEventListener("click", tourSkip);
+document.addEventListener("keydown", (ev) => {
+  if (ev.ctrlKey && ev.shiftKey && String(ev.key).toLowerCase() === "t") {
+    ev.preventDefault();
+    $("tutorial-overlay")?.hidden ? openTour() : closeTour();
+  } else if (ev.key === "Escape" && !$("tutorial-overlay")?.hidden) {
+    ev.preventDefault(); closeTour();
+  }
+});
+
+/* What's new — real registry-derived record via capability, honest fallback. */
+const WHATSNEW_FALLBACK = [
+  { version: "0.1.1", title: "Local workspace, real modules",
+    text: "Notebooks, spec-driven mode, offline doc packs, repository indexing and an honest status page." },
+];
+async function openWhatsNew() {
+  const overlay = $("whatsnew-overlay");
+  if (!overlay) return;
+  overlay.hidden = false;
+  let items = WHATSNEW_FALLBACK;
+  try {
+    const doc = await tourInvoke("cowork.tutorial.whats_new", {});
+    if (Array.isArray(doc.items) && doc.items.length) items = doc.items;
+  } catch { /* mirror: shipped record is still real content */ }
+  const list = $("whatsnew-list");
+  if (list) {
+    list.textContent = "";
+    items.forEach((item) => {
+      const card = el("div", { className: "whatsnew-item" });
+      const head = el("b"); head.textContent = String(item.title || "");
+      const ver = el("small"); ver.textContent = String(item.version || "");
+      const body = el("p"); body.textContent = String(item.text || "");
+      card.append(ver, head, body); list.appendChild(card);
+    });
+  }
+}
+function closeWhatsNew() {
+  const overlay = $("whatsnew-overlay");
+  if (overlay) overlay.hidden = true;
+  if ($("whatsnew-remember")?.checked) {
+    try { localStorage.setItem(WHATSNEW_SEEN, "1"); } catch { /* private mode */ }
+  }
+  showFirstTip();
+}
+$("whatsnew-close")?.addEventListener("click", closeWhatsNew);
+$("whatsnew-backdrop")?.addEventListener("click", closeWhatsNew);
+$("whatsnew-ok")?.addEventListener("click", closeWhatsNew);
+
+/* First-visit tips — one short, honest tip, dismissed persistently. */
+const TOUR_TIPS = [
+  "Local-first: no account is needed and your files stay on this machine.",
+  "Keel asks before changing files. You can change the permission mode in the Code footer.",
+  "Press Ctrl+Shift+M to browse every real local capability.",
+];
+function showFirstTip() {
+  if ($("tutorial-overlay") && !$("tutorial-overlay").hidden) return;
+  let seen = false;
+  try { seen = localStorage.getItem(TIP_SEEN) === "1"; } catch { /* private mode */ }
+  if (seen) return;
+  const banner = $("tip-banner"); if (!banner) return;
+  const text = $("tip-text");
+  if (text) text.textContent = TOUR_TIPS[0];
+  banner.hidden = false;
+}
+$("tip-dismiss")?.addEventListener("click", () => {
+  const banner = $("tip-banner"); if (banner) banner.hidden = true;
+  try { localStorage.setItem(TIP_SEEN, "1"); } catch { /* private mode */ }
+});
+setTimeout(() => {
+  let tourSeen = false, newsSeen = false;
+  try { tourSeen = localStorage.getItem(TOUR_SEEN) === "1";
+        newsSeen = localStorage.getItem(WHATSNEW_SEEN) === "1"; } catch { /* private mode */ }
+  if (!newsSeen) openWhatsNew();
+  else if (!tourSeen) openTour();
+  else showFirstTip();
+}, 600);
+
 /* A2.2 — push-to-talk dictation and voice-to-task handoff (opt-in). */
 const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
 const voiceState = { surface: null, recognition: null, text: "", sendOnDone: false };
@@ -2642,6 +2906,53 @@ for (const surface of ["chat", "code"]) {
   });
 }
 
+/* C10.5 — spoken responses and live-region announcements (opt-in,
+   persisted through cowork.accessibility.* when the bridge is present). */
+const a11y = { settings: { announce_tool_calls: true, live_region: "polite",
+                           spoken_responses: false }, backend: false };
+function a11yInvoke(id, params) {
+  return fetch("/api/capabilities/invoke", {
+    method: "POST", headers: jsonHeaders(),
+    body: JSON.stringify({ id, params, confirm: true }),
+  }).then((r) => { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+    .then((d) => d.result);
+}
+function applyLiveRegion() {
+  const region = $("a11y-live-region"); if (!region) return;
+  const mode = a11y.settings.live_region || "polite";
+  region.setAttribute("aria-live", mode === "off" ? "off" : mode);
+}
+function loadAccessibility() {
+  return a11yInvoke("cowork.accessibility.get", {}).then((settings) => {
+    a11y.settings = settings; a11y.backend = true; applyLiveRegion();
+  }).catch(() => { applyLiveRegion(); });
+}
+function announce(text) {
+  if (!text || (a11y.settings.live_region || "polite") === "off") return;
+  const region = $("a11y-live-region");
+  if (region) region.textContent = String(text).slice(0, 240);
+}
+function speak(text) {
+  if (!a11y.settings.spoken_responses || !("speechSynthesis" in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(String(text).slice(0, 400)));
+  } catch { /* unavailable */ }
+}
+$("a11y-spoken")?.addEventListener("change", (ev) => {
+  a11y.settings.spoken_responses = ev.target.checked;
+  if (a11y.backend) a11yInvoke("cowork.accessibility.set",
+    { settings: { spoken_responses: ev.target.checked } }).catch(() => {});
+});
+$("a11y-live")?.addEventListener("change", (ev) => {
+  a11y.settings.live_region = ev.target.value; applyLiveRegion();
+  if (a11y.backend) a11yInvoke("cowork.accessibility.set",
+    { settings: { live_region: ev.target.value } }).catch(() => {});
+});
+loadAccessibility();
+window.__keelAnnounce = (text) => announce(text);
+window.__keelSpeak = (text) => speak(text);
+
 agentProbe().then(() => {
   refreshBridgeStatus();
   refreshSystem();
@@ -2688,4 +2999,237 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     setSafeScreen(!document.body.classList.contains("safe-screen"));
   }
+});
+
+/* A3.9 — Admin pane: real local state via core.admin.overview. */
+function adminInvoke() {
+  return fetch("/api/capabilities/invoke", {
+    method: "POST", headers: jsonHeaders(),
+    body: JSON.stringify({ id: "core.admin.overview", params: {}, confirm: true }),
+  }).then((r) => r.json().then((d) => ({ ok: r.ok, doc: d })));
+}
+function adminRow(title, value) {
+  const row = el("div", { className: "kv" });
+  const b = el("b"); b.textContent = String(value ?? "");
+  row.append(el("span", {}, String(title)), b); return row;
+}
+function adminFill(id, rows) {
+  const box = $(id); if (!box) return;
+  box.textContent = "";
+  if (!rows.length) {
+    const empty = el("p", { className: "tour-empty" });
+    empty.textContent = "No data recorded yet."; box.appendChild(empty); return;
+  }
+  rows.forEach((r) => box.appendChild(adminRow(r[0], r[1])));
+}
+function adminRender(data) {
+  const generated = $("admin-generated");
+  if (generated) generated.textContent = data.generated_at
+    ? `Read from local runtime at ${data.generated_at}.` : "Read from local runtime.";
+  adminFill("admin-alerts", (data.alerts || []).map((a) => [a.title, `${a.detail} (${a.level})`]));
+  const meters = (data.resources?.meters || []).map((m) => [m.feature, `${m.used}/${m.cap}`]);
+  Object.entries(data.resources?.limits || {}).forEach(([k, v]) =>
+    meters.push([`limit: ${k}`, typeof v === "object" ? JSON.stringify(v) : String(v)]));
+  adminFill("admin-resources", meters);
+  const bg = data.background || {};
+  adminFill("admin-background", [["Idle timeout", `${bg.timeout_s ?? "?"}s`],
+    ["Suspended", bg.suspended ? "yes" : "no"]]);
+  adminFill("admin-flags", Object.entries(data.flags || {}).map(([k, v]) =>
+    [k, v && v.enabled ? "enabled" : "disabled"]));
+  const audit = data.audit || {};
+  adminFill("admin-audit", [["Recorded calls", audit.count ?? 0]]);
+  const health = data.health || {}, keys = Object.keys(health);
+  const healthEl = $("admin-health"), emptyEl = $("admin-health-empty");
+  if (healthEl && keys.length) {
+    healthEl.hidden = false; healthEl.textContent = JSON.stringify(health, null, 2);
+    if (emptyEl) emptyEl.hidden = true;
+  } else if (emptyEl) { emptyEl.hidden = false; if (healthEl) healthEl.hidden = true; }
+  adminFill("admin-diagnostics", [["Diagnostics bundle",
+    data.diagnostics?.available ? "available" : "not generated"]]);
+}
+async function loadAdmin() {
+  const status = $("admin-status"), loading = $("admin-loading");
+  if (status) { status.hidden = true; status.textContent = ""; }
+  if (loading) loading.hidden = false;
+  const btn = $("admin-refresh"); if (btn) btn.disabled = true;
+  try {
+    const { ok, doc } = await adminInvoke();
+    if (!ok || !doc.ok) throw new Error(String(doc.error || "http error"));
+    adminRender(doc.result);
+  } catch (err) {
+    const denied = String(err.message || "").toLowerCase().includes("denied");
+    if (status) {
+      status.hidden = false;
+      status.textContent = denied
+        ? "Permission denied — the local bridge refused this read."
+        : "Could not read local state: " + String(err.message).slice(0, 200);
+    }
+  } finally {
+    if (loading) loading.hidden = true;
+    if (btn) btn.disabled = false;
+  }
+}
+$("admin-refresh")?.addEventListener("click", loadAdmin);
+
+/* A1.6/B3.4 — Policy panel: real validation, activation and evaluation. */
+function policyInvoke(id, params) {
+  return fetch("/api/capabilities/invoke", {
+    method: "POST", headers: jsonHeaders(),
+    body: JSON.stringify({ id, params: params || {}, confirm: true }),
+  }).then((r) => r.json().then((d) => ({ ok: r.ok, doc: d })));
+}
+function policyStatus(message, isError) {
+  const node = $("policy-status"); if (!node) return;
+  node.hidden = !message; node.textContent = message || "";
+  node.style.color = isError ? "#f0b9a8" : "";
+}
+function policyRenderEgress(doc) {
+  const box = $("policy-egress"); if (!box) return;
+  box.textContent = "";
+  const rules = (doc && doc.network_rules) || [];
+  if (!rules.length) {
+    const p = el("p", { className: "tour-empty" });
+    p.textContent = "No network rules in this document."; box.appendChild(p); return;
+  }
+  rules.forEach((r) => box.appendChild(adminRow(
+    `${r.protocol} ${r.host}`, r.decision || "prompt")));
+}
+async function loadPolicy() {
+  policyStatus("");
+  try {
+    const { ok, doc } = await policyInvoke("core.execpolicy.document", {});
+    if (!ok) throw new Error(String(doc.error || "http error"));
+    const label = $("policy-active");
+    if (label) label.textContent = doc.result.active
+      ? "A policy is active and enforced at the permission boundary."
+      : "No active policy — default permission modes apply.";
+    const editor = $("policy-editor");
+    if (editor && doc.result.document) {
+      editor.value = JSON.stringify(doc.result.document, null, 2);
+    }
+    policyRenderEgress(doc.result.document);
+  } catch (err) {
+    const offline = String(err.message).includes("<!DOCTYPE") ||
+      String(err.message).includes("Unexpected token");
+    policyStatus(offline
+      ? "No local bridge on this page — open the installed Keel app to manage policies."
+      : "Could not read policy state: " + String(err.message).slice(0, 200), true);
+    const label = $("policy-active");
+    if (label) label.textContent = "Unavailable on the public mirror.";
+  }
+}
+function policyDocument() {
+  const editor = $("policy-editor");
+  try { return JSON.parse(editor.value); }
+  catch (err) { policyStatus("Invalid JSON: " + err.message, true); return null; }
+}
+$("policy-refresh")?.addEventListener("click", loadPolicy);
+$("policy-validate")?.addEventListener("click", async () => {
+  const doc = policyDocument(); if (!doc) return;
+  try {
+    const { ok, doc: res } = await policyInvoke("core.execpolicy.validate", { policy: doc });
+    const out = $("policy-result");
+    if (out) { out.hidden = false; out.textContent = JSON.stringify(res.result || res, null, 2); }
+    const v = $("policy-validation");
+    if (v) v.textContent = ok ? "Valid — self-tests passed." : "Validation failed.";
+    policyStatus("");
+  } catch (err) { policyStatus("Validation error: " + err.message, true); }
+});
+$("policy-save")?.addEventListener("click", async () => {
+  const doc = policyDocument(); if (!doc) return;
+  try {
+    const { ok, doc: res } = await policyInvoke("core.execpolicy.save",
+      { name: "default", policy: doc });
+    policyStatus(ok ? "Saved locally. Activate to make it binding." :
+      "Save failed: " + (res.error || "unknown"), !ok);
+  } catch (err) { policyStatus("Save error: " + err.message, true); }
+});
+$("policy-activate")?.addEventListener("click", async () => {
+  const doc = policyDocument(); if (!doc) return;
+  try {
+    let res = await policyInvoke("core.execpolicy.save", { name: "default", policy: doc });
+    if (!res.ok) throw new Error(res.doc.error || "save failed");
+    res = await policyInvoke("core.execpolicy.activate", { name: "default" });
+    if (!res.ok) throw new Error(res.doc.error || "activation failed");
+    policyStatus("Policy active — enforced before commands and network calls.");
+    loadPolicy();
+  } catch (err) { policyStatus("Activation failed: " + err.message, true); }
+});
+$("policy-deactivate")?.addEventListener("click", async () => {
+  try {
+    const { ok, doc } = await policyInvoke("core.execpolicy.deactivate", {});
+    policyStatus(ok ? "Policy deactivated; default modes apply." :
+      "Deactivation failed: " + doc.error, !ok);
+    loadPolicy();
+  } catch (err) { policyStatus("Deactivation error: " + err.message, true); }
+});
+/* B4.9 — high-legibility font and composer vim keybindings. */
+function applyReadabilitySettings() {
+  let legible = false, vim = false;
+  try {
+    legible = localStorage.getItem("keel_readable_font") === "1";
+    vim = localStorage.getItem("keel_vim_mode") === "1";
+  } catch { /* private mode */ }
+  document.body.classList.toggle("a11y-legible", legible);
+  document.body.classList.toggle("vim-mode", vim);
+  const fontBox = $("readable-font"), vimBox = $("vim-mode");
+  if (fontBox) fontBox.checked = legible;
+  if (vimBox) vimBox.checked = vim;
+  const status = $("vim-status-text");
+  if (status) { status.hidden = !vim; status.textContent = "INSERT"; }
+}
+$("readable-font")?.addEventListener("change", (ev) => {
+  try { localStorage.setItem("keel_readable_font", ev.target.checked ? "1" : "0"); }
+  catch { /* private mode */ }
+  applyReadabilitySettings();
+});
+$("vim-mode")?.addEventListener("change", (ev) => {
+  try { localStorage.setItem("keel_vim_mode", ev.target.checked ? "1" : "0"); }
+  catch { /* private mode */ }
+  applyReadabilitySettings();
+});
+const vimState = { mode: "insert" };
+function vimEnabled() {
+  try { return localStorage.getItem("keel_vim_mode") === "1"; }
+  catch { return false; }
+}
+function vimSetMode(mode) {
+  vimState.mode = mode;
+  const status = $("vim-status-text");
+  if (status) status.textContent = mode.toUpperCase();
+}
+for (const input of [$("prompt-chat"), $("prompt-code")]) {
+  if (!input) continue;
+  input.addEventListener("keydown", (ev) => {
+    if (!vimEnabled()) return;
+    if (ev.key === "Escape") { ev.preventDefault(); vimSetMode("normal"); return; }
+    if (vimState.mode !== "normal") return;
+    const value = input.value, pos = input.selectionStart || 0;
+    const move = (next) => { ev.preventDefault(); input.setSelectionRange(next, next); };
+    if (ev.key === "i") { ev.preventDefault(); vimSetMode("insert"); }
+    else if (ev.key === "a") { ev.preventDefault(); vimSetMode("insert"); move(pos + 1); }
+    else if (ev.key === "h" && pos > 0) move(pos - 1);
+    else if (ev.key === "l" && pos < value.length) move(pos + 1);
+    else if (ev.key === "0") move(0);
+    else if (ev.key === "$") move(value.length);
+    else if (ev.key === "x" && pos < value.length) {
+      ev.preventDefault();
+      input.value = value.slice(0, pos) + value.slice(pos + 1);
+      input.setSelectionRange(pos, pos);
+    } else if (ev.key.length === 1) ev.preventDefault();
+  });
+  input.addEventListener("input", () => {
+    if (vimEnabled() && vimState.mode === "normal") vimSetMode("insert");
+  });
+}
+applyReadabilitySettings();
+
+$("policy-test-run")?.addEventListener("click", async () => {
+  const command = $("policy-test-command")?.value || "";
+  try {
+    const { ok, doc } = await policyInvoke("core.execpolicy.evaluate", { command });
+    const out = $("policy-test-result");
+    if (out) { out.hidden = false; out.textContent = JSON.stringify(doc.result || doc, null, 2); }
+    if (!ok) policyStatus("Evaluation failed: " + doc.error, true);
+  } catch (err) { policyStatus("Evaluation error: " + err.message, true); }
 });

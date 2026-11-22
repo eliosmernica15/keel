@@ -263,6 +263,16 @@ def evaluate(*, tool_name: str, tool_input: dict,
                 return Decision("allow", "rule", f"allowed by rule {rule.raw!r}",
                                 "config", rule.raw, op_class, indeterminate)
 
+    # Saved execution policies are binding at this boundary: a forbidden
+    # command or denied egress host cannot be widened by ask/allow rules or
+    # by bypassPermissions mode. Config deny rules above take precedence.
+    from .policy_enforcement import enforce as _enforce_policy
+
+    policy_decision = _enforce_policy(tool_name, tool_input or {},
+                                      interactive=interactive)
+    if policy_decision is not None:
+        return policy_decision
+
     table = _MODE_TABLE[normalize_mode(mode)]
     if op_class is None:
         # Unknown tool: fail closed (deny by default)

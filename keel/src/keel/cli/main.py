@@ -63,6 +63,8 @@ def main(argv: list[str] | None = None) -> int:
         return _openapi_cmd(argv[1:])
     if argv and argv[0] == "secrets":
         return _secrets_cmd(argv[1:])
+    if argv and argv[0] == "execpolicy":
+        return _execpolicy_cmd(argv[1:])
     if argv and argv[0] == "skills":
         return _skills_cmd(argv[1:])
     if argv and argv[0] == "settings":
@@ -717,6 +719,77 @@ def _skills_cmd(argv: list[str]) -> int:
         return 0
     sys.stderr.write(_SKILLS_USAGE)
     return 1
+
+
+def _execpolicy_cmd(argv: list[str]) -> int:
+    import os
+    from pathlib import Path
+
+    from ..exec_policy import (ExecPolicyStore, from_dict, load_policy,
+                               normalize_host)
+
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(
+            "usage: keel execpolicy validate <policy.json>\n"
+            "       keel execpolicy check <policy.json> <command...>\n"
+            "       keel execpolicy network <policy.json> <host> [protocol]\n"
+            "       keel execpolicy save <name> <policy.json>\n"
+            "       keel execpolicy activate <name>   (binding for runtime)\n"
+            "       keel execpolicy active\n"
+            "       keel execpolicy list\n")
+        return 0
+    cmd = argv[0]
+    try:
+        if cmd == "list":
+            store = ExecPolicyStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+            sys.stdout.write(json.dumps(store.list()) + "\n")
+            return 0
+        if cmd == "active":
+            from ..policy_enforcement import active_policy
+
+            policy = active_policy(os.environ.get("KEEL_STATE_DIR", ".keel"))
+            sys.stdout.write(json.dumps({"active": policy is not None,
+                                         "fingerprint": policy.fingerprint()
+                                         if policy else None}) + "\n")
+            return 0
+        if cmd == "activate":
+            store = ExecPolicyStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+            store.document(argv[1])
+            (store.root / "default.json").write_bytes(
+                (store.root / f"{argv[1]}.json").read_bytes())
+            sys.stdout.write(json.dumps({"active": argv[1]}) + "\n")
+            return 0
+        if cmd == "save":
+            doc = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
+            store = ExecPolicyStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+            store.save(argv[1], doc)
+            sys.stdout.write(json.dumps({"name": argv[1], "saved": True}) + "\n")
+            return 0
+        policy = load_policy(argv[1])
+        if cmd == "validate":
+            out = {"ok": True, "fingerprint": policy.fingerprint(),
+                   "allowed_prefixes": policy.allowed_prefixes()}
+        elif cmd == "check":
+            if len(argv) < 3:
+                return 1
+            out = policy.check(" ".join(argv[2:])).to_dict()
+        elif cmd == "network":
+            if len(argv) < 3:
+                return 1
+            protocol = argv[3] if len(argv) > 3 else "https"
+            allowed, denied = policy.compiled_network_domains()
+            out = {"host": normalize_host(argv[2]), "protocol": protocol,
+                   "decision": policy.evaluate_network(argv[2], protocol),
+                   "allowed_domains": allowed, "denied_domains": denied}
+        else:
+            sys.stderr.write(f"unknown execpolicy command: {cmd}\n")
+            return 1
+        sys.stdout.write(json.dumps(out, indent=2) + "\n")
+        return 0
+    except (OSError, ValueError, KeyError, IndexError) as exc:
+        diagnostic("execpolicy_error", {"command": cmd, "error": str(exc)})
+        sys.stderr.write(f"execpolicy: {exc}\n")
+        return 1
 
 
 def _secrets_cmd(argv: list[str]) -> int:

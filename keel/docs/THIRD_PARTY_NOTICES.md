@@ -28,8 +28,49 @@ no upstream copyright is claimed.
 > ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 > CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## 1a. OpenAI Codex CLI (Apache-2.0) — exec policy semantics
+
+- Repository: https://github.com/openai/codex
+- Inspected commit: `ef33e43a159beeeb95dddf7cde05926cc9871929` (`main`)
+- License: Apache License 2.0 (full text in the upstream `LICENSE`)
+- Source inspected: `codex-rs/execpolicy/src/{decision,rule,policy,parser}.rs`,
+  `examples/example.codexpolicy`, `tests/basic.rs`
+
+Keel's `src/keel/exec_policy.py` is a **clean-room Python reimplementation of
+the documented decision semantics** of that engine. No upstream source file was
+copied; the upstream syntax (Starlark) and runtime (Rust) are not used. The
+concepts — severity-ordered decisions, first-token prefix rules with
+alternatives, network domain compilation and load-time self-tests — are
+documented in the upstream README and implemented independently in Python.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+that implementation except in compliance with the License. You may obtain a
+copy at http://www.apache.org/licenses/LICENSE-2.0. Keel's adaptation is
+provided under Keel's proprietary license; this notice preserves the upstream
+attribution required by Apache-2.0 §4.
+
+Full source-repository register: `docs/research/source-repository-register.md`.
+
 Usage as of this milestone: **audit only. No OpenCode source has been copied into Keel yet.**
 Any future reuse will be recorded here with the upstream copyright notice attached.
+
+## 1b. Work Sans font (SIL OFL 1.1) — optional high-legibility option
+
+- Source shipped in repo: `site/ui/fonts/WorkSans-Regular.ttf` and
+  `desktop/ui/fonts/WorkSans-Regular.ttf`
+- License text: `resources/fonts/WorkSans-OFL.txt` (not shipped in the public
+  website tree, which forbids GitHub links); Copyright 2019 The Work
+  Sans Project Authors, https://github.com/weiweihuanghuang/Work-Sans)
+- Use: optional B4.9 accessibility setting. Not a clinical dyslexia font; the
+  UI describes it as a high-legibility OFL font. No other font was downloaded.
+
+## 1c. Pillow (PIL) — image handling for screenshot gallery and visual diff
+
+- Declared dependency: `Pillow>=10.0` in `pyproject.toml`
+- License: HPND-style permissive (Pillow Software License / MIT-CMU)
+- Use: B5.6 screenshot gallery metadata and C4.11 pixel-level UI diff.
+  OpenCV and NumPy are deliberately **not** dependencies; optional QR rendering
+  uses a runtime-only import and degrades gracefully.
 
 ## 2. Permissive runtime dependencies used by Keel (non-exhaustive)
 

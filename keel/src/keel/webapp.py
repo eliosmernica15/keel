@@ -59,8 +59,17 @@ from .fleet import routes as _fleet_routes
 from .providers import registry as provider_registry
 from . import settings_store as _settings_store
 
-UI_DIR = Path(os.environ.get("KEEL_UI_DIR") or Path(__file__).resolve().parents[2] / "desktop" / "ui")
-PWA_DIR = Path(__file__).resolve().parents[2] / "desktop"
+# In source, keel/webapp.py sits two levels below the repo root; in a
+# PyInstaller one-file bundle it sits directly under sys._MEIPASS, one level
+# shallower. Resolve the bundle root explicitly so the packaged sidecar serves
+# the same canonical UI that is tested from source.
+if getattr(sys, "frozen", False):
+    _BUNDLE_ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+else:
+    _BUNDLE_ROOT = Path(__file__).resolve().parents[2]
+
+UI_DIR = Path(os.environ.get("KEEL_UI_DIR") or _BUNDLE_ROOT / "desktop" / "ui")
+PWA_DIR = _BUNDLE_ROOT / "desktop"
 
 DEFAULT_PORT = 8739
 _STATIC_CSP = ("default-src 'none'; script-src 'self'; "

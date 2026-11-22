@@ -707,6 +707,172 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Final gap-closure batch — all 14 outstanding items
+
+Read original specs for all 14 entries in `docs/research/remaining-work-matrix.md`
+from the preserved addenda. Implemented locally:
+
+- **C1.2** package-manager manifests; **C12.2** air-gapped bundle + checksum
+  verification; **B5.9** configurable status page with real HTTP checks —
+  `src/keel/release_gaps.py`.
+- **B2.12** PDF/OCR adapter with honest tool detection; **B5.6** gallery from
+  **real screenshots of the running app** (4 PNGs in `site/assets/screenshots`,
+  page at `site/screenshots/index.html`, linked from `site/README.md`);
+  **C4.11** pixel-level visual diff + console/network capture —
+  `src/keel/document_gaps.py`.
+- **B4.8** pinned self-signed TLS identity + QR pairing payload + approvals;
+  **B6.6** per-org audit export/retention; **C11.8** build canary; **C1.11**
+  approval-gated local task executor; **A3.8** site toolkit —
+  `src/keel/platform_gaps.py`.
+- **B4.9** high-legibility OFL Work Sans font option (font + license shipped)
+  and functional vim composer keybindings in both UI trees, browser-verified.
+
+12 new tests (`test_gap_closure.py`) pass. Three defects found by those tests
+were fixed (airgap checksum coverage, graceful OCR errors, allowlist basename).
+Registry evidence updated for all 14 IDs; matrix now classifies 220 implemented,
+3 authorized seams, 3 external-verification-pending (local adapters complete),
+2 owner-gated.
+
+## Final roadmap batch — B6.x seams + policy UI + browser E2E
+
+- **Remaining-work matrix:** `docs/research/remaining-work-matrix.md` lists all
+  228 IDs with classification, gap and dependency (211 implemented, 9 descriptor
+  with local helper, 3 external, 3 authorized P2 seams, 2 owner-gated).
+- **B6.2/B6.3/B6.5 now implemented (authorized):** edition field in both release
+  manifests + `core.edition.info`; real per-format silent-install flags and
+  shipped Windows ADMX / macOS plist templates + `core.enterprise.templates`;
+  locally generated compliance pack (data-flow SVG, SBOM from dependency
+  inventory, accessibility self-assessment) + `core.compliance.pack`. DPA/EULA
+  legal text stays an honest draft. 8 tests in `test_enterprise_seams.py`.
+- **Policy UI:** Settings → Policies in `desktop/ui` and `site` — view active
+  state, edit JSON, validate with self-tests, save, activate, deactivate,
+  evaluate a command, inspect egress rules. 4 structural tests.
+- **Browser E2E (real bridge, not mocks):** activated a forbidden-command
+  policy, validated it, ran the UI evaluation (returned `forbidden` with
+  justification), confirmed a real capability call was refused with
+  `policy_denied`, deactivated, reloaded the page and confirmed the inactive
+  state persisted and matched the backend API.
+- **E2E-found defects fixed:** policy engine denied its own management
+  capabilities (`core.execpolicy.*` now exempt); `core.execpolicy.evaluate`
+  evaluated against an empty policy instead of the active one (now falls back
+  to the active policy). Regression tests added.
+
+## Runtime enforcement & sandbox escape fix batch (A1.6/B3.4/B3.1)
+
+**Verified and fixed a real gap:** `core.execpolicy.*` previously only
+evaluated policies when called explicitly. Added `src/keel/policy_enforcement.py`
+and wired it into `permissions.evaluate` (the Tier-1 gate used by sessions and
+workflows) and `capabilities.invoke` (CLI/UI/TUI/HTTP paths). A saved
+`default` policy is now binding: forbidden commands and denied egress hosts are
+refused before execution, even in `bypassPermissions` mode; prompt rules require
+approval; config deny rules still take precedence. Added `activate`/`active`
+capabilities and CLI commands. 10 tests (`test_policy_enforcement.py`) cover
+alternate tool fields, inline `!cmd`, workflow path, egress, capability bypass
+attempts and mode overrides.
+
+**Confirmed and fixed a real sandbox escape:** untrusted code could import
+`__main__` and reassign `_ROOT`/`_LIB_DIRS`, then read arbitrary files. The
+bootstrap now seals all policy state in the audit hook's closure and clears
+installation-time names from the module namespace before user code runs.
+Regression test added to `test_sandbox_hardened.py`; 10 sandbox tests pass.
+`sandbox_status()` reports the new `policy_state` honestly; OS-level isolation
+is still not claimed.
+
+## Source-repository research batch — Codex execpolicy → Keel (A1.6/B3.4)
+
+**Sources retrieved and inspected:** five reference repos cloned into a temp
+research directory (`orgo-teammates` `6546561f`, `openman` `12ea5bdd`,
+`nicks-stack` `90b9975c`, `clawdbot-channel-linq` `8cb397fc`,
+`anthropics/sandbox-runtime` `0bbebed0`); `anomalyco/opencode` resolved via
+REST (`ee5fe34e`, MIT) and audited through the existing in-repo parity matrix;
+pre-existing `research/codex` (Apache-2.0, `ef33e43a`) inspected in depth.
+Register written to `docs/research/source-repository-register.md`.
+
+**Concrete integration:** Codex `codex-rs/execpolicy` → new
+`src/keel/exec_policy.py`, a clean-room Python adaptation (decisions with
+severity ordering, token-alternative prefix rules, justifications,
+host-executable constraints, network host/protocol rules with compiled
+allow/deny domains, load-time match/not_match self-tests, fingerprint and
+overlay merge). Wired through five `core.execpolicy.*` capabilities and a
+`keel execpolicy validate|check|network|save|list` CLI. Apache-2.0 attribution
+added to `THIRD_PARTY_NOTICES.md`. Mapped to `A1.6` and `B3.4` evidence.
+
+**No new code from other sources was needed:** clawdbot's HMAC webhook pattern
+is already implemented in `webhooks.py`; openman's operator/secret features and
+orgo/nicks patterns already exist in Keel; sandbox-runtime is reference-only
+(external OS environment).
+
+**Verification:** 12 new tests (`test_exec_policy.py`) covering decision
+severity, alternatives, self-tests, network rules, host path constraints,
+fingerprint/overlay, store, capability and CLI — all pass.
+
+## Phase 2 UI batch — A3.9 operator Admin page (P1, M21)
+
+**Implemented (backend):** `src/keel/admin_page.py` aggregates real local
+state via `core.admin.overview`: startup health (with failed-start alerts),
+resource meters and limits, idle/background state, feature flags, a bounded
+capability-audit tail and diagnostics status. No simulated values.
+
+**Implemented (UI):** Settings → Admin in both `desktop/ui` and `site`, with
+Refresh, loading/empty/error/permission-denied states and real rendering of
+each section from the one capability. Health JSON is shown verbatim when present.
+
+**Verification:** 6 new tests (`test_admin_page.py`) covering aggregation,
+failed-start alerts, capability, real HTTP-bridge E2E, both UI trees and
+`node --check` — all pass. **Real Chromium validation:** opened Settings →
+Admin against the live bridge and confirmed genuine resource meters, limits,
+alerts and diagnostics rendered with no console errors.
+
+## Phase 2 UI batch — C10.5 voice & live-region accessibility (P1, M17)
+
+**Implemented (backend):** `AccessibilityStore` in `tutorial.py` persists opt-in
+settings (spoken replies, live-region mode, tool-call announcements) with
+validation; `cowork.accessibility.get`/`.set` capabilities.
+
+**Implemented (UI):** both `desktop/ui` (real app) and `site` (mirror) now have
+mic controls in each composer with hold-to-dictate, explicit consent explaining
+that audio may be handled by the browser's service, and honest unavailable /
+error / permission-denied states. Settings → General gains opt-in "Speak replies
+aloud" and live-region mode (polite/assertive/off); assistant text is announced
+through a real `role=status` region and completion is spoken only when opted in.
+
+**Verification:** 6 new tests (`test_accessibility_ui.py`) covering store,
+capabilities, both UI trees' controls/wiring and `node --check` — all pass.
+
+## Phase 2 UI batch — C10.1 real interactive tutorial (P1, M19)
+
+**Selected:** next eligible UI-bound P1 milestone (backend capability existed,
+no UI at all). Feature ID and priority preserved; no new roadmap.
+
+**Implemented (backend):** `src/keel/tutorial.py` now persists guided-tour
+progress (`TutorialStore.mark/reset/load`), exposes real tips and a what's-new
+record, and adds `cowork.tutorial.complete`, `.reset`, `.tips`, `.whats_new`
+capabilities; `cowork.tutorial.state` can read stored progress.
+
+**Important discovery:** the Electron app loads the loopback bridge, which
+serves `desktop/ui/` (index.html/app.js/style.css) — NOT `site/` (the public
+mirror). Both trees now contain the tutorial so it actually ships in the app.
+
+**Implemented (UI/website):** `desktop/ui/index.html` (real app) and
+`site/app.html` (mirror) gain a sidebar "Take the tour"
+link, a header Tour button, a guided-tour dialog (loading/empty/error/status,
+step dots, Back/Next/Skip/Finish, progress source label), a what's-new modal
+and a dismissible first-visit tip banner. `site/ui/app.js` loads state from the
+real capability hub over `/api/capabilities/invoke`, persists completions,
+handles permission-denied and bridge-unavailable states honestly, highlights
+the live target element, and falls back to the shipped real step content with
+localStorage on the public mirror. `desktop/ui/style.css` and `site/ui/style.css` add responsive
+overlay, tour, tip and highlight styles.
+
+**Verification:** 16 new tests (`test_tutorial_ui.py` + `test_tutorial.py`)
+covering store persistence, capabilities, a real HTTP-bridge E2E flow, both UI
+trees' control presence, JS handler/state wiring, fallback-step parity with
+backend IDs, CSS, and `node --check` — all pass. **Real Chromium validation:**
+started the actual bridge, loaded `desktop/ui`, opened the tour, stepped
+through it, and confirmed the backend state advanced to `done=4, finished=true`
+with zero console errors; the what's-new modal and tip banner also rendered.
+Registry C10.1 updated; `test_plan_index.py` 5 pass.
+
 ## Phase 2 batch — A3.7 real honest project status page (P1)
 
 **Implemented:** `src/keel/status_page.py` generates status directly from the

@@ -23,6 +23,12 @@ datas = [
     (str(ROOT / "resources" / "default-skills"), "keel/resources/default-skills"),
     (str(ROOT / "resources" / "schema"), "keel/resources/schema"),
     (str(ROOT / "resources" / "catalog"), "keel/resources/catalog"),
+    # The bridge serves the canonical desktop UI and PWA shell from
+    # <bundle>/desktop. Without these datas the packaged sidecar answers 404
+    # for '/' and the Electron window has nothing to load.
+    (str(ROOT / "desktop" / "ui"), "desktop/ui"),
+    (str(ROOT / "desktop" / "manifest.webmanifest"), "desktop"),
+    (str(ROOT / "desktop" / "sw.js"), "desktop"),
 ]
 
 a = Analysis(
@@ -34,7 +40,11 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=["pytest", "pylint", "mypy", "ruff", "_distutils_hack", "setuptools", "pip"],
+    excludes=["pytest", "pylint", "mypy", "ruff", "_distutils_hack", "setuptools", "pip",
+              # Optional runtime-only modules: bundled dynamically would add
+              # ~70 MB of native libraries to the sidecar. Keel degrades
+              # gracefully when they are absent (QR rendering only).
+              "cv2", "numpy"],
     noarchive=False,
     optimize=0,
 )
