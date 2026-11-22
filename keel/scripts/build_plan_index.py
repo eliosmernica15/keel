@@ -51,7 +51,7 @@ LOCAL_MODULES = frozenset({
     "git_extras_runtime", "session_export", "model_router",
     "db_explorer", "sarif", "charts", "authoring",
     "channel_ops", "build_repro", "workbench", "notebook", "spec_mode", "views",
-    "ops_tools",
+    "judge", "ops_tools",
     "agent_profiles", "local_ops", "integrations",
     "external_adapters",
     "ops_tools", "agent_intelligence", "agent_roles", "best_of_n", "arena",
@@ -470,8 +470,12 @@ IMPLEMENTED = {
              "SQLite integrity check and backup"),
     "C11.6": ("src/keel/eval_tools.py", "tests/test_eval_tools.py",
              "Official-build hash verification"),
-    "C13.2": ("src/keel/external_adapters.py", "tests/test_external_adapters.py",
-             "Deterministic local judge scoring scaffold"),
+    "C13.2": ("src/keel/judge.py",
+             "tests/test_judge.py tests/test_external_adapters.py",
+             "Deterministic local judge: four weighted auditable criteria, "
+             "wasted/duplicate-call detection, best-of-N comparison, Markdown "
+             "rubric reports; no external model called, backward-compatible "
+             "judge_score delegate"),
     "C13.3": ("src/keel/eval_tools.py", "tests/test_eval_tools.py",
              "Prompt regression snapshots"),
     "C13.5": ("src/keel/charts.py", "tests/test_charts.py tests/test_eval_tools.py",

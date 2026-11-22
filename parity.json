@@ -3969,7 +3969,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/external_adapters.py"
+        "src/keel/judge.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -3978,10 +3978,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_external_adapters.py"
+        "tests/test_judge.py tests/test_external_adapters.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Deterministic local judge scoring scaffold",
+      "verification_evidence": "Deterministic local judge: four weighted auditable criteria, wasted/duplicate-call detection, best-of-N comparison, Markdown rubric reports; no external model called, backward-compatible judge_score delegate",
       "owner_approval_required": false
     },
     {

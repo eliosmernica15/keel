@@ -707,6 +707,19 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Phase 2 batch — C13.2 real deterministic trajectory judge (P1)
+
+**Implemented:** `src/keel/judge.py` upgrades the scoring scaffold into a
+transparent four-criterion rubric (completion, policy compliance, tool-call
+efficiency, latency) with per-criterion evidence, weights and findings, plus
+best-of-N comparison and a Markdown rubric report. Fully deterministic; no
+model is called. `external_adapters.judge_score` now delegates to it while
+keeping its original keys for backward compatibility. Integrated via three
+`code.judge.*` capabilities.
+
+**Verification:** 8 new tests (`test_judge.py`) plus the existing
+`test_external_adapters.py` — 11 pass. Registry C13.2 evidence updated.
+
 ## Phase 2 batch — B4.6 / B4.7 real fleet & observability views (P1)
 
 **Implemented:** `src/keel/views.py` replaces pure capability flags with real

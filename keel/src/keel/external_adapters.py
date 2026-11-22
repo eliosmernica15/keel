@@ -61,12 +61,14 @@ class LicenseTokenVerifier:
 
 
 def judge_score(trajectory: list[dict]) -> dict:
-    """C13.2: deterministic local judge scoring (no external model needed)."""
-    if not trajectory:
-        return {"score": 0.0, "steps": 0}
-    successes = sum(1 for step in trajectory if step.get("ok"))
-    violations = sum(1 for step in trajectory if step.get("policy_violation"))
-    base = successes / len(trajectory)
-    penalty = min(0.5, violations * 0.1)
-    return {"score": round(max(0.0, base - penalty), 3),
-            "steps": len(trajectory), "violations": violations}
+    """C13.2: deterministic local judge scoring (no external model needed).
+
+    Kept for backward compatibility; delegates to the full rubric in
+    :mod:`keel.judge` and preserves the original ``score``/``steps``/
+    ``violations`` keys.
+    """
+    from .judge import evaluate
+
+    report = evaluate(trajectory)
+    return {"score": report["score"], "steps": report["steps"],
+            "violations": report["violations"]}

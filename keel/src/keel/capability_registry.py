@@ -633,6 +633,29 @@ def _secscan(p, ctx):
     return security_scan(str(p.get("root", ctx.get("cwd", "."))))
 
 
+@capability("code.judge.evaluate", "judge", "code", "read",
+            "Score an agent trajectory on a deterministic local rubric")
+def _judge_evaluate(p, ctx):
+    from .judge import evaluate
+    return evaluate(p.get("trajectory", []), weights=p.get("weights"),
+                    expected_steps=p.get("expected_steps"),
+                    max_wasted=p.get("max_wasted"))
+
+
+@capability("code.judge.compare", "judge", "code", "read",
+            "Rank several trajectories with deterministic scoring")
+def _judge_compare(p, ctx):
+    from .judge import compare
+    return compare(p.get("trajectories", []), names=p.get("names"))
+
+
+@capability("code.judge.report", "judge", "code", "read",
+            "Render a judge score report as Markdown")
+def _judge_report(p, ctx):
+    from .judge import rubric_report
+    return {"markdown": rubric_report(p["report"])}
+
+
 @capability("code.spec.create", "spec_mode", "code", "read",
             "Create a structured spec with requirements and an approval gate")
 def _spec_create(p, ctx):
