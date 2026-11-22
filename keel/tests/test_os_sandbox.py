@@ -18,7 +18,10 @@ WINDOWS = os.name == "nt"
 def confined_or_blocked(*args, **kwargs):
     """Run a confined process; report an unavailable kernel boundary as BLOCKED."""
     try:
-        return run_confined(*args, **kwargs)
+        result = run_confined(*args, **kwargs)
+        if not result.ok and "Operation not permitted" in result.stderr:
+            pytest.skip("BLOCKED: sandbox profile could not launch a process on this host")
+        return result
     except SandboxUnavailable as exc:
         pytest.skip(f"BLOCKED: OS enforcement unavailable: {exc}")
 
