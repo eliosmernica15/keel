@@ -90,10 +90,10 @@ def test_b56_screenshot_gallery_uses_real_images(tmp_path):
     assert "app-screenshot.png" in page and "No stock images" in page
 
 
-def test_c411_visual_diff_and_capture():
+def test_c411_visual_diff_and_capture(tmp_path):
     from PIL import Image
 
-    a, b = Path("/tmp/a.png"), Path("/tmp/b.png")
+    a, b = tmp_path / "a.png", tmp_path / "b.png"
     Image.new("RGB", (40, 40), (0, 0, 0)).save(a)
     Image.new("RGB", (40, 40), (255, 255, 255)).save(b)
     result = visual_diff(a, b)
