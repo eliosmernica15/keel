@@ -9,6 +9,7 @@ license-token format stays inactive, as the roadmap requires.
 from __future__ import annotations
 
 import json
+import re
 import time
 from pathlib import Path
 
@@ -99,6 +100,19 @@ def sbom_export() -> dict:
             entries = [{"name": k, "metadata": v} for k, v in source.items()]
         elif isinstance(source, list):
             entries = list(source)
+    if not entries:
+        # Clean checkouts have no generated release inventory; derive the
+        # declared dependency set from pyproject.toml so the SBOM is still real.
+        pyproject = Path(__file__).resolve().parents[2] / "pyproject.toml"
+        if pyproject.is_file():
+            for line in pyproject.read_text(encoding="utf-8").splitlines():
+                match = re.match(r'\s*dependencies\s*=\s*\[(.*)\]', line)
+                if match:
+                    entries = [{"name": item.strip().strip("\"'"),
+                                "source": "pyproject.toml"}
+                               for item in match.group(1).split(",")
+                               if item.strip()]
+                    break
     return {
         "format": "Keel-SBOM-1.0", "generated_at": time.strftime(
             "%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

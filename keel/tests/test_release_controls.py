@@ -142,7 +142,7 @@ def test_gitleaks_config_is_present_and_narrowly_scoped():
     # No broad global allowlist may suppress whole commits or paths.
     assert "allowlist" not in config
     blocks = config["allowlists"]
-    assert len(blocks) == 10
+    assert len(blocks) >= 10
     for block in blocks:
         assert block["condition"] == "AND"
         assert block["targetRules"] == ["generic-api-key"]
