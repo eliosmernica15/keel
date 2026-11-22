@@ -138,5 +138,6 @@ jobs:
           squashfs-root/resources/keel/keel --version
           DEB=$(find artifacts -name "*.deb" | head -1)
           test -n "$DEB"
-          dpkg-deb -c "$DEB" | grep -q "Keel"
+          dpkg-deb -c "$DEB" > /tmp/keel-deb-list.txt
+          grep -q "Keel" /tmp/keel-deb-list.txt
           echo "LINUX_PACKAGE_CONTENT_PASS"
