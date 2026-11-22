@@ -57,6 +57,12 @@ def _make_guard(_root, _libs, _network_allowed, _os_mod):
         "os.setgid", "os.kill", "os.fork", "os.forkpty", "os.exec",
         "os.spawn", "os.posix_spawn", "subprocess.Popen",
     })
+    _MUTATING_PATH_ARGS = {
+        "os.mkdir": (0,), "os.makedirs": (0,), "os.remove": (0,),
+        "os.rmdir": (0,), "os.rename": (0, 1), "os.replace": (0, 1),
+        "os.symlink": (0, 1), "os.link": (0, 1), "os.truncate": (0,),
+        "os.chmod": (0,), "os.chown": (0,), "os.utime": (0,),
+    }
     _process = frozenset({
         "os.fork", "os.forkpty", "os.exec", "os.spawn", "os.posix_spawn",
         "os.system", "os.kill", "subprocess.Popen",
@@ -96,10 +102,22 @@ def _make_guard(_root, _libs, _network_allowed, _os_mod):
         if event in _native or event in _process:
             raise PermissionError("sandbox: event denied: " + event)
         if event in _mutating:
-            path = args[0] if args else None
-            if isinstance(path, str) and not _within(path, (_root_real,)):
-                raise PermissionError(
-                    "sandbox: mutating path outside workspace denied: " + str(path))
+            # Multi-path mutations (rename/replace/link/symlink) must validate
+            # EVERY path and reject raw dir_fd arguments — checking only
+            # args[0] allowed writing outside the workspace via the target.
+            indices = _MUTATING_PATH_ARGS.get(event, (0,))
+            for index in indices:
+                if index >= len(args):
+                    continue
+                value = args[index]
+                if isinstance(value, int):
+                    raise PermissionError(
+                        "sandbox: directory-fd mutation denied: " + event)
+                if isinstance(value, (str, bytes, _os_mod.PathLike)) and \
+                        not _within(value, (_root_real,)):
+                    raise PermissionError(
+                        "sandbox: mutating path outside workspace denied: "
+                        + str(value))
             return
         if event.startswith(("socket.", "urllib.", "http.client.",
                              "smtplib.", "ftplib.", "asyncio.")):
