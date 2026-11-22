@@ -707,6 +707,36 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## External validation & distribution preparation phase
+
+**Sandbox security decision:** implemented the strongest pure-Python boundary —
+`sys.addaudithook` (immutable) that denies file access outside the workspace and
+stdlib dirs, process creation, native `ctypes.dlopen`, and network by default;
+scrubbed env (no credential keys), isolated temp cwd, POSIX rlimits (AS/CPU/
+NPROC/FSIZE), capped output, guaranteed cleanup. 9 boundary tests pass. Honest
+`code.sandbox.status` reports that native bypass and OS-level isolation
+(seccomp/AppArmor/containers/Windows restricted tokens) are NOT enforced and
+require an external environment.
+
+**Windows distribution:** `docs/WINDOWS-EXTERNAL-VALIDATION.md` — reproducible
+clean-machine package with checksums, install/uninstall, upgrade/rollback,
+expected results and troubleshooting. `scripts/validate_desktop.py` runs 5 local
+checks (all PASS) and lists 6 external checks as UNVERIFIED with exact commands.
+Found and fixed a real defect: stale `dist/latest.yml` (size/sha512 disagreed
+with the actual installer) — `release_integrity.py` detects and regenerates it
+from the verified manifest; `keel.release integrity` reports 7/7 OK.
+
+**Provider readiness:** `provider_validation.py` runs a real test matrix for
+configured providers (auth, discovery, tools, streaming, usage, timeouts,
+cancellation, switching, failure recovery) with `keel provider validate`; no
+credentials are configured here, so live checks are honestly SKIP, never faked.
+
+**Product review:** fixed misleading labels — the knowledge-work surface was
+called "Keel Desktop" but is actually "Keel Cowork" (matching the four-surface
+vision and backend surface IDs); session IDs stay `chat`/`code` for persistence
+compatibility. Added `core.providers.validate` and `core.release.integrity`
+capabilities (161 total). Full suite at this phase: **1110 passed, 10 skipped**.
+
 ## Final integration phase — capability hub and E2E workflows
 
 **Disconnected-module audit:** found 77 of 134 runtime modules imported only by

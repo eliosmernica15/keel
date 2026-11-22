@@ -25,7 +25,10 @@ const state = {
   turns: 0,
   tokens: 0,
 };
-const surfaceName = { chat: "Keel Desktop", code: "Keel Code" };
+// Product surfaces: chat = Keel Cowork (knowledge work), code = Keel Code.
+// Surface IDs stay `chat`/`code` for persisted-session compatibility; the
+// labels now match the actual products and the backend surface registry.
+const surfaceName = { chat: "Keel Cowork", code: "Keel Code" };
 
 /* ====================================================================
    mirror build — client-side provider engine (no local bridge exists).
@@ -994,7 +997,7 @@ prompts.code.addEventListener("keydown", (ev) => handleEnter(ev, "code"));
 /* ================================================================ attachments
    The + (Add) button opens a per-surface attach menu:
 
-   - Keel Desktop: upload Documents / Images / Spreadsheets / Code files
+   - Keel Cowork: upload Documents / Images / Spreadsheets / Code files
      (images go to the vision model of the provider you linked);
    - Keel Code:    upload ANYTHING — files, images, .zip archives, and
      whole desktop folders (their text files become read-only context).

@@ -118,6 +118,23 @@ def _feedback_export(p, ctx):
         if line.strip()] or []}
 
 
+@capability("core.providers.validate", "provider_validation", "core", "read",
+            "Run the provider validation matrix (no live calls without credentials)")
+def _providers_validate(p, ctx):
+    from .provider_validation import run_validation
+    return run_validation(live=bool(p.get("live")))
+
+
+@capability("core.release.integrity", "release_integrity", "core", "read",
+            "Verify local release artifact integrity")
+def _release_integrity(p, ctx):
+    from .release_integrity import run_all
+    checks = run_all(str(p.get("dist", "dist")),
+                     str(p.get("artifacts", "release")))
+    return {"checks": [c.__dict__ for c in checks],
+            "all_ok": all(c.ok for c in checks)}
+
+
 @capability("core.flags.list", "feature_flags", "core", "read",
             "List feature flags and kill switches")
 def _flags_list(p, ctx):
