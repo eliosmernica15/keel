@@ -57,6 +57,8 @@ def main(argv: list[str] | None = None) -> int:
         return _docpack_cmd(argv[1:])
     if argv and argv[0] == "vault":
         return _vault_cmd(argv[1:])
+    if argv and argv[0] == "repoindex":
+        return _repoindex_cmd(argv[1:])
     if argv and argv[0] == "skills":
         return _skills_cmd(argv[1:])
     if argv and argv[0] == "settings":
@@ -710,6 +712,53 @@ def _skills_cmd(argv: list[str]) -> int:
         sys.stdout.write(skills_mod.render_prompt(skill, arguments))
         return 0
     sys.stderr.write(_SKILLS_USAGE)
+    return 1
+
+
+def _repoindex_cmd(argv: list[str]) -> int:
+    import os
+
+    from ..repo_index import IndexStore, build_index, search_index, update_index
+
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(
+            "usage: keel repoindex build <name> <dir> [--ext .py,.md]\n"
+            "       keel repoindex update <name> <dir>\n"
+            "       keel repoindex search <name> <query> [--content]\n"
+            "       keel repoindex list\n")
+        return 0
+    cmd = argv[0]
+    store = IndexStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+    try:
+        if cmd == "build":
+            exts = None
+            if "--ext" in argv:
+                exts = argv[argv.index("--ext") + 1].split(",")
+            index = build_index(argv[2], extensions=exts)
+            store.save(argv[1], index)
+            sys.stdout.write(json.dumps({"count": index["count"]}) + "\n")
+            return 0
+        if cmd == "update":
+            result = update_index(store.load(argv[1]), argv[2])
+            store.save(argv[1], result)
+            sys.stdout.write(json.dumps({k: result[k] for k in
+                                         ("added", "modified", "removed",
+                                          "rehashed")}) + "\n")
+            return 0
+        if cmd == "search":
+            query_parts = [a for a in argv[2:] if a != "--content"]
+            result = search_index(store.load(argv[1]), " ".join(query_parts),
+                                  content="--content" in argv)
+            sys.stdout.write(json.dumps(result, indent=2) + "\n")
+            return 0
+        if cmd == "list":
+            sys.stdout.write(json.dumps(store.list()) + "\n")
+            return 0
+    except (OSError, ValueError, KeyError, IndexError) as exc:
+        diagnostic("repoindex_error", {"command": cmd, "error": str(exc)})
+        sys.stderr.write(f"repoindex: {exc}\n")
+        return 1
+    sys.stderr.write(f"unknown repoindex command: {cmd}\n")
     return 1
 
 

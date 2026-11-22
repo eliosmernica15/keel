@@ -691,6 +691,43 @@ def _secscan(p, ctx):
     return security_scan(str(p.get("root", ctx.get("cwd", "."))))
 
 
+@capability("code.repoindex.build", "repo_index", "code", "write",
+            "Build an incremental content-hash index of a source tree",
+            mutates=True)
+def _repoindex_build(p, ctx):
+    from .repo_index import IndexStore, build_index
+    root = str(p.get("root", ctx.get("cwd", ".")))
+    index = build_index(root, extensions=p.get("extensions"))
+    store = IndexStore(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    store.save(str(p.get("name", "repo")), index)
+    return {"name": p.get("name", "repo"), "count": index["count"]}
+
+
+@capability("code.repoindex.update", "repo_index", "code", "write",
+            "Update a saved index incrementally", mutates=True)
+def _repoindex_update(p, ctx):
+    from .repo_index import IndexStore, update_index
+    store = IndexStore(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    name = str(p.get("name", "repo"))
+    result = update_index(store.load(name),
+                          str(p.get("root", ctx.get("cwd", "."))),
+                          extensions=p.get("extensions"))
+    store.save(name, result)
+    return {k: result[k] for k in ("count", "added", "modified", "removed",
+                                   "rehashed")}
+
+
+@capability("code.repoindex.search", "repo_index", "code", "read",
+            "Search a saved repository index")
+def _repoindex_search(p, ctx):
+    from .repo_index import IndexStore, search_index
+    store = IndexStore(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    index = store.load(str(p.get("name", "repo")))
+    return search_index(index, str(p.get("query", "")),
+                        limit=int(p.get("limit", 10)),
+                        content=bool(p.get("content")))
+
+
 @capability("code.judge.evaluate", "judge", "code", "read",
             "Score an agent trajectory on a deterministic local rubric")
 def _judge_evaluate(p, ctx):

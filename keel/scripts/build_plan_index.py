@@ -51,7 +51,7 @@ LOCAL_MODULES = frozenset({
     "git_extras_runtime", "session_export", "model_router",
     "db_explorer", "sarif", "charts", "authoring",
     "channel_ops", "build_repro", "workbench", "notebook", "spec_mode", "views",
-    "judge", "docpacks", "notes_vault", "ops_tools",
+    "judge", "docpacks", "notes_vault", "repo_index", "ops_tools",
     "agent_profiles", "local_ops", "integrations",
     "external_adapters",
     "ops_tools", "agent_intelligence", "agent_roles", "best_of_n", "arena",
@@ -347,8 +347,13 @@ IMPLEMENTED = {
              "Static signed APT/YUM repo layout check"),
     "C12.5": ("src/keel/distribution.py", "tests/test_distribution.py",
              "Portable build manifest"),
-    "C9.3": ("src/keel/resource_caps.py", "tests/test_resource_caps.py",
-             "Low-power mode and resource meter descriptors"),
+    "C9.3": ("src/keel/repo_index.py",
+             "tests/test_repo_index.py tests/test_resource_caps.py",
+             "Real incremental repository indexing: content-hash index with "
+             "ignore rules, precise added/modified/removed detection without "
+             "rehashing unchanged files, path/content search, persisted "
+             "indexes, capability and CLI surfaces; low-power meter retained "
+             "in resource_caps"),
     "C9.4": ("src/keel/resource_caps.py", "tests/test_resource_caps.py",
              "Per-feature resource caps with visible meters"),
     "C1.10": ("src/keel/content_skills.py", "tests/test_content_skills.py",

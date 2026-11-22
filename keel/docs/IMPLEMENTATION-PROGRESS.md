@@ -707,6 +707,18 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Phase 2 batch — C9.3 real incremental repository indexing (P1)
+
+**Implemented:** `src/keel/repo_index.py` supplies the concrete indexing half
+of C9.3 (the existing `resource_caps` low-power meter stays intact): a
+content-hash index with ignore rules and file-size caps, incremental updates
+that reuse unchanged entries (no rehash) and precisely report added/modified/
+removed, path and preview content search, a persisted `IndexStore`, four
+`code.repoindex.*` capabilities and a `keel repoindex` CLI.
+
+**Verification:** 6 new tests (`test_repo_index.py`) — all pass. C9.3 registry
+evidence updated from "resource meter descriptors" to real indexing.
+
 ## Phase 2 batch — C1.8 real notes-vault extras (P1)
 
 **Implemented:** `src/keel/notes_vault.py` upgrades the backlinks-only helper

@@ -5433,7 +5433,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/resource_caps.py"
+        "src/keel/repo_index.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -5442,10 +5442,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_resource_caps.py"
+        "tests/test_repo_index.py tests/test_resource_caps.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Low-power mode and resource meter descriptors",
+      "verification_evidence": "Real incremental repository indexing: content-hash index with ignore rules, precise added/modified/removed detection without rehashing unchanged files, path/content search, persisted indexes, capability and CLI surfaces; low-power meter retained in resource_caps",
       "owner_approval_required": false
     },
     {
