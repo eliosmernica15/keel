@@ -874,6 +874,55 @@ def _uncertainty(p, ctx):
 
 
 # ---------------------------------------------------------------- fleet
+@capability("fleet.view.kanban", "views", "fleet", "read",
+            "Build a kanban board from fleet task records")
+def _view_kanban(p, ctx):
+    from .views import kanban_board
+    return kanban_board(p.get("tasks", []))
+
+
+@capability("fleet.view.org_chart", "views", "fleet", "read",
+            "Build an agent reporting tree from fleet agent records")
+def _view_org(p, ctx):
+    from .views import org_chart
+    return org_chart(p.get("agents", []))
+
+
+@capability("fleet.view.cost", "views", "fleet", "read",
+            "Rank per-agent cost from usage records")
+def _view_cost(p, ctx):
+    from .views import cost_per_agent
+    return cost_per_agent(p.get("usage", []))
+
+
+@capability("fleet.view.activity", "views", "fleet", "read",
+            "Build a live-activity timeline from fleet events")
+def _view_activity(p, ctx):
+    from .views import live_activity
+    return live_activity(p.get("events", []), limit=int(p.get("limit", 50)))
+
+
+@capability("fleet.view.token_waterfall", "views", "fleet", "read",
+            "Per-turn token waterfall with inline SVG")
+def _view_waterfall(p, ctx):
+    from .views import token_waterfall
+    return token_waterfall(p.get("turns", []))
+
+
+@capability("fleet.view.flame_graph", "views", "fleet", "read",
+            "Build a nested flame graph from duration spans")
+def _view_flame(p, ctx):
+    from .views import flame_graph
+    return flame_graph(p.get("spans", []))
+
+
+@capability("fleet.view.prompt_diff", "views", "fleet", "read",
+            "Structured diff between two prompts")
+def _view_diff(p, ctx):
+    from .views import prompt_diff
+    return prompt_diff(str(p.get("before", "")), str(p.get("after", "")))
+
+
 @capability("fleet.workflow.version", "workflow_history", "fleet", "write",
             "Save a workflow definition version", mutates=True)
 def _wf_save(p, ctx):

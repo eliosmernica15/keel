@@ -707,6 +707,18 @@ items whose real capability needs an external environment), 23 external-
 dependency, 2 owner-gated. Full suite at this phase: **1015 passed,
 10 skipped**. History was not rewritten; all commits are local, none pushed.
 
+## Phase 2 batch — B4.6 / B4.7 real fleet & observability views (P1)
+
+**Implemented:** `src/keel/views.py` replaces pure capability flags with real
+data transformations: kanban board (counts/completion), nested agent org chart
+from `parent` ids, per-agent cost ranking with spend share, newest-first live
+activity timeline, per-turn token waterfall with offline inline SVG, nested
+flame graph with self/cumulative percentages, and structured prompt diff.
+Integrated through seven `fleet.view.*` capabilities.
+
+**Verification:** 7 new tests (`test_views.py`) — all pass. Registry B4.6/B4.7
+evidence updated from descriptors to real view generation.
+
 ## Phase 2 batch — B2.2 real spec-driven mode (P1)
 
 **Implemented:** `src/keel/spec_mode.py` upgrades the descriptor into a real

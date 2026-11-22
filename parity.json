@@ -2537,7 +2537,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/misc_features.py"
+        "src/keel/views.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2546,10 +2546,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_misc_features.py"
+        "tests/test_views.py tests/test_misc_features.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Fleet view descriptors",
+      "verification_evidence": "Real fleet views: kanban board, nested agent org chart, per-agent cost ranking and live-activity timeline",
       "owner_approval_required": false
     },
     {
@@ -2561,7 +2561,7 @@
       "priority": "P1",
       "status": "verified",
       "source_files": [
-        "src/keel/misc_features.py"
+        "src/keel/views.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
@@ -2570,10 +2570,10 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_misc_features.py"
+        "tests/test_views.py tests/test_misc_features.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Observability view descriptors",
+      "verification_evidence": "Real observability views: token waterfall with inline SVG, nested flame graph and structured prompt diff",
       "owner_approval_required": false
     },
     {
