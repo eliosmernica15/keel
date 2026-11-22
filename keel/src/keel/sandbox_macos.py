@@ -292,8 +292,26 @@ def run_confined(
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise SandboxUnavailable(f"sandbox-exec pre-flight failed: {exc}") from exc
     if probe.returncode != 0:
+        # A control probe with a known-good minimal profile distinguishes a
+        # broken SBPL rule from a host where sandbox-exec cannot be used at
+        # all. Both are reported verbatim so CI logs carry the exact error.
+        control_text = ("(version 1)\n(deny default)\n(allow process-exec)\n"
+                        "(allow file-read*)\n")
+        try:
+            control = subprocess.run(
+                [sandbox_exec, "-p", control_text, "/usr/bin/true"],
+                capture_output=True, timeout=10, check=False,
+            )
+            control_info = (f"exit={control.returncode}, "
+                            f"stderr={_tail(control.stderr)!r}, "
+                            f"stdout={_tail(control.stdout)!r}")
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            control_info = f"error={exc!r}"
         raise SandboxUnavailable(
-            "sandbox-exec profile could not launch a probe: " + _tail(probe.stderr))
+            f"sandbox-exec profile could not launch a probe "
+            f"(exit={probe.returncode}, stderr={_tail(probe.stderr)!r}, "
+            f"stdout={_tail(probe.stdout)!r}); control_probe=({control_info}); "
+            f"profile:\n{profile}")
 
     scratch = ws_path / ".tmp"
     scratch.mkdir(exist_ok=True)
