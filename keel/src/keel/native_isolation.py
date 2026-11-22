@@ -19,6 +19,7 @@ import ctypes
 import os
 import shutil
 import subprocess
+from pathlib import Path
 import sys
 import time
 from dataclasses import dataclass
@@ -75,14 +76,56 @@ class IsolationResult:
 
 
 def platform_support() -> dict:
+    linux = sys.platform.startswith("linux")
+    darwin = sys.platform == "darwin"
     return {
         "os": sys.platform,
         "windows_job_object": IS_WINDOWS,
         "posix_rlimits": not IS_WINDOWS,
-        "unshare": bool(shutil.which("unshare")) if not IS_WINDOWS else False,
+        "linux_namespaces": linux and bool(shutil.which("unshare")),
+        "linux_seccomp": linux and _has_seccomp(),
+        "macos_seatbelt": darwin and bool(shutil.which("sandbox-exec")),
         "network_isolation": False,
-        "note": "Native process/resource limits only; not full OS sandboxing.",
+        "filesystem_isolation": bool(linux and shutil.which("bwrap")),
+        "best_backend": _best_backend(linux, darwin),
+        "note": ("Process/resource limits with optional namespace/seatbelt "
+                 "support; not full OS sandboxing. Network isolation is NOT "
+                 "enforced by Keel."),
     }
+
+
+def _has_seccomp() -> bool:
+    try:
+        return "Seccomp" in Path("/proc/self/status").read_text(
+            encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+
+
+def _best_backend(linux: bool, darwin: bool) -> str:
+    if IS_WINDOWS:
+        return "windows-job-object"
+    if linux and shutil.which("bwrap"):
+        return "bubblewrap"
+    if linux and shutil.which("unshare"):
+        return "linux-namespaces"
+    if darwin and shutil.which("sandbox-exec"):
+        return "macos-seatbelt"
+    return "posix-rlimits"
+
+
+def require_backend(name: str) -> None:
+    """Fail closed when a requested native isolation backend is unavailable."""
+    support = platform_support()
+    available = {
+        "windows-job-object": support["windows_job_object"],
+        "bubblewrap": bool(shutil.which("bwrap")),
+        "linux-namespaces": support["linux_namespaces"],
+        "macos-seatbelt": support["macos_seatbelt"],
+        "posix-rlimits": support["posix_rlimits"],
+    }
+    if not available.get(name, False):
+        raise IsolationUnavailable(f"isolation backend unavailable: {name}")
 
 
 # --------------------------------------------------------------- Windows
@@ -220,5 +263,57 @@ def run_isolated(argv: list[str], *, cwd: str | None = None,
                                sys.platform, "posix-rlimits")
 
 
+def probe_backend(name: str | None = None) -> dict:
+    """Actually execute a trivial command through a native backend.
+
+    This is deliberately not a policy-test: the OS primitive must run a real
+    process successfully, otherwise the backend is reported unavailable.
+    """
+    support = platform_support()
+    name = name or support["best_backend"]
+    if name == "posix-rlimits":
+        result = run_isolated([sys.executable, "-c", "pass"],
+                              require_native=True, timeout_s=10)
+        return {"backend": name, "available": result.ok,
+                "mechanism": result.mechanism}
+    if name == "windows-job-object":
+        result = run_isolated([sys.executable, "-c", "pass"],
+                              require_native=True, timeout_s=10)
+        return {"backend": name, "available": result.ok,
+                "mechanism": result.mechanism}
+    if name == "linux-namespaces":
+        try:
+            proc = subprocess.run(
+                ["unshare", "--user", "--map-root-user", "--net", "true"],
+                capture_output=True, timeout=15, check=False)
+            available = proc.returncode == 0
+            reason = proc.stderr.decode("utf-8", errors="replace")[:200]
+        except (OSError, subprocess.SubprocessError) as exc:
+            available, reason = False, str(exc)
+        return {"backend": name, "available": available, "reason": reason}
+    if name == "bubblewrap":
+        try:
+            proc = subprocess.run(
+                ["bwrap", "--ro-bind", "/", "/", "--tmpfs", "/tmp", "--unshare-net",
+                 "--", "/bin/true"], capture_output=True, timeout=15, check=False)
+            available = proc.returncode == 0
+            reason = proc.stderr.decode("utf-8", errors="replace")[:200]
+        except (OSError, subprocess.SubprocessError) as exc:
+            available, reason = False, str(exc)
+        return {"backend": name, "available": available, "reason": reason}
+    if name == "macos-seatbelt":
+        try:
+            profile = "(version 1)(deny default)(allow process*)"
+            proc = subprocess.run(
+                ["sandbox-exec", "-p", profile, "/usr/bin/true"],
+                capture_output=True, timeout=15, check=False)
+            available = proc.returncode == 0
+            reason = proc.stderr.decode("utf-8", errors="replace")[:200]
+        except (OSError, subprocess.SubprocessError) as exc:
+            available, reason = False, str(exc)
+        return {"backend": name, "available": available, "reason": reason}
+    return {"backend": name, "available": False, "reason": "unknown backend"}
+
+
 def status() -> dict:
-    return platform_support()
+    return {**platform_support(), "probe": probe_backend()}

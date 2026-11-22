@@ -1,0 +1,81 @@
+name: Upgrade and rollback lifecycle (Windows)
+
+# Validates upgrade/rollback against the accepted previous release using
+# disposable hosted runners. User data is created in the runner's home and must
+# survive upgrade, rollback, uninstall and reinstall.
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Completed Build desktop installers run id"
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  windows-lifecycle:
+    runs-on: windows-latest
+    steps:
+      - name: Download final Windows artifact
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: gh run download "$env:RUN_ID" --repo "${{ github.repository }}" -n keel-windows -D final-artifact
+
+      - name: Download accepted previous installer (v0.1.1)
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download v0.1.1 --repo "${{ github.repository }}" --pattern "Keel-Setup-0.1.1.exe" -D previous
+
+      - name: Install previous and create real user data
+        shell: powershell
+        run: |
+          $old = Get-ChildItem previous -Filter "Keel-Setup-*.exe" | Select-Object -First 1
+          Start-Process $old.FullName -ArgumentList "/S", "/D=$env:LOCALAPPDATA\KeelLifecycle" -Wait
+          $state = Join-Path $env:USERPROFILE ".keel"
+          New-Item -ItemType Directory -Force $state | Out-Null
+          "lifecycle-marker" | Out-File (Join-Path $state "lifecycle-marker.txt")
+          if (-not (Test-Path (Join-Path $env:LOCALAPPDATA "KeelLifecycle\Keel.exe"))) { throw "previous install failed" }
+
+      - name: Upgrade to final and verify user data
+        shell: powershell
+        run: |
+          $new = Get-ChildItem final-artifact -Recurse -Filter "Keel-Setup-*.exe" |
+            Where-Object { $_.Name -notlike "*uninstaller*" } | Select-Object -First 1
+          Start-Process $new.FullName -ArgumentList "/S", "/D=$env:LOCALAPPDATA\KeelLifecycle" -Wait
+          $marker = Join-Path $env:USERPROFILE ".keel\lifecycle-marker.txt"
+          if (-not (Test-Path $marker)) { throw "user data lost during upgrade" }
+          $sidecar = Join-Path $env:LOCALAPPDATA "KeelLifecycle\resources\keel\keel.exe"
+          & $sidecar --version
+          Write-Host "UPGRADE_PASS"
+
+      - name: Rollback and verify data integrity
+        shell: powershell
+        run: |
+          $old = Get-ChildItem previous -Filter "Keel-Setup-*.exe" | Select-Object -First 1
+          Start-Process $old.FullName -ArgumentList "/S", "/D=$env:LOCALAPPDATA\KeelLifecycle" -Wait
+          $marker = Join-Path $env:USERPROFILE ".keel\lifecycle-marker.txt"
+          if ((Get-Content $marker) -ne "lifecycle-marker") { throw "user data corrupted on rollback" }
+          Write-Host "ROLLBACK_PASS"
+
+      - name: Uninstall and reinstall final
+        shell: powershell
+        run: |
+          $dest = Join-Path $env:LOCALAPPDATA "KeelLifecycle"
+          $un = Get-ChildItem $dest -Filter "unins*.exe" | Select-Object -First 1
+          if ($un) { Start-Process $un.FullName -ArgumentList "/S" -Wait }
+          Start-Sleep -Seconds 2
+          if (-not (Test-Path (Join-Path $env:USERPROFILE ".keel\lifecycle-marker.txt"))) {
+            throw "user data removed by uninstall"
+          }
+          $new = Get-ChildItem final-artifact -Recurse -Filter "Keel-Setup-*.exe" |
+            Where-Object { $_.Name -notlike "*uninstaller*" } | Select-Object -First 1
+          Start-Process $new.FullName -ArgumentList "/S", "/D=$dest" -Wait
+          $sidecar = Join-Path $dest "resources\keel\keel.exe"
+          & $sidecar --version
+          Write-Host "REINSTALL_PASS"

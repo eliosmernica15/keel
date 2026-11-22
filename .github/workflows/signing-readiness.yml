@@ -1,0 +1,39 @@
+name: Signing readiness
+
+# Reports which production signing credentials are configured. It never prints
+# secret values and never claims a package is signed. The real signing jobs are
+# guarded by these same secrets and are skipped when they are absent.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Report signing credential availability
+        env:
+          WIN_CERT: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_BASE64 }}
+          WIN_PASS: ${{ secrets.WINDOWS_SIGNING_PASSWORD }}
+          MAC_CERT: ${{ secrets.MACOS_SIGNING_CERTIFICATE_BASE64 }}
+          MAC_PASS: ${{ secrets.MACOS_SIGNING_PASSWORD }}
+          MAC_APPLE_ID: ${{ secrets.MACOS_NOTARIZATION_APPLE_ID }}
+          MAC_TEAM_ID: ${{ secrets.MACOS_NOTARIZATION_TEAM_ID }}
+          MAC_NOTE_PASS: ${{ secrets.MACOS_NOTARIZATION_PASSWORD }}
+          LINUX_KEY: ${{ secrets.LINUX_SIGNING_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          check() { if [ -n "$2" ]; then echo "$1=CONFIGURED"; else echo "$1=MISSING"; fi; }
+          check WINDOWS_SIGNING_CERTIFICATE_BASE64 "$WIN_CERT"
+          check WINDOWS_SIGNING_PASSWORD "$WIN_PASS"
+          check MACOS_SIGNING_CERTIFICATE_BASE64 "$MAC_CERT"
+          check MACOS_SIGNING_PASSWORD "$MAC_PASS"
+          check MACOS_NOTARIZATION_APPLE_ID "$MAC_APPLE_ID"
+          check MACOS_NOTARIZATION_TEAM_ID "$MAC_TEAM_ID"
+          check MACOS_NOTARIZATION_PASSWORD "$MAC_NOTE_PASS"
+          check LINUX_SIGNING_KEY_BASE64 "$LINUX_KEY"
+          echo "See keel/docs/release/SIGNING-PREPARATION.md"
