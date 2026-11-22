@@ -1,0 +1,122 @@
+name: Provider validation
+
+# Honest provider validation:
+#  - deterministic fixtures always run (no network, no credentials);
+#  - credential presence is reported by NAME ONLY (CONFIGURED / MISSING);
+#  - exactly one minimal, non-destructive live request is attempted only when a
+#    fully configured credential exists;
+#  - secret values are never printed (values are also redacted from any
+#    captured stdout/stderr before it reaches the log).
+# No account, purchase or chargeable call is made by this workflow.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provider-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install project and test dependencies
+        working-directory: keel
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install -e . pytest
+
+      - name: Deterministic fixture validation (no network, no credentials)
+        working-directory: keel
+        run: |
+          set -euo pipefail
+          python -m pytest -q \
+            tests/test_provider_validation_ready.py \
+            tests/test_provider_validation.py \
+            tests/test_secret_storage.py
+
+      - name: Live provider check (only when a credential is configured)
+        working-directory: keel
+        env:
+          # API keys: injected only from GitHub secrets; never echoed.
+          KEEL_OPENROUTER_API_KEY: ${{ secrets.KEEL_OPENROUTER_API_KEY }}
+          KEEL_GOOGLE_API_KEY: ${{ secrets.KEEL_GOOGLE_API_KEY }}
+          KEEL_NVIDIA_API_KEY: ${{ secrets.KEEL_NVIDIA_API_KEY }}
+          KEEL_ANTHROPIC_API_KEY: ${{ secrets.KEEL_ANTHROPIC_API_KEY }}
+          KEEL_COMPAT_API_KEY: ${{ secrets.KEEL_COMPAT_API_KEY }}
+          # Non-secret endpoint/config: repository variables preferred, secrets
+          # accepted as a fallback for repositories that store them that way.
+          KEEL_COMPAT_BASE_URL: ${{ vars.KEEL_COMPAT_BASE_URL || secrets.KEEL_COMPAT_BASE_URL }}
+          KEEL_COMPAT_MODEL: ${{ vars.KEEL_COMPAT_MODEL || secrets.KEEL_COMPAT_MODEL }}
+        run: |
+          set -uo pipefail
+          python - <<'PY'
+          import os
+          import subprocess
+          import sys
+
+          KEY_TO_PROVIDER = {
+              "KEEL_OPENROUTER_API_KEY": "openrouter",
+              "KEEL_GOOGLE_API_KEY": "google",
+              "KEEL_NVIDIA_API_KEY": "nvidia",
+              "KEEL_ANTHROPIC_API_KEY": "anthropic",
+              "KEEL_COMPAT_API_KEY": "openai-compatible",
+          }
+          CONFIG_KEYS = ["KEEL_COMPAT_BASE_URL", "KEEL_COMPAT_MODEL"]
+          ALL_KEYS = list(KEY_TO_PROVIDER) + CONFIG_KEYS
+
+          def present(name):
+              return bool(os.environ.get(name, "").strip())
+
+          # Report presence by name only. Values are never written to stdout.
+          for name in ALL_KEYS:
+              print(f"{name}={'CONFIGURED' if present(name) else 'MISSING'}")
+
+          raw_values = {name: os.environ.get(name, "") for name in ALL_KEYS}
+
+          def redact(text):
+              """Defence in depth: mask exact secret values in any captured text."""
+              for value in raw_values.values():
+                  if value and len(value) >= 4:
+                      text = text.replace(value, "***REDACTED***")
+              return text
+
+          chosen = None
+          for key, provider in KEY_TO_PROVIDER.items():
+              if not present(key):
+                  continue
+              if provider == "openai-compatible" and not (
+                      present("KEEL_COMPAT_BASE_URL")
+                      and present("KEEL_COMPAT_MODEL")):
+                  continue
+              chosen = provider
+              break
+
+          if chosen is None:
+              print("live_provider=SKIP (no fully configured credential)")
+              print("No real request issued. See keel/docs/research/external-readiness.md")
+              sys.exit(0)
+
+          print(f"live_provider={chosen}")
+          print("Issuing ONE minimal non-destructive request: keel provider smoke " + chosen)
+          result = subprocess.run(
+              [sys.executable, "-m", "keel", "provider", "smoke", chosen],
+              capture_output=True, text=True, timeout=120,
+          )
+          print(f"exit_code={result.returncode}")
+          if result.stdout.strip():
+              print("stdout:\n" + redact(result.stdout.strip()))
+          if result.stderr.strip():
+              print("stderr:\n" + redact(result.stderr.strip()))
+          sys.exit(result.returncode)
+          PY
