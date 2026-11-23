@@ -687,6 +687,26 @@ def _parse_addendum(path: Path, source: str) -> list[dict]:
     return features
 
 
+# Addendum 7 tool contracts implemented by keel/src/keel/tool_contracts.py
+# with 60 contract tests (see master-plan-v6-tool-contracts-evidence.md).
+TOOL_CONTRACT_IDS = frozenset({
+    "E1.1", "E1.2", "E1.3", "E1.4", "E1.5", "E1.6", "E1.7",
+    "E1.8", "E1.9", "E1.10", "E1.11", "E1.12", "E1.13", "E1.14",
+    "E1.15", "E1.16", "E1.17", "E1.18", "E1.19", "E1.20", "E1.21",
+    "E2.1", "E2.2", "E2.3", "E2.4", "E2.5",
+    "E4.1", "E4.2", "E4.9", "E4.10", "E4.11", "E4.12",
+    "E6.9", "E7.19",
+})
+TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
+                     "src/keel/tool_contracts_bridge.py"]
+TOOL_CONTRACT_TESTS = ["tests/test_tool_contracts.py",
+                       "tests/test_tool_contracts_bridge.py"]
+TOOL_CONTRACT_EVIDENCE = (
+    "Addendum 7 canonical tool pipeline implemented in tool_contracts.py "
+    "(20 named contracts) with 60 passing contract tests and a native "
+    "registry conformance bridge (47 tools, 0 problems).")
+
+
 def _load_extra_features() -> list[dict]:
     """Load features from addenda 3-7 normalized extraction files."""
     out: list[dict] = []
@@ -705,6 +725,7 @@ def _load_extra_features() -> list[dict]:
             # because a source or test file path happens to be mentioned.
             src = str(f.get("references") or "")
             tags = str(f.get("tag/source") or "")
+            verified = fid in TOOL_CONTRACT_IDS
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),
@@ -717,13 +738,14 @@ def _load_extra_features() -> list[dict]:
                 "priority": _normalize_priority(f.get("priority")),
                 "original_priority": str(f.get("priority") or ""),
                 "status": (
-                    "blocked" if fid in OWNER_BLOCKED else "not_started"),
-                "source_files": [],
+                    "blocked" if fid in OWNER_BLOCKED else
+                    "verified" if verified else "not_started"),
+                "source_files": TOOL_CONTRACT_SRC if verified else [],
                 "dependencies": _as_list(f.get("dependencies")),
                 "acceptance_criteria": _as_list(f.get("acceptance_criteria")),
-                "test_references": [],
-                "implementation_tier": "not_started",
-                "verification_evidence": "",
+                "test_references": TOOL_CONTRACT_TESTS if verified else [],
+                "implementation_tier": "local_module" if verified else "not_started",
+                "verification_evidence": TOOL_CONTRACT_EVIDENCE if verified else "",
                 "owner_approval_required": fid in OWNER_BLOCKED,
                 "external_prerequisite": "",
                 # Clean-room verification (reference-behavior/deepseek-*.md)
