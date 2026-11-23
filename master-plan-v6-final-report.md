@@ -1,5 +1,13 @@
 # Keel Master Plan v6 — Final consolidated completion report
 
+> **Addenda 3–7 operation (2026-11-24):** This report covers the earlier 228-row
+> completion. The registry has since been reconciled to **865 features** across
+> all eight specification documents. See `ADDENDA-OPERATION-STATUS.md`,
+> `master-plan-v6-final-completion-report.md`, `REVIEW-CORE-FINDINGS.md`,
+> `REVIEW-PLANNING-FINDINGS.md` and `master-plan-v6-high-findings-fix.md` for the
+> current state. Current integration branch: `integration/v6-addenda-complete`.
+> Do not read the 228-row sections below as the current feature count.
+
 **Definitive audit baseline:** `321bc7a55f2f306365a0f2ee26441fef345e8f41` (parent `cadb343`, contains the completed audit evidence)
 **Audited code baseline:** `cadb343e84db1a1cc5fa2bed584996c33b629a4b`
 **Integration branch:** `integration/v6-completion` (local only; created from `321bc7a`)
