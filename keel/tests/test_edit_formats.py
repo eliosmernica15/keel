@@ -239,6 +239,48 @@ def test_fuzzy_replace_no_op_is_exact_and_preserves_bytes():
     assert info.similarity == 1.0
 
 
+def test_fuzzy_replace_preserves_absent_final_newline():
+    """M3: a last-line edit must not invent a trailing separator."""
+    original = "a\nb\nc"
+    assert fuzzy_replace(original, "c", "C")[0] == "a\nb\nC"
+    crlf = "a\r\nb\r\nc"
+    assert fuzzy_replace(crlf, "c", "C")[0] == "a\r\nb\r\nC"
+    assert fuzzy_replace("abc", "abc", "ABC")[0] == "ABC"
+
+
+def test_fuzzy_compact_never_substitutes_semantically_different_lines():
+    """H3 regression: whitespace removed inside literals/numbers is not a match."""
+    cases = [
+        ('x = "ab"\n', 'x = "a b"', 'x = "cd"'),
+        ('url = "https://example.com"\n', 'url = "https://example. com"', 'url = "SAFE"'),
+        ('msg = "hello world"\n', 'msg = "helloworld"', 'msg = "X"'),
+        ('return 12\n', 'return 1 2', 'return 99'),
+    ]
+    for original, old, new in cases:
+        pristine = (original, old, new)
+        with pytest.raises(FuzzyMatchError) as excinfo:
+            fuzzy_replace(original, old, new)
+        assert excinfo.value.code == "no_match", (original, old)
+        assert (original, old, new) == pristine  # inputs are never mutated
+
+
+def test_fuzzy_threshold_one_cannot_be_defeated_by_compact():
+    """H3 regression: threshold=1.0 is strict; compact is disabled there."""
+    for original, old, new in (
+        ('x = "ab"\n', 'x = "a b"', 'x = "cd"'),
+        ('return 12\n', 'return 1 2', 'return 99'),
+        ('call( a , b )\n', 'call(a, b)', 'call(c, d)'),
+    ):
+        with pytest.raises(FuzzyMatchError) as excinfo:
+            fuzzy_replace(original, old, new, threshold=1.0)
+        assert excinfo.value.code == "no_match", (original, old)
+
+    # Exact equality still works at threshold=1.0.
+    result, info = fuzzy_replace("x = 1\n", "x = 1", "x = 2", threshold=1.0)
+    assert result == "x = 2\n"
+    assert info.strategy == "exact" and info.similarity == 1.0
+
+
 def test_apply_edit_chained_blocks_adjust_anchors():
     original = "a\nb\na\nb\n"
     edit = (

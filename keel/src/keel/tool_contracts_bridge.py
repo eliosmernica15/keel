@@ -65,8 +65,15 @@ def adapt_native_tools(native_registry: Any) -> list[ToolSpec]:
 def check_native_conformance(native_registry: Any) -> dict[str, Any]:
     """Produce a conformance report for the live native tool registry."""
     specs = adapt_native_tools(native_registry)
-    projected = project_model_schemas(native_registry.schemas())
     problems: list[str] = []
+    try:
+        projected = project_model_schemas(native_registry.schemas())
+    except ValueError as exc:
+        # A schema leak is the single most important conformance failure. It
+        # must be reported in the durable report, not abort CI with a raw
+        # exception from the (deliberately strict) projection API.
+        projected = []
+        problems.append(f"model-facing schema projection: {exc}")
     for spec in specs:
         if not spec.name or not spec.description:
             problems.append(f"{spec.name}: missing name/description")

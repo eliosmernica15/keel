@@ -327,8 +327,22 @@ def validate_value(schema: dict, value: Any, path: str = "$") -> list[str]:
     expected = infer_schema_type(schema)
     expected_types = expected if isinstance(expected, list) else (
         [expected] if expected else [])
-    if expected_types and _json_type(value) not in expected_types:
-        errors.append(f"{path}: expected {expected}, got {_json_type(value)}")
+    actual = _json_type(value)
+
+    def _type_matches(expected_type: str) -> bool:
+        if actual == expected_type:
+            return True
+        # JSON Schema: every integer is a number, and an integral float is
+        # an acceptable integer. bool is deliberately excluded by _json_type.
+        if expected_type == "number" and actual == "integer":
+            return True
+        if (expected_type == "integer" and actual == "number"
+                and isinstance(value, float) and value.is_integer()):
+            return True
+        return False
+
+    if expected_types and not any(_type_matches(t) for t in expected_types):
+        errors.append(f"{path}: expected {expected}, got {actual}")
         return errors
 
     typ = expected_types[0] if len(expected_types) == 1 else _json_type(value)
@@ -671,9 +685,17 @@ def apply_post_hooks(name: str, args: ArgsSnapshot, result: "ToolResult",
         elif decision.action == PostAction.REPLACE_VALUE:
             new_value = to_jsonable(decision.value, path=name,
                                     code=ToolErrorCode.INVALID_TOOL_OUTPUT)
+            # DLP must be fail-closed on EVERY result surface. ``value`` and
+            # ``display`` alone are not enough: replay metadata and deferred
+            # / injected context are durable surfaces that were built from the
+            # pre-DLP value. Rebuild them from the replacement only, and drop
+            # all previously attached context.
+            safe_args = _normalised_args(args)
             current = replace(
                 current, value=new_value,
-                display=safe_render(current.renderer, args.json, new_value))
+                display=safe_render(current.renderer, safe_args, new_value),
+                presentation_meta=presentation_meta(name, safe_args, new_value),
+                attached_context=[])
         elif decision.action == PostAction.ATTACH_CONTEXT:
             if decision.context is not None:
                 current = replace(
@@ -1188,6 +1210,16 @@ def execute_tool(registry: ToolRegistry, name: str, args: Any, *,
     effective = fuse(effective, timeout_signal)
     ctx.cancel = effective
 
+    # Around-dispatch must also be a *pre*-dispatch gate (E1.8).  A call that
+    # is already cancelled when it reaches the pipeline must never invoke its
+    # handler: a side-effecting tool (write/delete/network) must not run just
+    # because the user aborted while the call was queued.  Both the caller's
+    # signal and any wrapper-supplied signal are covered by ``effective``.
+    if caller_signal.cancelled or effective.cancelled:
+        return failure_result(
+            name, ToolErrorCode.ABORTED,
+            reason="tool call was cancelled before dispatch", audit=audit)
+
     value: Any = None
     timed_out = False
     aborted = False
@@ -1302,6 +1334,21 @@ def execute_batch(registry: ToolRegistry, calls: Iterable[ToolCall], *,
                               ToolErrorCode.ABORTED_BEFORE_DISPATCH,
                               reason="call skipped after batch abort")
 
+    def _dispatched_failure(index: int, exc: BaseException) -> ToolResult:
+        """A submitted call settled by raising: it was NOT skipped."""
+        return failure_result(
+            call_list[index].name, ToolErrorCode.TOOL_EXECUTION_ERROR,
+            reason=f"{type(exc).__name__}: {exc}")
+
+    def _drain(pending: list[tuple[int, Future]]) -> None:
+        """Collect every safe future, giving each a real or typed outcome."""
+        for idx, fut in pending:
+            try:
+                outcomes[idx] = fut.result()
+            except BaseException as exc:  # noqa: BLE001 - settle every future
+                outcomes[idx] = _dispatched_failure(idx, exc)
+
+    last_submitted: tuple[int, Future] | None = None
     with ThreadPoolExecutor(max_workers=limit) as pool:
         try:
             pending_safe: list[tuple[int, Future]] = []
@@ -1332,6 +1379,7 @@ def execute_batch(registry: ToolRegistry, calls: Iterable[ToolCall], *,
                     execute_tool, registry, call.name, call.args,
                     agent_id=agent_id, cancel=cancel,
                     approval_responder=approval_responder)
+                last_submitted = (index, fut)
                 if safe:
                     pending_safe.append((index, fut))
                     if len(pending_safe) >= limit:
@@ -1345,6 +1393,17 @@ def execute_batch(registry: ToolRegistry, calls: Iterable[ToolCall], *,
                 outcomes[idx] = fut.result()
         except BaseException as exc:  # internal/infrastructure failure
             internal_error = exc
+            # Started work must settle with its real (or typed failure)
+            # outcome. Only calls that never reached pool.submit may be
+            # back-filled as ABORTED_BEFORE_DISPATCH below.
+            _drain(pending_safe)
+            pending_safe.clear()
+            if last_submitted is not None and outcomes[last_submitted[0]] is None:
+                idx, fut = last_submitted
+                try:
+                    outcomes[idx] = fut.result()
+                except BaseException as sub_exc:
+                    outcomes[idx] = _dispatched_failure(idx, sub_exc)
 
     # Fill any outcome still missing (defensive).
     for index, result in enumerate(outcomes):

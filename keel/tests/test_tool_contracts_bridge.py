@@ -45,6 +45,25 @@ def test_model_schema_leak_is_rejected():
         raise AssertionError("internal fields were silently accepted")
 
 
+def test_conformance_reports_schema_leak_instead_of_raising():
+    """M4: a leaked internal field must appear in problems, not abort CI."""
+    class LeakyRegistry:
+        def list_tools(self):
+            return []
+
+        def schemas(self):
+            return [{
+                "name": "x", "description": "d", "input_schema": {},
+                "handler": "leak", "timeout_s": 3,
+            }]
+
+    report = check_native_conformance(LeakyRegistry())
+    assert report["ok"] is False
+    assert report["tool_count"] == 0
+    assert report["model_schema_count"] == 0
+    assert any("leaked" in problem for problem in report["problems"])
+
+
 def test_adapted_specs_have_canonical_output_schema():
     registry = create_native_registry(RealTools())
     specs = adapt_native_tools(registry)
