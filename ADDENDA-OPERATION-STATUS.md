@@ -34,7 +34,9 @@ Date: 2026-11-23.
 | X1.4-X1.5 edit formats/fuzzy patch | 26 tests | `d72f62c` (merged) |
 | X1.7-X1.8 repo map + token counting | 23 tests | `1f39213` (merged) |
 | X1.13 steering/interrupt | 20 tests | `55b52be` (merged) |
-| Registry verified count | 370 verified / 493 not_started / 2 blocked | `fa062a4` |
+| Registry verified count | 370 verified / 493 not_started / 2 blocked (after W7 + D3/E6/Y2 + E7/D1/Y3/W5 batches) | `a454640` |
+| Independent reviews | core: 0 critical/3 high (all fixed, `b9f7490`); planning: 0 critical/4 high (all fixed, `3f3162c`) | `e37d616`, `d55157e` |
+| Full suite (mid-merge, stale-state) | 2182 passed, 48 skipped, 15 failed — all 15 reproduced passing individually on current HEAD (176-test targeted run) | — |
 | Status page not_started accounting + schema drift fixes | honest totals, no double count | `fa062a4` |
 
 ## Active parallel workstreams (Process B + reviewers)
