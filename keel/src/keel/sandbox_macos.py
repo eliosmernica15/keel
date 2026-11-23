@@ -61,12 +61,10 @@ _SYSTEM_READ_ROOTS: tuple[str, ...] = (
     "/sbin",
     "/usr/sbin",
     "/opt",
-    "/etc",
+    # Canonical spellings only: /etc -> /private/etc, /var -> /private/var.
     "/private/etc",
     "/private/var/db/dyld",
     "/private/var/db/timezone",
-    "/var/db/dyld",
-    "/var/db/timezone",
 )
 
 _DEVICE_READ_PATHS: tuple[str, ...] = (
@@ -94,6 +92,20 @@ def _sbpl_path(value: str | Path) -> str:
     ):
         raise SandboxUnavailable(f"SBPL profile injection rejected in path: {text!r}")
     return text
+
+
+def _canonical_path(path: str) -> str:
+    """Resolve macOS symlink aliases used by SBPL filters.
+
+    ``/etc`` and ``/var`` are symlinks into ``/private``. Listing both spellings
+    as filters makes the SBPL compiler abort (duplicate filters after
+    canonicalisation), so normalise before de-duplicating.
+    """
+    if path == "/etc" or path.startswith("/etc/"):
+        return "/private" + path
+    if path == "/var" or path.startswith("/var/"):
+        return "/private" + path
+    return path
 
 
 def _runtime_read_roots(argv: list[str] | None) -> list[str]:
@@ -158,17 +170,20 @@ def build_profile(
     # already covered by a broader system root.
     roots: list[str] = []
     for candidate in (*_SYSTEM_READ_ROOTS, *read_roots):
-        path = _sbpl_path(candidate)
+        path = _canonical_path(_sbpl_path(candidate))
         if (path == ws or path in roots or any(
             path.startswith(other.rstrip("/") + "/") for other in roots
         )):
-            # Duplicate filters are not harmless: the SBPL compiler aborts
-            # (SIGABRT, empty stderr) when the same filter is repeated.
+            # Duplicate (including symlink-alias) filters are not harmless:
+            # the SBPL compiler aborts with SIGABRT and an empty stderr.
             continue
         roots.append(path)
 
-    read_filters = " ".join(f'(subpath "{root}")' for root in roots)
-    device_filters = " ".join(f'(literal "{d}")' for d in _DEVICE_READ_PATHS)
+    read_filters = " ".join(
+        [f'(subpath "{ws}")']
+        + [f'(subpath "{root}")' for root in roots]
+        + [f'(literal "{d}")' for d in _DEVICE_READ_PATHS]
+    )
     lines = [
         "(version 1)",
         "(deny default)",
@@ -186,12 +201,10 @@ def build_profile(
         "(allow system-socket)",
         "",
         ";; the authorized workspace is the only writable area",
-        f'(allow file-read* (subpath "{ws}"))',
         f'(allow file-write* (subpath "{ws}"))',
         "",
         ";; read-only interpreter/OS roots needed to start a process",
         f"(allow file-read* {read_filters})",
-        f"(allow file-read* {device_filters})",
         "",
         "(allow network*)" if allow_network else "(deny network*)",
     ]

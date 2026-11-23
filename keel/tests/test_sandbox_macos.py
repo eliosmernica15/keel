@@ -68,15 +68,28 @@ def test_build_profile_is_restrictive(tmp_path):
     # No global content reads: only narrow subpaths / device literals.
     assert "(allow file-read*)" not in profile
     assert f'(allow file-write* (subpath "{tmp_path}"))' in profile
-    assert '(subpath "/usr/lib")' in profile
+    assert '(subpath "/usr")' in profile
     assert '(literal "/dev/null")' in profile
     assert '(subpath "/dev")' not in profile
-    assert profile.count("(allow file-read*") == 3  # workspace + roots + devices
+    assert profile.count("(allow file-read*") == 1  # one merged read rule
 
     # Duplicate SBPL filters make sandbox-exec abort with SIGABRT (no stderr).
-    dedup = build_profile(tmp_path, read_roots=["/usr", "/usr/lib", "/usr"])
-    assert dedup.count('(subpath "/usr")') == 1
-    assert dedup.count('(subpath "/usr/lib")') == 1
+    dedup = build_profile(tmp_path, read_roots=[
+        "/Users/runner/hostedtoolcache/Python",
+        "/Users/runner/hostedtoolcache/Python/lib",
+        "/Users/runner/hostedtoolcache/Python",
+    ])
+    assert dedup.count('(subpath "/Users/runner/hostedtoolcache/Python")') == 1
+    assert dedup.count(
+        '(subpath "/Users/runner/hostedtoolcache/Python/lib")') == 1
+
+    # /etc and /var are symlinks into /private; both spellings in one profile
+    # abort the SBPL compiler as duplicate filters.
+    aliases = build_profile(tmp_path, read_roots=["/etc", "/private/etc",
+                                                  "/var/db/dyld"])
+    assert '(subpath "/etc")' not in aliases
+    assert aliases.count('(subpath "/private/etc")') == 1
+    assert aliases.count('(subpath "/private/var/db/dyld")') == 1
     assert build_profile(tmp_path, allow_network=True).count("(allow network*)") == 1
 
 
