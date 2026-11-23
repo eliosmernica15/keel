@@ -21,7 +21,13 @@ No upstream source file was copied. Attribution is in docs/THIRD_PARTY_NOTICES.m
 from __future__ import annotations
 
 import json
+import os
 import re
+import secrets
+import threading
+import time
+
+_POLICY_IO_LOCK = threading.Lock()
 import shlex
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -337,8 +343,17 @@ def from_dict(doc: dict) -> ExecPolicy:
     return policy
 
 
+def read_policy_doc(path: str | Path) -> dict | None:
+    """Read a policy document under the shared IO lock (atomic snapshot)."""
+    target = Path(path)
+    if not target.is_file():
+        return None
+    with _POLICY_IO_LOCK:
+        return json.loads(target.read_text(encoding="utf-8"))
+
+
 def load_policy(path: str | Path) -> ExecPolicy:
-    return from_dict(json.loads(Path(path).read_text(encoding="utf-8")))
+    return from_dict(read_policy_doc(path) or {})
 
 
 class ExecPolicyStore:
@@ -347,6 +362,7 @@ class ExecPolicyStore:
     def __init__(self, state_root: str | Path):
         self.root = Path(state_root) / "exec-policies"
         self.root.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
 
     def _path(self, name: str) -> Path:
         if not _NAME.fullmatch(name):
@@ -356,7 +372,22 @@ class ExecPolicyStore:
     def save(self, name: str, doc: dict) -> Path:
         from_dict(doc)  # validate before persisting
         path = self._path(name)
-        path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+        with _POLICY_IO_LOCK:
+            # Atomic replace avoids a half-written policy being read by other
+            # threads. The lock serializes writers; readers use a snapshot.
+            for attempt in range(5):
+                tmp = path.with_suffix(path.suffix + ".tmp-"
+                                       + secrets.token_hex(4))
+                try:
+                    tmp.write_text(json.dumps(doc, indent=2) + "\n",
+                                   encoding="utf-8")
+                    os.replace(tmp, path)
+                    return path
+                except OSError:
+                    tmp.unlink(missing_ok=True)
+                    if attempt == 4:
+                        raise
+                    time.sleep(0.01 * (attempt + 1))
         return path
 
     def load(self, name: str) -> ExecPolicy:

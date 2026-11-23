@@ -578,7 +578,9 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     result = invoke(
                         cap_id, request.get("params", {}),
                         context={"state_root": state_root,
-                                 "cwd": _WORKDIR or os.getcwd()})
+                                 "cwd": _WORKDIR or os.getcwd(),
+                                 "confirm": bool(request.get("confirm")),
+                                 "interactive": True})
                     record_audit(state_root, {"capability": cap_id,
                                               "ok": True, "surface": "web"})
                     self._send_json(result)

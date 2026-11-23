@@ -16,7 +16,13 @@ from pathlib import Path
 from .exec_policy import (ALLOW, FORBIDDEN, PROMPT, ExecPolicyStore,
                           normalize_host)
 
-COMMAND_FIELDS = ("command", "cmd", "shell_command", "shellCommand")
+# Any parameter that can carry a command, argv or source to an execute-class
+# capability must be visible to the policy boundary. Previously argv[]-based
+# capabilities (`core.os.sandbox.run`) and code/prompt-based ones bypassed it.
+COMMAND_FIELDS = (
+    "command", "cmd", "shell_command", "shellCommand",
+    "argv", "args", "code", "prompt", "script", "input",
+)
 URL_FIELDS = ("url", "uri", "endpoint")
 DEFAULT_POLICY = "default"
 
@@ -32,16 +38,19 @@ def policy_path(state_root: str | Path | None = None) -> Path:
 def active_policy(state_root: str | Path | None = None):
     """Return the saved default policy, or None when none was configured."""
     path = policy_path(state_root)
-    if not path.is_file():
-        return None
-    from .exec_policy import load_policy
+    from .exec_policy import from_dict, read_policy_doc
 
-    return load_policy(path)
+    document = read_policy_doc(path)
+    return from_dict(document) if document is not None else None
 
 
 def command_from(tool_name: str, tool_input: dict) -> str | None:
     for field in COMMAND_FIELDS:
         value = tool_input.get(field)
+        if isinstance(value, (list, tuple)):
+            parts = [str(item) for item in value if str(item).strip()]
+            if parts:
+                return " ".join(parts)
         if isinstance(value, str) and value.strip():
             return value
     # Inline shell prefix (!cmd) is stored under `text` / `prompt` by A1.6.
