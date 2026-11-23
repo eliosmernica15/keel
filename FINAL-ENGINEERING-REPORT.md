@@ -27,8 +27,9 @@ Date: 2026-11-24.
 - Final full suite: see `master-plan-v6-test-evidence.md` (authoritative final run to be recorded at completion).
 
 ## Remaining
-- `not_started` features: see PLAN-INDEX.json / REMAINING-WORK-MATRIX.md.
+- `not_started` features: see PLAN-INDEX.json / REMAINING-WORK-MATRIX.md (400 verified / 463 not_started / 2 blocked at last refresh).
 - Owner-gated: C11.1/C11.2 posture, plan upgrade decision, 2FA, signing identity, provider credentials, phone hardware, clean-VM/native runners, push authorization.
+- Conflicting plan rows REJECTED via DECISIONS.md: Y6.4 (public repo — violates private-source requirement), W1.18 (MIT license — violates proprietary requirement). Not implemented.
 - No claim of production readiness; no push performed.
 
 ## Verdicts
