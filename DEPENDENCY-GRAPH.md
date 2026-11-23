@@ -5,8 +5,8 @@
 
 ## 1. Provenance and scope
 
-- Registry: `C:\Users\Admin\Desktop\Claude clone\PLAN-INDEX.json` — SHA-256 `27b8b56e0835545c9c9c435fe784a00cb45b0c47f03798556ac403840d587b7d`.
-- Rows: **865** (status: verified 326, not_started 537, blocked 2).
+- Registry: `C:\Users\Admin\Desktop\Claude clone\PLAN-INDEX.json` — SHA-256 `65dcc961098521e6e5b100cf7c4ba6cca216210b2233adc48d7d549d2cee8500`.
+- Rows: **865** (status: verified 336, not_started 527, blocked 2).
 - Decomposition source: `C:\Users\Admin\Desktop\Claude clone\plan-extract\addendum3.json` if found, otherwise built-in X0.2/X0.2b labels.
 - Stated dependency references: **144**;
   **122** rows declare at least one dependency.
@@ -42,7 +42,7 @@ At canonical M-level (splits rolled up) the longest chain is **13 milestone-node
 Full-graph chain (dependency → dependent):
 
 1. **M14** — 15 rows in cycle/group (verified 9, not_started 6)
-2. **M19 ⟷ M2 ⟷ M20 ⟷ M21 ⟷ M25 ⟷ M3 ⟷ M4 ⟷ M5** — 333 rows in cycle/group (verified 148, not_started 185)
+2. **M19 ⟷ M2 ⟷ M20 ⟷ M21 ⟷ M25 ⟷ M3 ⟷ M4 ⟷ M5** — 333 rows in cycle/group (verified 156, not_started 177)
    - edge evidence: `C3.2` → `W2.4`
 3. **M7** — 56 rows in cycle/group (verified 26, not_started 30)
    - edge evidence: `C7.1` → `W1.13`
@@ -50,7 +50,7 @@ Full-graph chain (dependency → dependent):
    - edge evidence: `D7.11` → `V19`
 5. **M23** — 19 rows in cycle/group (verified 10, not_started 9)
    - edge evidence: `C10.2` → `Y5.8`
-6. **M15** — 27 rows in cycle/group (verified 14, not_started 13)
+6. **M15** — 27 rows in cycle/group (verified 15, not_started 12)
 
 Canonical chain:
 
@@ -84,12 +84,12 @@ the bottleneck table ranks nodes by how many distinct groups depend on them.
 
 | Bottleneck node | Rows | Status mix | Directly blocks | Downstream reach |
 | :- | :-: | :- | :-: | :-: |
-| M3 | 61 | verified 28, not_started 33 | 6 | 20 |
+| M3 | 61 | verified 31, not_started 30 | 6 | 20 |
 | M2 | 52 | verified 23, not_started 29 | 5 | 20 |
 | M21 | 29 | verified 15, not_started 14 | 5 | 20 |
 | M10 | 33 | verified 8, not_started 25 | 5 | 9 |
 | M19 | 14 | verified 2, not_started 12 | 3 | 20 |
-| M4 | 50 | verified 16, not_started 34 | 3 | 20 |
+| M4 | 50 | verified 21, not_started 29 | 3 | 20 |
 | M5 | 59 | verified 40, not_started 19 | 3 | 20 |
 | M14 | 15 | verified 9, not_started 6 | 2 | 20 |
 | M20 | 40 | verified 13, not_started 27 | 2 | 20 |
@@ -205,8 +205,8 @@ edge labels are the contributing row dependency IDs.
 ## 6. Readiness gate (X0.3)
 
 X0.3 says a builder may not start a row whose dependencies are not green.
-- `not_started` rows that declare dependencies: **105**.
-- Of those, rows with at least one dependency not `verified`: **54**.
+- `not_started` rows that declare dependencies: **103**.
+- Of those, rows with at least one dependency not `verified`: **52**.
 - Rows depending on a `blocked` row: **1**.
 
 | Not-started row | Node | Unmet dependency | Dependency status |
@@ -237,9 +237,7 @@ X0.3 says a builder may not start a row whose dependencies are not green.
 | V27 | M22a | E5.15 | not_started |
 | V28 | M23 | E6.11 | not_started |
 | V3 | M3 | X5.7 | not_started |
-| V4 | M19b chat/composer | Y2.7 | not_started |
 | V9 | M15 | W7.17 | not_started |
-| V9 | M15 | Y2.6 | not_started |
 | V9 | M15 | X8.5 | not_started |
 | W1.1 | M10 | V1 | not_started |
 | W1.11 | M19 | X6.10 | not_started |
@@ -272,8 +270,6 @@ X0.3 says a builder may not start a row whose dependencies are not green.
 | Z11 | M15 | Y4.1 | not_started |
 | Z13 | M19 | Y3.1 | not_started |
 | Z2 | M9 | X9.1 | not_started |
-| Z4 | M4 | Y2.4 | not_started |
-| Z4 | M4 | Y2.6 | not_started |
 | Z9 | M3 | Y1.35 | not_started |
 
 ## 7. Unresolved dependency tokens

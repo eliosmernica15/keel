@@ -775,30 +775,30 @@ Y1.6,edit unique-match requirement and formatter hook,local_module,verified,M5,P
 Y1.7,Shell tool details,local_module,verified,M5,P0,keel\src\keel\permission_contracts.py; keel\src\keel\session_contracts.py; keel\src\keel\mcp_contracts.py,keel\tests\test_permission_contracts.py; keel\tests\test_session_contracts.py; keel\tests\test_mcp_contracts.py,False,True,
 Y1.8,webfetch and websearch provider selection,local_module,verified,M5,P0,keel\src\keel\permission_contracts.py; keel\src\keel\session_contracts.py; keel\src\keel\mcp_contracts.py,keel\tests\test_permission_contracts.py; keel\tests\test_session_contracts.py; keel\tests\test_mcp_contracts.py,False,True,
 Y1.9,question tool,local_module,verified,M5,P0,keel\src\keel\permission_contracts.py; keel\src\keel\session_contracts.py; keel\src\keel\mcp_contracts.py,keel\tests\test_permission_contracts.py; keel\tests\test_session_contracts.py; keel\tests\test_mcp_contracts.py,False,True,
-Y2.1,Transcript row model,local_module,not_started,M4,P0,,,False,False,"source_file_missing, test_file_missing"
+Y2.1,Transcript row model,local_module,verified,M4,P0,keel\src\keel\transcript_contracts.py,keel\tests\test_transcript_contracts.py,False,True,
 Y2.10,stay_silent and request_app_connection tools,local_module,not_started,M5,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.11,"send_to_bot, hidden subagents and group rooms",local_module,not_started,M12,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.12,Screen leasing,local_module,not_started,M16,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.13,Idle suspend knobs,local_module,not_started,M16,P1,,,False,False,"source_file_missing, test_file_missing"
-Y2.14,VNC relay that hides credentials from the browser,local_module,not_started,M16,P0,,,False,False,"source_file_missing, test_file_missing"
+Y2.14,VNC relay that hides credentials from the browser,local_module,verified,M16,P0,keel\src\keel\transcript_contracts.py,keel\tests\test_transcript_contracts.py,False,True,
 Y2.15,rate-limit awareness and in-VM executor,local_module,not_started,M16,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.16,Compaction knobs,local_module,not_started,M13,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.17,Prompt cache key per agent+generation,local_module,not_started,M2,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.18,NO_SCHEDULER flag,local_module,not_started,M14,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.19,Backward-compatible rename path,local_module,not_started,M4,P1,,,False,False,"source_file_missing, test_file_missing"
-Y2.2,Model history stored separately,local_module,not_started,M4,P0,,,False,False,"source_file_missing, test_file_missing"
-Y2.20,Exposure defaults,local_module,not_started,M3,P0,,,False,False,"source_file_missing, test_file_missing"
+Y2.2,Model history stored separately,local_module,verified,M4,P0,keel\src\keel\transcript_contracts.py,keel\tests\test_transcript_contracts.py,False,True,
+Y2.20,Exposure defaults,local_module,verified,M3,P0,keel\src\keel\transcript_contracts.py,keel\tests\test_transcript_contracts.py,False,True,
 Y2.21,"Honest ""Project status"" section",local_module,not_started,M26,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.22,"voice: realtime secrets, hand_off_task, TTS/STT",local_module,not_started,M17,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.23,E2E script with prepared-audio fixture,local_module,not_started,M25,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.24,per-user SSE stream,local_module,not_started,M20,P1,,,False,False,"source_file_missing, test_file_missing"
 Y2.25,"routines: cron, event triggers, check-ins",local_module,not_started,M14,P1,,,False,False,"source_file_missing, test_file_missing"
-Y2.3,last N screenshots inline (N=3),local_module,not_started,M4,P0,,,False,False,"source_file_missing, test_file_missing"
-Y2.4,Orphaned tool-call repair,local_module,not_started,M4,P0,,,False,False,"source_file_missing, test_file_missing"
-Y2.5,Per-agent serial queue,local_module,not_started,M4,P0,,,False,False,"source_file_missing, test_file_missing"
-Y2.6,Pending-turn persistence,local_module,not_started,M3,P0,,,False,False,"source_file_missing, test_file_missing"
-Y2.7,approval buttons: Allow / Always allow / Don't allow,local_module,not_started,M3,P0,,,False,False,"source_file_missing, test_file_missing"
-Y2.8,Auto-classification of read-only tools by slug,local_module,not_started,M15,P0,,,False,False,"source_file_missing, test_file_missing"
+Y2.3,last N screenshots inline (N=3),local_module,verified,M4,P0,keel\src\keel\transcript_contracts.py,keel\tests\test_transcript_contracts.py,False,True,
+Y2.4,Orphaned tool-call repair,local_module,verified,M4,P0,keel\src\keel\transcript_contracts.py,keel\tests\test_transcript_contracts.py,False,True,
+Y2.5,Per-agent serial queue,local_module,verified,M4,P0,keel\src\keel\transcript_contracts.py,keel\tests\test_transcript_contracts.py,False,True,
+Y2.6,Pending-turn persistence,local_module,verified,M3,P0,keel\src\keel\transcript_contracts.py,keel\tests\test_transcript_contracts.py,False,True,
+Y2.7,approval buttons: Allow / Always allow / Don't allow,local_module,verified,M3,P0,keel\src\keel\transcript_contracts.py,keel\tests\test_transcript_contracts.py,False,True,
+Y2.8,Auto-classification of read-only tools by slug,local_module,verified,M15,P0,keel\src\keel\transcript_contracts.py,keel\tests\test_transcript_contracts.py,False,True,
 Y2.9,card and event row kinds,local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
 Y3.1,'offer only what works' principle,local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
 Y3.10,Local-only sign-in,local_module,not_started,M3,P0,,,False,False,"source_file_missing, test_file_missing"

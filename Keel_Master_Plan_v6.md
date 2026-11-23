@@ -815,30 +815,30 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | Y1.7 | Shell tool details | M5 | P0 | verified |
 | Y1.8 | webfetch and websearch provider selection | M5 | P0 | verified |
 | Y1.9 | question tool | M5 | P0 | verified |
-| Y2.1 | Transcript row model | M4 | P0 | not_started |
+| Y2.1 | Transcript row model | M4 | P0 | verified |
 | Y2.10 | stay_silent and request_app_connection tools | M5 | P1 | not_started |
 | Y2.11 | send_to_bot, hidden subagents and group rooms | M12 | P1 | not_started |
 | Y2.12 | Screen leasing | M16 | P1 | not_started |
 | Y2.13 | Idle suspend knobs | M16 | P1 | not_started |
-| Y2.14 | VNC relay that hides credentials from the browser | M16 | P0 | not_started |
+| Y2.14 | VNC relay that hides credentials from the browser | M16 | P0 | verified |
 | Y2.15 | rate-limit awareness and in-VM executor | M16 | P1 | not_started |
 | Y2.16 | Compaction knobs | M13 | P1 | not_started |
 | Y2.17 | Prompt cache key per agent+generation | M2 | P1 | not_started |
 | Y2.18 | NO_SCHEDULER flag | M14 | P1 | not_started |
 | Y2.19 | Backward-compatible rename path | M4 | P1 | not_started |
-| Y2.2 | Model history stored separately | M4 | P0 | not_started |
-| Y2.20 | Exposure defaults | M3 | P0 | not_started |
+| Y2.2 | Model history stored separately | M4 | P0 | verified |
+| Y2.20 | Exposure defaults | M3 | P0 | verified |
 | Y2.21 | Honest "Project status" section | M26 | P1 | not_started |
 | Y2.22 | voice: realtime secrets, hand_off_task, TTS/STT | M17 | P1 | not_started |
 | Y2.23 | E2E script with prepared-audio fixture | M25 | P1 | not_started |
 | Y2.24 | per-user SSE stream | M20 | P1 | not_started |
 | Y2.25 | routines: cron, event triggers, check-ins | M14 | P1 | not_started |
-| Y2.3 | last N screenshots inline (N=3) | M4 | P0 | not_started |
-| Y2.4 | Orphaned tool-call repair | M4 | P0 | not_started |
-| Y2.5 | Per-agent serial queue | M4 | P0 | not_started |
-| Y2.6 | Pending-turn persistence | M3 | P0 | not_started |
-| Y2.7 | approval buttons: Allow / Always allow / Don't allow | M3 | P0 | not_started |
-| Y2.8 | Auto-classification of read-only tools by slug | M15 | P0 | not_started |
+| Y2.3 | last N screenshots inline (N=3) | M4 | P0 | verified |
+| Y2.4 | Orphaned tool-call repair | M4 | P0 | verified |
+| Y2.5 | Per-agent serial queue | M4 | P0 | verified |
+| Y2.6 | Pending-turn persistence | M3 | P0 | verified |
+| Y2.7 | approval buttons: Allow / Always allow / Don't allow | M3 | P0 | verified |
+| Y2.8 | Auto-classification of read-only tools by slug | M15 | P0 | verified |
 | Y2.9 | card and event row kinds | M19 | P1 | not_started |
 | Y3.1 | 'offer only what works' principle | M19 | P1 | not_started |
 | Y3.10 | Local-only sign-in | M3 | P0 | not_started |

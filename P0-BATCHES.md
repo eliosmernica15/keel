@@ -1,6 +1,6 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **108 not-started P0 features** in 26 source groups.
+Generated from PLAN-INDEX.json: **98 not-started P0 features** in 25 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
 
@@ -18,19 +18,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `W7.5` (M3) Secrets reach child processes as a staged file read-and-deleted by the setup script, never on a command line.
 - `W7.6` (M3) Log redaction plus keyed hash of user ids instead of ids.
 - `W7.8` (M20) Sign-in/pairing attempts rate limited per client address and globally; use trusted-proxy hop count for address detection; only same-origin relative return paths
-
-## Y2 — 10 features
-
-- `Y2.1` (M4) Transcript row model
-- `Y2.14` (M16) VNC relay that hides credentials from the browser
-- `Y2.2` (M4) Model history stored separately
-- `Y2.20` (M3) Exposure defaults
-- `Y2.3` (M4) last N screenshots inline (N=3)
-- `Y2.4` (M4) Orphaned tool-call repair
-- `Y2.5` (M4) Per-agent serial queue
-- `Y2.6` (M3) Pending-turn persistence
-- `Y2.7` (M3) approval buttons: Allow / Always allow / Don't allow
-- `Y2.8` (M15) Auto-classification of read-only tools by slug
 
 ## X0 — 8 features
 

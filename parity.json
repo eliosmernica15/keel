@@ -20680,15 +20680,19 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/transcript_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Use this for the SSE protocol and for reconnect/replay; add to `events` schema."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_transcript_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Transcript/history contracts: typed rows, model/durable history split, screenshot ring, orphaned tool-call repair, VNC credential isolation, exposure defaults; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20802,15 +20806,19 @@
       "milestone": "M16",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/transcript_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "noVNC relay in daemon; server-side input filter for Watch vs Take over."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_transcript_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Transcript/history contracts: typed rows, model/durable history split, screenshot ring, orphaned tool-call repair, VNC credential isolation, exposure defaults; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20952,15 +20960,19 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/transcript_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Separate `model_items` table; UI rows derived/annotated."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_transcript_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Transcript/history contracts: typed rows, model/durable history split, screenshot ring, orphaned tool-call repair, VNC credential isolation, exposure defaults; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20976,17 +20988,21 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/transcript_contracts.py"
+      ],
       "dependencies": [
         "C1.12"
       ],
       "acceptance_criteria": [
         "`keel serve --listen` refuses to start without auth + allowlist of paired clients (C1.12); documented in `.env`-style reference."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_transcript_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Transcript/history contracts: typed rows, model/durable history split, screenshot ring, orphaned tool-call repair, VNC credential isolation, exposure defaults; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21128,17 +21144,21 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/transcript_contracts.py"
+      ],
       "dependencies": [
         "B1.5"
       ],
       "acceptance_criteria": [
         "Image-pruning rule in context manager (extends B1.5)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_transcript_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Transcript/history contracts: typed rows, model/durable history split, screenshot ring, orphaned tool-call repair, VNC credential isolation, exposure defaults; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21154,15 +21174,19 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/transcript_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "History sanitizer: every tool call gets a synthetic \"interrupted\" result."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_transcript_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Transcript/history contracts: typed rows, model/durable history split, screenshot ring, orphaned tool-call repair, VNC credential isolation, exposure defaults; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21178,15 +21202,19 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/transcript_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Per-session queue + approval expiry rule."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_transcript_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Transcript/history contracts: typed rows, model/durable history split, screenshot ring, orphaned tool-call repair, VNC credential isolation, exposure defaults; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21202,15 +21230,19 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/transcript_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Persisted pending turns; resume on daemon restart."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_transcript_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Transcript/history contracts: typed rows, model/durable history split, screenshot ring, orphaned tool-call repair, VNC credential isolation, exposure defaults; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21226,15 +21258,19 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/transcript_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Matches approval card; \"Don't allow\" must inject a no-retry instruction."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_transcript_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Transcript/history contracts: typed rows, model/durable history split, screenshot ring, orphaned tool-call repair, VNC credential isolation, exposure defaults; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21250,15 +21286,19 @@
       "milestone": "M15",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/transcript_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Connector tool classifier with **explicit manifest flags** `readOnly`, never name-guessing alone (name rules only as a fallback with a warning)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_transcript_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Transcript/history contracts: typed rows, model/durable history split, screenshot ring, orphaned tool-call repair, VNC credential isolation, exposure defaults; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
