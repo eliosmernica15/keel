@@ -1,25 +1,8 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **196 not-started P0 features** in 35 source groups.
+Generated from PLAN-INDEX.json: **166 not-started P0 features** in 32 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
-
-## E1 — 14 features
-
-- `E1.1` (M5) Every tool declares a mandatory canonical output (JSON schema), returns one lossless JSON value, and a pure render(args, value) produces the model-facing conten
-- `E1.10` (M5) Concurrency classifier isConcurrencySafe(args): pure, only true opts in; anything else (omission, exception, invalid) is exclusive; loop forms exclusive barrier
-- `E1.11` (M5) Executor contract: one outcome per input call in input order (skipped calls on abort included); never settles while started work still runs; internal failure dr
-- `E1.12` (M7) Per-scope tool restriction (allow / deny lists) that intersect; scoped registrations stay exempt; deny-only admits later tools, allow-list excludes them.
-- `E1.14` (M5) Stable error vocabulary: INVALID_ARGS, INVALID_TOOL_OUTPUT, UNKNOWN_TOOL, ABORTED, ABORTED_BEFORE_DISPATCH, TOOL_TIMEOUT, APPROVAL_REJECTED/CANCELLED/UNAVAILABL
-- `E1.18` (M5) Long-running work: background start returns a typed handle ({kind:'background', job_id}); job spec has synchronous cancel, non-rejecting done that settles after
-- `E1.2` (M5) Model-facing schema built by explicit allowlist (name, description, parameters only); execution, timeout, presenters, concurrency flags never leak into a reques
-- `E1.3` (M5) One schema vocabulary for params and outputs (scalars, arrays, objects with explicit additionalProperties, exact-one oneOf, enum/const), with inferred types; mi
-- `E1.4` (M5) Args are deep-frozen and snapshotted as lossless JSON before policy runs; args cannot be rewritten later because history, audit, UI and execution must agree.
-- `E1.5` (M3) Pre-execute decisions: allow, deny (reason + optional structured error id), cancel, ask (audited reason + optional localized display reason); only allowed-once 
-- `E1.6` (M3) Guards are monotonic: a final guard can only deny, never allow, so listener order cannot turn a denial into permission.
-- `E1.7` (M3) Post-execute decisions: accept, replace *content* or replace *value* (never both), attach context for the next request, or block with corrective feedback. Conte
-- `E1.8` (M5) Around-dispatch wrapper for timeout/retry/metrics may replace but not remove the cancellation signal; the registry re-fuses the caller's signal.
-- `E1.9` (M5) Cooperative per-tool timeout (timeoutMs): declaring it asserts the tool forwards the cancel signal and reaches quiescence; never sent to the model; result error
 
 ## Y1 — 14 features
 
@@ -129,37 +112,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `X0.7` (M2) Voice/ML licensing is stated as "check"
 - `X0.8` (M25) "Zero network without account" is asserted but there is no test list
 
-## X1 — 8 features
-
-- `X1.1` (M2) Tool-call dialect adapters
-- `X1.13` (M4) Steering and interrupt
-- `X1.2` (M2) Chat-template handling
-- `X1.3` (M2) Reasoning-model output handling
-- `X1.4` (M5) Selectable edit formats per model
-- `X1.5` (M5) Fuzzy patch application
-- `X1.7` (M11) Repo map ranking
-- `X1.8` (M2) Accurate token counting
-
-## E4 — 7 features
-
-- `E4.1` (M10) HMR-safety test for every registry: dispose the contributing scope, assert cleanup.
-- `E4.10` (M25) Mock only the expensive/non-deterministic boundary (model, network, clock); keep the real tool registry, pipeline and persistence behind the scripted mock; reco
-- `E4.12` (M10) Real-composition tests for product-visible plugins: boot a test-only config through the real loader, mock only external services, assert model-visible request/l
-- `E4.15` (M0) Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every requir
-- `E4.2` (M25) Permanent contract-regression specs for the agent loop.
-- `E4.5` (M25) Snapshot scenarios: parent/child session files with version in filename that must agree with header; snapshot.yml declares profile, header class, recording poli
-- `E4.8` (M25) Test-process isolation rules: forked workers share ports, paths, namespaces and children; each test owns every resource it acquires through teardown; a spec tha
-
-## E7 — 7 features
-
-- `E7.18` (M3) sandboxPolicy: the single home for default sandbox mode and workspace root so bash and fs can't confine to different roots; consumers hand over the exact argv; 
-- `E7.19` (M3) approval seam fails closed: absence of an answerer yields unavailable.
-- `E7.2` (M4) toolResultPruner: model-free pruning of oversized *current* tool results through replayable surface replacements before summary compaction.
-- `E7.20` (M3) permissionPresets: user-facing presets bundling sandbox mode + approval policy; switching writes one logged permission/preset event that updates both knobs.
-- `E7.21` (M5) fs-observation-policy: observed-state checks (read-before-edit, stale-file detection) contributed through the fs/* event gate.
-- `E7.23` (M5) web seam: search and fetch providers register into one service; tool names stay stable.
-- `E7.6` (M5) workspaceFiles: stat, paged text, byte windows, directory listings and a change feed confined by lstat, containment and a stat re-check.
-
 ## V — 7 features
 
 - `V1` (M10) Plugin scope tree (lifecycle-safe plugins): every plugin runs in a scope that records what it registered (tools, hooks, routes, UI panels, timers, subprocesses)
@@ -189,6 +141,15 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `E5.4` (M19) Process-lifetime single-instance lock acquired before any profile access; the desktop app exclusively owns its profile directory; CLI and desktop share product 
 - `E5.9` (M10) Plugins with install-time lifecycle scripts are rejected unless in a reviewed allowlist.
 
+## E7 — 6 features
+
+- `E7.18` (M3) sandboxPolicy: the single home for default sandbox mode and workspace root so bash and fs can't confine to different roots; consumers hand over the exact argv; 
+- `E7.2` (M4) toolResultPruner: model-free pruning of oversized *current* tool results through replayable surface replacements before summary compaction.
+- `E7.20` (M3) permissionPresets: user-facing presets bundling sandbox mode + approval policy; switching writes one logged permission/preset event that updates both knobs.
+- `E7.21` (M5) fs-observation-policy: observed-state checks (read-before-edit, stale-file detection) contributed through the fs/* event gate.
+- `E7.23` (M5) web seam: search and fetch providers register into one service; tool names stay stable.
+- `E7.6` (M5) workspaceFiles: stat, paged text, byte windows, directory listings and a change feed confined by lstat, containment and a stat re-check.
+
 ## D1 — 5 features
 
 - `D1.1` (M10) Every part is a plugin, including model adapter, tool registry, session log and the agent loop itself, each replaceable from configuration; "no privileged core 
@@ -205,20 +166,19 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `D5.4` (M1) No warranty / no liability paragraph referencing the license.
 - `D5.5` (M0) Host sandbox failures rule (builder): if a required command fails because the dev sandbox blocks credentials/network/IPC, retry unchanged with the narrowest esc
 
-## E6 — 5 features
-
-- `E6.1` (M3) Keys are write-only: the UI receives a redacted descriptor, never the secret; settings store only a credential reference; masked preview rule (identifier prefix
-- `E6.10` (M2) Request-compatibility switches (supports_developer_role, max_tokens_field, thinking_format, ...) at route level with per-model field-by-field override; empty va
-- `E6.5` (M2) Third-party provider picker from an installed catalog (endpoint, protocol, models) vs Custom model API form: permanent lowercase provider ID, base URL, protocol
-- `E6.8` (M2) Per-model capability fields: input types (text, image), context window, max output tokens; route-level defaultInput fallback (never removes images the catalog k
-- `E6.9` (M2) Reasoning-effort declarations per model: levels with the API value sent for each (off may be empty = send nothing), route default, picker choice saved with mode
-
 ## D7 — 4 features
 
 - `D7.1` (M0) Gate scheduler (`run-gates`): all gates as a dependency graph; bounded concurrency env var; fail-fast switch; a failure skips only its dependents so independent
 - `D7.12` (M0) CI layout: broad lanes of independent gates, a smaller Node-version compatibility matrix, native Windows lane in a separate workflow, Python checks separate, re
 - `D7.19` (M21) Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task.
 - `D7.9` (M0) Strict dependency linker so undeclared deps fail; build scripts of dependencies explicitly allowlisted.
+
+## E6 — 4 features
+
+- `E6.1` (M3) Keys are write-only: the UI receives a redacted descriptor, never the secret; settings store only a credential reference; masked preview rule (identifier prefix
+- `E6.10` (M2) Request-compatibility switches (supports_developer_role, max_tokens_field, thinking_format, ...) at route level with per-model field-by-field override; empty va
+- `E6.5` (M2) Third-party provider picker from an installed catalog (endpoint, protocol, models) vs Custom model API form: permanent lowercase provider ID, base URL, protocol
+- `E6.8` (M2) Per-model capability fields: input types (text, image), context window, max output tokens; route-level defaultInput fallback (never removes images the catalog k
 
 ## W5 — 4 features
 
@@ -239,6 +199,12 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `D4.11` (M10) Plugin Manager UI in the base bundle for Web and agents.
 - `D4.2` (M2) Custom OpenAI-compatible endpoints documented as a first-class path.
 - `D4.7` (M5) Tool UI presentation designed up front: host presenters are pure; web cards derive from raw events and persisted result metadata.
+
+## E4 — 3 features
+
+- `E4.15` (M0) Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every requir
+- `E4.5` (M25) Snapshot scenarios: parent/child session files with version in filename that must agree with header; snapshot.yml declares profile, header class, recording poli
+- `E4.8` (M25) Test-process isolation rules: forked workers share ports, paths, namespaces and children; each test owns every resource it acquires through teardown; a spec tha
 
 ## X10 — 3 features
 
@@ -263,11 +229,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `Y6.1` (M0) repo evidence docs cross-walk
 - `Y6.2` (M0) .verify-* and .build artifacts
 - `Y6.4` (M1) repo visibility: Public, 0 stars/forks
-
-## E2 — 2 features
-
-- `E2.1` (M5) Presenters are pure (present_call(args), present_result(args, result)), run on live stream and log replay, no I/O/clock/session state; malformed or old args fal
-- `E2.3` (M4) Durable presentation metadata (presentation_meta(args, value)) stored on the result so replay shows hunks/search facts without persisting the canonical value; s
 
 ## E3 — 2 features
 
