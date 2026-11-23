@@ -296,18 +296,18 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | D2.7 | System prompt travels as logged `system/message` history; empty text clears it. | M4 | P0 | verified |
 | D2.8 | Cancellation during prompt preparation commits nothing (neither system nor user messages). | M4 | P0 | verified |
 | D2.9 | Failed steps record missing tool results (synthetic). | M4 | P0 | verified |
-| D3.1 | Capability seam = Service Definition + Service Provider + Consumer; one role alone is not a seam; adding a capability means designing all three. | M0 | P0 | not_started |
+| D3.1 | Capability seam = Service Definition + Service Provider + Consumer; one role alone is not a seam; adding a capability means designing all three. | M0 | P0 | verified |
 | D3.10 | Filesystem policy through `fs/*` events on top of providers. | unassigned | P1 | not_started |
-| D3.11 | Packages Keel is missing or underspecified (from the 60+ dsh package groups): `deliverables` (turn deliverables), `spill` (output spill), `attachment`, `guard` (loop/tool guards), `extensions` (runtime self-modification), `feedback` (human feedback), `identity` (anonymous identity), `workspace` (workspace entities), `plan` (logged planning), `schedule` (scheduled follow-ups), `ptc-runtime` (programmatic tool-call execution, meaning to be verified), `session-query` (browse/search/export), `typert` (type graph for RPC), `liveshare`, `inspector`, `experimental` quarantine. | M7 | P0 | not_started |
+| D3.11 | Packages Keel is missing or underspecified (from the 60+ dsh package groups): `deliverables` (turn deliverables), `spill` (output spill), `attachment`, `guard` (loop/tool guards), `extensions` (runtime self-modification), `feedback` (human feedback), `identity` (anonymous identity), `workspace` (workspace entities), `plan` (logged planning), `schedule` (scheduled follow-ups), `ptc-runtime` (programmatic tool-call execution, meaning to be verified), `session-query` (browse/search/export), `typert` (type graph for RPC), `liveshare`, `inspector`, `experimental` quarantine. | M7 | P0 | verified |
 | D3.12 | `deliverables`: each turn can attach named deliverables (files, summaries) shown as a result card. | M7 | P1 | not_started |
-| D3.13 | `spill`: large tool output spills to a file with a preview (matches Master rule 5). | M5 | P0 | not_started |
-| D3.14 | `guard`: loop and tool guards as their own plugin group. | M4 | P0 | not_started |
+| D3.13 | `spill`: large tool output spills to a file with a preview (matches Master rule 5). | M5 | P0 | verified |
+| D3.14 | `guard`: loop and tool guards as their own plugin group. | M4 | P0 | verified |
 | D3.15 | `extensions` (runtime self-modification) group. | M9 | P1 | not_started |
 | D3.16 | `feedback` (human feedback) group. | M19 | P1 | not_started |
 | D3.17 | `identity` (anonymous identity) group. | M3 | P1 | not_started |
-| D3.18 | `workspace` entities + `session-query` (browse/search/export). | M4 | P0 | not_started |
+| D3.18 | `workspace` entities + `session-query` (browse/search/export). | M4 | P0 | verified |
 | D3.19 | `plan` (logged planning) and `schedule` (scheduled follow-ups). | M7 | P1 | not_started |
-| D3.2 | One provider swap changes the whole product: filesystem and subprocess providers share one execution world, so pointing them at a remote sandbox moves bash, PTY and LSP together. | M5 | P0 | not_started |
+| D3.2 | One provider swap changes the whole product: filesystem and subprocess providers share one execution world, so pointing them at a remote sandbox moves bash, PTY and LSP together. | M5 | P0 | verified |
 | D3.20 | `experimental/` quarantine: capabilities under evaluation with no product-support commitment, independent of optional delivery; non-experimental packages need product use or explicit classification (policy file). | M0 | P1 | not_started |
 | D3.21 | `llm-pi-ai` generated provider metadata with a check that rejects stale generated data without rewriting files. | M2 | P1 | not_started |
 | D3.22 | Inspector (DevTools-style frontend) compiled locally from a pinned source package; no network or browser download at build; published packages contain the built frontend. | M21 | P1 | not_started |
@@ -315,10 +315,10 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | D3.3 | Subagent providers behind one interface: from a fresh child agent to a delegated turn in another product. | M12 | P1 | not_started |
 | D3.4 | Agent Teams: when enabled for a root session, adds task policy and a shared task board; subagent controls own identity, messaging, discovery, interruption, inbox waiting. | M12 | P1 | not_started |
 | D3.5 | Agent presets compose a different capability set for one session; a service row inside a preset needs an `isolate` realm. | M7 | P1 | not_started |
-| D3.6 | Human commands registered on a commands service dispatch without a model turn. | M7 | P0 | not_started |
-| D3.7 | Background jobs service with `job_*` tools to read/stop jobs. | M5 | P0 | not_started |
-| D3.8 | Webhook runtime: a *trusted rule* starts a session from an external webhook; provider adapters mount beside it. | M15 | P0 | not_started |
-| D3.9 | Shell backend, terminals backend, sandbox backend as separate services; sandbox wraps argv before spawning. | M5 | P0 | not_started |
+| D3.6 | Human commands registered on a commands service dispatch without a model turn. | M7 | P0 | verified |
+| D3.7 | Background jobs service with `job_*` tools to read/stop jobs. | M5 | P0 | verified |
+| D3.8 | Webhook runtime: a *trusted rule* starts a session from an external webhook; provider adapters mount beside it. | M15 | P0 | verified |
+| D3.9 | Shell backend, terminals backend, sandbox backend as separate services; sandbox wraps argv before spawning. | M5 | P0 | verified |
 | D4.1 | Model setup in Settings → Models: enter key, save, route usable immediately without restarting. | M19 | P1 | not_started |
 | D4.10 | UI design/review entry point as a reusable skill file (design principles + references loaded on demand). | M0 | P1 | not_started |
 | D4.11 | Plugin Manager UI in the base bundle for Web and agents. | M10 | P0 | not_started |
@@ -457,8 +457,8 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | E5.7 | Update unit: shell + matching backend seed + runtime form one signed update unit; update check 10 seconds after the main window opens plus a manual "Check for updates…" menu item; native confirmation dialog; waits for an in-flight check; verifies, stops backend, installs; next launch reconciles. | M22 | P1 | not_started |
 | E5.8 | Plugin management window is a separate renderer receiving only structured list/install/remove/update operations: no filesystem, raw IPC, shell, or arbitrary package-manager arguments. | M10 | P1 | not_started |
 | E5.9 | Plugins with install-time lifecycle scripts are rejected unless in a reviewed allowlist. | M10 | P0 | not_started |
-| E6.1 | Keys are write-only: the UI receives a redacted descriptor, never the secret; settings store only a credential reference; masked preview rule (identifier prefix, 5 leading and 4 trailing characters only when at least 8 middle characters remain hidden, else all dots; Unicode code points). | M3 | P0 | not_started |
-| E6.10 | Request-compatibility switches (supports_developer_role, max_tokens_field, thinking_format, ...) at route level with per-model field-by-field override; empty value refused, unknown name refused with the list of valid names; each switch valid only for protocols that declare it. | M2 | P0 | not_started |
+| E6.1 | Keys are write-only: the UI receives a redacted descriptor, never the secret; settings store only a credential reference; masked preview rule (identifier prefix, 5 leading and 4 trailing characters only when at least 8 middle characters remain hidden, else all dots; Unicode code points). | M3 | P0 | verified |
+| E6.10 | Request-compatibility switches (supports_developer_role, max_tokens_field, thinking_format, ...) at route level with per-model field-by-field override; empty value refused, unknown name refused with the list of valid names; each switch valid only for protocols that declare it. | M2 | P0 | verified |
 | E6.11 | Troubleshooting keyed by error code/symptom (missing credential, unknown model, 401 on discovery, gateway refuses every request, only reasoning models fail, Effort menu absent, off doesn't stop thinking, image refused vs provider rejects image, stale image stays in session log until a new session). | M23 | P1 | not_started |
 | E6.12 | "Open configuration file" button next to settings for advanced fields, adapters re-read config on the next request (no restart). | M2 | P1 | not_started |
 | E6.13 | Client-upgrade-required error naming the version to install when a model needs a newer app. | M2 | P2 | not_started |
@@ -466,10 +466,10 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | E6.2 | Saved key edit rules: no reveal/copy/partial edit; typing replaces the whole key; Backspace/Delete stages whole-key removal, applied only on Apply; Cancel preserves; if deletion succeeds but settings fail, show a warning that deletion cannot be undone and offer retry; clearing a shared credential warns that it affects every feature using the reference. | M19 | P1 | not_started |
 | E6.3 | Environment-credential hints: green = env var detected, yellow = none detected, "unconfirmed" = status read failed; detection never validates the credential; provider-managed credential files are outside the check. | M19 | P1 | not_started |
 | E6.4 | Model list follows the provider's published list (loads on first need, refreshes in the background about every 10 minutes while in use, falls back to built-in); editing the list switches to a pinned custom list; "Restore defaults" re-follows. | M2 | P1 | not_started |
-| E6.5 | Third-party provider picker from an installed catalog (endpoint, protocol, models) vs Custom model API form: permanent lowercase provider ID, base URL, protocol, credential, models; four protocols (OpenAI Chat Completions, OpenAI Responses, Anthropic Messages, Gemini API); one protocol per provider (a gateway that serves two needs two providers); renaming = add new + delete old. | M2 | P0 | not_started |
+| E6.5 | Third-party provider picker from an installed catalog (endpoint, protocol, models) vs Custom model API form: permanent lowercase provider ID, base URL, protocol, credential, models; four protocols (OpenAI Chat Completions, OpenAI Responses, Anthropic Messages, Gemini API); one protocol per provider (a gateway that serves two needs two providers); renaming = add new + delete old. | M2 | P0 | verified |
 | E6.6 | Model discovery: GET /models with a searchable picker (existing models pre-ticked; tick to add, untick to remove; "Update list"); configured models the endpoint doesn't list stay; nothing saved until Save; failures fall back to manual entry; built-in provider always answered from the catalog. | M2 | P1 | not_started |
 | E6.7 | Model picker behavior: selecting also sets the default for new sessions; a session keeps the model recorded in its own log; drag-to-reorder with keyboard up/down alternative; deleted default provider → composer shows "Select model" and blocks input. | M19 | P1 | not_started |
-| E6.8 | Per-model capability fields: input types (text, image), context window, max output tokens; route-level defaultInput fallback (never removes images the catalog knows), per-model override; "claims about your endpoint are not verified" warning; image-capable list clears image limits when image is removed. | M2 | P0 | not_started |
+| E6.8 | Per-model capability fields: input types (text, image), context window, max output tokens; route-level defaultInput fallback (never removes images the catalog knows), per-model override; "claims about your endpoint are not verified" warning; image-capable list clears image limits when image is removed. | M2 | P0 | verified |
 | E6.9 | Reasoning-effort declarations per model: levels with the API value sent for each (off may be empty = send nothing), route default, picker choice saved with model as default; thinking-format switch for models that think unless told not to; models can drop levels; unsupported effort refused as UNSUPPORTED_REASONING_EFFORT; Effort menu hidden when no levels declared. | M2 | P0 | verified |
 | E7.1 | tokenMeter: isolated per-session replay folds; pressure consumers share immutable revisioned measurements. | M4 | P1 | not_started |
 | E7.10 | sessionTitle seam: deterministic fallback title, latest-title fold, one optional async provider (first-prompt vs all-prompts variants). | M4 | P2 | not_started |

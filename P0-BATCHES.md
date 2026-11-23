@@ -1,6 +1,6 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **122 not-started P0 features** in 28 source groups.
+Generated from PLAN-INDEX.json: **108 not-started P0 features** in 26 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
 
@@ -18,19 +18,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `W7.5` (M3) Secrets reach child processes as a staged file read-and-deleted by the setup script, never on a command line.
 - `W7.6` (M3) Log redaction plus keyed hash of user ids instead of ids.
 - `W7.8` (M20) Sign-in/pairing attempts rate limited per client address and globally; use trusted-proxy hop count for address detection; only same-origin relative return paths
-
-## D3 — 10 features
-
-- `D3.1` (M0) Capability seam = Service Definition + Service Provider + Consumer; one role alone is not a seam; adding a capability means designing all three.
-- `D3.11` (M7) Packages Keel is missing or underspecified (from the 60+ dsh package groups): `deliverables` (turn deliverables), `spill` (output spill), `attachment`, `guard` 
-- `D3.13` (M5) `spill`: large tool output spills to a file with a preview (matches Master rule 5).
-- `D3.14` (M4) `guard`: loop and tool guards as their own plugin group.
-- `D3.18` (M4) `workspace` entities + `session-query` (browse/search/export).
-- `D3.2` (M5) One provider swap changes the whole product: filesystem and subprocess providers share one execution world, so pointing them at a remote sandbox moves bash, PTY
-- `D3.6` (M7) Human commands registered on a commands service dispatch without a model turn.
-- `D3.7` (M5) Background jobs service with `job_*` tools to read/stop jobs.
-- `D3.8` (M15) Webhook runtime: a *trusted rule* starts a session from an external webhook; provider adapters mount beside it.
-- `D3.9` (M5) Shell backend, terminals backend, sandbox backend as separate services; sandbox wraps argv before spawning.
 
 ## Y2 — 10 features
 
@@ -116,13 +103,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `D7.12` (M0) CI layout: broad lanes of independent gates, a smaller Node-version compatibility matrix, native Windows lane in a separate workflow, Python checks separate, re
 - `D7.19` (M21) Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task.
 - `D7.9` (M0) Strict dependency linker so undeclared deps fail; build scripts of dependencies explicitly allowlisted.
-
-## E6 — 4 features
-
-- `E6.1` (M3) Keys are write-only: the UI receives a redacted descriptor, never the secret; settings store only a credential reference; masked preview rule (identifier prefix
-- `E6.10` (M2) Request-compatibility switches (supports_developer_role, max_tokens_field, thinking_format, ...) at route level with per-model field-by-field override; empty va
-- `E6.5` (M2) Third-party provider picker from an installed catalog (endpoint, protocol, models) vs Custom model API form: permanent lowercase provider ID, base URL, protocol
-- `E6.8` (M2) Per-model capability fields: input types (text, image), context window, max output tokens; route-level defaultInput fallback (never removes images the catalog k
 
 ## W5 — 4 features
 

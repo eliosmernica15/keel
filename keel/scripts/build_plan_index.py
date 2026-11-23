@@ -755,6 +755,21 @@ BATCH4_EVIDENCE = (
     "Parallel batch: W3 permission contracts (66 tests, authoritative "
     "first-match preserved per DECISIONS D-001), D2 session/event contracts "
     "(32 tests), Y1 MCP/plugin config contracts (57 tests).")
+D3_SEAM_TOKENS = frozenset({"D3.1", "D3.2", "D3.6", "D3.7", "D3.8", "D3.9",
+                            "D3.11", "D3.13", "D3.14", "D3.18"})
+D3_SEAM_SRC = ["src/keel/capability_seams.py"]
+D3_SEAM_TESTS = ["tests/test_capability_seams.py"]
+D3_SEAM_EVIDENCE = (
+    "Capability seam contracts: typed role registration, provider swap "
+    "descriptors, honest package classification, spill preview with redaction, "
+    "monotone deny guards, workspace containment; 28 passing tests.")
+E6_PROVIDER_TOKENS = frozenset({"E6.1", "E6.5", "E6.8", "E6.10"})
+E6_PROVIDER_SRC = ["src/keel/provider_contracts.py"]
+E6_PROVIDER_TESTS = ["tests/test_provider_contracts.py"]
+E6_PROVIDER_EVIDENCE = (
+    "Provider config contracts: write-only secret descriptors, third-party "
+    "catalog validation (https/allowlist), per-model capability fields, "
+    "request compatibility switches; 85 passing tests, no credentials.")
 
 TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
                      "src/keel/tool_contracts_bridge.py"]
@@ -786,7 +801,8 @@ def _load_extra_features() -> list[dict]:
             tags = str(f.get("tag/source") or "")
             implemented_ids = (TOOL_CONTRACT_IDS | X1_REPO_TOKENS |
                                X1_STEERING_TOKENS | X1_DIALECT_TOKENS |
-                               X1_EDIT_TOKENS | W2_AGENT_TOKENS | BATCH4_TOKENS)
+                               X1_EDIT_TOKENS | W2_AGENT_TOKENS | BATCH4_TOKENS |
+                               D3_SEAM_TOKENS | E6_PROVIDER_TOKENS)
             verified = fid in implemented_ids
             src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
                          X1_REPO_SRC if fid in X1_REPO_TOKENS else
@@ -794,21 +810,27 @@ def _load_extra_features() -> list[dict]:
                          X1_DIALECT_SRC if fid in X1_DIALECT_TOKENS else
                          X1_EDIT_SRC if fid in X1_EDIT_TOKENS else
                          W2_AGENT_SRC if fid in W2_AGENT_TOKENS else
-                         BATCH4_SRC if fid in BATCH4_TOKENS else [])
+                         BATCH4_SRC if fid in BATCH4_TOKENS else
+                         D3_SEAM_SRC if fid in D3_SEAM_TOKENS else
+                         E6_PROVIDER_SRC if fid in E6_PROVIDER_TOKENS else [])
             test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
                           X1_REPO_TESTS if fid in X1_REPO_TOKENS else
                           X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
                           X1_DIALECT_TESTS if fid in X1_DIALECT_TOKENS else
                           X1_EDIT_TESTS if fid in X1_EDIT_TOKENS else
                           W2_AGENT_TESTS if fid in W2_AGENT_TOKENS else
-                          BATCH4_TESTS if fid in BATCH4_TOKENS else [])
+                          BATCH4_TESTS if fid in BATCH4_TOKENS else
+                          D3_SEAM_TESTS if fid in D3_SEAM_TOKENS else
+                          E6_PROVIDER_TESTS if fid in E6_PROVIDER_TOKENS else [])
             evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
                         X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
                         X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
                         X1_DIALECT_EVIDENCE if fid in X1_DIALECT_TOKENS else
                         X1_EDIT_EVIDENCE if fid in X1_EDIT_TOKENS else
                         W2_AGENT_EVIDENCE if fid in W2_AGENT_TOKENS else
-                        BATCH4_EVIDENCE if fid in BATCH4_TOKENS else "")
+                        BATCH4_EVIDENCE if fid in BATCH4_TOKENS else
+                        D3_SEAM_EVIDENCE if fid in D3_SEAM_TOKENS else
+                        E6_PROVIDER_EVIDENCE if fid in E6_PROVIDER_TOKENS else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),

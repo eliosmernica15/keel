@@ -7695,15 +7695,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/capability_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Capability seam = Service Definition + Service Provider + Consumer; one role alone is not a seam; adding a capability means designing all three (milestone M0, M7)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_capability_seams.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Capability seam contracts: typed role registration, provider swap descriptors, honest package classification, spill preview with redaction, monotone deny guards, workspace containment; 28 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7743,15 +7747,19 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/capability_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Packages Keel is missing or underspecified (from the 60+ dsh package groups): `deliverables` (turn deliverables), `spill` (output spill), `attachment`, `guard` (loop/t... (milestone M7 to M21)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_capability_seams.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Capability seam contracts: typed role registration, provider swap descriptors, honest package classification, spill preview with redaction, monotone deny guards, workspace containment; 28 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7791,15 +7799,19 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/capability_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: `spill`: large tool output spills to a file with a preview (matches Master rule 5) (milestone M5)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_capability_seams.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Capability seam contracts: typed role registration, provider swap descriptors, honest package classification, spill preview with redaction, monotone deny guards, workspace containment; 28 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7815,15 +7827,19 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/capability_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: `guard`: loop and tool guards as their own plugin group (milestone M4, M3)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_capability_seams.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Capability seam contracts: typed role registration, provider swap descriptors, honest package classification, spill preview with redaction, monotone deny guards, workspace containment; 28 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7911,15 +7927,19 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/capability_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: `workspace` entities + `session-query` (browse/search/export) (milestone M4, M19)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_capability_seams.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Capability seam contracts: typed role registration, provider swap descriptors, honest package classification, spill preview with redaction, monotone deny guards, workspace containment; 28 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7959,15 +7979,19 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/capability_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Tools never import OS APIs directly"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_capability_seams.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Capability seam contracts: typed role registration, provider swap descriptors, honest package classification, spill preview with redaction, monotone deny guards, workspace containment; 28 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8151,15 +8175,19 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/capability_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Slash commands that are pure code (e.g., `/undo`, `/compact`) never call the model"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_capability_seams.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Capability seam contracts: typed role registration, provider swap descriptors, honest package classification, spill preview with redaction, monotone deny guards, workspace containment; 28 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8175,15 +8203,19 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/capability_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Background jobs service with `job_*` tools to read/stop jobs (milestone M5, M14)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_capability_seams.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Capability seam contracts: typed role registration, provider swap descriptors, honest package classification, spill preview with redaction, monotone deny guards, workspace containment; 28 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8199,8 +8231,10 @@
       "milestone": "M15",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/capability_seams.py"
+      ],
       "dependencies": [
         "Y5.4",
         "V9"
@@ -8208,9 +8242,11 @@
       "acceptance_criteria": [
         "Implement and verify: Webhook runtime: a *trusted rule* starts a session from an external webhook; provider adapters mount beside it (milestone M15)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_capability_seams.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Capability seam contracts: typed role registration, provider swap descriptors, honest package classification, spill preview with redaction, monotone deny guards, workspace containment; 28 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8226,15 +8262,19 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/capability_seams.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Shell backend, terminals backend, sandbox backend as separate services; sandbox wraps argv before spawning (milestone M5, M3)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_capability_seams.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Capability seam contracts: typed role registration, provider swap descriptors, honest package classification, spill preview with redaction, monotone deny guards, workspace containment; 28 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11827,16 +11867,20 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/provider_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Keys are write-only: the UI receives a redacted descriptor, never the secret; settings store only a credential reference; masked preview rule (identifier prefix, 5 leading and 4 trailing characters only when at least 8 middle characters remain hidden, else all dots;",
         "Unicode code points)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_provider_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Provider config contracts: write-only secret descriptors, third-party catalog validation (https/allowlist), per-model capability fields, request compatibility switches; 85 passing tests, no credentials.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11852,15 +11896,19 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/provider_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Request-compatibility switches (supports_developer_role, max_tokens_field, thinking_format, ...) at route level with per-model field-by-field override; empty value refused, unknown name refused with the list of valid names; each switch valid only for protocols that declare it."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_provider_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Provider config contracts: write-only secret descriptors, third-party catalog validation (https/allowlist), per-model capability fields, request compatibility switches; 85 passing tests, no credentials.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -12051,15 +12099,19 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/provider_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Third-party provider picker from an installed catalog (endpoint, protocol, models) vs Custom model API form: permanent lowercase provider ID, base URL, protocol, credential, models; four protocols (OpenAI Chat Completions, OpenAI Responses, Anthropic Messages, Gemini API); one protocol per provider (a gateway that serves two needs two providers); renaming = add new + delete old."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_provider_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Provider config contracts: write-only secret descriptors, third-party catalog validation (https/allowlist), per-model capability fields, request compatibility switches; 85 passing tests, no credentials.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -12123,15 +12175,19 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/provider_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Per-model capability fields: input types (text, image), context window, max output tokens; route-level defaultInput fallback (never removes images the catalog knows), per-model override; \"claims about your endpoint are not verified\" warning; image-capable list clears image limits when image is removed."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_provider_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Provider config contracts: write-only secret descriptors, third-party catalog validation (https/allowlist), per-model capability fields, request compatibility switches; 85 passing tests, no credentials.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
