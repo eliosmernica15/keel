@@ -28,6 +28,7 @@ dist/
 build/
 release_final/
 release_final2/
+plan-extract/
 *.tsbuildinfo
 
 # --- python ---
