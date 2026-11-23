@@ -6895,8 +6895,13 @@
       "milestone": "M10",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [
         "W1.1",
         "V1"
@@ -6904,9 +6909,14 @@
       "acceptance_criteria": [
         "Implement and verify: Every part is a plugin, including model adapter, tool registry, session log and the agent loop itself, each replaceable from configuration; \"no privileged core to patch.\" (milestone M10)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -6922,15 +6932,25 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Desktop shell: Electron ships the exact production runtime in signed resources, owns a reserved `desktop` profile, starts a private Desktop Host (Electron-as-Node), lo... (milestone M19, M22)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -6970,15 +6990,25 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Core package map (session log, system-prompt assembly, tool registry + guarded pipeline, agent interface + live registry, agent loop driver, per-agent scope primitive,... (milestone M7)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7042,15 +7072,25 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Layered composition order: bundles in order, then profile patch, then home patch, then `--patch` overlays; a patch targets a row by id (replace whole config) or insert... (milestone M2, M10)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7066,17 +7106,27 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [
         "X6.8"
       ],
       "acceptance_criteria": [
         "Implement and verify: `--dump-config`: prints the exact plugin tree the machine will boot; any printed row can be replaced by a patch (milestone M2, M19)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -12453,15 +12503,25 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "sandboxPolicy: the single home for default sandbox mode and workspace root so bash and fs can't confine to different roots; consumers hand over the exact argv; backend reports enforcement."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -12508,15 +12568,25 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "toolResultPruner: model-free pruning of oversized *current* tool results through replayable surface replacements before summary compaction."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -12532,17 +12602,27 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [
         "V5"
       ],
       "acceptance_criteria": [
         "permissionPresets: user-facing presets bundling sandbox mode + approval policy; switching writes one logged permission/preset event that updates both knobs."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -12558,15 +12638,25 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "fs-observation-policy: observed-state checks (read-before-edit, stale-file detection) contributed through the fs/* event gate."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -12606,15 +12696,25 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "web seam: search and fetch providers register into one service; tool names stay stable."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -13196,15 +13296,25 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "workspaceFiles: stat, paged text, byte windows, directory listings and a change feed confined by lstat, containment and a stat re-check."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15578,15 +15688,25 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: `.keel/commands//*.md`."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15602,15 +15722,25 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Same fields."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15626,15 +15756,25 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Parser tests cover $ARGUMENTS, positional $1..$n with quote grouping, last placeholder taking the rest, missing = empty and fallback append."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15650,15 +15790,25 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Command runs through the permission gate and Tier 2; the resolved command is shown to the user before first run."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21410,15 +21560,25 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Dev-bypass only in dev builds; release builds hard-fail if set (CI test)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21434,17 +21594,27 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [
         "A3.3"
       ],
       "acceptance_criteria": [
         "Already A3.3; add rule: UI dev mode uses mock, **release builds never ship it enabled**."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21484,17 +21654,27 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [
         "A3.5"
       ],
       "acceptance_criteria": [
         "Already A3.5; add \"never overwrite\" and \"print remaining manual step\" requirements."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21659,15 +21839,25 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Daemon is the only DB writer; renderer never opens SQLite."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21755,15 +21945,25 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Event log + `Last-Event-ID` style resume."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21805,15 +22005,25 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Reconcile with Master Section 10 in M0; add `revocations`, `ops_*`, `task_costs`, `automation_runs`, `webhook_deliveries` if missing."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -21880,17 +22090,27 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/runtime_contracts.py",
+        "src/keel/plugin_contracts.py",
+        "src/keel/config_contracts.py",
+        "src/keel/command_contracts.py"
+      ],
       "dependencies": [
         "A3.6"
       ],
       "acceptance_criteria": [
         "Extends A3.6: three explicit actions in Settings > Sign-in & security."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_runtime_contracts.py",
+        "tests/test_plugin_contracts.py",
+        "tests/test_config_contracts.py",
+        "tests/test_command_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture (39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All additive stdlib descriptor layers with documented integration seams.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

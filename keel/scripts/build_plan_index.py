@@ -787,6 +787,20 @@ W7_SECURITY_EVIDENCE = (
     "Security contracts: trust model, SSRF-safe fetch, security headers, "
     "safe Markdown rendering, publish path safety, inbound HMAC/replay "
     "defense, session cookies; 125 passing tests (1 platform skip).")
+A6_TOKENS = frozenset({
+    "E7.2", "E7.6", "E7.18", "E7.20", "E7.21", "E7.23",
+    "D1.1", "D1.4", "D1.5", "D1.10", "D1.12",
+    "Y3.2", "Y3.4", "Y3.6", "Y3.9", "Y3.10", "Y3.11", "Y3.13",
+    "W5.1", "W5.2", "W5.3", "W5.4",
+})
+A6_SRC = ["src/keel/runtime_contracts.py", "src/keel/plugin_contracts.py",
+          "src/keel/config_contracts.py", "src/keel/command_contracts.py"]
+A6_TESTS = ["tests/test_runtime_contracts.py", "tests/test_plugin_contracts.py",
+            "tests/test_config_contracts.py", "tests/test_command_contracts.py"]
+A6_EVIDENCE = (
+    "Parallel batch: E7 runtime contracts (48 tests), D1 plugin architecture "
+    "(39 tests), Y3 config/setup (22 tests), W5 commands (18 tests). All "
+    "additive stdlib descriptor layers with documented integration seams.")
 
 TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
                      "src/keel/tool_contracts_bridge.py"]
@@ -820,7 +834,8 @@ def _load_extra_features() -> list[dict]:
                                X1_STEERING_TOKENS | X1_DIALECT_TOKENS |
                                X1_EDIT_TOKENS | W2_AGENT_TOKENS | BATCH4_TOKENS |
                                D3_SEAM_TOKENS | E6_PROVIDER_TOKENS |
-                               Y2_TRANSCRIPT_TOKENS | W7_SECURITY_TOKENS)
+                               Y2_TRANSCRIPT_TOKENS | W7_SECURITY_TOKENS |
+                               A6_TOKENS)
             verified = fid in implemented_ids
             src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
                          X1_REPO_SRC if fid in X1_REPO_TOKENS else
@@ -832,7 +847,8 @@ def _load_extra_features() -> list[dict]:
                          D3_SEAM_SRC if fid in D3_SEAM_TOKENS else
                          E6_PROVIDER_SRC if fid in E6_PROVIDER_TOKENS else
                          Y2_TRANSCRIPT_SRC if fid in Y2_TRANSCRIPT_TOKENS else
-                         W7_SECURITY_SRC if fid in W7_SECURITY_TOKENS else [])
+                         W7_SECURITY_SRC if fid in W7_SECURITY_TOKENS else
+                         A6_SRC if fid in A6_TOKENS else [])
             test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
                           X1_REPO_TESTS if fid in X1_REPO_TOKENS else
                           X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
@@ -843,7 +859,8 @@ def _load_extra_features() -> list[dict]:
                           D3_SEAM_TESTS if fid in D3_SEAM_TOKENS else
                           E6_PROVIDER_TESTS if fid in E6_PROVIDER_TOKENS else
                           Y2_TRANSCRIPT_TESTS if fid in Y2_TRANSCRIPT_TOKENS else
-                          W7_SECURITY_TESTS if fid in W7_SECURITY_TOKENS else [])
+                          W7_SECURITY_TESTS if fid in W7_SECURITY_TOKENS else
+                          A6_TESTS if fid in A6_TOKENS else [])
             evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
                         X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
                         X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
@@ -854,7 +871,8 @@ def _load_extra_features() -> list[dict]:
                         D3_SEAM_EVIDENCE if fid in D3_SEAM_TOKENS else
                         E6_PROVIDER_EVIDENCE if fid in E6_PROVIDER_TOKENS else
                         Y2_TRANSCRIPT_EVIDENCE if fid in Y2_TRANSCRIPT_TOKENS else
-                        W7_SECURITY_EVIDENCE if fid in W7_SECURITY_TOKENS else "")
+                        W7_SECURITY_EVIDENCE if fid in W7_SECURITY_TOKENS else
+                        A6_EVIDENCE if fid in A6_TOKENS else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),

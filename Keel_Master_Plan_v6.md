@@ -267,14 +267,14 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | C9.2 | Virtualized lists, incremental rendering, streaming backpressure, startup prewarm, memory-leak watchdog | M19 | P1 | verified |
 | C9.3 | Incremental repo indexing with file watching; low-power/battery mode | M11 | P1 | verified |
 | C9.4 | Per-feature resource caps (browser, LSP, container) with visible meters | M16 | P1 | verified |
-| D1.1 | Every part is a plugin, including model adapter, tool registry, session log and the agent loop itself, each replaceable from configuration; "no privileged core to patch." | M10 | P0 | not_started |
-| D1.10 | Desktop shell: Electron ships the exact production runtime in signed resources, owns a reserved `desktop` profile, starts a private Desktop Host (Electron-as-Node), loads packaged web assets immediately and waits for boot injections before activating client plugins in the same document; OS-assigned port; Node IPC carries boot injections, readiness, fatal errors, shutdown; desktop and CLI share product data but keep packages, activation and lockfiles separate. | M19 | P0 | not_started |
+| D1.1 | Every part is a plugin, including model adapter, tool registry, session log and the agent loop itself, each replaceable from configuration; "no privileged core to patch." | M10 | P0 | verified |
+| D1.10 | Desktop shell: Electron ships the exact production runtime in signed resources, owns a reserved `desktop` profile, starts a private Desktop Host (Electron-as-Node), loads packaged web assets immediately and waits for boot injections before activating client plugins in the same document; OS-assigned port; Node IPC carries boot injections, readiness, fatal errors, shutdown; desktop and CLI share product data but keep packages, activation and lockfiles separate. | M19 | P0 | verified |
 | D1.11 | Shell-owned UI runs plugin install/update transactions with the bundled package manager under normal user/profile config. | M10 | P1 | not_started |
-| D1.12 | Core package map (session log, system-prompt assembly, tool registry + guarded pipeline, agent interface + live registry, agent loop driver, per-agent scope primitive, LLM vocabulary + adapter seam) each exposing one service key on the context. | M7 | P0 | not_started |
+| D1.12 | Core package map (session log, system-prompt assembly, tool registry + guarded pipeline, agent interface + live registry, agent loop driver, per-agent scope primitive, LLM vocabulary + adapter seam) each exposing one service key on the context. | M7 | P0 | verified |
 | D1.2 | Registrations are reversible effects that unwind when their plugin unloads. | M10 | P1 | not_started |
 | D1.3 | Profiles and bundles: a *profile* is a named composition (list of bundles, out-of-tree plugins, a user patch file); shipped templates `web`, `headless`, `sdk`, `sdk-minimal`, `acp`; a *bundle* is a distributable set of config rows + code. | unassigned | P1 | not_started |
-| D1.4 | Layered composition order: bundles in order, then profile patch, then home patch, then `--patch` overlays; a patch targets a row by id (replace whole config) or inserts new rows; a `preset` patch edits inside a declaration's plugin list. | M2 | P0 | not_started |
-| D1.5 | `--dump-config`: prints the exact plugin tree the machine will boot; any printed row can be replaced by a patch. | M2 | P0 | not_started |
+| D1.4 | Layered composition order: bundles in order, then profile patch, then home patch, then `--patch` overlays; a patch targets a row by id (replace whole config) or inserts new rows; a `preset` patch edits inside a declaration's plugin list. | M2 | P0 | verified |
+| D1.5 | `--dump-config`: prints the exact plugin tree the machine will boot; any printed row can be replaced by a patch. | M2 | P0 | verified |
 | D1.6 | Config-only HMR plugin toggled per profile (on for web, off for headless/sdk/acp). | M10 | P1 | not_started |
 | D1.7 | All supported apps launch only through named profiles; package bins, demos and SDK argv escapes are forbidden, and a gate (`verify-application-entrypoints`) classifies every executable and rejects bypasses. | M0 | P1 | not_started |
 | D1.8 | SDK runtime wheel per platform bundles the normal CLI; the client launches `--profile sdk` with an explicit home dir; minimal example uses `sdk-minimal`; persistent external plugins installed through the plugin command, not a private config carrier. | M20 | P1 | not_started |
@@ -480,13 +480,13 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | E7.15 | schedule independent of session activation: tasks stored separately; due messages queued into the target session. | M14 | P1 | not_started |
 | E7.16 | ssh seam: one authenticated OpenSSH connection, installed helper identity, independent program streams, disconnect cleanup; paired fs/subprocess/sandbox providers for the remote world. | M20 | P1 | not_started |
 | E7.17 | shellEnv: plugins declare effect-scoped KEEL_* environment facts; each shell tool collects one trusted snapshot per execution. | M5 | P1 | not_started |
-| E7.18 | sandboxPolicy: the single home for default sandbox mode and workspace root so bash and fs can't confine to different roots; consumers hand over the exact argv; backend reports enforcement. | M3 | P0 | not_started |
+| E7.18 | sandboxPolicy: the single home for default sandbox mode and workspace root so bash and fs can't confine to different roots; consumers hand over the exact argv; backend reports enforcement. | M3 | P0 | verified |
 | E7.19 | approval seam fails closed: absence of an answerer yields unavailable. | M3 | P0 | verified |
-| E7.2 | toolResultPruner: model-free pruning of oversized *current* tool results through replayable surface replacements before summary compaction. | M4 | P0 | not_started |
-| E7.20 | permissionPresets: user-facing presets bundling sandbox mode + approval policy; switching writes one logged permission/preset event that updates both knobs. | M3 | P0 | not_started |
-| E7.21 | fs-observation-policy: observed-state checks (read-before-edit, stale-file detection) contributed through the fs/* event gate. | M5 | P0 | not_started |
+| E7.2 | toolResultPruner: model-free pruning of oversized *current* tool results through replayable surface replacements before summary compaction. | M4 | P0 | verified |
+| E7.20 | permissionPresets: user-facing presets bundling sandbox mode + approval policy; switching writes one logged permission/preset event that updates both knobs. | M3 | P0 | verified |
+| E7.21 | fs-observation-policy: observed-state checks (read-before-edit, stale-file detection) contributed through the fs/* event gate. | M5 | P0 | verified |
 | E7.22 | lsp seam with exactly four normalized operations and no protocol escape hatch. | M11 | P1 | not_started |
-| E7.23 | web seam: search and fetch providers register into one service; tool names stay stable. | M5 | P0 | not_started |
+| E7.23 | web seam: search and fetch providers register into one service; tool names stay stable. | M5 | P0 | verified |
 | E7.24 | speechToText seam with local recognizers; browser uses an authenticated remote; transcripts stay in the draft until submission. | M17 | P1 | not_started |
 | E7.25 | officeKit: render Office files to PDF/images, convert, recalculate on the host using a native engine or a WASM fallback; document preview sidebar. | M17 | P1 | not_started |
 | E7.26 | fileUploads: streaming intake, durable storage, staged receipts bound to accepted submissions. | M4 | P1 | not_started |
@@ -510,7 +510,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | E7.42 | mcpResources seam (connection-owned providers serve shared resource tools). | M6 | P2 | not_started |
 | E7.43 | Browser-use and computer-use as provider seams (several interchangeable providers; each provider owns its tools and per-session resources; no shared action API; per-application consent with cancellation; retained run-code runtime per agent). | M16 | P1 | not_started |
 | E7.5 | workspaceChanges: per-turn changed-file summaries with turn-start vs turn-end comparison, served by session and event sequence; the log carries only the turn. | M11 | P1 | not_started |
-| E7.6 | workspaceFiles: stat, paged text, byte windows, directory listings and a change feed confined by lstat, containment and a stat re-check. | M5 | P0 | not_started |
+| E7.6 | workspaceFiles: stat, paged text, byte windows, directory listings and a change feed confined by lstat, containment and a stat re-check. | M5 | P0 | verified |
 | E7.7 | fileReferences: @ path completion returns paths only, never contents. | M19 | P1 | not_started |
 | E7.8 | sessionReferenceResolver: an @session mention embeds a bounded snapshot of another session as untrusted message context. | M4 | P1 | not_started |
 | E7.9 | sessionQuery seam: exact reads, filters, traces; backend adds full-text reconciliation, ranking, snippets and cursor generations. | M4 | P1 | not_started |
@@ -601,10 +601,10 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | W4.7 | Protocol version selection (`legacy`, `auto` probe, pinned newest revision) with probe cost warning. | M6 | P2 | not_started |
 | W4.8 | Pooled shared connections across project directories when everything that changes the connection matches. | M6 | P2 | not_started |
 | W4.9 | Tool naming normalization (`<server>_<tool>`, invalid chars to `_`, collisions need unique short names). | M6 | P1 | not_started |
-| W5.1 | Markdown or JSON commands; nested folders become `/team/review`; global vs project; project overrides global; nearer overrides ancestor; custom may replace built-in; hot reload. | M7 | P0 | not_started |
-| W5.2 | Frontmatter: `description`, `agent`, `model`, `subagent` (true/false/omit rules); legacy alias `subtask`. | M7 | P0 | not_started |
-| W5.3 | Arguments: `$ARGUMENTS`, positional `$1..$n` with quote grouping (last placeholder takes the rest, missing = empty); fallback appends args when no placeholder. | M7 | P0 | not_started |
-| W5.4 | Shell injection `!` + backtick command: output inserted into the prompt; opencode notes it runs outside the agent permission flow. | M7 | P0 | not_started |
+| W5.1 | Markdown or JSON commands; nested folders become `/team/review`; global vs project; project overrides global; nearer overrides ancestor; custom may replace built-in; hot reload. | M7 | P0 | verified |
+| W5.2 | Frontmatter: `description`, `agent`, `model`, `subagent` (true/false/omit rules); legacy alias `subtask`. | M7 | P0 | verified |
+| W5.3 | Arguments: `$ARGUMENTS`, positional `$1..$n` with quote grouping (last placeholder takes the rest, missing = empty); fallback appends args when no placeholder. | M7 | P0 | verified |
+| W5.4 | Shell injection `!` + backtick command: output inserted into the prompt; opencode notes it runs outside the agent permission flow. | M7 | P0 | verified |
 | W5.5 | Model precedence: command model, else command agent's model, else session model. | M7 | P1 | not_started |
 | W5.6 | Background child commands (`subagent: true`): result or failure reported back to parent. | M7 | P1 | not_started |
 | W5.7 | `@path` is not expanded in stored templates; attachments come from the composer. | M7 | P1 | not_started |
@@ -841,26 +841,26 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | Y2.8 | Auto-classification of read-only tools by slug | M15 | P0 | verified |
 | Y2.9 | card and event row kinds | M19 | P1 | not_started |
 | Y3.1 | 'offer only what works' principle | M19 | P1 | not_started |
-| Y3.10 | Local-only sign-in | M3 | P0 | not_started |
-| Y3.11 | Mock agent | M2 | P0 | not_started |
+| Y3.10 | Local-only sign-in | M3 | P0 | verified |
+| Y3.11 | Mock agent | M2 | P0 | verified |
 | Y3.12 | Invite gate | M20 | P1 | not_started |
-| Y3.13 | setup script: generate-only, never overwrite | M3 | P0 | not_started |
+| Y3.13 | setup script: generate-only, never overwrite | M3 | P0 | verified |
 | Y3.14 | First-run screen offers existing resources first | M19 | P1 | not_started |
 | Y3.15 | settings structure | M19 | P1 | not_started |
 | Y3.16 | public API, webhooks, operator page | M20 | P1 | not_started |
 | Y3.17 | project update proposals need approval | M13 | P1 | not_started |
 | Y3.18 | large task files on compute side; local cache | M4 | P1 | not_started |
 | Y3.19 | brand strings and assets in one place | M19 | P1 | not_started |
-| Y3.2 | 'reuse before building' / 'server is only DB client' | M4 | P0 | not_started |
+| Y3.2 | 'reuse before building' / 'server is only DB client' | M4 | P0 | verified |
 | Y3.20 | docs set incl. security-model | M1 | P1 | not_started |
 | Y3.21 | agent runs as administrator warning | M19 | P1 | not_started |
 | Y3.3 | Versioned, idempotent, resumable provisioning steps | M19 | P1 | not_started |
-| Y3.4 | Relay stores every run event | M4 | P0 | not_started |
+| Y3.4 | Relay stores every run event | M4 | P0 | verified |
 | Y3.5 | per-user concurrency limit and queue | M4 | P1 | not_started |
-| Y3.6 | table ideas / schema additions | M4 | P0 | not_started |
+| Y3.6 | table ideas / schema additions | M4 | P0 | verified |
 | Y3.7 | Scheduler tick duties | M14 | P1 | not_started |
 | Y3.8 | Device-approval pairing flow | M20 | P1 | not_started |
-| Y3.9 | Sign out / Sign out everywhere / Disconnect | M3 | P0 | not_started |
+| Y3.9 | Sign out / Sign out everywhere / Disconnect | M3 | P0 | verified |
 | Y4.1 | /mcp chat command revives dormant servers instantly | M6 | P1 | not_started |
 | Y4.10 | Skill library = one setup runbook per integration (21 units). | M9 | P1 | not_started |
 | Y4.11 | config.yaml provider switch in two lines | M2 | P1 | not_started |

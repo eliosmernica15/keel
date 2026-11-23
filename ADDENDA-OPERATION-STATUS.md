@@ -34,7 +34,7 @@ Date: 2026-11-23.
 | X1.4-X1.5 edit formats/fuzzy patch | 26 tests | `d72f62c` (merged) |
 | X1.7-X1.8 repo map + token counting | 23 tests | `1f39213` (merged) |
 | X1.13 steering/interrupt | 20 tests | `55b52be` (merged) |
-| Registry verified count | 348 verified / 515 not_started / 2 blocked | `fa062a4` |
+| Registry verified count | 370 verified / 493 not_started / 2 blocked | `fa062a4` |
 | Status page not_started accounting + schema drift fixes | honest totals, no double count | `fa062a4` |
 
 ## Active parallel workstreams (Process B + reviewers)
@@ -55,4 +55,4 @@ Date: 2026-11-23.
 
 ## Honest remaining status
 
-515 rows remain `not_started`. Substantial locally achievable subsets (tool contracts, governance registers, clean-room research) are done, but the complete 865-row implementation is NOT complete. This document will be updated as further implementation batches land.
+493 rows remain `not_started`. Substantial locally achievable subsets (tool contracts, governance registers, clean-room research) are done, but the complete 865-row implementation is NOT complete. This document will be updated as further implementation batches land.

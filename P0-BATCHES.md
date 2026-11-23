@@ -1,6 +1,6 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **86 not-started P0 features** in 24 source groups.
+Generated from PLAN-INDEX.json: **64 not-started P0 features** in 20 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
 
@@ -25,16 +25,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `V31` (M19) Local-socket transport spike: prove Electron ↔ Python over named pipe/UDS with streaming and backpressure on all three OSes before committing (C-19); keep TCP+t
 - `V5` (M3) Strictness presets as rule sets: Cautious / Balanced / Trusted compiled into ordered rule arrays, diffable and exportable, never able to touch Tier 2.
 
-## Y3 — 7 features
-
-- `Y3.10` (M3) Local-only sign-in
-- `Y3.11` (M2) Mock agent
-- `Y3.13` (M3) setup script: generate-only, never overwrite
-- `Y3.2` (M4) 'reuse before building' / 'server is only DB client'
-- `Y3.4` (M4) Relay stores every run event
-- `Y3.6` (M4) table ideas / schema additions
-- `Y3.9` (M3) Sign out / Sign out everywhere / Disconnect
-
 ## E5 — 6 features
 
 - `E5.1` (M19) No listening port in the desktop app: the backend runs as a bundled child; framed byte pipes carry requests and streaming responses with backpressure, Node IPC 
@@ -43,23 +33,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `E5.15` (M22) Upload guard: uploader requires the completion record to match environment, target, public URL and version, and checks artifact names, sizes, SHA-512 before it 
 - `E5.4` (M19) Process-lifetime single-instance lock acquired before any profile access; the desktop app exclusively owns its profile directory; CLI and desktop share product 
 - `E5.9` (M10) Plugins with install-time lifecycle scripts are rejected unless in a reviewed allowlist.
-
-## E7 — 6 features
-
-- `E7.18` (M3) sandboxPolicy: the single home for default sandbox mode and workspace root so bash and fs can't confine to different roots; consumers hand over the exact argv; 
-- `E7.2` (M4) toolResultPruner: model-free pruning of oversized *current* tool results through replayable surface replacements before summary compaction.
-- `E7.20` (M3) permissionPresets: user-facing presets bundling sandbox mode + approval policy; switching writes one logged permission/preset event that updates both knobs.
-- `E7.21` (M5) fs-observation-policy: observed-state checks (read-before-edit, stale-file detection) contributed through the fs/* event gate.
-- `E7.23` (M5) web seam: search and fetch providers register into one service; tool names stay stable.
-- `E7.6` (M5) workspaceFiles: stat, paged text, byte windows, directory listings and a change feed confined by lstat, containment and a stat re-check.
-
-## D1 — 5 features
-
-- `D1.1` (M10) Every part is a plugin, including model adapter, tool registry, session log and the agent loop itself, each replaceable from configuration; "no privileged core 
-- `D1.10` (M19) Desktop shell: Electron ships the exact production runtime in signed resources, owns a reserved `desktop` profile, starts a private Desktop Host (Electron-as-No
-- `D1.12` (M7) Core package map (session log, system-prompt assembly, tool registry + guarded pipeline, agent interface + live registry, agent loop driver, per-agent scope pri
-- `D1.4` (M2) Layered composition order: bundles in order, then profile patch, then home patch, then `--patch` overlays; a patch targets a row by id (replace whole config) or
-- `D1.5` (M2) `--dump-config`: prints the exact plugin tree the machine will boot; any printed row can be replaced by a patch.
 
 ## D5 — 5 features
 
@@ -75,13 +48,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `D7.12` (M0) CI layout: broad lanes of independent gates, a smaller Node-version compatibility matrix, native Windows lane in a separate workflow, Python checks separate, re
 - `D7.19` (M21) Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task.
 - `D7.9` (M0) Strict dependency linker so undeclared deps fail; build scripts of dependencies explicitly allowlisted.
-
-## W5 — 4 features
-
-- `W5.1` (M7) Markdown or JSON commands; nested folders become `/team/review`; global vs project; project overrides global; nearer overrides ancestor; custom may replace buil
-- `W5.2` (M7) Frontmatter: `description`, `agent`, `model`, `subagent` (true/false/omit rules); legacy alias `subtask`.
-- `W5.3` (M7) Arguments: `$ARGUMENTS`, positional `$1..$n` with quote grouping (last placeholder takes the rest, missing = empty); fallback appends args when no placeholder.
-- `W5.4` (M7) Shell injection `!` + backtick command: output inserted into the prompt; opencode notes it runs outside the agent permission flow.
 
 ## X9 — 4 features
 
