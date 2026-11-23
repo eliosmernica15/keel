@@ -9392,7 +9392,7 @@
       "verification_evidence": "",
       "owner_approval_required": false,
       "external_prerequisite": "",
-      "known_limitations": ""
+      "known_limitations": "Unverifiable reference claim; treat as unproven until native/source evidence exists"
     },
     {
       "id": "D7.19",
@@ -11053,7 +11053,7 @@
       "verification_evidence": "",
       "owner_approval_required": false,
       "external_prerequisite": "",
-      "known_limitations": ""
+      "known_limitations": "Reference claim contradicted by source verification (keel/docs/research/reference-behavior/deepseek-harness-behavior.md); re-scope before claiming behavioral parity"
     },
     {
       "id": "E5.10",
@@ -11299,7 +11299,7 @@
       "verification_evidence": "",
       "owner_approval_required": false,
       "external_prerequisite": "",
-      "known_limitations": ""
+      "known_limitations": "Unverifiable reference claim; treat as unproven until native/source evidence exists"
     },
     {
       "id": "E5.2",
@@ -11425,7 +11425,7 @@
       "verification_evidence": "",
       "owner_approval_required": false,
       "external_prerequisite": "",
-      "known_limitations": ""
+      "known_limitations": "Unverifiable reference claim; treat as unproven until native/source evidence exists"
     },
     {
       "id": "E5.7",
@@ -11475,7 +11475,7 @@
       "verification_evidence": "",
       "owner_approval_required": false,
       "external_prerequisite": "",
-      "known_limitations": ""
+      "known_limitations": "Reference claim contradicted by source verification (keel/docs/research/reference-behavior/deepseek-harness-behavior.md); re-scope before claiming behavioral parity"
     },
     {
       "id": "E5.9",
@@ -11623,7 +11623,7 @@
       "verification_evidence": "",
       "owner_approval_required": false,
       "external_prerequisite": "",
-      "known_limitations": ""
+      "known_limitations": "Unverifiable reference claim; treat as unproven until native/source evidence exists"
     },
     {
       "id": "E6.14",
@@ -12064,7 +12064,7 @@
       "verification_evidence": "",
       "owner_approval_required": false,
       "external_prerequisite": "",
-      "known_limitations": ""
+      "known_limitations": "Unverifiable reference claim; treat as unproven until native/source evidence exists"
     },
     {
       "id": "E7.18",
@@ -12380,7 +12380,7 @@
       "verification_evidence": "",
       "owner_approval_required": false,
       "external_prerequisite": "",
-      "known_limitations": ""
+      "known_limitations": "Unverifiable reference claim; treat as unproven until native/source evidence exists"
     },
     {
       "id": "E7.3",
@@ -12502,7 +12502,7 @@
       "verification_evidence": "",
       "owner_approval_required": false,
       "external_prerequisite": "",
-      "known_limitations": ""
+      "known_limitations": "Unverifiable reference claim; treat as unproven until native/source evidence exists"
     },
     {
       "id": "E7.34",

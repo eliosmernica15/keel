@@ -726,7 +726,19 @@ def _load_extra_features() -> list[dict]:
                 "verification_evidence": "",
                 "owner_approval_required": fid in OWNER_BLOCKED,
                 "external_prerequisite": "",
-                "known_limitations": "",
+                # Clean-room verification (reference-behavior/deepseek-*.md)
+                # contradicted two source claims; record this rather than
+                # silently dropping the original requirement.
+                "known_limitations": (
+                    "Reference claim contradicted by source verification "
+                    "(keel/docs/research/reference-behavior/"
+                    "deepseek-harness-behavior.md); re-scope before claiming "
+                    "behavioral parity"
+                    if fid in {"E5.1", "E5.8"} else
+                    "Unverifiable reference claim; treat as unproven until "
+                    "native/source evidence exists"
+                    if fid in {"D7.18", "E5.6", "E5.19", "E6.13", "E7.17",
+                               "E7.29", "E7.33"} else ""),
             })
     return out
 
