@@ -36,7 +36,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_cli_e2e.py tests/test_vertical_slice.py"
+        "tests/test_cli_e2e.py",
+        "tests/test_vertical_slice.py"
       ],
       "implementation_tier": "operational",
       "verification_evidence": "Non-interactive print-mode runner with real subprocess E2E tool execution",
@@ -276,7 +277,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_session_endpoints.py tests/test_cli_extras.py"
+        "tests/test_session_endpoints.py",
+        "tests/test_cli_extras.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Session import/stats exposed through the HTTP bridge",
@@ -486,7 +488,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_tui_functional.py tests/test_tui.py"
+        "tests/test_tui_functional.py",
+        "tests/test_tui.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Full functional TUI driving the real runtime with persistence",
@@ -756,7 +759,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_browser_launch.py tests/test_browser_profiles.py"
+        "tests/test_browser_launch.py",
+        "tests/test_browser_profiles.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real persistent browser profiles with opt-in local browser launch",
@@ -906,7 +910,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_e2e_operations.py tests/test_e2e_local.py"
+        "tests/test_e2e_operations.py",
+        "tests/test_e2e_local.py"
       ],
       "implementation_tier": "operational",
       "verification_evidence": "Operational E2E: backend, sessions, tools, permissions, Cowork, backup, DLP",
@@ -1206,7 +1211,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_status_page.py tests/test_ops_tools.py"
+        "tests/test_status_page.py",
+        "tests/test_ops_tools.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real registry-driven honest project status: counts by status/tier/priority, separates verified end-to-end from built-but-unproven descriptors/external items, lists blocked owner gates, Markdown status page and capability; cannot drift from registry",
@@ -1266,7 +1272,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_admin_page.py tests/test_final_features.py"
+        "tests/test_admin_page.py",
+        "tests/test_final_features.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real operator Admin page in both UI trees backed by core.admin.overview aggregating genuine local health, resource meters/limits, idle, flags, capability audit and diagnostics with loading/empty/error/permission-denied states",
@@ -1476,7 +1483,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_secret_providers.py tests/test_provider_sources.py"
+        "tests/test_secret_providers.py",
+        "tests/test_provider_sources.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real local secret providers: env, .env file and opt-in user-owned command with shell=False/timeout, provider chain with presence-only diagnostics (no values in listings or capabilities), persisted provider choice, CLI get/has",
@@ -1836,7 +1844,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_model_routing_integration.py tests/test_model_router.py"
+        "tests/test_model_routing_integration.py",
+        "tests/test_model_router.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Difficulty-based routing wired into the CLI run path (opt-in)",
@@ -2196,7 +2205,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_authoring.py tests/test_workbench.py"
+        "tests/test_authoring.py",
+        "tests/test_workbench.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Prompt library with variables and improvement helper",
@@ -2286,7 +2296,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_spec_mode.py tests/test_authoring.py"
+        "tests/test_spec_mode.py",
+        "tests/test_authoring.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real spec-driven workflow: structured spec, dependency-ordered task breakdown, explicit attributed approval gates between phases, required verification evidence, persistent state, capability and CLI surfaces",
@@ -2406,7 +2417,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_rag_watcher.py tests/test_rag.py"
+        "tests/test_rag_watcher.py",
+        "tests/test_rag.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Local RAG with file-watcher-driven auto-reindexing",
@@ -2436,7 +2448,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_docpacks.py tests/test_misc_features.py"
+        "tests/test_docpacks.py",
+        "tests/test_misc_features.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real offline documentation packs: local Markdown indexing with BM25 ranking, highlighted snippet search, persisted packs, capability and CLI surfaces",
@@ -2466,7 +2479,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_notebook.py tests/test_workbench.py"
+        "tests/test_notebook.py",
+        "tests/test_workbench.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real notebook execution in the hardened sandbox with per-cell stdout capture, error isolation, inline offline SVG charts, persistence with recoverable deletion, capability and CLI surfaces",
@@ -2916,7 +2930,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_profile_endpoints.py tests/test_agent_profiles.py"
+        "tests/test_profile_endpoints.py",
+        "tests/test_agent_profiles.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Persistent agent profiles with management over the HTTP bridge",
@@ -2946,7 +2961,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_backups.py tests/test_backup_endpoints.py"
+        "tests/test_backups.py",
+        "tests/test_backup_endpoints.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real encrypted backup/restore exposed through the HTTP bridge",
@@ -3186,7 +3202,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_views.py tests/test_misc_features.py"
+        "tests/test_views.py",
+        "tests/test_misc_features.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real fleet views: kanban board, nested agent org chart, per-agent cost ranking and live-activity timeline",
@@ -3216,7 +3233,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_views.py tests/test_misc_features.py"
+        "tests/test_views.py",
+        "tests/test_misc_features.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real observability views: token waterfall with inline SVG, nested flame graph and structured prompt diff",
@@ -3606,7 +3624,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_enterprise_seams.py tests/test_commercial_seams.py"
+        "tests/test_enterprise_seams.py",
+        "tests/test_commercial_seams.py"
       ],
       "implementation_tier": "descriptor",
       "verification_evidence": "Edition field 'standard' with no licensing gate, present in both release and download manifests and exposed via core.edition.info",
@@ -3636,7 +3655,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_enterprise_seams.py tests/test_commercial_seams.py"
+        "tests/test_enterprise_seams.py",
+        "tests/test_commercial_seams.py"
       ],
       "implementation_tier": "descriptor",
       "verification_evidence": "Real per-format silent-install flags (nsi/msi/pkg/deb/rpm), shipped Windows ADMX and macOS plist templates, surface via core.enterprise.templates",
@@ -3696,7 +3716,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_enterprise_seams.py tests/test_commercial_seams.py"
+        "tests/test_enterprise_seams.py",
+        "tests/test_commercial_seams.py"
       ],
       "implementation_tier": "descriptor",
       "verification_evidence": "Locally generated compliance artifacts: data-flow SVG, SBOM from dependency inventory, accessibility self-assessment; DPA/EULA legal text remains an honest draft pending owner review",
@@ -4326,7 +4347,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_notes_vault.py tests/test_content_skills.py"
+        "tests/test_notes_vault.py",
+        "tests/test_content_skills.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real notes-vault extras: wiki-link backlinks with missing-link report, link graph with offline SVG, tag index, orphan detection, dated daily notes and templates, capability and CLI",
@@ -4386,7 +4408,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_tutorial_ui.py tests/test_tutorial.py"
+        "tests/test_tutorial_ui.py",
+        "tests/test_tutorial.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real interactive tutorial in both UI trees (desktop/ui running app + site public mirror): persisted step progress, guided-tour overlay wired to cowork.tutorial.* capabilities with loading/empty/error/permission-denied states, what's-new modal and first-visit tips; browser-verified with real capability persistence",
@@ -4506,7 +4529,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_accessibility_ui.py tests/test_tutorial.py"
+        "tests/test_accessibility_ui.py",
+        "tests/test_tutorial.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real voice accessibility in both UI trees: SpeechRecognition dictation with explicit consent and unavailable/error states, opt-in spoken replies and live-region streaming announcements persisted via cowork.accessibility.* capabilities",
@@ -4978,7 +5002,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_judge.py tests/test_external_adapters.py"
+        "tests/test_judge.py",
+        "tests/test_external_adapters.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Deterministic local judge: four weighted auditable criteria, wasted/duplicate-call detection, best-of-N comparison, Markdown rubric reports; no external model called, backward-compatible judge_score delegate",
@@ -5068,7 +5093,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_charts.py tests/test_eval_tools.py"
+        "tests/test_charts.py",
+        "tests/test_eval_tools.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Release trend storage with rendered charts",
@@ -5098,7 +5124,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_documents.py tests/test_document_endpoints.py"
+        "tests/test_documents.py",
+        "tests/test_document_endpoints.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real DOCX/XLSX/CSV workflows exposed through the HTTP bridge",
@@ -5158,7 +5185,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_inline_completion.py tests/test_duet.py"
+        "tests/test_inline_completion.py",
+        "tests/test_duet.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Duet builder/reviewer with real local inline completion",
@@ -5848,7 +5876,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_codemod.py tests/test_code_intel.py"
+        "tests/test_codemod.py",
+        "tests/test_code_intel.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real AST codemods with diff preview and structural search",
@@ -5878,7 +5907,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_db_sarif.py tests/test_dev_tools.py"
+        "tests/test_db_sarif.py",
+        "tests/test_dev_tools.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real SARIF 2.1.0 emission and ingestion",
@@ -6118,7 +6148,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_file_watcher.py tests/test_automation.py"
+        "tests/test_file_watcher.py",
+        "tests/test_automation.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real polling file watcher with event dispatch",
@@ -6448,7 +6479,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_openapi_tools.py tests/test_interop.py"
+        "tests/test_openapi_tools.py",
+        "tests/test_interop.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real OpenAPI 3 to tools generator: parameter/request-body JSON Schemas, local $ref resolution, request descriptor builder, explicit named approval before use, persisted tool sets, capability and CLI surfaces; no network calls made",
@@ -6748,7 +6780,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_model_runtime.py tests/test_model_manager.py"
+        "tests/test_model_runtime.py",
+        "tests/test_model_manager.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real model runtime with RAM budget, LRU eviction and opt-in launch",
@@ -6808,7 +6841,8 @@
         "Behavior is verified in the real application/runtime where applicable"
       ],
       "test_references": [
-        "tests/test_repo_index.py tests/test_resource_caps.py"
+        "tests/test_repo_index.py",
+        "tests/test_resource_caps.py"
       ],
       "implementation_tier": "local_module",
       "verification_evidence": "Real incremental repository indexing: content-hash index with ignore rules, precise added/modified/removed detection without rehashing unchanged files, path/content search, persisted indexes, capability and CLI surfaces; low-power meter retained in resource_caps",

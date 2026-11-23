@@ -675,7 +675,9 @@ def _parse_addendum(path: Path, source: str) -> list[dict]:
                 "Automated test coverage exists and passes",
                 "Behavior is verified in the real application/runtime where applicable",
             ],
-            "test_references": [test_file] if test_file else [],
+            # IMPLEMENTED values may contain several space-separated paths;
+            # keep the registry schema clean by splitting them into tokens.
+            "test_references": str(test_file).split() if test_file else [],
             "implementation_tier": classify_tier(
                 feature_id, [source_file] if source_file else []),
             "verification_evidence": evidence,
