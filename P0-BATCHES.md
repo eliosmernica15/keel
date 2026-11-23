@@ -1,6 +1,6 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **64 not-started P0 features** in 20 source groups.
+Generated from PLAN-INDEX.json: **58 not-started P0 features** in 19 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
 
@@ -24,15 +24,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `V26` (M4) Request-reconstruction test: replay a session log and rebuild the exact provider request; byte-compare with what was actually sent (hash) to prove "model-visibl
 - `V31` (M19) Local-socket transport spike: prove Electron ↔ Python over named pipe/UDS with streaming and backpressure on all three OSes before committing (C-19); keep TCP+t
 - `V5` (M3) Strictness presets as rule sets: Cautious / Balanced / Trusted compiled into ordered rule arrays, diffable and exportable, never able to touch Tier 2.
-
-## E5 — 6 features
-
-- `E5.1` (M19) No listening port in the desktop app: the backend runs as a bundled child; framed byte pipes carry requests and streaming responses with backpressure, Node IPC 
-- `E5.12` (M22) Per-target build isolation: each target owns its inputs, prepared runtime, seed and artifacts under targets/<target>/; shared download cache verified by name+ha
-- `E5.14` (M22) Packaging never receives upload credentials (stripped from subprocesses); a target completion record is written only after every build/sign step succeeds.
-- `E5.15` (M22) Upload guard: uploader requires the completion record to match environment, target, public URL and version, and checks artifact names, sizes, SHA-512 before it 
-- `E5.4` (M19) Process-lifetime single-instance lock acquired before any profile access; the desktop app exclusively owns its profile directory; CLI and desktop share product 
-- `E5.9` (M10) Plugins with install-time lifecycle scripts are rejected unless in a reviewed allowlist.
 
 ## D5 — 5 features
 

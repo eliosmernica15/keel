@@ -37,6 +37,7 @@ Date: 2026-11-23.
 | Registry verified count | 370 verified / 493 not_started / 2 blocked (after W7 + D3/E6/Y2 + E7/D1/Y3/W5 batches) | `a454640` |
 | Independent reviews | core: 0 critical/3 high (all fixed, `b9f7490`); planning: 0 critical/4 high (all fixed, `3f3162c`) | `e37d616`, `d55157e` |
 | Full suite (mid-merge, stale-state) | 2182 passed, 48 skipped, 15 failed — all 15 reproduced passing individually on current HEAD (176-test targeted run) | — |
+| E5 desktop/packaging + D7-scope note | E5: 6 P0 features verified (30 tests). D7 agent honestly reported its assigned IDs (D7.1/9/12/19) are CI/release work, not memory contracts; its intelligence_contracts module (42 tests) is retained as supporting implementation for C6.1/C6.5 but D7 IDs are NOT falsely marked verified. | `ff88058`, `eefbc9f` |
 | Status page not_started accounting + schema drift fixes | honest totals, no double count | `fa062a4` |
 
 ## Active parallel workstreams (Process B + reviewers)

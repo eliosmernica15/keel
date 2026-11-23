@@ -11446,15 +11446,19 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/desktop_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "No listening port in the desktop app: the backend runs as a bundled child; framed byte pipes carry requests and streaming responses with backpressure, Node IPC carries only lifecycle control, a custom app:// protocol serves client assets."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_desktop_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Desktop/packaging contracts: framed-byte transport, single-instance lock, plugin script rejection, per-target isolation, credential stripping, upload guard; 30 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": "Reference claim contradicted by source verification (keel/docs/research/reference-behavior/deepseek-harness-behavior.md); re-scope before claiming behavioral parity"
@@ -11520,15 +11524,19 @@
       "milestone": "M22",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/desktop_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Per-target build isolation: each target owns its inputs, prepared runtime, seed and artifacts under targets/<target>/; shared download cache verified by name+hash; a target never consumes another's mutable state."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_desktop_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Desktop/packaging contracts: framed-byte transport, single-instance lock, plugin script rejection, per-target isolation, credential stripping, upload guard; 30 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11568,15 +11576,19 @@
       "milestone": "M22",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/desktop_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Packaging never receives upload credentials (stripped from subprocesses); a target completion record is written only after every build/sign step succeeds."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_desktop_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Desktop/packaging contracts: framed-byte transport, single-instance lock, plugin script rejection, per-target isolation, credential stripping, upload guard; 30 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11592,16 +11604,20 @@
       "milestone": "M22",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/desktop_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Upload guard: uploader requires the completion record to match environment, target, public URL and version, and checks artifact names, sizes, SHA-512 before it reads credentials; uploads immutable versioned artifacts first, channel metadata last with no-cache; never deletes historical objects.",
         "Stable vs prerelease channel files."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_desktop_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Desktop/packaging contracts: framed-byte transport, single-instance lock, plugin script rejection, per-target isolation, credential stripping, upload guard; 30 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11766,17 +11782,21 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/desktop_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Process-lifetime single-instance lock acquired before any profile access; the desktop app exclusively owns its profile directory;",
         "CLI and desktop share product data (sessions, settings, credentials, workspaces) but never executable packages, plugin activation, lockfiles or site-packages.",
         "Single-instance lock + two plugin environments (desktop vs CLI)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_desktop_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Desktop/packaging contracts: framed-byte transport, single-instance lock, plugin script rejection, per-target isolation, credential stripping, upload guard; 30 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11892,16 +11912,20 @@
       "milestone": "M10",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/desktop_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Plugins with install-time lifecycle scripts are rejected unless in a reviewed allowlist.",
         "prefer wheels only."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_desktop_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Desktop/packaging contracts: framed-byte transport, single-instance lock, plugin script rejection, per-target isolation, credential stripping, upload guard; 30 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

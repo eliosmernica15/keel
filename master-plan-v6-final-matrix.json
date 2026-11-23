@@ -5190,14 +5190,14 @@
     "id": "E5.1",
     "feature": "No listening port in the desktop app: the backend runs as a bundled child; framed byte pipes carry requests and streaming responses with backpressure, Node IPC carries only lifecycle control, a custom app:// protocol serves client assets.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M19",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\desktop_contracts.py",
+    "test_references": "keel\\tests\\test_desktop_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E5.10",
@@ -5229,14 +5229,14 @@
     "id": "E5.12",
     "feature": "Per-target build isolation: each target owns its inputs, prepared runtime, seed and artifacts under targets/<target>/; shared download cache verified by name+hash; a target never consumes another's mutable state.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M22",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\desktop_contracts.py",
+    "test_references": "keel\\tests\\test_desktop_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E5.13",
@@ -5255,27 +5255,27 @@
     "id": "E5.14",
     "feature": "Packaging never receives upload credentials (stripped from subprocesses); a target completion record is written only after every build/sign step succeeds.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M22",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\desktop_contracts.py",
+    "test_references": "keel\\tests\\test_desktop_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E5.15",
     "feature": "Upload guard: uploader requires the completion record to match environment, target, public URL and version, and checks artifact names, sizes, SHA-512 before it reads credentials; uploads immutable versioned artifacts first, channel metadata last with no-cache; never deletes historical objects. Stable vs prerelease channel files.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M22",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\desktop_contracts.py",
+    "test_references": "keel\\tests\\test_desktop_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E5.16",
@@ -5359,14 +5359,14 @@
     "id": "E5.4",
     "feature": "Process-lifetime single-instance lock acquired before any profile access; the desktop app exclusively owns its profile directory; CLI and desktop share product data (sessions, settings, credentials, workspaces) but never executable packages, plugin activation, lockfiles or site-packages.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M19",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\desktop_contracts.py",
+    "test_references": "keel\\tests\\test_desktop_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E5.5",
@@ -5424,14 +5424,14 @@
     "id": "E5.9",
     "feature": "Plugins with install-time lifecycle scripts are rejected unless in a reviewed allowlist.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M10",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\desktop_contracts.py",
+    "test_references": "keel\\tests\\test_desktop_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E6.1",
