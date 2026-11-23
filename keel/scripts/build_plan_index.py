@@ -735,6 +735,26 @@ W2_AGENT_EVIDENCE = (
     "Agent file/subagent contracts: nested IDs, modes, built-ins, step limits, "
     "launch permission monotonicity, prompt composition, merge semantics and "
     "plan-folder containment; 35 passing tests.")
+# Four further implementation batches merged in the parallel operation.
+BATCH4_TOKENS = frozenset({
+    # W3 permissions
+    "W3.1", "W3.2", "W3.3", "W3.4", "W3.6", "W3.7", "W3.8", "W3.9",
+    "W3.10", "W3.12", "W3.13",
+    # D2 session/event model
+    "D2.1", "D2.3", "D2.5", "D2.7", "D2.8", "D2.9", "D2.10", "D2.11",
+    "D2.13", "D2.15", "D2.16",
+    # Y1 MCP/plugin config
+    "Y1.2", "Y1.3", "Y1.4", "Y1.5", "Y1.6", "Y1.7", "Y1.8", "Y1.9",
+    "Y1.16", "Y1.17", "Y1.19", "Y1.20", "Y1.24", "Y1.30",
+})
+BATCH4_SRC = ["src/keel/permission_contracts.py", "src/keel/session_contracts.py",
+              "src/keel/mcp_contracts.py"]
+BATCH4_TESTS = ["tests/test_permission_contracts.py",
+                "tests/test_session_contracts.py", "tests/test_mcp_contracts.py"]
+BATCH4_EVIDENCE = (
+    "Parallel batch: W3 permission contracts (66 tests, authoritative "
+    "first-match preserved per DECISIONS D-001), D2 session/event contracts "
+    "(32 tests), Y1 MCP/plugin config contracts (57 tests).")
 
 TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
                      "src/keel/tool_contracts_bridge.py"]
@@ -766,26 +786,29 @@ def _load_extra_features() -> list[dict]:
             tags = str(f.get("tag/source") or "")
             implemented_ids = (TOOL_CONTRACT_IDS | X1_REPO_TOKENS |
                                X1_STEERING_TOKENS | X1_DIALECT_TOKENS |
-                               X1_EDIT_TOKENS | W2_AGENT_TOKENS)
+                               X1_EDIT_TOKENS | W2_AGENT_TOKENS | BATCH4_TOKENS)
             verified = fid in implemented_ids
             src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
                          X1_REPO_SRC if fid in X1_REPO_TOKENS else
                          X1_STEERING_SRC if fid in X1_STEERING_TOKENS else
                          X1_DIALECT_SRC if fid in X1_DIALECT_TOKENS else
                          X1_EDIT_SRC if fid in X1_EDIT_TOKENS else
-                         W2_AGENT_SRC if fid in W2_AGENT_TOKENS else [])
+                         W2_AGENT_SRC if fid in W2_AGENT_TOKENS else
+                         BATCH4_SRC if fid in BATCH4_TOKENS else [])
             test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
                           X1_REPO_TESTS if fid in X1_REPO_TOKENS else
                           X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
                           X1_DIALECT_TESTS if fid in X1_DIALECT_TOKENS else
                           X1_EDIT_TESTS if fid in X1_EDIT_TOKENS else
-                          W2_AGENT_TESTS if fid in W2_AGENT_TOKENS else [])
+                          W2_AGENT_TESTS if fid in W2_AGENT_TOKENS else
+                          BATCH4_TESTS if fid in BATCH4_TOKENS else [])
             evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
                         X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
                         X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
                         X1_DIALECT_EVIDENCE if fid in X1_DIALECT_TOKENS else
                         X1_EDIT_EVIDENCE if fid in X1_EDIT_TOKENS else
-                        W2_AGENT_EVIDENCE if fid in W2_AGENT_TOKENS else "")
+                        W2_AGENT_EVIDENCE if fid in W2_AGENT_TOKENS else
+                        BATCH4_EVIDENCE if fid in BATCH4_TOKENS else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),

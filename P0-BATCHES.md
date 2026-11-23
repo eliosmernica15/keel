@@ -1,25 +1,8 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **166 not-started P0 features** in 32 source groups.
+Generated from PLAN-INDEX.json: **122 not-started P0 features** in 28 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
-
-## Y1 — 14 features
-
-- `Y1.16` (M6) MCP permission naming
-- `Y1.17` (M3) Ordered rule list permissions
-- `Y1.19` (M2) Config precedence algorithm
-- `Y1.2` (M5) Model-dependent tool exposure
-- `Y1.20` (M2) {env:VAR} and {file:path} config substitution
-- `Y1.24` (M4) Compaction config
-- `Y1.3` (M5) patch multi-file format
-- `Y1.30` (M10) Plugin enable/disable DSL
-- `Y1.4` (M5) read limits and paging
-- `Y1.5` (M5) glob/grep defaults
-- `Y1.6` (M5) edit unique-match requirement and formatter hook
-- `Y1.7` (M5) Shell tool details
-- `Y1.8` (M5) webfetch and websearch provider selection
-- `Y1.9` (M5) question tool
 
 ## W7 — 12 features
 
@@ -35,34 +18,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `W7.5` (M3) Secrets reach child processes as a staged file read-and-deleted by the setup script, never on a command line.
 - `W7.6` (M3) Log redaction plus keyed hash of user ids instead of ids.
 - `W7.8` (M20) Sign-in/pairing attempts rate limited per client address and globally; use trusted-proxy hop count for address detection; only same-origin relative return paths
-
-## D2 — 11 features
-
-- `D2.1` (M8) Three event domains: *session events* (durable facts in the log, broadcast), *agent events* (`agent/*`, live, observe/intercept in-flight work), *capability eve
-- `D2.10` (M4) Process-local live stream frames (`assistant-stream` start/chunk/end) vs durable settled message that embeds the compact timed stream; `assistant/attempt` retai
-- `D2.11` (M4) Model-visible ⇔ logged: every model request must be reconstructable from the log; any new model-visible input requires a session event; plugins that alter messa
-- `D2.13` (M4) Session format versioning with adjacent migrations: header-only `stat`/`list` pick the highest generation; read-open translates in memory; write-open publishes 
-- `D2.15` (M4) Fork at a turn boundary (seeded session with inherited event count; only agent-loop-published sessions persist).
-- `D2.16` (M5) Working directories supply user context and execution paths without changing project identity, sandbox write roots, or existing process dirs.
-- `D2.3` (M7) Turn flow definition: step = one model request + the tools it calls; turn = zero or more steps; sequence `turn/start` → claim input → snapshot model selection →
-- `D2.5` (M7) One inbox per agent driver; injected context (`agent.inject()`) waits for a waking message and lands in the next admitted request.
-- `D2.7` (M4) System prompt travels as logged `system/message` history; empty text clears it.
-- `D2.8` (M4) Cancellation during prompt preparation commits nothing (neither system nor user messages).
-- `D2.9` (M4) Failed steps record missing tool results (synthetic).
-
-## W3 — 11 features
-
-- `W3.1` (M3) Rule = `{action, resource, effect}`; effects `allow/deny/ask`; no match means ask.
-- `W3.10` (M3) Policies layer can hard-deny after rules and saved approvals; turns allow/ask into deny, never grants; global/managed policies override project config.
-- `W3.12` (M20) Non-interactive clients must decide approval behavior; configured deny always enforced.
-- `W3.13` (M3) Docs warning: shell has full host authority; prefer narrow allowlists over trying to recognize every dangerous command.
-- `W3.2` (M3) Last matching rule wins (broad first, exceptions after); rules combine in order: lower-priority config, global, then agent.
-- `W3.3` (M3) Wildcards: `*` matches any characters including `/`; `?` one character; whole-value match; backslashes normalized; case-insensitive on Windows; shell pattern en
-- `W3.4` (M3) Multi-resource operations: any `deny` denies; else any `ask` asks; else allow (e.g., a patch touching several files).
-- `W3.6` (M3) `external_directory` action: paths outside the project/worktree are checked before read/edit rules. opencode's default is allow.
-- `W3.7` (M3) Shell scanner for Bash, Zsh, POSIX sh and PowerShell: each extracted subcommand and `cd` target is checked; malformed or dynamically evaluated commands return a
-- `W3.8` (M3) Base default policy: allow all, but ask on `.env` / `.env.*` reads except `.env.example`.
-- `W3.9` (M3) Approval replies: `once`, `always` (saves tool-proposed patterns, project-scoped, never overrides a configured deny), `reject` (rejects every other pending requ
 
 ## D3 — 10 features
 
@@ -89,17 +44,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `Y2.6` (M3) Pending-turn persistence
 - `Y2.7` (M3) approval buttons: Allow / Always allow / Don't allow
 - `Y2.8` (M15) Auto-classification of read-only tools by slug
-
-## W2 — 8 features
-
-- `W2.1` (M7) Markdown agent files with YAML frontmatter; nested path becomes agent ID (`team/reviewer`); global + project locations; same fields as config entries; body is t
-- `W2.11` (M7) Plan agent may write only plan files in a dedicated plan folder; shell stays permission-controlled.
-- `W2.2` (M7) Modes `primary` / `subagent` / `all`; subagents run in child sessions with fresh context.
-- `W2.3` (M7) Built-ins: build, plan, general (no further subagents), explore (read-only incl. web); hidden maintenance agents (`compaction`, `title`, `summary`) that are not
-- `W2.4` (M7) `steps` limit: max model steps per turn; on the final step tools are removed and the model must summarize in text; new user input resets.
-- `W2.6` (M12) Subagent launch permissions: parent's `subagent` rules control which agents it may launch (e.g., deny `*`, allow `reviewer`); child uses its own permissions, no
-- `W2.8` (M7) `system` replaces the provider base prompt for that agent, but project instructions, skills, references still get added.
-- `W2.9` (M2) Agent merge semantics: later scalars replace, maps merge by key, permission rules append; global rules apply before agent rules.
 
 ## X0 — 8 features
 

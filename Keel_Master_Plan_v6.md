@@ -279,23 +279,23 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | D1.7 | All supported apps launch only through named profiles; package bins, demos and SDK argv escapes are forbidden, and a gate (`verify-application-entrypoints`) classifies every executable and rejects bypasses. | M0 | P1 | not_started |
 | D1.8 | SDK runtime wheel per platform bundles the normal CLI; the client launches `--profile sdk` with an explicit home dir; minimal example uses `sdk-minimal`; persistent external plugins installed through the plugin command, not a private config carrier. | M20 | P1 | not_started |
 | D1.9 | Plugin management command reserved as `plugin` (not a profile name unless `--profile plugin`). | M10 | P2 | not_started |
-| D2.1 | Three event domains: *session events* (durable facts in the log, broadcast), *agent events* (`agent/*`, live, observe/intercept in-flight work), *capability events* (`fs/*`, `tools/*`, `telemetry/*`, policy/adapters on a seam). | M8 | P0 | not_started |
-| D2.10 | Process-local live stream frames (`assistant-stream` start/chunk/end) vs durable settled message that embeds the compact timed stream; `assistant/attempt` retains failed/retried/cancelled attempts without adding model history. | M4 | P0 | not_started |
-| D2.11 | Model-visible ⇔ logged: every model request must be reconstructable from the log; any new model-visible input requires a session event; plugins that alter message content register pure message projections (detached readers supply the same). | M4 | P0 | not_started |
+| D2.1 | Three event domains: *session events* (durable facts in the log, broadcast), *agent events* (`agent/*`, live, observe/intercept in-flight work), *capability events* (`fs/*`, `tools/*`, `telemetry/*`, policy/adapters on a seam). | M8 | P0 | verified |
+| D2.10 | Process-local live stream frames (`assistant-stream` start/chunk/end) vs durable settled message that embeds the compact timed stream; `assistant/attempt` retains failed/retried/cancelled attempts without adding model history. | M4 | P0 | verified |
+| D2.11 | Model-visible ⇔ logged: every model request must be reconstructable from the log; any new model-visible input requires a session event; plugins that alter message content register pure message projections (detached readers supply the same). | M4 | P0 | verified |
 | D2.12 | Session projection seam: registered units fold committed events; clients read selected views via `snapshot()`; domain services keep private handles and expose business methods. | M4 | P1 | not_started |
-| D2.13 | Session format versioning with adjacent migrations: header-only `stat`/`list` pick the highest generation; read-open translates in memory; write-open publishes a new version-named successor beside the unchanged source; committed generations are never renamed, overwritten or deleted; each migration step is `vN → vN+1`; missing interrupted `turn/end` inserted only for a bounded released restart; compressed files (`.zstd`) supported. | M4 | P0 | not_started |
+| D2.13 | Session format versioning with adjacent migrations: header-only `stat`/`list` pick the highest generation; read-open translates in memory; write-open publishes a new version-named successor beside the unchanged source; committed generations are never renamed, overwritten or deleted; each migration step is `vN → vN+1`; missing interrupted `turn/end` inserted only for a bounded released restart; compressed files (`.zstd`) supported. | M4 | P0 | verified |
 | D2.14 | Persistence-provider interface (`create`/`open`/`stat`/`list`/`export`) so session storage backends are swappable. | M4 | P1 | not_started |
-| D2.15 | Fork at a turn boundary (seeded session with inherited event count; only agent-loop-published sessions persist). | M4 | P0 | not_started |
-| D2.16 | Working directories supply user context and execution paths without changing project identity, sandbox write roots, or existing process dirs. | M5 | P0 | not_started |
+| D2.15 | Fork at a turn boundary (seeded session with inherited event count; only agent-loop-published sessions persist). | M4 | P0 | verified |
+| D2.16 | Working directories supply user context and execution paths without changing project identity, sandbox write roots, or existing process dirs. | M5 | P0 | verified |
 | D2.17 | Session title provider (single registered provider) and goals service (same-session objective continued through agent events). | M7 | P1 | not_started |
 | D2.2 | Waterfall vs serial listeners: waterfall listeners must call `next()` to delegate (returning without it short-circuits); serial listeners have no `next()`. Waterfall hooks: pre-step, request, stream, three tool hooks. | M8 | P1 | not_started |
-| D2.3 | Turn flow definition: step = one model request + the tools it calls; turn = zero or more steps; sequence `turn/start` → claim input → snapshot model selection → assemble prompt + tool schemas → pre-step hook (accept / rewrite / reject) → `step/start` → prepare call → stream → assistant message or failed attempt → `tool/call` → pre-execute → execute → post-execute → `tool/result` → `step/end` → loop or turn-stopping hook → `turn/end`. | M7 | P0 | not_started |
+| D2.3 | Turn flow definition: step = one model request + the tools it calls; turn = zero or more steps; sequence `turn/start` → claim input → snapshot model selection → assemble prompt + tool schemas → pre-step hook (accept / rewrite / reject) → `step/start` → prepare call → stream → assistant message or failed attempt → `tool/call` → pre-execute → execute → post-execute → `tool/result` → `step/end` → loop or turn-stopping hook → `turn/end`. | M7 | P0 | verified |
 | D2.4 | Rejected or empty first claim closes the turn without a step. | M7 | P1 | not_started |
-| D2.5 | One inbox per agent driver; injected context (`agent.inject()`) waits for a waking message and lands in the next admitted request. | M7 | P0 | not_started |
+| D2.5 | One inbox per agent driver; injected context (`agent.inject()`) waits for a waking message and lands in the next admitted request. | M7 | P0 | verified |
 | D2.6 | Request series (`request/header`, `request/context`): the log marks when a new series of requests starts (surface replacement, image offload) so cache/context changes are explicit; retries do not repeat assembly. | M4 | P1 | not_started |
-| D2.7 | System prompt travels as logged `system/message` history; empty text clears it. | M4 | P0 | not_started |
-| D2.8 | Cancellation during prompt preparation commits nothing (neither system nor user messages). | M4 | P0 | not_started |
-| D2.9 | Failed steps record missing tool results (synthetic). | M4 | P0 | not_started |
+| D2.7 | System prompt travels as logged `system/message` history; empty text clears it. | M4 | P0 | verified |
+| D2.8 | Cancellation during prompt preparation commits nothing (neither system nor user messages). | M4 | P0 | verified |
+| D2.9 | Failed steps record missing tool results (synthetic). | M4 | P0 | verified |
 | D3.1 | Capability seam = Service Definition + Service Provider + Consumer; one role alone is not a seam; adding a capability means designing all three. | M0 | P0 | not_started |
 | D3.10 | Filesystem policy through `fs/*` events on top of providers. | unassigned | P1 | not_started |
 | D3.11 | Packages Keel is missing or underspecified (from the 60+ dsh package groups): `deliverables` (turn deliverables), `spill` (output spill), `attachment`, `guard` (loop/tool guards), `extensions` (runtime self-modification), `feedback` (human feedback), `identity` (anonymous identity), `workspace` (workspace entities), `plan` (logged planning), `schedule` (scheduled follow-ups), `ptc-runtime` (programmatic tool-call execution, meaning to be verified), `session-query` (browse/search/export), `typert` (type graph for RPC), `liveshare`, `inspector`, `experimental` quarantine. | M7 | P0 | not_started |
@@ -574,19 +574,19 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | W2.7 | Default agent resolution chain: configured default, else `build`, else first visible primary-capable; changing default does not alter existing sessions. | M7 | P1 | not_started |
 | W2.8 | `system` replaces the provider base prompt for that agent, but project instructions, skills, references still get added. | M7 | P0 | verified |
 | W2.9 | Agent merge semantics: later scalars replace, maps merge by key, permission rules append; global rules apply before agent rules. | M2 | P0 | verified |
-| W3.1 | Rule = `{action, resource, effect}`; effects `allow/deny/ask`; no match means ask. | M3 | P0 | not_started |
-| W3.10 | Policies layer can hard-deny after rules and saved approvals; turns allow/ask into deny, never grants; global/managed policies override project config. | M3 | P0 | not_started |
+| W3.1 | Rule = `{action, resource, effect}`; effects `allow/deny/ask`; no match means ask. | M3 | P0 | verified |
+| W3.10 | Policies layer can hard-deny after rules and saved approvals; turns allow/ask into deny, never grants; global/managed policies override project config. | M3 | P0 | verified |
 | W3.11 | Permission actions for MCP resources: `list_mcp_resources` (resource = server) and `read_mcp_resource` (resource = `<server>:<uri>`); MCP tools as `<server>_<tool>`. | M6 | P1 | not_started |
-| W3.12 | Non-interactive clients must decide approval behavior; configured deny always enforced. | M20 | P0 | not_started |
-| W3.13 | Docs warning: shell has full host authority; prefer narrow allowlists over trying to recognize every dangerous command. | M3 | P0 | not_started |
-| W3.2 | Last matching rule wins (broad first, exceptions after); rules combine in order: lower-priority config, global, then agent. | M3 | P0 | not_started |
-| W3.3 | Wildcards: `*` matches any characters including `/`; `?` one character; whole-value match; backslashes normalized; case-insensitive on Windows; shell pattern ending ` *` also matches the bare command. | M3 | P0 | not_started |
-| W3.4 | Multi-resource operations: any `deny` denies; else any `ask` asks; else allow (e.g., a patch touching several files). | M3 | P0 | not_started |
+| W3.12 | Non-interactive clients must decide approval behavior; configured deny always enforced. | M20 | P0 | verified |
+| W3.13 | Docs warning: shell has full host authority; prefer narrow allowlists over trying to recognize every dangerous command. | M3 | P0 | verified |
+| W3.2 | Last matching rule wins (broad first, exceptions after); rules combine in order: lower-priority config, global, then agent. | M3 | P0 | verified |
+| W3.3 | Wildcards: `*` matches any characters including `/`; `?` one character; whole-value match; backslashes normalized; case-insensitive on Windows; shell pattern ending ` *` also matches the bare command. | M3 | P0 | verified |
+| W3.4 | Multi-resource operations: any `deny` denies; else any `ask` asks; else allow (e.g., a patch touching several files). | M3 | P0 | verified |
 | W3.5 | `~` / `$HOME` expansion at config load for path actions only; shell resources stay raw text. | M3 | P1 | not_started |
-| W3.6 | `external_directory` action: paths outside the project/worktree are checked before read/edit rules. opencode's default is allow. | M3 | P0 | not_started |
-| W3.7 | Shell scanner for Bash, Zsh, POSIX sh and PowerShell: each extracted subcommand and `cd` target is checked; malformed or dynamically evaluated commands return a scanner error instead of running. | M3 | P0 | not_started |
-| W3.8 | Base default policy: allow all, but ask on `.env` / `.env.*` reads except `.env.example`. | M3 | P0 | not_started |
-| W3.9 | Approval replies: `once`, `always` (saves tool-proposed patterns, project-scoped, never overrides a configured deny), `reject` (rejects every other pending request in that session; optional feedback text to the model). | M3 | P0 | not_started |
+| W3.6 | `external_directory` action: paths outside the project/worktree are checked before read/edit rules. opencode's default is allow. | M3 | P0 | verified |
+| W3.7 | Shell scanner for Bash, Zsh, POSIX sh and PowerShell: each extracted subcommand and `cd` target is checked; malformed or dynamically evaluated commands return a scanner error instead of running. | M3 | P0 | verified |
+| W3.8 | Base default policy: allow all, but ask on `.env` / `.env.*` reads except `.env.example`. | M3 | P0 | verified |
+| W3.9 | Approval replies: `once`, `always` (saves tool-proposed patterns, project-scoped, never overrides a configured deny), `reject` (rejects every other pending request in that session; optional feedback text to the model). | M3 | P0 | verified |
 | W4.1 | CLI: `mcp add` (remote `--url`, local `-- cmd`, `--env`, `--header`, `--global`), `mcp list`, `mcp auth`, `mcp logout`; in-app `/mcps` to view/connect/disconnect/authenticate. | M6 | P1 | not_started |
 | W4.10 | MCP prompts become slash commands named `<server>:<prompt>` with positional args. | M6 | P1 | not_started |
 | W4.11 | Server instructions returned at init are injected into the system prompt in a tagged block; omitted when the agent's permissions deny all that server's tools. | M6 | P1 | not_started |
@@ -783,23 +783,23 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | Y1.13 | Worktree tools | M11 | P1 | not_started |
 | Y1.14 | Browser tool namespace | M16 | P1 | not_started |
 | Y1.15 | experimental_image_generate | M17 | P2 | not_started |
-| Y1.16 | MCP permission naming | M6 | P0 | not_started |
-| Y1.17 | Ordered rule list permissions | M3 | P0 | not_started |
+| Y1.16 | MCP permission naming | M6 | P0 | verified |
+| Y1.17 | Ordered rule list permissions | M3 | P0 | verified |
 | Y1.18 | Managed config locations | M24 | P2 | not_started |
-| Y1.19 | Config precedence algorithm | M2 | P0 | not_started |
-| Y1.2 | Model-dependent tool exposure | M5 | P0 | not_started |
-| Y1.20 | {env:VAR} and {file:path} config substitution | M2 | P0 | not_started |
+| Y1.19 | Config precedence algorithm | M2 | P0 | verified |
+| Y1.2 | Model-dependent tool exposure | M5 | P0 | verified |
+| Y1.20 | {env:VAR} and {file:path} config substitution | M2 | P0 | verified |
 | Y1.21 | update modes (disable / notify / auto) | M22 | P1 | not_started |
 | Y1.22 | snapshots toggle and watcher.ignore | M4 | P1 | not_started |
 | Y1.23 | media.image and tool_output limits | M5 | P1 | not_started |
-| Y1.24 | Compaction config | M4 | P0 | not_started |
+| Y1.24 | Compaction config | M4 | P0 | verified |
 | Y1.25 | Cache warming | M2 | P1 | not_started |
 | Y1.26 | References | M11 | P1 | not_started |
 | Y1.27 | skills config directories and URLs | M9 | P2 | not_started |
 | Y1.28 | instructions files, globs and HTTP(S) URLs | M7 | P1 | not_started |
 | Y1.29 | Plugin management CLI | M10 | P1 | not_started |
-| Y1.3 | patch multi-file format | M5 | P0 | not_started |
-| Y1.30 | Plugin enable/disable DSL | M10 | P0 | not_started |
+| Y1.3 | patch multi-file format | M5 | P0 | verified |
+| Y1.30 | Plugin enable/disable DSL | M10 | P0 | verified |
 | Y1.31 | Three plugin surfaces | M10 | P1 | not_started |
 | Y1.32 | location_idle_timeout | M16 | P1 | not_started |
 | Y1.33 | experimental.todo flag | M5 | P2 | not_started |
@@ -809,12 +809,12 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | Y1.37 | install script and release channels | M22 | P1 | not_started |
 | Y1.38 | repo hygiene | M0 | P1 | not_started |
 | Y1.39 | 'Building on X' non-affiliation notice | M1 | P2 | not_started |
-| Y1.4 | read limits and paging | M5 | P0 | not_started |
-| Y1.5 | glob/grep defaults | M5 | P0 | not_started |
-| Y1.6 | edit unique-match requirement and formatter hook | M5 | P0 | not_started |
-| Y1.7 | Shell tool details | M5 | P0 | not_started |
-| Y1.8 | webfetch and websearch provider selection | M5 | P0 | not_started |
-| Y1.9 | question tool | M5 | P0 | not_started |
+| Y1.4 | read limits and paging | M5 | P0 | verified |
+| Y1.5 | glob/grep defaults | M5 | P0 | verified |
+| Y1.6 | edit unique-match requirement and formatter hook | M5 | P0 | verified |
+| Y1.7 | Shell tool details | M5 | P0 | verified |
+| Y1.8 | webfetch and websearch provider selection | M5 | P0 | verified |
+| Y1.9 | question tool | M5 | P0 | verified |
 | Y2.1 | Transcript row model | M4 | P0 | not_started |
 | Y2.10 | stay_silent and request_app_connection tools | M5 | P1 | not_started |
 | Y2.11 | send_to_bot, hidden subagents and group rooms | M12 | P1 | not_started |
