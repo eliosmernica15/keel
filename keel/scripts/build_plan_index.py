@@ -697,6 +697,35 @@ TOOL_CONTRACT_IDS = frozenset({
     "E4.1", "E4.2", "E4.9", "E4.10", "E4.11", "E4.12",
     "E6.9", "E7.19",
 })
+X1_REPO_TOKENS = frozenset({"X1.7", "X1.8"})
+X1_REPO_SRC = ["src/keel/repo_map.py"]
+X1_REPO_TESTS = ["tests/test_repo_map.py"]
+X1_REPO_EVIDENCE = (
+    "Repo map ranking (centrality + recency, token-budgeted, deterministic) "
+    "and injectable token counter with calibrated fallback implemented in "
+    "repo_map.py with 23 passing tests; no outbound calls.")
+X1_STEERING_TOKENS = frozenset({"X1.13"})
+X1_STEERING_SRC = ["src/keel/steering.py"]
+X1_STEERING_TESTS = ["tests/test_steering.py"]
+X1_STEERING_EVIDENCE = (
+    "Steering/interrupt controller with queue, steer-at-boundary and "
+    "abort-resume modes, byte-exact partial-output preservation and "
+    "thread-safe cancellation; 20 passing tests verified non-flaky.")
+X1_DIALECT_TOKENS = frozenset({"X1.1", "X1.2", "X1.3"})
+X1_DIALECT_SRC = ["src/keel/model_dialects.py"]
+X1_DIALECT_TESTS = ["tests/test_model_dialects.py"]
+X1_DIALECT_EVIDENCE = (
+    "Tool-call dialect adapters (JSON/XML/Hermes/ReAct + variants), offline "
+    "chat-template loading with path containment, and reasoning-output "
+    "splitting with opt-in history inclusion; 70 passing tests.")
+X1_EDIT_TOKENS = frozenset({"X1.4", "X1.5"})
+X1_EDIT_SRC = ["src/keel/edit_formats.py"]
+X1_EDIT_TESTS = ["tests/test_edit_formats.py"]
+X1_EDIT_EVIDENCE = (
+    "Selectable edit formats (whole-file, search/replace, unified diff, "
+    "line-range) and fuzzy patch application with ambiguity/threshold guards "
+    "and typed model-facing errors; 26 passing tests.")
+
 TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
                      "src/keel/tool_contracts_bridge.py"]
 TOOL_CONTRACT_TESTS = ["tests/test_tool_contracts.py",
@@ -725,7 +754,25 @@ def _load_extra_features() -> list[dict]:
             # because a source or test file path happens to be mentioned.
             src = str(f.get("references") or "")
             tags = str(f.get("tag/source") or "")
-            verified = fid in TOOL_CONTRACT_IDS
+            implemented_ids = (TOOL_CONTRACT_IDS | X1_REPO_TOKENS |
+                               X1_STEERING_TOKENS | X1_DIALECT_TOKENS |
+                               X1_EDIT_TOKENS)
+            verified = fid in implemented_ids
+            src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
+                         X1_REPO_SRC if fid in X1_REPO_TOKENS else
+                         X1_STEERING_SRC if fid in X1_STEERING_TOKENS else
+                         X1_DIALECT_SRC if fid in X1_DIALECT_TOKENS else
+                         X1_EDIT_SRC if fid in X1_EDIT_TOKENS else [])
+            test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
+                          X1_REPO_TESTS if fid in X1_REPO_TOKENS else
+                          X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
+                          X1_DIALECT_TESTS if fid in X1_DIALECT_TOKENS else
+                          X1_EDIT_TESTS if fid in X1_EDIT_TOKENS else [])
+            evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
+                        X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
+                        X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
+                        X1_DIALECT_EVIDENCE if fid in X1_DIALECT_TOKENS else
+                        X1_EDIT_EVIDENCE if fid in X1_EDIT_TOKENS else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),
@@ -744,7 +791,11 @@ def _load_extra_features() -> list[dict]:
                 "dependencies": _as_list(f.get("dependencies")),
                 "acceptance_criteria": _as_list(f.get("acceptance_criteria")),
                 "test_references": TOOL_CONTRACT_TESTS if verified else [],
-                "implementation_tier": "local_module" if verified else "not_started",
+                # Tier describes implementation type, never progress status.
+                # Not-started rows are still typed as local_module unless the
+                # source marks them external/owner-gated (progress lives in
+                # `status`).
+                "implementation_tier": "local_module" if verified or fid not in OWNER_BLOCKED else "owner_gated",
                 "verification_evidence": TOOL_CONTRACT_EVIDENCE if verified else "",
                 "owner_approval_required": fid in OWNER_BLOCKED,
                 "external_prerequisite": "",

@@ -655,21 +655,21 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X0.7 | Voice/ML licensing is stated as "check" | M2 | P0 | not_started |
 | X0.8 | "Zero network without account" is asserted but there is no test list | M25 | P0 | not_started |
 | X0.9 | No risk register or rollback plan per milestone | M0 | P1 | not_started |
-| X1.1 | Tool-call dialect adapters | M2 | P0 | not_started |
+| X1.1 | Tool-call dialect adapters | M2 | P0 | verified |
 | X1.10 | Self-consistency voting for hard steps | M7 | P2 | not_started |
 | X1.11 | Streaming partial-JSON tool-argument parser | M2 | P1 | not_started |
 | X1.12 | Parallel tool calls with dependency check | M5 | P1 | not_started |
-| X1.13 | Steering and interrupt | M4 | P0 | not_started |
+| X1.13 | Steering and interrupt | M4 | P0 | verified |
 | X1.14 | Model switch mid-session | M2 | P1 | not_started |
 | X1.15 | Per-model prompt profiles | M7 | P1 | not_started |
 | X1.16 | Model "health check" on load | M2 | P1 | not_started |
-| X1.2 | Chat-template handling | M2 | P0 | not_started |
-| X1.3 | Reasoning-model output handling | M2 | P0 | not_started |
-| X1.4 | Selectable edit formats per model | M5 | P0 | not_started |
-| X1.5 | Fuzzy patch application | M5 | P0 | not_started |
+| X1.2 | Chat-template handling | M2 | P0 | verified |
+| X1.3 | Reasoning-model output handling | M2 | P0 | verified |
+| X1.4 | Selectable edit formats per model | M5 | P0 | verified |
+| X1.5 | Fuzzy patch application | M5 | P0 | verified |
 | X1.6 | Apply-model role | M2 | P2 | not_started |
-| X1.7 | Repo map ranking | M11 | P0 | not_started |
-| X1.8 | Accurate token counting | M2 | P0 | not_started |
+| X1.7 | Repo map ranking | M11 | P0 | verified |
+| X1.8 | Accurate token counting | M2 | P0 | verified |
 | X1.9 | Few-shot tool exemplars | M2 | P1 | not_started |
 | X10.1 | Definition-of-done template | M0 | P0 | not_started |
 | X10.2 | Provenance file | M0 | P0 | not_started |

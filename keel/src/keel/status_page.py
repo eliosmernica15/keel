@@ -51,6 +51,7 @@ def build_status(path: str | Path | None = None) -> dict:
                 if f.get("status") == "verified"
                 and f.get("implementation_tier") in UNPROVEN_TIERS]
     blocked = [f for f in features if f.get("status") == "blocked"]
+    not_started = [f for f in features if f.get("status") == "not_started"]
 
     return {
         "total": len(features),
@@ -59,6 +60,8 @@ def build_status(path: str | Path | None = None) -> dict:
         "by_priority": dict(by_priority),
         "verified_end_to_end": len(proven),
         "built_unproven": len(unproven),
+        "not_started": len(not_started),
+        "not_started_ids": [f["id"] for f in not_started],
         "proven_ids": [f["id"] for f in proven],
         "unproven": [{"id": f["id"], "tier": f.get("implementation_tier"),
                       "feature": f.get("feature", "")[:120]}
@@ -81,6 +84,7 @@ def render_markdown(status: dict) -> str:
         f"**Features in registry:** {status['total']}",
         f"**Verified end-to-end:** {status['verified_end_to_end']}",
         f"**Built but unproven locally:** {status['built_unproven']}",
+        f"**Not started (planned scope):** {status.get('not_started', 0)}",
         f"**Blocked (owner/external):** {len(status['blocked'])}",
         "",
         "## By implementation tier",

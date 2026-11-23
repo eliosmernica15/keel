@@ -33,10 +33,10 @@ BASE_SOURCES = {
 }
 BASE_TIERS = {
     "operational": 52, "external_dependency": 3, "descriptor": 3,
-    "owner_gated": 2,
 }
-# local_module/not_started counts grow as implementation batches land;
-# verifier checks their sum plus monotonicity instead of fixed values.
+# Tier is a type, not a progress status: all addenda 3-7 rows are local_module
+# unless owner-gated. Progress is tracked in `status` (not_started/verified).
+# owner_gated should be 2 base + owner-gated addenda rows, so check >= 2.
 
 
 def main() -> None:
@@ -66,9 +66,10 @@ def main() -> None:
     for tier, n in BASE_TIERS.items():
         if tiers.get(tier) != n:
             errors.append(f"tier {tier}: {tiers.get(tier)} != {n}")
-    implemented = tiers.get("local_module", 0) + tiers.get("not_started", 0)
-    if implemented != len(feats) - sum(BASE_TIERS.values()):
-        errors.append("local_module + not_started does not reconcile")
+    if tiers.get("owner_gated", 0) < 2:
+        errors.append("owner_gated tier missing base rows")
+    if "not_started" in tiers:
+        errors.append("not_started must be a status, never an implementation_tier")
     # Every verified feature must have source + test references and evidence.
     for f in feats:
         if f.get("status") == "verified" and f["id"].startswith(("E", "X", "Y", "W", "D", "V", "Z")):
