@@ -15,12 +15,14 @@ REPO = Path(__file__).resolve().parents[2]
 # ---------------------------------------------------------------------------
 # registry coverage / aggregate
 # ---------------------------------------------------------------------------
-def test_feature_ids_match_all_p0_not_started_d3_rows():
+def test_feature_ids_match_all_p0_d3_rows():
+    # Feature IDs are stable; a feature becoming `verified` must not change
+    # which IDs this module implements. Only source "original_priority"/P0
+    # identity matters here, never the moving progress status.
     registry = json.loads((REPO / "PLAN-INDEX.json").read_text(encoding="utf-8"))
     expected = {f["id"] for f in registry["features"]
                 if f["id"].startswith("D3.")
-                and f.get("priority") == "P0"
-                and f.get("status") == "not_started"}
+                and f.get("priority") == "P0"}
     assert expected == set(cs.FEATURE_IDS)
     assert len(cs.FEATURE_IDS) == 10
 
