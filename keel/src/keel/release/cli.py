@@ -11,6 +11,7 @@ from .artifacts import scan_secret_markers, scan_sidecar_payload, scan_tree
 from .build import build_command
 from .licenses import licenses_command
 from .publish import publish_command
+from .signing import SigningGateError
 from .verify import verify_command
 
 
@@ -41,6 +42,13 @@ def build_parser() -> argparse.ArgumentParser:
     publish.add_argument("--repo", default=None)
     publish.add_argument("--tag", default=None)
     publish.add_argument("--dry-run", action="store_true")
+    publish.add_argument(
+        "--require-signed", action="store_true",
+        help="hard-fail when the release manifest or artifacts are unsigned "
+             "(also enabled by KEEL_REQUIRE_SIGNED=1; always on for real publish)")
+    publish.add_argument(
+        "--public-key", default=None,
+        help="Ed25519 public key PEM used to verify release signatures")
     publish.set_defaults(func=publish_command)
 
     verify = sub.add_parser("verify", help="verify a release manifest and its files")
@@ -75,6 +83,10 @@ def build_parser() -> argparse.ArgumentParser:
     dry_run.add_argument("--dist", default="dist")
     dry_run.add_argument("--artifacts", default="release")
     dry_run.add_argument("--public-key", default=None)
+    dry_run.add_argument(
+        "--require-signed", action="store_true",
+        help="hard-fail when the release manifest or artifacts are unsigned "
+             "(also enabled by KEEL_REQUIRE_SIGNED=1)")
     dry_run.set_defaults(func=dry_run_command)
 
     update_check = sub.add_parser("update-check", help="check a signed release manifest")
@@ -134,7 +146,8 @@ def integrity_command(args) -> int:
 
 def dry_run_command(args) -> int:
     from . import common
-    from .artifacts import scan_tree
+    from .artifacts import scan_secret_markers, scan_tree
+    from .signing import require_signed_enabled, verify_signed_release
 
     version = common.validate_version()
     dist = Path(args.dist)
@@ -150,16 +163,29 @@ def dry_run_command(args) -> int:
         print("prohibited files: " + ", ".join(violations[:20]), file=sys.stderr)
         return 1
 
+    require_signed = require_signed_enabled(
+        bool(getattr(args, "require_signed", False)))
+    if require_signed:
+        errors = verify_signed_release(artifacts, getattr(args, "public_key", None))
+        if errors:
+            for error in errors:
+                print(f"ERROR: {error}", file=sys.stderr)
+            print("RELEASE SIGNING GATE FAILED - refusing to treat this "
+                  "release as signed", file=sys.stderr)
+            return 1
+        print("Release signing gate: manifest and all artifacts verified")
+
     manifest_path = artifacts / "RELEASE-MANIFEST.json"
     if manifest_path.is_file():
         doc = json.loads(manifest_path.read_text(encoding="utf-8"))
-        public_key = _optional_public_key(args.public_key)
-        if public_key:
-            from .signing import verify_manifest
+        if not require_signed:
+            public_key = _optional_public_key(getattr(args, "public_key", None))
+            if public_key:
+                from .signing import verify_manifest
 
-            if not verify_manifest(doc, public_key):
-                print("manifest signature invalid", file=sys.stderr)
-                return 1
+                if not verify_manifest(doc, public_key):
+                    print("manifest signature invalid", file=sys.stderr)
+                    return 1
         for field in ("min_version", "blocked_versions", "rollout"):
             if field not in doc:
                 print(f"manifest missing {field}", file=sys.stderr)
@@ -215,6 +241,9 @@ def main(argv: list[str] | None = None) -> int:
         return int(args.func(args) or 0)
     except KeyboardInterrupt:
         return 130
+    except SigningGateError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
     except Exception as exc:  # noqa: BLE001
         print(f"error: {exc}", file=sys.stderr)
         return 1

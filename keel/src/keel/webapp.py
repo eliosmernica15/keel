@@ -190,15 +190,18 @@ def _fs_list_payload(raw: str):
     else:
         try:
             target = Path(raw).expanduser()
-        except Exception as exc:
-            return HTTPStatus.BAD_REQUEST, {"error": f"bad path: {exc}"}
+        except (OSError, RuntimeError, ValueError):
+            return HTTPStatus.BAD_REQUEST, {"error": "bad path"}
     try:
         target = target.resolve()
-    except OSError as exc:
-        return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
-    if not target.exists():
+        exists = target.exists()
+        directory = target.is_dir()
+    except (OSError, RuntimeError, ValueError):
+        # e.g. an embedded NUL byte: report a JSON error, never drop the socket
+        return HTTPStatus.BAD_REQUEST, {"error": "bad path"}
+    if not exists:
         return HTTPStatus.NOT_FOUND, {"error": "not found", "path": str(target)}
-    if not target.is_dir():
+    if not directory:
         return HTTPStatus.BAD_REQUEST, {"error": "not a directory", "path": str(target)}
     parent = str(target.parent) if target.parent != target else None
     try:
@@ -207,7 +210,7 @@ def _fs_list_payload(raw: str):
         return HTTPStatus.OK, {"ok": True, "path": str(target), "parent": parent,
                                "roots": _fs_roots(), "dirs": [],
                                "warning": "permission denied"}
-    except OSError as exc:
+    except (OSError, ValueError) as exc:
         return HTTPStatus.OK, {"ok": True, "path": str(target), "parent": parent,
                                "roots": _fs_roots(), "dirs": [],
                                "warning": str(exc)}
@@ -276,6 +279,41 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
         def _refuse(self):
             self._send_json({"error": "refused", "reason": "bad token or origin"},
                             HTTPStatus.FORBIDDEN)
+
+        def _json_body(self, limit: int, *, too_large: str = "body too large"):
+            """Read a bounded JSON *object* body; None means an error was sent.
+
+            Invalid or negative Content-Length values used to raise ValueError
+            or block forever on rfile.read(-1); a JSON array used to crash the
+            route on ``.get``. All three now produce a normal JSON 4xx.
+            """
+            raw_length = self.headers.get("Content-Length", "0") or "0"
+            try:
+                length = int(raw_length)
+            except (TypeError, ValueError):
+                self._send_json({"error": "invalid Content-Length"},
+                                HTTPStatus.BAD_REQUEST)
+                return None
+            if length < 0:
+                self._send_json({"error": "invalid Content-Length"},
+                                HTTPStatus.BAD_REQUEST)
+                return None
+            if length > limit:
+                self._send_json({"error": too_large},
+                                HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                return None
+            raw = self.rfile.read(length) if length else b"{}"
+            try:
+                request = json.loads(raw or b"{}")
+            except json.JSONDecodeError:
+                self._send_json({"error": "invalid json"},
+                                HTTPStatus.BAD_REQUEST)
+                return None
+            if not isinstance(request, dict):
+                self._send_json({"error": "body must be an object"},
+                                HTTPStatus.BAD_REQUEST)
+                return None
+            return request
 
         # ---------------- static UI
         def do_GET(self):
@@ -538,21 +576,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 return
             path = self.path.split("?", 1)[0]
             if path == "/api/capabilities/invoke":
-                if not self._origin_ok():
-                    self._send_json({"error": "bad origin"},
-                                    HTTPStatus.FORBIDDEN)
-                    return
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 2_000_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(2_000_000)
+                if request is None:
                     return
                 from . import capability_registry  # noqa: F401
                 from .capabilities import CapabilityError, invoke, record_audit
@@ -564,8 +589,9 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 needs_confirm = bool(
                     cap and (cap.permission in ("write", "execute")
                              or cap.mutates))
-                # Mutating capabilities need an explicit confirm.
-                if needs_confirm and not request.get("confirm"):
+                # Mutating capabilities need an explicit, real boolean confirm.
+                # Truthy values such as "false" or 1 must not satisfy the gate.
+                if needs_confirm and request.get("confirm") is not True:
                     self._send_json({
                         "error": "confirmation_required",
                         "capability": cap_id,
@@ -588,21 +614,19 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     record_audit(state_root, {"capability": cap_id,
                                               "ok": False, "code": exc.code,
                                               "surface": "web"})
-                    status = (HTTPStatus.NOT_FOUND if exc.code == "not_found"
-                              else HTTPStatus.FORBIDDEN if exc.code ==
-                              "permission_denied" else HTTPStatus.BAD_REQUEST)
+                    # Canonical error envelope with correct HTTP status:
+                    # policy_denied/permission_denied -> 403,
+                    # not_found -> 404, handler_error -> 500, bad_params -> 400.
+                    from .api_contracts import http_status_for_code
+                    status = http_status_for_code(exc.code)
                     self._send_json(
-                        {"error": str(exc), "code": exc.code}, status)
+                        {"error": str(exc), "code": exc.code},
+                        HTTPStatus(status))
                 return
             if path in ("/api/profiles/create", "/api/profiles/activate",
                         "/api/profiles/remove"):
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(2_000_000)
+                if request is None:
                     return
                 from .agent_profiles import AgentProfiles
 
@@ -621,17 +645,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     self._send_json({"ok": manager.remove(name)})
                 return
             if path in ("/api/sessions/import", "/api/sessions/stats"):
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 2_000_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(2_000_000)
+                if request is None:
                     return
                 try:
                     result = self._session_action(path, request)
@@ -642,17 +657,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._send_json(result)
                 return
             if path in ("/api/backups/create", "/api/backups/restore"):
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 64_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(64_000)
+                if request is None:
                     return
                 try:
                     result = self._backup_action(path, request)
@@ -685,17 +691,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             if path.startswith("/api/surfaces/"):
                 name = path[len("/api/surfaces/"):].strip("/")
                 from . import surfaces as surfaces_mod
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 16_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(16_000)
+                if request is None:
                     return
                 try:
                     updated = surfaces_mod.update_surface(name, request)
@@ -711,21 +708,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 return
             if path == "/api/settings":
                 from . import settings_store
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 64_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                raw = self.rfile.read(length) if length else b"{}"
-                try:
-                    request = json.loads(raw or b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
-                    return
-                if not isinstance(request, dict):
-                    self._send_json({"error": "bad body"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(64_000)
+                if request is None:
                     return
                 doc = settings_store.load()
                 changed = False
@@ -756,19 +740,10 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 return
             if path == "/api/settings/import":
                 from . import settings_store
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 512_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                payload = self._json_body(512_000)
+                if payload is None:
                     return
-                raw = self.rfile.read(length) if length else b"{}"
-                try:
-                    payload = json.loads(raw or b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
-                    return
-                doc = payload.get("doc") if isinstance(payload, dict) else None
+                doc = payload.get("doc")
                 if not isinstance(doc, dict):
                     self._send_json({"error": "doc must be an object"},
                                     HTTPStatus.BAD_REQUEST)
@@ -784,17 +759,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._send_json({"ok": True, **view})
                 return
             if path == "/api/workdir":
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 8_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                raw = self.rfile.read(length) if length else b"{}"
-                try:
-                    request = json.loads(raw or b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(8_000)
+                if request is None:
                     return
                 value = request.get("path")
                 if value is None or str(value).strip() == "":
@@ -816,17 +782,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._send_json({"ok": True, "path": _WORKDIR})
                 return
             if path == "/api/upload":
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 40 * 1024 * 1024:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                raw = self.rfile.read(length) if length else b"{}"
-                try:
-                    request = json.loads(raw or b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(40 * 1024 * 1024)
+                if request is None:
                     return
                 name = request.get("name")
                 content_b64 = request.get("contentB64")
@@ -854,17 +811,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                  "bytes": len(data)})
                 return
             if path == "/api/quick-ask":
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 128_000:
-                    self._send_json({"error": "prompt too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(128_000, too_large="prompt too large")
+                if request is None:
                     return
                 prompt = str(request.get("prompt", "")).strip()
                 if not prompt:
@@ -877,16 +825,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             if path != "/api/run":
                 self._send_json({"error": "not_found"}, HTTPStatus.NOT_FOUND)
                 return
-            length = int(self.headers.get("Content-Length", "0") or 0)
-            if length > 128_000:
-                self._send_json({"error": "prompt too large"},
-                                HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                return
-            raw = self.rfile.read(length) if length else b"{}"
-            try:
-                request = json.loads(raw or b"{}")
-            except json.JSONDecodeError:
-                self._send_json({"error": "invalid json"}, HTTPStatus.BAD_REQUEST)
+            request = self._json_body(128_000, too_large="prompt too large")
+            if request is None:
                 return
             prompt = str(request.get("prompt", "")).strip()
             if not prompt:
@@ -993,24 +933,13 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
 
         def _v2_sessions(self, path: str, sid: str, compat) -> None:
             """OpenCode-compatible sessions surface (tracer bullet)."""
-            import json as _json
-
             if sid == "":
                 if path != "/api/v2/sessions":
                     self._send_json({"error": "bad v2 path"}, HTTPStatus.NOT_FOUND)
                     return
                 if self.command == "POST":
-                    length = int(self.headers.get("Content-Length", "0") or 0)
-                    if length > 16_000:
-                        self._send_json({"error": "body too large"},
-                                       HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                        return
-                    raw = self.rfile.read(length) if length else b"{}"
-                    try:
-                        request = _json.loads(raw or b"{}")
-                    except _json.JSONDecodeError:
-                        self._send_json({"error": "invalid json"},
-                                       HTTPStatus.BAD_REQUEST)
+                    request = self._json_body(16_000)
+                    if request is None:
                         return
                     title = str(request.get("title", "Untitled")).strip() or "Untitled"
                     created = compat.create_session(title)
@@ -1065,18 +994,9 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                    HTTPStatus.METHOD_NOT_ALLOWED)
                     return
                 sid = base
-                length = int(self.headers.get("Content-Length", "0") or 0)
                 # 32 MB cap: text turns stay tiny; image turns can be several MB
-                if length > 32 * 1024 * 1024:
-                    self._send_json({"error": "body too large"},
-                                   HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                raw = self.rfile.read(length) if length else b"{}"
-                try:
-                    request = _json.loads(raw or b"{}")
-                except _json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                   HTTPStatus.BAD_REQUEST)
+                request = self._json_body(32 * 1024 * 1024)
+                if request is None:
                     return
                 text = str(request.get("text", "")).strip()
                 workdir = str(request.get("workdir", "")).strip() or None
@@ -1201,18 +1121,10 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                    HTTPStatus.METHOD_NOT_ALLOWED)
                     return
                 sid = base
-                approval_id = None
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length:
-                    raw = self.rfile.read(length) if length else b"{}"
-                    try:
-                        body = _json.loads(raw or b"{}")
-                        if isinstance(body, dict):
-                            approval_id = body.get("approval_id")
-                    except _json.JSONDecodeError:
-                        self._send_json({"error": "invalid json"},
-                                        HTTPStatus.BAD_REQUEST)
-                        return
+                body = self._json_body(16_000)
+                if body is None:
+                    return
+                approval_id = body.get("approval_id")
                 try:
                     if rest == "approve":
                         result = compat.approve(sid, approval_id=approval_id)

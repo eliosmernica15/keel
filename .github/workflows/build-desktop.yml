@@ -18,6 +18,10 @@ name: Build desktop installers
 # - download.json is published last, after verification, and is re-fetched
 #   and compared so the site only sees a verified release.
 # - A missing file or checksum mismatch fails the job.
+# - FAIL CLOSED: a tag release is never published unless the signing gate job
+#   verifies every platform bundle's RELEASE-MANIFEST.json and all artifact
+#   signatures against the owner-supplied Ed25519 public key. Missing key or
+#   missing signatures fail the gate; no unsigned release is sent as signed.
 #
 # No third-party storage provider is used. Installers are hosted as assets of
 # the GitHub Release; the Vercel site only links to them.
@@ -41,8 +45,8 @@ jobs:
   validate-versions:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.11"
       - name: Check version sync
@@ -58,22 +62,41 @@ jobs:
     needs: validate-versions
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.11"
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "22"
+      - name: Stage owner release signing key (if configured)
+        shell: powershell
+        env:
+          KEEL_RELEASE_SIGNING_KEY: ${{ secrets.KEEL_RELEASE_SIGNING_KEY }}
+        run: |
+          $key = $env:KEEL_RELEASE_SIGNING_KEY
+          if ($key) {
+            $path = Join-Path $env:RUNNER_TEMP "keel-release-signing.pem"
+            [System.IO.File]::WriteAllText($path, $key + "`n")
+            "KEEL_SIGNING_KEY_PATH=$path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            Write-Host "Owner release signing key staged outside the artifact tree"
+          } else {
+            "KEEL_SIGNING_KEY_PATH=" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            Write-Host "No owner release signing key configured (builds will be unsigned)"
+          }
       - name: Build installers (Python release manager)
         shell: powershell
         working-directory: keel
         run: |
           python -m pip install --upgrade pip
           pip install -e . pyinstaller pillow
-          python -m keel.release build --platform windows --out release
+          if ($env:KEEL_SIGNING_KEY_PATH) {
+            python -m keel.release build --platform windows --out release --signing-key $env:KEEL_SIGNING_KEY_PATH
+          } else {
+            python -m keel.release build --platform windows --out release
+          }
           python -m keel.release licenses --out release
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: keel-windows
           retention-days: 30
@@ -84,21 +107,39 @@ jobs:
     needs: validate-versions
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.11"
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "22"
+      - name: Stage owner release signing key (if configured)
+        env:
+          KEEL_RELEASE_SIGNING_KEY: ${{ secrets.KEEL_RELEASE_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -n "${KEEL_RELEASE_SIGNING_KEY:-}" ]; then
+            umask 077
+            printf '%s\n' "$KEEL_RELEASE_SIGNING_KEY" > "$RUNNER_TEMP/keel-release-signing.pem"
+            echo "KEEL_SIGNING_KEY_PATH=$RUNNER_TEMP/keel-release-signing.pem" >> "$GITHUB_ENV"
+            echo "Owner release signing key staged outside the artifact tree"
+          else
+            echo "KEEL_SIGNING_KEY_PATH=" >> "$GITHUB_ENV"
+            echo "No owner release signing key configured (builds will be unsigned)"
+          fi
       - name: Build installers (Python release manager)
         working-directory: keel
         run: |
           python -m pip install --upgrade pip
           pip install -e . pyinstaller pillow
-          python -m keel.release build --platform macos --out release
+          if [ -n "${KEEL_SIGNING_KEY_PATH:-}" ]; then
+            python -m keel.release build --platform macos --out release --signing-key "$KEEL_SIGNING_KEY_PATH"
+          else
+            python -m keel.release build --platform macos --out release
+          fi
           python -m keel.release licenses --out release
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: keel-macos
           retention-days: 30
@@ -109,44 +150,61 @@ jobs:
     needs: validate-versions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.11"
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "22"
       - name: System deps for electron-builder
         run: |
           sudo apt-get update
           sudo apt-get install -y libarchive-tools desktop-file-utils rpm
+      - name: Stage owner release signing key (if configured)
+        env:
+          KEEL_RELEASE_SIGNING_KEY: ${{ secrets.KEEL_RELEASE_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -n "${KEEL_RELEASE_SIGNING_KEY:-}" ]; then
+            umask 077
+            printf '%s\n' "$KEEL_RELEASE_SIGNING_KEY" > "$RUNNER_TEMP/keel-release-signing.pem"
+            echo "KEEL_SIGNING_KEY_PATH=$RUNNER_TEMP/keel-release-signing.pem" >> "$GITHUB_ENV"
+            echo "Owner release signing key staged outside the artifact tree"
+          else
+            echo "KEEL_SIGNING_KEY_PATH=" >> "$GITHUB_ENV"
+            echo "No owner release signing key configured (builds will be unsigned)"
+          fi
       - name: Build installers (Python release manager)
         working-directory: keel
         run: |
           python -m pip install --upgrade pip
           pip install -e . pyinstaller pillow
-          python -m keel.release build --platform linux --out release
+          if [ -n "${KEEL_SIGNING_KEY_PATH:-}" ]; then
+            python -m keel.release build --platform linux --out release --signing-key "$KEEL_SIGNING_KEY_PATH"
+          else
+            python -m keel.release build --platform linux --out release
+          fi
           python -m keel.release licenses --out release
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: keel-linux
           retention-days: 30
           if-no-files-found: error
           path: keel/release/**
 
-  publish:
-    name: Publish verified release (GitHub Releases)
+  verify-release-signatures:
+    name: Fail-closed release signing gate
     needs: [build-windows, build-macos, build-linux]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     env:
-      RELEASE_TAG: ${{ github.ref_name }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      KEEL_RELEASE_SIGNING_PUBLIC_KEY: ${{ secrets.KEEL_RELEASE_SIGNING_PUBLIC_KEY }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.11"
       - name: Install Python dependencies
@@ -154,17 +212,88 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          path: artifacts
+      - name: Verify every release bundle is signed (no publishing)
+        working-directory: keel
+        run: |
+          set -euo pipefail
+          if [ -z "${KEEL_RELEASE_SIGNING_PUBLIC_KEY:-}" ]; then
+            echo "ERROR: KEEL_RELEASE_SIGNING_PUBLIC_KEY secret is not configured" >&2
+            echo "RELEASE SIGNING GATE FAILED - refusing unsigned release" >&2
+            exit 1
+          fi
+          umask 077
+          public_key="$RUNNER_TEMP/keel-release.pub.pem"
+          printf '%s\n' "$KEEL_RELEASE_SIGNING_PUBLIC_KEY" > "$public_key"
+          bundles=0
+          for bundle in ../artifacts/*/; do
+            [ -d "$bundle" ] || continue
+            bundles=$((bundles + 1))
+            echo "Verifying signed release bundle: $bundle"
+            python -m keel.release dry-run \
+              --require-signed \
+              --public-key "$public_key" \
+              --artifacts "$bundle" \
+              --dist "$bundle"
+          done
+          if [ "$bundles" -eq 0 ]; then
+            echo "ERROR: no release bundles found to verify" >&2
+            exit 1
+          fi
+          echo "RELEASE SIGNING GATE PASSED - all release bundles verified"
+
+  publish:
+    name: Publish verified release (GitHub Releases)
+    needs: [build-windows, build-macos, build-linux, verify-release-signatures]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      KEEL_RELEASE_SIGNING_PUBLIC_KEY: ${{ secrets.KEEL_RELEASE_SIGNING_PUBLIC_KEY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.11"
+      - name: Install Python dependencies
+        working-directory: keel
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           path: artifacts
       - name: Stage, publish and verify (Python release manager)
         working-directory: keel
         run: |
           set -euo pipefail
+          if [ -z "${KEEL_RELEASE_SIGNING_PUBLIC_KEY:-}" ]; then
+            echo "ERROR: KEEL_RELEASE_SIGNING_PUBLIC_KEY secret is not configured" >&2
+            echo "RELEASE SIGNING GATE FAILED - refusing unsigned release" >&2
+            exit 1
+          fi
+          umask 077
+          public_key="$RUNNER_TEMP/keel-release.pub.pem"
+          printf '%s\n' "$KEEL_RELEASE_SIGNING_PUBLIC_KEY" > "$public_key"
+          # publish is hard-gated internally even without --require-signed;
+          # the flag is explicit here so the intent is auditable in logs.
           python -m keel.release publish \
             --artifacts ../artifacts \
             --tag "$RELEASE_TAG" \
-            --out release
+            --out release \
+            --require-signed \
+            --public-key "$public_key"
+          # Verify the published RELEASE-MANIFEST.json and every detached
+          # artifact signature against the owner key.
+          python -m keel.release verify \
+            --manifest release/RELEASE-MANIFEST.json \
+            --public-key "$public_key" \
+            --retries 10 --retry-delay 6 --timeout 600
           python -m keel.release verify \
             --manifest release/download.json \
             --compare "https://github.com/${{ github.repository }}/releases/latest/download/download.json" \

@@ -22,11 +22,17 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [
     ("openrouter_key", re.compile(r"\bsk-or-v1-[A-Za-z0-9]{20,}\b")),
     ("openai_key", re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b")),
     ("google_key", re.compile(r"\bAIza[0-9A-Za-z_-]{30,}\b")),
-    ("aws_key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
+    # AWS access-key IDs are 4-byte type prefixes + 16 characters. AKIA is
+    # only the long-term form; ASIA (temporary session credentials) and the
+    # role/user/public-key families are equally live secrets.
+    ("aws_key", re.compile(
+        r"\b(?:AKIA|ASIA|AIDA|AROA|AIPA|ANPA|ANVA|AGPA|APKA)[0-9A-Z]{16}\b")),
     ("github_token", re.compile(
         r"\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{30,}\b"
         r"|\bgithub_pat_[A-Za-z0-9_]{30,}\b")),
-    ("slack_token", re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b")),
+    # xoxe- is the enterprise-grid token family; omitting it let live Slack
+    # credentials pass through both outbound redaction and output DLP.
+    ("slack_token", re.compile(r"\bxox(?:[baprs]|e)-[A-Za-z0-9-]{10,}\b")),
     ("jwt", re.compile(
         r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b")),
 ]

@@ -4,7 +4,7 @@
    Fully offline/self-contained: no network calls beyond 127.0.0.1 and the
    provider the user configures. */
 import { app, BrowserWindow, shell, Menu } from "electron";
-import { spawn } from "child_process";
+import { spawn, execFileSync } from "child_process";
 import { randomBytes } from "crypto";
 import { join, dirname } from "path";
 import { existsSync, createWriteStream, writeFileSync } from "fs";
@@ -20,6 +20,31 @@ let sidecarToken = "";
 let quitting = false;
 
 const LOG = () => join(app.getPath("userData"), "sidecar.log");
+
+// Single place that stops the sidecar. Every exit path must go through here:
+// window close, before-quit, and the startup-failure path (which uses
+// app.exit() and therefore never emits before-quit).
+function stopSidecar() {
+  if (!sidecar) return;
+  const proc = sidecar;
+  sidecar = null;
+  if (proc.exitCode !== null || proc.signalCode !== null) return;
+  try {
+    if (process.platform === "win32") {
+      // The PyInstaller one-file sidecar launches a child process that owns
+      // the listening socket. TerminateProcess (what proc.kill() does on
+      // Windows) only kills the bootloader and leaves that child orphaned —
+      // this is what previously kept keel.exe holding the built artifact
+      // open. /T walks the whole tree; /F forces it.
+      execFileSync("taskkill", ["/PID", String(proc.pid), "/T", "/F"],
+                   { stdio: "ignore", windowsHide: true, timeout: 5000 });
+    } else {
+      proc.kill("SIGTERM");
+    }
+  } catch {
+    try { proc.kill(); } catch { /* already gone */ }
+  }
+}
 
 function bundledSidecar() {
   const res = process.resourcesPath;
@@ -46,22 +71,51 @@ function uiRoot() {
 
 async function waitForSidecarUrl(proc, ms = 30000) {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error("sidecar did not print its URL within 30s")), ms);
     let buf = "";
-    const onData = (chunk) => {
+    let settled = false;
+    const timer = setTimeout(() => fail(new Error("sidecar did not print its URL within 30s")), ms);
+
+    // Remove only our own listeners. removeAllListeners("data") would also
+    // detach the pipe(log) stream installed in startSidecar(), silencing the
+    // diagnostic log for the rest of the session.
+    function cleanup() {
+      clearTimeout(timer);
+      proc.stdout.removeListener("data", onData);
+      proc.stderr.removeListener("data", onData);
+      proc.removeListener("error", onError);
+      proc.removeListener("exit", onExit);
+    }
+    function fail(err) {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(err);
+    }
+    function onData(chunk) {
       buf += chunk.toString();
-      const m = buf.match(/keel webapp running at (http:\/\/127\.0\.0\.1:\d+\/\?t=[A-Za-z0-9_-]+)/);
-      if (m) {
-        clearTimeout(timer);
-        proc.stdout.removeAllListeners("data");
-        proc.stderr.removeAllListeners("data");
-        resolve(m[1]);
+      const m = buf.match(/keel webapp running at (\S+)/);
+      if (!m) return;
+      let url;
+      try {
+        url = new URL(m[1]); // accepts any token charset; validates loopback + token
+        if (url.protocol !== "http:" || url.hostname !== "127.0.0.1") throw new Error("bad url");
+        if (!url.searchParams.get("t")) throw new Error("missing token");
+      } catch {
+        fail(new Error(`sidecar printed an invalid URL: ${m[1]}`));
+        return;
       }
-    };
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(m[1]); // preserve the exact token string from the bridge
+    }
+    function onError(err) { fail(err); }
+    function onExit(code) { fail(new Error(`sidecar exited early (code ${code})`)); }
+
     proc.stdout.on("data", onData);
     proc.stderr.on("data", onData);
-    proc.on("error", (err) => { clearTimeout(timer); reject(err); });
-    proc.on("exit", (code) => { clearTimeout(timer); reject(new Error(`sidecar exited early (code ${code})`)); });
+    proc.on("error", onError);
+    proc.on("exit", onExit);
   });
 }
 
@@ -136,6 +190,9 @@ function checkForUpdates() {
     windowsHide: true,
   });
   child.stdout.on("data", (chunk) => { stdout += chunk.toString(); });
+  // A failed spawn emits 'error'; without a listener Node throws and the
+  // whole shell crashes over an advisory, best-effort update check.
+  child.on("error", () => {});
   child.on("close", (code) => {
     if (code !== 0 || !stdout.trim()) return;
     try {
@@ -187,15 +244,25 @@ function createWindow() {
   });
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(`http://127.0.0.1:${sidecarPort}/?t=${sidecarToken}`);
-  mainWindow.on("closed", () => { mainWindow = null; });
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+    stopSidecar(); // never leave the bridge running after the shell closes
+  });
 
-  // external links open in the user's browser, never inside the shell
+  // Loopback (our own bridge) stays in the shell; other web links open in
+  // the user's browser. Any other scheme (file:, javascript:, data:) is
+  // refused outright — it must never load inside the Electron renderer.
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (/^https?:\/\//.test(url) && !url.startsWith("http://127.0.0.1")) {
+    let parsed;
+    try { parsed = new URL(url); } catch { return { action: "deny" }; }
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      if (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") {
+        return { action: "allow" };
+      }
       shell.openExternal(url);
       return { action: "deny" };
     }
-    return { action: "allow" };
+    return { action: "deny" };
   });
 }
 
@@ -216,13 +283,16 @@ if (!gotLock) {
     if (existsSync(iconPath)) createSplash(iconPath);
     try {
       const url = await startSidecar();
-      const m = url.match(/^(http:\/\/127\.0\.0\.1:(\d+)\/\?t=[A-Za-z0-9_-]+)/);
-      if (m) sidecarPort = Number(m[2]), sidecarToken = new URL(url).searchParams.get("t") || sidecarToken;
+      const parsed = new URL(url); // already validated by waitForSidecarUrl
+      sidecarPort = Number(parsed.port);
+      sidecarToken = parsed.searchParams.get("t") || sidecarToken;
       createWindow();
       checkForUpdates();
       if (splash) splash.close();
     } catch (err) {
       if (splash) splash.close();
+      // app.exit() skips before-quit/window-all-closed, so clean up here too.
+      stopSidecar();
       const { dialog } = await import("electron");
       dialog.showErrorBox("Keel failed to start", String(err.message || err));
       app.exit(1);
@@ -232,8 +302,6 @@ if (!gotLock) {
   app.on("window-all-closed", () => { app.quit(); });
   app.on("before-quit", () => {
     quitting = true;
-    if (sidecar) {
-      try { sidecar.kill("SIGTERM"); } catch { /* already gone */ }
-    }
+    stopSidecar();
   });
 }

@@ -7,7 +7,7 @@
 #   research/spl    — github.com/asgeirtj/system_prompts_leaks (leaked prompts)
 # Upstream content, not this project's work; spl must not be redistributed.
 # Re-clone any of them on demand instead of vendoring them into this repo.
-/research/
+research/
 
 # --- scratch probe repo (own git dir, no remote; leave on disk) ---
 .probe/
@@ -26,6 +26,8 @@ node_modules/
 out/
 dist/
 build/
+release_final/
+release_final2/
 *.tsbuildinfo
 
 # --- python ---

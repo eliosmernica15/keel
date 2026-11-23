@@ -2,6 +2,38 @@
 
 Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 closed. Master Plan v5 remains incomplete; only explicitly available v5 requirements are used.
 
+> **FINAL-STATE AMENDMENT (2026-11-23) — read this before the historical batches below.**
+> The batch narrative that follows is a v5-era log kept for provenance; several of its
+> global statements were true when written but are false for the final verified state.
+> The final state is defined by the Master Plan v6 completion evidence in the repository
+> root (`../master-plan-v6-final-report.md` and companions), not by the historical lines:
+>
+> - **Version:** 0.1.1 everywhere (`keel/__init__.py`, `pyproject.toml`, manifest, sidecar).
+>   Older 0.1.0 artifact names in this log are historical. A version-sync gate now fails on drift.
+> - **Full suite:** final integrated branch **1296 passed, 46 skipped** (36 native-sandbox
+>   platform gates + 10 provider-credential gates); audited baseline 1270 passed, 10 skipped.
+>   The older counts in this log (386/457/1015/1110/1061) are historical batch runs.
+> - **Windows network enforcement:** the "not enforced / unavailable / fails closed"
+>   statement in the *External validation & distribution preparation phase* below was the
+>   **pre-fix baseline**. It is superseded by the AppContainer mechanism: a non-elevated,
+>   kernel-enforced (WFP/ALE) default-deny network boundary, proven with real child
+>   processes, merged as commit `9a77dae` (agent work `cc6240e`). Evidence:
+>   `../master-plan-v6-win-network-evidence.md`. `socket()` creation still succeeds; only
+>   traffic is denied. Per-process WFP rules remain unavailable to non-elevated callers and
+>   are not required for the shipped boundary.
+> - **Linux/macOS sandbox:** backends are integrated (Landlock/seccomp and Seatbelt) but
+>   were **not executed natively on this Windows host**; macOS read isolation is **BLOCKED**
+>   on macOS 26 (`sandbox-exec` SIGABRT). No OS-level isolation is claimed for the pure-Python
+>   sandbox itself.
+> - **Signing/provider credentials:** still absent. Ed25519 signing is implemented with
+>   ephemeral test keys only; no production key, no Actions secrets (`total_count=0`), no
+>   provider keys. Installers are unsigned. Secret **names** are in `FINAL-RELEASE-OPERATIONS.md`.
+> - **C11.1/C11.2:** C11.1 PASS (repo private, owner-confirmed). C11.2 remains **PARTIAL**
+>   and owner-gated — SHA pinning is local-branch-only; branch protection, signed commits,
+>   fork policy and 2FA are blocked by the free private plan / owner account. **Not complete.**
+> - **Release:** not production-ready. Final-source Windows installer rebuilt with 7/7
+>   local integrity checks, unsigned; no clean-VM validation; no release published; no push.
+
 ## Batch 1 — Runtime tool and MCP correctness
 
 **v5 requirement:** §6 design rules for MCP client/server behavior, typed tool results and reliable filesystem tools; §11 MCP isolation and tool-path controls. No new milestone or acceptance criteria were invented.
@@ -1019,6 +1051,14 @@ NPROC/FSIZE), capped output, guaranteed cleanup. 9 boundary tests pass. Honest
 `code.sandbox.status` reports that native bypass and OS-level isolation
 (seccomp/AppArmor/containers/Windows restricted tokens) are NOT enforced and
 require an external environment.
+
+> **AMENDMENT (final state, see top of file):** the sentence above describes the
+> pure-Python audit-hook boundary at that time, not the final native sandbox.
+> Native Windows OS enforcement was subsequently integrated and red-team verified, and
+> **Windows network denial is now provided by a non-elevated AppContainer profile**
+> (commit `9a77dae`; `../master-plan-v6-win-network-evidence.md`). The Linux and macOS
+> backends remain environment-gated on this Windows host, and macOS read isolation
+> remains BLOCKED. No claim of native OS enforcement is made for the audit-hook sandbox itself.
 
 **Windows distribution:** `docs/WINDOWS-EXTERNAL-VALIDATION.md` — reproducible
 clean-machine package with checksums, install/uninstall, upgrade/rollback,

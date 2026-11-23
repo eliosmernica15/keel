@@ -61,26 +61,37 @@ def outside_secret(tmp_path: Path, name: str = "outside-secret.txt") -> Path:
 def test_capabilities_honest_about_network_and_appcontainer():
     caps = capabilities()
     assert caps["os"] == sys.platform
-    assert caps["network_enforcement"] is False
-    assert caps["windows_appcontainer"] is False
+    # Network denial is now genuinely enforced via a capability-less
+    # AppContainer (verified with real processes in test_win_network.py).
+    assert caps["network_enforcement"] is True
+    assert caps["windows_appcontainer"] is True
     assert caps["filesystem_enforcement"] is True
     assert caps["windows_restricted_token"] is True
     assert caps["windows_job_object"] is True
     joined = " ".join(caps["limitations"]).lower()
-    assert "blocked" in joined
+    # Honest limitations are retained: WFP per-process rules remain blocked
+    # without elevation, Job Objects are not a network boundary, and socket()
+    # creation still succeeds (AppContainer blocks traffic, not Winsock).
+    assert "wfp" in joined
     assert "network" in joined
-    assert "firewall" in joined
     assert "job object" in joined
     assert "appcontainer" in joined
 
 
-def test_default_call_fails_closed_without_network_enforcement(tmp_path):
-    # F6: assert the BLOCKED behavior directly instead of skipping it.
-    with pytest.raises(SandboxUnavailable) as excinfo:
-        run_confined([COMSPEC, "/c", "echo SHOULD-NOT-RUN"], workspace=tmp_path)
-    message = str(excinfo.value).lower()
-    assert "blocked" in message
-    assert "network" in message
+def test_default_call_is_network_denied_or_fails_closed(tmp_path):
+    # F6 (updated): the default allow_network=False path now ENFORCES network
+    # denial via AppContainer (not merely fail-closed). Accept either a
+    # genuinely confined run or a fail-closed SandboxUnavailable when the
+    # AppContainer boundary cannot be established on this host — never an
+    # unrestricted launch.
+    try:
+        result = run_confined([COMSPEC, "/c", "echo RAN"], workspace=tmp_path)
+    except SandboxUnavailable:
+        return  # fail-closed is the honest outcome when the boundary is absent
+    assert result.ok
+    assert "appcontainer" in result.mechanism
+    limitations = " ".join(result.limitations or []).lower()
+    assert "network" in limitations  # scope is disclosed, never claimed as a VM
 
 
 def test_fail_closed_when_token_boundary_unavailable(tmp_path, monkeypatch):

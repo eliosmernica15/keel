@@ -1,10 +1,20 @@
 # Keel — harness source tree
 
-**Status:** Phase 0 (shell-AST spike, first cut), Phase 1 (vertical slice, running),
-**Phase A (provider registry, done — fake-transport verified)** and
-**Phase B (skills, done — 21 default skills)**.
-**Not a release, not a parity claim, not a finished product.** See
-`../FINAL-APPROVAL-GATE.md` for the programme context.
+**Status (final verified state, 2026-11-23):** Master Plan v6 completion is
+recorded. The Phase 0/1/A/B/C labels used elsewhere in this tree are the
+original source-tree narrative, not the final programme status. The final
+integrated branch reports **1296 passed, 46 skipped** (36 native-sandbox
+platform gates + 10 provider-credential gates) with
+`python -m pytest -q -o faulthandler_timeout=90`; the audited baseline was
+1270 passed, 10 skipped (`../master-plan-v6-final-report.md`).
+
+**This is not a production release and C11.2 is not complete.** Source hosting
+(C11.1) is PASS — private, owner-confirmed — but repository security (C11.2)
+is PARTIAL and owner-gated, installers are unsigned, no provider credentials or
+signing identity exist, and no clean-VM or native Linux/macOS validation was
+performed. See `../master-plan-v6-final-report.md`,
+`../master-plan-v6-governance-live-evidence.md` and
+`docs/FINAL-RELEASE-OPERATIONS.md`. Programme context: `../FINAL-APPROVAL-GATE.md`.
 
 Clean-room rules apply (see `../architecture.md` §1.1): interface *facts* are
 reproduced for compatibility; interface *descriptions* are ours.
@@ -14,7 +24,7 @@ Vendored default skills are Apache-2.0 Anthropic works — see
 ## What works today
 
 ```
-python -m pytest -q                         # 386 tests
+python -m pytest -q -o faulthandler_timeout=90   # final: 1296 passed, 46 skipped
 keel fleet                                  # serves Keel Fleet on 127.0.0.1 (roster, agents, groups, tasks, library, routines, PWA)
 keel provider list                          # configured providers + status
 keel provider smoke openrouter              # live 1-shot check — BLOCKED on this host: no KEEL_OPENROUTER_API_KEY set
@@ -72,22 +82,37 @@ All diagnostics on stderr even headless (deliberate divergence from the referenc
 | `src/keel/skills.py` | B | SKILL.md loader; never executes bodies; injection scan; scopes bundled/user/project. |
 | `src/keel/instructions.py` | 1 | CLAUDE.md discovery (root→cwd), user-role attachment injection. |
 | `resources/default-skills/` | B | 18 Apache-2.0 anthropics/skills + 3 Keel-authored skills + PROVENANCE.md. |
-| `desktop/` | D | Tauri v2 desktop shell — **Rust 1.99.1 installed via winget (2026-11-12); `cargo fetch` done (crates resolved); VS Build Tools (VCTools) still installing in background on this host; app not yet built. `keel --version` wired to the shell's probe. See `desktop/README.md`. |
+| `desktop/` | D | Optional Tauri v2 shell spike (on hold pending a host reboot for VS Build Tools — `desktop/README.md`). It is **not** the shipping build path. The packaged installers are produced from `desktop-app/` (Electron) by the Python release manager with PyInstaller + electron-builder; the final-source Windows installer `Keel-Setup-0.1.1.exe` was rebuilt and passed 7/7 local integrity checks, unsigned. See `docs/FINAL-RELEASE-OPERATIONS.md`. |
 | `tests/` | 0/1/A/B | pytest suite. |
 
-## Honest gaps
+## Honest gaps (final verified state)
 
-- Provider adapters are **fake-transport verified, not provider-verified**. Run
-  `keel provider smoke <name>` with your keys for the live check.
-- Permission modes implemented: `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`.
-  `plan`/`auto` are Phase 4/later.
-- No interactive renderer, settings registry (done: `keel/settings.py`),
-  compaction (done: `keel/context.py`), hooks (done: `keel/hooks.py`),
-  Tier-2 (done: `keel/safety.py`, M7 shape — 20 tests). MCP, subagents, plan/auto
-  modes: not built. `anthropic` is opt-in only.
+- Provider adapters are **fake-transport verified, not provider-verified**.
+  No `KEEL_*_API_KEY` is configured on this host and no live call was made. Run
+  `keel provider validate` / `keel provider smoke <name>` with owner credentials
+  for the live check; secret names only are listed in
+  `docs/FINAL-RELEASE-OPERATIONS.md`.
+- Permission modes implemented: `default`, `acceptEdits`, `dontAsk`,
+  `bypassPermissions`. `plan`/`auto` are not claimed in this tree.
+- The earlier "not built" list (interactive renderer, settings registry,
+  compaction, hooks, Tier-2, MCP, subagents) is **superseded**: these are
+  implemented and wired in the final runtime — see
+  `docs/IMPLEMENTATION-PROGRESS.md`. `anthropic` remains opt-in only.
+- Windows sandbox: real filesystem/process/handle/Job Object enforcement was
+  proven adversarially, and **network denial is now enforced without elevation
+  via AppContainer** (commit `9a77dae`, evidence
+  `../master-plan-v6-win-network-evidence.md`); `socket()` creation still
+  succeeds, only traffic is blocked. Linux (Landlock/seccomp) and macOS
+  (Seatbelt) backends are integrated but were **not executed natively on this
+  Windows host**; macOS read isolation is **BLOCKED** on macOS 26
+  (`sandbox-exec` SIGABRT).
+- Packaging: the final-source Windows installer is unsigned and 7/7 local
+  integrity checks pass, but no clean-VM install/upgrade/rollback was performed;
+  final-source macOS/Linux installers were not built (no native runners).
+- Python 3.11 with third-party runtime dependencies (`cryptography`, `keyring`)
+  plus build tooling (`pyinstaller`, `pillow`); **not stdlib-only**.
 - PowerShell AST only on hosts with Windows PowerShell/pwsh; POSIX subset is lexed,
-  declining outside it. No ≥2,000-case differential corpus yet.
-- Python 3.11 + stdlib only (statically-typed steady-state is an open decision).
+  declining outside it. No ≥2,000-case differential corpus is claimed.
 
 ## Environment keys (never committed)
 
@@ -99,3 +124,9 @@ All diagnostics on stderr even headless (deliberate divergence from the referenc
 `KEEL_PERMISSIONS_ALLOW/ASK/DENY` (comma-separated), `KEEL_CLEANUP_PERIOD_DAYS`,
 `KEEL_BYPASS_PERMISSIONS_ENABLED`, `KEEL_DANGER_ALLOW_UNCONFIRMED` (all parsed,
 default on error).
+
+## Operator documentation
+
+Build/verify commands, signing state (names of required secrets only), platform
+limitations, phone-hardware requirement and the owner gates are in
+`docs/FINAL-RELEASE-OPERATIONS.md`. No secret values are stored in this tree.

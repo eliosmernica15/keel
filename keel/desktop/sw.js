@@ -2,14 +2,20 @@
    offline. API calls always go to the network (they hit the local bridge);
    if the network fails, the app shell still loads in offline/demo mode. */
 
-const VERSION = "keel-shell-v5";
+/* Bump whenever the cached shell changes. v5 shipped before the tutorial,
+   accessibility, admin, policy and management-screen UI landed in the shell;
+   installed PWAs kept serving those stale assets from the v5 cache. */
+const VERSION = "keel-shell-v6";
 const SHELL = [
   "/",
   "/ui/index.html",
   "/ui/style.css",
   "/ui/app.js",
+  "/ui/management.js",
   "/manifest.webmanifest",
   "/ui/icons/icon-192.png",
+  "/ui/icons/icon-512.png",
+  "/ui/icons/icon.png",
 ];
 
 self.addEventListener("install", (event) => {

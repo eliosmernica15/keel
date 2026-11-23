@@ -207,12 +207,21 @@ function applySurfaceBadge() {
     ? `${cfg.name} · ${cfg.default_agent} · ${cfg.permission_mode}` : "";
 }
 async function loadSurfaceConfig() {
-  if (!bridge.live) return;
+  // `agent.ready` is the real bridge probe (/api/health). The mock bridge
+  // object below is never live, so gating local-only controls on its flag
+  // left them permanently disconnected even inside the installed app.
+  if (!agent.ready) return;
   try {
     const res = await fetch("/api/surfaces", { headers: fsHeaders() });
     if (!res.ok) return;
     const doc = await res.json();
-    surfaceConfig = Object.fromEntries((doc.surfaces || []).map((s) => [s.id, s]));
+    // The bridge keys surfaces by id (cowork/code/duet/fleet); this UI keeps
+    // the persisted view keys (chat/code). Index by `view`, first entry wins,
+    // so the badge matches the surface actually on screen.
+    surfaceConfig = {};
+    for (const s of doc.surfaces || []) {
+      if (s && s.view && !surfaceConfig[s.view]) surfaceConfig[s.view] = s;
+    }
     applySurfaceBadge();
   } catch { /* the mirror works without the bridge */ }
 }
@@ -1246,7 +1255,11 @@ $("attach-menu-files").addEventListener("click", () => {
 $("attach-menu-folder").addEventListener("click", () => {
   const surface = state.surface;
   closeAttachMenu();
-  pickAndBindWorkspace(surface);
+  // With the local bridge, use its real directory browser so the chosen
+  // folder is bound through POST /api/workdir. Without it, keep the honest
+  // browser-only workspace binding.
+  if (agent.ready) openFsPicker();
+  else pickAndBindWorkspace(surface);
 });
 attachInput.addEventListener("change", async () => {
   const surface = state.surface;
@@ -1295,7 +1308,7 @@ function closeAtMenu() {
 }
 async function refreshAtMenu(surface, query) {
   const seq = ++atState.seq;
-  if (!bridge.live) { closeAtMenu(); return; }
+  if (!agent.ready) { closeAtMenu(); return; }
   try {
     const res = await fetch(`/api/files/search?query=${encodeURIComponent(query)}&limit=12`, { headers: fsHeaders() });
     if (!res.ok || seq !== atState.seq) return;
@@ -2037,6 +2050,10 @@ importFile.addEventListener("change", async () => {
 /* ---------- Keel Code / Desktop / System / Developer ---------- */
 
 function refreshBridgeStatus() {
+  // The bridge has no /download route (GET /download -> 404 JSON). Inside the
+  // installed app the download link is a dead end, so don't offer it there.
+  const downloadLink = $("nav-download");
+  if (downloadLink) downloadLink.hidden = agent.ready;
   if (agent.ready) {
     $("keelcode-status").textContent = "agent mode — chats drive the local Keel agent on this machine";
     $("keeldesktop-status").textContent = "agent mode — chats drive the local Keel agent on this machine";
@@ -2103,8 +2120,8 @@ function baseName(path) {
   return parts.length ? parts[parts.length - 1] : path;
 }
 function openFsPicker() {
-  if (!bridge.live) {
-    systemNote("the folder browser is part of the local app — this mirror cannot list your files. Run `keel serve` and open the printed URL.", "system", state.surface);
+  if (!agent.ready) {
+    systemNote("the folder browser is part of the local app — no bridge is running here. Run `keel serve` and open the printed URL.", "system", state.surface);
     return;
   }
   picker.hidden = false;
@@ -2113,7 +2130,7 @@ function openFsPicker() {
 }
 function closeFsPicker() { picker.hidden = true; }
 async function loadFs(path) {
-  if (!bridge.live) return;
+  if (!agent.ready) return;
   fsError("");
   try {
     const q = path ? `?path=${encodeURIComponent(path)}` : "";
@@ -2268,7 +2285,11 @@ $("pop-folder-search").addEventListener("keydown", (ev) => {
     if (value) { closePops(); applyWorkdir(value); }
   }
 });
-$("pop-folder-open").addEventListener("click", () => { closePops(); pickAndBindWorkspace(state.surface); });
+$("pop-folder-open").addEventListener("click", () => {
+  closePops();
+  if (agent.ready) openFsPicker();
+  else pickAndBindWorkspace(state.surface);
+});
 $("pop-workspace-detach").addEventListener("click", () => { closePops(); mirrorUnbindWorkspace(); });
 $("pop-perm").addEventListener("click", (ev) => {
   const item = ev.target.closest(".pop-item");
@@ -2281,8 +2302,8 @@ $("pop-env").addEventListener("click", (ev) => {
 document.addEventListener("click", () => closePops());
 window.addEventListener("resize", () => closePops());
 async function applyWorkdir(path) {
-  if (!bridge.live) {
-    systemNote("this public mirror cannot see or bind your disk — folder attach is part of the local app. Run `keel serve` and open the printed URL.", "system", state.surface);
+  if (!agent.ready) {
+    systemNote("no local bridge is running — folder binding (POST /api/workdir) needs the installed app or `keel serve`.", "system", state.surface);
     return;
   }
   try {
@@ -2337,8 +2358,25 @@ $("tgl-sidebar").addEventListener("click", toggleSidebar);
 $("win-min").addEventListener("click", toggleSidebar);
 $("win-restore").addEventListener("click", () => rootEl.classList.toggle("sidebar-hidden"));
 $("win-close").addEventListener("click", () => window.close());
-$("nav-back").addEventListener("click", () => history.back());
-$("nav-forward").addEventListener("click", () => history.forward());
+/* This is a single-window app shell, not a browsing session: Back/Forward
+   are dead controls unless this tab actually inherited history. Track the
+   local cursor and disable them instead of silently doing nothing. */
+const navBack = $("nav-back"), navForward = $("nav-forward");
+let navCursor = 0;
+function syncNavButtons() {
+  if (navBack) navBack.disabled = navCursor <= 0 || history.length <= 1;
+  if (navForward) navForward.disabled = navCursor <= 0;
+}
+if (navBack) navBack.addEventListener("click", () => {
+  if (navBack.disabled || history.length <= 1) return;
+  navCursor += 1; history.back(); syncNavButtons();
+});
+if (navForward) navForward.addEventListener("click", () => {
+  if (navForward.disabled) return;
+  navCursor = Math.max(0, navCursor - 1); history.forward(); syncNavButtons();
+});
+window.addEventListener("popstate", syncNavButtons);
+syncNavButtons();
 $("folder-chat").addEventListener("click", openFsPicker);
 document.querySelectorAll(".idea").forEach((btn) =>
   btn.addEventListener("click", () => {
@@ -2386,7 +2424,7 @@ if (stopBtn) stopBtn.addEventListener("click", () => { agentStopRun(); });
 /* B3.9/A3.6 — global stop: cancel every turn and rotate the client token. */
 const killBtn = $("btn-kill");
 if (killBtn) killBtn.addEventListener("click", async () => {
-  if (!bridge.live) { systemNote("global stop needs the local bridge", "denied", state.surface); return; }
+  if (!agent.ready) { systemNote("global stop needs the local bridge", "denied", state.surface); return; }
   try {
     const res = await fetch("/api/kill-switch", {
       method: "POST", headers: jsonHeaders(), body: "{}" });
@@ -2394,6 +2432,14 @@ if (killBtn) killBtn.addEventListener("click", async () => {
     const doc = await res.json();
     if (doc.token) {
       sessionStorage.setItem("keel_token", doc.token);
+      // fsToken() (and the management script) prefer ?t= from the URL. Keep
+      // the launch URL in sync with the rotated credential, otherwise every
+      // following request still sends the revoked token and gets a 403.
+      const url = new URL(location.href);
+      if (url.searchParams.has("t")) {
+        url.searchParams.set("t", doc.token);
+        history.replaceState(null, "", url.pathname + url.search + url.hash);
+      }
       systemNote(`stopped ${doc.cancelled} agent turn(s); all client tokens revoked`, "system", state.surface);
     }
   } catch (err) { systemNote(`global stop failed: ${err}`, "denied", state.surface); }
@@ -2971,16 +3017,8 @@ agentProbe().then(() => {
   systemNote("mirror mode — this page is running fully in your browser. Chat streams straight from your browser to your provider via the key in Settings → Providers (OpenRouter or Google AI Studio). No key yet? Replies here explain how to install the local app.", "system", state.surface);
 }).catch(() => {});
 
-if (!bridge.live) {
-  // (static mirror path — client-side provider chat; nothing further to wire)
-} else {
-  bridge.listen("keel:event", (message) => {
-    const line = typeof message === "string" ? message :
-      (message && typeof message.payload === "string" ? message.payload : "");
-    try { handleEvent(JSON.parse(line), state.runSurface || state.surface); } catch { /* malformed line */ }
-  });
-  bridge.listen("keel:done", () => finishRun());
-}
+/* The legacy mock-bridge event listeners are intentionally gone: the real
+   backend drives turns through the v2 EventSource in startAgentStream(). */
 
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   navigator.serviceWorker.register("/sw.js").catch(() => {});

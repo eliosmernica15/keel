@@ -101,7 +101,10 @@ def enforce(tool_name: str, tool_input: dict, *,
 
     command = command_from(tool_name, tool_input)
     if command:
-        evaluation = policy.check(command)
+        # Resolve absolute/Windows executable paths to their rule program.
+        # Without this, invoking a forbidden program by full path produced no
+        # rule match at all and the command was allowed.
+        evaluation = policy.check(command, resolve_host_executables=True)
         if evaluation.is_match:
             rule = evaluation.matched_rules[0]
             if evaluation.decision == FORBIDDEN:
@@ -133,12 +136,31 @@ def enforce(tool_name: str, tool_input: dict, *,
         if parsed.scheme in ("http", "https"):
             host = parsed.hostname or ""
             verdict = policy.evaluate_network(host, parsed.scheme)
-            if verdict != PROMPT:
-                if verdict == FORBIDDEN:
+            matched = f"network:{parsed.scheme}:{host}"
+            if verdict == FORBIDDEN:
+                return _decision("deny",
+                                 f"egress policy forbids host {host!r}",
+                                 matched)
+            if verdict == PROMPT:
+                # Unlisted hosts are 'prompt' in the policy vocabulary. That
+                # must mean the same thing here as it does for commands: ask
+                # interactively, deny non-interactively, allow only with a real
+                # recorded confirmation. Returning None here silently fell
+                # through to the mode baseline and allowed egress in
+                # bypassPermissions mode.
+                if confirmed:
+                    return _decision("allow",
+                                     f"egress policy approval recorded for "
+                                     f"{host!r}", matched)
+                if not interactive:
                     return _decision("deny",
-                                     f"egress policy forbids host {host!r}",
-                                     f"network:{parsed.scheme}:{host}")
-                return _decision("allow",
-                                 f"egress policy allows host {host!r}",
-                                 f"network:{parsed.scheme}:{host}")
+                                     f"egress policy requires consent for "
+                                     f"{host!r}; no interactive approval",
+                                     matched)
+                return _decision("ask",
+                                 f"egress policy requires approval for "
+                                 f"{host!r}", matched)
+            return _decision("allow",
+                             f"egress policy allows host {host!r}",
+                             matched)
     return None

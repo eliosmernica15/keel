@@ -9,11 +9,11 @@ license-token format stays inactive, as the roadmap requires.
 from __future__ import annotations
 
 import json
-import re
 import time
 from pathlib import Path
 
 from . import charts
+from .release.common import LICENSE_INVENTORY
 
 EDITION = "standard"
 RESOURCES = Path(__file__).resolve().parents[2] / "resources"
@@ -87,11 +87,13 @@ def data_flow_svg() -> str:
 
 
 def sbom_export() -> dict:
-    """Build an SBOM summary from the committed dependency inventory."""
-    path = RESOURCES.parent / "release" / "DEPENDENCY-LICENSES.json"
-    if not path.is_file():
-        path = Path(__file__).resolve().parents[1] / "release" / \
-            "DEPENDENCY-LICENSES.json"
+    """Build an SBOM summary from the generated dependency inventory.
+
+    Reads the canonical path written by ``python -m keel.release licenses
+    --out release`` (keel/release/DEPENDENCY-LICENSES.json). No license data
+    is invented when the build output is absent.
+    """
+    path = LICENSE_INVENTORY
     entries = []
     if path.is_file():
         doc = json.loads(path.read_text(encoding="utf-8"))
@@ -100,19 +102,6 @@ def sbom_export() -> dict:
             entries = [{"name": k, "metadata": v} for k, v in source.items()]
         elif isinstance(source, list):
             entries = list(source)
-    if not entries:
-        # Clean checkouts have no generated release inventory; derive the
-        # declared dependency set from pyproject.toml so the SBOM is still real.
-        pyproject = Path(__file__).resolve().parents[2] / "pyproject.toml"
-        if pyproject.is_file():
-            for line in pyproject.read_text(encoding="utf-8").splitlines():
-                match = re.match(r'\s*dependencies\s*=\s*\[(.*)\]', line)
-                if match:
-                    entries = [{"name": item.strip().strip("\"'"),
-                                "source": "pyproject.toml"}
-                               for item in match.group(1).split(",")
-                               if item.strip()]
-                    break
     return {
         "format": "Keel-SBOM-1.0", "generated_at": time.strftime(
             "%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

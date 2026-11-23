@@ -7,8 +7,15 @@ interface contract (interface-spec.md §15–17); descriptions are ours.
 
 from __future__ import annotations
 
+import hashlib
+import json
+import os
+import tempfile
+import threading
+import time
 import uuid
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Iterator
 
 
@@ -368,7 +375,178 @@ def result(*, subtype: str, session_id: str, uuid: str, timestamp: str,
 
 def iter_lines(events: Iterator[dict]) -> Iterator[str]:
     """Serialise events one compact JSON object per line."""
-    import json
-
     for ev in events:
         yield json.dumps(ev, separators=(",", ":"), ensure_ascii=False)
+
+
+# ---------------------------------------------------------------------------
+# Persisted event-log integrity (B4.11 / C8.7 hardening)
+#
+# The JSONL payload stays plain stream-json (one event object per line), so
+# existing readers such as keel.transcript.read_entries remain compatible.
+# A sibling ``<name>.chain`` file holds one SHA-256 digest per line; each
+# digest commits to the event, its 1-based sequence number and the previous
+# digest. Tampering, truncation, deletion of a record, or loss of the chain
+# is therefore detectable on read.
+# ---------------------------------------------------------------------------
+
+_CHAIN_SUFFIX = ".chain"
+_GENESIS = "0" * 64
+_EVENT_LOG_LOCK = threading.RLock()
+# Windows can transiently refuse os.replace while another handle is open.
+_REPLACE_ATTEMPTS = 5
+_REPLACE_BACKOFF_S = 0.02
+
+
+class EventLogError(RuntimeError):
+    """Raised when a persisted event log fails its integrity check."""
+
+
+def _chain_path(path: str | Path) -> Path:
+    return Path(str(path) + _CHAIN_SUFFIX)
+
+
+def _record_digest(prev: str, seq: int, event: dict) -> str:
+    body = json.dumps({"seq": seq, "prev": prev, "event": event},
+                      sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(body.encode("utf-8")).hexdigest()
+
+
+def _replace_with_retry(tmp: Path, target: Path) -> None:
+    """bounded os.replace retry for transient Windows sharing violations."""
+    last_exc: OSError | None = None
+    for attempt in range(_REPLACE_ATTEMPTS):
+        try:
+            os.replace(tmp, target)
+            return
+        except OSError as exc:
+            winerror = getattr(exc, "winerror", None)
+            if winerror is not None and winerror not in (5, 32):
+                raise
+            last_exc = exc
+            if attempt < _REPLACE_ATTEMPTS - 1:
+                time.sleep(_REPLACE_BACKOFF_S)
+    raise last_exc  # type: ignore[misc]
+
+
+def _atomic_text(target: Path, text: str) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(prefix=f".{target.name}.", suffix=".tmp",
+                                    dir=str(target.parent))
+    tmp = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(text)
+            fh.flush()
+            os.fsync(fh.fileno())
+        _replace_with_retry(tmp, target)
+    except BaseException:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        raise
+
+
+def _read_lines(path: Path) -> list[str]:
+    if not path.is_file():
+        return []
+    return [line.strip() for line in
+            path.read_text(encoding="utf-8", errors="replace").splitlines()
+            if line.strip()]
+
+
+def write_event_log(path: str | Path, events: Iterator[dict] | list[dict]) -> int:
+    """Write a fresh integrity-chained event log. Returns the event count."""
+    with _EVENT_LOG_LOCK:
+        lines: list[str] = []
+        chain: list[str] = []
+        prev = _GENESIS
+        for seq, event in enumerate(events, 1):
+            lines.append(json.dumps(event, separators=(",", ":"),
+                                    ensure_ascii=False))
+            prev = _record_digest(prev, seq, event)
+            chain.append(prev)
+        suffix = "\n" if lines else ""
+        _atomic_text(Path(path), "\n".join(lines) + suffix)
+        _atomic_text(_chain_path(path), "\n".join(chain) + suffix)
+        return len(lines)
+
+
+def append_event(path: str | Path, event: dict) -> int:
+    """Append one event and its chain link; returns the 1-based sequence no.
+
+    Serialised in-process so concurrent appenders cannot interleave a line or
+    race on the chain head. The chain itself makes out-of-process corruption
+    detectable on the next read.
+    """
+    with _EVENT_LOG_LOCK:
+        log = Path(path)
+        chain_path = _chain_path(path)
+        if log.is_file():
+            if not chain_path.is_file():
+                raise EventLogError(
+                    "integrity check failed: event log chain is missing")
+            chain = _read_lines(chain_path)
+            if len(_read_lines(log)) != len(chain):
+                raise EventLogError(
+                    "integrity check failed: event log and chain lengths differ")
+            prev = chain[-1] if chain else _GENESIS
+            seq = len(chain) + 1
+        else:
+            prev = _GENESIS
+            seq = 1
+        line = json.dumps(event, separators=(",", ":"), ensure_ascii=False)
+        digest = _record_digest(prev, seq, event)
+        with open(log, "a", encoding="utf-8", newline="\n") as fh:
+            fh.write(line + "\n")
+            fh.flush()
+            os.fsync(fh.fileno())
+        with open(chain_path, "a", encoding="utf-8", newline="\n") as fh:
+            fh.write(digest + "\n")
+            fh.flush()
+            os.fsync(fh.fileno())
+        return seq
+
+
+def read_event_log(path: str | Path, *, verify: bool = True) -> list[dict]:
+    """Read a persisted event log, verifying its hash chain by default."""
+    lines = _read_lines(Path(path))
+    chain_path = _chain_path(path)
+    if not chain_path.is_file():
+        if verify and lines:
+            raise EventLogError(
+                "integrity check failed: event log chain is missing")
+        chain: list[str] = []
+    else:
+        chain = _read_lines(chain_path)
+    if verify and len(chain) != len(lines):
+        raise EventLogError(
+            "integrity check failed: event log and chain lengths differ")
+
+    events: list[dict] = []
+    prev = _GENESIS
+    for seq, line in enumerate(lines, 1):
+        try:
+            event = json.loads(line)
+        except ValueError:
+            raise EventLogError(
+                f"integrity check failed: unparseable event at line {seq}") from None
+        if verify:
+            digest = _record_digest(prev, seq, event)
+            if digest != chain[seq - 1]:
+                raise EventLogError(
+                    f"integrity check failed: event at line {seq} was altered")
+            prev = digest
+        events.append(event)
+    return events
+
+
+def verify_event_log(path: str | Path) -> bool:
+    """Return True iff the persisted event log is complete and unaltered."""
+    try:
+        read_event_log(path, verify=True)
+    except (EventLogError, OSError, ValueError):
+        return False
+    return True
+

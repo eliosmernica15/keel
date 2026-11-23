@@ -24,6 +24,8 @@ class CircuitBreaker:
     _total: int = 0
     _opened_at: float = 0.0
     _half_open_inflight: int = 0
+    _probe_started_at: float = 0.0
+    _half_open_failed: bool = False
     _lock: RLock = field(default_factory=RLock, repr=False)
 
     @property
@@ -35,24 +37,42 @@ class CircuitBreaker:
                 return "half_open"
             return "open"
 
+    def _expire_stale_probes(self, now: float) -> None:
+        """Release probes that never reported an outcome (aborted/crashed call)."""
+        if (self._opened_at and self._half_open_inflight > 0
+                and self._probe_started_at
+                and now - self._probe_started_at >= max(0.0, self.recovery_timeout)):
+            self._half_open_inflight = 0
+            self._probe_started_at = 0.0
+
     def allow(self) -> bool:
         with self._lock:
             if not self._opened_at:
                 return True
-            if time.monotonic() - self._opened_at < self.recovery_timeout:
+            now = time.monotonic()
+            if now - self._opened_at < self.recovery_timeout:
                 return False
+            self._expire_stale_probes(now)
             if self._half_open_inflight >= max(1, self.half_open_max):
                 return False
+            if self._half_open_inflight == 0:
+                self._probe_started_at = now
+                self._half_open_failed = False
             self._half_open_inflight += 1
             return True
 
     def record_success(self) -> None:
         with self._lock:
             if self._opened_at:
-                self._opened_at = 0.0
-                self._failures = 0
                 self._half_open_inflight = max(
                     0, self._half_open_inflight - 1)
+                # A success only closes the breaker if no probe in this
+                # half-open window failed and no other probe is outstanding.
+                if (self._half_open_inflight == 0
+                        and not self._half_open_failed):
+                    self._opened_at = 0.0
+                    self._failures = 0
+                    self._probe_started_at = 0.0
             else:
                 self._failures = 0
             self._successes += 1
@@ -63,14 +83,19 @@ class CircuitBreaker:
             self._total += 1
             self._total_failures += 1
             if self._opened_at:
-                # half-open probe failed: restart the recovery window
+                # half-open probe failed: restart the recovery window and
+                # remember it so a later probe success cannot undo the failure.
                 self._opened_at = time.monotonic()
+                self._half_open_failed = True
                 self._half_open_inflight = max(
                     0, self._half_open_inflight - 1)
             else:
                 self._failures += 1
                 if self._failures >= max(1, self.failure_threshold):
                     self._opened_at = time.monotonic()
+                    self._half_open_inflight = 0
+                    self._probe_started_at = 0.0
+                    self._half_open_failed = False
 
     def health_score(self) -> float:
         with self._lock:

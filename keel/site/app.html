@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="/ui/style.css" />
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="safe-mode-badge" hidden>SCREEN-SHARE SAFE MODE · Ctrl+Shift+S to exit</div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -46,10 +47,10 @@
   <!-- shared sidebar -->
   <aside class="side" id="sidebar">
     <div class="scroll">
-      <nav class="nav">
-        <a id="nav-new" tabindex="0"><svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>New session</a>
-        <a id="nav-customize" tabindex="0"><svg viewBox="0 0 16 16"><rect x="2" y="5.5" width="12" height="7.5" rx="1.3"/><path d="M5.8 5.5V4a1 1 0 0 1 1-1h2.4a1 1 0 0 1 1 1v1.5M2 8.8h12"/></svg>Customize Keel</a>
-        <a id="nav-tutorial" tabindex="0"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.7-.8 1.4M8 12h.01"/></svg>Take the tour</a>
+      <nav class="nav" aria-label="Main">
+        <button id="nav-new" type="button"><svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>New session</button>
+        <button id="nav-customize" type="button"><svg viewBox="0 0 16 16"><rect x="2" y="5.5" width="12" height="7.5" rx="1.3"/><path d="M5.8 5.5V4a1 1 0 0 1 1-1h2.4a1 1 0 0 1 1 1v1.5M2 8.8h12"/></svg>Customize Keel</button>
+        <button id="nav-tutorial" type="button"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.7-.8 1.4M8 12h.01"/></svg>Take the tour</button>
       </nav>
 
       <div class="lbl"><span>Pinned</span></div>
@@ -67,7 +68,7 @@
     <!-- chat item context menu — Mark unread · Pin · Rename · Add to project · Move to group · Archive · Delete -->
     <div class="ctx-menu" id="recents-menu" role="menu" aria-label="Chat options" hidden>
       <button class="ctx-item" data-action="unread" role="menuitem"><svg viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h7M2.5 11.5h11"/></svg><span class="ctx-label">Mark as unread</span><span class="ctx-key">U</span></button>
-      <div class="ctx-item ctx-sub" id="ctx-sub-open"><svg viewBox="0 0 16 16"><path d="M6 3H3.5v10H6M10 3h2.5v10H10M7.5 8h5M10 5.5l2.5 2.5L10 10.5"/></svg><span class="ctx-label">Open in</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
+      <div class="ctx-item ctx-sub" id="ctx-sub-open" tabindex="0" role="menuitem" aria-haspopup="menu"><svg viewBox="0 0 16 16"><path d="M6 3H3.5v10H6M10 3h2.5v10H10M7.5 8h5M10 5.5l2.5 2.5L10 10.5"/></svg><span class="ctx-label">Open in</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
         <div class="ctx-flyout" id="flyout-open" role="menu">
           <button class="fly-item" data-action="open-new-tab"><span class="fly-glyph"><svg viewBox="0 0 16 16"><path d="M2.5 3h11v10h-11zM2.5 6h11"/></svg></span>Open in new tab</button>
           <button class="fly-item" data-action="open-new-window"><span class="fly-glyph"><svg viewBox="0 0 16 16"><path d="M2.5 3.5h11v9h-11zM2.5 6h11M4.5 4.5h.01M7 4.5h.01"/></svg></span>Open in new window</button>
@@ -76,20 +77,20 @@
       <button class="ctx-item" data-action="pin" role="menuitem"><svg viewBox="0 0 16 16"><path d="M9.6 2.4l4 4-2 .6-2.2 2.2.4 2.6-1.6 1.6-3-3-3.6 3.6-.4-.4 3.6-3.6-3-3 1.6-1.6 2.6.4 2.2-2.2z"/></svg><span class="ctx-label">Pin</span><span class="ctx-key">P</span></button>
       <button class="ctx-item" data-action="rename" role="menuitem"><svg viewBox="0 0 16 16"><path d="M2.5 12.5l3.5-.8L13.3 4.4a1.4 1.4 0 0 0 0-2L13.6 1a1.4 1.4 0 0 0-2 0L3.3 9.7zM11.5 3.4l1.1 1.1"/></svg><span class="ctx-label">Rename</span><span class="ctx-key">R</span></button>
       <button class="ctx-item" data-action="fork" role="menuitem"><svg viewBox="0 0 16 16"><circle cx="5" cy="3.5" r="1.5"/><circle cx="5" cy="12.5" r="1.5"/><circle cx="11" cy="8" r="1.5"/><path d="M5 5v6M5 6.5l4.7 4M5 9.5L9.8 6.5"/></svg><span class="ctx-label">Fork</span><span class="ctx-key">F</span></button>
-      <div class="ctx-item ctx-sub" id="ctx-sub-section"><svg viewBox="0 0 16 16"><path d="M2.5 5h11M2.5 10.5h11"/></svg><span class="ctx-label">Move to section</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
+      <div class="ctx-item ctx-sub" id="ctx-sub-section" tabindex="0" role="menuitem" aria-haspopup="menu"><svg viewBox="0 0 16 16"><path d="M2.5 5h11M2.5 10.5h11"/></svg><span class="ctx-label">Move to section</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
         <div class="ctx-flyout" id="flyout-section" role="menu">
           <p class="ctx-note">Sections bundle chats — your own named groups</p>
           <div class="flyout-list" id="section-list"></div>
         </div>
       </div>
       <button class="ctx-item" data-action="detach" role="menuitem" id="ctx-detach"><svg viewBox="0 0 16 16"><path d="M6 2.5v11M3 2.5v11M10 8h4M12 5.5l2.5 2.5-2.5 2.5"/></svg><span class="ctx-label">Detach to top level</span></button>
-      <div class="ctx-item ctx-sub" id="ctx-sub-project"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span class="ctx-label">Add to project</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
+      <div class="ctx-item ctx-sub" id="ctx-sub-project" tabindex="0" role="menuitem" aria-haspopup="menu"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span class="ctx-label">Add to project</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
         <div class="ctx-flyout" id="flyout-project" role="menu">
           <p class="ctx-note">Project — a folder the agent works inside</p>
           <div class="flyout-list" id="project-list"></div>
         </div>
       </div>
-      <div class="ctx-item ctx-sub" id="ctx-sub-group"><svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="4.5" height="4.5" rx="1"/><rect x="9" y="3" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="8.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="8.5" width="4.5" height="4.5" rx="1"/></svg><span class="ctx-label">Move to group</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
+      <div class="ctx-item ctx-sub" id="ctx-sub-group" tabindex="0" role="menuitem" aria-haspopup="menu"><svg viewBox="0 0 16 16"><rect x="2.5" y="3" width="4.5" height="4.5" rx="1"/><rect x="9" y="3" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="8.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="8.5" width="4.5" height="4.5" rx="1"/></svg><span class="ctx-label">Move to group</span><svg class="chev" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
         <div class="ctx-flyout" id="flyout-group" role="menu">
           <p class="ctx-note">Group — a label to bundle chats by theme</p>
           <div class="flyout-list" id="group-list"></div>
@@ -130,7 +131,7 @@
     </div>
   </div>
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <!-- ======================= SURFACE A — KEEL DESKTOP (desktop web chat) -->
     <section id="view-chat" class="view" role="tabpanel" aria-label="Keel Desktop">
       <div class="hero" id="hero-chat">
@@ -185,9 +186,9 @@
         </form>
         <!-- footer chips — reference layout: environment | folder | permission · ring -->
         <div class="foot">
-          <button id="chip-env" aria-haspopup="true"><svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="7" rx="1"/><path d="M1.5 12.8h13"/></svg><span id="chip-env-label">This browser</span></button>
-          <button id="chip-folder" aria-haspopup="true" title="Choose the working folder — the agent runs inside it"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg><span id="chip-folder-label">Select folder…</span></button>
-          <button id="chip-perm" class="perm" aria-haspopup="true" title="Permission mode for this session"><span id="chip-perm-label">Manual</span></button>
+          <button id="chip-env" aria-haspopup="dialog"><svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="7" rx="1"/><path d="M1.5 12.8h13"/></svg><span id="chip-env-label">This browser</span></button>
+          <button id="chip-folder" aria-haspopup="dialog" title="Choose the working folder — the agent runs inside it"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg><span id="chip-folder-label">Select folder…</span></button>
+          <button id="chip-perm" class="perm" aria-haspopup="dialog" title="Permission mode for this session"><span id="chip-perm-label">Manual</span></button>
           <span class="ring" id="usage-ring" role="status" title="0 turns · 0 tokens"></span>
         </div>
 
@@ -215,9 +216,9 @@
         <!-- popover: permission modes — keel's real permission modes -->
         <div class="pop" hidden id="pop-perm" role="dialog" aria-label="Permission modes">
           <div class="pop-hd">Permissions · this session</div>
-          <div class="pop-item" data-mode="default"><b>Manual</b><span>Ask before every change</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></div>
-          <div class="pop-item" data-mode="acceptEdits"><b>Accept edits</b><span>Automatically accept file edits</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></div>
-          <div class="pop-item" data-mode="bypassPermissions"><b>Bypass permissions</b><span>Keel runs tools without asking — dangerous</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></div>
+          <button type="button" class="pop-item" data-mode="default"><b>Manual</b><span>Ask before every change</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></button>
+          <button type="button" class="pop-item" data-mode="acceptEdits"><b>Accept edits</b><span>Automatically accept file edits</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></button>
+          <button type="button" class="pop-item" data-mode="bypassPermissions"><b>Bypass permissions</b><span>Keel runs tools without asking — dangerous</span><svg class="pop-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></button>
         </div>
 
       </div>
@@ -293,7 +294,7 @@
       <div class="settings-body" id="settings-body">
 
         <!-- GENERAL -->
-        <section class="pane on" id="pane-general" role="tabpanel">
+        <section class="pane on" id="pane-general" role="tabpanel" aria-label="General">
           <h2>General</h2>
           <div class="card profile-card">
             <svg class="profile-mark" viewBox="0 0 48 48"><use href="#starburst"/></svg>
@@ -317,7 +318,7 @@
               <input type="checkbox" id="readable-font" /></label>
             <label class="row-line" for="vim-mode"><span>Vim keybindings in composer<small>Escape = normal, i/a = insert, h/j/k/l navigation, 0/$ line edges.</small></span>
               <input type="checkbox" id="vim-mode" /></label>
-            <p class="fine" id="vim-status-text" class="vim-status" hidden>NORMAL</p>
+            <p class="fine vim-status" id="vim-status-text" hidden>NORMAL</p>
           </div>
 
           <div class="card">
@@ -362,7 +363,7 @@
         </section>
 
         <!-- PROVIDERS -->
-        <section class="pane" id="pane-providers" role="tabpanel">
+        <section class="pane" id="pane-providers" role="tabpanel" aria-label="Providers">
           <h2>Providers</h2>
           <p class="lead">Bring your own keys — every key is verified against the provider before it's saved, then lives only in this browser's localStorage. Keys go nowhere except your provider.</p>
 
@@ -399,7 +400,7 @@
         </section>
 
         <!-- USAGE -->
-        <section class="pane" id="pane-usage" role="tabpanel">
+        <section class="pane" id="pane-usage" role="tabpanel" aria-label="Usage">
           <h2>Usage</h2>
           <div class="stat-grid">
             <div class="stat"><b id="stat-turns">0</b><span>replies</span></div>
@@ -414,7 +415,7 @@
         </section>
 
         <!-- PRIVACY -->
-        <section class="pane" id="pane-privacy" role="tabpanel">
+        <section class="pane" id="pane-privacy" role="tabpanel" aria-label="Privacy">
           <h2>Privacy</h2>
           <ul class="fact-list">
             <li>This mirror runs in your browser; there is no Keel cloud. The local app runs entirely on your machine.</li>
@@ -431,7 +432,7 @@
         </section>
 
         <!-- IMPORT & EXPORT -->
-        <section class="pane" id="pane-import" role="tabpanel">
+        <section class="pane" id="pane-import" role="tabpanel" aria-label="Import and export">
           <h2>Import &amp; export</h2>
           <p class="lead">Export your configuration as JSON — UI preferences, provider preferences and connector definitions. <b>API keys are never included.</b></p>
           <div class="card">
@@ -447,7 +448,7 @@
         </section>
 
         <!-- KEEL CODE -->
-        <section class="pane" id="pane-keel-code" role="tabpanel">
+        <section class="pane" id="pane-keel-code" role="tabpanel" aria-label="Keel Code">
           <h2>Keel Code</h2>
           <p class="lead">The coding surface: a terminal-style console for agentic work — tools, shells, MCP servers. Same bridge as this window, same permission model, same working folder.</p>
           <div class="kv"><span>Status</span><b id="keelcode-status">checking…</b></div>
@@ -457,7 +458,7 @@
         </section>
 
         <!-- KEEL DESKTOP -->
-        <section class="pane" id="pane-keel-desktop" role="tabpanel">
+        <section class="pane" id="pane-keel-desktop" role="tabpanel" aria-label="Keel Desktop">
           <h2>Keel Desktop</h2>
           <p class="lead">The desktop surface: hero composer, ideas, one conversation per surface — the same design as the local app, minus the local agent (this mirror chats client-side through your provider key).</p>
           <div class="kv"><span>Status</span><b id="keeldesktop-status">checking…</b></div>
@@ -467,7 +468,7 @@
         </section>
 
         <!-- POLICIES — A1.6/B3.4: view, validate and activate real execution policy -->
-        <section class="pane" id="pane-policies" role="tabpanel">
+        <section class="pane" id="pane-policies" role="tabpanel" aria-label="Execution policies">
           <h2>Execution policies</h2>
           <p class="lead">Policies are enforced before commands and network requests run. No licence or paid feature is involved.</p>
           <div class="card">
@@ -477,7 +478,7 @@
           </div>
           <div class="card">
             <h3>Policy document (JSON)</h3>
-            <textarea id="policy-editor" rows="12" spellcheck="false" placeholder='{"prefix_rules": [{"pattern": ["git", "reset", "--hard"], "decision": "forbidden"}]}'></textarea>
+            <textarea id="policy-editor" rows="12" spellcheck="false" aria-label="Policy document (JSON)" placeholder='{"prefix_rules": [{"pattern": ["git", "reset", "--hard"], "decision": "forbidden"}]}'></textarea>
             <div class="btn-row">
               <button class="btn-primary small" id="policy-validate">Validate</button>
               <button class="btn-ghost small" id="policy-save">Save</button>
@@ -500,7 +501,7 @@
         </section>
 
         <!-- ADMIN — A3.9: real local operator state from core.admin.overview -->
-        <section class="pane" id="pane-admin" role="tabpanel">
+        <section class="pane" id="pane-admin" role="tabpanel" aria-label="Admin">
           <h2>Admin</h2>
           <p class="lead">Local operator view of this Keel install. Values come from the running Python runtime — nothing here is invented or fetched from a service.</p>
           <div class="card">
@@ -519,7 +520,7 @@
         </section>
 
         <!-- SYSTEM -->
-        <section class="pane" id="pane-system" role="tabpanel">
+        <section class="pane" id="pane-system" role="tabpanel" aria-label="System">
           <h2>System</h2>
           <div class="kv"><span>Keel version</span><b id="sys-version">…</b></div>
           <div class="kv"><span>Bridge</span><b id="sys-origin">none — this browser only</b></div>
@@ -529,7 +530,7 @@
         </section>
 
         <!-- DEVELOPER -->
-        <section class="pane" id="pane-developer" role="tabpanel">
+        <section class="pane" id="pane-developer" role="tabpanel" aria-label="Developer">
           <h2>Developer</h2>
           <p class="lead">This public mirror has no backend — everything on this page renders in your browser. These endpoints exist only in the local app (<code>keel serve</code>):</p>
           <ul class="endpoint-list">
@@ -551,28 +552,28 @@
         </section>
 
         <!-- SKILLS -->
-        <section class="pane" id="pane-skills" role="tabpanel">
+        <section class="pane" id="pane-skills" role="tabpanel" aria-label="Skills">
           <h2>Skills</h2>
           <p class="lead">Skills loaded on your machine — user skills and Keel's bundled set. Enable, disable, or remove them from here.</p>
           <div class="list-block" id="skills-list"><p class="hint">Loading…</p></div>
         </section>
 
         <!-- COMMANDS -->
-        <section class="pane" id="pane-commands" role="tabpanel">
+        <section class="pane" id="pane-commands" role="tabpanel" aria-label="Commands">
           <h2>Commands</h2>
           <p class="lead">Slash commands discovered from this folder, your user folder, and Keel's built-in set.</p>
           <div class="list-block" id="commands-list"><p class="hint">Loading…</p></div>
         </section>
 
         <!-- WORKFLOWS -->
-        <section class="pane" id="pane-workflows" role="tabpanel">
+        <section class="pane" id="pane-workflows" role="tabpanel" aria-label="Workflows">
           <h2>Workflows</h2>
           <p class="lead">Multi-step workflows from this project's <code>.keel/workflows</code> folder and your user folder.</p>
           <div class="list-block" id="workflows-list"><p class="hint">Loading…</p></div>
         </section>
 
         <!-- MCP -->
-        <section class="pane" id="pane-connectors" role="tabpanel">
+        <section class="pane" id="pane-connectors" role="tabpanel" aria-label="MCP Servers">
           <h2>MCP Servers</h2>
           <p class="lead">MCP servers configured on this machine. Check their health or manage them in the fleet console.</p>
           <div class="list-block" id="mcp-list"><p class="hint">Loading…</p></div>
@@ -581,7 +582,7 @@
         </section>
 
         <!-- PLUGINS -->
-        <section class="pane" id="pane-plugins" role="tabpanel">
+        <section class="pane" id="pane-plugins" role="tabpanel" aria-label="Plugins">
           <h2>Plugins</h2>
           <p class="lead">Keel does not ship a plugin runtime. Connectors — MCP — are the extension surface: add a tool server there and every surface here can use it.</p>
           <div class="card"><button class="btn-primary" id="goto-connectors">Open Connectors</button></div>
@@ -623,7 +624,7 @@
     <div id="caps-list" class="caps-list"></div>
     <div id="caps-invoke" class="caps-invoke" hidden>
       <h4 id="caps-invoke-title"></h4>
-      <textarea id="caps-params" rows="5" placeholder='{"key": "value"}'></textarea>
+      <textarea id="caps-params" rows="5" aria-label="Module invocation parameters (JSON)" placeholder='{"key": "value"}'></textarea>
       <div class="caps-actions">
         <label><input type="checkbox" id="caps-confirm" /> Confirm mutating action</label>
         <button id="caps-run">Invoke</button>
