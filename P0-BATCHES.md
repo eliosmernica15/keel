@@ -1,18 +1,8 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **35 not-started P0 features** in 14 source groups.
+Generated from PLAN-INDEX.json: **25 not-started P0 features** in 12 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
-
-## V — 7 features
-
-- `V1` (M10) Plugin scope tree (lifecycle-safe plugins): every plugin runs in a scope that records what it registered (tools, hooks, routes, UI panels, timers, subprocesses)
-- `V16` (M0) Keel invariant-gate catalog: a list of gates specific to Keel: Tier-2 table hash unchanged; no outbound network in offline suite; no secret in logs; every tool 
-- `V2` (M3) Policy simulator with "winning rule" trace: shows ordered rules, which matched, which won, why a multi-resource op was denied, and the Tier-2 verdict.
-- `V24` (M5) Tool conformance kit: one automated suite every tool must pass: output schema declared, presenter pure on replay, cancel honored within N ms, no leaked fields i
-- `V26` (M4) Request-reconstruction test: replay a session log and rebuild the exact provider request; byte-compare with what was actually sent (hash) to prove "model-visibl
-- `V31` (M19) Local-socket transport spike: prove Electron ↔ Python over named pipe/UDS with streaming and backpressure on all three OSes before committing (C-19); keep TCP+t
-- `V5` (M3) Strictness presets as rule sets: Cautious / Balanced / Trusted compiled into ordered rule arrays, diffable and exportable, never able to touch Tier 2.
 
 ## D7 — 4 features
 
@@ -32,12 +22,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `X10.1` (M0) Definition-of-done template
 - `X10.2` (M0) Provenance file
 - `X10.4` (M0) Builder "stop list": actions that always pause for the owner, mirrored from gates G1 to G7 plus destructive repo actions, as a machine-readable file the builder
-
-## Y4 — 3 features
-
-- `Y4.13` (M22) version badge and zero-secrets release scan
-- `Y4.3` (M19) first-boot sign-in test-fire
-- `Y4.9` (M7) Persona file with rigor contract + coding-agent routing + desktop control plane
 
 ## Y6 — 3 features
 

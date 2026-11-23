@@ -13458,8 +13458,10 @@
       "milestone": "M10",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [
         "W1.1",
         "Y1.31"
@@ -13467,9 +13469,11 @@
       "acceptance_criteria": [
         "Load/unload a plugin 100 times and assert zero leaked handlers/processes."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -13638,15 +13642,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "each gate has a failing-fixture test proving it rejects bad input (D6.25)"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -13736,17 +13744,21 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [
         "C-1"
       ],
       "acceptance_criteria": [
         "Simulator emits a JSON trace with ordered rules, matches, winner, multi-resource denial reason and Tier-2 verdict; `keel policy test` works."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -13858,8 +13870,10 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [
         "E1.x",
         "E2.x"
@@ -13868,9 +13882,11 @@
         "Tool conformance kit: one automated suite every tool must pass: output schema declared, presenter pure on replay, cancel honored within N ms, no leaked fields in schemas(), concurrency flag only on read-only tools, timeout cooperative, errors typed.",
         "fails CI on any new tool that doesn't register conformance metadata."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -13911,16 +13927,20 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Request-reconstruction test: replay a session log and rebuild the exact provider request; byte-compare with what was actually sent (hash) to prove \"model-visible = logged\" (D2.11).",
         "test recomputes from log."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14067,15 +14087,19 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Local-socket transport spike: prove Electron \u2194 Python over named pipe/UDS with streaming and backpressure on all three OSes before committing (C-19); keep TCP+token as fallback."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14118,15 +14142,19 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Three JSONC presets ship, the wizard selects one, the simulator compares them, and none can touch Tier 2."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22342,17 +22370,21 @@
       "milestone": "M22",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/identity_contracts.py"
+      ],
       "dependencies": [
         "A4.8"
       ],
       "acceptance_criteria": [
         "Release script takes `VERSION`; scan on artifacts (A4.8)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_identity_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Identity contracts: first-boot sign-in test-fire, persona/rigor/routing descriptor with originality gate, version badge + zero-secret scan; 69 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22418,15 +22450,19 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/identity_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Already Master 9.3; add \"fail loudly with the exact provider error\"."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_identity_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Identity contracts: first-boot sign-in test-fire, persona/rigor/routing descriptor with originality gate, version badge + zero-secret scan; 69 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22566,8 +22602,10 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/identity_contracts.py"
+      ],
       "dependencies": [
         "X1",
         "A4.5"
@@ -22575,9 +22613,11 @@
       "acceptance_criteria": [
         "`PERSONA.md` sections; routing table consumed by the router (X1.x / A4.5)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_identity_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Identity contracts: first-boot sign-in test-fire, persona/rigor/routing descriptor with originality gate, version badge + zero-secret scan; 69 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
