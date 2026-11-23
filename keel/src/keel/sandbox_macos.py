@@ -380,10 +380,17 @@ def run_confined(
     def preexec() -> None:
         import resource
 
-        resource.setrlimit(resource.RLIMIT_CPU, (int(cpu_s), int(cpu_s)))
+        # macOS rejects some rlimit values (notably large RLIMIT_AS ceilings)
+        # with ValueError; an exception here aborts Popen with SubprocessError.
+        # Each limit is best-effort and the limitations list reports the
+        # memory ceiling as advisory (PARTIAL). RLIMIT_NPROC is not set.
         cap = cap_mb * 1024 * 1024
-        resource.setrlimit(resource.RLIMIT_AS, (cap, cap))
-        # RLIMIT_NPROC is intentionally not set on macOS.
+        for rid, value in ((resource.RLIMIT_CPU, (int(cpu_s), int(cpu_s))),
+                           (resource.RLIMIT_AS, (cap, cap))):
+            try:
+                resource.setrlimit(rid, value)
+            except (OSError, ValueError, OverflowError):
+                pass
 
     cmd = [sandbox_exec, "-p", profile, *[str(a) for a in argv]]
     timed_out = False

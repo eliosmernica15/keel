@@ -119,13 +119,16 @@ loopback port only if `allow_network=True`; by default networking is denied.
 ## 4. Honest limitations / deprecation
 
 1. **`sandbox-exec(1)` is DEPRECATED.** Its own man page says so and directs
-   developers to App Sandbox. It is present and functional on macOS 15
-   (Sequoia), including GitHub `macos-latest`, but Apple can remove it; this
-   backend is best-effort, not a supported long-term API. It may print a
-   deprecation notice to stderr — tests never assert empty stderr.
-2. **Filesystem isolation is PARTIAL.** Global `file-read-metadata` exposes
-   path existence, names and sizes. File *contents* outside the allowlist are
-   denied and writes are confined to the workspace (`FULL` for writes).
+   developers to App Sandbox. It still exists on the current `macos-latest`
+   (macOS 26 arm64) but its filtered-read behaviour is broken there (see §6);
+   Apple can remove it entirely. This is best-effort, not a supported API.
+2. **Filesystem isolation is PARTIAL / read isolation BLOCKED on the current
+   runner.** On hosts where the restrictive profile works, global
+   `file-read-metadata` still exposes names and sizes while contents outside
+   the allowlist are denied. On macOS 26 arm64 any path-filtered `file-read*`
+   rule aborts the child (SIGABRT, empty stderr), so the documented fallback
+   grants global reads: host file *contents* are readable and read denial
+   cannot be proven. Writes remain confined to the workspace (`FULL`).
 3. **System IPC is not confined.** `mach-lookup`, POSIX shared memory and
    `system-socket` are allowed so dyld/libSystem and user-lookup calls work.
 4. **Already-open descriptors bypass later checks.** `sandbox(7)` is explicit
@@ -135,9 +138,12 @@ loopback port only if `allow_network=True`; by default networking is denied.
 5. **No PID/IPC namespace.** Confined code shares the host PID space. The
    timeout kills only the confined session's process group; unrelated host
    jobs are untouched. `process-info*` and `signal` are not granted.
-6. **Memory ceiling is advisory (PARTIAL).** Raised to 4096 MB to accommodate
-   the shared cache; `RLIMIT_NPROC` is not applied. `RLIMIT_CPU` and wall-clock
-   timeout are enforced.
+6. **Memory ceiling is advisory (PARTIAL).** The requested ceiling is raised
+   to 4096 MB for the shared cache; macOS may reject large `RLIMIT_AS` values
+   with `ValueError`, which is caught rather than aborting `Popen`. If the
+   ceiling is not applied, the result limitations say so explicitly.
+   `RLIMIT_NPROC` is not applied. `RLIMIT_CPU` and wall-clock timeout are the
+   enforced resource controls.
 7. **`allow_network=True` is all-or-nothing.** SBPL permits port-level rules
    but not hostname filtering; we deliberately offer only deny/allow.
 8. **Process-level isolation, not a VM.** A compromised confined process can
@@ -150,20 +156,48 @@ loopback port only if `allow_network=True`; by default networking is denied.
 
 `keel/tests/test_sandbox_macos.py` uses a module-level
 `pytest.mark.skipif(sys.platform != "darwin", ...)`, so non-macOS runners skip
-all 13 tests cleanly. On macOS the tests launch real confined processes and
-assert: profile restrictiveness + injection rejection; interpreter launch;
+all 14 tests cleanly. On macOS the tests launch real confined processes and
+assert: profile restrictiveness + injection/alias dedup; interpreter launch;
 workspace read/write; unrelated host file read denial; unauthorized write
-denial; network denial; child-process inheritance; process-group timeout; CPU
-rlimit; memory-ceiling reporting; sidecar scratch-dir placement; and that a
-launch failure is reported with stderr rather than passed.
+denial; network denial; child-process inheritance of write restrictions;
+process-group timeout; CPU rlimit; memory-ceiling reporting; sidecar scratch
+dir; and that a launch failure is reported with stderr rather than passed.
 
-A launch failure calls `pytest.fail("BLOCKED: ...")` with the exact stderr;
-it is never converted into a skip or a pass.
+A launch failure or an unproven boundary calls `pytest.fail("BLOCKED: ...")`
+with the exact error; it is never converted into a skip or a pass.
 
 ## 6. Native runner evidence
 
-_To be filled from the `python-tests.yml` workflow_dispatch run on
-`agent/macos-sandbox` (matrix includes `macos-latest`)._
+`python-tests.yml` was dispatched on `agent/macos-sandbox` repeatedly. The
+runner image is `macos-26-arm64` (image 20261117.0516.1); the interpreter is
+the framework Python at
+`/Library/Frameworks/Python.framework/Versions/3.11/bin/python3`.
+
+**Decisive probe matrix (run inside `sandbox-exec` on that runner):**
+
+| Profile shape | Result |
+| --- | --- |
+| `(allow file-read*)` global, `(deny default)` | works (exit 0) |
+| same + `(deny network*)` | works (exit 0) |
+| `(allow file-read* (subpath "/usr"))` | **aborts: exit -6 (SIGABRT), stderr `b''`** |
+| `file-read-data` / `prefix` / literal variants | **all abort: exit -6** |
+| two narrow `file-read*` rules | **aborts: exit -6** |
+| merged narrow rule with 10 canonical roots | **aborts: exit -6** |
+| broad `(allow file-read*)` + filtered `file-write*` + `(deny network*)` + process/IPC rules | works (exit 0) |
+
+This is a macOS Seatbelt regression with an empty-stderr SIGABRT for filtered
+reads, independently reported for macOS 27.0.1 in
+`coccinella-labs/harper#926`. It is **not** a profile syntax error: malformed
+profiles print an error and exit 65. Consequently read isolation is reported
+as `BLOCKED` with `read_isolation: "BLOCKED"` and the exact error
+`exit=-6, stderr=b''` in `capabilities()["limitations"]`; the fallback grants
+global reads and must not be trusted for host-file confidentiality.
+
+A subsequent run exposed a second, unrelated defect: an uncaught
+`resource.setrlimit` `ValueError` inside `preexec_fn` produced
+`subprocess.SubprocessError: Exception occurred in preexec_fn` on every
+confined launch. Rlimit application is now best-effort and the test suite no
+longer claims a memory ceiling that macOS refused to set.
 
 ## 7. References
 

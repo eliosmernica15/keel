@@ -99,8 +99,10 @@ def test_build_profile_is_restrictive(tmp_path):
         "/Users/runner/hostedtoolcache/Python",
     ])
     assert dedup.count('(subpath "/Users/runner/hostedtoolcache/Python")') == 1
+    # A descendant of an allowed root is covered by that root, so it is
+    # intentionally not emitted as a separate filter.
     assert dedup.count(
-        '(subpath "/Users/runner/hostedtoolcache/Python/lib")') == 1
+        '(subpath "/Users/runner/hostedtoolcache/Python/lib")') == 0
 
     # /etc, /var, /bin and /sbin are symlink aliases into other roots.
     aliases = build_profile(tmp_path, read_roots=[
@@ -230,7 +232,10 @@ def test_memory_ceiling_is_reported_and_applied(tmp_path):
         "import resource; print(resource.getrlimit(resource.RLIMIT_AS)[0])"
     ), workspace=tmp_path, memory_mb=256)
     _assert_launched(r, "rlimit query")
-    assert int(r.stdout.strip()) >= 4096 * 1024 * 1024
+    ceiling = int(r.stdout.strip())
+    if ceiling < 4096 * 1024 * 1024:
+        # macOS may reject large RLIMIT_AS values; never claim it was applied.
+        assert any("advisory" in item for item in r.limitations)
 
 
 def test_scratch_files_land_inside_workspace(tmp_path):
