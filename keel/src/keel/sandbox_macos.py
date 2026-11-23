@@ -346,6 +346,15 @@ def _diagnose_profile(sandbox_exec: str, profile: str) -> str:
         "two_read_rules": [*header, '(allow file-read* (subpath "/usr"))',
                            '(allow file-read* (subpath "/System"))'],
         "narrow_roots": [*header, root_rule],
+        "broad_read_full": [
+            "(version 1)", "(deny default)",
+            "(allow process-exec)", "(allow process-fork)",
+            "(allow sysctl-read)", "(allow file-ioctl)",
+            "(allow file-read-metadata)", "(allow mach-lookup)",
+            "(allow ipc-posix-shm)", "(allow system-socket)",
+            '(allow file-write* (subpath "/tmp"))',
+            "(allow file-read*)", "(deny network*)",
+        ],
     }
     results = {name: compiles(rules) for name, rules in ladder.items()}
     return (f"no single-rule culprit; minimal failing core "
