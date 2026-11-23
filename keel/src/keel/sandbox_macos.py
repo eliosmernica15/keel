@@ -332,10 +332,20 @@ def _diagnose_profile(sandbox_exec: str, profile: str) -> str:
     ladder = {
         "control": [*header, "(allow file-read*)"],
         "control+netdeny": [*header, "(allow file-read*)", "(deny network*)"],
+        "read_star_subpath": [*header, '(allow file-read* (subpath "/usr"))'],
+        "read_star_literal": [*header,
+                              '(allow file-read* (literal "/usr/bin/true"))'],
+        "read_star_prefix": [*header, '(allow file-read* (prefix "/usr"))'],
+        "meta_plus_read_star": [*header, "(allow file-read-metadata)",
+                                '(allow file-read* (subpath "/usr"))'],
+        "meta_plus_read_data": [*header, "(allow file-read-metadata)",
+                                '(allow file-read-data (subpath "/usr"))'],
+        "meta_plus_data_literal": [*header, "(allow file-read-metadata)",
+                                   '(allow file-read-data '
+                                   '(literal "/usr/bin/true"))'],
         "two_read_rules": [*header, '(allow file-read* (subpath "/usr"))',
                            '(allow file-read* (subpath "/System"))'],
         "narrow_roots": [*header, root_rule],
-        "narrow_roots+netdeny": [*header, root_rule, "(deny network*)"],
     }
     results = {name: compiles(rules) for name, rules in ladder.items()}
     return (f"no single-rule culprit; minimal failing core "
