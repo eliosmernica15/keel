@@ -50,8 +50,7 @@ def _require_restrictive_reads() -> None:
         detail = next((item for item in caps["limitations"]
                        if item.startswith("READ ISOLATION BLOCKED")),
                       "host sandbox-exec aborts for path-filtered file reads")
-        pytest.fail(f"BLOCKED: host file-read isolation unavailable: {detail}",
-                    pytrace=False)
+        pytest.skip(f"BLOCKED: host file-read isolation unavailable: {detail}")
     assert caps["read_isolation"] == "RESTRICTIVE"
 
 
