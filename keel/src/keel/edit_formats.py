@@ -180,6 +180,13 @@ class _Block:
 
 _NEWLINE_RE = re.compile(r"(\r\n|\r|\n)")
 _WS_RE = re.compile(r"\s+")
+# Quoted literal contents (single or double quoted, with backslash escapes).
+_QUOTED_RE = re.compile(r"(['\"])(?:\\.|(?!\1).)*\1")
+# Private marker for whitespace that compaction must NOT discard. \x00 is not
+# matched by \s, so it survives the global whitespace strip below.
+_WS_KEEP = "\x00"
+# Whitespace between two word characters joins identifiers/numbers.
+_WORD_GAP_RE = re.compile(r"(?<=\w)\s+(?=\w)")
 
 
 def _split_lines(text: str) -> list[tuple[str, str]]:
@@ -296,7 +303,11 @@ def _replace_span(
     if start < len(lines) and lines[start][1]:
         target_sep = lines[start][1]
     if end > 0 and end <= len(lines):
-        trailing_sep = lines[end - 1][1] or target_sep
+        # The final line of a newline-free file has an empty separator. Keep
+        # it empty: inventing a separator changes the file's last byte.
+        trailing_sep = lines[end - 1][1]
+        if not trailing_sep and end < len(lines):
+            trailing_sep = target_sep
     else:
         trailing_sep = target_sep
 
@@ -451,6 +462,29 @@ def _normalize(body: str, level: str) -> str:
     return _WS_RE.sub("", body)  # compact
 
 
+def _safe_compact(body: str) -> str:
+    """Whitespace-stripped form that keeps *semantically significant* gaps.
+
+    Removing whitespace inside a quoted literal changes its value, and
+    removing whitespace between two word characters merges identifiers or
+    numbers. Those gaps are protected here; every other gap may be discarded.
+    """
+    text = _WORD_GAP_RE.sub(_WS_KEEP, body)
+    text = _QUOTED_RE.sub(lambda m: _WS_RE.sub(_WS_KEEP, m.group(0)), text)
+    return _WS_RE.sub("", text).replace(_WS_KEEP, " ")
+
+
+def _unsafe_compact_collision(old: str, window: str) -> bool:
+    """True when removing whitespace hides a real content difference.
+
+    ``"a b"`` / ``"ab"`` and ``1 2`` / ``12`` collapse to the same string
+    under naive compaction but are different code. A window with such a
+    collision is never eligible, at any threshold.
+    """
+    return (_WS_RE.sub("", old) == _WS_RE.sub("", window)
+            and _safe_compact(old) != _safe_compact(window))
+
+
 def _similarity(old_norm: str, window_norm: str) -> float:
     if old_norm == window_norm:
         return 1.0
@@ -501,26 +535,45 @@ def _fuzzy_replace_lines(
     if width > n or n == 0:
         raise _no_match_error(old_bodies, all_bodies, 0, max(1, min(width, n)), 0.0, threshold)
 
+    # ``threshold == 1.0`` demands exact equality, so the lossy ``compact``
+    # strategy must not participate at all. It can otherwise turn a different
+    # line into a 1.0 match and silently defeat the strict threshold.
+    levels = _LEVELS[:-1] if threshold >= 1.0 - _EPS else _LEVELS
+
+    # A window whose naive whitespace-stripped form matches only because
+    # whitespace inside a literal or between identifiers was removed is a
+    # semantic collision, not a fuzzy match. Such windows are never eligible.
+    unsafe = {
+        i for i in range(n - width + 1)
+        if any(_unsafe_compact_collision(old, window)
+               for old, window in zip(old_bodies, all_bodies[i:i + width]))
+    }
+
     windows: list[tuple[list[str], int, tuple[str, ...]]] = []
     for i in range(n - width + 1):
         window = all_bodies[i : i + width]
         penalty = min(0.20, 0.03 * abs(_indent_delta(old_bodies, window)))
         norms = tuple(
-            "\n".join(_normalize(body, level) for body in window) for level in _LEVELS
+            "\n".join(_normalize(body, level) for body in window) for level in levels
         )
         windows.append((window, penalty, norms))
 
     old_norms = {
         level: "\n".join(_normalize(body, level) for body in old_bodies)
-        for level in _LEVELS
+        for level in levels
     }
     best: dict[int, tuple[float, str]] = {}
-    for level_index, level in enumerate(_LEVELS):
+    for level_index, level in enumerate(levels):
         old_norm = old_norms[level]
         for i, (_window, penalty, norms) in enumerate(windows):
+            if i in unsafe:
+                continue
             score = _similarity(old_norm, norms[level_index]) - penalty
             if i not in best or score > best[i][0] + _EPS:
                 best[i] = (score, level)
+
+    if not best:
+        raise _no_match_error(old_bodies, all_bodies, 0, width, 0.0, threshold)
 
     eligible = [
         (score, i, level)

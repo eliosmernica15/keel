@@ -181,6 +181,20 @@ def test_contract3_enum_const_and_inferred_type():
     assert tc.validate_value(enum, "c")
 
 
+def test_contract3_numeric_types_follow_json_schema_widening():
+    """M1: integer satisfies number; integral float satisfies integer."""
+    assert tc.validate_value({"type": "number"}, 5) == []
+    assert tc.validate_value({"type": "integer"}, 5.0) == []
+    assert tc.validate_value({"type": "integer"}, 5.5)  # fractional float rejected
+    assert tc.validate_value({"type": "number"}, True)  # bool is not a number
+    assert tc.validate_value({"type": "integer"}, "5")  # string is not a number
+
+    number_reg = _registry(_spec(input_schema=_obj({"a": {"type": "number"}}, ["a"])))
+    assert tc.execute_tool(number_reg, "echo", {"a": 5}).ok is True
+    integer_reg = _registry(_spec(input_schema=_obj({"a": {"type": "integer"}}, ["a"])))
+    assert tc.execute_tool(integer_reg, "echo", {"a": 5.0}).ok is True
+
+
 def test_contract3_invalid_args_and_invalid_output_codes():
     reg = _registry(_spec())
     assert tc.execute_tool(reg, "echo", {}).code == "INVALID_ARGS"
@@ -330,6 +344,55 @@ def test_contract7_replace_value_protects_actual_value():
     assert "echo" not in str(result.value)
 
 
+def test_contract7_replace_value_scrubs_every_result_surface():
+    """H1 regression: a DLP replace must not leave pre-DLP bytes in any field."""
+    secret = "SECRET_VALUE_here"
+
+    def read_file(args, ctx):
+        return {"ok": True, "path": "x", "offset": 1, "lines": [secret],
+                "total_lines": None, "language": None}
+
+    reg = _registry(_spec(
+        name="read_file", handler=read_file, input_schema=_obj(),
+        renderer=lambda args, value: f"[tool result: {value}]"))
+    reg.add_post_hook(tc.dlp_replace_value("[REDACTED]"))
+    result = tc.execute_tool(reg, "read_file", {})
+
+    def strings(node):
+        if isinstance(node, str):
+            yield node
+        elif isinstance(node, dict):
+            for key, value in node.items():
+                yield str(key)
+                yield from strings(value)
+        elif isinstance(node, (list, tuple)):
+            for value in node:
+                yield from strings(value)
+
+    # 'renderer' is a callable, not a persisted data surface.
+    for field in ("value", "display", "presentation_meta", "attached_context",
+                  "audit", "durable_reason", "code"):
+        assert all(secret not in s for s in strings(getattr(result, field))), field
+    assert result.value == "[REDACTED]"
+    assert result.presentation_meta.get("fields", {}).get("lines") != [secret]
+
+
+def test_contract7_replace_value_discards_pre_dlp_attached_context():
+    """H1 regression: deferred/injected context is also a durable surface."""
+    secret = "SECRET_IN_DEFERRED_CONTEXT"
+
+    def handler(args, ctx):
+        ctx.defer_context({"note": secret})
+        return {"ok": True, "echo": secret}
+
+    reg = _registry(_spec(name="ctx", handler=handler, input_schema=_obj()))
+    reg.add_post_hook(tc.dlp_replace_value("[REDACTED]"))
+    result = tc.execute_tool(reg, "ctx", {})
+    assert result.attached_context == []
+    assert secret not in str(result.attached_context)
+    assert secret not in str(result.presentation_meta)
+
+
 def test_contract7_block_hides_value_and_stays_typed():
     reg = _registry(_spec())
     reg.add_post_hook(tc.dlp_block("DLP: secret detected"))
@@ -378,6 +441,41 @@ def test_contract8_caller_cancel_propagates_through_wrapper():
     caller.cancel()
     result = tc.execute_tool(reg, "wait", {}, cancel=caller)
     assert result.code == "ABORTED"
+
+
+def test_contract8_pre_cancelled_call_never_dispatches_handler():
+    """H2 regression: an already-cancelled call must not run side effects."""
+    called = []
+
+    def side_effect(args, ctx):
+        called.append(True)
+        return {"ok": True}
+
+    reg = _registry(_spec(name="side", handler=side_effect, input_schema=_obj()))
+    cancel = tc.CancelSignal()
+    cancel.cancel()
+    result = tc.execute_tool(reg, "side", {}, cancel=cancel)
+    assert called == []
+    assert result.ok is False
+    assert result.code in {"ABORTED", "ABORTED_BEFORE_DISPATCH"}
+
+
+def test_contract8_pre_cancelled_wrapper_signal_never_dispatches():
+    """H2 regression: a wrapper-supplied signal is part of the pre-dispatch gate."""
+    called = []
+
+    def side_effect(args, ctx):
+        called.append(True)
+        return {"ok": True}
+
+    reg = _registry(_spec(name="side", handler=side_effect, input_schema=_obj()))
+    extra = tc.CancelSignal()
+    extra.cancel()
+    reg.add_wrapper(lambda dispatch, signal: (dispatch, extra))
+    result = tc.execute_tool(reg, "side", {})
+    assert called == []
+    assert result.ok is False
+    assert result.code in {"ABORTED", "ABORTED_BEFORE_DISPATCH"}
 
 
 def test_contract8_cooperative_timeout_and_timed_out_flag():
@@ -509,6 +607,30 @@ def test_contract10_internal_failure_drains_then_typed_batch_error(monkeypatch):
     assert exc.value.code == "BATCH_EXECUTION_ERROR"
     assert any(r.name == "a" for r in exc.value.outcomes)
     assert any(r.name == "b" for r in exc.value.outcomes)
+
+
+def test_contract10_dispatched_baseexception_failure_is_not_reported_as_skipped(monkeypatch):
+    """M2: a dispatched safe call that raises BaseException is not 'skipped'."""
+    real_execute = tc.execute_tool
+
+    def fake_execute(registry, name, args, **kw):
+        if name == "boom":
+            raise KeyboardInterrupt("injected handler interrupt")
+        return real_execute(registry, name, args, **kw)
+
+    monkeypatch.setattr(tc, "execute_tool", fake_execute)
+    reg = _registry(
+        _spec(name="ok", input_schema=_obj(), concurrency=tc.ConcurrencyClass.SAFE),
+        _spec(name="boom", input_schema=_obj(), concurrency=tc.ConcurrencyClass.SAFE),
+    )
+    calls = [tc.ToolCall("ok", {}), tc.ToolCall("boom", {})]
+    with pytest.raises(tc.ToolBatchExecutionError) as exc:
+        tc.execute_batch(reg, calls, max_parallel=4)
+    by_name = {r.name: r for r in exc.value.outcomes}
+    assert set(by_name) == {"ok", "boom"}
+    assert by_name["ok"].ok is True
+    assert by_name["boom"].code == "TOOL_EXECUTION_ERROR"
+    assert all(r.code != "ABORTED_BEFORE_DISPATCH" for r in exc.value.outcomes)
 
 
 # ---------------------------------------------------------------------------
