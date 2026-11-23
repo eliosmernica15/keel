@@ -727,6 +727,14 @@ X1_EDIT_EVIDENCE = (
     "Selectable edit formats (whole-file, search/replace, unified diff, "
     "line-range) and fuzzy patch application with ambiguity/threshold guards "
     "and typed model-facing errors; 26 passing tests.")
+W2_AGENT_TOKENS = frozenset({"W2.1", "W2.2", "W2.3", "W2.4", "W2.6", "W2.8",
+                             "W2.9", "W2.11"})
+W2_AGENT_SRC = ["src/keel/agent_contracts.py"]
+W2_AGENT_TESTS = ["tests/test_agent_contracts.py"]
+W2_AGENT_EVIDENCE = (
+    "Agent file/subagent contracts: nested IDs, modes, built-ins, step limits, "
+    "launch permission monotonicity, prompt composition, merge semantics and "
+    "plan-folder containment; 35 passing tests.")
 
 TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
                      "src/keel/tool_contracts_bridge.py"]
@@ -758,23 +766,26 @@ def _load_extra_features() -> list[dict]:
             tags = str(f.get("tag/source") or "")
             implemented_ids = (TOOL_CONTRACT_IDS | X1_REPO_TOKENS |
                                X1_STEERING_TOKENS | X1_DIALECT_TOKENS |
-                               X1_EDIT_TOKENS)
+                               X1_EDIT_TOKENS | W2_AGENT_TOKENS)
             verified = fid in implemented_ids
             src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
                          X1_REPO_SRC if fid in X1_REPO_TOKENS else
                          X1_STEERING_SRC if fid in X1_STEERING_TOKENS else
                          X1_DIALECT_SRC if fid in X1_DIALECT_TOKENS else
-                         X1_EDIT_SRC if fid in X1_EDIT_TOKENS else [])
+                         X1_EDIT_SRC if fid in X1_EDIT_TOKENS else
+                         W2_AGENT_SRC if fid in W2_AGENT_TOKENS else [])
             test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
                           X1_REPO_TESTS if fid in X1_REPO_TOKENS else
                           X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
                           X1_DIALECT_TESTS if fid in X1_DIALECT_TOKENS else
-                          X1_EDIT_TESTS if fid in X1_EDIT_TOKENS else [])
+                          X1_EDIT_TESTS if fid in X1_EDIT_TOKENS else
+                          W2_AGENT_TESTS if fid in W2_AGENT_TOKENS else [])
             evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
                         X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
                         X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
                         X1_DIALECT_EVIDENCE if fid in X1_DIALECT_TOKENS else
-                        X1_EDIT_EVIDENCE if fid in X1_EDIT_TOKENS else "")
+                        X1_EDIT_EVIDENCE if fid in X1_EDIT_TOKENS else
+                        W2_AGENT_EVIDENCE if fid in W2_AGENT_TOKENS else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),

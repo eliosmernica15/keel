@@ -14388,15 +14388,21 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/tool_contracts.py",
+        "src/keel/tool_contracts_bridge.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: `.keel/agents//*.md`, nested IDs."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_tool_contracts.py",
+        "tests/test_tool_contracts_bridge.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14436,15 +14442,21 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/tool_contracts.py",
+        "src/keel/tool_contracts_bridge.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Plan agent writes under `.keel/plans/` only (keeps Keel's \"plan cannot edit code\" rule)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_tool_contracts.py",
+        "tests/test_tool_contracts_bridge.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14460,15 +14472,21 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/tool_contracts.py",
+        "src/keel/tool_contracts_bridge.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Agent `mode` field."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_tool_contracts.py",
+        "tests/test_tool_contracts_bridge.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14484,15 +14502,21 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/tool_contracts.py",
+        "src/keel/tool_contracts_bridge.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Ship the same set;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_tool_contracts.py",
+        "tests/test_tool_contracts_bridge.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14508,17 +14532,23 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/tool_contracts.py",
+        "src/keel/tool_contracts_bridge.py"
+      ],
       "dependencies": [
         "C3.2"
       ],
       "acceptance_criteria": [
         "On the final step tools are removed and the model must summarize in text; new user input resets the step count."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_tool_contracts.py",
+        "tests/test_tool_contracts_bridge.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14558,15 +14588,21 @@
       "milestone": "M12",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/tool_contracts.py",
+        "src/keel/tool_contracts_bridge.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Per-agent allowlist of launchable agents;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_tool_contracts.py",
+        "tests/test_tool_contracts_bridge.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14606,17 +14642,23 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/tool_contracts.py",
+        "src/keel/tool_contracts_bridge.py"
+      ],
       "dependencies": [
         "X1.15"
       ],
       "acceptance_criteria": [
         "Prompt assembly order is documented and golden-tested (X1.15)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_tool_contracts.py",
+        "tests/test_tool_contracts_bridge.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14632,15 +14674,21 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/tool_contracts.py",
+        "src/keel/tool_contracts_bridge.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Config merger replaces scalars, merges maps by key, appends permission rules, and applies global rules before agent rules."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_tool_contracts.py",
+        "tests/test_tool_contracts_bridge.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

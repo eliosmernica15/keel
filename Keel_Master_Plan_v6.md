@@ -563,17 +563,17 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | W1.7 | Staged-only lint config (`.oxlintrc.staged.json`), `lefthook.yml` git hooks, `.jscpd.json` duplicate-code detector, `.rgignore` (files ripgrep should skip), `.gitattributes`, `.editorconfig`. | M0 | P1 | not_started |
 | W1.8 | Dual CI config (`.github` and `.gitlab-ci.yml`) in one repo. | M1 | P1 | not_started |
 | W1.9 | `i18n.yaml` single-source docs: `README.i18n.yaml`, `CONTRIBUTING.i18n.yaml`, `SAFETY.i18n.yaml`, `BRAND_GUIDELINES.i18n.yaml` alongside `.md` and `.zh.md`. | M25 | P1 | not_started |
-| W2.1 | Markdown agent files with YAML frontmatter; nested path becomes agent ID (`team/reviewer`); global + project locations; same fields as config entries; body is the system prompt. | M7 | P0 | not_started |
+| W2.1 | Markdown agent files with YAML frontmatter; nested path becomes agent ID (`team/reviewer`); global + project locations; same fields as config entries; body is the system prompt. | M7 | P0 | verified |
 | W2.10 | Model reference format `provider/model#variant` and an expanded object form. | M2 | P1 | not_started |
-| W2.11 | Plan agent may write only plan files in a dedicated plan folder; shell stays permission-controlled. | M7 | P0 | not_started |
-| W2.2 | Modes `primary` / `subagent` / `all`; subagents run in child sessions with fresh context. | M7 | P0 | not_started |
-| W2.3 | Built-ins: build, plan, general (no further subagents), explore (read-only incl. web); hidden maintenance agents (`compaction`, `title`, `summary`) that are not user-selectable and have all actions denied except their job. | M7 | P0 | not_started |
-| W2.4 | `steps` limit: max model steps per turn; on the final step tools are removed and the model must summarize in text; new user input resets. | M7 | P0 | not_started |
+| W2.11 | Plan agent may write only plan files in a dedicated plan folder; shell stays permission-controlled. | M7 | P0 | verified |
+| W2.2 | Modes `primary` / `subagent` / `all`; subagents run in child sessions with fresh context. | M7 | P0 | verified |
+| W2.3 | Built-ins: build, plan, general (no further subagents), explore (read-only incl. web); hidden maintenance agents (`compaction`, `title`, `summary`) that are not user-selectable and have all actions denied except their job. | M7 | P0 | verified |
+| W2.4 | `steps` limit: max model steps per turn; on the final step tools are removed and the model must summarize in text; new user input resets. | M7 | P0 | verified |
 | W2.5 | `hidden`, `color`, `disabled` agent fields; `disabled` removes a built-in at config load. | M7 | P1 | not_started |
-| W2.6 | Subagent launch permissions: parent's `subagent` rules control which agents it may launch (e.g., deny `*`, allow `reviewer`); child uses its own permissions, not a subset of parent's. | M12 | P0 | not_started |
+| W2.6 | Subagent launch permissions: parent's `subagent` rules control which agents it may launch (e.g., deny `*`, allow `reviewer`); child uses its own permissions, not a subset of parent's. | M12 | P0 | verified |
 | W2.7 | Default agent resolution chain: configured default, else `build`, else first visible primary-capable; changing default does not alter existing sessions. | M7 | P1 | not_started |
-| W2.8 | `system` replaces the provider base prompt for that agent, but project instructions, skills, references still get added. | M7 | P0 | not_started |
-| W2.9 | Agent merge semantics: later scalars replace, maps merge by key, permission rules append; global rules apply before agent rules. | M2 | P0 | not_started |
+| W2.8 | `system` replaces the provider base prompt for that agent, but project instructions, skills, references still get added. | M7 | P0 | verified |
+| W2.9 | Agent merge semantics: later scalars replace, maps merge by key, permission rules append; global rules apply before agent rules. | M2 | P0 | verified |
 | W3.1 | Rule = `{action, resource, effect}`; effects `allow/deny/ask`; no match means ask. | M3 | P0 | not_started |
 | W3.10 | Policies layer can hard-deny after rules and saved approvals; turns allow/ask into deny, never grants; global/managed policies override project config. | M3 | P0 | not_started |
 | W3.11 | Permission actions for MCP resources: `list_mcp_resources` (resource = server) and `read_mcp_resource` (resource = `<server>:<uri>`); MCP tools as `<server>_<tool>`. | M6 | P1 | not_started |
