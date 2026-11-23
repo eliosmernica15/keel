@@ -97,14 +97,17 @@ def _sbpl_path(value: str | Path) -> str:
 def _canonical_path(path: str) -> str:
     """Resolve macOS symlink aliases used by SBPL filters.
 
-    ``/etc`` and ``/var`` are symlinks into ``/private``. Listing both spellings
-    as filters makes the SBPL compiler abort (duplicate filters after
-    canonicalisation), so normalise before de-duplicating.
+    ``/etc`` and ``/var`` are symlinks into ``/private``; on modern macOS
+    ``/bin`` -> ``/usr/bin`` and ``/sbin`` -> ``/usr/sbin``. Listing both
+    spellings as filters makes the SBPL compiler abort (duplicate filters
+    after canonicalisation), so normalise before de-duplicating.
     """
-    if path == "/etc" or path.startswith("/etc/"):
-        return "/private" + path
-    if path == "/var" or path.startswith("/var/"):
-        return "/private" + path
+    for alias, real in (("/etc", "/private/etc"), ("/var", "/private/var"),
+                        ("/bin", "/usr/bin"), ("/sbin", "/usr/sbin")):
+        if path == alias:
+            return real
+        if path.startswith(alias + "/"):
+            return real + path[len(alias):]
     return path
 
 
@@ -315,8 +318,29 @@ def _diagnose_profile(sandbox_exec: str, profile: str) -> str:
                 current = trial
                 changed = True
                 break
+    # Probe a ladder of known-shape profiles so a persistent failure still
+    # reports exactly which capability triggers it.
+    header = ["(version 1)", "(deny default)", "(allow process-exec)"]
+    root_rule = (
+        '(allow file-read* (subpath "/usr") (subpath "/System") '
+        '(subpath "/Library") (subpath "/private/etc") '
+        '(subpath "/private/var/db/dyld") '
+        '(subpath "/private/var/db/timezone") '
+        '(literal "/dev/null") (literal "/dev/zero") '
+        '(literal "/dev/random") (literal "/dev/urandom"))'
+    )
+    ladder = {
+        "control": [*header, "(allow file-read*)"],
+        "control+netdeny": [*header, "(allow file-read*)", "(deny network*)"],
+        "two_read_rules": [*header, '(allow file-read* (subpath "/usr"))',
+                           '(allow file-read* (subpath "/System"))'],
+        "narrow_roots": [*header, root_rule],
+        "narrow_roots+netdeny": [*header, root_rule, "(deny network*)"],
+    }
+    results = {name: compiles(rules) for name, rules in ladder.items()}
     return (f"no single-rule culprit; minimal failing core "
-            f"({len(current)} rules):\n" + "\n".join(current))
+            f"({len(current)} rules):\n" + "\n".join(current)
+            + f"\nprofile ladder: {results}")
 
 
 def run_confined(

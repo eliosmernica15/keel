@@ -85,9 +85,13 @@ def test_build_profile_is_restrictive(tmp_path):
 
     # /etc and /var are symlinks into /private; both spellings in one profile
     # abort the SBPL compiler as duplicate filters.
-    aliases = build_profile(tmp_path, read_roots=["/etc", "/private/etc",
-                                                  "/var/db/dyld"])
+    aliases = build_profile(tmp_path, read_roots=[
+        "/etc", "/private/etc", "/var/db/dyld", "/bin", "/sbin",
+    ])
     assert '(subpath "/etc")' not in aliases
+    assert '(subpath "/bin")' not in aliases
+    assert '(subpath "/sbin")' not in aliases
+    assert '(subpath "/usr/bin")' not in aliases
     assert aliases.count('(subpath "/private/etc")') == 1
     assert aliases.count('(subpath "/private/var/db/dyld")') == 1
     assert build_profile(tmp_path, allow_network=True).count("(allow network*)") == 1
