@@ -5,7 +5,7 @@
 
 ## 1. Provenance and scope
 
-- Registry: `C:\Users\Admin\Desktop\Claude clone\PLAN-INDEX.json` — SHA-256 `6dfc319e83161a59eec554c8f2d76c71d999d3b7630934e73547421b7aa21472`.
+- Registry: `C:\Users\Admin\Desktop\Claude clone\PLAN-INDEX.json` — SHA-256 `520437f519909a4c2ec1e998a5ecfcdd4d0595e8d911eb0008d51187ab6a321c`.
 - Rows: **865** (status: verified 312, not_started 551, blocked 2).
 - Decomposition source: `C:\Users\Admin\Desktop\Claude clone\plan-extract\addendum3.json` if found, otherwise built-in X0.2/X0.2b labels.
 - Stated dependency references: **144**;
