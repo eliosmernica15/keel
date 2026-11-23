@@ -29,7 +29,20 @@ Date: 2026-11-23.
 | Tool-contracts bridge | model-facing schema projection + native conformance (47 tools, 0 problems) | `92c7e54` |
 | Offline CI + license gate | `unshare -n` offline job; fail-closed license checker; 4 offline tests | local commit |
 | Reference research (OpenCode, Orgo, Openman, Nicks Stack, Clawdbot) | clean-room behavior specs, 4 files, 186+166+validated feature IDs | `d7eb496`, `2876cee`, `ce6ddb9` (merged) |
-| DeepSeek harness verification | pending agent | — |
+| DeepSeek harness verification | 289 claims checked; 2 contradicted + 7 unverifiable recorded in registry | `8848227` (merged `14829ea`) |
+| X1.1-X1.3 model dialect adapters | 70 tests | `3950b64` (merged) |
+| X1.4-X1.5 edit formats/fuzzy patch | 26 tests | `d72f62c` (merged) |
+| X1.7-X1.8 repo map + token counting | 23 tests | `1f39213` (merged) |
+| X1.13 steering/interrupt | 20 tests | `55b52be` (merged) |
+| Registry verified count | 268 verified (was 226 base + 34 contracts + 8 X1) / 595 not_started / 2 blocked | `fa062a4` |
+| Status page not_started accounting + schema drift fixes | honest totals, no double count | `fa062a4` |
+
+## Active parallel workstreams (Process B + reviewers)
+
+- 4 implementation agents on W3.x permission contracts, D2.x session/event contracts, Y1.x MCP/plugin config, W2.x agent/subagent contracts (44 P0 features).
+- 2 independent reviewers: core implementation batches, registry/governance/CI gates.
+- Full suite regression run in progress.
+- Current P0 not_started: 166 (was 196 before X1 wave).
 
 ## Verification
 
