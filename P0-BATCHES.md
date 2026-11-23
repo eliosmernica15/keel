@@ -1,19 +1,8 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **58 not-started P0 features** in 19 source groups.
+Generated from PLAN-INDEX.json: **50 not-started P0 features** in 18 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
-
-## X0 — 8 features
-
-- `X0.1` (M0) Priority inflation
-- `X0.10` (M0) Plan says "reimplement from behavior" but gives no clean-room procedure
-- `X0.2` (M19) M19 (desktop UI) is overloaded
-- `X0.3` (M0) No dependency graph
-- `X0.4` (M12) Duet defined three ways
-- `X0.6` (M0) Free-tier trap list is incomplete
-- `X0.7` (M2) Voice/ML licensing is stated as "check"
-- `X0.8` (M25) "Zero network without account" is asserted but there is no test list
 
 ## V — 7 features
 

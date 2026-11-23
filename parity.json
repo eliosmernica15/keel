@@ -16858,13 +16858,17 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/plan_corrections.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_plan_corrections.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Plan-correction verification module proves each repo-root artifact exists and is valid (P0 share, M19 splits, dependency graph, Duet modes, free-tier register, license gate, offline lane, clean-room specs) with 14 passing tests incl. 9 tamper cases.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16880,13 +16884,17 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/plan_corrections.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_plan_corrections.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Plan-correction verification module proves each repo-root artifact exists and is valid (P0 share, M19 splits, dependency graph, Duet modes, free-tier register, license gate, offline lane, clean-room specs) with 14 passing tests incl. 9 tamper cases.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16902,13 +16910,17 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/plan_corrections.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_plan_corrections.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Plan-correction verification module proves each repo-root artifact exists and is valid (P0 share, M19 splits, dependency graph, Duet modes, free-tier register, license gate, offline lane, clean-room specs) with 14 passing tests incl. 9 tamper cases.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16946,15 +16958,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/plan_corrections.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "builder may not start a row whose dependencies are not green"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_plan_corrections.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Plan-correction verification module proves each repo-root artifact exists and is valid (P0 share, M19 splits, dependency graph, Duet modes, free-tier register, license gate, offline lane, clean-room specs) with 14 passing tests incl. 9 tamper cases.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16970,13 +16986,17 @@
       "milestone": "M12",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/plan_corrections.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_plan_corrections.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Plan-correction verification module proves each repo-root artifact exists and is valid (P0 share, M19 splits, dependency graph, Duet modes, free-tier register, license gate, offline lane, clean-room specs) with 14 passing tests incl. 9 tamper cases.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17014,15 +17034,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/plan_corrections.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Re-verify at each gate"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_plan_corrections.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Plan-correction verification module proves each repo-root artifact exists and is valid (P0 share, M19 splits, dependency graph, Duet modes, free-tier register, license gate, offline lane, clean-room specs) with 14 passing tests incl. 9 tamper cases.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17038,15 +17062,19 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/plan_corrections.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "consumed by the UI license display and a CI gate"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_plan_corrections.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Plan-correction verification module proves each repo-root artifact exists and is valid (P0 share, M19 splits, dependency graph, Duet modes, free-tier register, license gate, offline lane, clean-room specs) with 14 passing tests incl. 9 tamper cases.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17062,15 +17090,19 @@
       "milestone": "M25",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/plan_corrections.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "CI job runs the full smoke suite with network namespace removed; fails on any outbound attempt (update check disabled in that job)"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_plan_corrections.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Plan-correction verification module proves each repo-root artifact exists and is valid (P0 share, M19 splits, dependency graph, Duet modes, free-tier register, license gate, offline lane, clean-room specs) with 14 passing tests incl. 9 tamper cases.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

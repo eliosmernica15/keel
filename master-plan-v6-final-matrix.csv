@@ -604,16 +604,16 @@ W9.3,Agent picker and agent editor,local_module,not_started,M19,P1,,,False,False
 W9.4,Command palette entries generated from commands,local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
 W9.5,First-run Safety notice,local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
 W9.6,Web UI served on loopback with SSH hint banner showing the forwarded URL instructions.,local_module,not_started,M20,P1,,,False,False,"source_file_missing, test_file_missing"
-X0.1,Priority inflation,local_module,not_started,M0,P0,,,False,False,"source_file_missing, test_file_missing"
-X0.10,"Plan says ""reimplement from behavior"" but gives no clean-room procedure",local_module,not_started,M0,P0,,,False,False,"source_file_missing, test_file_missing"
-X0.2,M19 (desktop UI) is overloaded,local_module,not_started,M19,P0,,,False,False,"source_file_missing, test_file_missing"
+X0.1,Priority inflation,local_module,verified,M0,P0,keel\src\keel\plan_corrections.py,keel\tests\test_plan_corrections.py,False,True,
+X0.10,"Plan says ""reimplement from behavior"" but gives no clean-room procedure",local_module,verified,M0,P0,keel\src\keel\plan_corrections.py,keel\tests\test_plan_corrections.py,False,True,
+X0.2,M19 (desktop UI) is overloaded,local_module,verified,M19,P0,keel\src\keel\plan_corrections.py,keel\tests\test_plan_corrections.py,False,True,
 X0.2b,"Same for M11, M17, M22",local_module,not_started,M11,P1,,,False,False,"source_file_missing, test_file_missing"
-X0.3,No dependency graph,local_module,not_started,M0,P0,,,False,False,"source_file_missing, test_file_missing"
-X0.4,Duet defined three ways,local_module,not_started,M12,P0,,,False,False,"source_file_missing, test_file_missing"
+X0.3,No dependency graph,local_module,verified,M0,P0,keel\src\keel\plan_corrections.py,keel\tests\test_plan_corrections.py,False,True,
+X0.4,Duet defined three ways,local_module,verified,M12,P0,keel\src\keel\plan_corrections.py,keel\tests\test_plan_corrections.py,False,True,
 X0.5,"Store distribution conflicts with ""no source/no GitHub for users""",local_module,not_started,M22,P1,,,False,False,"source_file_missing, test_file_missing"
-X0.6,Free-tier trap list is incomplete,local_module,not_started,M0,P0,,,False,False,"source_file_missing, test_file_missing"
-X0.7,"Voice/ML licensing is stated as ""check""",local_module,not_started,M2,P0,,,False,False,"source_file_missing, test_file_missing"
-X0.8,"""Zero network without account"" is asserted but there is no test list",local_module,not_started,M25,P0,,,False,False,"source_file_missing, test_file_missing"
+X0.6,Free-tier trap list is incomplete,local_module,verified,M0,P0,keel\src\keel\plan_corrections.py,keel\tests\test_plan_corrections.py,False,True,
+X0.7,"Voice/ML licensing is stated as ""check""",local_module,verified,M2,P0,keel\src\keel\plan_corrections.py,keel\tests\test_plan_corrections.py,False,True,
+X0.8,"""Zero network without account"" is asserted but there is no test list",local_module,verified,M25,P0,keel\src\keel\plan_corrections.py,keel\tests\test_plan_corrections.py,False,True,
 X0.9,No risk register or rollback plan per milestone,local_module,not_started,M0,P1,,,False,False,"source_file_missing, test_file_missing"
 X1.1,Tool-call dialect adapters,local_module,verified,M2,P0,keel\src\keel\model_dialects.py,keel\tests\test_model_dialects.py,False,True,
 X1.10,Self-consistency voting for hard steps,local_module,not_started,M7,P2,,,False,False,"source_file_missing, test_file_missing"

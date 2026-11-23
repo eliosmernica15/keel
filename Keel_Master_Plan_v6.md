@@ -644,16 +644,16 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | W9.4 | Command palette entries generated from commands | M19 | P1 | not_started |
 | W9.5 | First-run Safety notice | M19 | P1 | not_started |
 | W9.6 | Web UI served on loopback with SSH hint banner showing the forwarded URL instructions. | M20 | P1 | not_started |
-| X0.1 | Priority inflation | M0 | P0 | not_started |
-| X0.10 | Plan says "reimplement from behavior" but gives no clean-room procedure | M0 | P0 | not_started |
-| X0.2 | M19 (desktop UI) is overloaded | M19 | P0 | not_started |
+| X0.1 | Priority inflation | M0 | P0 | verified |
+| X0.10 | Plan says "reimplement from behavior" but gives no clean-room procedure | M0 | P0 | verified |
+| X0.2 | M19 (desktop UI) is overloaded | M19 | P0 | verified |
 | X0.2b | Same for M11, M17, M22 | M11 | P1 | not_started |
-| X0.3 | No dependency graph | M0 | P0 | not_started |
-| X0.4 | Duet defined three ways | M12 | P0 | not_started |
+| X0.3 | No dependency graph | M0 | P0 | verified |
+| X0.4 | Duet defined three ways | M12 | P0 | verified |
 | X0.5 | Store distribution conflicts with "no source/no GitHub for users" | M22 | P1 | not_started |
-| X0.6 | Free-tier trap list is incomplete | M0 | P0 | not_started |
-| X0.7 | Voice/ML licensing is stated as "check" | M2 | P0 | not_started |
-| X0.8 | "Zero network without account" is asserted but there is no test list | M25 | P0 | not_started |
+| X0.6 | Free-tier trap list is incomplete | M0 | P0 | verified |
+| X0.7 | Voice/ML licensing is stated as "check" | M2 | P0 | verified |
+| X0.8 | "Zero network without account" is asserted but there is no test list | M25 | P0 | verified |
 | X0.9 | No risk register or rollback plan per milestone | M0 | P1 | not_started |
 | X1.1 | Tool-call dialect adapters | M2 | P0 | verified |
 | X1.10 | Self-consistency voting for hard steps | M7 | P2 | not_started |
