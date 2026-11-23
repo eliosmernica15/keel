@@ -25,10 +25,30 @@ def _source(name: str) -> Path:
 V5 = _source("Keel_Master_Plan_v5.md")
 ADDENDUM1 = _source("Keel_Plan_v5_Addendum_Missed_Features.md")
 ADDENDUM2 = _source("Keel_Plan_v5_Addendum_2_More_Features.md")
+# Addenda 3-7 are normalized into extracted/*.json from the canonical markdown
+# sources in keel/docs/plan-sources (read in full by the extraction pass). The
+# extracted JSON is the canonical machine-readable form of those documents.
+EXTRACTED = SOURCES / "extracted"
 OUT = REPO / "PLAN-INDEX.json"
 PARITY = REPO / "parity.json"
 
-ID_RE = re.compile(r"^[ABC]\d+\.\d+$")
+ID_RE = re.compile(r"^[A-Z]+\d+\.\d+[a-z]?$|^[YZV]\d+$")
+EXTRA_SOURCES = [
+    ("addendum3.json", "Keel_Plan_v5_Addendum_3_Gaps_and_Advanced.md"),
+    ("addendum4.json", "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md"),
+    ("addendum5.json", "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md"),
+    ("addendum6.json", "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md"),
+    ("addendum7.json", "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md"),
+]
+
+# Security-critical vocabulary used for priority re-ranking (Addendum 3 X0.1:
+# P0 must mean "essential for a safe, credible v1.0", capped near 25% of rows).
+SECURITY_TERMS = re.compile(
+    r"sandbox|permission|policy|approval|secret|credential|encrypt|isolat|"
+    r"egress|dlp|audit|confidential|privileg|containment|fail.closed|untrusted|"
+    r"inject|redact|token|restrict|access control|firewall|trust|safety|deny|allowlist",
+    re.I)
+FOUNDATION_MS = re.compile(r"\bM(?:0|1|2|3|4|5|7)\b")
 M_RE = re.compile(r"\bM\d+\b")
 
 # Genuine owner-gated features: these require decisions or external account
@@ -667,19 +687,129 @@ def _parse_addendum(path: Path, source: str) -> list[dict]:
     return features
 
 
+def _load_extra_features() -> list[dict]:
+    """Load features from addenda 3-7 normalized extraction files."""
+    out: list[dict] = []
+    for filename, source_doc in EXTRA_SOURCES:
+        path = EXTRACTED / filename
+        if not path.is_file():
+            raise FileNotFoundError(
+                f"missing canonical extraction {path}; regenerate from the "
+                f"source document {source_doc}")
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for f in data["features"]:
+            fid = str(f.get("id", ""))
+            if not fid:
+                continue
+            # Normalize to the registry schema; never claim verification just
+            # because a source or test file path happens to be mentioned.
+            src = str(f.get("references") or "")
+            tags = str(f.get("tag/source") or "")
+            out.append({
+                "id": fid,
+                "feature": str(f.get("feature") or fid),
+                "detail": str(f.get("detail") or ""),
+                "source_document": source_doc,
+                "source_feature_id": fid,
+                "section": str(f.get("section") or ""),
+                "reference_source": tags or src,
+                "milestone": _first_milestone(f.get("milestone")),
+                "priority": _normalize_priority(f.get("priority")),
+                "original_priority": str(f.get("priority") or ""),
+                "status": (
+                    "blocked" if fid in OWNER_BLOCKED else "not_started"),
+                "source_files": [],
+                "dependencies": _as_list(f.get("dependencies")),
+                "acceptance_criteria": _as_list(f.get("acceptance_criteria")),
+                "test_references": [],
+                "implementation_tier": "not_started",
+                "verification_evidence": "",
+                "owner_approval_required": fid in OWNER_BLOCKED,
+                "external_prerequisite": "",
+                "known_limitations": "",
+            })
+    return out
+
+
+def _first_milestone(value) -> str:
+    text = str(value or "")
+    m = M_RE.search(text)
+    return m.group(0) if m else ("unassigned" if text else "unassigned")
+
+
+def _as_list(value) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(x) for x in value if str(x).strip()]
+    return [str(value)] if str(value).strip() else []
+
+
+def _normalize_priority(value) -> str:
+    text = str(value or "")
+    return text if text in {"P0", "P1", "P2"} else "P1"
+
+
+def _rerank_priorities(features: list[dict]) -> dict:
+    """Addendum 3 X0.1: cap P0 near 25% of all rows.
+
+    P0 is retained only for (a) explicit plan-correction rows X0.*,
+    (b) rows in foundation milestones M0-M5/M7, and (c) security-critical
+    rows. All other source-P0 rows become P1 with the original value kept in
+    ``original_priority`` for traceability. This is a documented schema-level
+    re-ranking, not a silent change to security behavior.
+    """
+    for f in features:
+        if f.get("priority") != "P0" and f.get("original_priority") != "P0":
+            continue
+        fid = str(f.get("id", ""))
+        if fid.startswith("X0.") or FOUNDATION_MS.search(str(f.get("milestone", ""))):
+            f["priority"] = "P0"
+            continue
+        text = str(f.get("feature", "")) + " " + str(f.get("detail", ""))
+        f["priority"] = "P0" if SECURITY_TERMS.search(text) else "P1"
+    from collections import Counter
+    return dict(Counter(f.get("priority") for f in features))
+
+
 def build() -> dict:
     features = _parse_addendum(ADDENDUM1, "Keel_Plan_v5_Addendum_Missed_Features.md")
     features += _parse_addendum(ADDENDUM2, "Keel_Plan_v5_Addendum_2_More_Features.md")
+    # Base rows need the extended schema fields used by the addenda 3-7 rows.
+    for f in features:
+        f.setdefault("original_priority", f["priority"])
+        f.setdefault("external_prerequisite", "")
+        f.setdefault("known_limitations", "")
+        f.setdefault("reference_source", f["source_document"])
+        f.setdefault("detail", f["feature"])
+        f.setdefault("section", "")
+    features += _load_extra_features()
+    counts = _rerank_priorities(features)
     features.sort(key=lambda f: f["id"])
+    ids = [f["id"] for f in features]
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate feature IDs in unified registry")
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "authoritative_plan": "Keel_Master_Plan_v6.md",
         "source_documents": [
             "Keel_Master_Plan_v5.md",
             "Keel_Plan_v5_Addendum_Missed_Features.md",
             "Keel_Plan_v5_Addendum_2_More_Features.md",
+            "Keel_Plan_v5_Addendum_3_Gaps_and_Advanced.md",
+            "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+            "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+            "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+            "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
         ],
-        "note": "v5 Sections 12-16, Section 13 mapping and Appendices A-D remain missing from the supplied source and are not reconstructed here.",
+        "priority_counts": counts,
+        "note": (
+            "Complete reconciliation of all 8 uploaded specification "
+            "documents: 228 base rows (addenda 1-2) + 637 rows (addenda 3-7) "
+            "= 865. Extracted feature data is canonicalized under "
+            "keel/docs/plan-sources/extracted/. v5 Sections 12-16, Section 13 "
+            "mapping and Appendices A-D remain absent from the supplied "
+            "source and are not reconstructed."),
         "features": features,
     }
 

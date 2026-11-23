@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Verify consistency of the Master Plan v6 final audit evidence set."""
+"""Verify consistency of the Master Plan v6 registry and evidence set.
+
+Updated for the complete 865-row registry (all eight specification documents).
+"""
 from __future__ import annotations
 
 import csv
@@ -18,10 +21,24 @@ REQUIRED = [
     "master-plan-v6-git-provenance.md",
     "master-plan-v6-agent-execution.md",
 ]
+EXPECTED = 865
+BASE_SOURCES = {
+    "Keel_Plan_v5_Addendum_Missed_Features.md": 133,
+    "Keel_Plan_v5_Addendum_2_More_Features.md": 95,
+    "Keel_Plan_v5_Addendum_3_Gaps_and_Advanced.md": 132,
+    "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md": 128,
+    "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md": 114,
+    "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md": 123,
+    "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md": 140,
+}
+EXPECTED_TIERS = {
+    "operational": 52, "local_module": 168, "external_dependency": 3,
+    "descriptor": 3, "owner_gated": 2, "not_started": 637,
+}
 
 
 def main() -> None:
-    errors = []
+    errors: list[str] = []
     for name in REQUIRED:
         if not (ROOT / name).is_file():
             errors.append(f"missing evidence file: {name}")
@@ -31,43 +48,47 @@ def main() -> None:
     if index != parity:
         errors.append("PLAN-INDEX.json != parity.json")
 
-    matrix = json.loads(
-        (ROOT / "master-plan-v6-final-matrix.json").read_text(encoding="utf-8"))
-    if len(matrix) != 228:
-        errors.append(f"matrix JSON has {len(matrix)} rows, expected 228")
+    feats = index["features"]
+    if len(feats) != EXPECTED:
+        errors.append(f"registry has {len(feats)} rows, expected {EXPECTED}")
+    ids = [f["id"] for f in feats]
+    if len(ids) != len(set(ids)):
+        errors.append("duplicate feature IDs in registry")
 
-    idx_ids = {f["id"] for f in index["features"]}
+    per_source = Counter(f.get("source_document", "") for f in feats)
+    for src, n in BASE_SOURCES.items():
+        if per_source.get(src) != n:
+            errors.append(f"{src}: {per_source.get(src, 0)} rows, expected {n}")
+
+    tiers = Counter(f.get("implementation_tier") for f in feats)
+    if dict(tiers) != EXPECTED_TIERS:
+        errors.append(f"tier counts {dict(tiers)} != {EXPECTED_TIERS}")
+
+    pct = 100.0 * sum(1 for f in feats if f.get("priority") == "P0") / len(feats)
+    if not (22 <= pct <= 30):
+        errors.append(f"P0 share {pct:.1f}% outside 22-30% target")
+
+    matrix = json.loads((ROOT / "master-plan-v6-final-matrix.json").read_text(encoding="utf-8"))
+    if len(matrix) != EXPECTED:
+        errors.append(f"matrix JSON has {len(matrix)} rows, expected {EXPECTED}")
     mat_ids = {r["id"] for r in matrix}
-    if idx_ids != mat_ids:
+    if mat_ids != set(ids):
         errors.append("matrix IDs differ from registry IDs")
-
-    with (ROOT / "master-plan-v6-final-matrix.csv").open(
-            encoding="utf-8", newline="") as fh:
+    with (ROOT / "master-plan-v6-final-matrix.csv").open(encoding="utf-8", newline="") as fh:
         csv_rows = list(csv.DictReader(fh))
-    if len(csv_rows) != 228:
-        errors.append(f"matrix CSV has {len(csv_rows)} rows, expected 228")
-    if {r["id"] for r in csv_rows} != mat_ids:
-        errors.append("CSV IDs differ from JSON matrix IDs")
+    if len(csv_rows) != EXPECTED or {r["id"] for r in csv_rows} != mat_ids:
+        errors.append("CSV matrix rows/IDs differ")
 
-    counts = Counter(r["tier"] for r in matrix)
-    expected = {"operational": 52, "local_module": 168,
-                "external_dependency": 3, "descriptor": 3, "owner_gated": 2}
-    if dict(counts) != expected:
-        errors.append(f"tier counts {dict(counts)} != {expected}")
+    for name in ["DECISIONS.md", "RISKS.md", "FREE-TIER-REGISTER.md",
+                 "MODEL-AND-VOICE-LICENSES.json"]:
+        if not (ROOT / name).is_file() and not (ROOT / "keel" / "docs" / name).is_file():
+            errors.append(f"missing required governance document: {name}")
 
-    flagged = {r["id"] for r in matrix if not r["implementation_verified"]}
-    expected_flagged = {"B4.8", "B6.6", "C11.8", "B6.2", "B6.3", "B6.5",
-                        "C11.1", "C11.2"}
-    if flagged != expected_flagged:
-        errors.append(f"flagged IDs {flagged} != {expected_flagged}")
-
-    print("evidence files:", len(REQUIRED), "present:",
-          sum((ROOT / n).is_file() for n in REQUIRED))
-    print("registry count:", len(idx_ids), "matrix rows:", len(matrix))
-    print("parity identical:", index == parity)
-    print("tier counts:", dict(counts))
-    print("verified:", sum(1 for r in matrix if r["implementation_verified"]))
-    print("flagged:", sorted(flagged))
+    print("registry rows:", len(feats))
+    print("source counts:", dict(per_source))
+    print("tiers:", dict(tiers))
+    print("P0 share: %.1f%%" % pct)
+    print("matrix rows:", len(matrix))
     if errors:
         print("CONSISTENCY FAILED:")
         for e in errors:

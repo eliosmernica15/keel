@@ -18,6 +18,12 @@ def _source(name: str) -> Path:
 V5 = _source("Keel_Master_Plan_v5.md")
 ADD1 = _source("Keel_Plan_v5_Addendum_Missed_Features.md")
 ADD2 = _source("Keel_Plan_v5_Addendum_2_More_Features.md")
+ADD3 = _source("Keel_Plan_v5_Addendum_3_Gaps_and_Advanced.md")
+ADD4 = _source("Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md")
+ADD5 = _source("Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md")
+ADD6 = _source("Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md")
+ADD7 = _source("Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md")
+ALL_SOURCES = [V5, ADD1, ADD2, ADD3, ADD4, ADD5, ADD6, ADD7]
 INDEX = REPO / "PLAN-INDEX.json"
 OUT = REPO / "Keel_Master_Plan_v6.md"
 
@@ -31,9 +37,20 @@ def main() -> None:
         "",
         "## Source documents (preserved unchanged)",
         "",
-        "- `C:\\Users\\Admin\\Downloads\\Keel_Master_Plan_v5.md`",
-        "- `C:\\Users\\Admin\\Downloads\\Keel_Plan_v5_Addendum_Missed_Features.md`",
-        "- `C:\\Users\\Admin\\Downloads\\Keel_Plan_v5_Addendum_2_More_Features.md`",
+        "All eight uploaded specification documents are preserved verbatim in "
+        "`keel/docs/plan-sources/`.",
+        "",
+        "- `Keel_Master_Plan_v5.md`",
+        "- `Keel_Plan_v5_Addendum_Missed_Features.md`",
+        "- `Keel_Plan_v5_Addendum_2_More_Features.md`",
+        "- `Keel_Plan_v5_Addendum_3_Gaps_and_Advanced.md`",
+        "- `Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md`",
+        "- `Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md`",
+        "- `Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md`",
+        "- `Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md`",
+        "",
+        f"**Registry:** {len(registry['features'])} features "
+        f"(priority counts: {registry.get('priority_counts', {})}).",
         "",
         "## Known source gap",
         "",
@@ -95,6 +112,36 @@ def main() -> None:
         "# Appendix A2 — Addendum: More Features (preserved)",
         "",
         ADD2.read_text(encoding="utf-8"),
+        "",
+        "---",
+        "",
+        "# Appendix A3 — Addendum: Gaps and Advanced Features (preserved)",
+        "",
+        ADD3.read_text(encoding="utf-8"),
+        "",
+        "---",
+        "",
+        "# Appendix A4 — Addendum: Sourced Features and Builder Guide (preserved)",
+        "",
+        ADD4.read_text(encoding="utf-8"),
+        "",
+        "---",
+        "",
+        "# Appendix A5 — Addendum: DeepSeek Harness and Deep Reads (preserved)",
+        "",
+        ADD5.read_text(encoding="utf-8"),
+        "",
+        "---",
+        "",
+        "# Appendix A6 — Addendum: DeepSeek Harness Full Teardown (preserved)",
+        "",
+        ADD6.read_text(encoding="utf-8"),
+        "",
+        "---",
+        "",
+        "# Appendix A7 — Addendum: DeepSeek Deep Reads (preserved)",
+        "",
+        ADD7.read_text(encoding="utf-8"),
     ])
     OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {OUT} with {len(registry['features'])} features")

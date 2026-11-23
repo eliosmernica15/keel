@@ -1,0 +1,4430 @@
+{
+  "features": [
+    {
+      "id": "A1.1",
+      "feature": "Non-interactive run mode (`keel run \"prompt\"`, pipes, JSON output, exit codes) for scripts and CI",
+      "feature_text": "CLI client over local API",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.1",
+      "milestone": "M20",
+      "milestones": [
+        "M20"
+      ],
+      "priority": "P0",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 17
+    },
+    {
+      "id": "A1.2",
+      "feature": "Attach a CLI/TUI/IDE client to an already-running daemon (`keel attach`)",
+      "feature_text": "Same bearer-token API",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.2",
+      "milestone": "M20",
+      "milestones": [
+        "M20"
+      ],
+      "priority": "P0",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 18
+    },
+    {
+      "id": "A1.3",
+      "feature": "**Terminal UI front-end** (full TUI, not only Electron)",
+      "feature_text": "Textual or prompt_toolkit client",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.3",
+      "milestone": "M20",
+      "milestones": [
+        "M20"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A1. opencode",
+      "source_line": 19
+    },
+    {
+      "id": "A1.4",
+      "feature": "**Local web UI** served on loopback (`keel web`) for browser access",
+      "feature_text": "Renderer built as web bundle, same auth",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.4",
+      "milestone": "M20",
+      "milestones": [
+        "M20"
+      ],
+      "priority": "P1",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 20
+    },
+    {
+      "id": "A1.5",
+      "feature": "`/init` command: scan repo and generate `AGENTS.md`",
+      "feature_text": "Repo map + summarizer role",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.5",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P0",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 21
+    },
+    {
+      "id": "A1.6",
+      "feature": "Inline shell via `!cmd` prefix in composer (goes through permission gate)",
+      "feature_text": "Composer parser",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.6",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 22
+    },
+    {
+      "id": "A1.7",
+      "feature": "Slash commands: `/undo /redo /compact /export /models /themes /details /editor /share-local`",
+      "feature_text": "Command registry",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.7",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P0",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 23
+    },
+    {
+      "id": "A1.8",
+      "feature": "Open file/diff in user's `$EDITOR` / VS Code",
+      "feature_text": "Spawn editor",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.8",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 24
+    },
+    {
+      "id": "A1.9",
+      "feature": "Image paste/drag into composer, fuzzy `@file` search",
+      "feature_text": "Renderer + ripgrep",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.9",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P0",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 25
+    },
+    {
+      "id": "A1.10",
+      "feature": "`todo` tool (agent keeps a visible task checklist), separate from the plan",
+      "feature_text": "Tool + UI pane",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.10",
+      "milestone": "M5",
+      "milestones": [
+        "M5"
+      ],
+      "priority": "P0",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 26
+    },
+    {
+      "id": "A1.11",
+      "feature": "`webfetch` tool and `websearch` tool with **free** backends",
+      "feature_text": "Direct fetch (SSRF-safe); self-hosted SearXNG as optional separate process; no paid search API",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.11",
+      "milestone": "M5",
+      "milestones": [
+        "M5"
+      ],
+      "priority": "P0",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 27
+    },
+    {
+      "id": "A1.12",
+      "feature": "Per-agent tool enable/disable and per-agent permission overrides",
+      "feature_text": "Agent frontmatter",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.12",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P0",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 28
+    },
+    {
+      "id": "A1.13",
+      "feature": "Custom tools as code files dropped in `.keel/tools/` (Python)",
+      "feature_text": "Tool loader under permission gate",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.13",
+      "milestone": "M5, M10",
+      "milestones": [
+        "M5",
+        "M10"
+      ],
+      "priority": "P0",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 29
+    },
+    {
+      "id": "A1.14",
+      "feature": "`instructions` config: extra instruction files by glob or URL",
+      "feature_text": "Instruction merger",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.14",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P1",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 30
+    },
+    {
+      "id": "A1.15",
+      "feature": "`small_model` for titles/summaries (already a role) plus per-agent model override",
+      "feature_text": "Model roles",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.15",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P1",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 31
+    },
+    {
+      "id": "A1.16",
+      "feature": "Configurable leader-key keybinds, custom theme JSON files",
+      "feature_text": "Keymap + theme loader",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.16",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 32
+    },
+    {
+      "id": "A1.17",
+      "feature": "Session import/export commands and `keel stats` (usage by model/day)",
+      "feature_text": "Ledger queries",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.17",
+      "milestone": "M4, M21",
+      "milestones": [
+        "M4",
+        "M21"
+      ],
+      "priority": "P1",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 33
+    },
+    {
+      "id": "A1.18",
+      "feature": "`keel agent create` wizard, `keel models`, `keel auth` subcommands",
+      "feature_text": "CLI",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.18",
+      "milestone": "M20",
+      "milestones": [
+        "M20"
+      ],
+      "priority": "P1",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 34
+    },
+    {
+      "id": "A1.19",
+      "feature": "**GitHub Actions mode**: run Keel headless in the user's own CI to answer issues/PR comments",
+      "feature_text": "`keel run` + example workflow (user's own repo)",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.19",
+      "milestone": "M20",
+      "milestones": [
+        "M20"
+      ],
+      "priority": "P2",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 35
+    },
+    {
+      "id": "A1.20",
+      "feature": "Watcher ignore list, auto-update toggle, env-var overrides (`KEEL_*`)",
+      "feature_text": "Config",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.20",
+      "milestone": "M2, M22",
+      "milestones": [
+        "M2",
+        "M22"
+      ],
+      "priority": "P1",
+      "evidence_tag": "K",
+      "source_section": "A1. opencode",
+      "source_line": 36
+    },
+    {
+      "id": "A1.21",
+      "feature": "Remove versions older than X before install notice",
+      "feature_text": "Installer pre-check",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.21",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P2",
+      "evidence_tag": "R",
+      "source_section": "A1. opencode",
+      "source_line": 37
+    },
+    {
+      "id": "A1.22",
+      "feature": "`AGENTS.md` for the builder itself (internal) describing layout and conventions",
+      "feature_text": "Private doc",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A1.22",
+      "milestone": "M0",
+      "milestones": [
+        "M0"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A1. opencode",
+      "source_line": 38
+    },
+    {
+      "id": "A2.1",
+      "feature": "**Voice-to-task handoff**: a voice session hands work to the same agent loop and reads results back",
+      "feature_text": "Local VAD + STT + TTS bridging to the loop",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A2.1",
+      "milestone": "M17",
+      "milestones": [
+        "M17"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A2. orgo-teammates",
+      "source_line": 44
+    },
+    {
+      "id": "A2.2",
+      "feature": "System-wide push-to-talk dictation hotkey (types into any app)",
+      "feature_text": "Electron global shortcut + local STT",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A2.2",
+      "milestone": "M17",
+      "milestones": [
+        "M17"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A2. orgo-teammates",
+      "source_line": 45
+    },
+    {
+      "id": "A2.3",
+      "feature": "Per-agent **persistent browser profile** and per-agent workspace folder",
+      "feature_text": "Playwright persistent contexts",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A2.3",
+      "milestone": "M16",
+      "milestones": [
+        "M16"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A2. orgo-teammates",
+      "source_line": 46
+    },
+    {
+      "id": "A2.4",
+      "feature": "Idle suspend/wake of heavy resources (browser, container desktop, LSP)",
+      "feature_text": "Resource manager",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A2.4",
+      "milestone": "M16",
+      "milestones": [
+        "M16"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A2. orgo-teammates",
+      "source_line": 47
+    },
+    {
+      "id": "A2.5",
+      "feature": "Group-chat loop guards (agents @mentioning each other endlessly)",
+      "feature_text": "Hop limit, cooldown, cost cap",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A2.5",
+      "milestone": "M12",
+      "milestones": [
+        "M12"
+      ],
+      "priority": "P0",
+      "evidence_tag": "S",
+      "source_section": "A2. orgo-teammates",
+      "source_line": 48
+    },
+    {
+      "id": "A2.6",
+      "feature": "Primary-agent daily check-in/digest at chosen times",
+      "feature_text": "Scheduler automation template",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A2.6",
+      "milestone": "M14",
+      "milestones": [
+        "M14"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A2. orgo-teammates",
+      "source_line": 49
+    },
+    {
+      "id": "A2.7",
+      "feature": "Documented `.env.example`-style config reference for every setting",
+      "feature_text": "Generated from config schema",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A2.7",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A2. orgo-teammates",
+      "source_line": 50
+    },
+    {
+      "id": "A2.8",
+      "feature": "Local Playwright E2E that exercises real flows (chat, tools, viewer, search, connections, voice, groups, settings)",
+      "feature_text": "Extend test suite",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A2.8",
+      "milestone": "M25",
+      "milestones": [
+        "M25"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A2. orgo-teammates",
+      "source_line": 51
+    },
+    {
+      "id": "A2.9",
+      "feature": "Memory-consolidation and history-compaction **tunable knobs** surfaced in settings",
+      "feature_text": "Config + UI",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A2.9",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A2. orgo-teammates",
+      "source_line": 52
+    },
+    {
+      "id": "A3.1",
+      "feature": "**Outgoing signed webhooks** with retry/backoff and delivery log",
+      "feature_text": "Outbox table + worker",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.1",
+      "milestone": "M14",
+      "milestones": [
+        "M14"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 58
+    },
+    {
+      "id": "A3.2",
+      "feature": "Idle task-workspace garbage collection (temp folders)",
+      "feature_text": "Scheduler job with dry-run",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.2",
+      "milestone": "M14",
+      "milestones": [
+        "M14"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 59
+    },
+    {
+      "id": "A3.3",
+      "feature": "**Mock/scripted agent** for UI development and tests (deterministic scripted runs)",
+      "feature_text": "Fake provider driven by fixtures",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.3",
+      "milestone": "M2, M19",
+      "milestones": [
+        "M2",
+        "M19"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 60
+    },
+    {
+      "id": "A3.4",
+      "feature": "Interactive **questions** from agent mid-task with timeout and default answer",
+      "feature_text": "`ask_user` tool (partly in v5) + timeout policy",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.4",
+      "milestone": "M5",
+      "milestones": [
+        "M5"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 61
+    },
+    {
+      "id": "A3.5",
+      "feature": "Setup script that generates local secrets idempotently and prints what is missing (`keel setup`)",
+      "feature_text": "CLI",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.5",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 62
+    },
+    {
+      "id": "A3.6",
+      "feature": "\"Sign out everywhere / disconnect\" equivalent: **revoke all client tokens** and reset daemon key",
+      "feature_text": "Token table + UI",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.6",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 63
+    },
+    {
+      "id": "A3.7",
+      "feature": "Honest \"Project status\" page listing what is proven end-to-end vs built-but-unproven",
+      "feature_text": "Generated from `parity.json` into the app's About screen",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.7",
+      "milestone": "M26",
+      "milestones": [
+        "M26"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 64
+    },
+    {
+      "id": "A3.8",
+      "feature": "Site tools: secrets manager, DB browser, scheduled jobs, analytics, element editor for generated sites",
+      "feature_text": "Inside M18 builder, local only",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.8",
+      "milestone": "M18",
+      "milestones": [
+        "M18"
+      ],
+      "priority": "P2",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 65
+    },
+    {
+      "id": "A3.9",
+      "feature": "Operator-style **Admin page** (limits, alerts, health, background job table)",
+      "feature_text": "Settings > Admin",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.9",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 66
+    },
+    {
+      "id": "A3.10",
+      "feature": "Per-vendor **cost caps with daily and monthly windows**",
+      "feature_text": "Ledger + enforcement",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.10",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 67
+    },
+    {
+      "id": "A3.11",
+      "feature": "Deploy/operations docs for headless mode (`keel serve` on a home server)",
+      "feature_text": "Docs + systemd unit",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A3.11",
+      "milestone": "M20, M23",
+      "milestones": [
+        "M20",
+        "M23"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A3. openman",
+      "source_line": 68
+    },
+    {
+      "id": "A4.1",
+      "feature": "**OS service supervision**: daemon as systemd user unit / launchd agent / Windows scheduled task, watchdog, crash-loop backoff",
+      "feature_text": "Installer option + `keel service install`",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A4.1",
+      "milestone": "M14, M22",
+      "milestones": [
+        "M14",
+        "M22"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A4. nicks-stack",
+      "source_line": 74
+    },
+    {
+      "id": "A4.2",
+      "feature": "Deterministic, reproducible template/package build (stable tarball, pinned versions)",
+      "feature_text": "Reproducible build flags",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A4.2",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A4. nicks-stack",
+      "source_line": 75
+    },
+    {
+      "id": "A4.3",
+      "feature": "MCP presets catalog limited to free/self-hosted servers (filesystem, git, fetch, SQLite, time, memory, Playwright, sequential-thinking, etc.), one-click add, dormant until configured",
+      "feature_text": "Bundled JSON catalog",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A4.3",
+      "milestone": "M6",
+      "milestones": [
+        "M6"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A4. nicks-stack",
+      "source_line": 76
+    },
+    {
+      "id": "A4.4",
+      "feature": "Rigor contract in persona (verify before claiming done, cite evidence) as default agent preamble",
+      "feature_text": "Persona file",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A4.4",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A4. nicks-stack",
+      "source_line": 77
+    },
+    {
+      "id": "A4.5",
+      "feature": "Coding-agent routing rules (which sub-agent/model for which task type) in the persona",
+      "feature_text": "Router config",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A4.5",
+      "milestone": "M12",
+      "milestones": [
+        "M12"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A4. nicks-stack",
+      "source_line": 78
+    },
+    {
+      "id": "A4.6",
+      "feature": "\"Test-fire\" check for every integration after saving credentials",
+      "feature_text": "Generic `probe()` in connector SDK",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A4.6",
+      "milestone": "M15",
+      "milestones": [
+        "M15"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A4. nicks-stack",
+      "source_line": 79
+    },
+    {
+      "id": "A4.7",
+      "feature": "Secret providers beyond keychain as user choice: env file, command (`pass`, `bw` CLI the user already owns)",
+      "feature_text": "Provider interface, never bundled",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A4.7",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P2",
+      "evidence_tag": "R",
+      "source_section": "A4. nicks-stack",
+      "source_line": 80
+    },
+    {
+      "id": "A4.8",
+      "feature": "Release scan proving **zero secrets in artifacts** on every release",
+      "feature_text": "gitleaks on built installers",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A4.8",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A4. nicks-stack",
+      "source_line": 81
+    },
+    {
+      "id": "A5.1",
+      "feature": "**Gateway** process concept with `status`, start/stop, and a list of running channels",
+      "feature_text": "`keel gateway`",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A5.1",
+      "milestone": "M15",
+      "milestones": [
+        "M15"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A5. clawdbot-channel-linq",
+      "source_line": 87
+    },
+    {
+      "id": "A5.2",
+      "feature": "Install a channel/plugin from a git URL or local link for development (`install --link`)",
+      "feature_text": "Dev-link mode in plugin manager (private/local sources only unless G7)",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A5.2",
+      "milestone": "M10",
+      "milestones": [
+        "M10"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A5. clawdbot-channel-linq",
+      "source_line": 88
+    },
+    {
+      "id": "A5.3",
+      "feature": "**Account-level config inheritance** (account overrides channel defaults)",
+      "feature_text": "Config resolver",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A5.3",
+      "milestone": "M15",
+      "milestones": [
+        "M15"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A5. clawdbot-channel-linq",
+      "source_line": 89
+    },
+    {
+      "id": "A5.4",
+      "feature": "**Delivery fallback chain** (preferred service, then fallback)",
+      "feature_text": "Channel delivery policy",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A5.4",
+      "milestone": "M15",
+      "milestones": [
+        "M15"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A5. clawdbot-channel-linq",
+      "source_line": 90
+    },
+    {
+      "id": "A5.5",
+      "feature": "Outbound message state machine: queued, sent, delivered, read, failed with retries and dedupe by message id",
+      "feature_text": "Table + worker",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A5.5",
+      "milestone": "M15",
+      "milestones": [
+        "M15"
+      ],
+      "priority": "P0",
+      "evidence_tag": "R",
+      "source_section": "A5. clawdbot-channel-linq",
+      "source_line": 91
+    },
+    {
+      "id": "A5.6",
+      "feature": "Webhook subscription helper (register, list, rotate secret) as a CLI command",
+      "feature_text": "`keel channels webhook`",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A5.6",
+      "milestone": "M15",
+      "milestones": [
+        "M15"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A5. clawdbot-channel-linq",
+      "source_line": 92
+    },
+    {
+      "id": "A5.7",
+      "feature": "Per-channel troubleshooting checklist surfaced in UI when a channel fails",
+      "feature_text": "Rules table",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "A5.7",
+      "milestone": "M15, M19",
+      "milestones": [
+        "M15",
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "R",
+      "source_section": "A5. clawdbot-channel-linq",
+      "source_line": 93
+    },
+    {
+      "id": "B1.1",
+      "feature": "**Grammar/JSON-schema constrained decoding** for tool calls",
+      "feature_text": "Use llama.cpp grammars / Ollama structured output so even small models emit valid tool calls",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B1.1",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B1. Making weak local models reliable (biggest free advantage)",
+      "source_line": 102
+    },
+    {
+      "id": "B1.2",
+      "feature": "Tolerant tool-call parser + **repair loop**",
+      "feature_text": "Fix trailing commas, wrong quotes, missing fields; re-ask once with the error",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B1.2",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B1. Making weak local models reliable (biggest free advantage)",
+      "source_line": 103
+    },
+    {
+      "id": "B1.3",
+      "feature": "Difficulty-based **model router**",
+      "feature_text": "Small model first, escalate on failure/low confidence; optional remote only if the user enabled it",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B1.3",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B1. Making weak local models reliable (biggest free advantage)",
+      "source_line": 104
+    },
+    {
+      "id": "B1.4",
+      "feature": "Prefix/KV-cache reuse",
+      "feature_text": "Keep stable prompt prefix to speed up local inference",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B1.4",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B1. Making weak local models reliable (biggest free advantage)",
+      "source_line": 105
+    },
+    {
+      "id": "B1.5",
+      "feature": "Smart context management",
+      "feature_text": "Tool-output pruning, duplicate-file dedupe, sliding window, per-source token budgets",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B1.5",
+      "milestone": "M4",
+      "milestones": [
+        "M4"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B1. Making weak local models reliable (biggest free advantage)",
+      "source_line": 106
+    },
+    {
+      "id": "B1.6",
+      "feature": "**Model download manager**",
+      "feature_text": "Resume, SHA-256 verify, disk-space check, license display, delete/GC",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B1.6",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B1. Making weak local models reliable (biggest free advantage)",
+      "source_line": 107
+    },
+    {
+      "id": "B1.7",
+      "feature": "Hardware detector and quantization advisor",
+      "feature_text": "RAM/VRAM/CPU, suggests model size and quant; GPU backend hints",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B1.7",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B1. Making weak local models reliable (biggest free advantage)",
+      "source_line": 108
+    },
+    {
+      "id": "B1.8",
+      "feature": "Local embedding + reranker models",
+      "feature_text": "For semantic search without any hosted API",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B1.8",
+      "milestone": "M11, M13",
+      "milestones": [
+        "M11",
+        "M13"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B1. Making weak local models reliable (biggest free advantage)",
+      "source_line": 109
+    },
+    {
+      "id": "B1.9",
+      "feature": "**Compare mode (arena)**",
+      "feature_text": "Same prompt on N models side-by-side, ratings saved to the local eval set",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B1.9",
+      "milestone": "M19, M21",
+      "milestones": [
+        "M19",
+        "M21"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B1. Making weak local models reliable (biggest free advantage)",
+      "source_line": 110
+    },
+    {
+      "id": "B1.10",
+      "feature": "Speculative/draft decoding toggle where the runtime supports it",
+      "feature_text": "Config passthrough",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B1.10",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B1. Making weak local models reliable (biggest free advantage)",
+      "source_line": 111
+    },
+    {
+      "id": "B2.1",
+      "feature": "**Verification loop**: auto-detect test/lint/type commands, run after edits, feed failures back, stop at \"definition of done\" checklist",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.1",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 116
+    },
+    {
+      "id": "B2.2",
+      "feature": "Spec-driven mode: spec, task breakdown, implement, verify, with approvals between stages",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.2",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 117
+    },
+    {
+      "id": "B2.3",
+      "feature": "**Keel Duet default design**: builder agent + independent reviewer agent with different model/prompt; reviewer can only comment",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.3",
+      "milestone": "M12",
+      "milestones": [
+        "M12"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 118
+    },
+    {
+      "id": "B2.4",
+      "feature": "Specialist agents shipped as bundled markdown: code reviewer, security reviewer, test writer, refactorer, docs writer, dependency upgrader, merge-conflict resolver, bisect helper, changelog and PR-description writer",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.4",
+      "milestone": "M7, M9",
+      "milestones": [
+        "M7",
+        "M9"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 119
+    },
+    {
+      "id": "B2.5",
+      "feature": "Deep-research mode with citations, local files plus web, saved as a report",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.5",
+      "milestone": "M17",
+      "milestones": [
+        "M17"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 120
+    },
+    {
+      "id": "B2.6",
+      "feature": "Local **RAG knowledge bases** over folders, PDFs, docs; file watcher; citations with file and line",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.6",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 121
+    },
+    {
+      "id": "B2.7",
+      "feature": "Offline documentation packs (language/library docs) the agent can search",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.7",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 122
+    },
+    {
+      "id": "B2.8",
+      "feature": "Notebook/REPL tool for data analysis with inline charts",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.8",
+      "milestone": "M5",
+      "milestones": [
+        "M5"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 123
+    },
+    {
+      "id": "B2.9",
+      "feature": "Read-only **database explorer** tool (SQLite, Postgres, MySQL via user's own connection), write needs approval",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.9",
+      "milestone": "M15",
+      "milestones": [
+        "M15"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 124
+    },
+    {
+      "id": "B2.10",
+      "feature": "HTTP/API tester with saved collections",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.10",
+      "milestone": "M15",
+      "milestones": [
+        "M15"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 125
+    },
+    {
+      "id": "B2.11",
+      "feature": "Diagram tools: Mermaid and Graphviz rendering offline",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.11",
+      "milestone": "M17",
+      "milestones": [
+        "M17"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 126
+    },
+    {
+      "id": "B2.12",
+      "feature": "OCR and document parsing (Tesseract, PDF text/tables) with license check",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.12",
+      "milestone": "M17",
+      "milestones": [
+        "M17"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 127
+    },
+    {
+      "id": "B2.13",
+      "feature": "Optional local image generation (user-installed ComfyUI/diffusers, model licenses shown)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.13",
+      "milestone": "M17",
+      "milestones": [
+        "M17"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 128
+    },
+    {
+      "id": "B2.14",
+      "feature": "Prompt library with variables, snippets, \"improve my prompt\" helper",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.14",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 129
+    },
+    {
+      "id": "B2.15",
+      "feature": "Macro/workflow recorder from chat history into a reusable workflow",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.15",
+      "milestone": "M8",
+      "milestones": [
+        "M8"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 130
+    },
+    {
+      "id": "B2.16",
+      "feature": "Workflow and team template **gallery** (bundled, offline)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B2.16",
+      "milestone": "M8, M12",
+      "milestones": [
+        "M8",
+        "M12"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B2. Agent workflows and engineering skills",
+      "source_line": 131
+    },
+    {
+      "id": "B3.1",
+      "feature": "**WASM/Pyodide sandbox** for running untrusted generated code with no Docker",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.1",
+      "milestone": "M5",
+      "milestones": [
+        "M5"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 136
+    },
+    {
+      "id": "B3.2",
+      "feature": "Container sandbox with CPU, memory, time and network limits (optional Podman)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.2",
+      "milestone": "M5",
+      "milestones": [
+        "M5"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 137
+    },
+    {
+      "id": "B3.3",
+      "feature": "**Dry-run mode**: agent plans and shows every side effect, executes none",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.3",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 138
+    },
+    {
+      "id": "B3.4",
+      "feature": "Read-only session mode and per-project **network egress allowlist** per tool",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.4",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 139
+    },
+    {
+      "id": "B3.5",
+      "feature": "**Egress log / privacy dashboard**: exactly what was sent to which provider and when",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.5",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 140
+    },
+    {
+      "id": "B3.6",
+      "feature": "PII/secret **redaction before sending to any remote provider** (regex + small local classifier), with preview",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.6",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 141
+    },
+    {
+      "id": "B3.7",
+      "feature": "Local prompt-injection classifier and canary tokens in fetched content",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.7",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 142
+    },
+    {
+      "id": "B3.8",
+      "feature": "Output DLP: block agent from writing secrets into files, commits or messages",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.8",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 143
+    },
+    {
+      "id": "B3.9",
+      "feature": "**Global kill switch** (hotkey and tray): stop all agents, revoke tokens, freeze scheduler",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.9",
+      "milestone": "M3, M14",
+      "milestones": [
+        "M3",
+        "M14"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 144
+    },
+    {
+      "id": "B3.10",
+      "feature": "Optional app-lock passphrase and auto-lock on idle",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.10",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 145
+    },
+    {
+      "id": "B3.11",
+      "feature": "Provider **circuit breaker**, retry/backoff, health score, automatic failover",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.11",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 146
+    },
+    {
+      "id": "B3.12",
+      "feature": "Immutable, exportable audit bundle with verification tool",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B3.12",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B3. Sandboxing and safety beyond v5",
+      "source_line": 147
+    },
+    {
+      "id": "B4.1",
+      "feature": "Global quick-ask hotkey overlay (spotlight style)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.1",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 152
+    },
+    {
+      "id": "B4.2",
+      "feature": "`keel://` deep links, `keel .` to open a folder, \"Open with Keel\" shell integration, shell completions",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.2",
+      "milestone": "M19, M22",
+      "milestones": [
+        "M19",
+        "M22"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 153
+    },
+    {
+      "id": "B4.3",
+      "feature": "Multi-window, detachable and split panels, saved workspace layouts",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.3",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 154
+    },
+    {
+      "id": "B4.4",
+      "feature": "Message edit/regenerate, pin, bookmark, tags/folders, semantic conversation search",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.4",
+      "milestone": "M4, M19",
+      "milestones": [
+        "M4",
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 155
+    },
+    {
+      "id": "B4.5",
+      "feature": "Rich rendering: Markdown, Mermaid, LaTeX, image/PDF preview, copy and apply buttons on code blocks",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.5",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 156
+    },
+    {
+      "id": "B4.6",
+      "feature": "Fleet views: kanban task board, agent org chart, cost per agent, live \"agent wall\"",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.6",
+      "milestone": "M12, M19",
+      "milestones": [
+        "M12",
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 157
+    },
+    {
+      "id": "B4.7",
+      "feature": "Observability views: token waterfall, flame graph, prompt diff between turns, slow-tool detector",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.7",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 158
+    },
+    {
+      "id": "B4.8",
+      "feature": "Phone companion: **LAN web app with QR pairing** and pinned self-signed TLS (control and approvals from phone, no cloud)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.8",
+      "milestone": "M20",
+      "milestones": [
+        "M20"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 159
+    },
+    {
+      "id": "B4.9",
+      "feature": "Optional vim keybindings in composer; dyslexia-friendly font option (OFL fonts, notices)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.9",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 160
+    },
+    {
+      "id": "B4.10",
+      "feature": "Portable mode, multiple profiles (work/personal data dirs), relocatable data dir",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.10",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 161
+    },
+    {
+      "id": "B4.11",
+      "feature": "Scheduled **encrypted backups** with restore wizard; optional E2EE folder sync of settings/memory via the user's own synced folder",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.11",
+      "milestone": "M14, M22",
+      "milestones": [
+        "M14",
+        "M22"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 162
+    },
+    {
+      "id": "B4.12",
+      "feature": "`keel doctor --bundle`: redacted diagnostics zip the user can send to support",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.12",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 163
+    },
+    {
+      "id": "B4.13",
+      "feature": "Auto-rollback if a new version fails to start 3 times",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.13",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 164
+    },
+    {
+      "id": "B4.14",
+      "feature": "Delta updates and optional beta channel (opt-in)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B4.14",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B4. Desktop experience",
+      "source_line": 165
+    },
+    {
+      "id": "B5.1",
+      "feature": "Download page with OS and CPU auto-detect, file size, SHA-256, \"how to verify\" guide for Windows/macOS/Linux",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B5.1",
+      "milestone": "M23",
+      "milestones": [
+        "M23"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B5. Website, docs and trust (public, no source exposure)",
+      "source_line": 170
+    },
+    {
+      "id": "B5.2",
+      "feature": "`latest.json` plus release-notes RSS/JSON feed and version history",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B5.2",
+      "milestone": "M23",
+      "milestones": [
+        "M23"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B5. Website, docs and trust (public, no source exposure)",
+      "source_line": 171
+    },
+    {
+      "id": "B5.3",
+      "feature": "System requirements, model-size guide, first-run guide for unsigned installers (SmartScreen, Gatekeeper)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B5.3",
+      "milestone": "M23",
+      "milestones": [
+        "M23"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B5. Website, docs and trust (public, no source exposure)",
+      "source_line": 172
+    },
+    {
+      "id": "B5.4",
+      "feature": "Offline-capable docs search (static index) and versioned docs",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B5.4",
+      "milestone": "M23",
+      "milestones": [
+        "M23"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B5. Website, docs and trust (public, no source exposure)",
+      "source_line": 173
+    },
+    {
+      "id": "B5.5",
+      "feature": "Privacy page (\"what Keel does not collect\"), EULA page, third-party notices page, SBOM download",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B5.5",
+      "milestone": "M23",
+      "milestones": [
+        "M23"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B5. Website, docs and trust (public, no source exposure)",
+      "source_line": 174
+    },
+    {
+      "id": "B5.6",
+      "feature": "Auto-generated screenshot gallery from E2E runs; short recorded demo replays",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B5.6",
+      "milestone": "M23",
+      "milestones": [
+        "M23"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B5. Website, docs and trust (public, no source exposure)",
+      "source_line": 175
+    },
+    {
+      "id": "B5.7",
+      "feature": "Curated public roadmap and FAQ, comparison page, press kit, `mailto` support (no third-party form service)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B5.7",
+      "milestone": "M23",
+      "milestones": [
+        "M23"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B5. Website, docs and trust (public, no source exposure)",
+      "source_line": 176
+    },
+    {
+      "id": "B5.8",
+      "feature": "Localized website using the same string catalogs",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B5.8",
+      "milestone": "M25",
+      "milestones": [
+        "M25"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B5. Website, docs and trust (public, no source exposure)",
+      "source_line": 177
+    },
+    {
+      "id": "B5.9",
+      "feature": "Static status page for update feed and mirrors",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B5.9",
+      "milestone": "M23",
+      "milestones": [
+        "M23"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B5. Website, docs and trust (public, no source exposure)",
+      "source_line": 178
+    },
+    {
+      "id": "B6.1",
+      "feature": "Reserved offline **signed license token** format and verifier module, disabled and unused",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B6.1",
+      "milestone": "M24",
+      "milestones": [
+        "M24"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B6. Commercial-readiness extras (design only, nothing enforced; gate G6)",
+      "source_line": 183
+    },
+    {
+      "id": "B6.2",
+      "feature": "Edition/channel field in manifest and About screen (value \"standard\")",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B6.2",
+      "milestone": "M24",
+      "milestones": [
+        "M24"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B6. Commercial-readiness extras (design only, nothing enforced; gate G6)",
+      "source_line": 184
+    },
+    {
+      "id": "B6.3",
+      "feature": "Enterprise: silent-install flags for MSI/pkg/deb/rpm, Windows Group Policy templates (ADMX), macOS managed-preferences plist",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B6.3",
+      "milestone": "M24",
+      "milestones": [
+        "M24"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B6. Commercial-readiness extras (design only, nothing enforced; gate G6)",
+      "source_line": 185
+    },
+    {
+      "id": "B6.4",
+      "feature": "Private org **update mirror** (signed manifests, custom feed URL) and private extension registry",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B6.4",
+      "milestone": "M24",
+      "milestones": [
+        "M24"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B6. Commercial-readiness extras (design only, nothing enforced; gate G6)",
+      "source_line": 186
+    },
+    {
+      "id": "B6.5",
+      "feature": "Compliance pack: security whitepaper, accessibility conformance report, data-flow diagram, SBOM export, DPA/EULA templates (lawyer review)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B6.5",
+      "milestone": "M24",
+      "milestones": [
+        "M24"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B6. Commercial-readiness extras (design only, nothing enforced; gate G6)",
+      "source_line": 187
+    },
+    {
+      "id": "B6.6",
+      "feature": "Per-organization audit export format and retention settings",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B6.6",
+      "milestone": "M24",
+      "milestones": [
+        "M24"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "B6. Commercial-readiness extras (design only, nothing enforced; gate G6)",
+      "source_line": 188
+    },
+    {
+      "id": "B7.1",
+      "feature": "Property-based and fuzz tests for path containment and the command analyzer; mutation testing on the permission gate",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B7.1",
+      "milestone": "M3, M25",
+      "milestones": [
+        "M3",
+        "M25"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B7. Quality engineering and builder workflow",
+      "source_line": 193
+    },
+    {
+      "id": "B7.2",
+      "feature": "Golden-file tests for prompt assembly; chaos tests (kill daemon mid-turn, disk full, DB locked); soak tests",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B7.2",
+      "milestone": "M25",
+      "milestones": [
+        "M25"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B7. Quality engineering and builder workflow",
+      "source_line": 194
+    },
+    {
+      "id": "B7.3",
+      "feature": "Accessibility audit (axe) and visual regression in CI",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B7.3",
+      "milestone": "M25",
+      "milestones": [
+        "M25"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B7. Quality engineering and builder workflow",
+      "source_line": 195
+    },
+    {
+      "id": "B7.4",
+      "feature": "Performance budgets: cold start, idle memory, installer size, time to first token overhead",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B7.4",
+      "milestone": "M21, M25",
+      "milestones": [
+        "M21",
+        "M25"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B7. Quality engineering and builder workflow",
+      "source_line": 196
+    },
+    {
+      "id": "B7.5",
+      "feature": "Flaky-test quarantine with owner and expiry",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B7.5",
+      "milestone": "M25",
+      "milestones": [
+        "M25"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B7. Quality engineering and builder workflow",
+      "source_line": 197
+    },
+    {
+      "id": "B7.6",
+      "feature": "Machine-readable task index (`PLAN-INDEX.json`): one entry per feature ID with status, evidence path, test path",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B7.6",
+      "milestone": "M0",
+      "milestones": [
+        "M0"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B7. Quality engineering and builder workflow",
+      "source_line": 198
+    },
+    {
+      "id": "B7.7",
+      "feature": "Architecture Decision Records (ADRs), commit convention, pre-commit hooks, devcontainer-free dev setup script",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B7.7",
+      "milestone": "M0",
+      "milestones": [
+        "M0"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B7. Quality engineering and builder workflow",
+      "source_line": 199
+    },
+    {
+      "id": "B7.8",
+      "feature": "Feature-flag registry with kill-switch config for risky features",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B7.8",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B7. Quality engineering and builder workflow",
+      "source_line": 200
+    },
+    {
+      "id": "B7.9",
+      "feature": "Per-milestone kickoff prompt file for the AI builder with explicit \"stop and ask\" points",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+      "source_feature_id": "B7.9",
+      "milestone": "M0",
+      "milestones": [
+        "M0"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B7. Quality engineering and builder workflow",
+      "source_line": 201
+    },
+    {
+      "id": "C1.1",
+      "feature": "Repo hygiene stack seen in opencode: pre-commit hooks, editorconfig, linters, lockfiles, dependency **patch** folder, changelog file, release scripts folder",
+      "feature_text": "ruff, pyright/mypy, eslint/oxlint, pre-commit, `patches/` policy, generated CHANGELOG",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.1",
+      "milestone": "M0",
+      "milestones": [
+        "M0"
+      ],
+      "priority": "P0",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 13
+    },
+    {
+      "id": "C1.2",
+      "feature": "More package-manager distribution: Scoop, Chocolatey, Flatpak, Snap, AUR (binary PKGBUILD), Nix flake (opencode ships several)",
+      "feature_text": "Manifests generated by the release job; verify each store accepts proprietary freeware",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.2",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P1",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 14
+    },
+    {
+      "id": "C1.3",
+      "feature": "Dev-container-free contributor setup script and `AGENTS.md` for AI builders",
+      "feature_text": "Private doc + `make setup`",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.3",
+      "milestone": "M0",
+      "milestones": [
+        "M0"
+      ],
+      "priority": "P1",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 15
+    },
+    {
+      "id": "C1.4",
+      "feature": "**Screen-share/recording safe mode** (orgo-teammates warns never to show `.env`/dashboards on screen): mask secrets, emails, paths and tokens in UI while on",
+      "feature_text": "Renderer mask layer + hotkey",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.4",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P0",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 16
+    },
+    {
+      "id": "C1.5",
+      "feature": "Per-integration **builder/operator guides** (orgo ships separate integration guides)",
+      "feature_text": "One short doc per connector/channel, shown in-app",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.5",
+      "milestone": "M15, M23",
+      "milestones": [
+        "M15",
+        "M23"
+      ],
+      "priority": "P1",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 17
+    },
+    {
+      "id": "C1.6",
+      "feature": "Agent \"looks\": avatar, color, voice per agent, voice preview and speed",
+      "feature_text": "Avatar picker + Piper voice list",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.6",
+      "milestone": "M12, M17",
+      "milestones": [
+        "M12",
+        "M17"
+      ],
+      "priority": "P1",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 18
+    },
+    {
+      "id": "C1.7",
+      "feature": "Meeting recorder: capture system/mic audio, local transcript, **speaker labels** (optional), summary, action items, link to project",
+      "feature_text": "whisper.cpp + local diarization where license allows",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.7",
+      "milestone": "M17",
+      "milestones": [
+        "M17"
+      ],
+      "priority": "P1",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 19
+    },
+    {
+      "id": "C1.8",
+      "feature": "Notes vault extras: backlinks, graph view, daily notes, templates (nicks-stack uses an Obsidian vault)",
+      "feature_text": "Markdown index + graph pane",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.8",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P1",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 20
+    },
+    {
+      "id": "C1.9",
+      "feature": "Plugin **presets bundle** (nicks-stack ships a 16-plugin config)",
+      "feature_text": "Preset = signed bundle of plugins + MCP + skills",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.9",
+      "milestone": "M10",
+      "milestones": [
+        "M10"
+      ],
+      "priority": "P1",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 21
+    },
+    {
+      "id": "C1.10",
+      "feature": "Draft-only social/content skills (posts, threads, SEO notes); nothing posts without approval",
+      "feature_text": "Skills; no write to external accounts by default",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.10",
+      "milestone": "M9",
+      "milestones": [
+        "M9"
+      ],
+      "priority": "P2",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 22
+    },
+    {
+      "id": "C1.11",
+      "feature": "Local task executor inside the container desktop for faster desktop actions (orgo \"planned\")",
+      "feature_text": "Small agent-side executor process",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.11",
+      "milestone": "M16",
+      "milestones": [
+        "M16"
+      ],
+      "priority": "P2",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 23
+    },
+    {
+      "id": "C1.12",
+      "feature": "Client pairing allowlist for LAN/headless access (analog of orgo's `ALLOWED_EMAILS`)",
+      "feature_text": "Paired-client table, revoke per client",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C1.12",
+      "milestone": "M20",
+      "milestones": [
+        "M20"
+      ],
+      "priority": "P0",
+      "evidence_tag": "T",
+      "source_section": "A. Still missed from the references (tree and README level)",
+      "source_line": 24
+    },
+    {
+      "id": "C2.1",
+      "feature": "**Keel Cowork** (knowledge work)",
+      "feature_text": "Folder-scoped assistant for non-coding work: file organizer with preview and undo, batch rename, PDF/Office read and write, spreadsheet cleanup and analysis, document Q&A with citations, email drafting and inbox triage via IMAP, local calendar (ICS/CalDAV), meeting prep, scheduled reports, form filling, translation, writing with a saved style profile",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C2.1",
+      "milestone": "M17, M15",
+      "milestones": [
+        "M17",
+        "M15"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B. Product surfaces (Cowork, Code, Duet, Fleet)",
+      "source_line": 34
+    },
+    {
+      "id": "C2.2",
+      "feature": "**Keel Code**",
+      "feature_text": "Everything coding (the v5 core)",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C2.2",
+      "milestone": "M5 to M11",
+      "milestones": [
+        "M5",
+        "M11"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B. Product surfaces (Cowork, Code, Duet, Fleet)",
+      "source_line": 35
+    },
+    {
+      "id": "C2.3",
+      "feature": "**Keel Duet** (assumed pair mode, confirm D4)",
+      "feature_text": "Live pairing: inline ghost-text completion from a local FIM-capable model, follow-the-cursor context, \"you drive / agent drives\" handoff, reviewer agent comments in the editor",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C2.3",
+      "milestone": "M12, M20",
+      "milestones": [
+        "M12",
+        "M20"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "B. Product surfaces (Cowork, Code, Duet, Fleet)",
+      "source_line": 36
+    },
+    {
+      "id": "C2.4",
+      "feature": "**Fleet**",
+      "feature_text": "Many agents, board, org chart, budgets, timelines",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C2.4",
+      "milestone": "M12",
+      "milestones": [
+        "M12"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B. Product surfaces (Cowork, Code, Duet, Fleet)",
+      "source_line": 37
+    },
+    {
+      "id": "C2.5",
+      "feature": "Surface switcher with per-surface default agents, tools and permissions",
+      "feature_text": "UI + config",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C2.5",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "B. Product surfaces (Cowork, Code, Duet, Fleet)",
+      "source_line": 38
+    },
+    {
+      "id": "C3.1",
+      "feature": "**Best-of-N with test selection**",
+      "feature_text": "Generate N candidate patches, run tests, keep the passing/smallest one; great for weak local models",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.1",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 46
+    },
+    {
+      "id": "C3.2",
+      "feature": "**Doom-loop and stuck detector**",
+      "feature_text": "Repeated identical tool calls or no-progress turns trigger a break, a hint, then escalation",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.2",
+      "milestone": "M4",
+      "milestones": [
+        "M4"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 47
+    },
+    {
+      "id": "C3.3",
+      "feature": "**Goal mode / overnight mode**",
+      "feature_text": "Long autonomous run with budget, checkpoints, approval gates and a morning report",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.3",
+      "milestone": "M14",
+      "milestones": [
+        "M14"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 48
+    },
+    {
+      "id": "C3.4",
+      "feature": "Think-harder slider",
+      "feature_text": "Maps to effort, sampling count, critic pass, token budget",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.4",
+      "milestone": "M2, M19",
+      "milestones": [
+        "M2",
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 49
+    },
+    {
+      "id": "C3.5",
+      "feature": "Planner / critic / executor roles",
+      "feature_text": "Separate prompts, optionally separate models",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.5",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 50
+    },
+    {
+      "id": "C3.6",
+      "feature": "Map-reduce refactors",
+      "feature_text": "Subagents per file group, merge, conflict handling",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.6",
+      "milestone": "M12",
+      "milestones": [
+        "M12"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 51
+    },
+    {
+      "id": "C3.7",
+      "feature": "**Reflection with approval**",
+      "feature_text": "After a task, propose memory/skill updates and a short lessons-learned entry; user approves",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.7",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 52
+    },
+    {
+      "id": "C3.8",
+      "feature": "Failure postmortems stored per project",
+      "feature_text": "Auto-written, searchable",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.8",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 53
+    },
+    {
+      "id": "C3.9",
+      "feature": "Cost and time **estimate before run**, with confidence",
+      "feature_text": "From history",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.9",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 54
+    },
+    {
+      "id": "C3.10",
+      "feature": "Uncertainty policy",
+      "feature_text": "Agent flags low confidence; factual web claims require citations",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.10",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 55
+    },
+    {
+      "id": "C3.11",
+      "feature": "Style learning",
+      "feature_text": "Extract a project style guide from linter configs and sample files",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.11",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 56
+    },
+    {
+      "id": "C3.12",
+      "feature": "Context packs and a **context budget UI**",
+      "feature_text": "Attach curated doc bundles; slider per source",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C3.12",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "C. Agent intelligence and autonomy",
+      "source_line": 57
+    },
+    {
+      "id": "C4.1",
+      "feature": "**Debugger integration via DAP**: breakpoints, step, inspect, so the agent can debug for real",
+      "feature_text": "debugpy, node inspector, delve etc. (user-installed)",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.1",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 63
+    },
+    {
+      "id": "C4.2",
+      "feature": "Symbol, call and dependency **graph** with impact analysis (\"what breaks if I change X\")",
+      "feature_text": "tree-sitter + SQLite graph",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.2",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 64
+    },
+    {
+      "id": "C4.3",
+      "feature": "Change-risk score and impacted-test selection",
+      "feature_text": "Graph + coverage data",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.3",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 65
+    },
+    {
+      "id": "C4.4",
+      "feature": "Structural search and codemods",
+      "feature_text": "ast-grep, libcst (verify licenses)",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.4",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 66
+    },
+    {
+      "id": "C4.5",
+      "feature": "Static analysis ingestion (SARIF in/out)",
+      "feature_text": "ruff, bandit, eslint; note semgrep rules may carry non-commercial terms, so prefer own rules",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.5",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 67
+    },
+    {
+      "id": "C4.6",
+      "feature": "**Project security scans for the user**: secrets (gitleaks), dependency CVEs (OSV), SBOM of the user's project, license-compliance report",
+      "feature_text": "Offline OSV DB mirror optional",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.6",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 68
+    },
+    {
+      "id": "C4.7",
+      "feature": "Profiling and benchmark agent",
+      "feature_text": "py-spy, cProfile, hyperfine-style runner",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.7",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 69
+    },
+    {
+      "id": "C4.8",
+      "feature": "Log/process/port inspector, docker-compose helper, service health probes",
+      "feature_text": "Tools behind permission gate",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.8",
+      "milestone": "M5",
+      "milestones": [
+        "M5"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 70
+    },
+    {
+      "id": "C4.9",
+      "feature": "Git extras: stacked commits, hunk staging, conflict resolver, blame-aware context, submodule and monorepo awareness, signed commits with the user's own key",
+      "feature_text": "git CLI",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.9",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 71
+    },
+    {
+      "id": "C4.10",
+      "feature": "**Remote targets**: run on the user's SSH servers, WSL, devcontainers; remote daemon over SSH tunnel",
+      "feature_text": "OpenSSH",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.10",
+      "milestone": "M20",
+      "milestones": [
+        "M20"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 72
+    },
+    {
+      "id": "C4.11",
+      "feature": "Browser devtools tools (console, network, performance) and **visual diff** of UI before/after; screenshot-to-code",
+      "feature_text": "Playwright",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.11",
+      "milestone": "M16",
+      "milestones": [
+        "M16"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 73
+    },
+    {
+      "id": "C4.12",
+      "feature": "Terminal session recording and replay",
+      "feature_text": "pty log + player",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.12",
+      "milestone": "M5, M21",
+      "milestones": [
+        "M5",
+        "M21"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 74
+    },
+    {
+      "id": "C4.13",
+      "feature": "Issue-to-change pipeline from a markdown backlog or the user's own tracker token",
+      "feature_text": "Connectors",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.13",
+      "milestone": "M15",
+      "milestones": [
+        "M15"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 75
+    },
+    {
+      "id": "C4.14",
+      "feature": "Auto-generated architecture docs and diagrams kept in sync with code",
+      "feature_text": "Mermaid",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C4.14",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "D. Code intelligence and engineering tools",
+      "source_line": 76
+    },
+    {
+      "id": "C5.1",
+      "feature": "Deterministic (no-LLM) nodes, loop/map nodes, sub-workflows, typed inputs/outputs with JSON Schema",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C5.1",
+      "milestone": "M8",
+      "milestones": [
+        "M8"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "E. Workflows and automation (extra depth)",
+      "source_line": 82
+    },
+    {
+      "id": "C5.2",
+      "feature": "Human-task node (wait for approval/answer, timeout and default)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C5.2",
+      "milestone": "M8",
+      "milestones": [
+        "M8"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "E. Workflows and automation (extra depth)",
+      "source_line": 83
+    },
+    {
+      "id": "C5.3",
+      "feature": "Workflow versioning, diff, test mode with mocked tools, run history and replay",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C5.3",
+      "milestone": "M8",
+      "milestones": [
+        "M8"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "E. Workflows and automation (extra depth)",
+      "source_line": 84
+    },
+    {
+      "id": "C5.4",
+      "feature": "Triggers: file-watcher, folder \"inbox\" (drop files to process), git hook, email, clipboard, schedule",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C5.4",
+      "milestone": "M14",
+      "milestones": [
+        "M14"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "E. Workflows and automation (extra depth)",
+      "source_line": 85
+    },
+    {
+      "id": "C5.5",
+      "feature": "Internal event bus exposed to plugins and hooks",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C5.5",
+      "milestone": "M8, M10",
+      "milestones": [
+        "M8",
+        "M10"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "E. Workflows and automation (extra depth)",
+      "source_line": 86
+    },
+    {
+      "id": "C5.6",
+      "feature": "Notification rules: quiet hours, digests, per-channel routing; optional free push through a self-hosted or public ntfy-style service the user chooses",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C5.6",
+      "milestone": "M14",
+      "milestones": [
+        "M14"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "E. Workflows and automation (extra depth)",
+      "source_line": 87
+    },
+    {
+      "id": "C6.1",
+      "feature": "Separate **episodic, semantic, procedural** memory",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C6.1",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "F. Memory (richer model)",
+      "source_line": 93
+    },
+    {
+      "id": "C6.2",
+      "feature": "Entity/relation knowledge graph alongside flat items",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C6.2",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "F. Memory (richer model)",
+      "source_line": 94
+    },
+    {
+      "id": "C6.3",
+      "feature": "Importance scoring and decay; \"dreaming\" consolidation job; per-agent vs shared scopes",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C6.3",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "F. Memory (richer model)",
+      "source_line": 95
+    },
+    {
+      "id": "C6.4",
+      "feature": "User profile page the person can read and edit",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C6.4",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "F. Memory (richer model)",
+      "source_line": 96
+    },
+    {
+      "id": "C6.5",
+      "feature": "Memory provenance (which session/tool produced it) and tainted-source flag",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C6.5",
+      "milestone": "M13",
+      "milestones": [
+        "M13"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "F. Memory (richer model)",
+      "source_line": 97
+    },
+    {
+      "id": "C7.1",
+      "feature": "Read other tools' instruction files as sources (`CLAUDE.md`, `.cursorrules`, Copilot instructions, `GEMINI.md`) with merge diagnostics; add a \"not affiliated\" note",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C7.1",
+      "milestone": "M7",
+      "milestones": [
+        "M7"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "G. Interoperability and standards",
+      "source_line": 103
+    },
+    {
+      "id": "C7.2",
+      "feature": "**Importers/exporters**: MCP configs from other apps, settings, rules, sessions where formats are documented",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C7.2",
+      "milestone": "M20",
+      "milestones": [
+        "M20"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "G. Interoperability and standards",
+      "source_line": 104
+    },
+    {
+      "id": "C7.3",
+      "feature": "Skill format compatible with the open `SKILL.md` convention; command format compatible with opencode-style markdown",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C7.3",
+      "milestone": "M9",
+      "milestones": [
+        "M9"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "G. Interoperability and standards",
+      "source_line": 105
+    },
+    {
+      "id": "C7.4",
+      "feature": "OpenAPI-to-tools generator (point at a spec, get tools, dormant until approved)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C7.4",
+      "milestone": "M15",
+      "milestones": [
+        "M15"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "G. Interoperability and standards",
+      "source_line": 106
+    },
+    {
+      "id": "C7.5",
+      "feature": "Standards checklist: AGENTS.md, MCP, ACP, LSP, DAP, OpenTelemetry GenAI conventions, SARIF, CycloneDX, SPDX, OpenAPI, JSON Schema, ICS",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C7.5",
+      "milestone": "M25",
+      "milestones": [
+        "M25"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "G. Interoperability and standards",
+      "source_line": 107
+    },
+    {
+      "id": "C8.1",
+      "feature": "**Recoverable trash**: every agent delete goes to a Keel trash for N days; automatic git/stash snapshot before bulk operations",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C8.1",
+      "milestone": "M5",
+      "milestones": [
+        "M5"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "H. Security and trust (extra layers)",
+      "source_line": 113
+    },
+    {
+      "id": "C8.2",
+      "feature": "Delayed destructive ops with undo window; **approve from phone** for dangerous actions",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C8.2",
+      "milestone": "M3, M20",
+      "milestones": [
+        "M3",
+        "M20"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "H. Security and trust (extra layers)",
+      "source_line": 114
+    },
+    {
+      "id": "C8.3",
+      "feature": "Behavior anomaly detection (sudden mass file reads, unusual network, repeated denials) pauses the agent",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C8.3",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "H. Security and trust (extra layers)",
+      "source_line": 115
+    },
+    {
+      "id": "C8.4",
+      "feature": "Honeypot/canary files that should never be read; alert if touched",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C8.4",
+      "milestone": "M3",
+      "milestones": [
+        "M3"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "H. Security and trust (extra layers)",
+      "source_line": 116
+    },
+    {
+      "id": "C8.5",
+      "feature": "Plugin/skill supply chain: capability review UI with **permission diff on update**, trust levels (bundled, signed, local, unsigned), static scan of skill scripts, signed **revocation list** delivered via the update feed",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C8.5",
+      "milestone": "M9, M10",
+      "milestones": [
+        "M9",
+        "M10"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "H. Security and trust (extra layers)",
+      "source_line": 117
+    },
+    {
+      "id": "C8.6",
+      "feature": "Content-addressable artifact store with dedupe and integrity checks",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C8.6",
+      "milestone": "M4",
+      "milestones": [
+        "M4"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "H. Security and trust (extra layers)",
+      "source_line": 118
+    },
+    {
+      "id": "C8.7",
+      "feature": "DB resilience: scheduled integrity check, `VACUUM INTO` backups, **rebuild projections from the events log** after corruption, retention policies, optional SQLCipher encryption at rest (verify license/packaging)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C8.7",
+      "milestone": "M4",
+      "milestones": [
+        "M4"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "H. Security and trust (extra layers)",
+      "source_line": 119
+    },
+    {
+      "id": "C8.8",
+      "feature": "Local red-team suite (prompt injection, exfiltration, tool-abuse scenarios) run per model",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C8.8",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "H. Security and trust (extra layers)",
+      "source_line": 120
+    },
+    {
+      "id": "C9.1",
+      "feature": "**Model manager**: load/unload idle models, VRAM/RAM budget, queue concurrent requests, warm-up",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C9.1",
+      "milestone": "M2",
+      "milestones": [
+        "M2"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "I. Performance and resource management",
+      "source_line": 126
+    },
+    {
+      "id": "C9.2",
+      "feature": "Virtualized lists, incremental rendering, streaming backpressure, startup prewarm, memory-leak watchdog",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C9.2",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "I. Performance and resource management",
+      "source_line": 127
+    },
+    {
+      "id": "C9.3",
+      "feature": "Incremental repo indexing with file watching; low-power/battery mode",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C9.3",
+      "milestone": "M11",
+      "milestones": [
+        "M11"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "I. Performance and resource management",
+      "source_line": 128
+    },
+    {
+      "id": "C9.4",
+      "feature": "Per-feature resource caps (browser, LSP, container) with visible meters",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C9.4",
+      "milestone": "M16, M21",
+      "milestones": [
+        "M16",
+        "M21"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "I. Performance and resource management",
+      "source_line": 129
+    },
+    {
+      "id": "C10.1",
+      "feature": "Interactive tutorial with a sample project, guided tours, tips, \"what's new\" modal",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C10.1",
+      "milestone": "M19",
+      "milestones": [
+        "M19"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "J. Onboarding, help and support",
+      "source_line": 135
+    },
+    {
+      "id": "C10.2",
+      "feature": "Error catalog with stable codes and fix pages (offline)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C10.2",
+      "milestone": "M23",
+      "milestones": [
+        "M23"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "J. Onboarding, help and support",
+      "source_line": 136
+    },
+    {
+      "id": "C10.3",
+      "feature": "Contextual help linking to offline docs",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C10.3",
+      "milestone": "M19, M23",
+      "milestones": [
+        "M19",
+        "M23"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "J. Onboarding, help and support",
+      "source_line": 137
+    },
+    {
+      "id": "C10.4",
+      "feature": "In-app feedback saved locally, exported as a redacted bundle for email",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C10.4",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "J. Onboarding, help and support",
+      "source_line": 138
+    },
+    {
+      "id": "C10.5",
+      "feature": "Voice control and spoken responses for accessibility; live-region announcements for streaming text",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C10.5",
+      "milestone": "M17, M25",
+      "milestones": [
+        "M17",
+        "M25"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "J. Onboarding, help and support",
+      "source_line": 139
+    },
+    {
+      "id": "C11.1",
+      "feature": "**Source-hosting caveats to decide (verify current terms):** on GitHub's free plan, private repos may lack branch protection and advanced code/secret scanning; GitHub Pages for private repos may need a paid plan. Options: accept and use local pre-push hooks + gitleaks + signed commits; host the primary private repo on a free forge with protected branches (e.g. GitLab free tier or self-hosted Forgejo/Gitea) and mirror to GitHub; or consciously pay later (gate G6)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C11.1",
+      "milestone": "M1",
+      "milestones": [
+        "M1"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "K. Proprietary protection, legal and brand (extra)",
+      "source_line": 145
+    },
+    {
+      "id": "C11.2",
+      "feature": "Security hygiene for the private repo: mandatory 2FA, signed commits, least-privilege tokens, Actions pinned by commit SHA, restricted Actions on forks (forks disabled), environment secrets with required reviewer for release publishing, access review checklist",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C11.2",
+      "milestone": "M1",
+      "milestones": [
+        "M1"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "K. Proprietary protection, legal and brand (extra)",
+      "source_line": 146
+    },
+    {
+      "id": "C11.3",
+      "feature": "**Source-leak incident runbook**: rotate keys, revoke tokens, take-down notices, history review, canary strings in source to trace leaks",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C11.3",
+      "milestone": "M1",
+      "milestones": [
+        "M1"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "K. Proprietary protection, legal and brand (extra)",
+      "source_line": 147
+    },
+    {
+      "id": "C11.4",
+      "feature": "**REUSE-style licensing metadata** (SPDX headers incl. a custom `LicenseRef-Keel-Proprietary`), auto-generated `THIRD_PARTY_NOTICES` from lockfiles, license allowlist policy file in CI",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C11.4",
+      "milestone": "M1",
+      "milestones": [
+        "M1"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "K. Proprietary protection, legal and brand (extra)",
+      "source_line": 148
+    },
+    {
+      "id": "C11.5",
+      "feature": "EULA acceptance stored locally with version; re-prompt when the EULA changes; EULA viewable in-app and on the website",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C11.5",
+      "milestone": "M1, M19",
+      "milestones": [
+        "M1",
+        "M19"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "K. Proprietary protection, legal and brand (extra)",
+      "source_line": 149
+    },
+    {
+      "id": "C11.6",
+      "feature": "\"Verified official build\" indicator in About (app verifies its own hash/signature against the signed manifest); website page explaining how to recognize official downloads; typosquat/fake-site guidance",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C11.6",
+      "milestone": "M22, M23",
+      "milestones": [
+        "M22",
+        "M23"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "K. Proprietary protection, legal and brand (extra)",
+      "source_line": 150
+    },
+    {
+      "id": "C11.7",
+      "feature": "Trademark usage guidelines page; takedown/abuse contact; export-control and privacy notes (lawyer review)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C11.7",
+      "milestone": "M23",
+      "milestones": [
+        "M23"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "K. Proprietary protection, legal and brand (extra)",
+      "source_line": 151
+    },
+    {
+      "id": "C11.8",
+      "feature": "Obfuscation depth (deterrent only): Nuitka-compiled core, bytecode-compiled Electron main, asar integrity, string encryption for sensitive constants, per-build canary identifiers",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C11.8",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "K. Proprietary protection, legal and brand (extra)",
+      "source_line": 152
+    },
+    {
+      "id": "C12.1",
+      "feature": "Manifest fields for **blocked versions**, `min_version`, security advisories, and **staged rollout** (deterministic client bucket) with no server logic",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C12.1",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "L. Distribution and updates (extra)",
+      "source_line": 158
+    },
+    {
+      "id": "C12.2",
+      "feature": "**Air-gapped install and update**: offline installer bundle, sideload update file verified by signature, model import from USB/folder",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C12.2",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "L. Distribution and updates (extra)",
+      "source_line": 159
+    },
+    {
+      "id": "C12.3",
+      "feature": "Self-hosted APT and YUM repositories (static files, signed)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C12.3",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "L. Distribution and updates (extra)",
+      "source_line": 160
+    },
+    {
+      "id": "C12.4",
+      "feature": "Mirror list with automatic failover and signature check on every mirror",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C12.4",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "L. Distribution and updates (extra)",
+      "source_line": 161
+    },
+    {
+      "id": "C12.5",
+      "feature": "Portable zip builds for Windows and Linux",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C12.5",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P2",
+      "evidence_tag": "",
+      "source_section": "L. Distribution and updates (extra)",
+      "source_line": 162
+    },
+    {
+      "id": "C12.6",
+      "feature": "Release dry-run command that builds everything and runs the artifact allowlist and secret scans without publishing",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C12.6",
+      "milestone": "M22",
+      "milestones": [
+        "M22"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "L. Distribution and updates (extra)",
+      "source_line": 163
+    },
+    {
+      "id": "C13.1",
+      "feature": "Local SWE-task benchmark suite (small repos with failing tests) with per-model leaderboard",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C13.1",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "M. Evaluation and quality (extra)",
+      "source_line": 169
+    },
+    {
+      "id": "C13.2",
+      "feature": "LLM-as-judge with a local judge model plus trajectory scoring (steps, wasted calls, cost)",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C13.2",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "M. Evaluation and quality (extra)",
+      "source_line": 170
+    },
+    {
+      "id": "C13.3",
+      "feature": "Prompt regression tests across model versions; golden transcripts",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C13.3",
+      "milestone": "M25",
+      "milestones": [
+        "M25"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "M. Evaluation and quality (extra)",
+      "source_line": 171
+    },
+    {
+      "id": "C13.4",
+      "feature": "Installer smoke tests in clean VMs per OS and architecture, including upgrade from every prior release and rollback",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C13.4",
+      "milestone": "M22, M25",
+      "milestones": [
+        "M22",
+        "M25"
+      ],
+      "priority": "P0",
+      "evidence_tag": "",
+      "source_section": "M. Evaluation and quality (extra)",
+      "source_line": 172
+    },
+    {
+      "id": "C13.5",
+      "feature": "Startup, memory and install-size trend charts stored per release",
+      "feature_text": "",
+      "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+      "source_feature_id": "C13.5",
+      "milestone": "M21",
+      "milestones": [
+        "M21"
+      ],
+      "priority": "P1",
+      "evidence_tag": "",
+      "source_section": "M. Evaluation and quality (extra)",
+      "source_line": 173
+    }
+  ],
+  "verification": {
+    "count": 228,
+    "registry_count": 228,
+    "all_ids_present": true,
+    "ids_missing_from_registry": [],
+    "ids_extra_in_registry": [],
+    "duplicate_ids_in_documents": [],
+    "duplicate_ids_in_registry": [],
+    "counts": {
+      "A": 57,
+      "B": 76,
+      "C": 95
+    },
+    "mismatches": [
+      {
+        "id": "A1.13",
+        "field": "milestone",
+        "registry_value": "M10",
+        "document_value": "M5, M10",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 29,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "A1.17",
+        "field": "milestone",
+        "registry_value": "M21",
+        "document_value": "M4, M21",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 33,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "A1.20",
+        "field": "milestone",
+        "registry_value": "M2",
+        "document_value": "M2, M22",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 36,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "A3.3",
+        "field": "milestone",
+        "registry_value": "M19",
+        "document_value": "M2, M19",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 60,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "A3.11",
+        "field": "milestone",
+        "registry_value": "M20",
+        "document_value": "M20, M23",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 68,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "A4.1",
+        "field": "milestone",
+        "registry_value": "M14",
+        "document_value": "M14, M22",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 74,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "A5.7",
+        "field": "milestone",
+        "registry_value": "M15",
+        "document_value": "M15, M19",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 93,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "B1.8",
+        "field": "milestone",
+        "registry_value": "M11",
+        "document_value": "M11, M13",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 109,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "B1.9",
+        "field": "milestone",
+        "registry_value": "M19",
+        "document_value": "M19, M21",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 110,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "B2.4",
+        "field": "milestone",
+        "registry_value": "M7",
+        "document_value": "M7, M9",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 119,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "B2.16",
+        "field": "milestone",
+        "registry_value": "M12",
+        "document_value": "M8, M12",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 131,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "B3.9",
+        "field": "milestone",
+        "registry_value": "M14",
+        "document_value": "M3, M14",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 144,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "B4.2",
+        "field": "milestone",
+        "registry_value": "M19",
+        "document_value": "M19, M22",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 153,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "B4.4",
+        "field": "milestone",
+        "registry_value": "M19",
+        "document_value": "M4, M19",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 155,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "B4.6",
+        "field": "milestone",
+        "registry_value": "M12",
+        "document_value": "M12, M19",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 157,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "B4.11",
+        "field": "milestone",
+        "registry_value": "M14",
+        "document_value": "M14, M22",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 162,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "B7.1",
+        "field": "milestone",
+        "registry_value": "M25",
+        "document_value": "M3, M25",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 193,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "B7.4",
+        "field": "milestone",
+        "registry_value": "M21",
+        "document_value": "M21, M25",
+        "source_document": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "source_line": 196,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "C1.5",
+        "field": "milestone",
+        "registry_value": "M15",
+        "document_value": "M15, M23",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 17,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "C1.6",
+        "field": "milestone",
+        "registry_value": "M12",
+        "document_value": "M12, M17",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 18,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "C2.1",
+        "field": "milestone",
+        "registry_value": "M15",
+        "document_value": "M17, M15",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 34,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "C2.2",
+        "field": "milestone",
+        "registry_value": "M11",
+        "document_value": "M5 to M11",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 35,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "C2.3",
+        "field": "milestone",
+        "registry_value": "M12",
+        "document_value": "M12, M20",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 36,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "C3.4",
+        "field": "milestone",
+        "registry_value": "M19",
+        "document_value": "M2, M19",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 49,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "C4.12",
+        "field": "milestone",
+        "registry_value": "M21",
+        "document_value": "M5, M21",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 74,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "C5.5",
+        "field": "milestone",
+        "registry_value": "M10",
+        "document_value": "M8, M10",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 86,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "C8.2",
+        "field": "milestone",
+        "registry_value": "M20",
+        "document_value": "M3, M20",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 114,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "C8.5",
+        "field": "milestone",
+        "registry_value": "M10",
+        "document_value": "M9, M10",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 117,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "last"
+      },
+      {
+        "id": "C9.4",
+        "field": "milestone",
+        "registry_value": "M16",
+        "document_value": "M16, M21",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 129,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "C10.3",
+        "field": "milestone",
+        "registry_value": "M19",
+        "document_value": "M19, M23",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 137,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "C10.5",
+        "field": "milestone",
+        "registry_value": "M17",
+        "document_value": "M17, M25",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 139,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "C11.5",
+        "field": "milestone",
+        "registry_value": "M1",
+        "document_value": "M1, M19",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 149,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "C11.6",
+        "field": "milestone",
+        "registry_value": "M22",
+        "document_value": "M22, M23",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 150,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      },
+      {
+        "id": "C13.4",
+        "field": "milestone",
+        "registry_value": "M22",
+        "document_value": "M22, M25",
+        "source_document": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "source_line": 172,
+        "category": "lossy milestone normalization",
+        "note": "Document cell lists multiple milestones; registry stores a single milestone. The registry value is one of the document's milestones (first of 2, last of 2), so the additional milestone(s) are dropped.",
+        "registry_value_is_in_document_milestones": true,
+        "registry_picks": "first"
+      }
+    ],
+    "mismatch_summary": {
+      "total": 34,
+      "by_field": {
+        "milestone": 34
+      },
+      "title_mismatches": 0,
+      "priority_mismatches": 0,
+      "source_document_mismatches": 0,
+      "source_feature_id_mismatches": 0,
+      "milestone_mismatches": 34,
+      "description_note": "The registry has no separate free-implementation/detail column; its acceptance_criteria[0] is derived verbatim as 'Implement <title> according to <source_document> feature <id>'. That formula matched for all 228 rows. Titles match the source table 'Feature'/'Surface' cells byte-for-byte, including markdown emphasis and backticks.",
+      "acceptance_criteria_formula_mismatches": 0
+    }
+  },
+  "metadata": {
+    "source_documents": [
+      {
+        "file_name": "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "path": "C:\\Users\\Admin\\Desktop\\KEEL PLANS\\KEEL PLANS DONE\\Keel_Plan_v5_Addendum_Missed_Features.md",
+        "bytes": 18847,
+        "sha256": "e4e314a5a0c31f7868e7568d061fb5aebbe809144624479f96537eb0c84b6583",
+        "lines": 209,
+        "feature_rows": 133,
+        "role": "feature source"
+      },
+      {
+        "file_name": "Keel_Plan_v5_Addendum_2_More_Features.md",
+        "path": "C:\\Users\\Admin\\Desktop\\KEEL PLANS\\KEEL PLANS DONE\\Keel_Plan_v5_Addendum_2_More_Features.md",
+        "bytes": 15930,
+        "sha256": "b42219150271fa9e25dbd28c878beba3608032c17e221fdda73d716f4fc9125a",
+        "lines": 181,
+        "feature_rows": 95,
+        "role": "feature source"
+      },
+      {
+        "file_name": "Keel_Master_Plan_v5.md",
+        "path": "C:\\Users\\Admin\\Desktop\\KEEL PLANS\\KEEL PLANS DONE\\Keel_Master_Plan_v5.md",
+        "bytes": 40746,
+        "sha256": "da1dd5dc81d7f85fadbc5e10143c937e7fc63fd34b86f0f0d3659f7af67d427f",
+        "lines": 381,
+        "feature_rows": 0,
+        "role": "master plan (non-feature requirements)"
+      }
+    ],
+    "registry_context": {
+      "schema_version": 1,
+      "authoritative_plan": "Keel_Master_Plan_v6.md",
+      "authoritative_plan_supplied": false,
+      "authoritative_plan_note": "PLAN-INDEX.json names Keel_Master_Plan_v6.md as authoritative; it was not among the three supplied documents.",
+      "registry_note": "v5 Sections 12-16, Section 13 mapping and Appendices A-D remain missing from the supplied source and are not reconstructed here.",
+      "source_documents_listed_in_registry": [
+        "Keel_Master_Plan_v5.md",
+        "Keel_Plan_v5_Addendum_Missed_Features.md",
+        "Keel_Plan_v5_Addendum_2_More_Features.md"
+      ],
+      "status_counts": {
+        "verified": 226,
+        "blocked": 2
+      },
+      "implementation_tier_counts": {
+        "operational": 52,
+        "local_module": 168,
+        "external_dependency": 3,
+        "descriptor": 3,
+        "owner_gated": 2
+      },
+      "owner_approval_required_ids": [
+        "B6.6",
+        "C11.1",
+        "C11.2",
+        "C11.5",
+        "C11.8"
+      ],
+      "blocked_ids": [
+        "C11.1",
+        "C11.2"
+      ]
+    },
+    "coverage_limitations": [
+      "Supplied Keel_Master_Plan_v5.md is 40,746 bytes / 381 lines and ends at §11 (Security plan). Sections 12-16, the §13 v4-to-v5 mapping and Appendices A-D are referenced in the text but absent from the supplied file. This matches the registry's own note.",
+      "Consequently, non-feature requirements below are extracted only from §§0-11 that are actually present; referenced-but-absent sections (§12-16, §13, Appendices A-D, incl. the EULA draft, repo-visibility runbook, packaging and release sections) cannot be verified against source.",
+      "PLAN-INDEX.json declares Keel_Master_Plan_v6.md authoritative; that file was not supplied, so verification is limited to the three v5 documents named in the task.",
+      "Task description quoted approximate sizes ~4 MB / ~1.9 MB / ~1.6 MB; actual supplied files are ~40.7 KB / ~18.8 KB / ~15.9 KB. All three were nonetheless read completely."
+    ],
+    "owner_gates": [
+      {
+        "gate": "G1",
+        "action_requiring_explicit_owner_approval": "Changing repo visibility (public to private, or any other change)",
+        "source": "Keel_Master_Plan_v5.md §0.3 Approval gates"
+      },
+      {
+        "gate": "G2",
+        "action_requiring_explicit_owner_approval": "Rewriting Git history or deleting branches/tags/releases",
+        "source": "Keel_Master_Plan_v5.md §0.3 Approval gates"
+      },
+      {
+        "gate": "G3",
+        "action_requiring_explicit_owner_approval": "Publishing the first public binary release from the new distribution endpoint",
+        "source": "Keel_Master_Plan_v5.md §0.3 Approval gates"
+      },
+      {
+        "gate": "G4",
+        "action_requiring_explicit_owner_approval": "Adding collaborators or CI deploy credentials",
+        "source": "Keel_Master_Plan_v5.md §0.3 Approval gates"
+      },
+      {
+        "gate": "G5",
+        "action_requiring_explicit_owner_approval": "Adopting final EULA text (needs the owner's legal name, governing law, lawyer review)",
+        "source": "Keel_Master_Plan_v5.md §0.3 Approval gates"
+      },
+      {
+        "gate": "G6",
+        "action_requiring_explicit_owner_approval": "Any paid service, payment, subscription, license-key enforcement or mandatory account",
+        "source": "Keel_Master_Plan_v5.md §0.3 Approval gates"
+      },
+      {
+        "gate": "G7",
+        "action_requiring_explicit_owner_approval": "Publishing extension/SDK docs publicly (default: not published)",
+        "source": "Keel_Master_Plan_v5.md §0.3 Approval gates"
+      }
+    ],
+    "private_source_and_license": [
+      {
+        "requirement": "GitHub source repository must be private; only owner and explicitly authorized collaborators may access it.",
+        "source": "Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.1"
+      },
+      {
+        "requirement": "No public forks, public contributions, public source archives, public development artifacts, public internal docs, research, plans or internal tooling.",
+        "source": "Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.1"
+      },
+      {
+        "requirement": "No CONTRIBUTING.md inviting outside contributions, no 'open source' wording anywhere, no public issue tracker for source.",
+        "source": "Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.1"
+      },
+      {
+        "requirement": "Never change repository visibility automatically: prepare runbook and stop to ask owner for explicit approval. Same for history rewrites, force-pushes, repo deletion, collaborator changes and secret rotation.",
+        "source": "Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.1"
+      },
+      {
+        "requirement": "Original code is proprietary, all rights reserved. No MIT, Apache-2.0, GPL or any open-source license on Keel's own code.",
+        "source": "Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.2"
+      },
+      {
+        "requirement": "Users receive permission to install and use the binary under an EULA; no source rights and no redistribution rights.",
+        "source": "Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.2"
+      },
+      {
+        "requirement": "Third-party obligations (dependencies, fonts, icons, models, voices, assets, reference-repo snippets) keep their own licenses, notices and attribution.",
+        "source": "Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.2; Keel_Master_Plan_v5.md §11 Security plan and gap analysis"
+      }
+    ],
+    "architecture_constraints": [
+      {
+        "requirement": "Python authoritative runtime; Electron shell and existing renderer; SQLite (WAL) with files under the Keel data dir; OS keychain holds master key.",
+        "source": "Keel_Master_Plan_v5.md §5.1 Locked decisions; Keel_Master_Plan_v5.md §6 Target architecture / Design rules"
+      },
+      {
+        "requirement": "No Supabase, Firebase, Postgres, Redis, Tauri, Node/Bun backend, PGlite or hosted vector DB; no hosted backend of any kind required to run Keel.",
+        "source": "Keel_Master_Plan_v5.md §5.1 Locked decisions"
+      },
+      {
+        "requirement": "Existing data preserved via migrations; private repo and proprietary license.",
+        "source": "Keel_Master_Plan_v5.md §5.1 Locked decisions"
+      },
+      {
+        "requirement": "API layer is /api/v2 compatible plus /api/keel/v1; renderer talks to Python daemon over HTTP+SSE on 127.0.0.1 with per-launch bearer token and Origin/Host checks.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules"
+      },
+      {
+        "requirement": "Separate processes only for Playwright, LSP servers, whisper.cpp, Ollama/llama.cpp, plugin workers and optional container desktop.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules"
+      },
+      {
+        "requirement": "Core is front-end agnostic: Electron, CLI, SDK, IDE bridges and an MCP-server surface drive the same loop.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 1"
+      },
+      {
+        "requirement": "Providers are leaves: one provider-neutral message/tool/usage model; tool calling, streaming, thinking and effort are optional capabilities; a model with none still works as a text agent.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 2"
+      },
+      {
+        "requirement": "Never re-send a partially delivered response; preserve output, warn, do not retry.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 3"
+      },
+      {
+        "requirement": "Tool results have two renderings (model string, typed UI/audit payload); errors and denials are data, not exceptions.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 4"
+      },
+      {
+        "requirement": "Output-size ladder: large outputs go to a session file with inline preview, on success and failure.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 5"
+      },
+      {
+        "requirement": "Two permission tiers. Tier 1: deny/ask/allow, first match wins, wildcards. Tier 2 (non-configurable): protected-path table (test fails if changed), destructive-command analyzer on resolved command, consent-required tools, dangerous-mode interlock. No rule, hook, plugin, policy file or setting reaches Tier 2.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 6"
+      },
+      {
+        "requirement": "Compaction is a structured record with thrash detector and three-rung overflow ladder.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 7"
+      },
+      {
+        "requirement": "Model roles: main, summarizer, title, classifier.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 8"
+      },
+      {
+        "requirement": "Dollar caps degrade to token caps for local models, never to unlimited.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 9"
+      },
+      {
+        "requirement": "Subagents are a trust boundary: exact tool allowlist, worktree isolation, depth/concurrency caps, reports scanned for instruction-shaped text.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 10"
+      },
+      {
+        "requirement": "MCP failures reach three audiences: operator status, typed errors, model note.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 11"
+      },
+      {
+        "requirement": "Instruction files merge, never suppress (AGENTS.md plus Keel's own), with a diagnostic naming sources; subdirectory rules lazy-load.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 12"
+      },
+      {
+        "requirement": "Read-before-edit via observed-paths set restored on resume; edits are exact-match, UTF-8 safe.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 13"
+      },
+      {
+        "requirement": "Daemon authenticates even on localhost and rejects foreign Origin/Host.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 14"
+      },
+      {
+        "requirement": "Dormant-until-configured integrations: unset key parks quietly, revives on hot-reload (/reload or settings save), nothing crash-loops.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 15"
+      },
+      {
+        "requirement": "Entitlement seam: every feature that could be gated asks entitlements.has('feature.id'); only provider today is AllowAllEntitlements; no license keys, network checks or feature locks (G6).",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 16"
+      },
+      {
+        "requirement": "Managed-policy seam: optional signed or OS-protected keel-policy.json may tighten settings (disable providers, force offline, pin update server, restrict connectors) but can never loosen Tier 2.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 17"
+      },
+      {
+        "requirement": "No mandatory accounts, no mandatory telemetry. Crash reports and traces stay local; the only unprompted network call is the disable-able update check.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 18"
+      },
+      {
+        "requirement": "JSONC + schema config, provider/model naming, bundled offline provider catalog; existing SQLite file kept with forward-only numbered migrations and automatic backup/integrity check before each migration.",
+        "source": "Keel_Master_Plan_v5.md §10 Database and migration plan; Keel_Master_Plan_v5.md §6 Target architecture / Design rules"
+      },
+      {
+        "requirement": "Schema change requires a migration; no secret in logs, ever.",
+        "source": "Keel_Master_Plan_v5.md §3.2 Evidence rules"
+      },
+      {
+        "requirement": "Clean-room design: reimplement reference behavior; take structure, flows, states, forms and behavior only; colors, type, spacing, icons and copy only from Keel theme tokens; never use reference names, logos, prompts or screenshots.",
+        "source": "Keel_Master_Plan_v5.md §3.1 UI rule / evidence limits; Keel_Master_Plan_v5.md §7 Capability harvest"
+      }
+    ],
+    "security_requirements": [
+      {
+        "requirement": "Statuses only: Complete and verified / Implemented, partially verified / Partially implemented / Not implemented / Blocked / Intentionally excluded. Every row records source path, test path, end-to-end run; no evidence, no 'complete'.",
+        "source": "Keel_Master_Plan_v5.md §3.2 Evidence rules"
+      },
+      {
+        "requirement": "Never fake provider output; never mark a test passed without running it; never publish an installer without verification. Root planning docs are specs, not proof.",
+        "source": "Keel_Master_Plan_v5.md §3.2 Evidence rules"
+      },
+      {
+        "requirement": "Re-verify any third-party price, free tier or license claim when selecting the dependency and record the date.",
+        "source": "Keel_Master_Plan_v5.md §3.2 Evidence rules"
+      },
+      {
+        "requirement": "M0 gaps to verify: Tier-2 enforcement, daemon auth and Origin/Host checks, secret storage and log redaction, path containment vs symlinks/.., Windows reserved names/ADS, command analyzer coverage, prompt-injection handling, subagent allowlists, plugin isolation, update integrity, and whether shipped installer contains private-repo material.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis"
+      },
+      {
+        "requirement": "Per-launch bearer token, loopback bind, Origin/Host allowlist, no CORS wildcard.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 1"
+      },
+      {
+        "requirement": "Protected paths (.git, shell rc files, keychains, ~/.ssh, Keel data dir, config) denied for write regardless of rules.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 2"
+      },
+      {
+        "requirement": "Destructive-command analyzer on the resolved command (aliases, $(), pipes, sudo, rm -rf variants, PowerShell equivalents).",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 3"
+      },
+      {
+        "requirement": "Filesystem containment: canonicalize + realpath, deny symlink escape, project root plus explicit extra roots.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 4"
+      },
+      {
+        "requirement": "Secrets: OS keychain master key, AES-256-GCM at rest, redaction in logs/traces/errors, out-of-band entry, gitleaks in CI.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 5"
+      },
+      {
+        "requirement": "Taint labels on untrusted content; tainted content cannot auto-approve or read secrets; injection canary tests.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 6"
+      },
+      {
+        "requirement": "SSRF-safe fetch: block private/link-local/metadata ranges, re-check after redirects and DNS resolution.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 7"
+      },
+      {
+        "requirement": "Webhooks: HMAC-SHA256 over timestamp.rawBody, 5-minute window, constant-time compare, replay cache.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 8"
+      },
+      {
+        "requirement": "Plugins/MCP: out-of-process workers, declared permissions, scrubbed env, per-server allowlists, tool-description pinning.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 9"
+      },
+      {
+        "requirement": "Hash-chained audit log + tamper check command.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 10"
+      },
+      {
+        "requirement": "Supply chain: pinned/locked deps, pip-audit/OSV scan, SBOM (CycloneDX), reproducible builds where possible, Ed25519 signatures on every release artifact and manifest.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 11"
+      },
+      {
+        "requirement": "Offline mode: daemon-level egress block except loopback.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 12"
+      },
+      {
+        "requirement": "Source-protection controls: private repo hardening, artifact allowlist scanner, no source maps, no dev docs in installers, secret scan of built artifacts, license-header check.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 13"
+      },
+      {
+        "requirement": "Update security: manifest signed with offline-held Ed25519 key; public key embedded in app; HTTPS only; version monotonic; hash check before install; atomic swap; keep previous version for rollback.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 14"
+      },
+      {
+        "requirement": "Private vulnerability reporting: security contact by email, no public issue tracker for security.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 15"
+      },
+      {
+        "requirement": "Exposure-window response: repo has been public with 108 commits; scan full history with gitleaks, rotate anything that looked like a secret, ask about history rewrite (G2); making it private does not recall copies.",
+        "source": "Keel_Master_Plan_v5.md §4.2 Findings needing action now"
+      },
+      {
+        "requirement": "Provenance: third-party capture/analysis material must never enter an installer, website or docs bundle; act on licensing-and-provenance review.",
+        "source": "Keel_Master_Plan_v5.md §4.2 Findings needing action now; Keel_Master_Plan_v5.md §11 Security plan and gap analysis"
+      },
+      {
+        "requirement": "Additional clean-room additions (free): keel doctor, record/replay, per-task worktree with no remote push without approval, tree-sitter repo map, taint tracking, local eval harness, hash-chained audit log, offline switch, prompt-based tool mode, checkpoint/undo, context inspector, policy simulator, local usage dashboard, --safe mode.",
+        "source": "Keel_Master_Plan_v5.md §7.7 Additions beyond the references"
+      }
+    ],
+    "four_product_surfaces": {
+      "source_names": "Keel Cowork, Keel Code, Keel Duet, Fleet (Keel_Master_Plan_v5.md §1 Summary)",
+      "definition_source": "Keel_Plan_v5_Addendum_2_More_Features.md §B Product surfaces (C2.1-C2.5)",
+      "note": "v5 is mostly the Code side; Addendum 2 §B makes each surface explicit so the builder does not under-build the others. Keel Duet is an assumption pending owner decision D4.",
+      "surfaces": [
+        {
+          "feature_id": "C2.1",
+          "name": "**Keel Cowork** (knowledge work)",
+          "definition": "Folder-scoped assistant for non-coding work: file organizer with preview and undo, batch rename, PDF/Office read and write, spreadsheet cleanup and analysis, document Q&A with citations, email drafting and inbox triage via IMAP, local calendar (ICS/CalDAV), meeting prep, scheduled reports, form filling, translation, writing with a saved style profile",
+          "milestone": "M17, M15",
+          "priority": "P0",
+          "source": "Keel_Plan_v5_Addendum_2_More_Features.md §B Product surfaces (C2.1-C2.5) (row C2.1, line 34)"
+        },
+        {
+          "feature_id": "C2.2",
+          "name": "**Keel Code**",
+          "definition": "Everything coding (the v5 core)",
+          "milestone": "M5 to M11",
+          "priority": "P0",
+          "source": "Keel_Plan_v5_Addendum_2_More_Features.md §B Product surfaces (C2.1-C2.5) (row C2.2, line 35)"
+        },
+        {
+          "feature_id": "C2.3",
+          "name": "**Keel Duet** (assumed pair mode, confirm D4)",
+          "definition": "Live pairing: inline ghost-text completion from a local FIM-capable model, follow-the-cursor context, \"you drive / agent drives\" handoff, reviewer agent comments in the editor",
+          "milestone": "M12, M20",
+          "priority": "P1",
+          "source": "Keel_Plan_v5_Addendum_2_More_Features.md §B Product surfaces (C2.1-C2.5) (row C2.3, line 36)"
+        },
+        {
+          "feature_id": "C2.4",
+          "name": "**Fleet**",
+          "definition": "Many agents, board, org chart, budgets, timelines",
+          "milestone": "M12",
+          "priority": "P0",
+          "source": "Keel_Plan_v5_Addendum_2_More_Features.md §B Product surfaces (C2.1-C2.5) (row C2.4, line 37)"
+        }
+      ],
+      "surface_switcher": {
+        "feature_id": "C2.5",
+        "name": "Surface switcher with per-surface default agents, tools and permissions",
+        "definition": "UI + config",
+        "milestone": "M19",
+        "priority": "P0",
+        "source": "Keel_Plan_v5_Addendum_2_More_Features.md §B Product surfaces (C2.1-C2.5) (row C2.5, line 38)"
+      }
+    },
+    "distribution_rules": [
+      {
+        "requirement": "The website is the public face: product info, capabilities, screenshots, downloads, install instructions, user docs, latest version, update/release notes.",
+        "source": "Keel_Master_Plan_v5.md §0.4 Public website and distribution"
+      },
+      {
+        "requirement": "Website must not expose: source repo link, private dev docs, internal research, credentials, internal build artifacts, implementation details.",
+        "source": "Keel_Master_Plan_v5.md §0.4 Public website and distribution"
+      },
+      {
+        "requirement": "Users download and install without ever touching GitHub or the source repository.",
+        "source": "Keel_Master_Plan_v5.md §0.4 Public website and distribution"
+      },
+      {
+        "requirement": "Platforms: Windows installer; macOS Apple Silicon; macOS Intel; Linux AppImage, DEB, RPM.",
+        "source": "Keel_Master_Plan_v5.md §0.4 Public website and distribution"
+      },
+      {
+        "requirement": "Every release has: version, SHA-256 checksums, release manifest, integrity verification, update checks, secure update download, rollback, install and upgrade instructions.",
+        "source": "Keel_Master_Plan_v5.md §0.4 Public website and distribution"
+      },
+      {
+        "requirement": "Private repo may do development, CI/CD and release automation; pipelines publish only approved, allowlisted artifacts. No private repo credentials, source archives or CI secrets ever leave it.",
+        "source": "Keel_Master_Plan_v5.md §0.4 Public website and distribution"
+      },
+      {
+        "requirement": "Target state is a private repo; flipping it private before a new feed exists breaks old clients and the download page, so order of operations matters.",
+        "source": "Keel_Master_Plan_v5.md §4.2 Findings needing action now; Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.1"
+      },
+      {
+        "requirement": "D5 primary distribution host: Keel website domain rewriting to a public binaries-only repository (default name 'keel-releases': installers, manifest, checksums, signatures, release notes only). Alternatives: GitHub Pages from that repo, Codeberg, SourceForge, self-hosted static server. Re-verify free-tier terms, size limits and commercial-use terms; Vercel free Hobby tier is non-commercial, so migrate the site before charging anyone.",
+        "source": "Keel_Master_Plan_v5.md §5.3 Open decisions D1-D7 D5"
+      },
+      {
+        "requirement": "D3 signing (free reality): Windows - SignPath Foundation unavailable for proprietary software, ship unsigned with documented SmartScreen steps, SHA-256 + Ed25519 verification, winget/Scoop manifests; macOS - Developer ID/notarization needs paid Apple membership, ship unsigned/ad-hoc with documented first-run (right-click Open / xattr), Homebrew custom tap; Linux - Ed25519/GPG-signed artifacts and signed APT/RPM repo (self-hosted static files).",
+        "source": "Keel_Master_Plan_v5.md §5.3 Open decisions D1-D7 D3"
+      },
+      {
+        "requirement": "D1 EULA identity, D2 provenance cleanup, D4 Duet definition, D6 trademark check, D7 extension/SDK docs private by default remain open owner decisions.",
+        "source": "Keel_Master_Plan_v5.md §5.3 Open decisions D1-D7"
+      },
+      {
+        "requirement": "CI: GitHub Actions on the private repo; free private-repo minutes are limited and macOS/Windows runners use multiplied minutes (verify current numbers). Mitigate with heavy matrix on release tags only, caching, optional free self-hosted runners on owner machines.",
+        "source": "Keel_Master_Plan_v5.md §8 Free-only implementation choices"
+      },
+      {
+        "requirement": "Distribution package choices: Electron + electron-builder (NSIS/MSI, dmg, AppImage, deb, rpm), Python via PyInstaller or Nuitka; verification of each license; update feed hosted on public binaries-only repo behind website rewrite; website static for now, migrate if free tier forbids commercial use.",
+        "source": "Keel_Master_Plan_v5.md §8 Free-only implementation choices"
+      },
+      {
+        "requirement": "Gates apply to distribution: G1 repo visibility, G2 history/tag/release deletion, G3 first public binary release from new endpoint, G4 collaborators/CI deploy credentials, G7 public extension/SDK docs.",
+        "source": "Keel_Master_Plan_v5.md §0.3 Approval gates"
+      },
+      {
+        "requirement": "Excluded: hosted share links/infra (replaced by local read-only HTML/Markdown session export); no feature that sends user code to a Keel-operated server.",
+        "source": "Keel_Master_Plan_v5.md §7 Capability harvest; Keel_Master_Plan_v5.md §7.6 Not taken"
+      },
+      {
+        "requirement": "Referenced but absent from the supplied master-plan file: §12-16, §13 v4-to-v5 mapping, Appendices A-D (EULA draft, repo-visibility runbook, packaging and release). Distribution rules above are only those present in §§0-11.",
+        "source": "Keel_Master_Plan_v5.md §2 conflict-resolution log; registry note"
+      }
+    ],
+    "free_first_rules": [
+      {
+        "requirement": "Keel stays free to use, local-first and offline-capable: it boots and completes a coding task with no network, no account, no API key, using a local model (CI-enforced).",
+        "source": "Keel_Master_Plan_v5.md §0.5 Free-first, local-first, commercial-ready"
+      },
+      {
+        "requirement": "Architecture must be ready for later free distribution by choice, optional paid plans, premium features, commercial licensing, enterprise and private organizational deployment (M24).",
+        "source": "Keel_Master_Plan_v5.md §0.5 Free-first, local-first, commercial-ready"
+      },
+      {
+        "requirement": "Do not implement payments, subscriptions, license-key enforcement, feature locks or mandatory accounts unless the owner explicitly asks (gate G6).",
+        "source": "Keel_Master_Plan_v5.md §0.5 Free-first, local-first, commercial-ready"
+      },
+      {
+        "requirement": "No paid third-party service anywhere in the plan. Optional adapters for services the user already has are allowed, never required, never bundled, never defaulted on.",
+        "source": "Keel_Master_Plan_v5.md §0.5 Free-first, local-first, commercial-ready"
+      },
+      {
+        "requirement": "Free path defaults: Ollama/llama.cpp/OpenAI-compatible local servers; SQLite WAL + FTS5 + optional sqlite-vec; keyring master key + AES-256-GCM; Playwright + Chromium; optional Podman/Docker Engine (never required); pyright/tsserver/gopls/rust-analyzer/tree-sitter; whisper.cpp/Piper/Kokoro/silero-vad; own idempotent scheduler tick; local OpenTelemetry-shaped spans.",
+        "source": "Keel_Master_Plan_v5.md §8 Free-only implementation choices"
+      },
+      {
+        "requirement": "'Offline' means works without internet after install; verify licenses and terms at selection time.",
+        "source": "Keel_Master_Plan_v5.md §8 Free-only implementation choices; Keel_Master_Plan_v5.md §3.2 Evidence rules"
+      },
+      {
+        "requirement": "Outbound-only connections; optional container sandbox; no hosted backend required; no ngrok account; Docker Desktop not required due to commercial-use terms.",
+        "source": "Keel_Master_Plan_v5.md §5.2 Corrections to earlier plans; Keel_Master_Plan_v5.md §8 Free-only implementation choices"
+      },
+      {
+        "requirement": "Not taken (paid/hosted/unsafe): Orgo cloud computers/credits, Composio, AgentMail, AgentPhone, Linq, ElevenLabs, Latitude, 1Password, AgentCard, Honcho, Supabase, ngrok accounts, hosted share/inference services, xAI/Grok/OpenAI/Anthropic as required dependencies (optional user-key adapters only). Excluded on purpose: agent-controlled payments, unofficial WhatsApp libraries, any feature sending user code to a Keel-operated server.",
+        "source": "Keel_Master_Plan_v5.md §7.6 Not taken"
+      },
+      {
+        "requirement": "macOS notarization and SignPath OSS signing are not available for free/proprietary distribution; ship unsigned with documented verification steps and revisit only if owner accepts paid options.",
+        "source": "Keel_Master_Plan_v5.md §5.3 Open decisions D1-D7 D3"
+      }
+    ],
+    "privacy_rules": [
+      {
+        "requirement": "Private source; no public internal docs, research, plans or tooling; no public issue tracker for source.",
+        "source": "Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.1"
+      },
+      {
+        "requirement": "Users get install/use rights under EULA only; no source access and no redistribution rights.",
+        "source": "Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.2"
+      },
+      {
+        "requirement": "Public website must not expose credentials, internal build artifacts, implementation details, private dev docs or internal research.",
+        "source": "Keel_Master_Plan_v5.md §0.4 Public website and distribution"
+      },
+      {
+        "requirement": "No mandatory accounts and no mandatory telemetry; crash reports and traces stay local; only unprompted network call is the disable-able update check.",
+        "source": "Keel_Master_Plan_v5.md §6 Target architecture / Design rules design rule 18"
+      },
+      {
+        "requirement": "Data & privacy form: Export all, erase everything, telemetry (local only); typed confirmation required for erase. Complemented by data export and 'erase everything' tools and account export/deletion behavior from the references.",
+        "source": "Keel_Master_Plan_v5.md §9.3 Forms (Data & privacy); Keel_Master_Plan_v5.md §7.3 openman row"
+      },
+      {
+        "requirement": "Secrets: OS keychain master key, AES-256-GCM at rest, redaction in logs/traces/errors, out-of-band entry, zero secrets in repo verified by gitleaks scan per release.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis controls 5, 13; Keel_Master_Plan_v5.md §7.4 nicks-stack row"
+      },
+      {
+        "requirement": "No secret in logs, ever.",
+        "source": "Keel_Master_Plan_v5.md §3.2 Evidence rules"
+      },
+      {
+        "requirement": "Offline mode: daemon-level egress block except loopback; offline switch blocking all non-loopback egress at the daemon.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 12; Keel_Master_Plan_v5.md §7.7 Additions beyond the references"
+      },
+      {
+        "requirement": "Taint tracking: content from web, MCP, files and channels is untrusted and cannot trigger Tier-1 allows or secret reads.",
+        "source": "Keel_Master_Plan_v5.md §7.7 Additions beyond the references; Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 6"
+      },
+      {
+        "requirement": "Private vulnerability reporting by email, no public issue tracker for security.",
+        "source": "Keel_Master_Plan_v5.md §11 Security plan and gap analysis control 15"
+      },
+      {
+        "requirement": "Email and chat channels use the user's own mailbox/bot tokens; no Keel-operated account or paid vendor; agent email/phone vendors excluded.",
+        "source": "Keel_Master_Plan_v5.md §8 Free-only implementation choices; Keel_Master_Plan_v5.md §7 Capability harvest §7.3/§7.5"
+      },
+      {
+        "requirement": "Manifest, checksums, signatures and release notes are public, but source, private dev docs, internal research, credentials, internal artifacts and implementation details are not.",
+        "source": "Keel_Master_Plan_v5.md §0.4 Public website and distribution; Keel_Master_Plan_v5.md §0 Non-negotiable owner requirements §0.1"
+      },
+      {
+        "requirement": "Provenance/capture material must never enter an installer, website or docs bundle and should leave the repo or move to a restricted archive.",
+        "source": "Keel_Master_Plan_v5.md §4.2 Findings needing action now"
+      }
+    ]
+  }
+}
