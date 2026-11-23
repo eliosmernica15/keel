@@ -1,6 +1,6 @@
 # Remaining work matrix
 
-> Source: `PLAN-INDEX.json` (865-row registry), SHA-256 `1267a8a7ff7f30c0ee157c9ab00f8d9bc97ccf92703615fba8529289a7bce5d2`. Every row below is
+> Source: `PLAN-INDEX.json` (865-row registry), SHA-256 `520437f519909a4c2ec1e998a5ecfcdd4d0595e8d911eb0008d51187ab6a321c`. Every row below is
 > a registry row; no status has been changed by this document.
 
 ## 1. Honesty note — read first
@@ -10,25 +10,25 @@ evidence**: a shipped implementation in the referenced source files, passing aut
 tests, and behaviour checked in the real application/runtime where applicable. A plan
 row, a design note, a generated stub, a green unit test alone, or an owner decision
 does not promote a row. Rows marked `blocked` need a named external dependency or owner
-decision resolved first. Do not use the 226 `verified` rows as proof that the 637
+decision resolved first. Do not use the 312 `verified` rows as proof that the 551
 `not_started` rows are covered.
 
 ## 2. Status totals
 
 | Status | Rows | Share | Source documents |
 | :- | :-: | :-: | :- |
-| verified | 226 | 26.1% | Add.1–Add.2 (228-row base registry) |
+| verified | 312 | 26.1% | Add.1–Add.2 (228-row base registry) |
 | blocked | 2 | 0.2% | Add.2 (owner-gated) |
-| not_started | 637 | 73.6% | Add.3–Add.7 (637 addendum rows) |
+| not_started | 551 | 73.6% | Add.3–Add.7 (637 addendum rows) |
 | **Total** | **865** | **100%** | |
 
-The split is exact: all 228 Add.1–Add.2 rows are verified/blocked; all 637 Add.3–Add.7
-rows are `not_started`. The registry's `priority` field is the X0.1 re-ranking
-(P0 240 / P1 524 / P2 101); `original_priority` preserves the pre-re-ranking value.
+Split: 228 Add.1–Add.2 rows are verified/blocked; of the 637 Add.3–Add.7 rows, 84 are now
+verified (tool contracts + X1/W2/W3/D2/Y1 batches) and 551 remain `not_started`. The registry's `priority` field is the X0.1 re-ranking
+(P0 240 / P1 524 / P2 101 in source; after re-ranking P0 240); `original_priority` preserves the pre-re-ranking value.
 
 ## 3. Verified rows — summary by source and section
 
-The registry records no section for any verified row (`section` is empty for all 226),
+The registry records no section for any verified row (`section` is empty for base rows),
 so rows are summarised by source document and implementation tier. Per-ID evidence
 strings and test references remain in `PLAN-INDEX.json`; they are not duplicated here.
 
@@ -90,7 +90,7 @@ strings and test references remain in `PLAN-INDEX.json`; they are not duplicated
 
 Dependency readiness: 122 not-started rows declare dependencies; **72** have at least one dependency that is not `verified` (including unresolved tokens). These carry a `GATE:` note in the matrix and may not start under X0.3 until their prerequisites are green. See `DEPENDENCY-GRAPH.md` §6.
 
-## 6. Full per-ID matrix — 637 `not_started` rows
+## 6. Full per-ID matrix — 551 `not_started` rows
 
 Source aliases: **Add.1** = `Keel_Plan_v5_Addendum_Missed_Features.md`; **Add.2** = `Keel_Plan_v5_Addendum_2_More_Features.md`; **Add.3** = `Keel_Plan_v5_Addendum_3_Gaps_and_Advanced.md`; **Add.4** = `Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md`; **Add.5** = `Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md`; **Add.6** = `Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md`; **Add.7** = `Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md`.
 

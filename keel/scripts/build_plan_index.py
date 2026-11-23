@@ -823,16 +823,16 @@ def _load_extra_features() -> list[dict]:
                 "status": (
                     "blocked" if fid in OWNER_BLOCKED else
                     "verified" if verified else "not_started"),
-                "source_files": TOOL_CONTRACT_SRC if verified else [],
+                "source_files": src_files,
                 "dependencies": _as_list(f.get("dependencies")),
                 "acceptance_criteria": _as_list(f.get("acceptance_criteria")),
-                "test_references": TOOL_CONTRACT_TESTS if verified else [],
+                "test_references": test_files,
                 # Tier describes implementation type, never progress status.
                 # Not-started rows are still typed as local_module unless the
                 # source marks them external/owner-gated (progress lives in
                 # `status`).
                 "implementation_tier": "local_module" if verified or fid not in OWNER_BLOCKED else "owner_gated",
-                "verification_evidence": TOOL_CONTRACT_EVIDENCE if verified else "",
+                "verification_evidence": evidence,
                 "owner_approval_required": fid in OWNER_BLOCKED,
                 "external_prerequisite": "",
                 # Clean-room verification (reference-behavior/deepseek-*.md)

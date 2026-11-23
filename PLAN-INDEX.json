@@ -7190,8 +7190,9 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [
         "Y2.1",
@@ -7201,11 +7202,12 @@
         "Implement and verify: Three event domains: *session events* (durable facts in the log, broadcast), *agent events* (`agent/*`, live, observe/intercept in-flight work), *capability events* (`... (milestone M8, M10)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7223,19 +7225,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Process-local live stream frames (`assistant-stream` start/chunk/end) vs durable settled message that embeds the compact timed stream; `assistant/attempt` retains fail... (milestone M4, M19)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7253,19 +7257,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Hard rule + test that replays a log and reproduces the exact request bytes (hash)"
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7307,8 +7313,9 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [
         "Master 10"
@@ -7317,11 +7324,12 @@
         "Implement and verify: Session format versioning with adjacent migrations: header-only `stat`/`list` pick the highest generation; read-open translates in memory; write-open publishes a new v... (milestone M4)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7363,19 +7371,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Fork at a turn boundary (seeded session with inherited event count; only agent-loop-published sessions persist) (milestone M4)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7393,19 +7403,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Working directories supply user context and execution paths without changing project identity, sandbox write roots, or existing process dirs (milestone M5, M11)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7473,19 +7485,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Turn flow definition: step = one model request + the tools it calls; turn = zero or more steps; sequence `turn/start` \u2192 claim input \u2192 snapshot model selection \u2192 assemb... (milestone M7)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7527,19 +7541,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: One inbox per agent driver; injected context (`agent.inject()`) waits for a waking message and lands in the next admitted request (milestone M7)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7583,19 +7599,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: System prompt travels as logged `system/message` history; empty text clears it (milestone M4, M7)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7613,19 +7631,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Cancellation during prompt preparation commits nothing (neither system nor user messages) (milestone M4, M7)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -7643,8 +7663,9 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [
         "Y2.4"
@@ -7653,11 +7674,12 @@
         "add acceptance test"
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14456,19 +14478,17 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/agent_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: `.keel/agents//*.md`, nested IDs."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_agent_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Agent file/subagent contracts: nested IDs, modes, built-ins, step limits, launch permission monotonicity, prompt composition, merge semantics and plan-folder containment; 35 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14510,19 +14530,17 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/agent_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Plan agent writes under `.keel/plans/` only (keeps Keel's \"plan cannot edit code\" rule)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_agent_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Agent file/subagent contracts: nested IDs, modes, built-ins, step limits, launch permission monotonicity, prompt composition, merge semantics and plan-folder containment; 35 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14540,19 +14558,17 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/agent_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Agent `mode` field."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_agent_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Agent file/subagent contracts: nested IDs, modes, built-ins, step limits, launch permission monotonicity, prompt composition, merge semantics and plan-folder containment; 35 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14570,19 +14586,17 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/agent_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Ship the same set;"
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_agent_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Agent file/subagent contracts: nested IDs, modes, built-ins, step limits, launch permission monotonicity, prompt composition, merge semantics and plan-folder containment; 35 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14600,8 +14614,7 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/agent_contracts.py"
       ],
       "dependencies": [
         "C3.2"
@@ -14610,11 +14623,10 @@
         "On the final step tools are removed and the model must summarize in text; new user input resets the step count."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_agent_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Agent file/subagent contracts: nested IDs, modes, built-ins, step limits, launch permission monotonicity, prompt composition, merge semantics and plan-folder containment; 35 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14656,19 +14668,17 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/agent_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Per-agent allowlist of launchable agents;"
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_agent_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Agent file/subagent contracts: nested IDs, modes, built-ins, step limits, launch permission monotonicity, prompt composition, merge semantics and plan-folder containment; 35 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14710,8 +14720,7 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/agent_contracts.py"
       ],
       "dependencies": [
         "X1.15"
@@ -14720,11 +14729,10 @@
         "Prompt assembly order is documented and golden-tested (X1.15)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_agent_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Agent file/subagent contracts: nested IDs, modes, built-ins, step limits, launch permission monotonicity, prompt composition, merge semantics and plan-folder containment; 35 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14742,19 +14750,17 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/agent_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Config merger replaces scalars, merges maps by key, appends permission rules, and applies global rules before agent rules."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_agent_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Agent file/subagent contracts: nested IDs, modes, built-ins, step limits, launch permission monotonicity, prompt composition, merge semantics and plan-folder containment; 35 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14772,19 +14778,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Default-ask baseline."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14802,8 +14810,9 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [
         "Y1.17"
@@ -14812,11 +14821,12 @@
         "Test that policy never grants: it may only turn allow/ask into deny; global/managed policies override project config."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14858,19 +14868,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: `keel run` flags: `--approve=never|rules-only`;"
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14888,19 +14900,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Presets ship allowlist-style (Cautious), not denylist-style."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14918,8 +14932,9 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [
         "C-1"
@@ -14928,11 +14943,12 @@
         "Confirm: See Conflict C-1 in Section 6: pick one order and document;"
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14950,8 +14966,9 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [
         "B7.1"
@@ -14960,11 +14977,12 @@
         "Matcher passes property tests (B7.1) for *, ?, whole-value match, backslash normalization, case-insensitive Windows behaviour and shell trailing-* behaviour."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14982,19 +15000,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Same aggregation."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15036,19 +15056,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Keel default: ask (Cautious/Balanced), allow only in Trusted."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15066,19 +15088,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Implement as part of the Tier-2 command analyzer;"
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15096,19 +15120,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Keep sensitive-file ask list (env files, key files);"
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15126,19 +15152,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Same three buttons;"
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16804,17 +16832,15 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/model_dialects.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_model_dialects.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Tool-call dialect adapters (JSON/XML/Hermes/ReAct + variants), offline chat-template loading with path containment, and reasoning-output splitting with opt-in history inclusion; 70 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16898,17 +16924,15 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/steering.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_steering.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Steering/interrupt controller with queue, steer-at-boundary and abort-resume modes, byte-exact partial-output preservation and thread-safe cancellation; 20 passing tests verified non-flaky.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16994,17 +17018,15 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/model_dialects.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_model_dialects.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Tool-call dialect adapters (JSON/XML/Hermes/ReAct + variants), offline chat-template loading with path containment, and reasoning-output splitting with opt-in history inclusion; 70 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17022,17 +17044,15 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/model_dialects.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_model_dialects.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Tool-call dialect adapters (JSON/XML/Hermes/ReAct + variants), offline chat-template loading with path containment, and reasoning-output splitting with opt-in history inclusion; 70 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17050,17 +17070,15 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/edit_formats.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_edit_formats.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Selectable edit formats (whole-file, search/replace, unified diff, line-range) and fuzzy patch application with ambiguity/threshold guards and typed model-facing errors; 26 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17078,17 +17096,15 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/edit_formats.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_edit_formats.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Selectable edit formats (whole-file, search/replace, unified diff, line-range) and fuzzy patch application with ambiguity/threshold guards and typed model-facing errors; 26 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17128,17 +17144,15 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/repo_map.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_repo_map.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Repo map ranking (centrality + recency, token-budgeted, deterministic) and injectable token counter with calibrated fallback implemented in repo_map.py with 23 passing tests; no outbound calls.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17156,17 +17170,15 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/repo_map.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_repo_map.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Repo map ranking (centrality + recency, token-budgeted, deterministic) and injectable token counter with calibrated fallback implemented in repo_map.py with 23 passing tests; no outbound calls.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19712,19 +19724,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Same naming in the permission table."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19742,19 +19756,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Matches Tier 1 + managed policy (Master 6.16/6.17); add `provider.use` and per-extension block actions."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19798,8 +19814,9 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [
         "X6.8"
@@ -19808,11 +19825,12 @@
         "Same walk for `.keel/keel.jsonc`; show result in layered config viewer (X6.8)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19830,8 +19848,9 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [
         "X1.4"
@@ -19840,11 +19859,12 @@
         "Tool-exposure table keyed by model family (ties to X1.4)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19862,19 +19882,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Substitution in config loader; **warn instead of silently empty** for secrets."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19964,19 +19986,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Compaction settings + per-model override; summary stays default."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20118,19 +20142,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Own parser + atomic apply with rollback."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20148,19 +20174,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Same DSL; Tier-2 and policy enforcers are unremovable."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20406,19 +20434,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Same defaults, configurable; local PDF text fallback for non-vision models."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20436,19 +20466,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "ripgrep wrapper with the same parameters and limits."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20466,19 +20498,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "Exact-match edit + `formatter` config."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20496,19 +20530,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "PTY/process manager + analyzer (Tier 2)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20526,19 +20562,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "SSRF-safe fetch; websearch limited to **free** providers (self-hosted SearXNG etc.)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -20556,19 +20594,21 @@
       "original_priority": "P0",
       "status": "verified",
       "source_files": [
-        "src/keel/tool_contracts.py",
-        "src/keel/tool_contracts_bridge.py"
+        "src/keel/permission_contracts.py",
+        "src/keel/session_contracts.py",
+        "src/keel/mcp_contracts.py"
       ],
       "dependencies": [],
       "acceptance_criteria": [
         "`ask_user` with **client capability negotiation** (client declares it can render question forms)."
       ],
       "test_references": [
-        "tests/test_tool_contracts.py",
-        "tests/test_tool_contracts_bridge.py"
+        "tests/test_permission_contracts.py",
+        "tests/test_session_contracts.py",
+        "tests/test_mcp_contracts.py"
       ],
       "implementation_tier": "local_module",
-      "verification_evidence": "Addendum 7 canonical tool pipeline implemented in tool_contracts.py (20 named contracts) with 60 passing contract tests and a native registry conformance bridge (47 tools, 0 problems).",
+      "verification_evidence": "Parallel batch: W3 permission contracts (66 tests, authoritative first-match preserved per DECISIONS D-001), D2 session/event contracts (32 tests), Y1 MCP/plugin config contracts (57 tests).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

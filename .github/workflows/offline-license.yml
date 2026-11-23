@@ -28,6 +28,10 @@ jobs:
           python-version: "3.11"
       - name: Validate MODEL-AND-VOICE-LICENSES.json
         run: python scripts/check_model_licenses.py
+      - name: Registry consistency (865 IDs, parity, evidence)
+        run: python scripts/verify_v6_audit.py
+      - name: Generated dependency graph freshness
+        run: python keel/scripts/build_dependency_graph.py --check
 
   offline-smoke:
     name: offline boot + coding task (no network namespace)
