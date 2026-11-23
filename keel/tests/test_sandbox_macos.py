@@ -1,9 +1,9 @@
 """Native macOS Seatbelt tests: real restricted processes, not policy checks.
 
-Every test is skipped off macOS via a pytest marker.  On macOS the tests run
-actual ``sandbox-exec`` processes and assert real denials.  A process that
-cannot launch is a hard failure labelled BLOCKED with the exact stderr -- it
-is never converted into a pass or a skip.
+Every test is skipped off macOS via a pytest marker. On macOS the tests run
+actual ``sandbox-exec`` processes and assert real denials. A launch failure or
+an unavailable boundary is a hard failure labelled BLOCKED with the exact
+error -- never a pass or a silent skip.
 """
 
 from __future__ import annotations
@@ -43,20 +43,32 @@ def _assert_launched(result, what: str) -> None:
     )
 
 
+def _require_restrictive_reads() -> None:
+    """Read isolation cannot be proven when sandbox-exec aborts on filters."""
+    caps = capabilities()
+    if caps["read_isolation"] == "BLOCKED":
+        detail = next((item for item in caps["limitations"]
+                       if item.startswith("READ ISOLATION BLOCKED")),
+                      "host sandbox-exec aborts for path-filtered file reads")
+        pytest.fail(f"BLOCKED: host file-read isolation unavailable: {detail}",
+                    pytrace=False)
+    assert caps["read_isolation"] == "RESTRICTIVE"
+
+
 def test_capabilities_are_honest():
     caps = capabilities()
     assert caps["os"] == "darwin"
     assert caps["sandbox_exec"] is True
     assert caps["available"] is True
     assert caps["deprecated"] is True
-    assert caps["filesystem_enforcement"] == "PARTIAL"
+    assert caps["read_isolation"] in ("RESTRICTIVE", "BLOCKED")
+    assert caps["filesystem_enforcement"] in ("FULL", "PARTIAL")
     assert caps["filesystem_write_enforcement"] == "FULL"
     assert caps["network_enforcement"] is True
     assert caps["process_inheritance"] is True
     assert caps["rlimits"]["cpu"] is True
     assert caps["rlimits"]["nproc"] is False
     assert any("deprecated" in item.lower() for item in caps["limitations"])
-    assert any("PARTIAL" in item for item in caps["limitations"])
 
 
 def test_build_profile_is_restrictive(tmp_path):
@@ -65,13 +77,20 @@ def test_build_profile_is_restrictive(tmp_path):
     assert "(deny default)" in profile
     assert "(deny network*)" in profile
     assert "(allow network*)" not in profile
-    # No global content reads: only narrow subpaths / device literals.
+    # No global content reads in the restrictive profile.
     assert "(allow file-read*)" not in profile
     assert f'(allow file-write* (subpath "{tmp_path}"))' in profile
     assert '(subpath "/usr")' in profile
     assert '(literal "/dev/null")' in profile
     assert '(subpath "/dev")' not in profile
     assert profile.count("(allow file-read*") == 1  # one merged read rule
+
+    # The documented fallback is deliberately broad and must be opt-in.
+    broad = build_profile(tmp_path, restrict_reads=False)
+    assert "(allow file-read*)" in broad
+    assert "(deny network*)" in broad
+    assert f'(allow file-write* (subpath "{tmp_path}"))' in broad
+    assert build_profile(tmp_path, allow_network=True).count("(allow network*)") == 1
 
     # Duplicate SBPL filters make sandbox-exec abort with SIGABRT (no stderr).
     dedup = build_profile(tmp_path, read_roots=[
@@ -83,8 +102,7 @@ def test_build_profile_is_restrictive(tmp_path):
     assert dedup.count(
         '(subpath "/Users/runner/hostedtoolcache/Python/lib")') == 1
 
-    # /etc and /var are symlinks into /private; both spellings in one profile
-    # abort the SBPL compiler as duplicate filters.
+    # /etc, /var, /bin and /sbin are symlink aliases into other roots.
     aliases = build_profile(tmp_path, read_roots=[
         "/etc", "/private/etc", "/var/db/dyld", "/bin", "/sbin",
     ])
@@ -94,7 +112,6 @@ def test_build_profile_is_restrictive(tmp_path):
     assert '(subpath "/usr/bin")' not in aliases
     assert aliases.count('(subpath "/private/etc")') == 1
     assert aliases.count('(subpath "/private/var/db/dyld")') == 1
-    assert build_profile(tmp_path, allow_network=True).count("(allow network*)") == 1
 
 
 def test_profile_rejects_injection_in_workspace_path(tmp_path):
@@ -104,23 +121,20 @@ def test_profile_rejects_injection_in_workspace_path(tmp_path):
 
 
 def test_python_launches_inside_profile(tmp_path):
-    # This is the regression that was BLOCKED on macos-latest: the old profile
-    # omitted /Users/runner/hostedtoolcache/... and RLIMIT_AS=256 MB killed
-    # dyld before main().
+    # Regression: the old profile omitted the toolcache/framework interpreter
+    # and RLIMIT_AS=256 MB killed dyld before main().
     r = _run(_py("import sys; print(sys.version.split()[0])"), workspace=tmp_path)
     _assert_launched(r, "the Python interpreter")
     assert r.stdout.strip()
-    assert r.mechanism == "macos-seatbelt-sandbox-exec"
+    assert r.mechanism.startswith("macos-seatbelt-sandbox-exec")
     assert r.exit_code == 0
+    assert any("LIMIT" in item or "BLOCKED" in item for item in r.limitations)
 
 
-def test_workspace_read_write_and_unrelated_host_file_denied(tmp_path):
+def test_workspace_read_write_allowed(tmp_path):
     ws = tmp_path / "workspace"
     ws.mkdir()
     (ws / "allowed.txt").write_text("ALLOWED", encoding="utf-8")
-    secret = tmp_path / "outside-secret.txt"
-    secret.write_text("OUTSIDE-SECRET", encoding="utf-8")
-
     r = _run(_py(
         "from pathlib import Path; p = Path(%r); p.write_text('NEW'); "
         "print(p.read_text())" % str(ws / "allowed.txt")
@@ -128,9 +142,16 @@ def test_workspace_read_write_and_unrelated_host_file_denied(tmp_path):
     _assert_launched(r, "workspace read/write")
     assert "NEW" in r.stdout
 
-    r2 = _run(_py(f"print(open({str(secret)!r}).read())"), workspace=ws)
-    assert r2.exit_code != 0
-    assert "OUTSIDE-SECRET" not in r2.stdout
+
+def test_unrelated_host_file_read_denied(tmp_path):
+    _require_restrictive_reads()
+    ws = tmp_path / "workspace"
+    ws.mkdir()
+    secret = tmp_path / "outside-secret.txt"
+    secret.write_text("OUTSIDE-SECRET", encoding="utf-8")
+    r = _run(_py(f"print(open({str(secret)!r}).read())"), workspace=ws)
+    assert r.exit_code != 0
+    assert "OUTSIDE-SECRET" not in r.stdout
 
 
 def test_unauthorized_write_denied(tmp_path):
@@ -151,22 +172,21 @@ def test_network_denied_by_default(tmp_path):
     assert not r.ok
 
 
-def test_child_processes_inherit_restrictions(tmp_path):
+def test_child_processes_inherit_write_and_network_restrictions(tmp_path):
     ws = tmp_path / "workspace"
     ws.mkdir()
-    secret = tmp_path / "outside-secret.txt"
-    secret.write_text("OUTSIDE-SECRET", encoding="utf-8")
-    inner = f"print(open({str(secret)!r}).read())"
+    outside = tmp_path / "outside.txt"
+    inner = f"open({str(outside)!r}, 'w').write('PWNED')"
     code = (
         "import subprocess, sys; "
         f"r = subprocess.run([sys.executable, '-c', {inner!r}], "
         "capture_output=True, text=True); "
-        "print('CHILD_RC', r.returncode); print(r.stdout, end='')"
+        "print('CHILD_RC', r.returncode)"
     )
     r = _run(_py(code), workspace=ws)
     _assert_launched(r, "the parent script")
     assert "CHILD_RC 0" not in r.stdout
-    assert "OUTSIDE-SECRET" not in r.stdout
+    assert not outside.exists()
 
 
 def test_timeout_terminates_child_process_group(tmp_path):
@@ -217,7 +237,7 @@ def test_scratch_files_land_inside_workspace(tmp_path):
     # PyInstaller one-file sidecars unpack into TMPDIR; confinement must not
     # silently hand them an unwritable host /private/tmp path.
     r = _run(_py(
-        "import os, tempfile; "
+        "import tempfile; "
         "f = tempfile.NamedTemporaryFile(delete=False); "
         "f.write(b'ok'); f.close(); print(f.name)"
     ), workspace=tmp_path)

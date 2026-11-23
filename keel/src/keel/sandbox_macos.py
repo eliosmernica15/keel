@@ -1,33 +1,32 @@
 """macOS-native confined execution using Seatbelt (``sandbox-exec``).
 
-This is a standalone backend.  It deliberately does not edit the shared
+This is a standalone backend. It deliberately does not edit the shared
 ``keel.os_sandbox`` module; callers can opt into it on macOS and reuse the
 shared ``ConfinementResult`` / ``SandboxUnavailable`` types.
 
-Why a new module is needed
---------------------------
-The previous macOS profile hard-coded read roots (``/usr``, ``/bin``,
-``/System``, ...).  On GitHub ``macos-latest`` the interpreter installed by
-``actions/setup-python`` lives under
-``/Users/runner/hostedtoolcache/Python/<ver>/x64`` -- outside every allowed
-root -- so ``sandbox-exec`` denied the executable, its dylibs and the stdlib.
-A second, independent blocker was ``RLIMIT_AS=256 MB``: since macOS 11 the
-kernel maps a ~1-2 GiB dyld shared cache into *every* process at exec time,
-so a 256 MB address-space limit kills the interpreter before ``main()``.
+What was broken
+---------------
+The old macOS profile hard-coded read roots (``/usr``, ``/bin``, ``/System``,
+...). On GitHub ``macos-latest`` the interpreter installed by
+``actions/setup-python`` lives under ``/Users/runner/hostedtoolcache/...`` or
+the framework directory, and a 256 MB ``RLIMIT_AS`` conflicts with the ~1-2 GiB
+dyld shared cache mapped into every process. Both blocked interpreter startup.
+This module derives interpreter roots from ``sys.prefix`` / ``sys.base_prefix``
+/ ``sysconfig`` and applies a macOS-safe address-space floor.
 
-This module derives the interpreter's real prefixes from ``sys.prefix`` /
-``sys.base_prefix`` / ``sysconfig`` and applies a macOS-safe address-space
-floor.  It grants file *content* reads only to the workspace, the interpreter
-runtime and a small set of OS roots; everything else is denied by default.
+**Host regression.** On the current ``macos-latest`` (macOS 26 arm64) Apple's
+``sandbox-exec`` silently aborts (SIGABRT, exit -6, empty stderr) for *any*
+path-filtered ``file-read*`` rule -- even ``(subpath "/usr")`` -- while an
+unfiltered ``(allow file-read*)`` works. The same behaviour is independently
+reported for macOS 27 (coccinella-labs/harper#926). This module therefore tries
+the restrictive profile first and, only when that exact abort is reproduced,
+uses a **documented fallback** that grants global reads but still confines
+writes, network and rlimits. Read isolation is then reported as ``BLOCKED``;
+it is never claimed as enforced. See
+``docs/research/macos-sandbox-mechanism.md`` for all evidence and limitations.
 
-Deprecation notice
-------------------
-``sandbox-exec(1)`` is documented as **DEPRECATED** by Apple ("Developers who
-wish to sandbox an app should instead adopt the App Sandbox feature").  It is
-still present and functional on macOS 15 (Sequoia), but it is not a supported
-long-term API.  See ``docs/research/macos-sandbox-mechanism.md`` for the full
-mechanism, evidence and limitations.  No Electron entitlement is relied upon:
-a separately launched Python process is confined by this module explicitly.
+Deprecation: ``sandbox-exec(1)`` is documented as **DEPRECATED** by Apple; App
+Sandbox is the supported replacement. No Electron entitlement is relied upon.
 """
 
 from __future__ import annotations
@@ -44,45 +43,30 @@ from pathlib import Path
 
 from .os_sandbox import ConfinementResult, SandboxUnavailable
 
-# The dyld shared cache is mapped into every process and occupies roughly
-# 1-2 GiB of virtual address space (3-5 GiB on disk on Apple Silicon).  A
-# 256 MB RLIMIT_AS therefore makes *any* exec fail on modern macOS.  4 GiB
-# leaves room for the cache, the interpreter and ordinary heap growth.
+# The dyld shared cache maps ~1-2 GiB into every process on modern macOS.
 _MACOS_AS_FLOOR_MB = 4096
 
-# Read-only OS areas required by dyld, libSystem and a POSIX shell.  These are
-# system software locations, not user data.  /dev is intentionally NOT broad:
-# reading a raw disk device would bypass the Seatbelt path checks entirely.
+# Canonical spellings only: /etc -> /private/etc, /var -> /private/var,
+# /bin -> /usr/bin and /sbin -> /usr/sbin (verified by profile probing).
 _SYSTEM_READ_ROOTS: tuple[str, ...] = (
-    "/System",
-    "/Library",
-    "/usr",
-    "/bin",
-    "/sbin",
-    "/usr/sbin",
-    "/opt",
-    # Canonical spellings only: /etc -> /private/etc, /var -> /private/var.
-    "/private/etc",
-    "/private/var/db/dyld",
-    "/private/var/db/timezone",
+    "/System", "/Library", "/usr", "/opt",
+    "/private/etc", "/private/var/db/dyld", "/private/var/db/timezone",
 )
-
 _DEVICE_READ_PATHS: tuple[str, ...] = (
-    "/dev/null",
-    "/dev/zero",
-    "/dev/random",
-    "/dev/urandom",
+    "/dev/null", "/dev/zero", "/dev/random", "/dev/urandom",
 )
-
 _SBPL_FORBIDDEN = ('"', "\\", "(", ")")
+_PATH_ALIASES = (("/etc", "/private/etc"), ("/var", "/private/var"),
+                 ("/bin", "/usr/bin"), ("/sbin", "/usr/sbin"))
+
+_SUPPORT: dict | None = None
 
 
 def _sbpl_path(value: str | Path) -> str:
     """Validate and quote a path for embedding in an SBPL profile.
 
     SBPL is a TinyScheme DSL; an unescaped ``)`` or quote in a caller-supplied
-    path could inject additional rules.  Paths containing metacharacters or
-    control characters are rejected (fail closed) instead of being escaped.
+    path could inject rules. Such paths are rejected (fail closed).
     """
     text = str(value)
     if not text.startswith("/"):
@@ -95,15 +79,8 @@ def _sbpl_path(value: str | Path) -> str:
 
 
 def _canonical_path(path: str) -> str:
-    """Resolve macOS symlink aliases used by SBPL filters.
-
-    ``/etc`` and ``/var`` are symlinks into ``/private``; on modern macOS
-    ``/bin`` -> ``/usr/bin`` and ``/sbin`` -> ``/usr/sbin``. Listing both
-    spellings as filters makes the SBPL compiler abort (duplicate filters
-    after canonicalisation), so normalise before de-duplicating.
-    """
-    for alias, real in (("/etc", "/private/etc"), ("/var", "/private/var"),
-                        ("/bin", "/usr/bin"), ("/sbin", "/usr/sbin")):
+    """Collapse macOS symlink aliases so SBPL never sees duplicate filters."""
+    for alias, real in _PATH_ALIASES:
         if path == alias:
             return real
         if path.startswith(alias + "/"):
@@ -112,12 +89,7 @@ def _canonical_path(path: str) -> str:
 
 
 def _runtime_read_roots(argv: list[str] | None) -> list[str]:
-    """Derive interpreter roots from the *running* Python and the target argv.
-
-    ``actions/setup-python`` on macos-latest places Python under the runner's
-    toolcache, which no hard-coded profile can know.  These roots give dyld
-    the Mach-O/dylibs and CPython its stdlib/site-packages/lib-dynload.
-    """
+    """Derive interpreter roots from the running Python and the target argv."""
     roots: list[str] = []
 
     def add(path: object) -> None:
@@ -130,7 +102,6 @@ def _runtime_read_roots(argv: list[str] | None) -> list[str]:
         if resolved not in roots:
             roots.append(resolved)
 
-    # Host interpreter (in the normal case argv[0] == sys.executable).
     add(sys.prefix)
     add(sys.base_prefix)
     add(sys.executable)
@@ -138,10 +109,8 @@ def _runtime_read_roots(argv: list[str] | None) -> list[str]:
         paths = sysconfig.get_paths()
         for key in ("data", "stdlib", "platstdlib", "purelib", "platlib", "scripts"):
             add(paths.get(key))
-    except Exception:  # sysconfig can fail in exotic embeddings; stay fail-closed
+    except Exception:
         pass
-
-    # Target executable, when it is a different interpreter/binary.
     if argv:
         target = str(argv[0])
         located = target if os.path.isabs(target) else shutil.which(target)
@@ -150,7 +119,6 @@ def _runtime_read_roots(argv: list[str] | None) -> list[str]:
             add(exe)
             add(exe.parent)
             add(exe.parent.parent)
-
     return roots
 
 
@@ -159,35 +127,38 @@ def build_profile(
     *,
     read_roots: tuple[str, ...] | list[str] = (),
     allow_network: bool = False,
+    restrict_reads: bool = True,
 ) -> str:
-    """Build a restrictive version-1 Seatbelt profile.
+    """Build a Seatbelt profile.
 
-    Reads of file *contents* outside the workspace and the supplied roots are
-    denied.  Writes are confined to the workspace.  ``file-read-metadata`` is
-    intentionally global: dyld and Python's path walker stat ancestor paths
-    that cannot be enumerated in advance (this is recorded as PARTIAL).
+    With ``restrict_reads=True`` (default) only the workspace, the interpreter
+    runtime and a small set of OS roots are readable. With ``False`` a single
+    ``(allow file-read*)`` is used -- only for the documented host-regression
+    fallback, and callers must report read isolation as BLOCKED.
+    Writes are always confined to the workspace.
     """
     ws = _sbpl_path(workspace)
-    # Keep the rule count small: the SBPL compiler aborts (SIGABRT, no stderr)
-    # on large filter sets. Merge filters into one rule per kind and drop roots
-    # already covered by a broader system root.
     roots: list[str] = []
     for candidate in (*_SYSTEM_READ_ROOTS, *read_roots):
         path = _canonical_path(_sbpl_path(candidate))
         if (path == ws or path in roots or any(
             path.startswith(other.rstrip("/") + "/") for other in roots
         )):
-            # Duplicate (including symlink-alias) filters are not harmless:
-            # the SBPL compiler aborts with SIGABRT and an empty stderr.
+            # Duplicate and alias filters make sandbox-exec abort with SIGABRT.
             continue
         roots.append(path)
 
-    read_filters = " ".join(
-        [f'(subpath "{ws}")']
-        + [f'(subpath "{root}")' for root in roots]
-        + [f'(literal "{d}")' for d in _DEVICE_READ_PATHS]
-    )
-    lines = [
+    if restrict_reads:
+        filters = " ".join(
+            [f'(subpath "{ws}")']
+            + [f'(subpath "{r}")' for r in roots]
+            + [f'(literal "{d}")' for d in _DEVICE_READ_PATHS]
+        )
+        read_rule = f"(allow file-read* {filters})"
+    else:
+        read_rule = "(allow file-read*)"
+
+    return "\n".join([
         "(version 1)",
         "(deny default)",
         "",
@@ -197,7 +168,7 @@ def build_profile(
         "(allow sysctl-read)",
         "(allow file-ioctl)",
         "",
-        ";; dyld/libSystem runtime support (metadata only, no file contents)",
+        ";; dyld / libSystem runtime support (no file contents here)",
         "(allow file-read-metadata)",
         "(allow mach-lookup)",
         "(allow ipc-posix-shm)",
@@ -206,25 +177,63 @@ def build_profile(
         ";; the authorized workspace is the only writable area",
         f'(allow file-write* (subpath "{ws}"))',
         "",
-        ";; read-only interpreter/OS roots needed to start a process",
-        f"(allow file-read* {read_filters})",
+        ";; file reads",
+        read_rule,
         "",
         "(allow network*)" if allow_network else "(deny network*)",
-    ]
-    return "\n".join(lines) + "\n"
+    ]) + "\n"
 
 
-def _limitations(memory_mb: int, *, allow_network: bool = False) -> list[str]:
+def _probe(sandbox_exec: str, profile: str, target: str = "/usr/bin/true"):
+    try:
+        return subprocess.run(
+            [sandbox_exec, "-p", profile, target],
+            capture_output=True, timeout=10, check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+
+
+def _support() -> dict:
+    """Probe which profile shapes this host can actually enforce (cached)."""
+    global _SUPPORT
+    if _SUPPORT is not None:
+        return _SUPPORT
+    sx = shutil.which("sandbox-exec")
+    if sys.platform != "darwin" or not sx:
+        _SUPPORT = {
+            "available": False, "restrictive": False, "broad": False,
+            "narrow_subpath": False,
+            "restrictive_error": "sandbox-exec unavailable / not macOS",
+        }
+        return _SUPPORT
+    narrow = _probe(sx, "(version 1)\n(deny default)\n(allow process-exec)\n"
+                    '(allow file-read* (subpath "/usr"))\n')
+    restrictive = _probe(sx, build_profile("/tmp"))
+    broad = _probe(sx, build_profile("/tmp", restrict_reads=False))
+    _SUPPORT = {
+        "available": True,
+        "narrow_subpath": bool(narrow is not None and narrow.returncode == 0),
+        "restrictive": bool(restrictive is not None and restrictive.returncode == 0),
+        "broad": bool(broad is not None and broad.returncode == 0),
+        "restrictive_error": (
+            f"exit={restrictive.returncode if restrictive else 'timeout'}, "
+            f"stderr={(restrictive.stderr if restrictive else b'')!r}"
+        ),
+    }
+    return _SUPPORT
+
+
+def _limitations(memory_mb: int, *, allow_network: bool = False,
+                 support: dict | None = None) -> list[str]:
+    support = support or _support()
     out = [
         "sandbox-exec(1) is DEPRECATED by Apple; App Sandbox is the supported "
         "replacement. This backend works on macOS 15 but is not guaranteed "
         "on future releases.",
         "No Electron entitlement is used or assumed: the Python process is "
         "confined by an explicit sandbox-exec profile from this module.",
-        "Filesystem isolation is PARTIAL: file-read-metadata is allowed "
-        "globally so dyld/CPython can stat ancestors (names and sizes are "
-        "visible, file contents outside the allowlist are not).",
-        "mach-lookup, ipc-posix-shm* and system-socket are allowed for dyld/"
+        "mach-lookup, ipc-posix-shm and system-socket are allowed for dyld/"
         "libSystem; system IPC is not confined.",
         "Seatbelt checks resource acquisition; descriptors already open when "
         "the profile was applied remain usable.",
@@ -241,6 +250,20 @@ def _limitations(memory_mb: int, *, allow_network: bool = False) -> list[str]:
             "256 MB address-space cap prevents interpreter startup. The "
             "memory ceiling is advisory (PARTIAL)."
         )
+    if support.get("restrictive"):
+        out.append(
+            "file-read-metadata is allowed globally so dyld/CPython can stat "
+            "ancestors; names and sizes are visible, contents are not."
+        )
+    elif support.get("broad"):
+        out.append(
+            "READ ISOLATION BLOCKED on this host: sandbox-exec aborts "
+            f"({support['restrictive_error']}) for any path-filtered "
+            "file-read rule (narrow /usr subpath probe: "
+            f"{support['narrow_subpath']}). A documented fallback grants "
+            "global file-read* while still confining writes, network and "
+            "rlimits; host file contents remain readable."
+        )
     if allow_network:
         out.append("Network access explicitly enabled by caller (allow_network=True).")
     return out
@@ -248,15 +271,24 @@ def _limitations(memory_mb: int, *, allow_network: bool = False) -> list[str]:
 
 def capabilities() -> dict:
     """Report macOS Seatbelt support and its honest limitations."""
-    present = bool(shutil.which("sandbox-exec"))
-    available = sys.platform == "darwin" and present
+    support = _support()
+    available = support["available"]
+    if not available:
+        read_isolation = "UNAVAILABLE"
+    elif support["restrictive"]:
+        read_isolation = "RESTRICTIVE"
+    elif support["broad"]:
+        read_isolation = "BLOCKED"
+    else:
+        read_isolation = "UNAVAILABLE"
     return {
         "os": sys.platform,
         "backend": "macos-seatbelt-sandbox-exec",
-        "sandbox_exec": present,
+        "sandbox_exec": bool(shutil.which("sandbox-exec")),
         "available": available,
         "deprecated": True,
-        "filesystem_enforcement": "PARTIAL" if available else False,
+        "read_isolation": read_isolation,
+        "filesystem_enforcement": "FULL" if read_isolation == "RESTRICTIVE" else "PARTIAL",
         "filesystem_write_enforcement": "FULL" if available else False,
         "network_enforcement": available,
         "process_inheritance": available,
@@ -265,101 +297,12 @@ def capabilities() -> dict:
             "address_space": "PARTIAL" if available else False,
             "nproc": False,
         },
-        "limitations": _limitations(256),
+        "limitations": _limitations(256, support=support),
     }
 
 
 def _tail(data: bytes | None, size: int = 400) -> str:
     return (data or b"").decode("utf-8", errors="replace")[-size:]
-
-
-def _diagnose_profile(sandbox_exec: str, profile: str) -> str:
-    """Isolate the SBPL rule interaction that makes ``sandbox-exec`` abort.
-
-    An invalid/conflicting SBPL rule aborts with an empty stderr on modern
-    macOS. This runs only after a failed pre-flight so CI logs carry an exact
-    BLOCKED reason rather than a silent signal.
-    """
-    def compiles(rules: list[str]) -> bool:
-        try:
-            result = subprocess.run(
-                [sandbox_exec, "-p", "\n".join(rules) + "\n", "/usr/bin/true"],
-                capture_output=True, timeout=10, check=False,
-            )
-        except (OSError, subprocess.TimeoutExpired):
-            return False
-        return result.returncode == 0
-
-    all_rules = [
-        line for line in profile.splitlines()
-        if line and not line.startswith(";")
-    ]
-    if compiles(all_rules):
-        return "the full profile compiles in isolation"
-
-    # Which single rule, when removed, makes the profile compile?
-    culprits = []
-    for i, rule in enumerate(all_rules):
-        if compiles(all_rules[:i] + all_rules[i + 1:]):
-            culprits.append(rule)
-    if culprits:
-        return "removing any of these rules makes it compile: " + repr(culprits)
-
-    # Otherwise shrink in chunks while it still fails (keep the essentials).
-    essential = {"(version 1)", "(deny default)", "(allow process-exec)"}
-    current = list(all_rules)
-    changed = True
-    while changed and len(current) > 4:
-        changed = False
-        chunk = max(1, (len(current) - 3) // 2)
-        for i in range(0, len(current), chunk):
-            trial = current[:i] + current[i + chunk:]
-            if any(r in essential for r in trial) and len(trial) > 3 and not compiles(trial):
-                current = trial
-                changed = True
-                break
-    # Probe a ladder of known-shape profiles so a persistent failure still
-    # reports exactly which capability triggers it.
-    header = ["(version 1)", "(deny default)", "(allow process-exec)"]
-    root_rule = (
-        '(allow file-read* (subpath "/usr") (subpath "/System") '
-        '(subpath "/Library") (subpath "/private/etc") '
-        '(subpath "/private/var/db/dyld") '
-        '(subpath "/private/var/db/timezone") '
-        '(literal "/dev/null") (literal "/dev/zero") '
-        '(literal "/dev/random") (literal "/dev/urandom"))'
-    )
-    ladder = {
-        "control": [*header, "(allow file-read*)"],
-        "control+netdeny": [*header, "(allow file-read*)", "(deny network*)"],
-        "read_star_subpath": [*header, '(allow file-read* (subpath "/usr"))'],
-        "read_star_literal": [*header,
-                              '(allow file-read* (literal "/usr/bin/true"))'],
-        "read_star_prefix": [*header, '(allow file-read* (prefix "/usr"))'],
-        "meta_plus_read_star": [*header, "(allow file-read-metadata)",
-                                '(allow file-read* (subpath "/usr"))'],
-        "meta_plus_read_data": [*header, "(allow file-read-metadata)",
-                                '(allow file-read-data (subpath "/usr"))'],
-        "meta_plus_data_literal": [*header, "(allow file-read-metadata)",
-                                   '(allow file-read-data '
-                                   '(literal "/usr/bin/true"))'],
-        "two_read_rules": [*header, '(allow file-read* (subpath "/usr"))',
-                           '(allow file-read* (subpath "/System"))'],
-        "narrow_roots": [*header, root_rule],
-        "broad_read_full": [
-            "(version 1)", "(deny default)",
-            "(allow process-exec)", "(allow process-fork)",
-            "(allow sysctl-read)", "(allow file-ioctl)",
-            "(allow file-read-metadata)", "(allow mach-lookup)",
-            "(allow ipc-posix-shm)", "(allow system-socket)",
-            '(allow file-write* (subpath "/tmp"))',
-            "(allow file-read*)", "(deny network*)",
-        ],
-    }
-    results = {name: compiles(rules) for name, rules in ladder.items()}
-    return (f"no single-rule culprit; minimal failing core "
-            f"({len(current)} rules):\n" + "\n".join(current)
-            + f"\nprofile ladder: {results}")
 
 
 def run_confined(
@@ -375,9 +318,9 @@ def run_confined(
     """Run *argv* under a real macOS Seatbelt profile.
 
     Raises ``SandboxUnavailable`` (never an unrestricted fallback) when the
-    platform, the tool, the profile or the pre-flight probe cannot enforce the
-    boundary.  A launch failure of *argv* itself is returned as a failing
-    ``ConfinementResult`` with the exact stderr; it is never a pass.
+    platform, the tool, the profile or a probe cannot enforce the boundary.
+    A launch failure of *argv* itself is returned as a failing result with the
+    exact stderr; it is never a pass.
     """
     if sys.platform != "darwin":
         raise SandboxUnavailable(
@@ -394,47 +337,53 @@ def run_confined(
     ws_path.mkdir(parents=True, exist_ok=True)
     ws = _sbpl_path(ws_path)
 
-    read_roots = tuple(_runtime_read_roots(argv))  # system roots added by build_profile
-    profile = build_profile(ws, read_roots=read_roots, allow_network=allow_network)
-    limitations = _limitations(memory_mb, allow_network=allow_network)
-    as_cap_mb = max(int(memory_mb), _MACOS_AS_FLOOR_MB)
+    read_roots = tuple(_runtime_read_roots(argv))
+    support = _support()
     started = time.monotonic()
 
-    # Fail closed if the profile itself cannot be compiled/applied.  This
-    # turns "profile denied the probe" into an explicit BLOCKED error rather
-    # than a silent unrestricted run or a misleading command failure.
-    try:
-        probe = subprocess.run(
-            [sandbox_exec, "-p", profile, "/usr/bin/true"],
-            capture_output=True, timeout=10, check=False,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise SandboxUnavailable(f"sandbox-exec pre-flight failed: {exc}") from exc
-    if probe.returncode != 0:
-        # An invalid SBPL rule makes sandbox-exec abort with an empty stderr;
-        # isolate the offending rule so CI logs carry an exact BLOCKED reason.
-        diag = _diagnose_profile(sandbox_exec, profile)
-        raise SandboxUnavailable(
-            f"sandbox-exec profile could not launch a probe "
-            f"(exit={probe.returncode}, stderr={_tail(probe.stderr)!r}, "
-            f"stdout={_tail(probe.stdout)!r}); {diag}; profile:\n{profile}")
+    profile = build_profile(ws, read_roots=read_roots,
+                            allow_network=allow_network, restrict_reads=True)
+    probe = _probe(sandbox_exec, profile)
+    if probe is None:
+        raise SandboxUnavailable("sandbox-exec pre-flight timed out or failed to start")
+    restrictive_ok = probe.returncode == 0
+    if not restrictive_ok:
+        # Only the specifically diagnosed SIGABRT for filtered reads may fall
+        # back; every other failure stays fail-closed.
+        if support["restrictive"] or not support["broad"]:
+            raise SandboxUnavailable(
+                f"sandbox-exec profile could not launch a probe "
+                f"(exit={probe.returncode}, stderr={_tail(probe.stderr)!r}); "
+                f"host probe={support}")
+        profile = build_profile(ws, read_roots=read_roots,
+                                allow_network=allow_network, restrict_reads=False)
+        fallback_probe = _probe(sandbox_exec, profile)
+        if fallback_probe is None or fallback_probe.returncode != 0:
+            raise SandboxUnavailable(
+                "both restrictive and broad-read profiles failed: "
+                f"restrictive={probe.returncode}, "
+                f"broad={getattr(fallback_probe, 'returncode', None)!r}")
+    limitations = _limitations(memory_mb, allow_network=allow_network,
+                               support=support)
+    mechanism = ("macos-seatbelt-sandbox-exec" if restrictive_ok else
+                 "macos-seatbelt-sandbox-exec (read-isolation BLOCKED)")
 
     scratch = ws_path / ".tmp"
     scratch.mkdir(exist_ok=True)
     child_env = dict(env) if env is not None else {}
-    # PyInstaller one-file sidecars extract to TMPDIR; keeping it inside the
-    # workspace lets them start under the write allowlist.  Callers that pass
-    # an explicit TMPDIR outside the workspace will get a denied extraction.
+    # PyInstaller one-file sidecars unpack into TMPDIR; keeping it inside the
+    # workspace lets them start under the write allowlist.
     child_env.setdefault("TMPDIR", str(scratch))
+
+    cap_mb = max(int(memory_mb), _MACOS_AS_FLOOR_MB)
 
     def preexec() -> None:
         import resource
 
         resource.setrlimit(resource.RLIMIT_CPU, (int(cpu_s), int(cpu_s)))
-        # macOS_LAYOUT: shared cache needs a large virtual address space.
-        cap = as_cap_mb * 1024 * 1024
+        cap = cap_mb * 1024 * 1024
         resource.setrlimit(resource.RLIMIT_AS, (cap, cap))
-        # RLIMIT_NPROC is intentionally NOT set on macOS (see limitations).
+        # RLIMIT_NPROC is intentionally not set on macOS.
 
     cmd = [sandbox_exec, "-p", profile, *[str(a) for a in argv]]
     timed_out = False
@@ -461,7 +410,7 @@ def run_confined(
         exit_code=code,
         timed_out=timed_out,
         elapsed_s=round(time.monotonic() - started, 3),
-        mechanism="macos-seatbelt-sandbox-exec",
+        mechanism=mechanism,
         stdout=(out or b"").decode("utf-8", errors="replace"),
         stderr=(err or b"").decode("utf-8", errors="replace"),
         limitations=limitations,
