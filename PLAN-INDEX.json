@@ -15900,15 +15900,19 @@
       "milestone": "M1",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: `security-model.md` (private) + in-app \"What Keel protects and what it cannot\"."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15924,15 +15928,19 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Add \"pin resolved IP\" and redirect re-check to acceptance tests (Master 11.7)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15996,15 +16004,19 @@
       "milestone": "M20",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Test each header: CSP, X-Frame-Options: DENY, HSTS when HTTPS, nosniff, strict referrer policy, COOP, permissions policy."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16020,17 +16032,21 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [
         "X9.x"
       ],
       "acceptance_criteria": [
         "XSS test corpus (X9.x) passes: no raw HTML in Markdown, link scheme allow-list, no dangerouslySetInnerHTML, sandboxed CSP for served HTML/SVG/XML, sandboxed iframe previews."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16072,15 +16088,19 @@
       "milestone": "M18",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Sites exporter (M18) uses realpath containment."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16096,17 +16116,21 @@
       "milestone": "M15",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [
         "V9"
       ],
       "acceptance_criteria": [
         "Confirm: Channel defaults: pairing/allowlist;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16148,15 +16172,19 @@
       "milestone": "M26",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Keel About > \"Known limits\" page;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16222,17 +16250,21 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [
         "Y3.6"
       ],
       "acceptance_criteria": [
         "Confirm: `keel web` session cookie design;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16248,17 +16280,21 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [
         "Z30"
       ],
       "acceptance_criteria": [
         "Confirm: Local API tokens for CLI/IDE/phone clients (Z30)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16274,15 +16310,19 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Rule for MCP/plugin launches: pass secrets via env/file descriptor, never argv (visible in process lists)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16298,15 +16338,19 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Redactor + keyed hashes for any identifiers in logs/traces."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16348,15 +16392,19 @@
       "milestone": "M20",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/security_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Rate limits on pairing;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_security_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Security contracts: trust model, SSRF-safe fetch, security headers, safe Markdown rendering, publish path safety, inbound HMAC/replay defense, session cookies; 125 passing tests (1 platform skip).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

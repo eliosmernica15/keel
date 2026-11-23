@@ -778,6 +778,15 @@ Y2_TRANSCRIPT_EVIDENCE = (
     "Transcript/history contracts: typed rows, model/durable history split, "
     "screenshot ring, orphaned tool-call repair, VNC credential isolation, "
     "exposure defaults; 39 passing tests.")
+W7_SECURITY_TOKENS = frozenset({"W7.1", "W7.3", "W7.4", "W7.5", "W7.6",
+                                "W7.8", "W7.10", "W7.13", "W7.14", "W7.16",
+                                "W7.17", "W7.19"})
+W7_SECURITY_SRC = ["src/keel/security_contracts.py"]
+W7_SECURITY_TESTS = ["tests/test_security_contracts.py"]
+W7_SECURITY_EVIDENCE = (
+    "Security contracts: trust model, SSRF-safe fetch, security headers, "
+    "safe Markdown rendering, publish path safety, inbound HMAC/replay "
+    "defense, session cookies; 125 passing tests (1 platform skip).")
 
 TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
                      "src/keel/tool_contracts_bridge.py"]
@@ -811,7 +820,7 @@ def _load_extra_features() -> list[dict]:
                                X1_STEERING_TOKENS | X1_DIALECT_TOKENS |
                                X1_EDIT_TOKENS | W2_AGENT_TOKENS | BATCH4_TOKENS |
                                D3_SEAM_TOKENS | E6_PROVIDER_TOKENS |
-                               Y2_TRANSCRIPT_TOKENS)
+                               Y2_TRANSCRIPT_TOKENS | W7_SECURITY_TOKENS)
             verified = fid in implemented_ids
             src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
                          X1_REPO_SRC if fid in X1_REPO_TOKENS else
@@ -822,7 +831,8 @@ def _load_extra_features() -> list[dict]:
                          BATCH4_SRC if fid in BATCH4_TOKENS else
                          D3_SEAM_SRC if fid in D3_SEAM_TOKENS else
                          E6_PROVIDER_SRC if fid in E6_PROVIDER_TOKENS else
-                         Y2_TRANSCRIPT_SRC if fid in Y2_TRANSCRIPT_TOKENS else [])
+                         Y2_TRANSCRIPT_SRC if fid in Y2_TRANSCRIPT_TOKENS else
+                         W7_SECURITY_SRC if fid in W7_SECURITY_TOKENS else [])
             test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
                           X1_REPO_TESTS if fid in X1_REPO_TOKENS else
                           X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
@@ -832,7 +842,8 @@ def _load_extra_features() -> list[dict]:
                           BATCH4_TESTS if fid in BATCH4_TOKENS else
                           D3_SEAM_TESTS if fid in D3_SEAM_TOKENS else
                           E6_PROVIDER_TESTS if fid in E6_PROVIDER_TOKENS else
-                          Y2_TRANSCRIPT_TESTS if fid in Y2_TRANSCRIPT_TOKENS else [])
+                          Y2_TRANSCRIPT_TESTS if fid in Y2_TRANSCRIPT_TOKENS else
+                          W7_SECURITY_TESTS if fid in W7_SECURITY_TOKENS else [])
             evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
                         X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
                         X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
@@ -842,7 +853,8 @@ def _load_extra_features() -> list[dict]:
                         BATCH4_EVIDENCE if fid in BATCH4_TOKENS else
                         D3_SEAM_EVIDENCE if fid in D3_SEAM_TOKENS else
                         E6_PROVIDER_EVIDENCE if fid in E6_PROVIDER_TOKENS else
-                        Y2_TRANSCRIPT_EVIDENCE if fid in Y2_TRANSCRIPT_TOKENS else "")
+                        Y2_TRANSCRIPT_EVIDENCE if fid in Y2_TRANSCRIPT_TOKENS else
+                        W7_SECURITY_EVIDENCE if fid in W7_SECURITY_TOKENS else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),

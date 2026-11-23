@@ -1,23 +1,8 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **98 not-started P0 features** in 25 source groups.
+Generated from PLAN-INDEX.json: **86 not-started P0 features** in 24 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
-
-## W7 — 12 features
-
-- `W7.1` (M1) Explicit trust boundary list (client untrusted, daemon holds secrets, agent environment powerful, third parties).
-- `W7.10` (M3) SSRF safe fetch details: http(s) only, resolve then pin the checked address, re-check every redirect, cap time and size.
-- `W7.13` (M20) Security headers for any served UI: CSP, `X-Frame-Options: DENY`, HSTS (when HTTPS), `nosniff`, strict referrer policy, COOP, permissions policy (microphone onl
-- `W7.14` (M19) Rendering safety: Markdown rendered without raw HTML; link scheme allow-list; no `dangerouslySetInnerHTML`; inline-served HTML/SVG/XML get a sandboxing CSP; gen
-- `W7.16` (M18) Publishing copies only from the site's own folder; never hidden files or symlink targets outside.
-- `W7.17` (M15) Inbound channel rules: signature verified with constant-time compare, 300 s window, de-duplication, refuse when no secret configured; only approved senders can 
-- `W7.19` (M26) Honest "known limitations" list: prompt injection can still misuse granted power; "watch only" enforced only in client in openman (orgo-teammates enforces on se
-- `W7.3` (M3) Secrets sealed with AES-256-GCM, random 12-byte IV per value + auth tag; session cookie sealed with its own key and additional authenticated data, HttpOnly, Sam
-- `W7.4` (M3) API keys: prefixed random token, stored only as SHA-256, shown once; per-key rate limit; per-user idempotency keys.
-- `W7.5` (M3) Secrets reach child processes as a staged file read-and-deleted by the setup script, never on a command line.
-- `W7.6` (M3) Log redaction plus keyed hash of user ids instead of ids.
-- `W7.8` (M20) Sign-in/pairing attempts rate limited per client address and globally; use trusted-proxy hop count for address detection; only same-origin relative return paths
 
 ## X0 — 8 features
 

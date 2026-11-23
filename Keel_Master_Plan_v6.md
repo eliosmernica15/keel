@@ -614,25 +614,25 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | W6.4 | Conductor + specialists routing: one conductor agent; external coding agents as optional specialists for multi-file work; one writer per dirty tree; always verify diffs/tests after a specialist. | M12 | P1 | not_started |
 | W6.5 | Control-plane routing: prefer local desktop tool over cloud tools when local is healthy; accessibility-tree enrichment optional; DOM work prefers browser tools. | M16 | P1 | not_started |
 | W6.6 | Running ledger of important account facts/decisions in a memory file. | M13 | P1 | not_started |
-| W7.1 | Explicit trust boundary list (client untrusted, daemon holds secrets, agent environment powerful, third parties). | M1 | P0 | not_started |
-| W7.10 | SSRF safe fetch details: http(s) only, resolve then pin the checked address, re-check every redirect, cap time and size. | M3 | P0 | not_started |
+| W7.1 | Explicit trust boundary list (client untrusted, daemon holds secrets, agent environment powerful, third parties). | M1 | P0 | verified |
+| W7.10 | SSRF safe fetch details: http(s) only, resolve then pin the checked address, re-check every redirect, cap time and size. | M3 | P0 | verified |
 | W7.11 | Streaming body-size enforcement (not just Content-Length), bounded multipart uploads, capped recordings. | M20 | P1 | not_started |
 | W7.12 | Generic client errors + request id, details only in server log. | M20 | P1 | not_started |
-| W7.13 | Security headers for any served UI: CSP, `X-Frame-Options: DENY`, HSTS (when HTTPS), `nosniff`, strict referrer policy, COOP, permissions policy (microphone only inside the app). | M20 | P0 | not_started |
-| W7.14 | Rendering safety: Markdown rendered without raw HTML; link scheme allow-list; no `dangerouslySetInnerHTML`; inline-served HTML/SVG/XML get a sandboxing CSP; generated-site previews in a sandboxed iframe. | M19 | P0 | not_started |
+| W7.13 | Security headers for any served UI: CSP, `X-Frame-Options: DENY`, HSTS (when HTTPS), `nosniff`, strict referrer policy, COOP, permissions policy (microphone only inside the app). | M20 | P0 | verified |
+| W7.14 | Rendering safety: Markdown rendered without raw HTML; link scheme allow-list; no `dangerouslySetInnerHTML`; inline-served HTML/SVG/XML get a sandboxing CSP; generated-site previews in a sandboxed iframe. | M19 | P0 | verified |
 | W7.15 | Share tokens with 144 bits of randomness; public share pages show redacted text and short tool previews, never owner identity or instructions. | M4 | P1 | not_started |
-| W7.16 | Publishing copies only from the site's own folder; never hidden files or symlink targets outside. | M18 | P0 | not_started |
-| W7.17 | Inbound channel rules: signature verified with constant-time compare, 300 s window, de-duplication, refuse when no secret configured; only approved senders can start work; voice/phone-initiated tasks require a confirmation code; email triggers accept only clean mail and by default only from the owner's address. | M15 | P0 | not_started |
+| W7.16 | Publishing copies only from the site's own folder; never hidden files or symlink targets outside. | M18 | P0 | verified |
+| W7.17 | Inbound channel rules: signature verified with constant-time compare, 300 s window, de-duplication, refuse when no secret configured; only approved senders can start work; voice/phone-initiated tasks require a confirmation code; email triggers accept only clean mail and by default only from the owner's address. | M15 | P0 | verified |
 | W7.18 | Spending caps enforced atomically in the database before each vendor call. | M21 | P1 | not_started |
-| W7.19 | Honest "known limitations" list: prompt injection can still misuse granted power; "watch only" enforced only in client in openman (orgo-teammates enforces on server); one shared sign-in budget; self-hosting is only as safe as setup. | M26 | P0 | not_started |
+| W7.19 | Honest "known limitations" list: prompt injection can still misuse granted power; "watch only" enforced only in client in openman (orgo-teammates enforces on server); one shared sign-in budget; self-hosting is only as safe as setup. | M26 | P0 | verified |
 | W7.2 | Live-view URL given only to the owner with `Cache-Control: no-store`. | M16 | P1 | not_started |
 | W7.20 | Deployment hygiene from orgo-teammates: narrowest-scope keys, never show keys on screen/recordings, set provider spend limits, be careful with "Always allow", private vulnerability reporting, only latest branch supported, best-effort fixes. | M23 | P1 | not_started |
-| W7.3 | Secrets sealed with AES-256-GCM, random 12-byte IV per value + auth tag; session cookie sealed with its own key and additional authenticated data, HttpOnly, SameSite=Lax, Secure when HTTPS, 30-day life, checked against a revocations table. | M3 | P0 | not_started |
-| W7.4 | API keys: prefixed random token, stored only as SHA-256, shown once; per-key rate limit; per-user idempotency keys. | M3 | P0 | not_started |
-| W7.5 | Secrets reach child processes as a staged file read-and-deleted by the setup script, never on a command line. | M3 | P0 | not_started |
-| W7.6 | Log redaction plus keyed hash of user ids instead of ids. | M3 | P0 | not_started |
+| W7.3 | Secrets sealed with AES-256-GCM, random 12-byte IV per value + auth tag; session cookie sealed with its own key and additional authenticated data, HttpOnly, SameSite=Lax, Secure when HTTPS, 30-day life, checked against a revocations table. | M3 | P0 | verified |
+| W7.4 | API keys: prefixed random token, stored only as SHA-256, shown once; per-key rate limit; per-user idempotency keys. | M3 | P0 | verified |
+| W7.5 | Secrets reach child processes as a staged file read-and-deleted by the setup script, never on a command line. | M3 | P0 | verified |
+| W7.6 | Log redaction plus keyed hash of user ids instead of ids. | M3 | P0 | verified |
 | W7.7 | Sign-in bound to the browser that started it by a sealed SameSite=Strict cookie, so a forwarded link can't be completed by someone else. | M20 | P1 | not_started |
-| W7.8 | Sign-in/pairing attempts rate limited per client address and globally; use trusted-proxy hop count for address detection; only same-origin relative return paths honored. | M20 | P0 | not_started |
+| W7.8 | Sign-in/pairing attempts rate limited per client address and globally; use trusted-proxy hop count for address detection; only same-origin relative return paths honored. | M20 | P0 | verified |
 | W7.9 | CSRF origin check for cookie-bearing state-changing requests; bearer routes exempt. | M20 | P1 | not_started |
 | W8.1 | orgo-teammates `ALLOWED_EMAILS` supports `@domain` entries → paired-client allowlist should support patterns (e.g., device label prefixes), not only exact entries. | M20 | P2 | not_started |
 | W8.2 | openman: recordings and screenshots capped in the database. | M4 | P1 | not_started |
