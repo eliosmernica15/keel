@@ -1,6 +1,6 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **50 not-started P0 features** in 18 source groups.
+Generated from PLAN-INDEX.json: **35 not-started P0 features** in 14 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
 
@@ -14,33 +14,12 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `V31` (M19) Local-socket transport spike: prove Electron ↔ Python over named pipe/UDS with streaming and backpressure on all three OSes before committing (C-19); keep TCP+t
 - `V5` (M3) Strictness presets as rule sets: Cautious / Balanced / Trusted compiled into ordered rule arrays, diffable and exportable, never able to touch Tier 2.
 
-## D5 — 5 features
-
-- `D5.1` (M19) Plain statement that the software executes model-generated code/commands, loads third-party plugins, and accesses network, processes, credentials and files; def
-- `D5.2` (M19) "Sandboxing, approvals and permissions reduce risk but do not guarantee isolation"; do not rely on it as the sole control for untrusted workloads.
-- `D5.3` (M19) Responsible-use list: least privilege; disposable VM/container; keep backups; don't expose sensitive credentials; review plugins, config and proposed commands.
-- `D5.4` (M1) No warranty / no liability paragraph referencing the license.
-- `D5.5` (M0) Host sandbox failures rule (builder): if a required command fails because the dev sandbox blocks credentials/network/IPC, retry unchanged with the narrowest esc
-
 ## D7 — 4 features
 
 - `D7.1` (M0) Gate scheduler (`run-gates`): all gates as a dependency graph; bounded concurrency env var; fail-fast switch; a failure skips only its dependents so independent
 - `D7.12` (M0) CI layout: broad lanes of independent gates, a smaller Node-version compatibility matrix, native Windows lane in a separate workflow, Python checks separate, re
 - `D7.19` (M21) Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task.
 - `D7.9` (M0) Strict dependency linker so undeclared deps fail; build scripts of dependencies explicitly allowlisted.
-
-## X9 — 4 features
-
-- `X9.1` (M2) Fixture model server
-- `X9.3` (M2) Provider contract tests: each adapter must pass the same behavior suite (streaming, cancel, tool call, usage, errors)
-- `X9.5` (M3) Cross-platform path/permission matrix tests (Windows reserved names, ADS, long paths, case-insensitive FS, symlinks/junctions)
-- `X9.7` (M4) Migration matrix: every released schema version upgraded to current, with data checksums
-
-## D4 — 3 features
-
-- `D4.11` (M10) Plugin Manager UI in the base bundle for Web and agents.
-- `D4.2` (M2) Custom OpenAI-compatible endpoints documented as a first-class path.
-- `D4.7` (M5) Tool UI presentation designed up front: host presenters are pure; web cards derive from raw events and persisted result metadata.
 
 ## E4 — 3 features
 
@@ -53,12 +32,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `X10.1` (M0) Definition-of-done template
 - `X10.2` (M0) Provenance file
 - `X10.4` (M0) Builder "stop list": actions that always pause for the owner, mirrored from gates G1 to G7 plus destructive repo actions, as a machine-readable file the builder
-
-## X5 — 3 features
-
-- `X5.1` (M3) Sensitive-project mode
-- `X5.5` (M3) Mass-change guard
-- `X5.6` (M5) Filesystem change journal per task so every touched path can be reviewed and reverted as a set
 
 ## Y4 — 3 features
 

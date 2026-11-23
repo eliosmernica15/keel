@@ -23,7 +23,7 @@ safety or release-blocking), **high**, **med**, **low**.
 | Phone hardware absent | M17-R2, M19-R4, M26-R2 |
 | Signing identity absent | M1-R3, M19-R5, M22-R1, M23-R3, M26-R2 |
 | GitHub Free plan branch-protection limit | M1-R1, M22-R3 |
-| 479 unimplemented rows | M0-R1, M25-R4, M26-R1 |
+| 463 unimplemented rows | M0-R1, M25-R4, M26-R1 |
 | Priority re-ranking risk | M0-R2, M5-R4, M26-R3 |
 | License / IP risk | M0-R4, M1-R4, M2-R2, M11-R1, M17-R1, M23-R4 |
 | Offline-network test risk | M2-R3, M5-R2, M11-R4, M15-R1, M17-R3, M19-R6, M22-R4, M25-R1 |
@@ -44,14 +44,14 @@ Cross-cutting environment facts (all observed, not hypothetical):
   fork restriction 422; 2FA is owner-account controlled. Local compensating
   controls are the fail-closed pre-push hook + gitleaks + signed commits once a
   key exists.
-- 865 registry rows: **384 verified, 2 blocked, 479 not_started**. All 551
+- 865 registry rows: **400 verified, 2 blocked, 463 not_started**. All 551
   addenda 3–7 rows are unimplemented; none may be promoted without real evidence.
 
 ## M0 — foundation: plan index, gates, seams, clean-room rules
 
 | Risk | Likelihood | Impact | Mitigation | Owner (role) | Rollback / revert |
 | :- | :- | :- | :- | :- | :- |
-| **M0-R1 — 479 rows are `not_started`; a milestone is declared complete from the 226 verified base rows.** | high | high | Keep statuses honest in `PLAN-INDEX.json`; consume `REMAINING-WORK-MATRIX.md` and `DEPENDENCY-GRAPH.md` §6 at every gate; CI gate fails on unverified rows in a claimed-complete milestone. | Plan maintainer / registry owner | Revert the milestone-completion commit; restore the previous `PLAN-INDEX.json`; re-open the gate and re-run the status audit. Never bulk-flip `not_started` → `verified`. |
+| **M0-R1 — 463 rows are `not_started`; a milestone is declared complete from the 226 verified base rows.** | high | high | Keep statuses honest in `PLAN-INDEX.json`; consume `REMAINING-WORK-MATRIX.md` and `DEPENDENCY-GRAPH.md` §6 at every gate; CI gate fails on unverified rows in a claimed-complete milestone. | Plan maintainer / registry owner | Revert the milestone-completion commit; restore the previous `PLAN-INDEX.json`; re-open the gate and re-run the status audit. Never bulk-flip `not_started` → `verified`. |
 | **M0-R2 — priority re-ranking (X0.1) drifts or loses meaning; P0 is 240/865 (~28%, above the ~25% cap) and owners re-label to make work look done.** | med | med | Preserve `original_priority`; require owner sign-off for any P0 change; re-check cap and distribution at each gate; report deltas in the matrix. | Product owner | Restore `original_priority` values from the prior registry snapshot and regenerate reports; revert the re-ranking commit. |
 | **M0-R3 — no usable dependency order: 14 unresolved tokens (`Master 10`, `C-1`, `G7`, `E1.x`, …), 21 backward milestone edges, 72 not-started rows with unmet dependencies.** | high | med | Generated graph with SCC-collapsed cycles; X0.3 gate blocks starting any row whose deps are not green; unresolved tokens listed, never guessed; regenerate with `--check` in CI. | Build engineering | Disable the affected row's work item, not the gate; regenerate the report from the last known-good registry; revert any merge that started a row with unmet deps. |
 | **M0-R4 — clean-room/IP breach: implementation copied from reference source instead of a behavior spec, or licence provenance missing.** | med | fatal | X0.10 two-step process (analyst writes spec with no pasted code → builder implements from spec); SPDX headers / `LicenseRef-Keel-Proprietary`; provenance log per module; licensing review before merge. | Licensing & IP reviewer | Quarantine the module (remove from build/artifact), replace with a clean-room implementation, and purge derived files; if anything shipped, escalate to owner for legal review. |
@@ -144,7 +144,7 @@ Cross-cutting environment facts (all observed, not hypothetical):
 | Risk | Likelihood | Impact | Mitigation | Owner (role) | Rollback / revert |
 | :- | :- | :- | :- | :- | :- |
 | **M23-R1 — download page/SHA-256 guide advertises builds that are unsigned or not rebuilt from final source.** | med | high | Publish hashes only for artifacts produced by the final-source build; mark unsigned/native-gap statuses explicitly; generate pages from the release manifest. | Release engineering | Roll back the download page to the previous manifest; remove the offending hashes; restore the last verified feed entry. |
-| **M23-R2 — offline docs search index drifts from shipped behaviour while 479 rows remain unimplemented.** | med | med | Generate docs from source/config catalog; mark unimplemented features as such; gate doc-sync in CI. | Documentation owner | Revert the generated index, regenerate from the last known-good source snapshot. |
+| **M23-R2 — offline docs search index drifts from shipped behaviour while 463 rows remain unimplemented.** | med | med | Generate docs from source/config catalog; mark unimplemented features as such; gate doc-sync in CI. | Documentation owner | Revert the generated index, regenerate from the last known-good source snapshot. |
 | **M23-R3 — no signing identity blocks the "how to verify" guide and official-build messaging.** | high | med | Write the guide for signed releases only; show current unsigned status in the UI and docs; no verification claims before keys exist. | Release engineering | Remove the verification instructions from the published page; restore the explicit unsigned notice. |
 | **M23-R4 — licence/IP risk in press kit, screenshots, third-party notices and trademark page.** | med | high | All assets from own builds with documented provenance; notices generated from dependency manifests; lawyer review flag on trademark/export-control page. | Licensing & IP reviewer | Remove the asset/page, revert the commit, regenerate notices. |
 
@@ -155,13 +155,13 @@ Cross-cutting environment facts (all observed, not hypothetical):
 | **M25-R1 — X0.8 "zero network without account" is asserted with no test list; an outbound call slips through.** | high | high | CI job runs full smoke suite with network namespace removed, update checks disabled, fails on any outbound attempt; maintain explicit test list. | QA / test engineering | Revert the change that introduced egress; keep the zero-network lane as a required gate; do not weaken the test to pass. |
 | **M25-R2 — sandbox platform gaps make path-containment/fuzz results non-transferable across OSes.** | high | med | Run platform-matrix lanes; mark Linux/macOS native lanes environment-gated; report per-OS coverage, not a single global pass. | Platform engineering | Revert the global-pass claim; restore per-OS skip records; keep fail-closed preflight on unsupported hosts. |
 | **M25-R3 — macOS read isolation BLOCKED (sandbox-exec SIGABRT) leaves a permanent hole in read-denial evidence.** | high | high | Record BLOCKED with observed evidence; verify write/network/rlimits where possible; native macOS runner required to close it. | Platform engineering (macOS) | Keep the affected assertions skipped with an explicit BLOCKED reason; revert any report line claiming macOS read denial. |
-| **M25-R4 — 479 not-started rows cannot be covered by contract-regression specs; a green suite is mistaken for full coverage.** | med | high | Mark coverage scope in the test evidence; gate milestone claims against the registry status, not suite count; matrix lists every uncovered row. | Plan maintainer / QA lead | Revert the coverage claim; re-scope the gate to implemented rows only; never delete or weaken tests to improve the ratio. |
+| **M25-R4 — 463 not-started rows cannot be covered by contract-regression specs; a green suite is mistaken for full coverage.** | med | high | Mark coverage scope in the test evidence; gate milestone claims against the registry status, not suite count; matrix lists every uncovered row. | Plan maintainer / QA lead | Revert the coverage claim; re-scope the gate to implemented rows only; never delete or weaken tests to improve the ratio. |
 
 ## M26 — honest disclosure and known limitations
 
 | Risk | Likelihood | Impact | Mitigation | Owner (role) | Rollback / revert |
 | :- | :- | :- | :- | :- | :- |
-| **M26-R1 — "Project status"/known-limitations pages overstate parity while 479 rows are `not_started`.** | high | high | Status page generated from `PLAN-INDEX.json` counts (384/2/479); separate "proven end-to-end" from "built but unproven"; link the matrix. | Product owner / documentation owner | Revert the status page commit; restore counts from the last audited registry; add the missing limitation explicitly. |
+| **M26-R1 — "Project status"/known-limitations pages overstate parity while 463 rows are `not_started`.** | high | high | Status page generated from `PLAN-INDEX.json` counts (400/2/463); separate "proven end-to-end" from "built but unproven"; link the matrix. | Product owner / documentation owner | Revert the status page commit; restore counts from the last audited registry; add the missing limitation explicitly. |
 | **M26-R2 — omitted external blockers (no provider credentials, no phone hardware, no signing identity, macOS/Linux native gaps) create false user expectations.** | high | med | Limitations list names each blocker with its observed evidence and owner action; release notes must carry the same list. | Product owner | Revert the release note; republish with the blocker list; halt any claim of live/production readiness. |
 | **M26-R3 — priority re-ranking hides deferred P1/P2 work behind a "complete" label.** | med | low | Keep `original_priority` and the matrix; disclose tier definitions (P0 v1.0 / P1 v1.x / P2 later) in the status page. | Plan maintainer | Restore prior priority labels and regenerate reports; reword the status page. |
 

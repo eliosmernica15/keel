@@ -818,6 +818,32 @@ X0_PLAN_EVIDENCE = (
     "and is valid (P0 share, M19 splits, dependency graph, Duet modes, "
     "free-tier register, license gate, offline lane, clean-room specs) with "
     "14 passing tests incl. 9 tamper cases.")
+X9_RELIABILITY_TOKENS = frozenset({"X9.1", "X9.3", "X9.5", "X9.7"})
+X9_RELIABILITY_SRC = ["src/keel/reliability_contracts.py"]
+X9_RELIABILITY_TESTS = ["tests/test_reliability_contracts.py"]
+X9_RELIABILITY_EVIDENCE = (
+    "Reliability contracts: fixture model server, provider contract suite "
+    "against real adapters, cross-platform path/permission matrix, migration "
+    "matrix with checksums; 39 passing tests.")
+X5_GUARD_TOKENS = frozenset({"X5.1", "X5.5", "X5.6", "X5.9"})
+X5_GUARD_SRC = ["src/keel/clipboard_guard.py"]
+X5_GUARD_TESTS = ["tests/test_clipboard_guard.py"]
+X5_GUARD_EVIDENCE = (
+    "Clipboard/screen guard + sensitive-project mode, mass-change guard and "
+    "filesystem change journal; 31 passing adversarial tests.")
+D5_RESPONSIBLE_TOKENS = frozenset({"D5.1", "D5.2", "D5.3", "D5.4", "D5.5"})
+D5_RESPONSIBLE_SRC = ["src/keel/responsible_use.py"]
+D5_RESPONSIBLE_TESTS = ["tests/test_responsible_use.py"]
+D5_RESPONSIBLE_EVIDENCE = (
+    "Responsible-use disclosures, sandbox-limits wording, safety checklist, "
+    "warranty disclaimer (G5 draft) and fail-closed sandbox-failure policy; "
+    "25 passing tests + generated RESPONSIBLE-USE.md.")
+D4_COMPOSITION_TOKENS = frozenset({"D4.2", "D4.7", "D4.11"})
+D4_COMPOSITION_SRC = ["src/keel/composition_contracts.py"]
+D4_COMPOSITION_TESTS = ["tests/test_composition_contracts.py"]
+D4_COMPOSITION_EVIDENCE = (
+    "Composition contracts: typed layers, deterministic merge, protected "
+    "core, path containment, secret redaction; 51 passing adversarial tests.")
 
 TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
                      "src/keel/tool_contracts_bridge.py"]
@@ -852,7 +878,9 @@ def _load_extra_features() -> list[dict]:
                                X1_EDIT_TOKENS | W2_AGENT_TOKENS | BATCH4_TOKENS |
                                D3_SEAM_TOKENS | E6_PROVIDER_TOKENS |
                                Y2_TRANSCRIPT_TOKENS | W7_SECURITY_TOKENS |
-                               A6_TOKENS | E5_DESKTOP_TOKENS | X0_PLAN_TOKENS)
+                               A6_TOKENS | E5_DESKTOP_TOKENS | X0_PLAN_TOKENS |
+                               X9_RELIABILITY_TOKENS | X5_GUARD_TOKENS |
+                               D5_RESPONSIBLE_TOKENS | D4_COMPOSITION_TOKENS)
             verified = fid in implemented_ids
             src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
                          X1_REPO_SRC if fid in X1_REPO_TOKENS else
@@ -867,7 +895,11 @@ def _load_extra_features() -> list[dict]:
                          W7_SECURITY_SRC if fid in W7_SECURITY_TOKENS else
                          A6_SRC if fid in A6_TOKENS else
                          E5_DESKTOP_SRC if fid in E5_DESKTOP_TOKENS else
-                         X0_PLAN_SRC if fid in X0_PLAN_TOKENS else [])
+                         X0_PLAN_SRC if fid in X0_PLAN_TOKENS else
+                         X9_RELIABILITY_SRC if fid in X9_RELIABILITY_TOKENS else
+                         X5_GUARD_SRC if fid in X5_GUARD_TOKENS else
+                         D5_RESPONSIBLE_SRC if fid in D5_RESPONSIBLE_TOKENS else
+                         D4_COMPOSITION_SRC if fid in D4_COMPOSITION_TOKENS else [])
             test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
                           X1_REPO_TESTS if fid in X1_REPO_TOKENS else
                           X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
@@ -881,7 +913,11 @@ def _load_extra_features() -> list[dict]:
                           W7_SECURITY_TESTS if fid in W7_SECURITY_TOKENS else
                           A6_TESTS if fid in A6_TOKENS else
                           E5_DESKTOP_TESTS if fid in E5_DESKTOP_TOKENS else
-                          X0_PLAN_TESTS if fid in X0_PLAN_TOKENS else [])
+                          X0_PLAN_TESTS if fid in X0_PLAN_TOKENS else
+                          X9_RELIABILITY_TESTS if fid in X9_RELIABILITY_TOKENS else
+                          X5_GUARD_TESTS if fid in X5_GUARD_TOKENS else
+                          D5_RESPONSIBLE_TESTS if fid in D5_RESPONSIBLE_TOKENS else
+                          D4_COMPOSITION_TESTS if fid in D4_COMPOSITION_TOKENS else [])
             evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
                         X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
                         X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
@@ -895,7 +931,11 @@ def _load_extra_features() -> list[dict]:
                         W7_SECURITY_EVIDENCE if fid in W7_SECURITY_TOKENS else
                         A6_EVIDENCE if fid in A6_TOKENS else
                         E5_DESKTOP_EVIDENCE if fid in E5_DESKTOP_TOKENS else
-                        X0_PLAN_EVIDENCE if fid in X0_PLAN_TOKENS else "")
+                        X0_PLAN_EVIDENCE if fid in X0_PLAN_TOKENS else
+                        X9_RELIABILITY_EVIDENCE if fid in X9_RELIABILITY_TOKENS else
+                        X5_GUARD_EVIDENCE if fid in X5_GUARD_TOKENS else
+                        D5_RESPONSIBLE_EVIDENCE if fid in D5_RESPONSIBLE_TOKENS else
+                        D4_COMPOSITION_EVIDENCE if fid in D4_COMPOSITION_TOKENS else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),

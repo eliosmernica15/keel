@@ -321,22 +321,22 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | D3.9 | Shell backend, terminals backend, sandbox backend as separate services; sandbox wraps argv before spawning. | M5 | P0 | verified |
 | D4.1 | Model setup in Settings → Models: enter key, save, route usable immediately without restarting. | M19 | P1 | not_started |
 | D4.10 | UI design/review entry point as a reusable skill file (design principles + references loaded on demand). | M0 | P1 | not_started |
-| D4.11 | Plugin Manager UI in the base bundle for Web and agents. | M10 | P0 | not_started |
+| D4.11 | Plugin Manager UI in the base bundle for Web and agents. | M10 | P0 | verified |
 | D4.12 | Desktop window loads packaged assets immediately and activates client plugins after readiness. | M19 | P1 | not_started |
 | D4.13 | Port selection: web UI default fixed port, desktop OS-assigned, overridable by profile config. | M20 | P1 | not_started |
-| D4.2 | Custom OpenAI-compatible endpoints documented as a first-class path. | M2 | P0 | not_started |
+| D4.2 | Custom OpenAI-compatible endpoints documented as a first-class path. | M2 | P0 | verified |
 | D4.3 | Workspace required: "Choose workspace" flow; composer is unavailable until a workspace is selected; fresh UI has none selected even though the process has a default directory. | M19 | P1 | not_started |
 | D4.4 | In-page directory picker vs native picker; an overlay config pins the in-page picker for automated browser tests/GIF recording. | M19 | P1 | not_started |
 | D4.5 | Web client Chat nodes: extensible `ConversationNodeDefinition` + keyed renderer so plugins add new message/node types. | M19 | P1 | not_started |
 | D4.6 | Settings cards contributed by plugins (cookbook "adding a settings card"). | M10 | P1 | not_started |
-| D4.7 | Tool UI presentation designed up front: host presenters are pure; web cards derive from raw events and persisted result metadata. | M5 | P0 | not_started |
+| D4.7 | Tool UI presentation designed up front: host presenters are pure; web cards derive from raw events and persisted result metadata. | M5 | P0 | verified |
 | D4.8 | Client UI copy is locale-owned: product text only through typed dictionaries/`t()`; a gate rejects hardcoded copy; English copy and plugin titles use sentence case. | M19 | P1 | not_started |
 | D4.9 | Official plugin artwork policy: bundled plugins use a consistent icon set; new glyphs need designer approval. | M19 | P2 | not_started |
-| D5.1 | Plain statement that the software executes model-generated code/commands, loads third-party plugins, and accesses network, processes, credentials and files; defects, misconfiguration, malicious input or untrusted plugins can damage the host. | M19 | P0 | not_started |
-| D5.2 | "Sandboxing, approvals and permissions reduce risk but do not guarantee isolation"; do not rely on it as the sole control for untrusted workloads. | M19 | P0 | not_started |
-| D5.3 | Responsible-use list: least privilege; disposable VM/container; keep backups; don't expose sensitive credentials; review plugins, config and proposed commands. | M19 | P0 | not_started |
-| D5.4 | No warranty / no liability paragraph referencing the license. | M1 | P0 | not_started |
-| D5.5 | Host sandbox failures rule (builder): if a required command fails because the dev sandbox blocks credentials/network/IPC, retry unchanged with the narrowest escalation, require evidence of the sandbox cause, and never bypass test failures or the product sandbox. | M0 | P0 | not_started |
+| D5.1 | Plain statement that the software executes model-generated code/commands, loads third-party plugins, and accesses network, processes, credentials and files; defects, misconfiguration, malicious input or untrusted plugins can damage the host. | M19 | P0 | verified |
+| D5.2 | "Sandboxing, approvals and permissions reduce risk but do not guarantee isolation"; do not rely on it as the sole control for untrusted workloads. | M19 | P0 | verified |
+| D5.3 | Responsible-use list: least privilege; disposable VM/container; keep backups; don't expose sensitive credentials; review plugins, config and proposed commands. | M19 | P0 | verified |
+| D5.4 | No warranty / no liability paragraph referencing the license. | M1 | P0 | verified |
+| D5.5 | Host sandbox failures rule (builder): if a required command fails because the dev sandbox blocks credentials/network/IPC, retry unchanged with the narrowest escalation, require evidence of the sandbox cause, and never bypass test failures or the product sandbox. | M0 | P0 | verified |
 | D6.1 | Pre-stable APIs: update every consumer when a public API changes; record each externally perceptible breaking change immediately in an upgrade guide; SQLite uses a monotonic `SCHEMA_VERSION`. | M0 | P1 | not_started |
 | D6.10 | Source plane vs artifact plane never mixed: tests/gates resolve imports to source and pass on a clean tree; gates that need built output declare that dependency. | M0 | P1 | not_started |
 | D6.11 | Structured, typed errors (`KeelError` with code); stop dependent work and visibly report untrusted state or unknown outcomes; empty `except` blocks must name the error and why and contain one statement. | M0 | P1 | not_started |
@@ -716,7 +716,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X4.5 | Video tooling via user-installed ffmpeg: frame extraction, audio extraction, subtitle generation from local STT | M17 | P2 | not_started |
 | X4.6 | Voice command grammar for app control ("approve", "deny", "stop everything") separate from free dictation; always requires a spoken confirmation for risky actions | M17 | P1 | not_started |
 | X4.7 | Audio privacy rules: no recording stored by default, visible recording state, per-meeting consent reminder text | M17 | P1 | not_started |
-| X5.1 | Sensitive-project mode | M3 | P0 | not_started |
+| X5.1 | Sensitive-project mode | M3 | P0 | verified |
 | X5.10 | Encrypted session/memory export bundles with passphrase, verified on import (signature + schema version) | M4 | P1 | not_started |
 | X5.11 | Provider data-handling card: for each configured remote provider, show what Keel sends (from the egress log) and a link to the user's own account settings; never claim anything about the provider's retention | M21 | P1 | not_started |
 | X5.12 | Dependency and model **allow/deny lists** in managed policy (specific MCP servers, plugin IDs, model files by hash) | M24 | P2 | not_started |
@@ -724,11 +724,11 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X5.2 | Data-classification labels on files and memories (public / internal / secret) that feed redaction and egress decisions | M3 | P1 | not_started |
 | X5.3 | Time-boxed and just-in-time permissions | M3 | P1 | not_started |
 | X5.4 | Capability tokens for subagents and plugins: short-lived, scoped, revocable, logged | M3 | P1 | not_started |
-| X5.5 | Mass-change guard | M3 | P0 | not_started |
-| X5.6 | Filesystem change journal per task so every touched path can be reviewed and reverted as a set | M5 | P0 | not_started |
+| X5.5 | Mass-change guard | M3 | P0 | verified |
+| X5.6 | Filesystem change journal per task so every touched path can be reviewed and reverted as a set | M5 | P0 | verified |
 | X5.7 | Permission review screen: every standing allow rule with last-used date, one-click prune of unused rules | M3 | P1 | not_started |
 | X5.8 | Per-tool sandbox profiles (read-only FS, no network, temp-only write) selectable in agent frontmatter | M5 | P1 | not_started |
-| X5.9 | Clipboard and screen guard: tools that read clipboard/screen always ask, and tainted-source rules apply to captured content | M3 | P1 | not_started |
+| X5.9 | Clipboard and screen guard: tools that read clipboard/screen always ask, and tainted-source rules apply to captured content | M3 | P1 | verified |
 | X6.1 | `keel dev` plugin scaffold generator, hot reload, and a **mock host** so plugins can be tested without the full app | M10 | P1 | not_started |
 | X6.10 | Feature-lifecycle labels (experimental / beta / stable) in UI and config, with experimental off by default | M3 | P1 | not_started |
 | X6.2 | Plugin test harness with golden event streams and permission-denial tests | M10 | P1 | not_started |
@@ -766,14 +766,14 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X8.7 | Selection actions: select text anywhere in Keel and "ask about this", "add to context", "save to vault" | M19 | P1 | not_started |
 | X8.8 | Thread tools: outline/minimap, pinned messages, jump-to-tool-call, timeline scrubber for long sessions | M19 | P1 | not_started |
 | X8.9 | Side-by-side **session compare** (two models, two branches, before/after) | M19 | P1 | not_started |
-| X9.1 | Fixture model server | M2 | P0 | not_started |
+| X9.1 | Fixture model server | M2 | P0 | verified |
 | X9.10 | Mutation testing report published into the private dashboard for the permission gate and command analyzer | M25 | P1 | not_started |
 | X9.2 | Record/replay (VCR-style) of real provider traffic with secrets scrubbed, for contract tests | M2 | P1 | not_started |
-| X9.3 | Provider contract tests: each adapter must pass the same behavior suite (streaming, cancel, tool call, usage, errors) | M2 | P0 | not_started |
+| X9.3 | Provider contract tests: each adapter must pass the same behavior suite (streaming, cancel, tool call, usage, errors) | M2 | P0 | verified |
 | X9.4 | MCP conformance tests against bundled sample servers (stdio and HTTP) including hostile servers (huge output, hanging, bad schema) | M6 | P1 | not_started |
-| X9.5 | Cross-platform path/permission matrix tests (Windows reserved names, ADS, long paths, case-insensitive FS, symlinks/junctions) | M3 | P0 | not_started |
+| X9.5 | Cross-platform path/permission matrix tests (Windows reserved names, ADS, long paths, case-insensitive FS, symlinks/junctions) | M3 | P0 | verified |
 | X9.6 | Pseudo-localization build and RTL smoke test in CI | M25 | P1 | not_started |
-| X9.7 | Migration matrix: every released schema version upgraded to current, with data checksums | M4 | P0 | not_started |
+| X9.7 | Migration matrix: every released schema version upgraded to current, with data checksums | M4 | P0 | verified |
 | X9.8 | Token-accounting accuracy test (estimated vs runtime-reported usage within tolerance) | M21 | P1 | not_started |
 | X9.9 | Long-session soak (thousands of events) watching memory, DB size, UI frame time | M25 | P1 | not_started |
 | Y1.1 | Code Mode / execute tool | M5 | P1 | not_started |
