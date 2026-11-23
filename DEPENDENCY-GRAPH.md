@@ -5,8 +5,8 @@
 
 ## 1. Provenance and scope
 
-- Registry: `C:\Users\Admin\Desktop\Claude clone\PLAN-INDEX.json` — SHA-256 `1267a8a7ff7f30c0ee157c9ab00f8d9bc97ccf92703615fba8529289a7bce5d2`.
-- Rows: **865** (status: verified 226, not_started 637, blocked 2).
+- Registry: `C:\Users\Admin\Desktop\Claude clone\PLAN-INDEX.json` — SHA-256 `56a0ac4d058a349836912b4a301b310472f91d7bb356a59b16dee58429e79592`.
+- Rows: **865** (status: verified 268, not_started 595, blocked 2).
 - Decomposition source: `C:\Users\Admin\Desktop\Claude clone\plan-extract\addendum3.json` if found, otherwise built-in X0.2/X0.2b labels.
 - Stated dependency references: **144**;
   **122** rows declare at least one dependency.
@@ -42,9 +42,9 @@ At canonical M-level (splits rolled up) the longest chain is **13 milestone-node
 Full-graph chain (dependency → dependent):
 
 1. **M14** — 15 rows in cycle/group (verified 9, not_started 6)
-2. **M19 ⟷ M2 ⟷ M20 ⟷ M21 ⟷ M25 ⟷ M3 ⟷ M4 ⟷ M5** — 333 rows in cycle/group (verified 71, not_started 262)
+2. **M19 ⟷ M2 ⟷ M20 ⟷ M21 ⟷ M25 ⟷ M3 ⟷ M4 ⟷ M5** — 333 rows in cycle/group (verified 106, not_started 227)
    - edge evidence: `C3.2` → `W2.4`
-3. **M7** — 56 rows in cycle/group (verified 13, not_started 43)
+3. **M7** — 56 rows in cycle/group (verified 16, not_started 40)
    - edge evidence: `C7.1` → `W1.13`
 4. **M0** — 61 rows in cycle/group (verified 6, not_started 55)
    - edge evidence: `D7.11` → `V19`
@@ -64,8 +64,8 @@ the bottleneck table ranks nodes by how many distinct groups depend on them.
 | Root node | Rows | Status mix | Directly blocks | Downstream reach |
 | :- | :-: | :- | :-: | :-: |
 | M1 | 11 | verified 3, not_started 6, blocked 2 | 1 | 1 |
-| M10 | 33 | verified 5, not_started 28 | 5 | 9 |
-| M11a core | 11 | verified 4, not_started 7 | 0 | 0 |
+| M10 | 33 | verified 7, not_started 26 | 5 | 9 |
+| M11a core | 11 | verified 5, not_started 6 | 0 | 0 |
 | M11b tools | 16 | verified 8, not_started 8 | 0 | 0 |
 | M12 | 31 | verified 9, not_started 22 | 1 | 5 |
 | M13 | 19 | verified 11, not_started 8 | 0 | 0 |
@@ -74,7 +74,7 @@ the bottleneck table ranks nodes by how many distinct groups depend on them.
 | M17b | 10 | verified 3, not_started 7 | 0 | 0 |
 | M17c | 2 | verified 1, not_started 1 | 0 | 0 |
 | M18 | 2 | verified 1, not_started 1 | 0 | 0 |
-| M19c review/diff/terminal docks | 6 | verified 1, not_started 5 | 0 | 0 |
+| M19c review/diff/terminal docks | 6 | verified 2, not_started 4 | 0 | 0 |
 | M19f polish/a11y/i18n | 8 | verified 1, not_started 7 | 0 | 0 |
 | M22 | 5 | verified 2, not_started 3 | 0 | 0 |
 | M22a | 37 | verified 9, not_started 28 | 2 | 2 |
@@ -84,17 +84,17 @@ the bottleneck table ranks nodes by how many distinct groups depend on them.
 
 | Bottleneck node | Rows | Status mix | Directly blocks | Downstream reach |
 | :- | :-: | :- | :-: | :-: |
-| M3 | 61 | verified 12, not_started 49 | 6 | 20 |
-| M2 | 52 | verified 12, not_started 40 | 5 | 20 |
-| M21 | 29 | verified 14, not_started 15 | 5 | 20 |
-| M10 | 33 | verified 5, not_started 28 | 5 | 9 |
-| M19 | 14 | verified 1, not_started 13 | 3 | 20 |
-| M4 | 50 | verified 4, not_started 46 | 3 | 20 |
-| M5 | 59 | verified 8, not_started 51 | 3 | 20 |
+| M3 | 61 | verified 16, not_started 45 | 6 | 20 |
+| M2 | 52 | verified 17, not_started 35 | 5 | 20 |
+| M21 | 29 | verified 15, not_started 14 | 5 | 20 |
+| M10 | 33 | verified 7, not_started 26 | 5 | 9 |
+| M19 | 14 | verified 2, not_started 12 | 3 | 20 |
+| M4 | 50 | verified 6, not_started 44 | 3 | 20 |
+| M5 | 59 | verified 27, not_started 32 | 3 | 20 |
 | M14 | 15 | verified 9, not_started 6 | 2 | 20 |
 | M20 | 40 | verified 12, not_started 28 | 2 | 20 |
-| M25 | 28 | verified 8, not_started 20 | 2 | 20 |
-| M7 | 56 | verified 13, not_started 43 | 2 | 4 |
+| M25 | 28 | verified 11, not_started 17 | 2 | 20 |
+| M7 | 56 | verified 16, not_started 40 | 2 | 4 |
 | M22a | 37 | verified 9, not_started 28 | 2 | 2 |
 | M12 | 31 | verified 9, not_started 22 | 1 | 5 |
 | M0 | 61 | verified 6, not_started 55 | 1 | 2 |
@@ -205,8 +205,8 @@ edge labels are the contributing row dependency IDs.
 ## 6. Readiness gate (X0.3)
 
 X0.3 says a builder may not start a row whose dependencies are not green.
-- `not_started` rows that declare dependencies: **122**.
-- Of those, rows with at least one dependency not `verified`: **72**.
+- `not_started` rows that declare dependencies: **116**.
+- Of those, rows with at least one dependency not `verified`: **65**.
 - Rows depending on a `blocked` row: **1**.
 
 | Not-started row | Node | Unmet dependency | Dependency status |
@@ -222,12 +222,7 @@ X0.3 says a builder may not start a row whose dependencies are not green.
 | D7.14 | M25 | W1.5 | not_started |
 | D7.14 | M25 | X9.1 | not_started |
 | D7.14 | M25 | X9.2 | not_started |
-| E1.18 | M5 | Y1.7 | not_started |
-| E1.5 | M3 | W3.x | unresolved token |
-| E1.9 | M5 | V24 | not_started |
 | E3.7 | M12 | V8 | not_started |
-| E4.1 | M10 | V1 | not_started |
-| E4.12 | M10 | V15 | not_started |
 | E5.5 | M10 | D1.11 | not_started |
 | E7.13 | M4 | E4.4 | not_started |
 | E7.20 | M3 | V5 | not_started |
@@ -246,10 +241,8 @@ X0.3 says a builder may not start a row whose dependencies are not green.
 | V24 | M5 | E2.x | unresolved token |
 | V27 | M22a | E5.14 | not_started |
 | V27 | M22a | E5.15 | not_started |
-| V28 | M23 | E1.14 | not_started |
 | V28 | M23 | E6.11 | not_started |
 | V3 | M3 | X5.7 | not_started |
-| V30 | M0 | E4.9 | not_started |
 | V4 | M19b chat/composer | W3.9 | not_started |
 | V4 | M19b chat/composer | Y2.7 | not_started |
 | V9 | M15 | W7.17 | not_started |
@@ -278,7 +271,6 @@ X0.3 says a builder may not start a row whose dependencies are not green.
 | Y1.13 | M11b tools | X2.6 | not_started |
 | Y1.15 | M17 | Y5.2 | not_started |
 | Y1.19 | M2 | X6.8 | not_started |
-| Y1.2 | M5 | X1.4 | not_started |
 | Y1.29 | M10 | G7 | unresolved token |
 | Y1.33 | M5 | X6.10 | not_started |
 | Y1.37 | M22c | X0.5 | not_started |
