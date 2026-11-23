@@ -2,6 +2,23 @@
 
 Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 closed. Master Plan v5 remains incomplete; only explicitly available v5 requirements are used.
 
+> **ADDENDA 3–7 OPERATION AMENDMENT (2026-11-23) — read this first.**
+> The registry has been reconciled from **all eight** uploaded specification documents
+> (base + addenda 1–7): **865 features** total (228 base + 637 from addenda 3–7).
+> `PLAN-INDEX.json` schema v2, `parity.json`, the generated v6 plan and the final matrix
+> all reflect 865 rows. P0 was re-ranked to 27.7% per Addendum 3 X0.1 (original values
+> retained in `original_priority`). 34 Addendum 7 tool-contract features were implemented
+> and verified (`tool_contracts.py`, 60 tests, native conformance 47 tools / 0 problems).
+> Governance artifacts: `DECISIONS.md` (35 decisions), `FREE-TIER-REGISTER.md` (43 rows),
+> `MODEL-AND-VOICE-LICENSES.json` (11 entries + fail-closed CI gate), `RISKS.md`,
+> `DEPENDENCY-GRAPH.md`, `REMAINING-WORK-MATRIX.md`, five clean-room reference behavior
+> specs. Six clean-room reference repositories were freshly cloned under
+> `research/references/`; DeepSeek verification found 2 contradicted and 7 unverifiable
+> addendum claims, recorded as registry `known_limitations`. Offline CI lane + license
+> gate added; offline runtime tests pass. A further 7 P0 features (X1.1–X1.5, X1.7–X1.8,
+> X1.13) are being implemented in parallel agent workstreams. Status: see
+> `../ADDENDA-OPERATION-STATUS.md`. Do not treat the 603 `not_started` rows as verified.
+>
 > **FINAL-STATE AMENDMENT (2026-11-23) — read this before the historical batches below.**
 > The batch narrative that follows is a v5-era log kept for provenance; several of its
 > global statements were true when written but are false for the final verified state.
