@@ -92,6 +92,15 @@ def invoke(cap_id: str, params: dict | None = None, *,
             f"permission {cap.permission!r} required for {cap_id}",
             code="permission_denied")
     context = context or {}
+    # Defense in depth: the default permission set is allow-all. A privileged
+    # capability invoked without an explicit permission grant must carry an
+    # explicit confirmation, matching the gate used by the web/TUI/CLI surfaces.
+    if (allowed_permissions is None
+            and cap.permission in ("write", "execute")
+            and context.get("confirm") is not True):
+        raise CapabilityError(
+            f"confirmation required for privileged capability {cap_id}",
+            code="permission_denied")
     # Saved execution policies bind the capability surface too: a capability
     # carrying a command or URL is checked before its handler runs.
     from .policy_enforcement import enforce as _enforce_policy
