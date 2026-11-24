@@ -149,3 +149,36 @@ The five `unverified` and two `blocked` gates are named with the exact artifact 
 owner action needed to close them. Nothing in these six documents should be read as a
 claim that Keel `e573273` is a production-ready release: on the evidence available it
 is not.
+
+## FINAL PROMOTION DECISION — NOT PROMOTED TO MAIN
+
+Authoritative candidate: `release/backend-production-readiness-2026-11-24-v2`
+(frontend from concurrent user work was excluded; the earlier candidate branch remains
+untouched). `origin/main` was not modified and remains `ecba9d2b9678ab7a3a744c62683eea28a1ce01ee`.
+
+Independent release acceptance (`FINAL-RELEASE-ACCEPTANCE.md`) returned **BLOCK**. Its
+scope and temp-artifact findings were closed in v2; its matrix finding stands:
+
+| Classification | Count | Gates |
+|---|---:|---|
+| pass | 13 | PR-01..05, 07, 08, 10..13, 15, 18 |
+| unverified | 5 | PR-06 live providers, PR-09 rollback drill, PR-14 credential revocation, PR-16 clean setup, PR-17 upgrade/recovery |
+| blocked | 2 | PR-19 native Linux/macOS + macOS 26 read isolation, PR-20 governance/signing/release authorization |
+| production_verified | 0 | no deployed production instance or live evidence |
+
+The mission rule says a gate marked `unverified` or `blocked` forbids promotion. Therefore
+**main was NOT modified**. No force-push, no visibility/license change, no paid service,
+no credentials, no history rewrite.
+
+Verdict: **IMPLEMENTATION PRODUCTION-HARDENED — PROMOTION BLOCKED BY UNVERIFIED MANDATORY GATES**.
+
+What remains to authorize promotion: free/native Linux and macOS runner execution (macOS
+read isolation currently blocked by `sandbox-exec` SIGABRT), a disposable free-tier provider
+credential for live smoke tests, a clean-VM upgrade/rollback drill, a real credential-revocation
+round trip, clean-environment setup evidence, a signed installer and owner release authorization,
+and remote branch protection on a plan that supports it (currently GitHub Free private repo
+cannot enforce it — documented owner exception, not bypassed).
+
+All internally actionable HIGH/MEDIUM findings from the architecture, security, database,
+reliability, provider, tool, MCP, API, platform, performance, observability, supply-chain,
+and requirement audits were fixed with failing-then-passing regression tests and re-reviewed.
