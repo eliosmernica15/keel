@@ -1,0 +1,876 @@
+{
+  "generatedAt": "2026-11-24T00:09:43.310Z",
+  "app": "fleet-next",
+  "summary": {
+    "info": 1,
+    "pass": 11,
+    "skipped": 4
+  },
+  "inventory": {
+    "sourceFiles": [
+      "fleet-next/app/api/bridge/[...path]/route.ts",
+      "fleet-next/app/layout.tsx",
+      "fleet-next/app/manifest.ts",
+      "fleet-next/app/page.tsx",
+      "fleet-next/components/ErrorBoundary.tsx",
+      "fleet-next/components/icons.tsx",
+      "fleet-next/components/PwaRegister.tsx",
+      "fleet-next/components/ui.tsx",
+      "fleet-next/features/capabilities/Capabilities.tsx",
+      "fleet-next/features/capabilities/capabilitiesShared.tsx",
+      "fleet-next/features/capabilities/McpPanel.tsx",
+      "fleet-next/features/capabilities/SkillsPanel.tsx",
+      "fleet-next/features/capabilities/ToolsCommandsPanel.tsx",
+      "fleet-next/features/capabilities/WorkflowsExtensionsPanel.tsx",
+      "fleet-next/features/code/Code.tsx",
+      "fleet-next/features/code/workspace.tsx",
+      "fleet-next/features/cowork/Composer.tsx",
+      "fleet-next/features/cowork/Cowork.tsx",
+      "fleet-next/features/cowork/Markdown.tsx",
+      "fleet-next/features/cowork/shared.ts",
+      "fleet-next/features/cowork/Timeline.tsx",
+      "fleet-next/features/cowork/WorkLog.tsx",
+      "fleet-next/features/duet/Duet.tsx",
+      "fleet-next/features/fleet/Activity.tsx",
+      "fleet-next/features/fleet/AgentDetails.tsx",
+      "fleet-next/features/fleet/Agents.tsx",
+      "fleet-next/features/fleet/Audit.tsx",
+      "fleet-next/features/fleet/Bits.tsx",
+      "fleet-next/features/fleet/Fleet.tsx",
+      "fleet-next/features/fleet/Groups.tsx",
+      "fleet-next/features/fleet/Library.tsx",
+      "fleet-next/features/fleet/Routines.tsx",
+      "fleet-next/features/fleet/support.ts",
+      "fleet-next/features/fleet/Tasks.tsx",
+      "fleet-next/features/onboarding/Onboarding.tsx",
+      "fleet-next/features/onboarding/progress.ts",
+      "fleet-next/features/onboarding/SetupChecklist.tsx",
+      "fleet-next/features/settings/PreferencesSettings.tsx",
+      "fleet-next/features/settings/ProvidersSettings.tsx",
+      "fleet-next/features/settings/SecuritySettings.tsx",
+      "fleet-next/features/settings/Settings.tsx",
+      "fleet-next/features/settings/settingsShared.tsx",
+      "fleet-next/features/settings/SystemSettings.tsx",
+      "fleet-next/lib/api.ts",
+      "fleet-next/lib/client.ts",
+      "fleet-next/lib/state.tsx",
+      "fleet-next/lib/types.ts",
+      "fleet-next/next-env.d.ts",
+      "fleet-next/next.config.mjs"
+    ],
+    "cssFiles": [
+      "fleet-next/app/globals.css",
+      "fleet-next/app/ui.css",
+      "fleet-next/features/capabilities/capabilities.module.css",
+      "fleet-next/features/code/code.module.css",
+      "fleet-next/features/code/workspace.module.css",
+      "fleet-next/features/cowork/cowork.module.css",
+      "fleet-next/features/duet/duet.module.css",
+      "fleet-next/features/fleet/fleet.module.css",
+      "fleet-next/features/onboarding/onboarding.module.css",
+      "fleet-next/features/settings/settings.module.css"
+    ]
+  },
+  "frontendEndpoints": [
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\features\\code\\workspace.tsx",
+      "line": 1074,
+      "raw": "/api/fleet/shells",
+      "path": "/api/fleet/shells",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\features\\fleet\\support.ts",
+      "line": 397,
+      "raw": "/api/bridge/events",
+      "path": "/api/fleet/events",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\features\\fleet\\Tasks.tsx",
+      "line": 91,
+      "raw": "tasks/${id}/assign",
+      "path": "/api/fleet/tasks/*/assign",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\features\\settings\\SystemSettings.tsx",
+      "line": 85,
+      "raw": "mcp/health",
+      "path": "/api/fleet/mcp/health",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 44,
+      "raw": "bots",
+      "path": "/api/fleet/bots",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 45,
+      "raw": "bots/${id}/rows",
+      "path": "/api/fleet/bots/*/rows",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 46,
+      "raw": "bots",
+      "path": "/api/fleet/bots",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 47,
+      "raw": "bots/${id}/update",
+      "path": "/api/fleet/bots/*/update",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 48,
+      "raw": "bots/${id}/delete",
+      "path": "/api/fleet/bots/*/delete",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 49,
+      "raw": "bots/${id}/fork",
+      "path": "/api/fleet/bots/*/fork",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 50,
+      "raw": "bots/${id}/messages",
+      "path": "/api/fleet/bots/*/messages",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 51,
+      "raw": "bots/${id}/cancel",
+      "path": "/api/fleet/bots/*/cancel",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 54,
+      "raw": "bots/${id}/approvals/${approvalId}/decide",
+      "path": "/api/fleet/bots/*/approvals/*/decide",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 56,
+      "raw": "bots/${id}/asks/${askId}/answer",
+      "path": "/api/fleet/bots/*/asks/*/answer",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 57,
+      "raw": "bots/${id}/rewind",
+      "path": "/api/fleet/bots/*/rewind",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 58,
+      "raw": "bots/${id}/restore",
+      "path": "/api/fleet/bots/*/restore",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 59,
+      "raw": "bots/${id}/policies",
+      "path": "/api/fleet/bots/*/policies",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 60,
+      "raw": "bots/${id}/audit?limit=${limit}",
+      "path": "/api/fleet/bots/*/audit",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 62,
+      "raw": "bots/${id}/policies/revoke",
+      "path": "/api/fleet/bots/*/policies/revoke",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 65,
+      "raw": "groups",
+      "path": "/api/fleet/groups",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 66,
+      "raw": "groups",
+      "path": "/api/fleet/groups",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 67,
+      "raw": "groups/${id}",
+      "path": "/api/fleet/groups/*",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 68,
+      "raw": "groups/${id}/rows",
+      "path": "/api/fleet/groups/*/rows",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 70,
+      "raw": "groups/${id}/messages",
+      "path": "/api/fleet/groups/*/messages",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 71,
+      "raw": "groups/${id}/delete",
+      "path": "/api/fleet/groups/*/delete",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 74,
+      "raw": "providers",
+      "path": "/api/fleet/providers",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 75,
+      "raw": "providers/catalog",
+      "path": "/api/fleet/providers/catalog",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 76,
+      "raw": "providers/credential",
+      "path": "/api/fleet/providers/credential",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 77,
+      "raw": "providers/credential/clear",
+      "path": "/api/fleet/providers/credential/clear",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 78,
+      "raw": "providers/save",
+      "path": "/api/fleet/providers/save",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 79,
+      "raw": "providers/remove",
+      "path": "/api/fleet/providers/remove",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 82,
+      "raw": "projects",
+      "path": "/api/fleet/projects",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 83,
+      "raw": "projects",
+      "path": "/api/fleet/projects",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 84,
+      "raw": "projects/${id}/trust",
+      "path": "/api/fleet/projects/*/trust",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 85,
+      "raw": "projects/${id}/remove",
+      "path": "/api/fleet/projects/*/remove",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 86,
+      "raw": "projects/${id}/open",
+      "path": "/api/fleet/projects/*/open",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 87,
+      "raw": "projects/${id}/chat",
+      "path": "/api/fleet/projects/*/chat",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 88,
+      "raw": "projects/${id}/tree",
+      "path": "/api/fleet/projects/*/tree",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 89,
+      "raw": "projects/${id}/file/read?path=${encodeURIComponent(path)}",
+      "path": "/api/fleet/projects/*/file/read",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 91,
+      "raw": "projects/${id}/file/write",
+      "path": "/api/fleet/projects/*/file/write",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 92,
+      "raw": "projects/${id}/review",
+      "path": "/api/fleet/projects/*/review",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 94,
+      "raw": "projects/${id}/terminal/exec",
+      "path": "/api/fleet/projects/*/terminal/exec",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 96,
+      "raw": "projects/${id}/model",
+      "path": "/api/fleet/projects/*/model",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 99,
+      "raw": "shells",
+      "path": "/api/fleet/shells",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 100,
+      "raw": "shells/${handle}/output",
+      "path": "/api/fleet/shells/*/output",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 101,
+      "raw": "shells/${handle}/kill",
+      "path": "/api/fleet/shells/*/kill",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 102,
+      "raw": "shells/clear/finished",
+      "path": "/api/fleet/shells/clear/finished",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 105,
+      "raw": "tasks",
+      "path": "/api/fleet/tasks",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 106,
+      "raw": "tasks",
+      "path": "/api/fleet/tasks",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 107,
+      "raw": "tasks/${id}/update",
+      "path": "/api/fleet/tasks/*/update",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 108,
+      "raw": "tasks/${id}/undo",
+      "path": "/api/fleet/tasks/*/undo",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 109,
+      "raw": "tasks/${id}/delete",
+      "path": "/api/fleet/tasks/*/delete",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 110,
+      "raw": "tasks/reorder",
+      "path": "/api/fleet/tasks/reorder",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 111,
+      "raw": "routines",
+      "path": "/api/fleet/routines",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 112,
+      "raw": "routines",
+      "path": "/api/fleet/routines",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 113,
+      "raw": "routines/${id}",
+      "path": "/api/fleet/routines/*",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 114,
+      "raw": "routines/${id}/runs",
+      "path": "/api/fleet/routines/*/runs",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 116,
+      "raw": "routines/${id}/${action}",
+      "path": "/api/fleet/routines/*/*",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 117,
+      "raw": "routines/${id}/run",
+      "path": "/api/fleet/routines/*/run",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 118,
+      "raw": "tasks/${id}/events",
+      "path": "/api/fleet/tasks/*/events",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 119,
+      "raw": "library",
+      "path": "/api/fleet/library",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 120,
+      "raw": "library",
+      "path": "/api/fleet/library",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 121,
+      "raw": "library/${id}/delete",
+      "path": "/api/fleet/library/*/delete",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 124,
+      "raw": "skills",
+      "path": "/api/fleet/skills",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 125,
+      "raw": "skills/manage",
+      "path": "/api/fleet/skills/manage",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 126,
+      "raw": "skills/install",
+      "path": "/api/fleet/skills/install",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 127,
+      "raw": "skills/remove",
+      "path": "/api/fleet/skills/remove",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 128,
+      "raw": "skills/enable",
+      "path": "/api/fleet/skills/enable",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 129,
+      "raw": "commands",
+      "path": "/api/fleet/commands",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 130,
+      "raw": "commands/execute",
+      "path": "/api/fleet/commands/execute",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 131,
+      "raw": "workflows",
+      "path": "/api/fleet/workflows",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 132,
+      "raw": "workflows/execute",
+      "path": "/api/fleet/workflows/execute",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 133,
+      "raw": "mcp/servers",
+      "path": "/api/fleet/mcp/servers",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 134,
+      "raw": "mcp/health",
+      "path": "/api/fleet/mcp/health",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 135,
+      "raw": "connectors",
+      "path": "/api/fleet/connectors",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 136,
+      "raw": "connectors/add",
+      "path": "/api/fleet/connectors/add",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 137,
+      "raw": "connectors/remove",
+      "path": "/api/fleet/connectors/remove",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 138,
+      "raw": "connectors/test",
+      "path": "/api/fleet/connectors/test",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 141,
+      "raw": "usage",
+      "path": "/api/fleet/usage",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 144,
+      "raw": "keep-awake",
+      "path": "/api/fleet/keep-awake",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 145,
+      "raw": "keep-awake",
+      "path": "/api/fleet/keep-awake",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 2,
+      "raw": "/api/bridge/*",
+      "path": "/api/fleet/*",
+      "method": "GET"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\lib\\api.ts",
+      "line": 154,
+      "raw": "/api/bridge/events",
+      "path": "/api/fleet/events",
+      "method": "GET"
+    }
+  ],
+  "results": [
+    {
+      "id": "INV-01",
+      "check": "Source inventory",
+      "status": "info",
+      "detail": "49 source files, 10 css files discovered",
+      "evidence": [
+        "fleet-next/app/api/bridge/[...path]/route.ts",
+        "fleet-next/app/globals.css",
+        "fleet-next/app/layout.tsx",
+        "fleet-next/app/manifest.ts",
+        "fleet-next/app/page.tsx",
+        "fleet-next/app/ui.css",
+        "fleet-next/components/ErrorBoundary.tsx",
+        "fleet-next/components/icons.tsx",
+        "fleet-next/components/PwaRegister.tsx",
+        "fleet-next/components/ui.tsx",
+        "fleet-next/features/capabilities/capabilities.module.css",
+        "fleet-next/features/capabilities/Capabilities.tsx",
+        "fleet-next/features/capabilities/capabilitiesShared.tsx",
+        "fleet-next/features/capabilities/McpPanel.tsx",
+        "fleet-next/features/capabilities/SkillsPanel.tsx",
+        "fleet-next/features/capabilities/ToolsCommandsPanel.tsx",
+        "fleet-next/features/capabilities/WorkflowsExtensionsPanel.tsx",
+        "fleet-next/features/code/code.module.css",
+        "fleet-next/features/code/Code.tsx",
+        "fleet-next/features/code/workspace.module.css",
+        "fleet-next/features/code/workspace.tsx",
+        "fleet-next/features/cowork/Composer.tsx",
+        "fleet-next/features/cowork/cowork.module.css",
+        "fleet-next/features/cowork/Cowork.tsx",
+        "fleet-next/features/cowork/Markdown.tsx",
+        "fleet-next/features/cowork/shared.ts",
+        "fleet-next/features/cowork/Timeline.tsx",
+        "fleet-next/features/cowork/WorkLog.tsx",
+        "fleet-next/features/duet/duet.module.css",
+        "fleet-next/features/duet/Duet.tsx",
+        "fleet-next/features/fleet/Activity.tsx",
+        "fleet-next/features/fleet/AgentDetails.tsx",
+        "fleet-next/features/fleet/Agents.tsx",
+        "fleet-next/features/fleet/Audit.tsx",
+        "fleet-next/features/fleet/Bits.tsx",
+        "fleet-next/features/fleet/fleet.module.css",
+        "fleet-next/features/fleet/Fleet.tsx",
+        "fleet-next/features/fleet/Groups.tsx",
+        "fleet-next/features/fleet/Library.tsx",
+        "fleet-next/features/fleet/Routines.tsx",
+        "fleet-next/features/fleet/support.ts",
+        "fleet-next/features/fleet/Tasks.tsx",
+        "fleet-next/features/onboarding/onboarding.module.css",
+        "fleet-next/features/onboarding/Onboarding.tsx",
+        "fleet-next/features/onboarding/progress.ts",
+        "fleet-next/features/onboarding/SetupChecklist.tsx",
+        "fleet-next/features/settings/PreferencesSettings.tsx",
+        "fleet-next/features/settings/ProvidersSettings.tsx",
+        "fleet-next/features/settings/SecuritySettings.tsx",
+        "fleet-next/features/settings/settings.module.css",
+        "fleet-next/features/settings/Settings.tsx",
+        "fleet-next/features/settings/settingsShared.tsx",
+        "fleet-next/features/settings/SystemSettings.tsx",
+        "fleet-next/lib/api.ts",
+        "fleet-next/lib/client.ts",
+        "fleet-next/lib/state.tsx",
+        "fleet-next/lib/types.ts",
+        "fleet-next/next-env.d.ts",
+        "fleet-next/next.config.mjs"
+      ]
+    },
+    {
+      "id": "API-00",
+      "check": "Backend route vocabulary extracted",
+      "status": "pass",
+      "detail": "32 exact route lists from src/keel/fleet/routes.py, src/keel/webapp.py",
+      "evidence": []
+    },
+    {
+      "id": "API-01",
+      "check": "Every frontend bridge call maps to a backend route",
+      "status": "pass",
+      "detail": "83 call sites inspected; 0 unmapped endpoints",
+      "evidence": []
+    },
+    {
+      "id": "API-02",
+      "check": "Frontend HTTP methods have a matching backend dispatcher",
+      "status": "pass",
+      "detail": "all endpoint methods map to dispatch_get / dispatch_post vocabulary",
+      "evidence": []
+    },
+    {
+      "id": "FAB-01",
+      "check": "No placeholder / fabricated-data patterns in source",
+      "status": "pass",
+      "detail": "0 matches across scanned source files",
+      "evidence": []
+    },
+    {
+      "id": "A11Y-01",
+      "check": "Accessible names on buttons / dialogs / images; no positive tabindex",
+      "status": "pass",
+      "detail": "0 static violations",
+      "evidence": []
+    },
+    {
+      "id": "A11Y-02",
+      "check": "Inputs have labels (static heuristics)",
+      "status": "pass",
+      "detail": "all inputs carry aria-label / aria-labelledby / id",
+      "evidence": []
+    },
+    {
+      "id": "A11Y-03",
+      "check": "Theme applied via data-theme",
+      "status": "pass",
+      "detail": "data-theme found",
+      "evidence": []
+    },
+    {
+      "id": "A11Y-04",
+      "check": "prefers-reduced-motion hook present",
+      "status": "pass",
+      "detail": "prefers-reduced-motion found",
+      "evidence": []
+    },
+    {
+      "id": "A11Y-05",
+      "check": "Decorative icons marked aria-hidden",
+      "status": "pass",
+      "detail": "aria-hidden used",
+      "evidence": []
+    },
+    {
+      "id": "RESP-01",
+      "check": "No fixed width/min-width likely to overflow a 360px viewport",
+      "status": "pass",
+      "detail": "no risky fixed widths outside @media",
+      "evidence": []
+    },
+    {
+      "id": "LIVE-01",
+      "check": "Read-only bridge GET endpoints respond (real HTTP)",
+      "status": "pass",
+      "detail": "11 endpoint(s) probed; 0 anomalous",
+      "evidence": [
+        {
+          "path": "bots",
+          "status": 200
+        },
+        {
+          "path": "providers",
+          "status": 200
+        },
+        {
+          "path": "projects",
+          "status": 200
+        },
+        {
+          "path": "shells",
+          "status": 200
+        },
+        {
+          "path": "tasks",
+          "status": 200
+        },
+        {
+          "path": "routines",
+          "status": 200
+        },
+        {
+          "path": "library",
+          "status": 200
+        },
+        {
+          "path": "skills",
+          "status": 200
+        },
+        {
+          "path": "connectors",
+          "status": 200
+        },
+        {
+          "path": "usage",
+          "status": 200
+        },
+        {
+          "path": "keep-awake",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "E2E-01",
+      "check": "Playwright end-to-end flows",
+      "status": "skipped",
+      "detail": "Playwright is not installed (no node_modules, not in package.json)",
+      "evidence": []
+    },
+    {
+      "id": "VIS-01",
+      "check": "Visual regression screenshots at 6 viewports",
+      "status": "skipped",
+      "detail": "no browser / no Playwright; static CSS review only",
+      "evidence": []
+    },
+    {
+      "id": "A11Y-06",
+      "check": "Runtime a11y tree / keyboard walkthrough / contrast",
+      "status": "skipped",
+      "detail": "static source analysis cannot compute computed styles or focus order",
+      "evidence": []
+    },
+    {
+      "id": "PERF-01",
+      "check": "Runtime virtualization / streaming re-render profiling",
+      "status": "skipped",
+      "detail": "requires a running browser with a live bridge",
+      "evidence": []
+    }
+  ]
+}
