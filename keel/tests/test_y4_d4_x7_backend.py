@@ -32,6 +32,19 @@ class Y4D4X7BehaviorCoverageTests(unittest.TestCase):
     asserted, so a no-op implementation fails the test.
     """
 
+    def test_y4_unknown_removal_keys_are_reported(self):
+        """Operator precedence must not hide keys outside the contract."""
+        issues = m.verify_clean_removal(set(), {"totally-unknown"})
+        self.assertTrue(issues)
+        self.assertTrue(any(i.code == "unknown_removal" and
+                            i.location == "totally-unknown" for i in issues))
+        # A contract key removed while still registered is also reported.
+        keys = {op["key"] for op in m.association_registration_plan()}
+        if keys:
+            contract_key = sorted(keys)[0]
+            issues2 = m.verify_clean_removal({contract_key}, set())
+            self.assertTrue(any(i.code == "association_left_behind" for i in issues2))
+
     def test_y4_d4_x7_all_31_ids_execute_real_behavior(self):
         # Every entry calls the real function/class that FEATURE_BEHAVIORS maps
         # the ID to, with concrete inputs, and returns a value we pin exactly.

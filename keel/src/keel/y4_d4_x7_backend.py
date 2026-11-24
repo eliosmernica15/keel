@@ -1264,13 +1264,21 @@ def association_removal_plan() -> tuple[dict, ...]:
 
 def verify_clean_removal(registered: Iterable[str],
                          removed: Iterable[str]) -> tuple[Issue, ...]:
+    # Expected association keys form the registration contract. Report both
+    # contract keys that were removed without being registered and keys that
+    # are not part of the contract at all; the previous expression
+    # `rem & expected - reg & expected` grouped left-to-right and silently hid
+    # every unknown removal key.
     expected = {op["key"] for op in association_registration_plan()}
     reg, rem = set(registered), set(removed)
     return _issues(
         [Issue("association_left_behind", key, "registration was not removed")
          for key in sorted(reg - rem)]
         + [Issue("unexpected_removal", key, "removed key was never registered")
-           for key in sorted(rem & expected - reg & expected)]
+           for key in sorted((rem - reg) & expected)]
+        + [Issue("unknown_removal", key,
+                 "removed key is not part of the registration contract")
+           for key in sorted(rem - expected)]
     )
 
 

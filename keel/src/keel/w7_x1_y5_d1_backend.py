@@ -732,7 +732,15 @@ def bounded_multipart(parts: list[tuple[str, bytes]], *, max_part_bytes: int = 1
 
 def cap_recording(events: list[dict], *, max_events: int = 500,
                   max_bytes: int = 1_000_000) -> list[dict]:
-    """W7.11: cap a recording by event count and serialized byte size."""
+    """W7.11: cap a recording by event count and serialized byte size.
+
+    Invalid (negative) bounds are rejected: a negative ``max_events`` used to
+    silently slice ``events[:-1]`` and report a partial recording as complete.
+    """
+    if max_events < 0 or max_bytes < 0:
+        raise BackendError(
+            f"recording bounds must be non-negative: max_events={max_events}, "
+            f"max_bytes={max_bytes}")
     kept: list[dict] = []
     size = 0
     for event in events[:max_events]:

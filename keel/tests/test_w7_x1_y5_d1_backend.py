@@ -685,3 +685,13 @@ def test_y3_8_browser_bound_pairing():
         "BrowserBoundSignIn", "bind_pairing", "complete_pairing")
     assert hasattr(m.BrowserBoundSignIn, "bind_pairing")
     assert hasattr(m.BrowserBoundSignIn, "complete_pairing")
+
+
+    def test_w7_11_cap_recording_rejects_negative_bounds(self):
+        """A negative bound must not silently cap/truncate a recording."""
+        for kwargs in ({"max_events": -1}, {"max_bytes": -1},
+                       {"max_events": -3, "max_bytes": -5}):
+            with self.assertRaises(m.BackendError) as ctx:
+                m.cap_recording([{"n": 1}, {"n": 2}], **kwargs)
+            self.assertIn("non-negative", str(ctx.exception))
+
