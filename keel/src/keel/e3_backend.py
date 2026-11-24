@@ -973,8 +973,13 @@ class SubagentManager:
         if not isinstance(capabilities, ProviderCapabilities):
             raise E3ValidationError("capabilities must be ProviderCapabilities")
         record = ProviderRecord(capabilities)
-        self.providers[record.capabilities.provider_id] = record
-        self._emit(LifecycleKind.PROVIDER_ADDED, None, None, record.capabilities.provider_id)
+        provider_id = record.capabilities.provider_id
+        if provider_id in self.providers:
+            # Fail closed: never silently clobber an existing provider (e.g. the
+            # built-in ``local`` one and its capabilities).
+            raise E3ValidationError("provider %s is already registered" % provider_id)
+        self.providers[provider_id] = record
+        self._emit(LifecycleKind.PROVIDER_ADDED, None, None, provider_id)
         return record
 
     def unregister_provider(self, provider_id: str) -> None:
@@ -1175,6 +1180,10 @@ class SubagentManager:
         if act.status in (ActivationStatus.SETTLED, ActivationStatus.CLOSED):
             raise AlreadySettled("activation %s is already settled" % activation_id)
         reason = parse_stop_reason(stop_reason)
+        if reason is StopReason.ERROR and error is None:
+            # Fail closed: an ERROR settlement without an error produces a
+            # blank diagnostic rather than a meaningful typed failure.
+            raise E3ValidationError("settle with ERROR stop_reason requires an error")
         if error is not None or reason is StopReason.ERROR:
             result = child_failure_to_result(error)
         else:

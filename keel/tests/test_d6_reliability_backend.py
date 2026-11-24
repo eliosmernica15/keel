@@ -395,6 +395,15 @@ def test_docstring_audit_reports_missing_args_returns_and_budget():
         d6.assert_documented("def public():\n    pass\n", "bad.py")
 
 
+def test_blank_module_docstring_yields_one_finding():
+    for source in ('"""   """\n', "def public():\n    pass\n"):
+        findings = d6.audit_docstrings(source, "m.py")
+        module_findings = [f for f in findings if f.symbol == "<module>"]
+        assert len(module_findings) == 1, findings
+        assert module_findings[0].problem == "missing_docstring"
+        assert module_findings[0].kind == "module"
+
+
 def test_restating_comments_are_flagged():
     assert d6.find_restating_comments("x = 1  # x = 1\n", "m.py")[0].problem \
         == "restating_comment"

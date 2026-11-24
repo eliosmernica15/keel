@@ -2098,7 +2098,7 @@ class AuthFlowRegistry:
         if key not in self._active:
             raise ConflictError("no active attempt")
         ref = _text(credential_ref, "credential_ref")
-        if _SECRET_RE.search(ref):
+        if _SECRET_RE.search(ref) or _SECRET_ASSIGN_RE.search(ref):
             raise ValidationError("store an opaque reference, not a credential value")
         result = FlowResult(key, self._active.pop(key), ref)
         self._results[key] = result
@@ -2622,14 +2622,16 @@ class Workflow:
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "nodes", _as_tuple(self.nodes, "nodes"))
+        # Validate node types first: reading ``node_id`` off a malformed entry
+        # would otherwise raise AttributeError instead of the typed error.
+        for node in self.nodes:
+            if not isinstance(node, WorkflowNode):
+                raise ValidationError("workflow nodes must be WorkflowNode")
         ids = [n.node_id for n in self.nodes]
         if len(ids) != len(set(ids)):
             raise ValidationError("duplicate workflow node id")
         if any(n.node_id == n.target for n in self.nodes):
             raise ValidationError("self-referential workflow node")
-        for node in self.nodes:
-            if not isinstance(node, WorkflowNode):
-                raise ValidationError("workflow nodes must be WorkflowNode")
 
 
 @dataclass(frozen=True)

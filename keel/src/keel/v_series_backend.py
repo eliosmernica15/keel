@@ -97,7 +97,7 @@ _SECRET_PATTERNS = (
     re.compile(r"sk-[A-Za-z0-9_\-]{12,}"),
     re.compile(r"gh[pousr]_[A-Za-z0-9_\-]{12,}"),
     re.compile(r"xox[baprs]-[A-Za-z0-9_\-]{12,}"),
-    re.compile(r"(?i)\b(api[_-]?key|access[_-]?token|token|secret|password)\b\s*[:=]\s*\S+"),
+    re.compile(r"(?i)\b(api[_-]?key|access[_-]?token|token|secret|password)\b\s*[:=]\s*[^\n]*"),
 )
 
 
@@ -647,21 +647,30 @@ class WorktreeLock:
 
     def __init__(self) -> None:
         self._held: dict[str, str] = {}
+        self._tokens: dict[str, str] = {}
+        self._sequence = 0
 
     def acquire(self, path: str, owner: str) -> str:
         key = _as_str(path, "worktree path")
         who = _as_str(owner, "owner")
         if key in self._held:
             raise ContractValidationError("worktree already owned by %s" % self._held[key])
+        self._sequence += 1
+        token = content_hash([key, who, self._sequence])
         self._held[key] = who
-        return content_hash([key, who, len(self._held)])
+        self._tokens[key] = token
+        return token
 
     def release(self, path: str, token: str) -> None:
         key = _as_str(path, "worktree path")
         _as_str(token, "token")
         if key not in self._held:
             raise ContractValidationError("worktree is not locked: %s" % key)
+        if self._tokens.get(key) != token:
+            # Fail closed: only the holder of the current token may release.
+            raise ContractValidationError("token does not match lock owner for %s" % key)
         del self._held[key]
+        del self._tokens[key]
 
     @contextlib.contextmanager
     def locked(self, path: str, owner: str):
@@ -669,7 +678,7 @@ class WorktreeLock:
         try:
             yield token
         finally:
-            if path in self._held:
+            if self._tokens.get(path) == token:
                 self.release(path, token)
 
     @property
