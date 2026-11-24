@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="cw-video-s-title cw-video-s-desc">
+  <title id="cw-video-s-title">KEEL Cowork for sales — video poster</title>
+  <desc id="cw-video-s-desc">Poster with a play button over a sales pipeline diagram.</desc>
+  <rect width="640" height="360" rx="18" fill="#191919"/>
+  <g opacity=".16" fill="none" stroke="#d97757" stroke-width="2"><circle cx="80" cy="300" r="120"/><circle cx="580" cy="60" r="130"/></g>
+  <g font-family="Arial, sans-serif">
+    <text x="44" y="56" font-size="13" font-weight="700" fill="#d97757">KEEL COWORK</text>
+    <text x="44" y="96" font-size="26" font-weight="700" fill="#ffffff">For sales</text>
+    <text x="44" y="120" font-size="12" fill="#b9b5ac">Prep every account before the call.</text>
+  </g>
+  <g transform="translate(376 124)" opacity=".92">
+    <rect width="204" height="140" rx="12" fill="#2a2a2a" stroke="#4a4641"/>
+    <g fill="#4a4641"><rect x="18" y="24" width="168" height="8" rx="4"/><rect x="18" y="52" width="130" height="8" rx="4"/><rect x="18" y="80" width="92" height="8" rx="4"/></g>
+    <g fill="#d97757"><rect x="18" y="24" width="96" height="8" rx="4"/><rect x="18" y="52" width="64" height="8" rx="4"/></g>
+    <circle cx="170" cy="104" r="16" fill="none" stroke="#d97757" stroke-width="2.5"/>
+    <path d="m163 104 5 5 9-10" fill="none" stroke="#d97757" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <circle cx="320" cy="182" r="48" fill="#d97757"/>
+  <circle cx="320" cy="182" r="61" fill="none" stroke="#d97757" stroke-width="2" opacity=".5"/>
+  <path d="M311 164l30 18-30 18V164Z" fill="#ffffff"/>
+  <text x="44" y="326" font-family="Arial, sans-serif" font-size="11" fill="#8a867f">WATCH THE STORY · 01:58</text>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-labelledby="cw-article-browser-title">
+  <title id="cw-article-browser-title">Article thumbnail: built-in browser</title>
+  <rect width="480" height="300" rx="16" fill="#f1efe8"/>
+  <rect x="28" y="32" width="424" height="236" rx="12" fill="#ffffff" stroke="#dedcd6"/>
+  <path d="M28 70h424M284 70v198" stroke="#e8e5de"/>
+  <g fill="#d5d0c6"><circle cx="50" cy="51" r="4"/><circle cx="64" cy="51" r="4"/><circle cx="78" cy="51" r="4"/></g>
+  <g font-family="Arial, sans-serif">
+    <text x="48" y="108" font-size="13" font-weight="700" fill="#1b1b1b">Keep working</text>
+    <rect x="48" y="126" width="208" height="6" rx="3" fill="#dedad1"/>
+    <rect x="48" y="142" width="180" height="6" rx="3" fill="#dedad1"/>
+    <rect x="48" y="158" width="196" height="6" rx="3" fill="#dedad1"/>
+    <circle cx="48" cy="232" r="5" fill="#d97757"/>
+    <rect x="62" y="229" width="96" height="6" rx="3" fill="#cfc9bd"/>
+    <text x="304" y="98" font-size="11" font-weight="700" fill="#1b1b1b">Browser</text>
+    <rect x="302" y="112" width="134" height="20" rx="6" fill="#faf9f5" stroke="#dedcd6"/>
+    <circle cx="314" cy="122" r="3" fill="none" stroke="#d97757" stroke-width="1.4"/>
+    <path d="M320 122h40" stroke="#cfc9bd" stroke-width="3" stroke-linecap="round"/>
+    <rect x="302" y="146" width="134" height="102" rx="8" fill="#faf9f5" stroke="#ece9e2"/>
+    <rect x="316" y="162" width="66" height="6" rx="3" fill="#1b1b1b"/>
+    <rect x="316" y="180" width="106" height="5" rx="2.5" fill="#dedad1"/>
+    <rect x="316" y="192" width="90" height="5" rx="2.5" fill="#dedad1"/>
+    <rect x="316" y="212" width="60" height="20" rx="6" fill="#d97757"/>
+  </g>
+</svg>

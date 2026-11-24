@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 340" role="img" aria-labelledby="cw-deck-title cw-deck-desc">
+  <title id="cw-deck-title">Generated deck preview</title>
+  <desc id="cw-deck-desc">A six-slide deck with a chart, slide thumbnails and KEEL branding.</desc>
+  <rect width="560" height="340" rx="18" fill="#f1efe8"/>
+  <rect x="70" y="60" width="420" height="240" rx="12" fill="#e2ded4" transform="rotate(-4 280 180)"/>
+  <rect x="56" y="48" width="420" height="240" rx="12" fill="#ffffff" stroke="#dedcd6"/>
+  <g font-family="Arial, sans-serif">
+    <rect x="80" y="74" width="56" height="8" rx="4" fill="#d97757"/>
+    <rect x="80" y="96" width="188" height="16" rx="5" fill="#1b1b1b"/>
+    <rect x="80" y="120" width="128" height="7" rx="3.5" fill="#cfc9bd"/>
+    <path d="M80 144h372" stroke="#ece9e2"/>
+    <g fill="#e6d9c9"><rect x="84" y="214" width="28" height="48" rx="4"/><rect x="126" y="190" width="28" height="72" rx="4"/><rect x="210" y="204" width="28" height="58" rx="4"/><rect x="294" y="178" width="28" height="84" rx="4"/><rect x="378" y="194" width="28" height="68" rx="4"/></g>
+    <rect x="168" y="166" width="28" height="96" rx="4" fill="#d97757"/>
+    <rect x="336" y="184" width="28" height="78" rx="4" fill="#d9b79a"/>
+    <path d="M80 262h372" stroke="#ece9e2"/>
+    <text x="80" y="278" font-size="9" fill="#9a968d">Weekly marketing readout</text>
+    <text x="452" y="278" text-anchor="end" font-size="9" font-weight="700" fill="#1b1b1b">KEEL</text>
+  </g>
+  <g transform="translate(22 108)">
+    <rect width="50" height="36" rx="5" fill="#ffffff" stroke="#dedcd6"/>
+    <rect x="7" y="8" width="24" height="4" rx="2" fill="#1b1b1b"/>
+    <rect x="7" y="17" width="34" height="3" rx="1.5" fill="#dedad1"/>
+    <rect x="7" y="24" width="28" height="3" rx="1.5" fill="#dedad1"/>
+    <rect y="46" width="50" height="36" rx="5" fill="#ffffff" stroke="#dedcd6"/>
+    <rect x="7" y="54" width="22" height="4" rx="2" fill="#1b1b1b"/>
+    <rect x="7" y="63" width="32" height="3" rx="1.5" fill="#dedad1"/>
+    <rect x="7" y="70" width="26" height="3" rx="1.5" fill="#dedad1"/>
+    <rect y="92" width="50" height="36" rx="5" fill="#f7ece4" stroke="#d97757"/>
+    <rect x="7" y="100" width="24" height="4" rx="2" fill="#d97757"/>
+    <rect x="7" y="109" width="32" height="3" rx="1.5" fill="#e8c7b5"/>
+    <rect x="7" y="116" width="26" height="3" rx="1.5" fill="#e8c7b5"/>
+  </g>
+</svg>

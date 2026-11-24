@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 56" role="img" aria-labelledby="cw-quote2-title">
+  <title id="cw-quote2-title">Thomson Reuters</title>
+  <g transform="translate(14 10)">
+    <circle cx="18" cy="18" r="16" fill="none" stroke="#d97757" stroke-width="2.5"/>
+    <path d="M18 5v26M5 18h26" stroke="#d97757" stroke-width="2"/>
+    <circle cx="18" cy="18" r="6" fill="#f7ece4"/>
+  </g>
+  <g font-family="Arial, sans-serif" fill="#1b1b1b">
+    <text x="56" y="25" font-size="13" font-weight="700" letter-spacing="1">THOMSON</text>
+    <text x="56" y="41" font-size="13" font-weight="700" letter-spacing="1">REUTERS</text>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 56" role="img" aria-labelledby="cw-quote3-title">
+  <title id="cw-quote3-title">Airtree</title>
+  <g transform="translate(14 11)">
+    <path d="M18 2 34 32H2L18 2Z" fill="none" stroke="#d97757" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M18 16v16M11 24l7-8 7 8" fill="none" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="56" y="35" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="1" fill="#1b1b1b">AIRTREE</text>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 56" role="img" aria-labelledby="cw-quote5-title">
+  <title id="cw-quote5-title">HubSpot</title>
+  <g transform="translate(14 10)">
+    <circle cx="18" cy="18" r="16" fill="none" stroke="#d97757" stroke-width="2.5"/>
+    <circle cx="18" cy="10" r="3" fill="#1b1b1b"/>
+    <path d="M18 13v14M18 19 9 24M18 19l9 5" fill="none" stroke="#1b1b1b" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <text x="56" y="35" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#1b1b1b">HubSpot</text>
+</svg>

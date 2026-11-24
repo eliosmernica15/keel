@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" role="img" aria-labelledby="cw-plugins-title cw-plugins-desc">
+  <title id="cw-plugins-title">KEEL Cowork plugins</title>
+  <desc id="cw-plugins-desc">Skills, connectors and sub-agents plug into KEEL Cowork.</desc>
+  <rect width="560" height="360" rx="18" fill="#f1efe8"/>
+  <g stroke="#d9cbbd" stroke-width="2" stroke-dasharray="5 6" fill="none">
+    <path d="M280 180 150 96M280 180l130-84M280 180 150 264M280 180l130 84"/>
+  </g>
+  <g fill="#ffffff" stroke="#dedcd6">
+    <rect x="36" y="58" width="150" height="76" rx="10"/>
+    <rect x="374" y="58" width="150" height="76" rx="10"/>
+    <rect x="36" y="226" width="150" height="76" rx="10"/>
+    <rect x="374" y="226" width="150" height="76" rx="10"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#1b1b1b">
+    <text x="62" y="104">Skills</text>
+    <text x="400" y="104">Connectors</text>
+    <text x="62" y="272">Sub-agents</text>
+    <text x="400" y="272">Knowledge</text>
+  </g>
+  <g stroke="#d97757" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M62 76v10M57 81h10"/>
+    <circle cx="400" cy="81" r="6"/>
+    <path d="M62 244h10M62 250h10M62 256h10"/>
+    <path d="M400 244h12v12h-12z"/>
+  </g>
+  <circle cx="280" cy="180" r="76" fill="#ffffff" stroke="#e2ded4" stroke-width="2"/>
+  <circle cx="280" cy="180" r="60" fill="#191919"/>
+  <g fill="none" stroke="#d97757" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M260 150v60"/>
+    <path d="m304 150-30 30 30 30"/>
+    <path d="m272 166 20-16"/>
+  </g>
+  <text x="280" y="274" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#6b6a66">KEEL Cowork</text>
+</svg>

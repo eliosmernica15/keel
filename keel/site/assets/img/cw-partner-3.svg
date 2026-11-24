@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" role="img" aria-labelledby="cw-partner3-title">
+  <title id="cw-partner3-title">Microsoft Foundry</title>
+  <g transform="translate(12 14)" stroke="#ffffff" stroke-width="1">
+    <rect width="12" height="12" rx="1" fill="#d97757"/>
+    <rect x="16" width="12" height="12" rx="1" fill="#6f9b72"/>
+    <rect y="16" width="12" height="12" rx="1" fill="#b98d6f"/>
+    <rect x="16" y="16" width="12" height="12" rx="1" fill="#1b1b1b"/>
+  </g>
+  <g font-family="Arial, sans-serif" fill="#1b1b1b">
+    <text x="56" y="30" font-size="15" font-weight="700">Microsoft</text>
+    <text x="56" y="47" font-size="12" fill="#6b6a66">Foundry</text>
+  </g>
+</svg>
