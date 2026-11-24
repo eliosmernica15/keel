@@ -125,6 +125,8 @@
 .keel-btn--md { height: 36px; padding: 0 14px; font-size: 13px; }
 .keel-btn--lg { height: 44px; padding: 0 18px; font-size: 14px; }
 .keel-btn--primary { background: var(--k-accent); color: #16130a; box-shadow: 0 4px 18px -8px var(--k-accent); }
+/* Light theme uses a dark accent, so white text is the AA-compliant pairing. */
+:root:not([data-theme="dark"]) .keel-btn--primary { color: #ffffff; }
 .keel-btn--primary:hover:not(:disabled) { filter: brightness(1.07); }
 .keel-btn--secondary { background: var(--k-card); border-color: var(--k-line-strong); color: var(--k-text); }
 .keel-btn--secondary:hover:not(:disabled) { background: var(--k-card-border); }
@@ -325,6 +327,7 @@
   transition: top var(--k-dur-fast) var(--k-ease);
 }
 .keel-skip-link:focus { top: 8px; }
+:root:not([data-theme="dark"]) .keel-skip-link { color: #ffffff; }
 .keel-app {
   position: fixed; inset: 0; z-index: 1;
   display: grid; grid-template-rows: var(--k-topbar-h) minmax(0, 1fr) var(--k-status-h);

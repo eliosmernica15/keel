@@ -19,6 +19,7 @@ import Capabilities from "@/features/capabilities/Capabilities";
 import Settings from "@/features/settings/Settings";
 import Onboarding from "@/features/onboarding/Onboarding";
 import SetupChecklist from "@/features/onboarding/SetupChecklist";
+import { restartAtStep } from "@/features/onboarding/progress";
 import type { CommandAction, Surface, Theme } from "@/lib/types";
 
 type Destination = Surface | "capabilities" | "settings";
@@ -195,7 +196,7 @@ function Shell() {
       { id: "ui-sidebar", label: "Toggle sidebar", group: "Interface", hint: "[", run: () => app.setSidebarOpen(!app.sidebarOpen) },
       { id: "ui-right", label: "Toggle context panel", group: "Interface", hint: "\\", run: () => app.setRightPanelOpen(!app.rightPanelOpen) },
       { id: "ui-theme", label: "Toggle dark / light theme", group: "Interface", run: () => app.setTheme(app.resolvedTheme === "dark" ? "light" : "dark") },
-      { id: "tour", label: "Take the product tour", group: "Help", run: () => app.restartOnboarding() },
+      { id: "tour", label: "Take the product tour", group: "Help", run: () => { restartAtStep("tour"); app.restartOnboarding(); } },
       { id: "bridge-recheck", label: "Re-check bridge connection", group: "System", run: () => void probe() },
     ];
     app.registerCommands(nav);

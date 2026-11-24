@@ -31,9 +31,14 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    ".next-code-duet-tests/types/**/*.ts",
+    ".next-cowork-tests/types/**/*.ts",
+    ".next-e2e-onboarding/types/**/*.ts",
+    ".next-e2e/types/**/*.ts",
+    ".next-fleet-parity/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    ".next-e2e/types/**/*.ts"
+    ".next-a11y/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"
