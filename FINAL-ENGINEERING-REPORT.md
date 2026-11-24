@@ -46,3 +46,73 @@ Date: 2026-11-24.
 | Production release | BLOCKED (signing identity, clean-VM validation, owner authorization) |
 
 This is a living document updated by the lead as batches land.
+
+# Backend completion operation — final report addendum (2026-11-24)
+
+Branch: `integration/v6-backend-complete` (local only). Baseline: `0865817`.
+
+## A. Repository state
+- Branch `integration/v6-backend-complete`, built from the verified baseline `0865817`.
+- `origin/main` untouched at `ecba9d2b9678ab7a3a744c62683eea28a1ce01ee`; repo remains private.
+- No push, release, deploy, visibility/credential/collaborator change, or history rewrite.
+- All work is in local reviewable commits (implementation, review, remediation, evidence).
+
+## B. Subagent execution
+- 28 subagent sessions across 5 waves: 20 implementation specialists (3 waves), 4 independent reviewers, 4 remediation agents.
+- Each implementation agent had an isolated worktree/branch and exclusive file ownership; the lead reviewed every diff and independently re-ran every targeted suite before merging.
+- 4 independent reviewers rated all 20 modules **GENUINE_BACKEND** (no descriptor-only stubs); 0 HIGH/CRITICAL findings.
+- All MEDIUM findings were remediated with regression tests verified to fail against the pre-fix source.
+
+## C. Master Plan v6
+- 865 canonical IDs unchanged; no requirement removed to improve apparent progress.
+- Final registry: **854 verified / 9 not_started / 2 blocked** (was 433/430/2).
+- 421 newly implemented backend features attributed by each module's declared registry; cross-references to other modules' IDs were NOT attributed.
+- 9 not_started: 7 D6 human-workflow conventions with no honest local runtime artifact, plus 2 owner-gated conflicts (W1.18 MIT license, Y6.4 public repo — DECISIONS D-036/D-037).
+- 2 blocked: C11.1/C11.2 (GitHub Free plan + owner security gates).
+- P0 share 27.7%; `original_priority` preserved; parity identical.
+
+## D. Implementation
+20 backend modules, each with a dedicated behavioral test suite (30–90 tests):
+runtime, orchestration, providers, security, memory/context, MCP/plugins/tools,
+Cowork/Code/Duet services, API/events, persistence and reliability concerns.
+See `BACKEND-IMPLEMENTATION-DETAIL.md` for the per-module feature map.
+
+**Real-runtime integration** (not just additive modules): `keel/src/keel/backend_hub.py`
+registers 20 modules and an allowlisted dispatcher on `keel.capabilities` — the
+authenticated permission-aware surface used by the web bridge, CLI, TUI and desktop
+shell. Four capabilities (`backend.modules`, `backend.describe`, `backend.invoke`,
+`backend.verify`) expose discovery, real function execution and import verification.
+`keel/tests/test_backend_hub_integration.py` proves discovery, permission enforcement,
+real invocation, rejection of unknown modules/functions and feature-index integrity.
+
+## E. Verification
+See `master-plan-v6-test-evidence.md` for exact commands and outputs.
+- Integrated-tree full suite (20 modules, before remediation): **3992 passed, 48 skipped, 3621 subtests, 0 failed** in 669.93s.
+- **Final post-remediation full suite: 4029 passed, 48 skipped, 3621 subtests, 0 failed** (`python -m pytest -q -o faulthandler_timeout=120`, 490.94s). 1079 backend test cases collected.
+- Governance: `verify_v6_audit.py`, `verify_backend_operation.py`, dependency-graph freshness, license gate — all green.
+
+## F. Security
+- Independent review: all 20 modules GENUINE_BACKEND; 0 High/Critical, multiple Medium findings all fixed with regression tests (secret redaction completeness, URL allow-list bypass, path containment/TOCTOU, SSRF IP-spelling normalization, signature-check honesty, single-use grants, lock token verification, concurrency races).
+- Capability dispatcher is allowlist-only and `execute`-permission-gated; unknown functions/modules are rejected.
+- Windows isolation was previously adversarially verified; native Linux/macOS sandbox execution still requires external runners. Provider credentials, phone hardware, signing identity and clean-VM validation remain external.
+
+## G. Remaining blockers
+- C11.1/C11.2: GitHub Free plan / owner security gates (owner + plan).
+- W1.18/Y6.4: owner-gated conflicts with private/proprietary requirements (owner decision).
+- 7 D6 rows: human workflow conventions with no local runtime artifact (documentation/process).
+- Provider live validation: no configured `KEEL_*` credentials (external).
+- Phone companion: no device/emulator (external). Signing/release: no identity or push authorization (external/owner).
+
+## H. Final readiness assessment
+| Area | Verdict |
+|---|---|
+| Master Plan v6 reconciliation (865 IDs, 854 verified) | COMPLETE |
+| Backend functionality (locally achievable) | PASS |
+| Real-runtime integration (capability surface) | PASS |
+| Independent review + remediation | PASS |
+| Test coverage | PASS (full suite green, no tests weakened) |
+| Security | PARTIAL (native Linux/macOS verification external) |
+| Platform support | PARTIAL (Windows native; Linux/macOS external) |
+| Production release | BLOCKED (signing, clean-VM, push authorization) |
+
+No production-ready claim is made while signing, native cross-platform verification and push authorization remain unresolved.

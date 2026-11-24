@@ -120,3 +120,37 @@ Two Low findings were accepted with explicit rationale rather than churning work
 
 - **F-02 (Low) — heuristic environment scrubbing.** An opaque-named variable (no secret-like substring in its name) is inherited. This is the documented division of labour: OS confinement provides process/filesystem/network isolation, while secret scrubbing belongs to the policy layer (`redaction.py` / `sandbox_policy.child_env`), whose hint-based tests pass. Changing the OS backend's environment handling would not fix unknown-name secrets and could break interpreter startup.
 - **F-03 (Low) — transient workspace ACL widening.** The Windows backend grants the restricted SID (Everyone) `GENERIC_ALL` on the workspace for the run and restores the directory DACL afterwards; child objects created in the window can retain the inherited ACE. The default workspace is a fresh per-run temp directory, so exposure is normally empty, and no data escape was observed. Callers that pass a persistent/sensitive workspace should instead supply a disposable per-run directory. Rewriting the ACL propagation logic was rejected as a high-risk change to proven filesystem denial for a Low, environment-bounded finding.
+
+# Backend completion operation — independent security review (2026-11-24)
+
+Four independent reviewers (not the implementers) examined all 20 backend modules.
+Every module was rated **GENUINE_BACKEND**; there were **0 HIGH/CRITICAL** findings.
+All MEDIUM findings were fixed with regression tests verified to fail against the
+pre-fix source. Details: `master-plan-v6-review-group{1,2,3,4}.md`.
+
+## Remediated security-relevant findings
+
+| Area | Finding (pre-fix) | Fix |
+|---|---|---|
+| Secret redaction (E5/V/Z/W4) | `\S+`-style patterns left multi-word / Bearer credentials in diagnostics and replay text | Full-value redaction up to delimiter/newline; regression tests with multi-word and Bearer secrets |
+| URL allow-list (W1) | `startswith` allowed `docs.keel.example.evil.com` and allowed-URL-in-query bypass | `urlsplit` with equality/dot-boundary host + scheme/path checks |
+| SSRF guard (Y1) | Hex/octal/integer/short-form IPv4 (`0x7f000001`, `2130706433`, `127.1`) bypassed private-network check | Normalize all IP spellings to dotted quads before checking |
+| Path containment (X2/W7) | Code-action edits and atomic writes re-resolved paths too late / used fixed temp names | Re-resolve containment immediately before each write; `mkstemp` under lock, serialized read-modify-write |
+| Query injection (Y4) | Unencoded pairing token could override `host`/`port` query params | `urlencode` all query values |
+| Signature theater (Y1) | `skill_pack_signature_check` reported verified for any non-empty string | Honest `verified=False` by default; real verification requires an injected verifier |
+| Single-use grants (E6) | JIT grants were replayable; test masked this by manual state mutation | Atomic check-and-consume under lock; 16-thread "exactly one grant" test |
+| Lock token (V) | Wrong token could release another owner's `WorktreeLock` | Store per-acquisition token, verify on release, fail closed |
+| Realtime secrets (Y2) | Token was a hash of published session_id/issued_at + tiny counter (brute-forceable) | `secrets.token_urlsafe(32)`; only a hash kept; public view redacted |
+| Concurrency (Y3/Z/W7) | Check-then-set guards and unlocked hash-chain appends | `threading.Lock`/`RLock` around critical sections |
+| Provider overwrite (E3) | Duplicate provider id silently replaced built-in `local` capabilities | Typed rejection before mutation |
+| Coverage gate (small_groups) | Empty report vacuously passed | Empty report fails closed with `has_coverage_data=False` |
+
+## Capability dispatch security
+- `backend.invoke` is allowlist-only: unknown modules and non-declared functions are rejected with `bad_request`.
+- It requires the `execute` permission; `test_backend_hub_integration.py` verifies `permission_denied` with read-only permissions.
+- Handlers surface real exceptions as typed errors; no fake success.
+
+## Remaining limitations (unchanged)
+- Native Linux Landlock/seccomp and macOS Seatbelt execution require external runners; no claim of native security verification on those platforms.
+- Provider live validation, phone hardware, signing identity and clean-VM verification remain external gates.
+- One LOW finding in `d3_backend.check_offline_build` (narrow source-text regex) was deliberately not "fixed" with more regexes: a sound fix needs language-aware analysis; adding patterns would be trivially bypassable and would change documented semantics.

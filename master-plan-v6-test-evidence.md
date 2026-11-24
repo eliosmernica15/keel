@@ -48,3 +48,74 @@ No security-critical test converts failed enforcement into a skipped success.
 - All 8 GitHub Actions workflow YAMLs parse; 26 `uses:` refs are full-SHA pinned.
 - Offline runtime tests: 4 passed (network namespace lane in CI is fail-closed).
 - Per-batch targeted suites across 42 specialist branches: all passing before merge; independent reviewers found 0 critical and their high/medium findings were fixed with regression tests.
+
+# Backend completion operation — test evidence (2026-11-24)
+
+Branch: `integration/v6-backend-complete` (local only). Baseline: `0865817`.
+
+## Authoritative integrated-tree full-suite run (20 backend modules)
+
+Command (from `keel/`):
+
+```
+python -m pytest -q -o faulthandler_timeout=120
+```
+
+Result:
+
+```
+3992 passed, 48 skipped, 3621 subtests passed in 669.93s (0:11:09)
+```
+
+**0 failed.** This run included all 20 newly integrated backend modules and their per-module
+test suites (30–90 tests each). It was executed after cleaning orphaned test servers left by
+earlier runs, which had caused two load-induced socket-timeout failures in an earlier attempt.
+
+Per-module targeted suites were independently re-run by the lead before each merge; all passed.
+The 8 real-runtime capability-hub integration tests
+(`keel/tests/test_backend_hub_integration.py`) passed separately.
+
+The 48 skips remain platform/credential gates (provider live smoke, native Linux/macOS sandbox,
+two pre-existing environment gates). No test was deleted, weakened, or converted to a fake pass.
+
+## Comparison with the prior baseline
+- Prior operation final run at `0865817`: 2963 passed, 48 skipped, 2502 subtests, 0 failed.
+- After the 20 backend modules: 3992 passed (+1029), 48 skipped (unchanged), 3621 subtests (+1119), 0 failed.
+
+## Final run
+A definitive post-remediation full-suite run is recorded after the remediation agents' fixes are
+integrated (see the final addendum below and `FINAL-ENGINEERING-REPORT.md`).
+
+## FINAL post-remediation full-suite run (authoritative)
+
+Command (from `keel/`):
+
+```
+python -m pytest -q -o faulthandler_timeout=120
+```
+
+Result:
+
+```
+4029 passed, 48 skipped, 3621 subtests passed in 490.94s (0:08:10)
+```
+
+**0 failed, exit code 0.** This is the definitive final run after all 20 backend modules,
+the capability-hub integration and all 4 remediation batches were merged. It includes
+1079 collected backend test cases.
+
+Progression of authoritative runs in this operation:
+- Baseline at `0865817` (before this operation): first attempt had 2 load-induced socket timeouts under 20 concurrent agents; no product defect.
+- After 20 backend modules: 3992 passed, 48 skipped, 3621 subtests, 0 failed (669.93s).
+- **Final after remediation: 4029 passed, 48 skipped, 3621 subtests, 0 failed (490.94s).**
+
+Remediation added 37 passing tests (7 in A, 7 in B, 6 in C, 8 in D, plus additional
+case coverage within those suites). Each regression test was independently verified
+to fail against the pre-fix source before being merged.
+
+The 48 skips are unchanged platform/credential gates; no test was deleted, weakened,
+or converted to a fake success.
+
+Static checks: no `ruff`/`mypy`/`flake8` installed in this environment. `python -m py_compile`
+and `python -m compileall -q src/keel` both pass; `git diff --check` clean. All 8 workflow
+YAMLs parse and all 30 `uses:` refs are full-SHA pinned.

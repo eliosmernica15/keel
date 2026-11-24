@@ -904,6 +904,856 @@ TOOL_CONTRACT_EVIDENCE = (
     "registry conformance bridge (47 tools, 0 problems).")
 
 
+# Backend modules implemented in the v6 backend-completion operation.
+
+# Each attributed feature maps to (module name, source, test, evidence doc).
+
+BACKEND_EVIDENCE: dict[str, tuple[str, str, str, str]] = {
+
+    "D3.10": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.12": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.15": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.16": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.17": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.19": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.20": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.21": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.22": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.23": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.3": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.4": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D3.5": ("d3_backend", "src/keel/d3_backend.py", "tests/test_d3_backend.py", "master-plan-v6-d3-backend-evidence.md"),
+
+    "D6.1": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.10": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.11": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.12": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.13": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.15": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.16": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.19": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.22": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.24": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.25": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.3": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.4": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.5": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.6": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.7": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.8": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D6.9": ("d6_reliability_backend", "src/keel/d6_reliability_backend.py", "tests/test_d6_reliability_backend.py", "master-plan-v6-d6-backend-evidence.md"),
+
+    "D7.10": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.11": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.13": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.14": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.15": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.16": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.17": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.18": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.2": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.20": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.3": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.4": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.5": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.6": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.7": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "D7.8": ("d7_workflow_backend", "src/keel/d7_workflow_backend.py", "tests/test_d7_workflow_backend.py", "master-plan-v6-d7-backend-evidence.md"),
+
+    "E3.1": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.10": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.11": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.12": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.13": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.14": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.15": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.2": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.4": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.5": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.6": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.7": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E3.9": ("e3_backend", "src/keel/e3_backend.py", "tests/test_e3_backend.py", "master-plan-v6-e3-backend-evidence.md"),
+
+    "E5.10": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.11": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.13": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.16": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.17": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.18": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.19": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.2": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.3": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.5": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.6": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.7": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E5.8": ("e5_backend", "src/keel/e5_backend.py", "tests/test_e5_backend.py", "master-plan-v6-e5-backend-evidence.md"),
+
+    "E6.11": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "E6.12": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "E6.13": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "E6.14": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "E6.2": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "E6.3": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "E6.4": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "E6.6": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "E6.7": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X5.10": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X5.11": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X5.12": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X5.13": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X5.2": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X5.3": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X5.4": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X5.7": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X5.8": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X6.1": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X6.10": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X6.2": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X6.3": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X6.4": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X6.5": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X6.6": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X6.8": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "X6.9": ("e6_x5_x6_backend", "src/keel/e6_x5_x6_backend.py", "tests/test_e6_x5_x6_backend.py", "master-plan-v6-e6-x5-x6-backend-evidence.md"),
+
+    "E7.1": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.10": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.11": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.12": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.13": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.14": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.15": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.16": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.17": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.22": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.24": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.25": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.26": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.27": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.28": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.29": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.3": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.30": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.31": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.32": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.33": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.34": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.35": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.36": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.37": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.38": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.39": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.4": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.40": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.41": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.42": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.43": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.5": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.7": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.8": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "E7.9": ("e7_runtime_backend", "src/keel/e7_runtime_backend.py", "tests/test_e7_runtime_backend.py", "master-plan-v6-e7-backend-evidence.md"),
+
+    "D2.12": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "D2.14": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "D2.17": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "D2.2": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "D2.4": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "D2.6": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "E4.13": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "E4.14": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "E4.3": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "E4.4": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "E4.6": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "E4.7": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W2.10": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W2.5": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W2.7": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W3.11": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W3.5": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W5.5": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W5.6": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W5.7": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W6.2": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W6.4": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W6.5": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W6.6": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W8.1": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W8.2": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W8.3": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W8.4": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W9.1": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W9.2": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W9.3": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W9.4": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W9.5": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "W9.6": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X0.2b": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X0.5": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X0.9": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X10.3": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X10.5": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X10.6": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X4.1": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X4.2": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X4.3": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X4.4": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X4.5": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X4.6": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X4.7": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X9.10": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X9.2": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X9.4": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X9.6": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X9.8": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "X9.9": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "Y6.3": ("small_groups_backend", "src/keel/small_groups_backend.py", "tests/test_small_groups_backend.py", "master-plan-v6-small-groups-backend-evidence.md"),
+
+    "V10": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V11": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V12": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V13": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V14": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V15": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V17": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V18": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V19": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V20": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V21": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V22": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V23": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V25": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V27": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V28": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V29": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V3": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V30": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V4": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V6": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V7": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V8": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "V9": ("v_series_backend", "src/keel/v_series_backend.py", "tests/test_v_series_backend.py", "master-plan-v6-v-series-backend-evidence.md"),
+
+    "W1.1": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.11": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.12": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.13": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.14": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.15": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.16": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.17": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.2": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.3": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.4": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.5": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.6": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.7": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.8": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W1.9": ("w1_security_backend", "src/keel/w1_security_backend.py", "tests/test_w1_security_backend.py", "master-plan-v6-w1-backend-evidence.md"),
+
+    "W4.1": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.10": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.11": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.12": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.13": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.14": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.2": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.4": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.5": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.6": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.7": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.8": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "W4.9": ("w4_backend", "src/keel/w4_backend.py", "tests/test_w4_backend.py", "master-plan-v6-w4-backend-evidence.md"),
+
+    "D1.11": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "D1.2": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "D1.3": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "D1.6": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "D1.7": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "D1.8": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "D1.9": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "W7.11": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "W7.12": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "W7.15": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "W7.18": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "W7.2": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "W7.20": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "W7.7": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "W7.9": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "X1.10": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "X1.11": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "X1.12": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "X1.14": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "X1.15": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "X1.16": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "X1.6": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "X1.9": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "Y3.8": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "Y5.1": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "Y5.2": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "Y5.3": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "Y5.5": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "Y5.6": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "Y5.7": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "Y5.8": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "Y5.9": ("w7_x1_y5_d1_backend", "src/keel/w7_x1_y5_d1_backend.py", "tests/test_w7_x1_y5_d1_backend.py", "master-plan-v6-w7-x1-y5-d1-backend-evidence.md"),
+
+    "X2.1": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.10": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.11": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.12": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.13": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.14": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.15": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.16": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.2": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.3": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.4": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.5": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.6": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.7": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.8": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X2.9": ("x2_orchestration_backend", "src/keel/x2_orchestration_backend.py", "tests/test_x2_orchestration_backend.py", "master-plan-v6-x2-backend-evidence.md"),
+
+    "X3.1": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.10": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.11": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.12": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.13": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.14": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.15": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.16": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.2": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.3": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.4": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.5": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.6": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.7": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.8": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X3.9": ("x3_memory_backend", "src/keel/x3_memory_backend.py", "tests/test_x3_memory_backend.py", "master-plan-v6-x3-backend-evidence.md"),
+
+    "X8.10": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.11": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.12": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.13": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.14": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.15": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.16": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.17": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.3": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.4": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.5": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.6": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.7": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.8": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "X8.9": ("x8_backend", "src/keel/x8_backend.py", "tests/test_x8_backend.py", "master-plan-v6-x8-backend-evidence.md"),
+
+    "Y1.1": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.10": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.11": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.12": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.13": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.14": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.15": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.18": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.21": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.22": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.23": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.25": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.26": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.27": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.28": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.29": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.31": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.32": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.33": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.34": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.35": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.36": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.37": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.38": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y1.39": ("y1_config_backend", "src/keel/y1_config_backend.py", "tests/test_y1_config_backend.py", "master-plan-v6-y1-backend-evidence.md"),
+
+    "Y2.10": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.11": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.12": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.13": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.15": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.16": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.17": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.18": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.19": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.21": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.22": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.23": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.24": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.25": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y2.9": ("y2_backend", "src/keel/y2_backend.py", "tests/test_y2_backend.py", "master-plan-v6-y2-backend-evidence.md"),
+
+    "Y3.1": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.12": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.14": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.15": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.16": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.17": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.18": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.19": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.20": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.21": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.3": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.5": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "Y3.7": ("y3_backend", "src/keel/y3_backend.py", "tests/test_y3_backend.py", "master-plan-v6-y3-backend-evidence.md"),
+
+    "D4.1": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "D4.10": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "D4.12": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "D4.13": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "D4.3": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "D4.4": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "D4.5": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "D4.6": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "D4.8": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "D4.9": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "X7.1": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "X7.10": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "X7.2": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "X7.3": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "X7.4": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "X7.5": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "X7.6": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "X7.7": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "X7.8": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "X7.9": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.1": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.10": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.11": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.12": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.14": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.2": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.4": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.5": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.6": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.7": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Y4.8": ("y4_d4_x7_backend", "src/keel/y4_d4_x7_backend.py", "tests/test_y4_d4_x7_backend.py", "master-plan-v6-y4-d4-x7-backend-evidence.md"),
+
+    "Z1": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z10": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z11": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z12": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z13": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z14": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z15": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z16": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z2": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z3": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z5": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z6": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z7": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z8": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+    "Z9": ("z_backend", "src/keel/z_backend.py", "tests/test_z_backend.py", "master-plan-v6-z-backend-evidence.md"),
+
+}
+
 def _load_extra_features() -> list[dict]:
     """Load features from addenda 3-7 normalized extraction files."""
     out: list[dict] = []
@@ -918,6 +1768,7 @@ def _load_extra_features() -> list[dict]:
             fid = str(f.get("id", ""))
             if not fid:
                 continue
+            backend_evidence = BACKEND_EVIDENCE.get(fid)
             # Normalize to the registry schema; never claim verification just
             # because a source or test file path happens to be mentioned.
             src = str(f.get("references") or "")
@@ -934,7 +1785,7 @@ def _load_extra_features() -> list[dict]:
                                E34_RESULT_TOKENS | D7_SCHEDULER_TOKENS |
                                BUILDER_TOKENS | REPO_CONTRACT_TOKENS |
                                PRODUCT_TOKENS)
-            verified = fid in implemented_ids
+            verified = fid in implemented_ids or backend_evidence is not None
             src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
                          X1_REPO_SRC if fid in X1_REPO_TOKENS else
                          X1_STEERING_SRC if fid in X1_STEERING_TOKENS else
@@ -959,7 +1810,8 @@ def _load_extra_features() -> list[dict]:
                          D7_SCHEDULER_SRC if fid in D7_SCHEDULER_TOKENS else
                          BUILDER_SRC if fid in BUILDER_TOKENS else
                          REPO_CONTRACT_SRC if fid in REPO_CONTRACT_TOKENS else
-                         PRODUCT_SRC if fid in PRODUCT_TOKENS else [])
+                         PRODUCT_SRC if fid in PRODUCT_TOKENS else
+                         [backend_evidence[1]] if backend_evidence else [])
             test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
                           X1_REPO_TESTS if fid in X1_REPO_TOKENS else
                           X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
@@ -984,7 +1836,8 @@ def _load_extra_features() -> list[dict]:
                           D7_SCHEDULER_TESTS if fid in D7_SCHEDULER_TOKENS else
                           BUILDER_TESTS if fid in BUILDER_TOKENS else
                           REPO_CONTRACT_TESTS if fid in REPO_CONTRACT_TOKENS else
-                          PRODUCT_TESTS if fid in PRODUCT_TOKENS else [])
+                          PRODUCT_TESTS if fid in PRODUCT_TOKENS else
+                          [backend_evidence[2]] if backend_evidence else [])
             evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
                         X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
                         X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
@@ -1009,7 +1862,8 @@ def _load_extra_features() -> list[dict]:
                         D7_SCHEDULER_EVIDENCE if fid in D7_SCHEDULER_TOKENS else
                         BUILDER_EVIDENCE if fid in BUILDER_TOKENS else
                         REPO_CONTRACT_EVIDENCE if fid in REPO_CONTRACT_TOKENS else
-                        PRODUCT_EVIDENCE if fid in PRODUCT_TOKENS else "")
+                        PRODUCT_EVIDENCE if fid in PRODUCT_TOKENS else
+                        backend_evidence[3] if backend_evidence else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),
