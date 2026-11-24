@@ -166,3 +166,22 @@ remain authoritative.
 - The 5 / 5 workflows (102 / 102 steps) are reported in `AUDIT-REMEDIATION-SUMMARY.md`
   and `BACKEND-IMPLEMENTATION-DETAIL.md`; the clean-environment full-suite result above
   is not modified by this appendix.
+
+
+## FINAL AMENDMENT — all 421 traceability gaps closed (authoritative)
+
+A later remediation batch (`agent/final-trace`, merged and pushed) added AST-visible
+`FEATURE_TRACEABILITY` declarations and per-ID evidence rows to every owning module.
+`python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
+and `--strict` enforces the gate with a non-zero exit on any failure.
+
+All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+are **historical** — they describe the state before that batch and are retained only
+for provenance. Current authoritative certification:
+
+- Fully traceable: **421 / 421 = 100.0%**
+- Verified-with-limitation: **0 / 421 = 0.0%**
+- Registry unchanged: 865 rows, 854 verified / 9 not_started / 2 blocked.
+
+The gate remains a certification layer over tests and declarations; it does not claim
+native cross-platform or live-provider verification.

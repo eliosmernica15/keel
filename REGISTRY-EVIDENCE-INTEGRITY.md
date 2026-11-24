@@ -239,3 +239,22 @@ failure list above. Regeneration was deterministic: `PLAN-INDEX.json` and
 `62fd5c6ac2d166e8` before and after), and `Keel_Master_Plan_v6.md` was unchanged
 (`312d61782dd19a94`). `python -c "import ast;ast.parse(open(...).read())"` on
 `scripts/verify_backend_operation.py` succeeded.
+
+
+## FINAL AMENDMENT — all 421 traceability gaps closed (authoritative)
+
+A later remediation batch (`agent/final-trace`, merged and pushed) added AST-visible
+`FEATURE_TRACEABILITY` declarations and per-ID evidence rows to every owning module.
+`python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
+and `--strict` enforces the gate with a non-zero exit on any failure.
+
+All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+are **historical** — they describe the state before that batch and are retained only
+for provenance. Current authoritative certification:
+
+- Fully traceable: **421 / 421 = 100.0%**
+- Verified-with-limitation: **0 / 421 = 0.0%**
+- Registry unchanged: 865 rows, 854 verified / 9 not_started / 2 blocked.
+
+The gate remains a certification layer over tests and declarations; it does not claim
+native cross-platform or live-provider verification.
