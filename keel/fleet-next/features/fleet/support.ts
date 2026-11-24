@@ -7,7 +7,7 @@
 // reference UI at keel/desktop/fleet/fleet.js.
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { subscribeEvents, isBridgeUnavailable } from "@/lib/api";
+import { bridge, subscribeEvents, isBridgeUnavailable } from "@/lib/api";
 import type { Bot, BotRow, FleetEvent, FleetTask, LibraryItem, Routine } from "@/lib/types";
 
 /* ------------------------------------------------------------------ types */
@@ -375,6 +375,107 @@ export function parentDelegations(rows: BotRow[], bots: Bot[]): ParentLink[] {
   return out;
 }
 
+/* ------------------------------------------------- real-data view helpers */
+
+/** One transcript envelope per real agent (`GET bots/:id/rows`). */
+export interface BotRowsView {
+  botId: string;
+  rows: BotRow[];
+}
+
+/**
+ * Delegation edges derived ONLY from the row fields the bridge actually emits:
+ * `delegated` / `delegated_to` (parent side) and `delegated_from` (child side).
+ * These are flat links, never a fabricated reporting tree — the bots table has
+ * no parent_id / child-id column (keel/src/keel/fleet/db.py).
+ */
+export interface DelegationEdge {
+  key: string;
+  fromId?: string;
+  fromName: string;
+  toId?: string;
+  toName: string;
+  direction: "out" | "in";
+  ok: boolean;
+  ts?: string;
+  taskId?: string;
+}
+
+export function delegationEdges(bots: Bot[], views: BotRowsView[]): DelegationEdge[] {
+  const byId = new Map(bots.map((b) => [b.id, b]));
+  const nameOf = (id?: string): string => (id ? byId.get(id)?.name || id : "unknown agent");
+  const idOf = (label: string): string | undefined =>
+    bots.find((b) => b.id === label)?.id ?? bots.find((b) => b.name === label)?.id;
+  const out: DelegationEdge[] = [];
+  const seen = new Set<string>();
+  const add = (edge: DelegationEdge) => {
+    if (seen.has(edge.key)) return;
+    seen.add(edge.key);
+    out.push(edge);
+  };
+  for (const { botId, rows } of views) {
+    for (const link of delegations(rows, bots)) {
+      const fromId = link.from === "this agent" ? botId : idOf(link.from);
+      const toId = link.toId ?? idOf(link.to);
+      add({
+        key: `out:${fromId ?? link.from}->${toId ?? link.to}:${link.ts ?? ""}`,
+        fromId, fromName: fromId ? nameOf(fromId) : link.from,
+        toId, toName: toId ? nameOf(toId) : link.to,
+        direction: "out", ok: link.ok, ts: link.ts,
+      });
+    }
+    for (const parent of parentDelegations(rows, bots)) {
+      add({
+        key: `in:${parent.parentId ?? parent.parentName}->${botId}:${parent.ts ?? ""}`,
+        fromId: parent.parentId, fromName: parent.parentName || nameOf(parent.parentId),
+        toId: botId, toName: nameOf(botId),
+        direction: "in", ok: true, ts: parent.ts, taskId: parent.taskId,
+      });
+    }
+  }
+  return out;
+}
+
+/** Per-agent token totals from real `usage` rows, plus a cost field ONLY when
+ *  the bridge actually reports one. Nothing is estimated or converted. */
+export interface AgentUsage {
+  botId: string;
+  name: string;
+  inputTokens: number;
+  outputTokens: number;
+  records: number;
+  costUsd: number | null;
+  costBasis?: string;
+}
+
+export function agentUsage(bots: Bot[], views: BotRowsView[]): AgentUsage[] {
+  return bots.map((bot) => {
+    const rows = views.find((v) => v.botId === bot.id)?.rows ?? [];
+    let inputTokens = 0;
+    let outputTokens = 0;
+    let records = 0;
+    let costUsd: number | null = null;
+    let costBasis: string | undefined;
+    for (const row of rows) {
+      if (text(row.kind) !== "usage") continue;
+      const body = (row.body ?? {}) as Record<string, unknown>;
+      records += 1;
+      inputTokens += number(body.input_tokens, 0);
+      outputTokens += number(body.output_tokens, 0);
+      // The current bridge emits no cost_usd field. Render a number only if a
+      // future bridge actually reports one; never derive cost from tokens.
+      if (typeof body.cost_usd === "number" && Number.isFinite(body.cost_usd)) {
+        costUsd = (costUsd ?? 0) + body.cost_usd;
+      }
+      if (body.cost_basis !== undefined) costBasis = text(body.cost_basis);
+    }
+    return {
+      botId: bot.id, name: bot.name || bot.id, inputTokens, outputTokens,
+      records, costUsd, costBasis,
+    };
+  });
+}
+
 /* ------------------------------------------------------------------ hooks */
 
 /** Ticking clock for elapsed labels; pauses while the document is hidden. */
@@ -467,6 +568,22 @@ export function reorderByIds(items: Array<{ id: string }>, from: string, to: str
   next.splice(a, 1);
   next.splice(b, 0, from);
   return next;
+}
+
+/**
+ * Load the real transcript envelope for every agent once and share it between
+ * the Fleet views. Re-loads only when the roster actually changes.
+ */
+export function useAllBotRows(bots: Bot[]): Resource<BotRowsView[]> {
+  const key = bots.map((b) => b.id).join("|");
+  const load = useCallback(async () => {
+    const ids = key ? key.split("|") : [];
+    return Promise.all(ids.map(async (botId) => ({
+      botId,
+      rows: wrapped<BotRow>(await bridge.botRows(botId), "rows"),
+    })));
+  }, [key]);
+  return useBridgeResource(load, [key]);
 }
 
 export type { Bot, BotRow, FleetEvent, FleetTask, LibraryItem, Routine };

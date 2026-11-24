@@ -16,13 +16,23 @@ import Tasks from "./Tasks";
 import Routines from "./Routines";
 import Library from "./Library";
 import Audit from "./Audit";
-import { wrapped, useBridgeResource, useFleetEvents, type FleetGroup } from "./support";
+import Board from "./Board";
+import OrgChart from "./OrgChart";
+import LiveWall from "./LiveWall";
+import CostPanel from "./CostPanel";
+import {
+  wrapped, useBridgeResource, useFleetEvents, useAllBotRows, type FleetGroup,
+} from "./support";
 
-type Tab = "agents" | "groups" | "tasks" | "routines" | "library" | "audit";
+type Tab = "agents" | "groups" | "tasks" | "board" | "org" | "live" | "cost" | "routines" | "library" | "audit";
 const TABS: Array<{ value: Tab; label: string; icon: IconName }> = [
   { value: "agents", label: "Agents", icon: "agents" },
   { value: "groups", label: "Groups", icon: "fleet" },
   { value: "tasks", label: "Tasks", icon: "tasks" },
+  { value: "board", label: "Board", icon: "tasks" },
+  { value: "org", label: "Delegation map", icon: "fleet" },
+  { value: "live", label: "Live wall", icon: "agents" },
+  { value: "cost", label: "Cost", icon: "info" },
   { value: "routines", label: "Routines", icon: "routine" },
   { value: "library", label: "Library", icon: "library" },
   { value: "audit", label: "Decision history", icon: "shield" },
@@ -55,18 +65,25 @@ export default function Fleet() {
   const { streamError, retry: retryStream } = useFleetEvents(onEvent);
 
   const bots = botsResource.data ?? [];
+  // Shared transcript rows for the real-data views. Loaded once per roster;
+  // no agent state or usage value is fabricated from these rows.
+  const rowsResource = useAllBotRows(bots);
   const counts: Record<Tab, number> = {
     agents: bots.length,
     groups: (groupsResource.data ?? []).length,
     tasks: (tasksResource.data ?? []).length,
+    board: (tasksResource.data ?? []).length,
+    org: 0,
+    live: bots.length,
+    cost: 0,
     routines: (routinesResource.data ?? []).length,
     library: wrapped<LibraryItem>(libraryResource.data as Record<string, unknown>, "files").length,
     audit: 0,
   };
 
   const refreshAll = useCallback(() => {
-    botsResource.reload(); groupsResource.reload(); tasksResource.reload(); routinesResource.reload(); libraryResource.reload();
-  }, [botsResource.reload, groupsResource.reload, tasksResource.reload, routinesResource.reload, libraryResource.reload]);
+    botsResource.reload(); groupsResource.reload(); tasksResource.reload(); routinesResource.reload(); libraryResource.reload(); rowsResource.reload();
+  }, [botsResource.reload, groupsResource.reload, tasksResource.reload, routinesResource.reload, libraryResource.reload, rowsResource.reload]);
 
   const unavailable = botsResource.unavailable || groupsResource.unavailable || tasksResource.unavailable || routinesResource.unavailable || libraryResource.unavailable;
   const primaryError = botsResource.error ?? groupsResource.error ?? tasksResource.error ?? routinesResource.error ?? libraryResource.error;
@@ -76,8 +93,14 @@ export default function Fleet() {
       { id: "fleet.refresh", label: "Fleet: refresh all sections", group: "Fleet", run: refreshAll },
       { id: "fleet.agents", label: "Fleet: open agents", group: "Fleet", run: () => setTab("agents") },
       { id: "fleet.tasks", label: "Fleet: open tasks", group: "Fleet", run: () => setTab("tasks") },
+      { id: "fleet.board", label: "Fleet: open task board", group: "Fleet", run: () => setTab("board") },
+      { id: "fleet.org", label: "Fleet: open delegation map", group: "Fleet", run: () => setTab("org") },
+      { id: "fleet.live", label: "Fleet: open live wall", group: "Fleet", run: () => setTab("live") },
+      { id: "fleet.cost", label: "Fleet: open cost view", group: "Fleet", run: () => setTab("cost") },
     ]);
   }, [registerCommands, refreshAll]);
+
+  const openAgent = useCallback((id: string) => { setFocusBotId(id); setTab("agents"); }, []);
 
   const content = useMemo(() => {
     switch (tab) {
@@ -86,7 +109,15 @@ export default function Fleet() {
       case "groups":
         return <Groups bots={bots} groupsResource={groupsResource} events={events} streamError={streamError} onRetryStream={retryStream} />;
       case "tasks":
-        return <Tasks tasksResource={tasksResource} bots={bots} onOpenBot={(id) => { setFocusBotId(id); setTab("agents"); }} />;
+        return <Tasks tasksResource={tasksResource} bots={bots} onOpenBot={openAgent} />;
+      case "board":
+        return <Board tasksResource={tasksResource} bots={bots} onOpenBot={openAgent} />;
+      case "org":
+        return <OrgChart bots={bots} rowsResource={rowsResource} onOpenBot={openAgent} />;
+      case "live":
+        return <LiveWall bots={bots} rowsResource={rowsResource} events={events} streamError={streamError} onRetryStream={retryStream} onOpenBot={openAgent} />;
+      case "cost":
+        return <CostPanel bots={bots} rowsResource={rowsResource} />;
       case "routines":
         return <Routines routinesResource={routinesResource} bots={bots} />;
       case "library":
@@ -94,7 +125,7 @@ export default function Fleet() {
       case "audit":
         return <Audit botsResource={botsResource} />;
     }
-  }, [tab, botsResource, bots, groupsResource, events, streamError, retryStream, refreshAll, tasksResource, routinesResource, libraryResource, focusBotId]);
+  }, [tab, botsResource, bots, groupsResource, events, streamError, retryStream, refreshAll, tasksResource, routinesResource, libraryResource, focusBotId, rowsResource, openAgent]);
 
   return (
     <div className={s.root}>

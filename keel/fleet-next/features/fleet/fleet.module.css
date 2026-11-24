@@ -228,3 +228,47 @@
 .statNum { font-size: 18px; font-weight: 700; line-height: 1; }
 .statLabel { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
 .stats { display: flex; flex-wrap: wrap; gap: 18px; }
+
+/* --- real-data Fleet views (board / delegation / live wall / cost) --- */
+.board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; align-items: start; min-width: 0; }
+.boardCol {
+  min-width: 0; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--cardb); padding: 11px; display: flex; flex-direction: column; gap: 9px;
+}
+.boardColHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.boardCard {
+  min-width: 0; border: 1px solid var(--line); border-radius: 11px;
+  background: var(--card); padding: 10px; display: flex; flex-direction: column; gap: 7px;
+}
+.boardCard[draggable="true"] { cursor: grab; }
+.boardCard .field span { font-size: 11px; }
+.boardCard .field select { font-size: 12px; padding: 6px 8px; }
+
+.wallGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; min-width: 0; }
+.wallCard {
+  min-width: 0; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--cardb); padding: 13px; display: flex; flex-direction: column; gap: 8px;
+}
+.wallCard .activityElapsed { margin-left: 0; }
+
+.unavailable {
+  display: flex; align-items: flex-start; gap: 10px; min-width: 0;
+  padding: 12px 14px; border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--info) 32%, transparent);
+  background: color-mix(in srgb, var(--info) 9%, var(--card));
+}
+.unavailable strong { font-size: 13px; }
+.unavailable p { margin: 4px 0 0; }
+
+.edgeList { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.edge {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 9px;
+  padding: 10px 11px; border-radius: 11px; border: 1px solid var(--line);
+  background: var(--panel); min-width: 0;
+}
+
+.costTable { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 0; }
+.costTable th, .costTable td { padding: 8px 9px; border-bottom: 1px solid var(--line); text-align: left; overflow-wrap: anywhere; }
+.costTable thead th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.costTable tbody th { font-weight: 600; }
+
