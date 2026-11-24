@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import ast
 import importlib
+import inspect
 import json
 import sys
 from pathlib import Path
@@ -20,8 +21,10 @@ KEEL_ROOT = Path(__file__).resolve().parents[1]
 WORKTREE_ROOT = KEEL_ROOT.parent
 sys.path.insert(0, str(KEEL_ROOT / "src"))
 
+from keel import backend_contracts as contracts  # noqa: E402
 from keel import backend_hub as hub  # noqa: E402
 from keel import capabilities  # noqa: E402
+from keel import e3_backend  # noqa: E402
 
 ALL = {"read", "write", "execute"}
 
@@ -219,3 +222,157 @@ def test_canonical_owner_map_has_no_duplicate_literal_keys():
     assert keys is not None
     assert len(keys) == len(set(keys)) == 421
     assert len(hub._CANONICAL_FEATURE_OWNERS) == len(hub.FEATURE_TO_MODULE)
+
+
+# --- G2: dispatch-table startup validation ---------------------------------
+
+def test_dispatch_startup_assertion_accepts_real_table():
+    """The real DISPATCH table must be callable at hub import and on demand."""
+    hub.assert_dispatch_targets()
+    for module in hub.modules():
+        target = importlib.import_module("keel." + module)
+        for name in hub.dispatchable(module):
+            assert callable(getattr(target, name)), (module, name)
+
+
+def test_dispatch_startup_assertion_rejects_a_stale_entry(monkeypatch):
+    """Reintroducing a class-method-only name fails closed instead of at invoke."""
+    monkeypatch.setitem(
+        hub.DISPATCH, "x3_memory_backend",
+        tuple(hub.DISPATCH["x3_memory_backend"]) + ("_embedding",))
+    with pytest.raises(AssertionError, match="_embedding"):
+        hub.assert_dispatch_targets()
+
+
+# --- G1: typed envelope round-trip through the real capability surface ------
+
+def test_typed_envelope_chains_from_hub_result_into_typed_consumer():
+    """A hub-serialised ModelRoute can be fed back into check_route for real.
+
+    Pre-change: the envelope dict reaches ``parse_model_route`` and raises
+    RouteError. Post-change: the hub decodes envelope params using the callee's
+    annotations, so both real functions run and the allowlist accepts the route.
+    """
+    route = capabilities.invoke(
+        "backend.invoke",
+        {"module": "e3_backend", "function": "parse_model_route",
+         "params": {"value": "anthropic/claude-sonnet-4"}},
+        allowed_permissions=ALL)
+    assert route["ok"] is True
+    envelope = route["result"]
+    assert contracts.is_envelope(envelope)
+    assert envelope["type"] == "ModelRoute"
+
+    allowlist = e3_backend.ModelRouteAllowlist(
+        True, frozenset({"anthropic/claude-sonnet-4"}))
+    with pytest.raises(e3_backend.RouteError):
+        e3_backend.check_route(allowlist, envelope)  # the old dead end
+
+    outcome = capabilities.invoke(
+        "backend.invoke",
+        {"module": "e3_backend", "function": "check_route",
+         "params": {"allowlist": contracts.encode(allowlist), "route": envelope}},
+        allowed_permissions=ALL)
+    assert outcome["ok"] is True
+    assert outcome["result"] is None  # accepted: check_route's real success value
+
+
+def test_hub_rehydrates_envelope_params_without_changing_plain_dict_params():
+    """The adapter only touches canonical envelopes; plain dicts pass through."""
+    plain = hub.invoke("e3_backend", "parse_model_route",
+                       {"value": "anthropic/claude-sonnet-4"})
+    assert plain == {"type": "ModelRoute",
+                     "fields": {"provider": "anthropic",
+                                "model": "claude-sonnet-4"}}
+    agent = hub.invoke(
+        "small_groups_backend", "normalize_agent_config",
+        {"config": {"mode": "primary", "step_limit": 5,
+                    "model": "anthropic/claude-sonnet-4"}})
+    assert agent["model"] == {"provider": "anthropic", "model": "claude-sonnet-4"}
+
+
+# --- G3: normalised model identity ------------------------------------------
+
+def test_model_id_normalisation_is_opt_in_and_wires_into_invoke():
+    """Default output is unchanged; opt-in canonicalises model-id results."""
+    params = {"value": "anthropic/claude-sonnet-4"}
+    default = hub.invoke("e3_backend", "parse_model_route", params)
+    normalized = hub.invoke("e3_backend", "parse_model_route", params,
+                            normalize_model_id=True)
+    assert contracts.is_envelope(default)
+    assert normalized == {"provider": "anthropic", "model": "claude-sonnet-4"}
+    assert hub.normalize_model_id(default) == normalized
+
+    discovery = hub.invoke(
+        "e6_x5_x6_backend", "parse_models_response",
+        {"payload": {"data": [{"id": "claude-sonnet-4"}]}})
+    assert discovery == ["claude-sonnet-4"]  # unchanged by default
+    assert contracts.from_discovery(discovery) == contracts.ModelId(
+        "", "claude-sonnet-4")
+    assert contracts.to_route(contracts.from_model_route(default)) == (
+        "anthropic/claude-sonnet-4")
+
+
+# --- G4: signature-derived schemas in describe and capability contracts -----
+
+def test_describe_publishes_per_function_schemas_and_contract_formats():
+    described = capabilities.invoke(
+        "backend.describe", {"module": "e3_backend"}, allowed_permissions=ALL)
+    assert described["ok"] is True
+    out = described["result"]
+    assert set(out["functions"]) == set(hub.dispatchable("e3_backend"))
+    parse_schema = out["functions"]["parse_model_route"]
+    assert parse_schema["required"] == ["value"]
+    assert "value" in parse_schema["properties"]
+    route_schema = out["functions"]["check_route"]
+    assert set(route_schema["required"]) == {"allowlist", "route"}
+    assert out["envelope_format"]["required"] == ["type", "fields"]
+    assert set(out["model_id"]["representations"]) >= {
+        "model_reference", "model_route", "discovery_id"}
+    assert hub.describe()["function_schema_count"] == 144
+
+
+def test_capability_input_schema_carries_every_function_schema():
+    """The real backend.invoke capability advertises the derived call contract."""
+    capabilities.invoke("backend.describe", {"module": "e3_backend"},
+                        allowed_permissions=ALL)  # triggers a real hub sync
+    invoke_cap = capabilities.get("backend.invoke")
+    assert invoke_cap is not None
+    schema = invoke_cap.input_schema
+    names = schema["x-function-names"]
+    assert len(names) == 144
+    assert "e3_backend.parse_model_route" in names
+    assert schema["x-function-schemas"]["e3_backend.parse_model_route"][
+        "required"] == ["value"]
+    assert schema["properties"]["params"]["x-function-schemas"] == schema[
+        "x-function-schemas"]
+    listed = next(c for c in capabilities.list_capabilities()
+                  if c["id"] == "backend.invoke")
+    assert listed["input_schema"] is schema  # published on the real registry
+
+    describe_schema = capabilities.get("backend.describe").input_schema
+    assert "e3_backend" in describe_schema["properties"]["module"]["enum"]
+    assert "check_route" in describe_schema["x-module-schemas"]["e3_backend"]
+
+    # Idempotent: re-syncing does not mutate the schema into a different value.
+    before = json.dumps(schema, sort_keys=True)
+    assert hub.sync_capability_schemas() is True
+    assert json.dumps(schema, sort_keys=True) == before
+
+
+def test_all_dispatch_schemas_match_real_signatures_offline():
+    """Schemas come from inspect.signature, not execution or network access."""
+    for module in hub.modules():
+        target = importlib.import_module("keel." + module)
+        for name in hub.dispatchable(module):
+            schema = hub.function_schema(module, name)
+            signature = inspect.signature(getattr(target, name))
+            assert schema["signature"] == str(signature)
+            assert set(schema["properties"]) == set(signature.parameters)
+            assert set(schema["required"]) == {
+                p.name for p in signature.parameters.values()
+                if p.default is inspect.Parameter.empty
+                and p.kind not in (inspect.Parameter.VAR_POSITIONAL,
+                                   inspect.Parameter.VAR_KEYWORD)}
+            assert json.dumps(schema, sort_keys=True)
+

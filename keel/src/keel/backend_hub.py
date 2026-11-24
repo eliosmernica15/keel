@@ -18,7 +18,9 @@ import ast
 import importlib
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, get_type_hints
+
+from . import backend_contracts as contracts
 
 
 MODULE_FEATURES: dict[str, tuple[str, ...]] = {
@@ -334,6 +336,34 @@ DISPATCH: dict[str, tuple[str, ...]] = {
     "z_backend": ('build_lock', 'build_preflight_report', 'check_output_shape', 'check_refusal', 'check_tool_allowlist', 'parse_client_capabilities', 'render_replay', 'render_report_md', 'validate_rule'),
 
 }
+
+
+def assert_dispatch_targets() -> None:
+    """Fail closed at startup if any advertised DISPATCH entry is unusable.
+
+    A stale entry such as the old ``x3_memory_backend._embedding`` (a class
+    method, not a module attribute) used to be advertised as callable and only
+    failed at invoke time with AttributeError. Importing the 20 stdlib-only
+    backend modules here is cheap and makes the contract honest at startup.
+    """
+    broken: list[str] = []
+    for module, names in DISPATCH.items():
+        if module not in MODULE_FEATURES:
+            broken.append(f"{module}: not an integrated module")
+            continue
+        try:
+            target = importlib.import_module("keel." + module)
+        except Exception as exc:  # a broken module is not a usable target
+            broken.append(f"{module}: import failed ({type(exc).__name__}: {exc})")
+            continue
+        for name in names:
+            if not callable(getattr(target, name, None)):
+                broken.append(f"{module}.{name}: not a callable module attribute")
+    if broken:
+        raise AssertionError("invalid DISPATCH entries: " + "; ".join(broken))
+
+
+assert_dispatch_targets()
 
 
 # Canonical single-owner attribution: an authoritative mirror of
@@ -798,23 +828,122 @@ def modules() -> list[str]:
 
 def feature_ids() -> tuple[str, ...]:
     """Return every implemented feature ID, sorted."""
+    sync_capability_schemas()
     return tuple(sorted(FEATURE_TO_MODULE))
 
 
+_FUNCTION_SCHEMAS: dict[str, dict] | None = None
+
+
+def function_schemas() -> dict[str, dict]:
+    """Signature-derived schema for every DISPATCH entry (deterministic).
+
+    Derived from ``inspect.signature`` and resolved annotations only - no
+    function is executed, no file is read and no network is used. Cached so
+    repeated capability calls stay cheap.
+    """
+    global _FUNCTION_SCHEMAS
+    if _FUNCTION_SCHEMAS is None:
+        schemas: dict[str, dict] = {}
+        for module in modules():
+            target = importlib.import_module("keel." + module)
+            for name in DISPATCH.get(module, ()):
+                function = getattr(target, name, None)
+                if callable(function):
+                    schemas[f"{module}.{name}"] = contracts.function_schema(function)
+        _FUNCTION_SCHEMAS = schemas
+    return _FUNCTION_SCHEMAS
+
+
+def function_schema(module: str, function: str) -> dict:
+    """Return the machine-readable call schema for one dispatchable function."""
+    if module not in MODULE_FEATURES:
+        raise BackendHubError(f"unknown backend module: {module}")
+    if function not in DISPATCH.get(module, ()):
+        raise BackendHubError(f"function {function!r} is not dispatchable on {module}")
+    return function_schemas()[f"{module}.{function}"]
+
+
+def sync_capability_schemas() -> bool:
+    """Publish the derived schemas on the real backend capability contracts.
+
+    ``capabilities`` owns its registry, so this adapter mutates the registered
+    ``input_schema`` objects in place instead of editing that module. It is
+    idempotent and is called from every public hub entry point, which means a
+    real ``backend.describe``/``backend.invoke`` call always refreshes it.
+    """
+    from . import capabilities
+
+    schemas = function_schemas()
+    updated = False
+    invoke_cap = capabilities.get("backend.invoke")
+    if invoke_cap is not None:
+        schema = invoke_cap.input_schema
+        properties = schema.setdefault("properties", {})
+        params = properties.get("params")
+        if not isinstance(params, dict):
+            params = {}
+        params["type"] = "object"
+        params["description"] = (
+            "Arguments keyed by the target function's parameter names; "
+            "see x-function-schemas")
+        params["x-function-schemas"] = schemas
+        properties["params"] = params
+        schema["x-function-schemas"] = schemas
+        schema["x-function-names"] = sorted(schemas)
+        updated = True
+    describe_cap = capabilities.get("backend.describe")
+    if describe_cap is not None:
+        schema = describe_cap.input_schema
+        properties = schema.setdefault("properties", {})
+        module_property = properties.get("module")
+        if isinstance(module_property, dict):
+            module_property["enum"] = modules()
+        by_module: dict[str, dict] = {}
+        for key, value in schemas.items():
+            module, name = key.split(".", 1)
+            by_module.setdefault(module, {})[name] = value
+        schema["x-module-schemas"] = by_module
+        updated = True
+    return updated
+
+
+def normalize_model_id(value: Any) -> Any:
+    """Canonicalise model-id-shaped values in a hub result (opt-in)."""
+    return contracts.normalize_model_ids(value)
+
+
+# Backwards-compatible internal name used by invoke().
+normalize_model_id_value = normalize_model_id
+
+
 def describe(module: str | None = None) -> dict:
-    """Return a machine-readable contract for one module (or all modules)."""
+    """Return a machine-readable contract for one module (or all modules).
+
+    In addition to feature attribution and dispatch names, every dispatchable
+    function now carries a deterministic, signature-derived JSON schema so a
+    client can learn the exact ``params`` keys before invoking anything (G4).
+    """
+    sync_capability_schemas()
     if module is not None:
         if module not in MODULE_FEATURES:
             raise BackendHubError(f"unknown backend module: {module}")
+        names = DISPATCH.get(module, ())
+        all_schemas = function_schemas()
         return {
             "module": module,
             "features": list(MODULE_FEATURES[module]),
-            "dispatchable": list(DISPATCH.get(module, ())),
+            "dispatchable": list(names),
+            "functions": {name: all_schemas[f"{module}.{name}"] for name in names},
+            "envelope_format": dict(contracts.ENVELOPE_FORMAT),
+            "model_id": contracts.model_id_contract(),
         }
     return {
         "modules": len(MODULE_FEATURES),
         "features": len(FEATURE_TO_MODULE),
         "contracts": [describe(m) for m in modules()],
+        "function_schema_count": len(function_schemas()),
+        "model_id": contracts.model_id_contract(),
     }
 
 
@@ -822,31 +951,63 @@ def dispatchable(module: str) -> tuple[str, ...]:
     """Return the allowlisted deterministic callables for a module."""
     if module not in MODULE_FEATURES:
         raise BackendHubError(f"unknown backend module: {module}")
+    sync_capability_schemas()
     return DISPATCH.get(module, ())
 
 
 def _jsonable(value: Any) -> Any:
-    if value is None or isinstance(value, (bool, int, float, str)):
-        return value
-    if isinstance(value, (list, tuple)):
-        return [_jsonable(v) for v in value]
-    if isinstance(value, dict):
-        return {str(k): _jsonable(v) for k, v in value.items()}
-    if hasattr(value, "__dict__"):
-        return {
-            "type": type(value).__name__,
-            "fields": {k: _jsonable(v) for k, v in vars(value).items()},
-        }
-    return repr(value)
+    """Serialise a real result into the canonical JSON-able form.
+
+    Typed dataclasses become ``{"type": ..., "fields": ...}`` envelopes; the
+    matching decoder/adapter lives in :mod:`keel.backend_contracts`. The shape
+    is unchanged from the original hub, so existing callers are unaffected.
+    """
+    return contracts.encode(value)
 
 
-def invoke(module: str, function: str, params: dict | None = None) -> Any:
+def _coerce_params(function: Any, params: dict, module: Any) -> dict:
+    """Decode envelope params into the typed objects the callee annotates.
+
+    Only canonical ``type``/``fields`` envelopes whose parameter annotation is
+    a concrete class are touched. Every other value is passed through
+    unchanged, so callers that pass plain dicts keep identical behaviour.
+    """
+    if not params:
+        return dict(params)
+    try:
+        hints = get_type_hints(function)
+    except Exception:
+        hints = {}
+        for key, annotation in getattr(function, "__annotations__", {}).items():
+            if isinstance(annotation, str):
+                hints[key] = getattr(module, annotation, annotation)
+            else:
+                hints[key] = annotation
+    coerced = dict(params)
+    for key, value in params.items():
+        if contracts.is_envelope(value) and key in hints:
+            try:
+                updated = contracts.coerce_value(value, hints[key])
+            except contracts.BackendContractError:
+                updated = value
+            if updated is not value:
+                coerced[key] = updated
+    return coerced
+
+
+def invoke(module: str, function: str, params: dict | None = None, *,
+           normalize_model_id: bool = False) -> Any:
     """Execute an allowlisted backend function with real arguments.
 
     Only functions explicitly declared in DISPATCH may run. Unknown modules,
     unknown functions, non-object params and non-serializable results are
     rejected; real handler exceptions propagate as BackendHubError so the
     capability hub can surface an honest failure rather than fake success.
+
+    Canonical ``type``/``fields`` envelopes passed as params are rehydrated
+    into the typed objects the target function annotates (G1). Passing
+    ``normalize_model_id=True`` additionally canonicalises model-id-shaped
+    results; it is opt-in so no existing caller's output changes (G3).
     """
     if module not in MODULE_FEATURES:
         raise BackendHubError(f"unknown backend module: {module}")
@@ -855,10 +1016,11 @@ def invoke(module: str, function: str, params: dict | None = None) -> Any:
     params = params or {}
     if not isinstance(params, dict):
         raise BackendHubError("params must be an object")
+    sync_capability_schemas()
     try:
         mod = importlib.import_module("keel." + module)
         fn = getattr(mod, function)
-        result = fn(**params)
+        result = fn(**_coerce_params(fn, params, mod))
     except BackendHubError:
         raise
     except TypeError as exc:
@@ -866,7 +1028,10 @@ def invoke(module: str, function: str, params: dict | None = None) -> Any:
     except Exception as exc:  # surface the real failure, never fake success
         raise BackendHubError(
             f"{module}.{function} raised {type(exc).__name__}: {exc}") from exc
-    return _jsonable(result)
+    serialized = _jsonable(result)
+    if normalize_model_id:
+        serialized = normalize_model_id_value(serialized)
+    return serialized
 
 
 # Module registries that are real declaration structures (not prose).
@@ -936,6 +1101,7 @@ def verify(module: str) -> dict:
     reports every ID as not declared. This is an honest import+declaration
     check, not a claim that acceptance criteria passed here.
     """
+    sync_capability_schemas()
     if module not in MODULE_FEATURES:
         raise BackendHubError(f"unknown backend module: {module}")
     mod = importlib.import_module("keel." + module)
@@ -964,3 +1130,21 @@ def verify(module: str) -> dict:
         "not_declared": sorted(set(ids) - set(declared)),
         "declaration_source": declaration_source,
     }
+
+
+def _publish_schemas_on_import() -> None:
+    """Best-effort eager publish; public hub calls also re-sync later.
+
+    When ``capabilities`` imports the hub first, the backend capabilities are
+    registered immediately afterwards; when the hub is imported first, this
+    call finds them already registered. Either way the first real backend
+    capability call refreshes the schemas again.
+    """
+    try:
+        from . import capabilities  # noqa: F401  (triggers registration)
+    except Exception:
+        return
+    sync_capability_schemas()
+
+
+_publish_schemas_on_import()
