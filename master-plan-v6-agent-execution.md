@@ -78,3 +78,24 @@ Work performed directly by the lead (not by a subagent) in the completion operat
 - Applied all live C11.2 settings attempts and documented the free-plan limitations; added the fail-closed pre-push hook.
 - Integrated `os_sandbox` + Windows/Linux/macOS backends from origin/main / PR #15, fixed the Windows dispatch gap and the inverted seccomp BPF filter, wired two new capabilities, and added regression tests.
 - Resolved merge conflicts, ran full/targeted suites, and produced the final consolidated evidence.
+
+# Backend completion operation — 2026-11-24 (this operation)
+
+Branch: `integration/v6-backend-complete` (local only). Baseline: `0865817`.
+
+## Agents actually launched and completed
+- **20 implementation specialists** in 3 waves, each with an isolated worktree/branch and exclusive file ownership:
+  - Wave 1: b1-e7, b1-d6, b1-y1, b1-v, b1-w1, b1-d7, b1-x2, b1-x3
+  - Wave 2: b2-x8, b2-y2, b2-z, b2-y3, b2-d3, b2-e3, b2-e5, b2-w4
+  - Wave 3: b3-y4, b3-mixed1, b3-mixed2, b3-mixed3
+  - All 20 produced real implementation commits; lead independently re-ran each targeted suite and reviewed each diff before merging with `--no-ff`.
+- **4 independent reviewers** (g1–g4), each covering 5 different modules, none having implemented the code they reviewed. All 20 modules were rated **GENUINE_BACKEND**; 0 HIGH/CRITICAL findings.
+- **4 remediation agents** (f-a..f-d) fixing all accepted MEDIUM findings with regression tests.
+- Total subagent sessions: **28**. Waves: 3 implementation + 1 review + 1 remediation = 5.
+
+## Honest notes
+- Several agents reported P0 rows already implemented under other IDs; those were verified/documented, never reimplemented or falsely attributed.
+- W1.18 and Y6.4 were documented as owner-gated conflicts (DECISIONS D-036/D-037) and were NOT implemented.
+- 7 D6 human-workflow rows have no honest local runtime artifact and remain `not_started`.
+- New modules were integrated into the real authenticated capability surface (`keel.capabilities`) via `backend_hub.py`; 8 real-runtime integration tests exercise discovery, permission enforcement and real function invocation.
+- No agent push, no visibility change, no credential rotation, no history rewrite.
