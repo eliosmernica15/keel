@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 470" role="img" aria-labelledby="cw-app-title cw-app-desc">
+  <title id="cw-app-title">KEEL Cowork app window</title>
+  <desc id="cw-app-desc">A task sidebar, a running task with steps, and a generated deck preview.</desc>
+  <rect width="720" height="470" rx="22" fill="#f1efe8"/>
+  <rect x="18" y="24" width="686" height="428" rx="16" fill="#e2ded4"/>
+  <rect x="14" y="14" width="692" height="428" rx="16" fill="#ffffff" stroke="#dedcd6"/>
+  <path d="M14 56h692" stroke="#dedcd6"/>
+  <g fill="#d5d0c6"><circle cx="40" cy="35" r="5"/><circle cx="58" cy="35" r="5"/><circle cx="76" cy="35" r="5"/></g>
+  <text x="360" y="40" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#6b6a66">KEEL Cowork</text>
+
+  <path d="M170 56v386" stroke="#e8e5de"/>
+  <g font-family="Arial, sans-serif" font-size="12">
+    <rect x="26" y="76" width="132" height="34" rx="8" fill="#f7ece4"/>
+    <rect x="40" y="88" width="12" height="12" rx="3" fill="none" stroke="#d97757" stroke-width="2"/>
+    <text x="62" y="98" font-weight="700" fill="#1b1b1b">Tasks</text>
+    <rect x="40" y="130" width="12" height="12" rx="2" fill="none" stroke="#b9b5ac" stroke-width="2"/>
+    <text x="62" y="140" fill="#6b6a66">Files</text>
+    <rect x="40" y="172" width="12" height="12" rx="2" fill="none" stroke="#b9b5ac" stroke-width="2"/>
+    <text x="62" y="182" fill="#6b6a66">Browser</text>
+    <path d="M40 222h12M46 216v12" stroke="#b9b5ac" stroke-width="2" stroke-linecap="round"/>
+    <text x="62" y="224" fill="#6b6a66">Plugins</text>
+    <path d="M40 264h12M46 258v12" stroke="#b9b5ac" stroke-width="2" stroke-linecap="round"/>
+    <text x="62" y="266" fill="#6b6a66">Schedule</text>
+    <rect x="26" y="386" width="132" height="44" rx="8" fill="#faf9f5"/>
+    <circle cx="46" cy="408" r="11" fill="#d97757"/>
+    <text x="54" y="412" text-anchor="middle" font-size="9" font-weight="700" fill="#ffffff">K</text>
+    <text x="66" y="412" fill="#6b6a66">Personal</text>
+  </g>
+
+  <g font-family="Arial, sans-serif">
+    <text x="196" y="88" font-size="11" fill="#9a968d">Tasks / Weekly marketing readout</text>
+    <text x="196" y="120" font-size="21" font-weight="700" fill="#1b1b1b">Weekly marketing readout</text>
+    <rect x="576" y="100" width="106" height="25" rx="12.5" fill="#f7ece4"/>
+    <circle cx="590" cy="112.5" r="4" fill="#d97757"/>
+    <text x="600" y="117" font-size="11" font-weight="700" fill="#b25f42">In progress</text>
+    <rect x="196" y="136" width="486" height="5" rx="2.5" fill="#ece9e2"/>
+    <rect x="196" y="136" width="300" height="5" rx="2.5" fill="#d97757"/>
+
+    <text x="196" y="178" font-size="11" font-weight="700" fill="#9a968d">STEPS</text>
+    <g>
+      <circle cx="205" cy="204" r="10" fill="#e8f0e6"/><path d="m200 204 3.5 3.5 6-7" fill="none" stroke="#6f9b72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="226" y="208" font-size="12" fill="#6b6a66">Open Drive report</text>
+      <circle cx="205" cy="244" r="10" fill="#e8f0e6"/><path d="m200 244 3.5 3.5 6-7" fill="none" stroke="#6f9b72" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="226" y="248" font-size="12" fill="#6b6a66">Pull Amplitude data</text>
+      <circle cx="205" cy="284" r="10" fill="#f7ece4"/><circle cx="205" cy="284" r="4" fill="#d97757"/>
+      <text x="226" y="288" font-size="12" font-weight="700" fill="#1b1b1b">Build 6-slide deck</text>
+      <circle cx="205" cy="324" r="10" fill="#faf9f5"/><circle cx="205" cy="324" r="6" fill="none" stroke="#d5d0c6" stroke-width="2"/>
+      <text x="226" y="328" font-size="12" fill="#9a968d">Share for review</text>
+      <path d="M205 214v20M205 254v20M205 294v20" stroke="#e0dcd3" stroke-width="2"/>
+    </g>
+
+    <rect x="456" y="164" width="228" height="172" rx="10" fill="#e6e1d7"/>
+    <rect x="448" y="156" width="228" height="172" rx="10" fill="#ffffff" stroke="#dedcd6"/>
+    <text x="464" y="180" font-size="10" font-weight="700" fill="#9a968d">DECK · 6 SLIDES</text>
+    <path d="M464 192h200" stroke="#ece9e2"/>
+    <rect x="464" y="204" width="92" height="8" rx="4" fill="#1b1b1b"/>
+    <rect x="464" y="220" width="68" height="5" rx="2.5" fill="#dedad1"/>
+    <g fill="#e6d9c9"><rect x="464" y="272" width="18" height="34" rx="3"/><rect x="490" y="258" width="18" height="48" rx="3"/><rect x="542" y="264" width="18" height="42" rx="3"/></g>
+    <rect x="516" y="244" width="18" height="62" rx="3" fill="#d97757"/>
+    <path d="M464 306h200" stroke="#ece9e2"/>
+    <rect x="464" y="314" width="42" height="5" rx="2.5" fill="#d97757"/>
+  </g>
+  <path d="M14 406h692" stroke="#dedcd6"/>
+  <circle cx="36" cy="422" r="4" fill="#d97757"/>
+  <text x="50" y="426" font-family="Arial, sans-serif" font-size="11" fill="#6b6a66">Working in Cowork — you can close this window</text>
+  <text x="690" y="426" text-anchor="end" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#b9b5ac">KEEL</text>
+</svg>

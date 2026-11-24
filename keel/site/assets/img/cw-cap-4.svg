@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="cw-cap4-title">
+  <title id="cw-cap4-title">Your work follows you</title>
+  <rect width="96" height="96" rx="18" fill="#f1efe8"/>
+  <rect x="14" y="22" width="50" height="34" rx="5" fill="#ffffff" stroke="#1b1b1b" stroke-width="2.5"/>
+  <path d="M39 56v8M28 64h22" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round"/>
+  <rect x="62" y="40" width="22" height="38" rx="5" fill="#f7ece4" stroke="#d97757" stroke-width="2.5"/>
+  <path d="M70 46h6M69 72h8" stroke="#d97757" stroke-width="2" stroke-linecap="round"/>
+  <path d="M24 32h24M24 40h16" stroke="#d97757" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

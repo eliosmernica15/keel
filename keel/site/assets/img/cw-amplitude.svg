@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="cw-amplitude-title">
+  <title id="cw-amplitude-title">Amplitude</title>
+  <rect width="48" height="48" rx="11" fill="#1b1b1b"/>
+  <g fill="#ffffff">
+    <rect x="9" y="28" width="7" height="11" rx="2"/>
+    <rect x="20.5" y="21" width="7" height="18" rx="2"/>
+    <rect x="32" y="10" width="7" height="29" rx="2"/>
+  </g>
+  <path d="m12 24 9-7 9-6" fill="none" stroke="#d97757" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

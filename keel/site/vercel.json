@@ -33,7 +33,8 @@
     { "source": "/roadmap", "destination": "/roadmap.html" },
     { "source": "/eula", "destination": "/eula.html" },
     { "source": "/trademark", "destination": "/trademark.html" },
-    { "source": "/requirements", "destination": "/requirements.html" }
+    { "source": "/requirements", "destination": "/requirements.html" },
+    { "source": "/product/cowork", "destination": "/product/cowork.html" }
   ],
   "redirects": [
     { "source": "/app.html", "destination": "/app", "permanent": false },
@@ -41,6 +42,7 @@
     { "source": "/new.html", "destination": "/new", "permanent": false },
     { "source": "/plugins.html", "destination": "/plugins", "permanent": false },
     { "source": "/projects.html", "destination": "/projects", "permanent": false },
-    { "source": "/artifacts.html", "destination": "/artifacts", "permanent": false }
+    { "source": "/artifacts.html", "destination": "/artifacts", "permanent": false },
+    { "source": "/product/cowork.html", "destination": "/product/cowork", "permanent": false }
   ]
 }
