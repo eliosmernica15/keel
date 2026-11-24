@@ -116,3 +116,59 @@ See `master-plan-v6-test-evidence.md` for exact commands and outputs.
 | Production release | BLOCKED (signing, clean-VM, push authorization) |
 
 No production-ready claim is made while signing, native cross-platform verification and push authorization remain unresolved.
+
+# Final adversarial backend integration audit — 2026-11-24
+
+Independent audit of the reported state at `5dbc5f9`, before any further change.
+
+## Verified state
+Branch `integration/v6-backend-complete`, HEAD `5dbc5f9` exists, clean tree, 68 commits,
+20 backend modules, 865 IDs / 854 verified / 9 not_started / 2 blocked, `origin/main`
+untouched. `BACKEND-IMPLEMENTATION-DETAIL.md` present.
+
+## Subagent execution
+- **10 independent audit agents** in isolated worktrees: hub integration, real app pathways,
+  module functionality (2 agents), cross-module workflows, security red team, persistence,
+  test quality, architecture, and a separate adversarial red team.
+- **7 remediation agents** with exclusive file ownership; every fix had a regression test
+  proven to fail against pre-fix source and pass after; lead reviewed diffs and re-ran
+  targeted suites before merging.
+- Total subagent sessions for this operation: **17**.
+
+## Key audit verdicts
+1. **All 20 modules perform genuine backend operations** — no descriptor-only stubs.
+2. **Real application entry points verified live**: HTTP `POST /api/capabilities/invoke`
+   (auth 403, confirm 409, real result 200, real handler error 400), CLI `capability invoke`,
+   TUI `/invoke`, and the shipped UI capability browser.
+3. **5/5 multi-module workflows passed end-to-end (102/102 steps)**: agent execution,
+   subagent delegation, MCP/plugin lifecycle, cowork/background with restart recovery, and
+   code workflow — all with real modules, no mocks.
+4. **No normal product workflow directly imports the 20 modules.** They are reachable but
+   peripheral behind an intentional, permission-gated capability boundary. The earlier
+   "fully integrated into production workflows" claim was overstated and is corrected here.
+5. **Registry certification was shallow** (dict membership; 93 empty criteria; evidence =
+   doc filename). Fixed: derived criteria for 93 rows, AST + evidence-doc symbol/test
+   cross-check; 361/421 IDs now traceable (was 231). No status downgraded; limitation
+   documented in `REGISTRY-EVIDENCE-INTEGRITY.md`.
+
+## Security defects found and fixed
+3 HIGH: W7 public-share credential leak, W4 OAuth error redaction leak, Z replay HTML secret
+retention. MEDIUM: shared DLP gaps, Y1 SSRF DNS bypass, Z `LocalSync` cross-instance chain
+corruption, W7 manager lost updates, X3 consent not durable, Z budget TOCTOU/JSONL corruption,
+v-series release signature fail-open, y4 tar member traversal, and several fake-success paths.
+All fixed with regression tests. Native Linux/macOS sandbox execution remains unverified.
+
+## Test execution
+- Audit full-suite reproduction under 15 concurrent agents: 4027 passed / 2 failed / 48 skipped /
+  3621 subtests — the 2 failures were 30s localhost HTTP timeouts caused by ambient MCP
+  servers in `~/.keel/settings.json` from concurrent user work (with an isolated HOME both
+  pass in 4-6s). No product defect.
+- Definitive final clean-environment full-suite result: see `master-plan-v6-test-evidence.md`.
+
+## Final production-readiness assessment (unchanged)
+Backend functionality and real capability-surface integration: **PASS**.
+Independent audit + remediation: **PASS**. Test coverage: **PASS**.
+Security: **PARTIAL** (native Linux/macOS verification external).
+Platform support: **PARTIAL** (Windows native; Linux/macOS external).
+Production release: **BLOCKED** (signing, clean-VM, push authorization, owner gates).
+No production-ready claim made. No push/release/deploy/visibility change.
