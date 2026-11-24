@@ -2,4 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://keel-desktop.vercel.app/</loc></url>
   <url><loc>https://keel-desktop.vercel.app/download</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/pricing</loc><lastmod>2026-11-24</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://keel-desktop.vercel.app/app</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/privacy</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/terms</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/requirements</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/roadmap</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/eula</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/trademark</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/notices</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/product/keel-duet</loc><lastmod>2026-11-24</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://keel-desktop.vercel.app/keel-in-chrome</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/chrome-web-store</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/product/keel-code</loc><lastmod>2026-11-24</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://keel-desktop.vercel.app/product/overview</loc><lastmod>2026-11-24</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://keel-desktop.vercel.app/product/cowork</loc><lastmod>2026-11-24</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://keel-desktop.vercel.app/resources/articles/introducing-keel-ship</loc><lastmod>2026-11-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
