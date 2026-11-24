@@ -20,6 +20,7 @@ import hashlib
 import hmac
 import html
 import json
+import math
 import os
 import re
 import secrets
@@ -91,9 +92,24 @@ def _scrub_secrets(text: str) -> str:
     return out
 
 
-# Serialises read-modify-write cycles (and the replace itself) across every
-# caller, including separate manager instances pointing at the same file.
+# Serialises the replace itself; every caller shares this lock.
 _WRITE_LOCK = threading.RLock()
+
+# Read-modify-write cycles need a lock keyed by the resolved *state file*, not
+# by manager instance: two managers over one credentials dir must not both
+# load the same document, append their own entry and overwrite each other.
+_PATH_LOCKS_GUARD = threading.Lock()
+_PATH_LOCKS: dict[str, threading.RLock] = {}
+
+
+def _lock_for_path(path: str | Path) -> threading.RLock:
+    key = str(Path(path).resolve())
+    with _PATH_LOCKS_GUARD:
+        lock = _PATH_LOCKS.get(key)
+        if lock is None:
+            lock = threading.RLock()
+            _PATH_LOCKS[key] = lock
+        return lock
 
 
 def _contained_path(root: str | Path, name: str, *, label: str = "path") -> Path:
@@ -519,10 +535,25 @@ def authorize_live_view(request_owner: str, resource_owner: str) -> bool:
 
 # --- W7.7: browser-bound sealed sign-in ------------------------------------
 
+# HMAC-SHA256 is only as strong as its key.  An arbitrarily short key yields a
+# valid-looking token that is trivially brute-forceable, so reject it at the
+# boundary instead of silently issuing weak signatures.
+_SEAL_KEY_MIN_BYTES = 16
+
+
+def _require_seal_key(key: bytes) -> bytes:
+    if not isinstance(key, (bytes, bytearray)):
+        raise BackendError("seal key must be bytes")
+    value = bytes(key)
+    if len(value) < _SEAL_KEY_MIN_BYTES:
+        raise BackendError(f"seal key must be at least {_SEAL_KEY_MIN_BYTES} bytes")
+    return value
+
 
 def seal_value(value: dict, key: bytes, *, ttl: int = 600,
                now: int | None = None) -> str:
     """W7.7: seal a value as ``b64(payload).b64(hmac)`` with an expiry."""
+    key = _require_seal_key(key)
     issued = int(now if now is not None else time.time())
     payload = dict(value)
     payload["exp"] = issued + int(ttl)
@@ -533,6 +564,10 @@ def seal_value(value: dict, key: bytes, *, ttl: int = 600,
 
 def unseal_value(token: str, key: bytes, *, now: int | None = None) -> dict | None:
     """W7.7: verify the HMAC in constant time and enforce expiry."""
+    try:
+        key = _require_seal_key(key)
+    except BackendError:
+        return None  # fail closed on an under-strength key
     try:
         raw, sig = token.rsplit(".", 1)
         expected = _b64u_encode(hmac.new(key, raw.encode("ascii"), hashlib.sha256).digest())
@@ -565,7 +600,7 @@ class BrowserBoundSignIn:
     """W7.7: a sign-in that only the initiating browser can complete."""
 
     def __init__(self, key: bytes):
-        self.key = key
+        self.key = _require_seal_key(key)
         self._states: dict[str, dict] = {}
         self._consumed: set[str] = set()
         self._lock = threading.RLock()
@@ -778,6 +813,10 @@ class SpendLimitExceeded(BackendError):
     pass
 
 
+class InvalidSpendAmount(BackendError):
+    """A charge/cap that is not a positive, finite, representable amount."""
+
+
 class AtomicSpendLedger:
     """W7.18/A3.10: check-then-increment inside one lock (DB transaction sim)."""
 
@@ -790,7 +829,15 @@ class AtomicSpendLedger:
 
     @classmethod
     def _units(cls, amount: float) -> int:
-        return max(0, int(round(float(amount) * cls._SCALE)))
+        if isinstance(amount, bool) or not isinstance(amount, (int, float)):
+            raise InvalidSpendAmount("amount must be a number")
+        value = float(amount)
+        if not math.isfinite(value) or value <= 0:
+            raise InvalidSpendAmount("amount must be finite and > 0")
+        units = int(round(value * cls._SCALE))
+        if units <= 0:
+            raise InvalidSpendAmount("amount is too small to represent in micro-units")
+        return units
 
     def authorize_and_charge(self, vendor: str, amount: float) -> dict:
         cost = self._units(amount)
@@ -1157,7 +1204,7 @@ class WebhookSubscriptionManager:
     def __init__(self, credentials_dir: str | Path):
         self.path = _contained_path(
             credentials_dir, "webhook-subscriptions.json", label="credentials path")
-        self._lock = threading.RLock()
+        self._lock = _lock_for_path(self.path)
 
     def _load(self) -> dict:
         doc = _load_json(self.path, {})
@@ -1250,7 +1297,7 @@ class ChatIdCache:
     def __init__(self, credentials_dir: str | Path):
         self.path = _contained_path(
             credentials_dir, "chat-id-map.json", label="credentials path")
-        self._lock = threading.RLock()
+        self._lock = _lock_for_path(self.path)
 
     def _load(self) -> dict:
         doc = _load_json(self.path, {})

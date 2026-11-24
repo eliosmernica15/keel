@@ -583,6 +583,57 @@ def test_y5_9_excluded_channels():
 
 
 # ---------------------------------------------------------------------------
+# Regressions for the confirmed race / fake-success findings
+# ---------------------------------------------------------------------------
+
+
+def test_y5_3_concurrent_subscribers_across_instances_do_not_lose_updates(tmp_path):
+    managers = [m.WebhookSubscriptionManager(tmp_path / "credentials")
+                for _ in range(2)]
+    count = 60
+    errors: list[Exception] = []
+    barrier = threading.Barrier(count)
+
+    def worker(index):
+        try:
+            barrier.wait()
+            managers[index % len(managers)].subscribe(
+                f"https://example.test/hook/{index}", ["message.received"],
+                label=f"sub-{index}")
+        except BaseException as exc:  # surfaced by the assertion below
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(count)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert not errors
+    assert len(m.WebhookSubscriptionManager(tmp_path / "credentials").list()) == count
+
+
+def test_w7_18_non_positive_or_invalid_charges_are_rejected():
+    ledger = m.AtomicSpendLedger({"ads": 10.0})
+    for bad in (-3, 0, -0.5, float("nan"), float("inf"), "3", True, None):
+        with pytest.raises(m.InvalidSpendAmount):
+            ledger.authorize_and_charge("ads", bad)
+    assert ledger.spent("ads") == 0.0
+    receipt = ledger.authorize_and_charge("ads", 1.0)
+    assert receipt["charged_units"] == 1_000_000
+    assert ledger.spent("ads") == 1.0
+
+
+def test_w7_7_seal_key_minimum_length_is_enforced():
+    strong = b"synthetic-test-key-32-bytes-long!!"
+    token = m.seal_value({"user": "alice"}, strong, ttl=60, now=1000)
+    assert m.unseal_value(token, strong, now=1001) == {"user": "alice", "exp": 1060}
+    with pytest.raises(m.BackendError):
+        m.seal_value({"user": "alice"}, b"short")
+    # A token presented with an under-strength key fails closed.
+    assert m.unseal_value(token, b"short", now=1001) is None
+
+
+# ---------------------------------------------------------------------------
 # Registry consistency guard
 # ---------------------------------------------------------------------------
 
