@@ -15,12 +15,14 @@ Colour literals exist only in `globals.css`. `ui.css` maps them to semantic role
 | Sidebar / chrome | `--k-side` | translucent obsidian | translucent warm white |
 | Card / control | `--k-card` | white 4% | white 38% |
 | Primary text | `--k-text` | `#F2F0EA` | `#241F1A` family |
-| Secondary text | `--k-muted` | `#8A8279` | `#6F685F` family |
-| Accent | `--k-accent` | `#E6D54C` | `#8A5A07` family |
+| Secondary text | `--k-muted` | `#8A8279` | `#5F5952` (5.69:1 on the light canvas) |
+| Accent | `--k-accent` | `#E6D54C` | `#8A5A07` (4.87:1; white text on it 5.92:1) |
 | Success | `--k-ok` | `#6FE3B0` | `#1B6B47` |
-| Warning | `--k-warn` | `#E6D54C` | `#9A6A05` |
-| Danger | `--k-danger` | `#F09A86` | `#C2432C` |
-| Info | `--k-info` | `#8AB4FF` | `#3355B0` |
+| Warning | `--k-warn` | `#E6D54C` | `#7A5200` |
+| Danger | `--k-danger` | `#F09A86` | `#A8382A` |
+| Info | `--k-info` | `#8AB4FF` | `#294A9C` |
+
+Light-theme primary buttons and the skip link use white text on the dark accent; dark theme keeps near-black text on the yellow accent. Both pairings pass computed WCAG AA (verified by `tests/a11y/01-contrast.spec.ts`).
 
 Gold is a signal, not wallpaper. Large gold fills are reserved for the primary action only. Status always pairs colour with an icon or label — never colour alone.
 

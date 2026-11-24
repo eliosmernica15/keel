@@ -1,7 +1,8 @@
 # UI Architecture & Renderer Decision Record
 
 **Branch:** `feat/frontend-unified-workspace` (worktree `C:\Users\Admin\Desktop\keel-frontend-worktree`)
-**Base:** `integration/v6-addenda-complete` @ `c297d7a`
+**Original base:** `integration/v6-addenda-complete` @ `c297d7a`
+**Current baseline:** reconciled with `0865817` (merge `5a670c3`) and then `5dbc5f9` / `integration/v6-backend-complete` (merge `07a15fa`). Both merges were conflict-free and changed no frontend file; the only API-adjacent change was additive capability-hub registrations. No fleet bridge route, webapp route or payload shape changed.
 **Scope:** unified frontend only. No backend, packaging or public-site behaviour was repointed.
 
 ---

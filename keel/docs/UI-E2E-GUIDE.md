@@ -30,7 +30,8 @@ Prerequisites: `node_modules` installed; a Python bridge listening on `http://12
 ```powershell
 cd keel/fleet-next
 npx playwright install chromium          # once
-npx playwright test                      # full suite (52 tests)
+npx playwright test                      # full suite (131 tests after QA added stress/theme/network/tour specs)
+npm run test:features                    # five feature suites (Cowork, Code+Duet, Fleet, Capabilities+Settings, Onboarding)
 npx playwright test tests/e2e/07-responsive.spec.ts
 npx playwright show-report tests/e2e/report
 npx tsc --noEmit --incremental false    # tests type-check cleanly
@@ -73,8 +74,10 @@ produced `console.error: ERR_FAILED` and tripped the strict console gate).
 | Type check | `npx tsc --noEmit --incremental false` | no output, exit 0 |
 | Onboarding spec, dev (D-E2E-006 recheck) | `npx playwright test tests/e2e/01-launch-onboarding.spec.ts --workers=2` | **3 passed / 0 failed / 0 skipped** (20.9 s), including the reload-after-onboarding case under the strict console gate. |
 | Onboarding spec, prod (D-E2E-006 recheck) | `npx playwright test --config tests/e2e/playwright.prod.config.ts tests/e2e/01-launch-onboarding.spec.ts --workers=2` | **3 passed / 0 failed / 0 skipped** (39.7 s). |
-| Dev-mode suite (final) | `npx playwright test --workers=2` | **52 passed / 0 failed / 0 skipped** (52 tests, 1.8 min). |
-| Production-mode suite (final) | `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2` | **52 passed / 0 failed / 0 skipped** (52 tests, 1.4 min). |
+| Dev-mode suite (earlier stable run) | `npx playwright test --workers=2` | **52 passed / 0 failed / 0 skipped** (52 tests, 1.8 min). With QA's later stress/theme/network/tour specs the suite grew to 131 tests; under extreme parallel agent load one dev run was 127/131 with four environment flakes, all four passing on targeted re-run. |
+| Production-mode suite (final, QA) | `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2` | **131 passed / 0 failed** (4.4 min), strict console gate. |
+| Feature suites (final) | `npm run test:features` | Cowork 18, Code+Duet 16, Fleet 8, Capabilities+Settings 14, Onboarding 8 — all passed (owners' real runs). |
+| Accessibility suite (contrast re-test) | `npx playwright test --config tests/a11y/playwright.a11y.config.ts tests/a11y/01-contrast.spec.ts --workers=1` | **2 passed** after lead fixed light-theme tokens; 0 computed AA violations in both themes. |
 | Production build (rebuild after lead's fixes) | `$env:KEEL_DIST_DIR='.next-e2e'; npx next build` | compiled successfully; 5/5 static pages generated; `/` 91.4 kB / 194 kB First Load JS |
 
 A second, optional config `tests/e2e/playwright.prod.config.ts` uses the same port/env/console gate
@@ -104,4 +107,4 @@ narrow-screen drawers closed on first load (lead's `lib/state.tsx` fix), with th
 - Electron/Tauri packaged renderer paths (out of scope).
 - Computed contrast ratios and screen-reader announcements (static/visual evidence only).
 - All E2E defects found by this workstream (D-E2E-001 … D-E2E-006) are now fixed and re-verified.
-  No test is skipped or `fixme`'d; both full suites are 52/52 with the strict console gate.
+  No test is skipped or `fixme`'d; the final production suite is 131/131 with the strict console gate.

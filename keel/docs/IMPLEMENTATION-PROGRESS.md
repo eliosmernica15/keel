@@ -1228,3 +1228,50 @@ Shared types/API/state, UI primitives and icon set, design-token mapping, app sh
 - Final real results: `npx playwright test --workers=2` → **52 passed / 0 failed / 0 skipped**; production-config run → **52 passed / 0 failed / 0 skipped**; `npx tsc --noEmit` clean; `npm run build` pass; QA harness 14 pass / 0 fail / 4 skipped.
 - 36 required viewport × destination screenshots plus the first-run screenshot regenerated. The 360/390 captures show drawers closed with the workspace visible; 1024×768 Code/Duet show a real work area.
 - See `UI-E2E-GUIDE.md`, `UI-DEFECT-LOG.md` and `UI-DESKTOP-RENDERING.md` for full evidence, including what remains unverified (live model turn, packaged Electron/Tauri GUI, computed contrast, screen-reader walkthrough).
+
+
+### Finalization round 2 — independent verification (lead)
+
+- Re-verified repository and all 11 previous frontend commits by hash and subject on `feat/frontend-unified-workspace`; working tree was clean before any new work.
+- Shared baseline had advanced again: `0865817` → `5dbc5f9` (`integration/v6-backend-complete`, 68 new commits). Reconciled with a no-conflict merge commit `07a15fa`. The only API-adjacent change is additive capability-hub registrations in `keel/src/keel/capabilities.py`; no fleet bridge route, webapp route or request/response shape changed, so `UI-BACKEND-CONTRACT.md` remains valid.
+- Launched all six implementation/QA subagents in parallel with exclusive ownership: A Cowork, B Code+Duet, C Fleet, D Capabilities/Providers/Settings, E Onboarding, F independent QA/a11y/visual.
+- Lead verification after merge: `npx tsc --noEmit` exit 0; `node tests/ui/verify-ui.mjs` 14 pass / 0 fail / 4 skipped; `npm run build` pass.
+- Independently re-read renderer path sources: Electron `uiRoot()` prefers `resources/site` (browser-only mirror), Tauri `frontendDist: ../ui` (`desktop/ui`), bridge `UI_DIR` defaults to `desktop/ui` with env override. Matches `UI-DESKTOP-RENDERING.md`; no renderer repointed.
+- Visually inspected generated E2E screenshots at 360×800 (drawers closed, workspace visible) and 1024×768 (Code has a non-zero work area with clear empty states).
+- Live browser walkthrough against the real local bridge: Cowork, Code, Duet and Fleet all rendered; 0 console errors; `scrollWidth === innerWidth`; theme dark.
+
+
+### Python regression guard (lead, after baseline merge)
+
+Command: `cd keel && $env:PYTHONPATH='src'; python -m pytest -q`
+Result: **7 failed, 4019 passed, 51 skipped, 3621 subtests passed in 805.07 s (13m25s)**.
+
+All seven failures are outside the frontend scope and in untouched files:
+- `test_distribution_package.py` (2) / `test_gap_closure.py` (2) / `test_release_integrity.py` (1): `keel/release/RELEASE-MANIFEST.json`, `RELEASE-SHA256SUMS.txt` and build artifacts are absent in this checkout — release-packaging environment, not code changed here.
+- `test_plan_index.py::test_authoritative_source_hashes_unchanged`: checked-in plan fixture hash mismatch.
+- `test_quick_ask.py::test_quick_ask_endpoint_uses_real_runtime`: HTTP 30 s timeout while many parallel agent dev servers were running; environment contention, not a frontend change.
+
+No Python file was modified by the frontend workstream. These are existing baseline/environment failures, not frontend regressions.
+
+
+### Finalization round 2 — subagent results
+
+| Agent | Responsibility | Actual deliverables | Tests (real output) |
+|---|---|---|---|
+| A | Cowork | GFM tables/code copy, message grouping, ordered execution timeline with real progressbar, plan states from real approval ids, expired/resolved approval handling, stale-run fixes, StrictMode draft fix, real model selector via `providers/catalog` + `bots/:id/update`, XHR upload with byte progress/failure/retry, offline banner | 18 passed (8 specs, 57.5 s) in `tests/features/cowork`; tsc clean |
+| B | Code & Duet | Right-tab hydration fix, per-project pane geometry, dirty-tab close guard, unsaved panes kept mounted, porcelain status parsing fix, Duet per-project layout map, dirty indicators | 16 passed (5 specs, 2.7 m); `npm run build` pass |
+| C | Fleet | Real groups count from `GET groups`, seq-based group round tracking + honest 409, task cancel route + undo, routine pause reason, preview for all real files, reasoning-effort allow-list, audit filter values, parent/child from real row fields, no fake hierarchy | 8 passed (1.9 m); parity matrix updated with route evidence |
+| D | Capabilities / providers / settings | Removed dead bundled-skill Remove control, labelled client-only slash commands, fixed Windows risky-path detection | 14 passed (3.3 m); credentials never prefilled/stored/echoed |
+| E | Onboarding | Trust result visibility, working "Skip for now" (records deferred), tour restart at correct step, checklist tour action, honest copy, workspace empty state | 8 passed (1.8 m); tsc clean |
+| F | QA / a11y / visual | continuous — see `UI-TEST-MATRIX.md` / `UI-DEFECT-LOG.md` / `UI-ACCESSIBILITY-AUDIT.md` | in progress at time of this entry |
+
+Lead integration: tour palette command now calls `restartAtStep("tour")`; added `test:e2e`, `test:features`, `test:ui` npm scripts so all five feature suites are discoverable; `.gitignore` extended for all isolated `.next-*/` build dirs and generated E2E artifacts.
+
+
+### Finalization round 3 — completion
+
+- All six required subagents launched and completed: A Cowork (18 tests), B Code+Duet (16), C Fleet (8), D Capabilities/Settings (14), E Onboarding (8), F continuous QA/a11y/visual (131 E2E + a11y/stress/network suites). Each had exclusive file ownership and reported real commands/results; no agent made commits or touched backend code.
+- Agent F found QA-F-002 (High): 338 computed light-theme AA contrast violations. Lead fixed root tokens in `app/globals.css` (`--muted:#5f5952`, `--accent:#8a5a07` — the plan's light accent, `--warn:#7a5200`, `--ok:#1b6b47`, `--danger:#a8382a`, `--info:#294a9c`) and paired white text with the dark accent in light theme (`app/ui.css` primary button + skip link). Re-test: `npx playwright test --config tests/a11y/playwright.a11y.config.ts tests/a11y/01-contrast.spec.ts --workers=1` → **2 passed**, 0 violations in both themes, light minimum 4.87:1. QA-F-002 closed in `UI-DEFECT-LOG.md`; `UI-ACCESSIBILITY-AUDIT.md` and `UI-DESIGN-SYSTEM.md` updated.
+- Lead integration also fixed the palette tour command (`restartAtStep("tour")`), added `test:e2e` / `test:features` / `test:ui` npm scripts so all five feature suites are discoverable, and extended `.gitignore` for every isolated `.next-*/` build dir plus generated E2E artifacts.
+- Final lead verification after all integration: `npx tsc --noEmit` exit 0; `node tests/ui/verify-ui.mjs` 14 pass / 4 skipped; `npm run build` pass; `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2 --reporter=line` → **131 passed / 0 failed (2.5 min)** with strict console gate. Deep baseline (`5dbc5f9`) Python suite: 7 failed / 4019 passed / 51 skipped — failures all in untouched release/plan/backend areas (see § Python regression guard).
+- Remaining open: packed Electron/Tauri GUI verification (no fresh package build / Tauri binary; documented renderer finding), live provider turn (no credentials), screen-reader hardware audit, browser-native zoom control, intermittent bridge 504 under heavy parallel load, optional dictation, and history virtualization.
