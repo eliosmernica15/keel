@@ -9,13 +9,19 @@ from __future__ import annotations
 
 import concurrent.futures
 import json
+import os
+import subprocess
+import sys
 import threading
+import time
 from dataclasses import FrozenInstanceError
 from pathlib import Path
 
 import pytest
 
+import keel.backend_events as be
 from keel.backend_events import (
+    GENESIS_DIGEST,
     SCHEMA_ID,
     SCHEMA_VERSION,
     CorruptRecordError,
@@ -25,7 +31,9 @@ from keel.backend_events import (
     DuplicateEventError,
     EventBus,
     EventBusError,
+    EventBusLockError,
     InvalidEventError,
+    LogRecovery,
     SessionStarted,
     TaskCreated,
     UnknownEventKindError,
@@ -360,6 +368,200 @@ def test_corrupt_log_fails_closed(tmp_path: Path, mode: str):
         bus.publish(sample("error_recorded"))
     with pytest.raises(CorruptRecordError):
         bus.replay()
+
+
+# ---------------------------------------------------------------------------
+# Cross-process atomicity, locking and interrupted-append recovery
+# ---------------------------------------------------------------------------
+
+# Each worker waits for a shared gate so that all processes reach publish at
+# roughly the same time.  The workers are real, independent interpreters: no
+# in-process lock or shared memory can be used to coordinate them.
+_WORKER_PROGRAM = r"""
+import os
+import sys
+import time
+sys.path.insert(0, sys.argv[1])
+from keel.backend_events import EventBus, SessionStarted
+root, index, gate = sys.argv[2], sys.argv[3], sys.argv[4]
+deadline = time.monotonic() + 20
+while not os.path.exists(gate):
+    if time.monotonic() > deadline:
+        raise SystemExit("gate timeout")
+    time.sleep(0.001)
+bus = EventBus(root)
+bus.publish(SessionStarted(event_id=f"evt-{index}", session_id=f"session-{index}"))
+"""
+
+
+def test_concurrent_publish_from_separate_processes(tmp_path: Path) -> None:
+    src = Path(__file__).resolve().parents[1] / "src"
+    gate = tmp_path / "start.flag"
+    workers = 8
+    procs = [
+        subprocess.Popen(
+            [sys.executable, "-c", _WORKER_PROGRAM, str(src), str(tmp_path),
+             str(i), str(gate)],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        )
+        for i in range(workers)
+    ]
+    gate.touch()
+    try:
+        outputs = [proc.communicate(timeout=60) for proc in procs]
+    except subprocess.TimeoutExpired:
+        for proc in procs:
+            proc.kill()
+        raise
+    failures = [(i, proc.returncode, out, err)
+                for i, (proc, (out, err)) in enumerate(zip(procs, outputs))
+                if proc.returncode != 0]
+    assert not failures, failures
+
+    log = tmp_path / "backend-events.jsonl"
+    head_path = tmp_path / "backend-events.jsonl.head"
+    records = [json.loads(line) for line in
+               log.read_text(encoding="utf-8").splitlines()]
+    # Unique, gap-free, monotonic sequences -- no duplicates and no lost events.
+    assert [r["seq"] for r in records] == list(range(1, workers + 1))
+    ids = [r["data"]["event"]["data"]["event_id"] for r in records]
+    assert set(ids) == {f"evt-{i}" for i in range(workers)}
+    assert len(ids) == len(set(ids))
+    # Digest chain and the commit head agree with the durable records.
+    for expected_prev, record in zip(
+            [GENESIS_DIGEST] + [r["digest"] for r in records], records):
+        assert record["prev"] == expected_prev
+        assert record["digest"] == be._record_digest(record)
+    assert json.loads(head_path.read_text(encoding="utf-8")) == {
+        "count": workers, "digest": records[-1]["digest"]}
+
+    reopened = EventBus(tmp_path)
+    assert len(reopened.events) == workers
+    assert {event.event_id for event in reopened.events} == set(ids)
+    assert reopened.last_recovery is None
+    assert not (tmp_path / "backend-events.jsonl.lock").exists()
+
+
+def test_interrupted_head_commit_rolls_forward_with_typed_recovery(
+        tmp_path: Path) -> None:
+    bus = EventBus(tmp_path)
+    bus.publish(sample("session_started"))
+    head = tmp_path / "backend-events.jsonl.head"
+    # Simulate a crash after the record was fsynced but before the head moved.
+    head.write_text(json.dumps({"count": 0, "digest": GENESIS_DIGEST}) + "\n",
+                    encoding="utf-8")
+
+    reopened = EventBus(tmp_path)
+    assert [e.event_id for e in reopened.events] == ["ev-session_started"]
+    recovery = reopened.last_recovery
+    assert isinstance(recovery, LogRecovery)
+    assert (recovery.action, recovery.count, recovery.seq) == (
+        "committed_tail", 1, 1)
+    assert json.loads(head.read_text(encoding="utf-8"))["count"] == 1
+    assert reopened.publish(sample("task_created", "-2")) is True
+    assert [e.event_id for e in reopened.events] == [
+        "ev-session_started", "ev-task_created-2"]
+    assert reopened.last_recovery == recovery  # one-off, not repeated
+
+
+def test_partial_trailing_record_is_trimmed_and_log_stays_readable(
+        tmp_path: Path) -> None:
+    bus = EventBus(tmp_path)
+    bus.publish(sample("session_started"))
+    log = tmp_path / "backend-events.jsonl"
+    with log.open("ab") as handle:
+        handle.write(b'{"seq":2,"prev":')  # torn write, no complete JSON record
+
+    reopened = EventBus(tmp_path)
+    recovery = reopened.last_recovery
+    assert isinstance(recovery, LogRecovery)
+    assert (recovery.action, recovery.count, recovery.seq) == (
+        "truncated_tail", 1, 1)
+    assert reopened.events == (sample("session_started"),)
+    assert len(log.read_bytes().splitlines()) == 1
+    assert reopened.publish(sample("task_created", "-2")) is True
+    assert len(reopened.events) == 2
+
+
+def test_stale_lock_from_dead_process_is_reclaimed(tmp_path: Path) -> None:
+    lock = tmp_path / "backend-events.jsonl.lock"
+    lock.write_text(f"2147483647 {time.time():.6f}\n", encoding="ascii")
+    bus = EventBus(tmp_path)
+    assert bus.publish(sample("session_started")) is True
+    assert not lock.exists()
+
+
+_CRASH_WORKER = r"""
+import os
+import sys
+sys.path.insert(0, sys.argv[1])
+from keel.backend_events import (
+    GENESIS_DIGEST, EventBus, SessionStarted, _append_line, _record_digest)
+bus = EventBus(sys.argv[2])
+bus.publish(SessionStarted(event_id="evt-1", session_id="s1"))
+store = bus._store
+with store.lock:
+    records = store._read()
+    record = {
+        "seq": len(records) + 1,
+        "prev": records[-1]["digest"] if records else GENESIS_DIGEST,
+        "data": {"event": SessionStarted(
+            event_id="evt-2", session_id="s2").to_dict()},
+    }
+    record["digest"] = _record_digest(record)
+    _append_line(store.path, record)
+    # Hard crash: the record is durable, the head is not, and the lock file
+    # is abandoned by a process that is no longer alive.
+    os._exit(9)
+"""
+
+
+def test_real_subprocess_crash_between_append_and_head(tmp_path: Path) -> None:
+    src = Path(__file__).resolve().parents[1] / "src"
+    result = subprocess.run(
+        [sys.executable, "-c", _CRASH_WORKER, str(src), str(tmp_path)],
+        capture_output=True, text=True, timeout=60,
+    )
+    assert result.returncode == 9, result.stderr
+
+    reopened = EventBus(tmp_path)
+    assert [event.event_id for event in reopened.events] == ["evt-1", "evt-2"]
+    recovery = reopened.last_recovery
+    assert isinstance(recovery, LogRecovery)
+    assert (recovery.action, recovery.count, recovery.seq) == (
+        "committed_tail", 1, 2)
+    assert json.loads((tmp_path / "backend-events.jsonl.head").read_text()) == {
+        "count": 2, "digest": reopened._store.records[-1]["digest"]}
+    assert not (tmp_path / "backend-events.jsonl.lock").exists()
+
+
+def test_live_lock_fails_closed_with_typed_error(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    lock = tmp_path / "backend-events.jsonl.lock"
+    lock.write_text(f"{os.getpid()} {time.time():.6f}\n", encoding="ascii")
+    monkeypatch.setattr(be, "_LOCK_TIMEOUT_SECONDS", 0.05)
+    with pytest.raises(EventBusLockError):
+        EventBus(tmp_path)
+    assert lock.exists()  # a live lock is never stolen
+    lock.unlink()
+
+
+def test_subscriber_callback_can_publish_reentrantly(tmp_path: Path) -> None:
+    bus = EventBus(tmp_path)
+    seen: list[str] = []
+
+    def on_event(event: BackendEvent) -> None:
+        seen.append(event.event_id)
+        if event.KIND == "session_started":
+            bus.publish(sample("task_created", "-nested"))
+
+    bus.subscribe(on_event)
+    bus.publish(sample("session_started"))
+    # Re-entrant delivery is at-least-once (the cursor advances after the
+    # callback returns), but the nested append must not deadlock or reorder.
+    assert "ev-session_started" in seen
+    assert "ev-task_created-nested" in seen
+    assert [r["seq"] for r in bus._store.records] == [1, 2]
 
 
 # ---------------------------------------------------------------------------
