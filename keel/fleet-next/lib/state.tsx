@@ -61,37 +61,51 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [commands, setCommands] = useState<CommandAction[]>([]);
   const [onboardingDone, setOnboardingDone] = useState(true);
   const [reduceMotion, setReduceMotion] = useState(false);
+  // Do not overwrite the pre-paint values set by layout.tsx until preferences
+  // have actually been hydrated, otherwise a saved light theme flashes dark.
+  const [hydrated, setHydrated] = useState(false);
   const noticeSeq = useRef(0);
 
   // hydrate persisted preferences after mount
   useEffect(() => {
     setSurfaceState(readStored("keel-surface", "cowork", (v): v is Surface => SURFACES.includes(v as Surface)));
     setThemeState(readStored<Theme>("keel-theme-v2", "dark", (v): v is Theme => THEMES.includes(v as Theme)));
-    setSidebarOpen(readStored("keel-sidebar-open", true, (v): v is boolean => typeof v === "boolean"));
-    setRightPanelOpen(readStored("keel-right-open", true, (v): v is boolean => typeof v === "boolean"));
+    const narrow = window.innerWidth <= 1100;
+    setSidebarOpen(narrow ? false : readStored("keel-sidebar-open", true, (v): v is boolean => typeof v === "boolean"));
+    setRightPanelOpen(narrow ? false : readStored("keel-right-open", true, (v): v is boolean => typeof v === "boolean"));
     setSidebarWidth(readStored("keel-sidebar-width", 272, (v): v is number => typeof v === "number" && v >= 200 && v <= 460));
     setRightWidth(readStored("keel-right-width", 340, (v): v is number => typeof v === "number" && v >= 260 && v <= 620));
     setOnboardingDone(readStored("keel-onboarding-done", false, (v): v is boolean => typeof v === "boolean"));
+
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     setSystemDark(mq.matches);
     const onChange = (e: MediaQueryListEvent) => setSystemDark(e.matches);
-    mq.addEventListener("change", onChange);
     const mqr = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduceMotion(mqr.matches);
     const onMotion = (e: MediaQueryListEvent) => setReduceMotion(e.matches);
-    mqr.addEventListener("change", onMotion);
+
+    // addEventListener is missing on older Safari MediaQueryList objects.
+    if (mq.addEventListener) mq.addEventListener("change", onChange); else mq.addListener(onChange);
+    if (mqr.addEventListener) mqr.addEventListener("change", onMotion); else mqr.addListener(onMotion);
+
+    // Batched with the state updates above, so the first committed render after
+    // hydration already has the stored theme and the live media-query values.
+    setHydrated(true);
+
     return () => {
-      mq.removeEventListener("change", onChange);
-      mqr.removeEventListener("change", onMotion);
+      if (mq.removeEventListener) mq.removeEventListener("change", onChange); else mq.removeListener(onChange);
+      if (mqr.removeEventListener) mqr.removeEventListener("change", onMotion); else mqr.removeListener(onMotion);
     };
   }, []);
 
   const resolvedTheme = theme === "system" ? (systemDark ? "dark" : "light") : theme;
 
   useEffect(() => {
+    if (!hydrated) return;
     document.documentElement.dataset.theme = resolvedTheme;
+    document.documentElement.style.colorScheme = resolvedTheme;
     document.documentElement.dataset.reducedMotion = reduceMotion ? "true" : "false";
-  }, [resolvedTheme, reduceMotion]);
+  }, [hydrated, resolvedTheme, reduceMotion]);
 
   const setSurface = useCallback((s: Surface) => {
     setSurfaceState(s);
@@ -103,8 +117,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try { localStorage.setItem("keel-theme-v2", JSON.stringify(t)); } catch { /* ignore */ }
   }, []);
 
-  useEffect(() => { try { localStorage.setItem("keel-sidebar-open", JSON.stringify(sidebarOpen)); } catch {} }, [sidebarOpen]);
-  useEffect(() => { try { localStorage.setItem("keel-right-open", JSON.stringify(rightPanelOpen)); } catch {} }, [rightPanelOpen]);
+  // Drawer state on narrow screens is session-only; only persist desktop
+  // panel preferences so a mobile visit cannot close panels on desktop.
+  useEffect(() => { if (window.innerWidth <= 1100) return; try { localStorage.setItem("keel-sidebar-open", JSON.stringify(sidebarOpen)); } catch {} }, [sidebarOpen]);
+  useEffect(() => { if (window.innerWidth <= 1100) return; try { localStorage.setItem("keel-right-open", JSON.stringify(rightPanelOpen)); } catch {} }, [rightPanelOpen]);
   useEffect(() => { try { localStorage.setItem("keel-sidebar-width", JSON.stringify(sidebarWidth)); } catch {} }, [sidebarWidth]);
   useEffect(() => { try { localStorage.setItem("keel-right-width", JSON.stringify(rightWidth)); } catch {} }, [rightWidth]);
 
@@ -118,6 +134,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const registerCommands = useCallback((next: CommandAction[]) => {
     setCommands((prev) => {
+      // Bail out when the catalogue is unchanged. Without this guard a caller
+      // whose effect depends on app state re-registers on every render and
+      // triggers an infinite "Maximum update depth exceeded" loop.
+      if (prev.length === next.length && prev.every((c, i) =>
+        c.id === next[i].id && c.label === next[i].label &&
+        c.group === next[i].group && c.hint === next[i].hint)) return prev;
       const ids = new Set(next.map((c) => c.id));
       return [...next, ...prev.filter((c) => !ids.has(c.id))];
     });

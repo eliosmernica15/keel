@@ -478,6 +478,7 @@ export default function Duet() {
 
         {!narrow && explorerOpen && (
           <ResizeHandle orientation="vertical" label="Resize Duet file explorer"
+            value={explorerWidth} min={220} max={440}
             onDrag={(delta) => setExplorerWidth((w) => clamp(w + delta, 220, 440))} />
         )}
 
@@ -543,6 +544,7 @@ export default function Duet() {
 
         {!narrow && contextOpen && (
           <ResizeHandle orientation="vertical" label="Resize Duet context pane"
+            value={contextWidth} min={240} max={480}
             onDrag={(delta) => setContextWidth((w) => clamp(w - delta, 240, 480))} />
         )}
 

@@ -81,7 +81,7 @@ const K = {
   change: "keel-onboarding-change",
 } as const;
 
-function freshChecklist(): Checklist {
+export function freshChecklist(): Checklist {
   const out = {} as Checklist;
   for (const id of ITEM_IDS) out[id] = "pending";
   return out;
@@ -166,9 +166,12 @@ export function writeMode(mode: Mode): void {
 
 /** Local, in-memory mirror of the persisted checklist for the shell + wizard. */
 export function useChecklist(): Checklist {
-  const [list, setList] = useState<Checklist>(() => readChecklist());
+  // Deterministic first render: localStorage is read only AFTER mount so the
+  // server HTML and the first client render agree (React #418 fix).
+  const [list, setList] = useState<Checklist>(() => freshChecklist());
   useEffect(() => {
     const sync = () => setList(readChecklist());
+    sync();
     window.addEventListener(K.change, sync);
     window.addEventListener("storage", sync);
     return () => {

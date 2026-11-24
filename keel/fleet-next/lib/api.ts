@@ -99,7 +99,8 @@ export const bridge = {
   shells: () => api<ShellHandle[] | { shells?: ShellHandle[] }>("shells"),
   shellOutput: (handle: string) => api<ShellHandle>(`shells/${handle}/output`),
   killShell: (handle: string) => api(`shells/${handle}/kill`, { method: "POST", body: "{}" }),
-  clearFinishedShells: () => api("shells/clear/finished", { method: "POST", body: "{}" }),
+  // The bridge exposes this as a GET route (routes.py:528); POST falls through.
+  clearFinishedShells: () => api("shells/clear/finished"),
 
   /* tasks / routines / library */
   tasks: () => api<FleetTask[] | { tasks?: FleetTask[] }>("tasks"),
@@ -142,21 +143,29 @@ export const bridge = {
   keepAwake: (enabled?: boolean) =>
     enabled === undefined
       ? api<boolean>("keep-awake")
-      : api<boolean>("keep-awake", { method: "POST", body: JSON.stringify({ enabled }) }),
+      : api<boolean>("keep-awake", { method: "POST", body: JSON.stringify({ on: enabled }) }),
 
   exportUrl: (botId: string) => `/api/bridge/bots/${botId}/export.md`,
   downloadUrl: (id: string) => `/api/bridge/library/${id}/download`,
   previewUrl: (id: string) => `/api/bridge/library/${id}/preview`,
 };
 
-/** Subscribe to the bridge SSE stream. Returns an unsubscribe function. */
-export function subscribeEvents(onEvent: (event: MessageEvent) => void, onError?: () => void): () => void {
+/** Subscribe to the bridge SSE stream. Returns an unsubscribe function.
+ *  The bridge emits named `event: row` frames (routes.py:1748); those do NOT
+ *  reach `onmessage`, so both the named listener and the generic handler are
+ *  required. Each frame is delivered exactly once. */
+export function subscribeEvents(onEvent: (event: MessageEvent) => void, onError?: () => void, onOpen?: () => void): () => void {
   const es = new EventSource("/api/bridge/events");
+  if (onOpen) es.onopen = onOpen;
+  const onRow = (e: Event) => {
+    try { onEvent(e as MessageEvent); } catch { /* consumer owns its errors */ }
+  };
+  es.addEventListener("row", onRow);
   es.onmessage = (e) => {
-    try { onEvent(e); } catch { /* consumer is responsible for its own errors */ }
+    try { onEvent(e); } catch { /* consumer owns its errors */ }
   };
   es.onerror = () => { onError?.(); };
-  return () => es.close();
+  return () => { es.removeEventListener("row", onRow); es.close(); };
 }
 
 /** A typed slash-command catalogue — descriptions only, no fabricated execution. */

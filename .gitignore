@@ -23,6 +23,11 @@ research/
 # --- build artifacts ---
 node_modules/
 .next/
+.next-e2e/
+playwright-report/
+**/tests/e2e/report/
+**/tests/e2e/screenshots/
+**/tests/e2e/test-results/
 out/
 dist/
 build/

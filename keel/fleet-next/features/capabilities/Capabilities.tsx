@@ -49,10 +49,10 @@ export default function Capabilities() {
             <span className={s.titleIcon} aria-hidden="true"><Icon name="capabilities" size={20} /></span>
             <div>
               <h1>Capabilities</h1>
-              <p className={s.subtitle}>What Keel can do on this machine — every status below comes from the connected bridge.</p>
+              <p className={s.subtitle}>What Keel can do on this machine. Status is shown only when the local bridge reports it; unavailable systems are labelled explicitly.</p>
             </div>
           </div>
-          <Badge tone="info" dot>Live bridge data</Badge>
+          <Badge tone="neutral">Local-first</Badge>
         </div>
         <div className={s.tabsBar}>
           <Tabs tabs={TABS.map((t) => ({ ...t, icon: <Icon name={t.icon} size={14} /> }))}

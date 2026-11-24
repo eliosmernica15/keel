@@ -37,21 +37,71 @@
   --k-shadow-md: 0 16px 48px -16px rgba(0,0,0,.45);
 }
 
+/* Reduced motion: collapse EVERY animation/transition entry point, including
+   delayed and infinite ones. Loading/status information is never conveyed by
+   motion alone: spinners carry an aria-label, skeletons are decorative and
+   active states use a static underline or background. */
 :root[data-reduced-motion="true"] *,
 :root[data-reduced-motion="true"] *::before,
 :root[data-reduced-motion="true"] *::after {
   animation-duration: .001ms !important;
+  animation-delay: -.001ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: .001ms !important;
+  transition-delay: 0ms !important;
   scroll-behavior: auto !important;
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .001ms !important;
+    animation-delay: -.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .001ms !important;
+    transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Keyboard focus must stay visible in both themes. The outline (rather than a
+   box-shadow alone) survives forced-colors / high-contrast modes; the token
+   ring adds an app-background gap on normal compositing. */
+.keel-app :focus-visible {
+  outline: 2px solid var(--k-focus);
+  outline-offset: 2px;
+}
+.keel-field input:focus-visible,
+.keel-field textarea:focus-visible,
+.keel-input:focus-visible,
+.keel-cmd__input-wrap input:focus-visible {
+  outline: 2px solid var(--k-focus);
+  outline-offset: 2px;
+}
+
+/* Windows / platform high-contrast mode: keep the ring and control bounds. */
+@media (forced-colors: active) {
+  .keel-app :focus-visible,
+  .keel-field input:focus-visible,
+  .keel-field textarea:focus-visible {
+    outline: 2px solid CanvasText;
+  }
+  .keel-btn, .keel-icon-btn, .keel-card, .keel-field input, .keel-field textarea,
+  .keel-input, .keel-segmented, .keel-dialog, .keel-notice {
+    border: 1px solid CanvasText;
+  }
+  .keel-status-dot { outline: 1px solid CanvasText; }
+}
+
+/* User asked for more contrast: thicken the ring and firm up the boundaries
+   using existing tokens only (no new colour values). */
+@media (prefers-contrast: more) {
+  :root { --k-focus-ring: 0 0 0 3px var(--k-bg), 0 0 0 6px var(--k-focus); }
+  .keel-app :focus-visible,
+  .keel-field input:focus-visible,
+  .keel-field textarea:focus-visible { outline-width: 3px; outline-offset: 3px; }
+  .keel-btn--secondary, .keel-segmented, .keel-field input, .keel-field textarea,
+  .keel-icon-btn, .keel-tabs, .keel-card { border-color: var(--k-line-strong); }
+  .keel-status-dot { outline: 1px solid var(--k-line-strong); }
+  .keel-btn:disabled, .keel-toggle.is-disabled { opacity: .85; }
 }
 
 .sr-only {
@@ -68,7 +118,9 @@
     transform var(--k-dur-fast) var(--k-ease), color var(--k-dur-fast) var(--k-ease);
 }
 .keel-btn:active:not(:disabled) { transform: translateY(1px) scale(.99); }
-.keel-btn:disabled { opacity: .46; cursor: not-allowed; }
+/* Disabled controls stay readable: keep opacity high enough to preserve text
+   contrast in both themes, and never rely on dimming alone as the cue. */
+.keel-btn:disabled { opacity: .68; cursor: not-allowed; }
 .keel-btn--sm { height: 30px; padding: 0 10px; font-size: 12px; }
 .keel-btn--md { height: 36px; padding: 0 14px; font-size: 13px; }
 .keel-btn--lg { height: 44px; padding: 0 18px; font-size: 14px; }
@@ -89,6 +141,8 @@
 }
 .keel-icon-btn:hover { background: var(--k-card); color: var(--k-text); }
 .keel-icon-btn.is-active { background: var(--k-accent-soft); color: var(--k-accent); }
+.keel-icon-btn:disabled { opacity: .68; cursor: not-allowed; }
+.keel-icon-btn:disabled:hover { background: transparent; color: var(--k-muted); }
 
 .keel-segmented {
   display: inline-flex; align-items: center; gap: 2px; padding: 3px;
@@ -156,7 +210,9 @@
 @keyframes keel-spin { to { transform: rotate(360deg); } }
 
 .keel-toggle { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
-.keel-toggle.is-disabled { opacity: .5; cursor: not-allowed; }
+.keel-toggle.is-disabled { opacity: .78; cursor: not-allowed; }
+.keel-toggle.is-disabled .keel-toggle__label,
+.keel-toggle.is-disabled .keel-toggle__desc { color: var(--k-muted); }
 .keel-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
 .keel-toggle__track {
   position: relative; width: 36px; height: 20px; border-radius: 99px; margin-top: 2px;
@@ -185,7 +241,11 @@
 .keel-field input:focus, .keel-field textarea:focus, .keel-input:focus {
   border-color: var(--k-focus); box-shadow: var(--k-focus-ring);
 }
-.keel-field input[aria-invalid="true"] { border-color: var(--k-danger); }
+.keel-field input[aria-invalid="true"], .keel-field textarea[aria-invalid="true"] { border-color: var(--k-danger); }
+/* Native UA greying can fall below 4.5:1; use the theme token instead. */
+.keel-field input:disabled, .keel-field textarea:disabled, .keel-input:disabled {
+  opacity: 1; color: var(--k-muted); cursor: not-allowed;
+}
 .keel-field__hint { font-size: 11px; color: var(--k-muted); }
 .keel-field__err { font-size: 11px; color: var(--k-danger); }
 
@@ -234,7 +294,14 @@
   font-size: 11px; white-space: nowrap; pointer-events: none; opacity: 0;
   transition: opacity var(--k-dur-fast), transform var(--k-dur-fast); z-index: var(--k-z-toast);
 }
-.keel-tooltip:hover .keel-tooltip__bubble, .keel-tooltip:focus-visible .keel-tooltip__bubble { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* Show on hover AND keyboard focus (including focus on an interactive child).
+   The bubble is also referenced by aria-describedby, so it is never
+   motion- or hover-only information. */
+.keel-tooltip:hover .keel-tooltip__bubble,
+.keel-tooltip:focus-within .keel-tooltip__bubble,
+.keel-tooltip.is-visible .keel-tooltip__bubble {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
 
 .keel-progress { height: 5px; border-radius: 99px; background: var(--k-line-strong); overflow: hidden; }
 .keel-progress span { display: block; height: 100%; border-radius: 99px; background: var(--k-accent); transition: width var(--k-dur) var(--k-ease); }
@@ -251,6 +318,13 @@
 .keel-resize:hover::after, .keel-resize:focus-visible::after { background: var(--k-accent); }
 
 /* ===================== application shell ===================== */
+.keel-skip-link {
+  position: fixed; left: 12px; top: -80px; z-index: calc(var(--k-z-toast) + 1);
+  background: var(--k-accent); color: #16130a; padding: 10px 16px; border-radius: 8px;
+  font-weight: 700; font-size: 13px; text-decoration: none;
+  transition: top var(--k-dur-fast) var(--k-ease);
+}
+.keel-skip-link:focus { top: 8px; }
 .keel-app {
   position: fixed; inset: 0; z-index: 1;
   display: grid; grid-template-rows: var(--k-topbar-h) minmax(0, 1fr) var(--k-status-h);
@@ -339,6 +413,9 @@
 }
 .keel-cmd__input-wrap { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--k-line); }
 .keel-cmd__input-wrap input { flex: 1; background: transparent; border: 0; outline: 0; font: inherit; font-size: 15px; color: var(--k-text); }
+/* The input removes its own outline, so mark its wrapper on keyboard focus. */
+.keel-cmd__input-wrap:focus-within { box-shadow: inset 0 0 0 2px var(--k-focus); }
+.keel-cmd__input-wrap input:focus-visible { outline: 2px solid var(--k-focus); outline-offset: 2px; }
 .keel-cmd__list { overflow: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
 .keel-cmd__group { padding: 10px 10px 4px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--k-muted); }
 .keel-cmd__item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border-radius: 8px; text-align: left; color: var(--k-text); font-size: 13px; }
@@ -359,7 +436,7 @@
 
 /* responsive: drawers under 900px */
 .keel-drawer-scrim { display: none; }
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .keel-app { grid-template-rows: var(--k-topbar-h) minmax(0, 1fr) var(--k-status-h); }
   .keel-sidebar, .keel-right {
     position: fixed; top: var(--k-topbar-h); bottom: var(--k-status-h); z-index: var(--k-z-drawer);
@@ -370,7 +447,7 @@
   .keel-sidebar.is-open { transform: translateX(0); }
   .keel-right { right: 0; transform: translateX(105%); }
   .keel-right.is-open { transform: translateX(0); }
-  .keel-drawer-scrim.is-open { display: block; position: fixed; inset: var(--k-topbar-h) 0 var(--k-status-h) 0; z-index: calc(var(--k-z-drawer) - 1); background: rgba(0,0,0,.45); }
+  .keel-drawer-scrim.is-open { display: block; position: fixed; inset: var(--k-topbar-h) 0 var(--k-status-h) 0; z-index: calc(var(--k-z-drawer) - 1); background: rgba(0,0,0,.45); border: 0; padding: 0; margin: 0; border-radius: 0; }
   .keel-surface-switch button { padding: 0 9px; }
   .keel-surface-switch button .keel-label { display: none; }
   .keel-context-chip { display: none; }

@@ -49,7 +49,7 @@ function groupsOf(rows: RowView[]): Group[] {
 }
 
 export default function WorkLog({ rows, status, activeSince, expanded, onToggle }: Props) {
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState(0); // deterministic on server + first client render
   useEffect(() => {
     if (activeSince == null) return;
     setNow(Date.now());

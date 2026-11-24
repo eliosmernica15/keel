@@ -329,6 +329,7 @@ export default function Code() {
 
         {!narrow && (
           <ResizeHandle orientation="vertical" label="Resize project explorer"
+            value={explorerWidth} min={220} max={440}
             onDrag={(delta) => setExplorerWidth((w) => clamp(w + delta, 220, 440))} />
         )}
 
@@ -373,6 +374,7 @@ export default function Code() {
 
         {!narrow && (
           <ResizeHandle orientation="vertical" label="Resize right panel"
+            value={rightWidth} min={280} max={560}
             onDrag={(delta) => setRightWidth((w) => clamp(w - delta, 280, 560))} />
         )}
 

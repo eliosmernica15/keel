@@ -57,7 +57,20 @@ export default function ActivityPanel({ bot, bots, events, onOpenBot, onChanged 
   const activity = deriveActivity(rows, events.filter((e) => !e.bot_id || e.bot_id === bot.id), now, text(bot.engine));
   const links: DelegationLink[] = delegations(rows, bots);
   const pendingApprovals = rows.filter((r) => text(r.kind) === "approval" && text((r.body as Record<string, unknown> | undefined)?.status) === "pending");
-  const pendingAsks = rows.filter((r) => text(r.kind) === "ask");
+  // The bridge appends a second `ask` row with status:"answered" and the same
+  // ask_id. Only unanswered questions should stay in "waiting for you".
+  const answeredAskIds = new Set(
+    rows
+      .filter((r) => text(r.kind) === "ask" && text((r.body as Record<string, unknown> | undefined)?.status) === "answered")
+      .map((r) => text((r.body as Record<string, unknown> | undefined)?.ask_id)),
+  );
+  const pendingAsks = rows.filter((r) => {
+    if (text(r.kind) !== "ask") return false;
+    const body = r.body as Record<string, unknown> | undefined;
+    if (text(body?.status) === "answered") return false;
+    const askId = text(body?.ask_id);
+    return !askId || !answeredAskIds.has(askId);
+  });
 
   const refresh = useCallback(() => { rowsResource.reload(); onChanged(); }, [rowsResource.reload, onChanged]);
 

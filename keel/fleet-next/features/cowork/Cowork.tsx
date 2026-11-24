@@ -71,6 +71,20 @@ export default function Cowork() {
   const [sendError, setSendError] = useState<string | null>(null);
 
   const [mode, setMode] = useState<ComposerMode>("build");
+
+  // Permission mode is a user preference shared with Settings and Onboarding.
+  // Read it after mount (localStorage is unavailable during prerender) and
+  // persist changes so the choice survives reloads.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("keel-mode");
+      if (raw === "build" || raw === "plan" || raw === "autopilot" || raw === "acceptEdits") setMode(raw);
+    } catch { /* storage disabled; keep the safe default */ }
+  }, []);
+  const changeMode = useCallback((next: ComposerMode) => {
+    setMode(next);
+    try { localStorage.setItem("keel-mode", next); } catch { /* ignore */ }
+  }, []);
   const [seed, setSeed] = useState<{ text: string; nonce: number }>({ text: "", nonce: 0 });
   const [focusSignal, setFocusSignal] = useState(0);
   const [workLogOpen, setWorkLogOpen] = useState(false);
@@ -434,7 +448,7 @@ export default function Cowork() {
       ensureBot={ensureBot}
       onStop={stop}
       mode={mode}
-      onModeChange={setMode}
+      onModeChange={changeMode}
       modelLabel={bot?.model}
       providerLabel={bot?.provider}
       error={sendError}

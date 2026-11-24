@@ -10,7 +10,7 @@ try{
   var raw=localStorage.getItem('keel-theme-v2');
   var t=raw?JSON.parse(raw):null;
   if(t==='system'||!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
-  if(t){document.documentElement.dataset.theme=t;}
+  if(t){document.documentElement.dataset.theme=t; document.documentElement.style.colorScheme=t;}
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.dataset.reducedMotion='true';}
 }catch(e){}
 `;

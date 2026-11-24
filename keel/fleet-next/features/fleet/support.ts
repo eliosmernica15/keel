@@ -326,8 +326,11 @@ export function delegations(rows: BotRow[], bots: Bot[]): DelegationLink[] {
 
 /** Ticking clock for elapsed labels; pauses while the document is hidden. */
 export function useNow(intervalMs = 1000): number {
-  const [now, setNow] = useState(() => Date.now());
+  // Start at a deterministic value so the server and the first client render
+  // agree; the real clock is installed after mount (avoids React #418).
+  const [now, setNow] = useState(0);
   useEffect(() => {
+    setNow(Date.now());
     const id = window.setInterval(() => {
       if (!document.hidden) setNow(Date.now());
     }, intervalMs);
@@ -378,10 +381,10 @@ export function useBridgeResource<T>(load: () => Promise<T>, deps: React.Depende
 }
 
 /**
- * SSE subscription. `subscribeEvents` handles unnamed frames; the bridge also
- * emits named `event: row` frames (routes.py:1748), so a second listener is
- * registered for those. Both are cleaned up. A failed stream is reported so
- * callers can show an honest stale/offline state and retry.
+ * SSE subscription. `subscribeEvents` now handles BOTH unnamed frames and the
+ * bridge's named `event: row` frames (routes.py:1748), so only one connection
+ * is opened. A failed stream is reported so callers can show an honest
+ * stale/offline state and retry.
  */
 export function useFleetEvents(onEvent: (e: MessageEvent) => void): { streamError: boolean; retry: () => void } {
   const [streamError, setStreamError] = useState(false);
@@ -393,18 +396,9 @@ export function useFleetEvents(onEvent: (e: MessageEvent) => void): { streamErro
     let alive = true;
     const fire = (e: MessageEvent) => { if (alive) handler.current(e); };
     const onErr = () => { if (alive) setStreamError(true); };
-    const unsub = subscribeEvents(fire, onErr);
-    const es = new EventSource("/api/bridge/events");
-    const rowHandler = (e: Event) => { fire(e as MessageEvent); };
-    es.addEventListener("row", rowHandler);
-    es.onerror = onErr;
-    es.onopen = () => { if (alive) setStreamError(false); };
-    return () => {
-      alive = false;
-      unsub();
-      es.removeEventListener("row", rowHandler);
-      es.close();
-    };
+    const onOpen = () => { if (alive) setStreamError(false); };
+    const unsub = subscribeEvents(fire, onErr, onOpen);
+    return () => { alive = false; unsub(); };
   }, [nonce]);
 
   return { streamError, retry: useCallback(() => setNonce((n) => n + 1), []) };

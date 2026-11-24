@@ -5,6 +5,9 @@ import path from "path";
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Isolate parallel verification servers (e.g. Playwright on 3300) from the
+  // production preview build in .next. Set KEEL_DIST_DIR for a separate build.
+  distDir: process.env.KEEL_DIST_DIR || ".next",
   // this app lives in its own folder inside a bigger workspace — keep tracing local
   outputFileTracingRoot: path.dirname(fileURLToPath(import.meta.url)),
   async headers() {
@@ -20,7 +23,10 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "default-src 'self'; script-src 'self' 'unsafe-inline'; " +
+              // React Refresh in `next dev` evaluates code; 'unsafe-eval' is
+              // allowed only in development, never in production.
+              "default-src 'self'; script-src 'self' 'unsafe-inline'" +
+              (process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'") + "; " +
               "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; " +
               "connect-src 'self'; font-src 'self' data:; " +
               "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
