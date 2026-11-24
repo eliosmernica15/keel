@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://keel-desktop.vercel.app/</loc></url>
   <url><loc>https://keel-desktop.vercel.app/download</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/downloads</loc></url>
   <url><loc>https://keel-desktop.vercel.app/app</loc></url>
   <url><loc>https://keel-desktop.vercel.app/login</loc></url>
   <url><loc>https://keel-desktop.vercel.app/new</loc></url>

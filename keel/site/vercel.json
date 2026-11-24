@@ -21,6 +21,7 @@
   ],
   "rewrites": [
     { "source": "/download", "destination": "/download.html" },
+    { "source": "/downloads", "destination": "/downloads.html" },
     { "source": "/app", "destination": "/app.html" },
     { "source": "/login", "destination": "/login.html" },
     { "source": "/new", "destination": "/new.html" },
@@ -43,6 +44,7 @@
     { "source": "/plugins.html", "destination": "/plugins", "permanent": false },
     { "source": "/projects.html", "destination": "/projects", "permanent": false },
     { "source": "/artifacts.html", "destination": "/artifacts", "permanent": false },
-    { "source": "/product/cowork.html", "destination": "/product/cowork", "permanent": false }
+    { "source": "/product/cowork.html", "destination": "/product/cowork", "permanent": false },
+    { "source": "/downloads.html", "destination": "/downloads", "permanent": false }
   ]
 }

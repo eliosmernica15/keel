@@ -31,6 +31,7 @@ ROUTE_MAP = {
     "/new": "/new.html",
     "/app": "/app.html",
     "/download": "/download.html",
+    "/downloads": "/downloads.html",
     "/privacy": "/privacy.html",
     "/terms": "/terms.html",
     "/notices": "/notices.html",
@@ -204,6 +205,17 @@ def run():
         check("artifacts: no dead # links",
               not driver.execute_script("return [...document.querySelectorAll('a[href=\"#\"]')].length"))
         driver.save_screenshot(str(SHOTS / "artifacts.png"))
+
+        driver.get(base + "/downloads.html")
+        driver.implicitly_wait(3)
+        dw_text = driver.find_element(By.TAG_NAME, "body").text
+        for needle in ["Apps and extensions", "Do more with Keel", "Desktop",
+                       "Download for Windows", "Microsoft 365", "Keel Code",
+                       "Chrome", "Mobile", "Upgrade"]:
+            check("downloads: has " + needle, needle.lower() in dw_text.lower())
+        check("downloads: no dead # links",
+              not driver.execute_script("return [...document.querySelectorAll('a[href=\"#\"]')].length"))
+        driver.save_screenshot(str(SHOTS / "downloads.png"))
 
         driver.get(base + "/new.html")
         driver.implicitly_wait(3)

@@ -57,7 +57,7 @@ routes = {
     "/", "/app", "/app.html", "/download", "/download.html", "/download.json",
     "/privacy", "/terms", "/notices", "/roadmap", "/eula", "/trademark",
     "/requirements", "/login", "/new", "/plugins", "/projects", "/artifacts",
-    "/sitemap.xml", "/robots.txt", "/manifest.webmanifest",
+    "/downloads", "/sitemap.xml", "/robots.txt", "/manifest.webmanifest",
     "/sw.js", "/api/download-manifest",
 }
 for html in sorted(SITE.glob("*.html")):
@@ -122,6 +122,8 @@ check('{ "source": "/projects", "destination": "/projects.html" }' in vercel,
       "vercel.json does not route /projects")
 check('{ "source": "/artifacts", "destination": "/artifacts.html" }' in vercel,
       "vercel.json does not route /artifacts")
+check('{ "source": "/downloads", "destination": "/downloads.html" }' in vercel,
+      "vercel.json does not route /downloads")
 check('{ "source": "/app", "destination": "/app.html" }' in vercel,
       "vercel.json does not route /app to the app")
 check('{ "source": "/app", "destination": "/download"' not in vercel,
