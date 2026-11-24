@@ -30,6 +30,38 @@ def _local_key_path(state_dir: Path) -> Path:
     return state_dir / "master.key"
 
 
+def create_private_file(path: Path, data: str, *, encoding: str = "ascii") -> None:
+    """Create *path* with owner-only permissions in a single atomic step.
+
+    ``Path.write_text`` creates the file with the process umask (commonly 0644)
+    and only applies ``chmod`` afterwards, leaving a window in which the key is
+    readable by other local accounts. O_CREAT|O_EXCL with mode 0600 removes
+    that window. An already-existing file (created by an older version with a
+    permissive mode) is tightened before being replaced.
+    """
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(str(path), flags, 0o600)
+    except FileExistsError:
+        try:
+            os.chmod(path, 0o600)
+        except OSError:
+            pass  # best effort on platforms without POSIX modes
+        path.write_text(data, encoding=encoding)
+        return
+    try:
+        with os.fdopen(fd, "w", encoding=encoding) as handle:
+            handle.write(data)
+    except BaseException:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+        raise
+
+
 def _master_key(state_dir: Path) -> bytes:
     """Resolve the 32-byte master key, preferring the OS keyring."""
     try:
@@ -68,11 +100,7 @@ def _master_key(state_dir: Path) -> bytes:
 
     key = os.urandom(32)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(base64.urlsafe_b64encode(key).decode("ascii"), encoding="ascii")
-    try:
-        os.chmod(path, 0o600)
-    except OSError:
-        pass
+    create_private_file(path, base64.urlsafe_b64encode(key).decode("ascii"))
     return key
 
 

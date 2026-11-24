@@ -24,8 +24,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.11"
       - name: Install keel + pytest
@@ -33,6 +33,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e . pytest
+      - name: Generate release artifacts required by integrity tests
+        working-directory: keel
+        run: |
+          python -m pip install pyinstaller pillow
+          python -m keel.release build --platform auto --out release
+          python -m keel.release licenses --out release
       - name: Run the suite
         working-directory: keel
         run: python -m pytest -q

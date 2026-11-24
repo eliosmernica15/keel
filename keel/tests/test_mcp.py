@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 
+import keel
 import keel.mcp as mcp
 from keel.fakes import ScriptedModel, SeededRng, VirtualClock
 from keel.mcp import (McpManager, McpServer, McpServerConfig, is_approved,
@@ -81,6 +82,41 @@ def test_handshake_and_tools_list(fake_server):
     finally:
         client.shutdown()
     assert not client.running
+
+
+def test_stdio_client_info_uses_canonical_version(monkeypatch):
+    captured: dict[str, dict] = {}
+    client = McpServer(McpServerConfig(name="fake", command="unused"))
+
+    def fake_request(method, params, *, notify=False):
+        captured[method] = params
+        return {"capabilities": {}, "tools": []} if method == "initialize" else {}
+
+    class FakeProc:
+        def poll(self):
+            return 0
+
+    monkeypatch.setattr(mcp.subprocess, "Popen", lambda *a, **k: FakeProc())
+    monkeypatch.setattr(client, "_request", fake_request)
+    monkeypatch.setattr(client, "_notify", lambda *a, **k: None)
+    client.start()
+    assert captured["initialize"]["clientInfo"] == {
+        "name": "keel", "version": keel.__version__}
+
+
+def test_http_client_info_uses_canonical_version(monkeypatch):
+    captured: dict[str, dict] = {}
+    client = mcp.HttpMcpServer(McpServerConfig(
+        name="fake", transport="http", url="http://example.invalid"))
+
+    def fake_post(method, params, *, notify=False):
+        captured[method] = params
+        return {}
+
+    monkeypatch.setattr(client, "_post", fake_post)
+    client.start()
+    assert captured["initialize"]["clientInfo"] == {
+        "name": "keel", "version": keel.__version__}
 
 
 def test_call_echo(fake_server):

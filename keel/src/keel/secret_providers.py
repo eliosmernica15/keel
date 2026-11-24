@@ -148,8 +148,20 @@ class ProviderConfig:
 
     def save(self, config: dict) -> Path:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(config, indent=2) + "\n",
-                             encoding="utf-8")
+        payload = json.dumps(config, indent=2) + "\n"
+        flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        fd = os.open(str(self.path), flags, 0o600)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                handle.write(payload)
+        except BaseException:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+            raise
         return self.path
 
     def load(self) -> dict:

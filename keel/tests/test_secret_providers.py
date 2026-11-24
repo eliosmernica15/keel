@@ -35,10 +35,10 @@ def test_env_file_provider(tmp_path):
 
 
 def test_command_provider(tmp_path):
-    # Platform-neutral harmless command that echoes the key it receives;
-    # shell=False is still exercised (argv[1] is passed directly).
-    provider = CommandProvider(
-        [sys.executable, "-c", "import sys; print(sys.argv[1])"], timeout_s=5)
+    # Use a harmless local command that echoes the key it receives.
+    script = tmp_path / "provider.cmd"
+    script.write_text("@echo %~1\n", encoding="utf-8")
+    provider = CommandProvider(["cmd", "/c", str(script)], timeout_s=5)
     assert provider.describe()["shell"] is False
     assert provider.get("KEEL_KEY") == "KEEL_KEY"
 

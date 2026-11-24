@@ -1,7 +1,9 @@
 # Keel — migration checklist
 
-Branch: `main` (Keel repo, public)
+Branch: `main` (Keel repo — **private**, owner-confirmed live on 2026-11-23; C11.1 PASS). The earlier "public" label is false; see `../../master-plan-v6-governance-live-evidence.md`.
 Status legend: `done` (verified by tests/evidence), `partial` (exists, limited scope), `blocked` (needs credentials/hardware/decision), `not started`, `excluded` (documented reason), `open` (not inspected yet).
+
+**Final-state note (2026-11-23):** this milestone table is a historical CI/migration record. Where it differs from the final verified state, the final state governs: version is **0.1.1** (not 0.1.0); the final integrated branch reports **1296 passed, 46 skipped** (not 457 tests); the final-source Windows installer `Keel-Setup-0.1.1.exe` was rebuilt with **7/7** local integrity checks but is **unsigned**; C11.2 is **PARTIAL/owner-gated** (not complete); and Windows network denial is **now enforced via AppContainer** (commit `9a77dae`, `../../master-plan-v6-win-network-evidence.md`) rather than unavailable. See `FINAL-RELEASE-OPERATIONS.md`.
 
 ## This milestone (Completeness)
 
@@ -38,22 +40,33 @@ Status legend: `done` (verified by tests/evidence), `partial` (exists, limited s
 | Downloads | Route rewrites in `vercel.json` | done | `/download` -> `/download.html`, `/app` -> `/app.html` |
 | Site | Premium developer landing page | done | `site/index.html` + `site/ui/landing.css`/`landing.js`; mirror moved to `/app`; real screenshots; Lighthouse a11y/best-practices/SEO 1.0 |
 | CI | Workflow discovered by GitHub Actions | done | `.github/workflows/build-desktop.yml` at repo root (was nested at `keel/.github/` where it was invisible) |
-| CI | Windows build (runner, not this host) | done | run `44431591087` green 2026-11-19; NSIS artifact produced; sha256 `43a5eb7d…` |
-| CI | macOS build (runner; arm64 only) | done | same run; `Keel-0.1.0-macos-arm64.dmg/.zip`; Intel untested; Gatekeeper unsigned |
-| CI | Linux build | done | same run; `Keel-0.1.0-linux-x86_64.AppImage`, `Keel-0.1.0-linux-amd64.deb`; not run on a desktop Linux yet |
-| Tests | Full suite | done | `pytest -q` -> 457 passed, 10 smoke skipped (2026-11-19; includes 15 release-distribution tests); CI run `44603370165` green |
+| CI | Windows build (runner, not this host) | done (historical artifact) | run `44431591087` green 2026-11-19; NSIS artifact produced. **Superseded** by the final-source rebuild `Keel-Setup-0.1.1.exe` (141,118,394 bytes, SHA-256 `F12E1D668EF9983F291CC2302FCD4A938327CFCD1B4DEF5E5A9BAC7C76C14054`, unsigned, 7/7 integrity) |
+| CI | macOS build (runner; arm64 only) | done (historical artifact, 0.1.0) | old run produced `Keel-0.1.0-macos-arm64.dmg/.zip`; Intel untested; Gatekeeper unsigned. Final-source macOS packages were **not** built (no native runner) |
+| CI | Linux build | done (historical artifact, 0.1.0) | old run produced `Keel-0.1.0-linux-x86_64.AppImage`, `Keel-0.1.0-linux-amd64.deb`; not run on a desktop Linux. Final-source Linux packages were **not** built |
+| Tests | Full suite | done | historical run: 457 passed, 10 smoke skipped (2026-11-19; CI run `44603370165` green). **Final integrated branch:** `python -m pytest -q -o faulthandler_timeout=90` -> **1296 passed, 46 skipped** (36 native-sandbox platform gates + 10 provider-credential gates); baseline 1270 passed, 10 skipped |
 | Installer validation | Windows installer (CI artifact, run `44527352992`) | done | hash verified; silent install → launch → frozen sidecar on 127.0.0.1:8857; `/api/health` 403 (token-protected); `/ui/style.css` 200; reinstall OK; silent uninstall removed dir; `~/.keel` fully preserved |
 | Installer validation | macOS DMG/ZIP (arm64) | partial | CI build green; hashes verified; zip structure inspected (Mach-O 64-bit, app.asar, frozen sidecar present, Info.plist sane, LSMinimum 12.0); UNSIGNED (no _CodeSignature); never mounted on a Mac; Intel unsupported |
 | Installer validation | Linux AppImage + .deb | partial | hashes verified; `.deb` control/deps/desktop-entry/postinst inspected; AppImage ELF x86-64 type-2 w/ squashfs verified; not launched on desktop Linux |
-| Release pipeline | Python release manager (build/publish/verify) | implemented; no release published yet | `keel.release` package; `python -m keel.release build|publish|verify`; GitHub Releases only; no third-party storage; Vercel cannot host the 649 MB bundle (Hobby 100 MB limit) |
+| Release pipeline | Python release manager (build/publish/verify) | implemented; no release published yet | `keel.release` package; `python -m keel.release build|publish|verify|integrity|licenses`; GitHub Releases only — **no third-party object storage is used**; the earlier Cloudflare R2 plan is obsolete. No release was published or pushed |
 | Website | manifest-driven `/download` + landing cards | implemented + deployed | `/api/download-manifest` proxies latest GitHub Release manifest; `/download.json` fallback all unavailable; checksum copy, alternatives, OS/arch detection; buttons require `available`, `verified`, HTTPS URL, size and SHA-256 |
 
 ## Not done yet (documented honestly)
 
 - PostgreSQL / object storage — later milestone.
-- Install-and-launch verification on real macOS/Linux hardware — CI built the artifacts, nobody ran them yet.
-- Live-provider end-to-end verification — no keys/quota on this host.
+- Native Linux/macOS sandbox execution and clean-VM install/upgrade/rollback/uninstall — the backends and exact commands exist, but no native runner or VM was used on this host (`scripts/validate_desktop.py` reports 5 local PASS and 6 external UNVERIFIED).
+- Live-provider end-to-end verification — no `KEEL_*_API_KEY` credentials on this host; no live call made.
 - Full OpenCode feature port — multi-month work; not claimed.
-- Public signing / SmartScreen / Gatekeeper-ready binaries — needs certificates.
-- Public installer hosting — pipeline implemented, but Cloudflare R2 secrets/variables are not configured (`gh secret list` and `gh variable list` are empty). No installer is publicly distributed.
-- Production download verification — requires the R2 public origin; `download.keel.app` does not resolve yet.
+- Production signing / SmartScreen / Gatekeeper-ready binaries — **no signing identity exists** (Actions secrets `total_count=0`, no local certificate/key). Installers are unsigned and must not be published as production-signed. Required secret **names** (never values) are in `FINAL-RELEASE-OPERATIONS.md`.
+- Public release — none published. Installers are hosted only as GitHub Release assets by the pipeline; no third-party storage (the old Cloudflare R2 plan is obsolete). Verification over a public origin is untested because no release exists.
+- Phone companion real pairing — no device/emulator and no phone-side client; QR/payload generation is explicitly **not** pairing proof.
+- C11.2 repository security — PARTIAL and owner-gated: SHA pinning is genuine only on the unpushed local integration branch; branch protection, signed commits, fork policy and 2FA are plan/owner actions. **Do not describe C11.2 as complete.**
+- Legal/brand — trademark name check (D6), EULA and legal texts are drafts/owner actions; no trademark registration or brand-protection claim is made.
+
+## Owner gates (blocking production release)
+
+1. Plan/forge decision for private branch protection (C11.2).
+2. Enable 2FA on the owner account (account-level; not verifiable via API).
+3. Provision a signing identity (Ed25519 release key and/or platform certificates) and add the CI signing job with a missing-secret hard failure.
+4. Authorize pushing/merging the completion branch and publishing a release.
+
+Details: `FINAL-RELEASE-OPERATIONS.md` and `../../master-plan-v6-final-report.md`.

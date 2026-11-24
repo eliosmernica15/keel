@@ -22,6 +22,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterator
 
+from . import __version__
+
 MCP_OUTPUT_CAP = 100_000  # bytes of tool output kept for the model
 
 
@@ -169,7 +171,7 @@ class McpServer:
             init_result = self._request("initialize", {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {},
-                "clientInfo": {"name": "keel", "version": "0.1.0a0"},
+                "clientInfo": {"name": "keel", "version": __version__},
             })
             self.capabilities = dict(init_result.get("capabilities") or {})
             self._notify("notifications/initialized", {})
@@ -508,7 +510,7 @@ class HttpMcpServer:
             self._post("initialize", {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {},
-                "clientInfo": {"name": "keel", "version": "0.1.0a0"},
+                "clientInfo": {"name": "keel", "version": __version__},
             })
             self._post("notifications/initialized", {}, notify=True)
             result = self._post("tools/list", {})

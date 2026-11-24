@@ -7,7 +7,7 @@ limits the runtime and UI consult.
 
 from __future__ import annotations
 
-import time
+import threading
 from dataclasses import dataclass
 
 DEFAULT_CAPS = {"browser": 4, "lsp": 2, "container": 2}
@@ -27,27 +27,35 @@ class ResourceMeter:
         self.low_power = low_power
         self.caps = dict(LOW_POWER_CAPS if low_power else DEFAULT_CAPS)
         self._used: dict[str, int] = {key: 0 for key in self.caps}
+        # The check-then-increment in acquire() must be atomic: without this
+        # lock concurrent callers can both pass the cap check and over-issue.
+        self._lock = threading.RLock()
 
     def acquire(self, feature: str) -> bool:
-        cap = self.caps.get(feature, 0)
-        if self._used.get(feature, 0) >= cap:
-            return False
-        self._used[feature] = self._used.get(feature, 0) + 1
-        return True
+        with self._lock:
+            cap = self.caps.get(feature, 0)
+            used = self._used.get(feature, 0)
+            if used >= cap:
+                return False
+            self._used[feature] = used + 1
+            return True
 
     def release(self, feature: str) -> bool:
-        if self._used.get(feature, 0) <= 0:
-            return False
-        self._used[feature] -= 1
-        return True
+        with self._lock:
+            if self._used.get(feature, 0) <= 0:
+                return False
+            self._used[feature] -= 1
+            return True
 
     def meters(self) -> list[Meter]:
-        return [Meter(feature=name, used=self._used.get(name, 0),
-                      cap=cap, within=self._used.get(name, 0) <= cap)
-                for name, cap in self.caps.items()]
+        with self._lock:
+            return [Meter(feature=name, used=self._used.get(name, 0),
+                          cap=cap, within=self._used.get(name, 0) <= cap)
+                    for name, cap in self.caps.items()]
 
     def set_low_power(self, enabled: bool) -> None:
-        self.low_power = enabled
-        self.caps = dict(LOW_POWER_CAPS if enabled else DEFAULT_CAPS)
-        for key in self.caps:
-            self._used.setdefault(key, 0)
+        with self._lock:
+            self.low_power = enabled
+            self.caps = dict(LOW_POWER_CAPS if enabled else DEFAULT_CAPS)
+            for key in self.caps:
+                self._used.setdefault(key, 0)

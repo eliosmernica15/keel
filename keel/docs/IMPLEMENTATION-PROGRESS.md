@@ -2,6 +2,55 @@
 
 Baseline: local HEAD `46f5f27` (M2, unpushed), `origin/main` `79200c3`, M1/M2 closed. Master Plan v5 remains incomplete; only explicitly available v5 requirements are used.
 
+> **ADDENDA 3–7 OPERATION AMENDMENT (2026-11-23) — read this first.**
+> The registry has been reconciled from **all eight** uploaded specification documents
+> (base + addenda 1–7): **865 features** total (228 base + 637 from addenda 3–7).
+> `PLAN-INDEX.json` schema v2, `parity.json`, the generated v6 plan and the final matrix
+> all reflect 865 rows. P0 was re-ranked to 27.7% per Addendum 3 X0.1 (original values
+> retained in `original_priority`). 34 Addendum 7 tool-contract features were implemented
+> and verified (`tool_contracts.py`, 60 tests, native conformance 47 tools / 0 problems).
+> Governance artifacts: `DECISIONS.md` (35 decisions), `FREE-TIER-REGISTER.md` (43 rows),
+> `MODEL-AND-VOICE-LICENSES.json` (11 entries + fail-closed CI gate), `RISKS.md`,
+> `DEPENDENCY-GRAPH.md`, `REMAINING-WORK-MATRIX.md`, five clean-room reference behavior
+> specs. Six clean-room reference repositories were freshly cloned under
+> `research/references/`; DeepSeek verification found 2 contradicted and 7 unverifiable
+> addendum claims, recorded as registry `known_limitations`. Offline CI lane + license
+> gate added; offline runtime tests pass. A further 7 P0 features (X1.1–X1.5, X1.7–X1.8,
+> X1.13) have been merged and verified. Status: see
+> `../ADDENDA-OPERATION-STATUS.md`. Do not treat the 603 `not_started` rows as verified.
+>
+> **FINAL-STATE AMENDMENT (2026-11-23) — read this before the historical batches below.**
+> The batch narrative that follows is a v5-era log kept for provenance; several of its
+> global statements were true when written but are false for the final verified state.
+> The final state is defined by the Master Plan v6 completion evidence in the repository
+> root (`../master-plan-v6-final-report.md` and companions), not by the historical lines:
+>
+> - **Version:** 0.1.1 everywhere (`keel/__init__.py`, `pyproject.toml`, manifest, sidecar).
+>   Older 0.1.0 artifact names in this log are historical. A version-sync gate now fails on drift.
+> - **Full suite:** final integrated branch **1296 passed, 46 skipped** (36 native-sandbox
+>   platform gates + 10 provider-credential gates); audited baseline 1270 passed, 10 skipped.
+>   The older counts in this log (386/457/1015/1110/1061) are historical batch runs.
+> - **Windows network enforcement:** the "not enforced / unavailable / fails closed"
+>   statement in the *External validation & distribution preparation phase* below was the
+>   **pre-fix baseline**. It is superseded by the AppContainer mechanism: a non-elevated,
+>   kernel-enforced (WFP/ALE) default-deny network boundary, proven with real child
+>   processes, merged as commit `9a77dae` (agent work `cc6240e`). Evidence:
+>   `../master-plan-v6-win-network-evidence.md`. `socket()` creation still succeeds; only
+>   traffic is denied. Per-process WFP rules remain unavailable to non-elevated callers and
+>   are not required for the shipped boundary.
+> - **Linux/macOS sandbox:** backends are integrated (Landlock/seccomp and Seatbelt) but
+>   were **not executed natively on this Windows host**; macOS read isolation is **BLOCKED**
+>   on macOS 26 (`sandbox-exec` SIGABRT). No OS-level isolation is claimed for the pure-Python
+>   sandbox itself.
+> - **Signing/provider credentials:** still absent. Ed25519 signing is implemented with
+>   ephemeral test keys only; no production key, no Actions secrets (`total_count=0`), no
+>   provider keys. Installers are unsigned. Secret **names** are in `FINAL-RELEASE-OPERATIONS.md`.
+> - **C11.1/C11.2:** C11.1 PASS (repo private, owner-confirmed). C11.2 remains **PARTIAL**
+>   and owner-gated — SHA pinning is local-branch-only; branch protection, signed commits,
+>   fork policy and 2FA are blocked by the free private plan / owner account. **Not complete.**
+> - **Release:** not production-ready. Final-source Windows installer rebuilt with 7/7
+>   local integrity checks, unsigned; no clean-VM validation; no release published; no push.
+
 ## Batch 1 — Runtime tool and MCP correctness
 
 **v5 requirement:** §6 design rules for MCP client/server behavior, typed tool results and reliable filesystem tools; §11 MCP isolation and tool-path controls. No new milestone or acceptance criteria were invented.
@@ -1020,6 +1069,14 @@ NPROC/FSIZE), capped output, guaranteed cleanup. 9 boundary tests pass. Honest
 (seccomp/AppArmor/containers/Windows restricted tokens) are NOT enforced and
 require an external environment.
 
+> **AMENDMENT (final state, see top of file):** the sentence above describes the
+> pure-Python audit-hook boundary at that time, not the final native sandbox.
+> Native Windows OS enforcement was subsequently integrated and red-team verified, and
+> **Windows network denial is now provided by a non-elevated AppContainer profile**
+> (commit `9a77dae`; `../master-plan-v6-win-network-evidence.md`). The Linux and macOS
+> backends remain environment-gated on this Windows host, and macOS read isolation
+> remains BLOCKED. No claim of native OS enforcement is made for the audit-hook sandbox itself.
+
 **Windows distribution:** `docs/WINDOWS-EXTERNAL-VALIDATION.md` — reproducible
 clean-machine package with checksums, install/uninstall, upgrade/rollback,
 expected results and troubleshooting. `scripts/validate_desktop.py` runs 5 local
@@ -1074,3 +1131,68 @@ wired into the CLI (opt-in `KEEL_MODEL_ROUTING`), read-only SQLite explorer with
 query safety (`db_explorer.py`), SARIF 2.1.0 emission/ingestion (`sarif.py`),
 offline SVG charts/diagrams (`charts.py`), and macro/prompt/spec authoring
 helpers (`authoring.py`), plus session import/stats over the bridge.
+
+---
+
+## FINAL AMENDMENT — authoritative current state (2026-11-24, docsync reconciliation)
+
+> This amendment is appended, not substituted. All historical batch logs above remain
+> part of the record. Where an earlier entry states stale counts, **this amendment and the
+> root-level v6 evidence documents govern**. No source, test, registry, plan or generator
+> was changed by this reconciliation.
+
+**Registry (authoritative).** `PLAN-INDEX.json` (SHA-256
+`62fd5c6ac2d166e8cb1f5752c168d22d56d767c7e6a5bf9384696756a4a5b2f6`) holds **865 rows:
+854 `verified`, 9 `not_started`, 2 `blocked`**. The earlier 433 / 430 / 2 figures in this
+log and in older matrix snapshots are superseded; they are retained only as historical
+provenance. The 228-row v5 base registry (addenda 1–2) is a **subset** of 865, not an
+additional inventory. `feature-checklist.md` declares **398 observable contracts** (410
+unique IDs in the rendered tables) — a different, cross-cutting observability inventory
+that is **not additive** to the plan registry.
+
+**Remaining work.** The 9 `not_started` rows are 7 D6 builder-convention rules plus W1.18
+(license/notices verification) and Y6.4 (external repo-visibility observation, gate G1).
+The 2 `blocked` rows are C11.1 and C11.2 (owner-gated source-hosting/security decisions,
+gates G6 and owner account). Excluded from completion claims: 3 owner-gated, 3 external
+(B4.8/B6.6/C11.8) and 3 dormant/descriptor (B6.2/B6.3/B6.5) rows. See
+`REMAINING-WORK-MATRIX.md` for exact reasons.
+
+**Backend.** All 20 backend modules are genuine; 421 deduplicated backend-attributed IDs
+carry `verified` status. The strengthened gate certifies **361 / 421 (85.7%)**; **60 rows
+are `verified with certification limitation`** (evidence-layer gaps, not status changes).
+Real entry points exist over HTTP/CLI/TUI with auth + confirm gates, and 5 / 5
+multi-module workflows passed 102 / 102 steps. No *normal* product workflow directly
+consumes the modules — an intentional capability boundary while workflow integration is
+completed in parallel. Denominator, classification and formulas:
+`BACKEND-COMPLETION-ACCOUNTING.md`; detail: `BACKEND-IMPLEMENTATION-DETAIL.md`.
+
+**Authoritative root-level evidence (read these for final status):**
+- `master-plan-v6-final-report.md`, `master-plan-v6-final-completion-report.md`,
+  `master-plan-v6-final-delivery-report.md` — final delivery and gate status.
+- `master-plan-v6-test-evidence.md` — definitive clean-environment suite result
+  (4071 passed / 48 skipped / 3640 subtests / 0 failed) and gate outputs.
+- `REGISTRY-EVIDENCE-INTEGRITY.md`, `AUDIT-REMEDIATION-SUMMARY.md`,
+  `REMAINING-WORK-MATRIX.md`, `BACKEND-COMPLETION-ACCOUNTING.md`,
+  `FINAL-ENGINEERING-REPORT.md` — certification, audit, remaining work, accounting and
+  production-readiness assessment.
+- Production release remains **BLOCKED** on external/owner gates (signing, clean-VM,
+  push authorization, native Linux/macOS verification). No push/release/deploy.
+
+
+## FINAL AMENDMENT — all 421 traceability gaps closed (authoritative)
+
+A later remediation batch (`agent/final-trace`, merged and pushed) added AST-visible
+`FEATURE_TRACEABILITY` declarations and per-ID evidence rows to every owning module.
+`python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
+and `--strict` enforces the gate with a non-zero exit on any failure.
+
+All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+are **historical** — they describe the state before that batch and are retained only
+for provenance. Current authoritative certification:
+
+- Fully traceable: **421 / 421 = 100.0%**
+- Verified-with-limitation: **0 / 421 = 0.0%**
+- Registry unchanged: 865 rows, 854 verified / 9 not_started / 2 blocked.
+
+The gate remains a certification layer over tests and declarations; it does not claim
+native cross-platform or live-provider verification.

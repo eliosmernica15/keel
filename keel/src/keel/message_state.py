@@ -8,6 +8,7 @@ is required and no message content is stored.
 from __future__ import annotations
 
 import json
+import os
 import time
 import uuid
 from pathlib import Path
@@ -48,15 +49,28 @@ class MessageStates:
         for line in self.path.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 try:
-                    out.append(json.loads(line))
+                    record = json.loads(line)
                 except ValueError:
                     continue
+                if isinstance(record, dict):
+                    out.append(record)
         return out
 
     def _append(self, record: dict) -> dict:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.path, "a", encoding="utf-8") as handle:
-            handle.write(json.dumps(record) + "\n")
+        payload = (json.dumps(record) + "\n").encode("utf-8")
+        with open(self.path, "a+b") as handle:
+            # A previous interrupted append may have left a partial final
+            # line with no newline. Terminate it first so this record starts
+            # on its own line instead of being concatenated into a corrupt one.
+            handle.seek(0, os.SEEK_END)
+            if handle.tell() > 0:
+                handle.seek(-1, os.SEEK_END)
+                if handle.read(1) != b"\n":
+                    handle.write(b"\n")
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
         return record
 
     def queue(self, *, channel: str, destination: str = "",

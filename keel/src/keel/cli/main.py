@@ -10,12 +10,45 @@ from ..providers.base import ProviderError
 from ..runner import CliValidationError, diagnostic, parse_argv, run
 
 
+_TOP_LEVEL_USAGE = (
+    "usage: keel <command> [options]\n"
+    "\n"
+    "commands:\n"
+    "  keel -p \"prompt\" | \"prompt\"       run one prompt (print mode)\n"
+    "  keel init [--force]                  generate AGENTS.md\n"
+    "  keel capability list|describe|invoke local capability hub\n"
+    "  keel backend-workflow <name> --params JSON [--confirm]\n"
+    "                                       run an integrated backend workflow\n"
+    "  keel tui                             interactive terminal UI\n"
+    "  keel serve | web | fleet [--port N]  local loopback web UI\n"
+    "  keel provider list|validate|smoke    provider registry and checks\n"
+    "  keel skills | mcp | settings | secrets | tools   local configuration\n"
+    "  keel execpolicy ...                  execution policy management\n"
+    "  keel doctor [--bundle]               readiness check (bundle = redacted zip)\n"
+    "  keel session | notebook | spec | docpack | vault | repoindex |\n"
+    "       openapi | costs | gateway | webhook | model | attach\n"
+    "  keel --version                       print version\n"
+    "\n"
+    "Run `keel <command> --help` for command-specific usage.\n"
+)
+
+_DOCTOR_USAGE = (
+    "usage: keel doctor\n"
+    "       keel doctor --bundle [--file PATH]\n"
+    "  local readiness check; --bundle writes a redacted diagnostics zip\n"
+)
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
 
     if argv and argv[0] in ("--version", "-V", "version"):
         from .. import __version__
         sys.stdout.write(f"keel {__version__}\n")
+        return 0
+
+    if argv and argv[0] in ("--help", "-h", "help"):
+        sys.stdout.write(_TOP_LEVEL_USAGE)
         return 0
 
     if argv and argv[0] == "init":
@@ -35,10 +68,22 @@ def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] in ("doctor", "diagnostics"):
         if "--bundle" in argv:
             return _doctor_bundle_cmd(argv)
+        if argv[1:2] and argv[1] in ("-h", "--help", "help"):
+            sys.stderr.write(_DOCTOR_USAGE)
+            return 0
+        import os
+        from pathlib import Path
+
+        from ..commands import execute_builtin
+
+        sys.stdout.write(execute_builtin("doctor", "", Path(os.getcwd())) + "\n")
+        return 0
     if argv and argv[0] == "session":
         return _session_cmd(argv[1:])
     if argv and argv[0] == "capability":
         return _capability_cmd(argv[1:])
+    if argv and argv[0] == "backend-workflow":
+        return _backend_workflow_cmd(argv[1:])
     if argv and argv[0] == "tui":
         from ..tui import Tui
 
@@ -232,8 +277,9 @@ def _capability_cmd(argv: list[str]) -> int:
         if cap is None:
             sys.stderr.write(f"unknown capability: {cap_id}\n")
             return 1
+        confirmed = "--confirm" in argv
         if (cap.permission in ("write", "execute") or cap.mutates) \
-                and "--confirm" not in argv:
+                and not confirmed:
             sys.stderr.write(
                 f"{cap_id} requires --confirm ({cap.permission})\n")
             return 1
@@ -242,7 +288,9 @@ def _capability_cmd(argv: list[str]) -> int:
         try:
             result = invoke(cap_id, params,
                             context={"state_root": state_root,
-                                     "cwd": os.getcwd()})
+                                     "cwd": os.getcwd(),
+                                     "confirm": confirmed,
+                                     "interactive": False})
             record_audit(state_root, {"capability": cap_id, "ok": True,
                                       "surface": "cli"})
         except CapabilityError as exc:
@@ -250,10 +298,45 @@ def _capability_cmd(argv: list[str]) -> int:
                                       "code": exc.code, "surface": "cli"})
             sys.stderr.write(f"{exc.code}: {exc}\n")
             return 1
+        except (OSError, ValueError) as exc:
+            # A malformed saved policy must be a clean, auditable error, not
+            # a traceback from policy enforcement before the handler runs.
+            record_audit(state_root, {"capability": cap_id, "ok": False,
+                                      "code": "policy_error", "surface": "cli"})
+            sys.stderr.write(f"policy_error: {type(exc).__name__}: {exc}\n")
+            return 1
         sys.stdout.write(json.dumps(result, indent=2, default=str) + "\n")
         return 0
     sys.stderr.write(usage)
     return 1
+
+
+def _backend_workflow_cmd(argv: list[str]) -> int:
+    from .. import backend_workflows
+
+    usage = ("usage: keel backend-workflow <name> --params JSON [--confirm]\n"
+             "  names: " + ", ".join(backend_workflows.WORKFLOW_NAMES) + "\n"
+             "  every workflow mutates durable state and requires --confirm\n")
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(usage)
+        return 0
+    name = argv[0]
+    params: dict = {}
+    if "--params" in argv and argv.index("--params") + 1 < len(argv):
+        try:
+            params = json.loads(argv[argv.index("--params") + 1])
+        except json.JSONDecodeError:
+            sys.stderr.write("--params must be valid JSON\n")
+            return 1
+        if not isinstance(params, dict):
+            sys.stderr.write("--params must be a JSON object\n")
+            return 1
+    if "--confirm" not in argv:
+        sys.stderr.write(f"{name} requires --confirm (workflow writes durable state)\n")
+        return 1
+    result = backend_workflows.run_workflow(name, params)
+    sys.stdout.write(json.dumps(result, indent=2, default=str) + "\n")
+    return 0 if result.get("ok") else 1
 
 
 def _webhook_cmd(argv: list[str]) -> int:
@@ -771,10 +854,12 @@ def _execpolicy_cmd(argv: list[str]) -> int:
                    "allowed_prefixes": policy.allowed_prefixes()}
         elif cmd == "check":
             if len(argv) < 3:
+                sys.stderr.write("execpolicy check requires <command...>\n")
                 return 1
             out = policy.check(" ".join(argv[2:])).to_dict()
         elif cmd == "network":
             if len(argv) < 3:
+                sys.stderr.write("execpolicy network requires <host> [protocol]\n")
                 return 1
             protocol = argv[3] if len(argv) > 3 else "https"
             allowed, denied = policy.compiled_network_domains()
@@ -1130,6 +1215,7 @@ def _notebook_cmd(argv: list[str]) -> int:
 def _provider_cmd(argv: list[str]) -> int:
     if not argv or argv[0] in ("-h", "--help", "help"):
         sys.stderr.write("usage: keel provider list\n"
+                         "       keel provider validate [--live]\n"
                          "       keel provider smoke <name> [--model MODEL]\n"
                          "names: auto|openrouter|nvidia|google|anthropic|"
                          "openai-compatible\n")

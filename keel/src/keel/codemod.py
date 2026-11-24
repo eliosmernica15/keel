@@ -21,6 +21,14 @@ def rename_symbol(source: str, old: str, new: str) -> str:
                 node.id = new
             return node
 
+        def visit_Attribute(self, node):
+            # Attribute references (``obj.old`` / ``self.old``) are symbol
+            # references too; without this, a rename silently leaves the
+            # majority of real-world call sites untouched.
+            if node.attr == old:
+                node.attr = new
+            return self.generic_visit(node)
+
         def visit_FunctionDef(self, node):
             if node.name == old:
                 node.name = new

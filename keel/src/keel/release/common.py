@@ -19,8 +19,14 @@ VERSION_FILES = {
     "desktop-app/package-lock.json": PROJECT_ROOT / "desktop-app" / "package-lock.json",
     "site/download.json": PROJECT_ROOT / "site" / "download.json",
     "desktop/src-tauri/tauri.conf.json": PROJECT_ROOT / "desktop" / "src-tauri" / "tauri.conf.json",
+    "desktop/src-tauri/Cargo.toml": PROJECT_ROOT / "desktop" / "src-tauri" / "Cargo.toml",
     "src/keel/__init__.py": PROJECT_ROOT / "src" / "keel" / "__init__.py",
 }
+
+# Single canonical location for the generated dependency-license inventory.
+# The generator writes here by default (--out release) and the SBOM consumer
+# in commercial_seams reads the same path.
+LICENSE_INVENTORY = PROJECT_ROOT / "release" / "DEPENDENCY-LICENSES.json"
 
 DEFAULT_REPO = "eliosmernica15/keel"
 
@@ -120,6 +126,9 @@ def load_versions() -> dict[str, str]:
 
     tauri = json.loads(VERSION_FILES["desktop/src-tauri/tauri.conf.json"].read_text(encoding="utf-8"))
     versions["desktop/src-tauri/tauri.conf.json"] = tauri.get("version", "")
+
+    cargo = tomllib.loads(VERSION_FILES["desktop/src-tauri/Cargo.toml"].read_text(encoding="utf-8"))
+    versions["desktop/src-tauri/Cargo.toml"] = cargo["package"]["version"]
 
     package_init = VERSION_FILES["src/keel/__init__.py"].read_text(encoding="utf-8")
     match = re.search(r'^__version__\s*=\s*"([^"]+)"', package_init, re.MULTILINE)

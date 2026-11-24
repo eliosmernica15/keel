@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from . import exec_guard
 from .capabilities import CapabilityError, capability
 
 
@@ -147,7 +148,12 @@ def _secrets_has(p, ctx):
                                        ctx.get("state_root", ".keel")))).load()
     chain = (chain_from_config(config) if config.get("providers")
              else ProviderChain([EnvProvider()]))
-    result = chain.resolve(str(p.get("key", "")))
+    # Read-tier presence checks must not spawn a user-configured
+    # CommandProvider subprocess; that exec route belongs behind an
+    # execute-tier capability, not this one.
+    safe = [provider for provider in chain.providers
+            if provider.describe().get("kind") != "exec"]
+    result = ProviderChain(safe).resolve(str(p.get("key", "")))
     return {k: result[k] for k in ("key", "source", "present", "length")}
 
 
@@ -360,6 +366,10 @@ def _docpack_list(p, ctx):
 @capability("cowork.notebook.execute", "notebook", "cowork", "execute",
             "Execute a markdown notebook in the sandbox with inline SVG charts")
 def _notebook_execute(p, ctx):
+    # Notebook cells are Python source: normalise them into the canonical
+    # command field before the saved exec policy is applied.
+    exec_guard.enforce_command("cowork.notebook.execute", p, ctx,
+                               field="source")
     from .notebook import execute_notebook
     return execute_notebook(str(p.get("source", "")),
                             timeout_s=float(p.get("timeout_s", 15)))
@@ -643,34 +653,45 @@ def _companion_identity(p, ctx):
                                     ctx.get("state_root", ".keel")))
 
 
+@capability("core.isolation.status", "native_isolation", "core", "read",
+            "Report native OS-level process-isolation support")
+def _isolation_status(p, ctx):
+    from .native_isolation import platform_support
+    return platform_support()
+
+
 @capability("core.os.sandbox.capabilities", "os_sandbox", "core", "read",
-            "Report kernel-enforced sandbox mechanisms and limitations")
+            "Report kernel-enforced sandbox mechanisms and honest limitations")
 def _os_sandbox_capabilities(p, ctx):
     from .os_sandbox import capabilities
     return capabilities()
 
 
 @capability("core.os.sandbox.run", "os_sandbox", "core", "execute",
-            "Execute a command under enforced OS isolation", mutates=True)
+            "Run argv under enforced OS isolation (fail closed)", mutates=True)
 def _os_sandbox_run(p, ctx):
     from .os_sandbox import run_confined
     argv = p.get("argv") or []
     if not isinstance(argv, list) or not argv:
         raise ValueError("argv must be a non-empty list")
-    result = run_confined([str(a) for a in argv],
-                          workspace=p.get("workspace"),
-                          timeout_s=float(p.get("timeout_s", 15)))
+    # `argv` is not one of policy_enforcement's canonical command fields;
+    # normalise it here so saved exec policies actually bind this route.
+    exec_guard.enforce_command("core.os.sandbox.run", p, ctx, field="argv")
+    # Forward every enforcement-relevant parameter; a backend that cannot
+    # establish its boundary raises SandboxUnavailable rather than running the
+    # process unrestricted. Authorization policy has already run in invoke().
+    result = run_confined(
+        [str(a) for a in argv],
+        workspace=p.get("workspace") or ctx.get("cwd"),
+        timeout_s=float(p.get("timeout_s", 15)),
+        cpu_s=int(p.get("cpu_s", 10)),
+        memory_mb=int(p.get("memory_mb", 256)),
+        env=p.get("env"),
+        allow_network=bool(p.get("allow_network", False)))
     return {"ok": result.ok, "exit_code": result.exit_code,
             "timed_out": result.timed_out, "mechanism": result.mechanism,
             "limitations": result.limitations,
             "stdout": result.stdout[:4000], "stderr": result.stderr[:4000]}
-
-
-@capability("core.isolation.status", "native_isolation", "core", "read",
-            "Report native OS-level process-isolation support")
-def _isolation_status(p, ctx):
-    from .native_isolation import platform_support
-    return platform_support()
 
 
 @capability("core.edition.info", "commercial_seams", "core", "read",
@@ -949,6 +970,9 @@ def _sandbox_status(p, ctx):
 @capability("code.sandbox.run", "sandbox_exec", "code", "execute",
             "Run Python under the audit-hook sandbox (Python-level boundary)")
 def _sandbox_run(p, ctx):
+    # `code` is not a policy_enforcement command field; normalise it so a
+    # saved policy governs the exact source that is about to execute.
+    exec_guard.enforce_command("code.sandbox.run", p, ctx, field="code")
     from .sandbox_exec import run_python
     r = run_python(str(p.get("code", "")), timeout_s=float(p.get("timeout_s", 5)),
                    allow_network=bool(p.get("allow_network")))
@@ -956,19 +980,79 @@ def _sandbox_run(p, ctx):
             "exit_code": r.exit_code, "timed_out": r.timed_out}
 
 
-@capability("code.debug.inspect", "debugger", "code", "read",
-            "Run a Python file under the debugger and inspect a stop")
+# Driver injected into the Python audit-hook sandbox. Compiling under a
+# virtual filename avoids reading the target a second time inside the child;
+# the parent embeds the source as a JSON literal so no path outside the fresh
+# sandbox workspace is ever opened.
+_DEBUG_TOKEN = "__KEEL_DEBUG_JSON__"
+_DEBUG_DRIVER = r'''
+import bdb as __bdb
+import json as __json
+
+class __GuardedDebugSession(__bdb.Bdb):
+    def __init__(self, wanted):
+        super().__init__()
+        self.wanted = set(int(x) for x in wanted)
+        self.stops = []
+
+    def user_line(self, frame):
+        if frame.f_lineno not in self.wanted:
+            return
+        self.stops.append({
+            "file": __PATH__,
+            "line": frame.f_lineno,
+            "function": frame.f_code.co_name,
+            "locals": {name: repr(value)[:200]
+                       for name, value in frame.f_locals.items()
+                       if not name.startswith("__")},
+        })
+
+__session = __GuardedDebugSession(__LINES__)
+try:
+    __session.run(compile(__SOURCE__, "<keel-debug-target>", "exec"),
+                  {"__name__": "__main__", "__file__": __PATH__})
+except BaseException as __exc:
+    print("__KEEL_DEBUG_ERROR__" + type(__exc).__name__ + ": " + str(__exc))
+print("__KEEL_DEBUG_JSON__" + __json.dumps({"stops": __session.stops}))
+'''
+
+
+@capability("code.debug.inspect", "debugger", "code", "execute",
+            "Run a Python file under the audit-hook sandbox and inspect a stop")
 def _debug(p, ctx):
-    from .debugger import DebugSession
-    session = DebugSession()
-    if p.get("breakpoint"):
-        session.set_breakpoint(p["breakpoint"], int(p.get("line", 1)))
-    stops = session.run_file(str(p["path"]))
-    frame = session.inspect(-1)
-    return {"stops": len(stops),
-            "frame": {"file": frame.file, "line": frame.line,
-                      "function": frame.function, "locals": frame.locals}
-            if frame else None}
+    # Running a Python file executes its top-level code. This route used to be
+    # read-tier and unsandboxed; both are corrected here.
+    target = Path(_resolve(str(p["path"]), ctx))
+    exec_guard.enforce_command("code.debug.inspect", p, ctx,
+                               command=str(target))
+    source = target.read_text(encoding="utf-8", errors="replace")
+    if len(source) > 1_000_000:
+        raise CapabilityError("debug target source too large", code="bad_params")
+    lines = [int(p.get("line", 1))] if p.get("breakpoint") else []
+    # Substitute user-controlled source last so its contents cannot be
+    # mistaken for one of the template placeholders.
+    code = (_DEBUG_DRIVER
+            .replace("__PATH__", json.dumps(str(target)))
+            .replace("__LINES__", json.dumps(lines))
+            .replace("__SOURCE__", json.dumps(source)))
+    from .sandbox_exec import run_python
+    result = run_python(code, timeout_s=float(p.get("timeout_s", 10)),
+                        allow_network=bool(p.get("allow_network", False)))
+    payload = None
+    for line in result.stdout.splitlines():
+        if line.startswith(_DEBUG_TOKEN):
+            try:
+                payload = json.loads(line[len(_DEBUG_TOKEN):])
+            except ValueError:
+                payload = None
+            break
+    if payload is None:
+        raise CapabilityError(
+            f"debug run produced no result: {result.stderr[:300]}",
+            code="handler_error")
+    stops = payload.get("stops", [])
+    return {"stops": len(stops), "frame": stops[-1] if stops else None,
+            "ok": result.ok, "sandboxed": True, "timed_out": result.timed_out}
 
 
 @capability("code.api.spec", "api_tester", "code", "read",
@@ -1310,7 +1394,10 @@ def _bon(p, ctx):
         str(p.get("prompt", "")), n=max(1, len(candidates)),
         generate=lambda prompt, i: candidates[i],
         select=lambda value: (float(value.get("score", 0)), str(value.get("evidence", ""))))
-    return {"index": result.index, "value": result.value}
+    # Surface the score and evidence that justify the selection so the hub
+    # response is auditable as a real, scored choice (no selection-logic change).
+    return {"index": result.index, "value": result.value,
+            "score": result.score, "evidence": result.evidence}
 
 
 @capability("duet.roles", "agent_roles", "duet", "read",
@@ -1436,6 +1523,17 @@ def _wf_versions(p, ctx):
 @capability("fleet.anomaly", "workflow_history", "fleet", "read",
             "Score event sequences for behavioral anomalies")
 def _anomaly(p, ctx):
+    from .automation import anomaly_score as event_anomaly_score
+    events = p.get("events")
+    if events:
+        # Explicit event list supplied by the caller.
+        return {"score": event_anomaly_score(events)}
+    state_root = ctx.get("state_root")
+    if state_root:
+        # Score the real, persisted event history (Fleet anomaly is wired to
+        # the local event bus, not only to static rules).
+        from .automation import EventBus
+        return {"score": EventBus(state_root).anomaly_score()}
     from .workflow_history import anomaly_score
     return {"score": anomaly_score(p.get("events", []))}
 
@@ -1444,7 +1542,10 @@ def _anomaly(p, ctx):
             "Publish an event on the local bus", mutates=True)
 def _bus(p, ctx):
     from .automation import EventBus
-    bus = EventBus()
+    # Persist under the capability context state root so events survive a
+    # restart and are visible to anomaly scoring (previously each invoke
+    # created a fresh in-memory bus and lost all history).
+    bus = EventBus(ctx.get("state_root"))
     bus.publish(str(p.get("topic", "")), p.get("payload", {}))
     return {"history": bus.history}
 
@@ -1706,10 +1807,17 @@ def _backup_create(p, ctx):
 @capability("release.backups.restore", "backups", "release", "write",
             "Restore an encrypted local backup with verification", mutates=True)
 def _backup_restore(p, ctx):
-    from .backups import restore_backup
-    return {"restored": restore_backup(_resolve(str(p["backup"]), ctx),
-                                       _resolve(str(p["target"]), ctx),
-                                       str(p["passphrase"]))}
+    from .backups import BackupError, restore_backup
+    from .capabilities import CapabilityError
+    try:
+        return {"restored": restore_backup(_resolve(str(p["backup"]), ctx),
+                                           _resolve(str(p["target"]), ctx),
+                                           str(p["passphrase"]))}
+    except BackupError as exc:
+        # A wrong passphrase / corrupt backup is a client input error, not a
+        # server fault: surface it as bad_params (HTTP 400) so it is not
+        # misreported as a 500 handler_error after canonical status mapping.
+        raise CapabilityError(str(exc), code="bad_params") from exc
 
 
 @capability("release.webhook.history", "webhook_delivery", "release", "read",
@@ -1745,8 +1853,42 @@ def _ci_run(p, ctx):
         result = CIAdapter(transport=transport).run(prompt)
         return {"ok": result.ok, "detail": result.detail,
                 "mock": True, "note": "mock transport — not a real run"}
-    result = CIAdapter().run(prompt)
-    return {"ok": result.ok, "detail": result.detail, "mock": False}
+
+    # The real transport used to call subprocess.run directly, outside both
+    # the saved exec policy (the prompt lives in an unrecognised field) and
+    # the OS sandbox. Authorise the exact argv, then run it confined in a
+    # fresh workspace. Network is opt-out because a headless Keel run may
+    # legitimately use a provider; the returned limitations state honestly
+    # when the platform cannot enforce a network boundary.
+    import subprocess as _subprocess
+    import sys as _sys
+
+    argv = [_sys.executable, "-m", "keel", *CIAdapter().command(prompt)]
+    exec_guard.enforce_command("external.ci.run", {"argv": argv}, ctx,
+                               field="argv")
+    allow_network = bool(p.get("allow_network", True))
+    observed: list = []
+
+    def _confined_transport(ci_args):
+        from .os_sandbox import run_confined
+
+        cmd = [_sys.executable, "-m", "keel", *ci_args]
+        confined = run_confined(
+            cmd, workspace=None,
+            timeout_s=float(p.get("timeout_s", 30)),
+            cpu_s=int(p.get("cpu_s", 10)),
+            memory_mb=int(p.get("memory_mb", 512)),
+            allow_network=allow_network)
+        observed.append(confined)
+        code = confined.exit_code if confined.exit_code is not None else -1
+        return _subprocess.CompletedProcess(
+            cmd, code, confined.stdout or "", confined.stderr or "")
+
+    result = CIAdapter(transport=_confined_transport).run(prompt)
+    return {"ok": result.ok, "detail": result.detail, "mock": False,
+            "sandboxed": True, "allow_network": allow_network,
+            "mechanism": observed[0].mechanism if observed else None,
+            "limitations": list(observed[0].limitations) if observed else []}
 
 
 @capability("external.remote.cmd", "integrations", "external", "read",

@@ -8,7 +8,7 @@ import tomllib
 from importlib import metadata
 from pathlib import Path
 
-from .common import PROJECT_ROOT
+from .common import LICENSE_INVENTORY, PROJECT_ROOT
 
 
 def _python_direct_dependencies() -> list[str]:
@@ -118,9 +118,13 @@ def write_inventory(path: Path) -> Path:
 
 def licenses_command(args) -> int:
     out = Path(args.out)
-    if not out.is_absolute():
-        out = PROJECT_ROOT / out
-    path = write_inventory(out / "DEPENDENCY-LICENSES.json")
+    if str(out) in ("release", ""):
+        # Default output is the canonical inventory path read by sbom_export().
+        path = write_inventory(LICENSE_INVENTORY)
+    else:
+        if not out.is_absolute():
+            out = PROJECT_ROOT / out
+        path = write_inventory(out / "DEPENDENCY-LICENSES.json")
     inventory = json.loads(path.read_text(encoding="utf-8"))
     print(f"wrote {path} ({len(inventory['electron'])} electron, "
           f"{len(inventory['python'])} python packages)")

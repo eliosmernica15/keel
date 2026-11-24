@@ -48,6 +48,19 @@ def capabilities() -> dict:
     darwin = sys.platform == "darwin"
     windows = os.name == "nt"
     landlock = linux and _landlock_supported()
+    # On Windows, network denial is provided by the dedicated backend via a
+    # capability-less AppContainer (non-elevated, real-process verified). Ask
+    # that backend for its live probe instead of hard-coding False here, so the
+    # report stays honest as mechanisms change.
+    if windows:
+        try:
+            from .sandbox_windows import capabilities as _win_caps
+            win_network = bool(_win_caps().get("network_enforcement"))
+            win_appcontainer = bool(_win_caps().get("windows_appcontainer"))
+        except Exception:
+            win_network, win_appcontainer = False, False
+    else:
+        win_network, win_appcontainer = False, False
     return {
         "os": sys.platform,
         "linux_landlock": landlock,
@@ -55,10 +68,11 @@ def capabilities() -> dict:
         "macos_sandbox_exec": darwin and bool(shutil.which("sandbox-exec")),
         "windows_restricted_token": windows,
         "windows_job_object": windows,
+        "windows_appcontainer": win_appcontainer,
         "filesystem_enforcement": bool(landlock or (
             darwin and shutil.which("sandbox-exec")) or windows),
         "network_enforcement": bool(landlock and _seccomp_supported()) or (
-            darwin and shutil.which("sandbox-exec")),
+            darwin and shutil.which("sandbox-exec")) or win_network,
         "limitations": _limitations(linux, darwin, windows, landlock),
     }
 
@@ -158,36 +172,56 @@ def _linux_confine(workspace: str) -> None:
     _seccomp_deny_network(libc)
 
 
+DENIED_NETWORK_SYSCALLS = {
+    41: "socket", 42: "connect", 43: "accept", 44: "sendto",
+    45: "recvfrom", 46: "sendmsg", 47: "recvmsg", 49: "bind",
+    50: "listen", 51: "getsockname", 52: "getpeername",
+    53: "socketpair", 54: "setsockopt", 55: "getsockopt",
+    86: "gethostname",
+}
+
+
+def build_inproc_network_filter() -> list[tuple[int, int, int, int]]:
+    """Pure builder for the in-process seccomp network-deny filter.
+
+    Exposed so the exact BPF layout can be regression-tested on any platform
+    (including Windows CI) without installing a filter.
+    """
+    # Correct seccomp-BPF layout:
+    #   BPF_LD|BPF_W|BPF_ABS (0x20) at offset 0 loads seccomp_data.nr.
+    #   BPF_JMP|BPF_JEQ|BPF_K (0x15) with jt=0/jf=1 falls through to the
+    #   following RET only for a matching syscall and skips it otherwise.
+    #   SECCOMP_RET_ERRNO|EPERM = 0x00050001; default SECCOMP_RET_ALLOW.
+    # The previous revision used opcode 0x00 at offset 4 with an intervening
+    # `ja`, which inverted the branch and denied everything except the
+    # intended network syscalls. Fixed here; Linux now also dispatches to
+    # sandbox_linux, whose build_network_filter() has the correct layout.
+    insns = []
+    insns.append((0x20, 0, 0, 0))                 # ld seccomp_data.nr
+    for nr in sorted(DENIED_NETWORK_SYSCALLS):
+        insns.append((0x15, 0, 1, nr))             # jeq nr -> fall through
+        insns.append((0x06, 0, 0, 0x00050001))     # ret ERRNO(EPERM)
+    insns.append((0x06, 0, 0, 0x7fff0000))        # ret ALLOW
+    return insns
+
+
 def _seccomp_deny_network(libc) -> None:
-    """Install a BPF filter denying socket/connect/sendto/etc with EPERM."""
+    """Install the in-process network-deny filter (used by the legacy path)."""
     if not _seccomp_supported():
         raise SandboxUnavailable("seccomp not available")
-    denied = {
-        41: "socket", 42: "connect", 43: "accept", 44: "sendto",
-        45: "recvfrom", 46: "sendmsg", 47: "recvmsg", 49: "bind",
-        50: "listen", 51: "getsockname", 52: "getpeername",
-        53: "socketpair", 54: "setsockopt", 55: "getsockopt",
-        86: "gethostname",
-    }
-    # BPF: ld syscall; for each denied nr: jeq -> ret EPERM; default ret ALLOW.
-    insns = []
-    insns.append((0x00, 0, 0, 4))                 # BPF_LD | BPF_W | BPF_ABS, off=4
-    for nr in sorted(denied):
-        insns.append((0x15, 0, 1, nr))             # jeq nr -> +1 (ret EPERM)
-        insns.append((0x05, 0, 0, 1))              # ja +1 (skip ret)
-        insns.append((0x06, 0, 0, 1))              # ret EPERM
-    insns.append((0x06, 0, 0, 0x7fff0000))        # ret ALLOW
+    insns = build_inproc_network_filter()
+
     class SockFilter(ctypes.Structure):
         _fields_ = [("code", ctypes.c_ushort), ("jt", ctypes.c_ubyte),
                     ("jf", ctypes.c_ubyte), ("k", ctypes.c_uint32)]
 
-    sock_filter = SockFilter
-    arr = (sock_filter * len(insns))()
+    arr = (SockFilter * len(insns))()
     for i, (code, jt, jf, k) in enumerate(insns):
-        arr[i] = sock_filter(code, jt, jf, k)
+        arr[i] = SockFilter(code, jt, jf, k)
 
     class SockFprog(ctypes.Structure):
-        _fields_ = [("len", ctypes.c_ushort), ("filter", ctypes.POINTER(sock_filter))]
+        _fields_ = [("len", ctypes.c_ushort),
+                    ("filter", ctypes.POINTER(SockFilter))]
 
     prog = SockFprog(len(arr), arr)
     if libc.prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, ctypes.byref(prog),
@@ -222,7 +256,32 @@ def run_confined(argv: list[str], *, workspace: str | Path | None = None,
                  timeout_s: float = 15.0, cpu_s: int = 10,
                  memory_mb: int = 256, env: dict[str, str] | None = None,
                  allow_network: bool = False) -> ConfinementResult:
-    """Run *argv* under real OS filesystem/network restrictions."""
+    """Run *argv* under real OS filesystem/network restrictions.
+
+    Every supported platform is routed to its dedicated, reviewed backend so
+    that the kernel-enforced token/ACL (Windows) or Landlock/seccomp (Linux)
+    implementation is always used. There is deliberately no unrestricted
+    fallback: a backend that cannot establish its boundary raises
+    ``SandboxUnavailable``.
+    """
+    # Dedicated platform backends are authoritative. The legacy inline macOS
+    # path below is retained only for platforms without a dedicated backend.
+    if os.name == "nt":
+        from .sandbox_windows import run_confined as _backend
+        return _backend(argv, workspace=workspace, timeout_s=timeout_s,
+                        cpu_s=cpu_s, memory_mb=memory_mb, env=env,
+                        allow_network=allow_network)
+    if sys.platform.startswith("linux"):
+        from .sandbox_linux import run_confined as _backend
+        return _backend(argv, workspace=workspace, timeout_s=timeout_s,
+                        cpu_s=cpu_s, memory_mb=memory_mb, env=env,
+                        allow_network=allow_network)
+    if sys.platform == "darwin":
+        from .sandbox_macos import run_confined as _backend
+        return _backend(argv, workspace=workspace, timeout_s=timeout_s,
+                        cpu_s=cpu_s, memory_mb=memory_mb, env=env,
+                        allow_network=allow_network)
+
     caps = capabilities()
     workspace = str(Path(workspace or tempfile.mkdtemp()).resolve())
     Path(workspace).mkdir(parents=True, exist_ok=True)

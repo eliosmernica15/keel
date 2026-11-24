@@ -1,0 +1,2515 @@
+{
+  "features": [
+    {
+      "id": "D1.1",
+      "feature": "Every part is a plugin, including model adapter, tool registry, session log and the agent loop itself, each replaceable from configuration; \"no privileged core to patch.\"",
+      "detail": "Keel core services (providers, tools, sessions, loop, memory, scheduler) register through the same plugin API (builds on W1.1/V1). Exception: Tier 2 safety services are plugins that cannot be replaced or disabled by profiles/patches.",
+      "milestone": "M10",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "W1.1",
+        "V1"
+      ],
+      "dependencies": [
+        "W1.1",
+        "V1"
+      ],
+      "acceptance_criteria": [
+        "Implement and verify: Every part is a plugin, including model adapter, tool registry, session log and the agent loop itself, each replaceable from configuration; \"no privileged core to patch.\" (milestone M10)."
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.2",
+      "feature": "Registrations are reversible effects that unwind when their plugin unloads.",
+      "detail": "Required by V1: every `register()` returns a disposer attached to the scope. Add a leak detector test.",
+      "milestone": "M10",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH, T:DS-AGENTS",
+      "source": "T:DS-ARCH, T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "V1"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Add a leak detector test"
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.3",
+      "feature": "Profiles and bundles: a *profile* is a named composition (list of bundles, out-of-tree plugins, a user patch file); shipped templates `web`, `headless`, `sdk`, `sdk-minimal`, `acp`; a *bundle* is a distributable set of config rows + code.",
+      "detail": "`keel --profile web",
+      "milestone": "headless",
+      "priority": "sdk",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Profiles and bundles: a *profile* is a named composition (list of bundles, out-of-tree plugins, a user patch file); shipped templates `web`, `headless`, `sdk`, `sdk-mi... (milestone headless)."
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.4",
+      "feature": "Layered composition order: bundles in order, then profile patch, then home patch, then `--patch` overlays; a patch targets a row by id (replace whole config) or inserts new rows; a `preset` patch edits inside a declaration's plugin list.",
+      "detail": "Same layering for Keel config rows; `keel --patch file.yml`; every row has a stable id.",
+      "milestone": "M2, M10",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Layered composition order: bundles in order, then profile patch, then home patch, then `--patch` overlays; a patch targets a row by id (replace whole config) or insert... (milestone M2, M10)."
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.5",
+      "feature": "`--dump-config`: prints the exact plugin tree the machine will boot; any printed row can be replaced by a patch.",
+      "detail": "`keel --profile web --dump-config` and a UI view \"What is running\"; ties into layered config viewer (X6.8).",
+      "milestone": "M2, M19",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "X6.8"
+      ],
+      "dependencies": [
+        "X6.8"
+      ],
+      "acceptance_criteria": [
+        "Implement and verify: `--dump-config`: prints the exact plugin tree the machine will boot; any printed row can be replaced by a patch (milestone M2, M19)."
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.6",
+      "feature": "Config-only HMR plugin toggled per profile (on for web, off for headless/sdk/acp).",
+      "detail": "Hot-reload plugin enabled only for the interactive profiles.",
+      "milestone": "M10",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Config-only HMR plugin toggled per profile (on for web, off for headless/sdk/acp) (milestone M10)."
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.7",
+      "feature": "All supported apps launch only through named profiles; package bins, demos and SDK argv escapes are forbidden, and a gate (`verify-application-entrypoints`) classifies every executable and rejects bypasses.",
+      "detail": "One launcher; CI gate that scans `pyproject`/package.json scripts and fails if an entrypoint bypasses `keel --profile`.",
+      "milestone": "M0, M25",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH, T:DS-AGENTS",
+      "source": "T:DS-ARCH, T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "CI gate that scans `pyproject`/package.json scripts and fails if an entrypoint bypasses `keel --profile`"
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.8",
+      "feature": "SDK runtime wheel per platform bundles the normal CLI; the client launches `--profile sdk` with an explicit home dir; minimal example uses `sdk-minimal`; persistent external plugins installed through the plugin command, not a private config carrier.",
+      "detail": "Python SDK ships a bundled-runtime wheel per OS/arch (verify license/size); client always passes an explicit data dir.",
+      "milestone": "M20, M22",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Python SDK ships a bundled-runtime wheel per OS/arch (verify license/size)"
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.9",
+      "feature": "Plugin management command reserved as `plugin` (not a profile name unless `--profile plugin`).",
+      "detail": "`keel plugin ...` reserved word.",
+      "milestone": "M10",
+      "priority": "P2",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Plugin management command reserved as `plugin` (not a profile name unless `--profile plugin`) (milestone M10)."
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.10",
+      "feature": "Desktop shell: Electron ships the exact production runtime in signed resources, owns a reserved `desktop` profile, starts a private Desktop Host (Electron-as-Node), loads packaged web assets immediately and waits for boot injections before activating client plugins in the same document; OS-assigned port; Node IPC carries boot injections, readiness, fatal errors, shutdown; desktop and CLI share product data but keep packages, activation and lockfiles separate.",
+      "detail": "Keel: Electron main starts the Python daemon (PyInstaller/Nuitka) with an OS-assigned loopback port + per-launch token; renderer shows a splash from packaged assets and waits for a `ready` message; CLI and desktop share the data dir but separate plugin installs; structured fatal-error screen.",
+      "milestone": "M19, M22",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Desktop shell: Electron ships the exact production runtime in signed resources, owns a reserved `desktop` profile, starts a private Desktop Host (Electron-as-Node), lo... (milestone M19, M22)."
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.11",
+      "feature": "Shell-owned UI runs plugin install/update transactions with the bundled package manager under normal user/profile config.",
+      "detail": "Plugin Manager UI runs pip/venv installs in an isolated per-profile environment with a visible transaction log and rollback.",
+      "milestone": "M10, M19",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Shell-owned UI runs plugin install/update transactions with the bundled package manager under normal user/profile config (milestone M10, M19)."
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D1.12",
+      "feature": "Core package map (session log, system-prompt assembly, tool registry + guarded pipeline, agent interface + live registry, agent loop driver, per-agent scope primitive, LLM vocabulary + adapter seam) each exposing one service key on the context.",
+      "detail": "Keel service registry keys: `sessions`, `system_prompt`, `tools`, `agents`, `agent_loop`, `llm`.",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Core package map (session log, system-prompt assembly, tool registry + guarded pipeline, agent interface + live registry, agent loop driver, per-agent scope primitive,... (milestone M7)."
+      ],
+      "section": "2. Architecture and runtime model",
+      "section_number": 2
+    },
+    {
+      "id": "D2.1",
+      "feature": "Three event domains: *session events* (durable facts in the log, broadcast), *agent events* (`agent/*`, live, observe/intercept in-flight work), *capability events* (`fs/*`, `tools/*`, `telemetry/*`, policy/adapters on a seam).",
+      "detail": "Event bus with these domains and documented modes; extends Y2.1 and C5.5.",
+      "milestone": "M8, M10",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Y2.1",
+        "C5.5"
+      ],
+      "dependencies": [
+        "Y2.1",
+        "C5.5"
+      ],
+      "acceptance_criteria": [
+        "Implement and verify: Three event domains: *session events* (durable facts in the log, broadcast), *agent events* (`agent/*`, live, observe/intercept in-flight work), *capability events* (`... (milestone M8, M10)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.2",
+      "feature": "Waterfall vs serial listeners: waterfall listeners must call `next()` to delegate (returning without it short-circuits); serial listeners have no `next()`. Waterfall hooks: pre-step, request, stream, three tool hooks.",
+      "detail": "Hook runner with explicit mode per event (`waterfall`, `serial`, `parallel`); lint rule: waterfall handler that never calls `next` and does not declare `short_circuit=True` fails tests.",
+      "milestone": "M8",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH, T:DS-AGENTS",
+      "source": "T:DS-ARCH, T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "lint rule: waterfall handler that never calls `next` and does not declare `short_circuit=True` fails tests"
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.3",
+      "feature": "Turn flow definition: step = one model request + the tools it calls; turn = zero or more steps; sequence `turn/start` → claim input → snapshot model selection → assemble prompt + tool schemas → pre-step hook (accept / rewrite / reject) → `step/start` → prepare call → stream → assistant message or failed attempt → `tool/call` → pre-execute → execute → post-execute → `tool/result` → `step/end` → loop or turn-stopping hook → `turn/end`.",
+      "detail": "Implement this lifecycle verbatim as Keel's loop contract with a diagram in internal docs; each stage has a hook and a log event.",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Turn flow definition: step = one model request + the tools it calls; turn = zero or more steps; sequence `turn/start` → claim input → snapshot model selection → assemb... (milestone M7)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.4",
+      "feature": "Rejected or empty first claim closes the turn without a step.",
+      "detail": "Same rule.",
+      "milestone": "M7",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Rejected or empty first claim closes the turn without a step (milestone M7)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.5",
+      "feature": "One inbox per agent driver; injected context (`agent.inject()`) waits for a waking message and lands in the next admitted request.",
+      "detail": "`agent.inject(text, source)` API; used by hooks/plugins; tainted by source.",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: One inbox per agent driver; injected context (`agent.inject()`) waits for a waking message and lands in the next admitted request (milestone M7)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.6",
+      "feature": "Request series (`request/header`, `request/context`): the log marks when a new series of requests starts (surface replacement, image offload) so cache/context changes are explicit; retries do not repeat assembly.",
+      "detail": "Log `request_header` events; helps prefix-cache reuse (B1.4) and debugging.",
+      "milestone": "M4, M7",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "B1.4"
+      ],
+      "dependencies": [
+        "B1.4"
+      ],
+      "acceptance_criteria": [
+        "Implement and verify: Request series (`request/header`, `request/context`): the log marks when a new series of requests starts (surface replacement, image offload) so cache/context changes ... (milestone M4, M7)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.7",
+      "feature": "System prompt travels as logged `system/message` history; empty text clears it.",
+      "detail": "System prompt changes are log events (supports \"model-visible = logged\").",
+      "milestone": "M4, M7",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: System prompt travels as logged `system/message` history; empty text clears it (milestone M4, M7)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.8",
+      "feature": "Cancellation during prompt preparation commits nothing (neither system nor user messages).",
+      "detail": "Atomic step admission: commit after prepare succeeds.",
+      "milestone": "M4, M7",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Cancellation during prompt preparation commits nothing (neither system nor user messages) (milestone M4, M7)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.9",
+      "feature": "Failed steps record missing tool results (synthetic).",
+      "detail": "Same as Y2.4; add acceptance test.",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Y2.4"
+      ],
+      "dependencies": [
+        "Y2.4"
+      ],
+      "acceptance_criteria": [
+        "add acceptance test"
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.10",
+      "feature": "Process-local live stream frames (`assistant-stream` start/chunk/end) vs durable settled message that embeds the compact timed stream; `assistant/attempt` retains failed/retried/cancelled attempts without adding model history.",
+      "detail": "Streaming UI reads live frames; the log stores the settled message + attempt records; replays/transcripts use durable data only. A hard crash before settlement leaves no durable attempt (documented).",
+      "milestone": "M4, M19",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Process-local live stream frames (`assistant-stream` start/chunk/end) vs durable settled message that embeds the compact timed stream; `assistant/attempt` retains fail... (milestone M4, M19)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.11",
+      "feature": "Model-visible ⇔ logged: every model request must be reconstructable from the log; any new model-visible input requires a session event; plugins that alter message content register pure message projections (detached readers supply the same).",
+      "detail": "Hard rule + test that replays a log and reproduces the exact request bytes (hash).",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH, T:DS-AGENTS",
+      "source": "T:DS-ARCH, T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Hard rule + test that replays a log and reproduces the exact request bytes (hash)"
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.12",
+      "feature": "Session projection seam: registered units fold committed events; clients read selected views via `snapshot()`; domain services keep private handles and expose business methods.",
+      "detail": "`session_projections` registry for UI state (task list, plan, goals, cost) derived from events.",
+      "milestone": "M4, M19",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Session projection seam: registered units fold committed events; clients read selected views via `snapshot()`; domain services keep private handles and expose business... (milestone M4, M19)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.13",
+      "feature": "Session format versioning with adjacent migrations: header-only `stat`/`list` pick the highest generation; read-open translates in memory; write-open publishes a new version-named successor beside the unchanged source; committed generations are never renamed, overwritten or deleted; each migration step is `vN → vN+1`; missing interrupted `turn/end` inserted only for a bounded released restart; compressed files (`.zstd`) supported.",
+      "detail": "Keel session export/import files use this scheme (`session.vN.jsonl.zst`); DB schema migrations stay SQLite-forward-only. Extends Master 10 with *export format* migrations.",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Master 10"
+      ],
+      "dependencies": [
+        "Master 10"
+      ],
+      "acceptance_criteria": [
+        "Implement and verify: Session format versioning with adjacent migrations: header-only `stat`/`list` pick the highest generation; read-open translates in memory; write-open publishes a new v... (milestone M4)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.14",
+      "feature": "Persistence-provider interface (`create`/`open`/`stat`/`list`/`export`) so session storage backends are swappable.",
+      "detail": "`SessionPersistence` protocol; SQLite default; JSONL export provider.",
+      "milestone": "M4",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Persistence-provider interface (`create`/`open`/`stat`/`list`/`export`) so session storage backends are swappable (milestone M4)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.15",
+      "feature": "Fork at a turn boundary (seeded session with inherited event count; only agent-loop-published sessions persist).",
+      "detail": "`fork(session, at_turn)` API used by branches (Master 9.1).",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Master 9.1"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Fork at a turn boundary (seeded session with inherited event count; only agent-loop-published sessions persist) (milestone M4)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.16",
+      "feature": "Working directories supply user context and execution paths without changing project identity, sandbox write roots, or existing process dirs.",
+      "detail": "`working_dir` separated from `project_root` and `write_roots` in the data model.",
+      "milestone": "M5, M11",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Working directories supply user context and execution paths without changing project identity, sandbox write roots, or existing process dirs (milestone M5, M11)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D2.17",
+      "feature": "Session title provider (single registered provider) and goals service (same-session objective continued through agent events).",
+      "detail": "`title` role plugin; `goals` service (extends goal mode C3.3 with a same-session objective that survives compaction).",
+      "milestone": "M7, M14",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "C3.3"
+      ],
+      "dependencies": [
+        "C3.3"
+      ],
+      "acceptance_criteria": [
+        "Implement and verify: Session title provider (single registered provider) and goals service (same-session objective continued through agent events) (milestone M7, M14)."
+      ],
+      "section": "3. Events, turn flow and the session log",
+      "section_number": 3
+    },
+    {
+      "id": "D3.1",
+      "feature": "Capability seam = Service Definition + Service Provider + Consumer; one role alone is not a seam; adding a capability means designing all three.",
+      "detail": "Seam checklist in the builder guide; each Keel seam has an interface (Protocol), a default provider and a consumer tool.",
+      "milestone": "M0, M7",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH, T:DS-AGENTS",
+      "source": "T:DS-ARCH, T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Capability seam = Service Definition + Service Provider + Consumer; one role alone is not a seam; adding a capability means designing all three (milestone M0, M7)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.2",
+      "feature": "One provider swap changes the whole product: filesystem and subprocess providers share one execution world, so pointing them at a remote sandbox moves bash, PTY and LSP together.",
+      "detail": "`fs` and `subprocess` providers selected by an \"execution world\" setting: local, container, SSH (C4.10), WSL. Tools never import OS APIs directly.",
+      "milestone": "M5, M11, M20",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "C4.10"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Tools never import OS APIs directly"
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.3",
+      "feature": "Subagent providers behind one interface: from a fresh child agent to a delegated turn in another product.",
+      "detail": "Provider interface supports V8 external specialist adapters.",
+      "milestone": "M12",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "V8"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Subagent providers behind one interface: from a fresh child agent to a delegated turn in another product (milestone M12)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.4",
+      "feature": "Agent Teams: when enabled for a root session, adds task policy and a shared task board; subagent controls own identity, messaging, discovery, interruption, inbox waiting.",
+      "detail": "Fleet board (Master 9) backed by this service; enabling it is per root session.",
+      "milestone": "M12",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Master 9"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Agent Teams: when enabled for a root session, adds task policy and a shared task board; subagent controls own identity, messaging, discovery, interruption, inbox waiting (milestone M12)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.5",
+      "feature": "Agent presets compose a different capability set for one session; a service row inside a preset needs an `isolate` realm.",
+      "detail": "Preset = list of plugins scoped to an agent; isolated services get their own instance.",
+      "milestone": "M7, M12",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Agent presets compose a different capability set for one session; a service row inside a preset needs an `isolate` realm (milestone M7, M12)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.6",
+      "feature": "Human commands registered on a commands service dispatch without a model turn.",
+      "detail": "Slash commands that are pure code (e.g., `/undo`, `/compact`) never call the model. Add as explicit category (A1.7).",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "A1.7"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Slash commands that are pure code (e.g., `/undo`, `/compact`) never call the model"
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.7",
+      "feature": "Background jobs service with `job_*` tools to read/stop jobs.",
+      "detail": "Jobs registry (Y1.7 background shell) exposes list/read/stop tools.",
+      "milestone": "M5, M14",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Y1.7"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Background jobs service with `job_*` tools to read/stop jobs (milestone M5, M14)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.8",
+      "feature": "Webhook runtime: a *trusted rule* starts a session from an external webhook; provider adapters mount beside it.",
+      "detail": "Channel/webhook starts sessions only via explicit trusted rules (extends Y5.4, V9).",
+      "milestone": "M15",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Y5.4",
+        "V9"
+      ],
+      "dependencies": [
+        "Y5.4",
+        "V9"
+      ],
+      "acceptance_criteria": [
+        "Implement and verify: Webhook runtime: a *trusted rule* starts a session from an external webhook; provider adapters mount beside it (milestone M15)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.9",
+      "feature": "Shell backend, terminals backend, sandbox backend as separate services; sandbox wraps argv before spawning.",
+      "detail": "`shell`, `terminals`, `sandbox` seams; sandbox providers: bubblewrap, Job Objects, optional container.",
+      "milestone": "M5, M3",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Shell backend, terminals backend, sandbox backend as separate services; sandbox wraps argv before spawning (milestone M5, M3)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.10",
+      "feature": "Filesystem policy through `fs/*` events on top of providers.",
+      "detail": "`fs/before_read",
+      "milestone": "write` events let policy/plugins veto (Tier 2 listens first).",
+      "priority": "M3, M5",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Filesystem policy through `fs/*` events on top of providers (milestone write` events let policy/plugins veto (Tier 2 listens first).)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.11",
+      "feature": "Packages Keel is missing or underspecified (from the 60+ dsh package groups): `deliverables` (turn deliverables), `spill` (output spill), `attachment`, `guard` (loop/tool guards), `extensions` (runtime self-modification), `feedback` (human feedback), `identity` (anonymous identity), `workspace` (workspace entities), `plan` (logged planning), `schedule` (scheduled follow-ups), `ptc-runtime` (programmatic tool-call execution, meaning to be verified), `session-query` (browse/search/export), `typert` (type graph for RPC), `liveshare`, `inspector`, `experimental` quarantine.",
+      "detail": "Map to Keel rows below (D3.12 to D3.20).",
+      "milestone": "M7 to M21",
+      "priority": "P0",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "D3.12",
+        "D3.20"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Packages Keel is missing or underspecified (from the 60+ dsh package groups): `deliverables` (turn deliverables), `spill` (output spill), `attachment`, `guard` (loop/t... (milestone M7 to M21)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.12",
+      "feature": "`deliverables`: each turn can attach named deliverables (files, summaries) shown as a result card.",
+      "detail": "Turn Deliverables panel: files changed, reports produced, with open/export.",
+      "milestone": "M7, M19",
+      "priority": "P1",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: `deliverables`: each turn can attach named deliverables (files, summaries) shown as a result card (milestone M7, M19)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.13",
+      "feature": "`spill`: large tool output spills to a file with a preview (matches Master rule 5).",
+      "detail": "Already planned; add the shared service name and UI \"open full output\".",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: `spill`: large tool output spills to a file with a preview (matches Master rule 5) (milestone M5)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.14",
+      "feature": "`guard`: loop and tool guards as their own plugin group.",
+      "detail": "Doom-loop (C3.2), mass-change (X5.5), step limit (W2.4) live here.",
+      "milestone": "M4, M3",
+      "priority": "P0",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "C3.2",
+        "X5.5",
+        "W2.4"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: `guard`: loop and tool guards as their own plugin group (milestone M4, M3)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.15",
+      "feature": "`extensions` (runtime self-modification) group.",
+      "detail": "Agent proposes new skills/commands/agents as diffs for approval (C3.7); never auto-installs.",
+      "milestone": "M9",
+      "priority": "P1",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "C3.7"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "never auto-installs"
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.16",
+      "feature": "`feedback` (human feedback) group.",
+      "detail": "Thumbs up/down + note on any message, stored locally, feeding evals (C13.2, V7).",
+      "milestone": "M19, M21",
+      "priority": "P1",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "C13.2",
+        "V7"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: `feedback` (human feedback) group (milestone M19, M21)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.17",
+      "feature": "`identity` (anonymous identity) group.",
+      "detail": "Random local install id used only for local keys; never sent anywhere (no mandatory telemetry).",
+      "milestone": "M3",
+      "priority": "P1",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "never sent anywhere (no mandatory telemetry)"
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.18",
+      "feature": "`workspace` entities + `session-query` (browse/search/export).",
+      "detail": "Workspace list, session search (FTS5) and export UI (B4.4).",
+      "milestone": "M4, M19",
+      "priority": "P0",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "FTS5",
+        "B4.4"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: `workspace` entities + `session-query` (browse/search/export) (milestone M4, M19)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.19",
+      "feature": "`plan` (logged planning) and `schedule` (scheduled follow-ups).",
+      "detail": "Plan as log events (checklist survives restart); \"follow up in N hours\" scheduled task (M14).",
+      "milestone": "M7, M14",
+      "priority": "P1",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: `plan` (logged planning) and `schedule` (scheduled follow-ups) (milestone M7, M14)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.20",
+      "feature": "`experimental/` quarantine: capabilities under evaluation with no product-support commitment, independent of optional delivery; non-experimental packages need product use or explicit classification (policy file).",
+      "detail": "`keel/experimental/` namespace + `product-package-policy` file; X6.10 flags enforced by it.",
+      "milestone": "M0, M10",
+      "priority": "P1",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "X6.10"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: `experimental/` quarantine: capabilities under evaluation with no product-support commitment, independent of optional delivery; non-experimental packages need product ... (milestone M0, M10)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.21",
+      "feature": "`llm-pi-ai` generated provider metadata with a check that rejects stale generated data without rewriting files.",
+      "detail": "Offline provider catalog (Master M2) generated by a script and verified in pre-commit (read-only check).",
+      "milestone": "M2",
+      "priority": "P1",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Offline provider catalog (Master M2) generated by a script and verified in pre-commit (read-only check)"
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.22",
+      "feature": "Inspector (DevTools-style frontend) compiled locally from a pinned source package; no network or browser download at build; published packages contain the built frontend.",
+      "detail": "Keel \"Inspector\" dock: event log, prompt assembly, tool timing (B4.7, X8.x); built from pinned local deps.",
+      "milestone": "M21",
+      "priority": "P1",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "B4.7",
+        "X8.x"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Inspector (DevTools-style frontend) compiled locally from a pinned source package; no network or browser download at build; published packages contain the built frontend (milestone M21)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D3.23",
+      "feature": "Live Share (experimental): viewer carrier in the browser + node wire codecs.",
+      "detail": "Read-only live session viewer on LAN (B4.8) as experimental; no cloud relay.",
+      "milestone": "M20",
+      "priority": "P2",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "B4.8"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Live Share (experimental): viewer carrier in the browser + node wire codecs (milestone M20)."
+      ],
+      "section": "4. Capability seams and the package map (what Keel should have)",
+      "section_number": 4
+    },
+    {
+      "id": "D4.1",
+      "feature": "Model setup in Settings → Models: enter key, save, route usable immediately without restarting.",
+      "detail": "Provider form hot-applies (Master 9.3); show a test result inline.",
+      "milestone": "M19",
+      "priority": "P0",
+      "tag_source": "T:DS-GUIDE",
+      "source": "T:DS-GUIDE",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Master 9.3"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "show a test result inline"
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.2",
+      "feature": "Custom OpenAI-compatible endpoints documented as a first-class path.",
+      "detail": "Provider type \"OpenAI-compatible\" (local servers, LAN).",
+      "milestone": "M2",
+      "priority": "P0",
+      "tag_source": "T:DS-GUIDE",
+      "source": "T:DS-GUIDE",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Custom OpenAI-compatible endpoints documented as a first-class path (milestone M2)."
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.3",
+      "feature": "Workspace required: \"Choose workspace\" flow; composer is unavailable until a workspace is selected; fresh UI has none selected even though the process has a default directory.",
+      "detail": "Same gate; empty state explains why; Chat mode without workspace still allowed in Cowork (optional).",
+      "milestone": "M19",
+      "priority": "P0",
+      "tag_source": "T:DS-GUIDE",
+      "source": "T:DS-GUIDE",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Workspace required: \"Choose workspace\" flow; composer is unavailable until a workspace is selected; fresh UI has none selected even though the process has a default di... (milestone M19)."
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.4",
+      "feature": "In-page directory picker vs native picker; an overlay config pins the in-page picker for automated browser tests/GIF recording.",
+      "detail": "Renderer has an in-app folder browser (works over SSH/headless web) and a test override.",
+      "milestone": "M19, M25",
+      "priority": "P1",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Renderer has an in-app folder browser (works over SSH/headless web) and a test override"
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.5",
+      "feature": "Web client Chat nodes: extensible `ConversationNodeDefinition` + keyed renderer so plugins add new message/node types.",
+      "detail": "Renderer registry for transcript row kinds (Y2.9); plugins register a node type + renderer + persisted shape.",
+      "milestone": "M19, M10",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Y2.9"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Web client Chat nodes: extensible `ConversationNodeDefinition` + keyed renderer so plugins add new message/node types (milestone M19, M10)."
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.6",
+      "feature": "Settings cards contributed by plugins (cookbook \"adding a settings card\").",
+      "detail": "Plugin manifest can add a settings card with schema-driven form.",
+      "milestone": "M10, M19",
+      "priority": "P1",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Settings cards contributed by plugins (cookbook \"adding a settings card\") (milestone M10, M19)."
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.7",
+      "feature": "Tool UI presentation designed up front: host presenters are pure; web cards derive from raw events and persisted result metadata.",
+      "detail": "Each tool ships a presenter (summary, icon, expanded view) as a pure function over events.",
+      "milestone": "M5, M19",
+      "priority": "P0",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Tool UI presentation designed up front: host presenters are pure; web cards derive from raw events and persisted result metadata (milestone M5, M19)."
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.8",
+      "feature": "Client UI copy is locale-owned: product text only through typed dictionaries/`t()`; a gate rejects hardcoded copy; English copy and plugin titles use sentence case.",
+      "detail": "Lint gate for the renderer + plugin manifests (`verify_ui_copy`).",
+      "milestone": "M19, M25",
+      "priority": "P0",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Lint gate for the renderer + plugin manifests (`verify_ui_copy`)"
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.9",
+      "feature": "Official plugin artwork policy: bundled plugins use a consistent icon set; new glyphs need designer approval.",
+      "detail": "Icon guidelines in `tokens.json` docs; owner approves new icons.",
+      "milestone": "M19",
+      "priority": "P2",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Official plugin artwork policy: bundled plugins use a consistent icon set; new glyphs need designer approval (milestone M19)."
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.10",
+      "feature": "UI design/review entry point as a reusable skill file (design principles + references loaded on demand).",
+      "detail": "`UI-UX-GUIDE.md` (private) the builder must load before any UI change.",
+      "milestone": "M0, M19",
+      "priority": "P1",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "`UI-UX-GUIDE.md` (private) the builder must load before any UI change"
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.11",
+      "feature": "Plugin Manager UI in the base bundle for Web and agents.",
+      "detail": "Extensions page (Y1.31) also usable by agents with approval.",
+      "milestone": "M10, M19",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Y1.31"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Plugin Manager UI in the base bundle for Web and agents (milestone M10, M19)."
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.12",
+      "feature": "Desktop window loads packaged assets immediately and activates client plugins after readiness.",
+      "detail": "Fast first paint; skeleton + \"starting daemon\" state (X8.x).",
+      "milestone": "M19",
+      "priority": "P0",
+      "tag_source": "T:DS-ARCH",
+      "source": "T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "X8.x"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Desktop window loads packaged assets immediately and activates client plugins after readiness (milestone M19)."
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D4.13",
+      "feature": "Port selection: web UI default fixed port, desktop OS-assigned, overridable by profile config.",
+      "detail": "Same defaults; port conflict handling with clear message.",
+      "milestone": "M20",
+      "priority": "P1",
+      "tag_source": "T:DS-README, T:DS-ARCH",
+      "source": "T:DS-README, T:DS-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Port selection: web UI default fixed port, desktop OS-assigned, overridable by profile config (milestone M20)."
+      ],
+      "section": "5. Web UI, Desktop, chat nodes and UX",
+      "section_number": 5
+    },
+    {
+      "id": "D5.1",
+      "feature": "Plain statement that the software executes model-generated code/commands, loads third-party plugins, and accesses network, processes, credentials and files; defects, misconfiguration, malicious input or untrusted plugins can damage the host.",
+      "detail": "First-run Safety notice + EULA summary (W1.10).",
+      "milestone": "M19",
+      "priority": "P0",
+      "tag_source": "T:DS-SAFETY",
+      "source": "T:DS-SAFETY",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "W1.10"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Plain statement that the software executes model-generated code/commands, loads third-party plugins, and accesses network, processes, credentials and files; defects, m... (milestone M19)."
+      ],
+      "section": "6. Safety, trust and responsible-use copy",
+      "section_number": 6
+    },
+    {
+      "id": "D5.2",
+      "feature": "\"Sandboxing, approvals and permissions reduce risk but do not guarantee isolation\"; do not rely on it as the sole control for untrusted workloads.",
+      "detail": "Same wording in the Known-limits page (W7.19).",
+      "milestone": "M19, M23",
+      "priority": "P0",
+      "tag_source": "T:DS-SAFETY",
+      "source": "T:DS-SAFETY",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "W7.19"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: \"Sandboxing, approvals and permissions reduce risk but do not guarantee isolation\"; do not rely on it as the sole control for untrusted workloads (milestone M19, M23)."
+      ],
+      "section": "6. Safety, trust and responsible-use copy",
+      "section_number": 6
+    },
+    {
+      "id": "D5.3",
+      "feature": "Responsible-use list: least privilege; disposable VM/container; keep backups; don't expose sensitive credentials; review plugins, config and proposed commands.",
+      "detail": "Onboarding checklist item for each point; wizard offers \"Run in disposable container\" (V17) and \"Create backup before first agent run\".",
+      "milestone": "M19",
+      "priority": "P0",
+      "tag_source": "T:DS-SAFETY",
+      "source": "T:DS-SAFETY",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "V17"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Responsible-use list: least privilege; disposable VM/container; keep backups; don't expose sensitive credentials; review plugins, config and proposed commands (milestone M19)."
+      ],
+      "section": "6. Safety, trust and responsible-use copy",
+      "section_number": 6
+    },
+    {
+      "id": "D5.4",
+      "feature": "No warranty / no liability paragraph referencing the license.",
+      "detail": "Goes into EULA/DISCLAIMER via lawyer review (G5).",
+      "milestone": "M1",
+      "priority": "P0",
+      "tag_source": "T:DS-SAFETY",
+      "source": "T:DS-SAFETY",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "G5"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: No warranty / no liability paragraph referencing the license (milestone M1)."
+      ],
+      "section": "6. Safety, trust and responsible-use copy",
+      "section_number": 6
+    },
+    {
+      "id": "D5.5",
+      "feature": "Host sandbox failures rule (builder): if a required command fails because the dev sandbox blocks credentials/network/IPC, retry unchanged with the narrowest escalation, require evidence of the sandbox cause, and never bypass test failures or the product sandbox.",
+      "detail": "Add to builder stop-list (X10.4).",
+      "milestone": "M0",
+      "priority": "P0",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "X10.4"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Host sandbox failures rule (builder): if a required command fails because the dev sandbox blocks credentials/network/IPC, retry unchanged with the narrowest escalation... (milestone M0)."
+      ],
+      "section": "6. Safety, trust and responsible-use copy",
+      "section_number": 6
+    },
+    {
+      "id": "D6.1",
+      "feature": "Pre-stable APIs: update every consumer when a public API changes; record each externally perceptible breaking change immediately in an upgrade guide; SQLite uses a monotonic `SCHEMA_VERSION`.",
+      "detail": "Check: PR touching public API must touch `UPGRADE.md`",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Check: PR touching public API must touch `UPGRADE.md`"
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.2",
+      "feature": "Plugins, not loop changes: new behavior attaches to documented extension points; changing the loop requires updating the architecture doc.",
+      "detail": "Doc-sync gate",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Plugins, not loop changes: new behavior attaches to documented extension points; changing the loop requires updating the architecture doc (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.3",
+      "feature": "Typed events with documented mode and payload fields; closed unions end in an exhaustive check (`assert_never`); extensible unions use a documented default.",
+      "detail": "Type check + lint",
+      "milestone": "M8",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Type check + lint"
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.4",
+      "feature": "Explicit over implicit at package boundaries: defaults are applied in an explicit `resolve(request) -> Spec` step, never a hidden `or default` inside `run()`.",
+      "detail": "Review rule",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Explicit over implicit at package boundaries: defaults are applied in an explicit `resolve(request) -> Spec` step, never a hidden `or default` inside `run()` (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.5",
+      "feature": "No hardcoded tunables in plugins: deployment-varying choices are validated config fields; constants stay for protocol, external specs and security invariants.",
+      "detail": "Lint for magic numbers in plugin dirs (allowlist)",
+      "milestone": "M2",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Lint for magic numbers in plugin dirs (allowlist)"
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.6",
+      "feature": "Misconfiguration fails loud at load (or earliest resolvable point); never silently skip a missing referent.",
+      "detail": "Test per plugin",
+      "milestone": "M2",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Test per plugin"
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.7",
+      "feature": "Opaque cross-boundary ids are branded types (`NewType`), never bare `str`.",
+      "detail": "mypy/pyright",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Opaque cross-boundary ids are branded types (`NewType`), never bare `str` (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.8",
+      "feature": "Trust types inside the process; validate at boundaries (parser/config, queued messages, model/tool JSON, durable files, worker/process/wire). Don't add hostile-input tests for values the static interface already requires.",
+      "detail": "Review rule",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Trust types inside the process; validate at boundaries (parser/config, queued messages, model/tool JSON, durable files, worker/process/wire). Don't add hostile-input t... (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.9",
+      "feature": "No new casts to `Any`/`object` beyond the recorded baseline; replace with typed values or validation.",
+      "detail": "Baseline-count gate",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Baseline-count gate"
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.10",
+      "feature": "Source plane vs artifact plane never mixed: tests/gates resolve imports to source and pass on a clean tree; gates that need built output declare that dependency.",
+      "detail": "Gate declaration",
+      "milestone": "M0, M22",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Gate declaration"
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.11",
+      "feature": "Structured, typed errors (`KeelError` with code); stop dependent work and visibly report untrusted state or unknown outcomes; empty `except` blocks must name the error and why and contain one statement.",
+      "detail": "Gate for empty-except",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Gate for empty-except"
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.12",
+      "feature": "Comments: local and non-restating; document behavior, failure, timing, ownership, safe use; every public export has a docstring with params/returns; word budgets for docs.",
+      "detail": "Docstring gate + budget gate",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Docstring gate + budget gate"
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.13",
+      "feature": "Docs accompany code: update README/docstrings in the same change.",
+      "detail": "doc-sync",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Docs accompany code: update README/docstrings in the same change (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.14",
+      "feature": "Tests describe behavior, not \"correctness\"; change obsolete behavior together with its tests and explain why.",
+      "detail": "Review",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Tests describe behavior, not \"correctness\"; change obsolete behavior together with its tests and explain why (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.15",
+      "feature": "Every non-trivial model- or user-visible change updates a keyless recorded-session snapshot; fixtures replay on macOS and Linux (and Windows); fix fixtures, not normalizers.",
+      "detail": "Snapshot gate",
+      "milestone": "M25",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Every non-trivial model- or user-visible change updates a keyless recorded-session snapshot; fixtures replay on macOS and Linux (and Windows); fix fixtures, not normal... (milestone M25)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.16",
+      "feature": "Both SDKs project the loop: loop/session-lifecycle/event-map changes update the Python and TypeScript SDK expected outputs in the same change.",
+      "detail": "Gate",
+      "milestone": "M20",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Both SDKs project the loop: loop/session-lifecycle/event-map changes update the Python and TypeScript SDK expected outputs in the same change (milestone M20)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.17",
+      "feature": "Agent Notes (ADR-like) only for durable decision rationale; archived notes frozen, never edited or treated as current authority.",
+      "detail": "Convention",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Agent Notes (ADR-like) only for durable decision rationale; archived notes frozen, never edited or treated as current authority (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.18",
+      "feature": "Prefer maintained dependencies over hand-rolling when they delete owned code and tests.",
+      "detail": "Review",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Prefer maintained dependencies over hand-rolling when they delete owned code and tests (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.19",
+      "feature": "Vendoring policy: vendored packages are pinned source copies with a manifest of upstream SHAs; changes require a manifest update (pre-commit guard); local modifications are logged and re-applied or retired on sync.",
+      "detail": "Pre-commit guard",
+      "milestone": "M0, M1",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Vendoring policy: vendored packages are pinned source copies with a manifest of upstream SHAs; changes require a manifest update (pre-commit guard); local modification... (milestone M0, M1)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.20",
+      "feature": "Run only relevant checks locally: match evidence to the change (focused tests, snapshots, doc-sync, built smokes, real-provider e2e); CI owns exhaustive coverage; don't repeat a passing check for commit/push.",
+      "detail": "Builder rule",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Run only relevant checks locally: match evidence to the change (focused tests, snapshots, doc-sync, built smokes, real-provider e2e); CI owns exhaustive coverage; don'... (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.21",
+      "feature": "PR hygiene: one `kind/*` and all material `area/*` labels; rewrites use force-with-lease only; PR description template.",
+      "detail": "Template",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: PR hygiene: one `kind/*` and all material `area/*` labels; rewrites use force-with-lease only; PR description template (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.22",
+      "feature": "TODO markers by urgency: `FIXME` (blocks release), `TODO` (soon), `XXX` (someday).",
+      "detail": "Gate: release fails on open FIXME",
+      "milestone": "M22",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Gate: release fails on open FIXME"
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.23",
+      "feature": "Defensive-patterns doc read before touching package surfaces, remote services, client state, conversation/session behavior, lifecycle/concurrency/subprocess/teardown code.",
+      "detail": "Doc",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Defensive-patterns doc read before touching package surfaces, remote services, client state, conversation/session behavior, lifecycle/concurrency/subprocess/teardown code (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.24",
+      "feature": "Strict typing everywhere; any remaining dynamic type explains why.",
+      "detail": "pyright strict",
+      "milestone": "M0",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Strict typing everywhere; any remaining dynamic type explains why (milestone M0)."
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D6.25",
+      "feature": "Machine-checkable invariants wired into an executed top-level gate and each gate proven to reject an invalid case; narrow justified exceptions instead of disabling rules globally.",
+      "detail": "Meta-test for gates",
+      "milestone": "M0, M25",
+      "priority": null,
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Meta-test for gates"
+      ],
+      "section": "7. Builder constitution (rules to give the AI builder, from DS-AGENTS)",
+      "section_number": 7
+    },
+    {
+      "id": "D7.1",
+      "feature": "Gate scheduler (`run-gates`): all gates as a dependency graph; bounded concurrency env var; fail-fast switch; a failure skips only its dependents so independent errors all report.",
+      "detail": "`scripts/run_gates.py` with `KEEL_GATE_CONCURRENCY`, `KEEL_GATE_FAIL_FAST`.",
+      "milestone": "M0",
+      "priority": "P0",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Gate scheduler (`run-gates`): all gates as a dependency graph; bounded concurrency env var; fail-fast switch; a failure skips only its dependents so independent errors... (milestone M0)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.2",
+      "feature": "Worker budgets differ locally vs CI (local capped because container CPU counts mislead).",
+      "detail": "Detect cgroup CPU quota; local cap defaults.",
+      "milestone": "M0",
+      "priority": "P2",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Worker budgets differ locally vs CI (local capped because container CPU counts mislead) (milestone M0)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.3",
+      "feature": "Separate type-check programs for two faces (host and client) because both declare the same keys with different services and would collide in one program.",
+      "detail": "Keel analog: separate `pyright`/`tsc` projects for daemon, renderer/main and SDKs; never a combined program; gate verifies each package belongs to exactly one face.",
+      "milestone": "M0, M19",
+      "priority": "P1",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "never a combined program",
+        "gate verifies each package belongs to exactly one face"
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.4",
+      "feature": "Typed remote-call contract generation: services declare callable methods with a decorator; the build generates client-side types and runtime contributions.",
+      "detail": "Generate TypeScript client types from the Python API (pydantic → OpenAPI/JSON Schema → TS), checked in CI for drift.",
+      "milestone": "M20",
+      "priority": "P0",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Generate TypeScript client types from the Python API (pydantic → OpenAPI/JSON Schema → TS), checked in CI for drift"
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.5",
+      "feature": "Build order: native addon → contract generation → compile host → bundle → compile client → bundle client → web; `build:check` verifies tests/scripts against the already-built output and does not rebuild.",
+      "detail": "Documented build pipeline with explicit stages; separate `check` stage.",
+      "milestone": "M22",
+      "priority": "P1",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "separate `check` stage"
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.6",
+      "feature": "Embedded build identity: version + short commit + dirty marker; `official` build omits the dirty marker; a gitignored build record binds exact public values to the output and release packing rejects a missing/stale record.",
+      "detail": "Build record file validated by release job; About screen shows it (V13).",
+      "milestone": "M22",
+      "priority": "P0",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "V13"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Embedded build identity: version + short commit + dirty marker; `official` build omits the dirty marker; a gitignored build record binds exact public values to the out... (milestone M22)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.7",
+      "feature": "Local vs official build profiles (`--profile local` keeps version/commit/dirty, discards inherited branding overrides).",
+      "detail": "`--profile local",
+      "milestone": "official` build flag.",
+      "priority": "M22",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Local vs official build profiles (`--profile local` keeps version/commit/dirty, discards inherited branding overrides) (milestone official` build flag.)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.8",
+      "feature": "Windows and WSL guidance: keep checkout and toolchain in the same OS environment; install deps separately per environment; Windows behavior needs native validation.",
+      "detail": "Builder docs + CI Windows lane separate from Linux.",
+      "milestone": "M0, M25",
+      "priority": "P1",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Builder docs + CI Windows lane separate from Linux"
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.9",
+      "feature": "Strict dependency linker so undeclared deps fail; build scripts of dependencies explicitly allowlisted.",
+      "detail": "`pip-compile`/lockfile with hash pinning; Electron side uses a strict package manager config with an allowlist of postinstall scripts.",
+      "milestone": "M0",
+      "priority": "P0",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "`pip-compile`/lockfile with hash pinning"
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.10",
+      "feature": "Hooks: worktree-local git hooks installed by a script; pre-commit = staged lint profile with fix + bounded retry, whitespace check, generated-metadata check, vendor manifest guard; pre-merge-commit check; pre-push = typecheck. Hooks deliberately don't run tests/builds; opt-in `check:all`.",
+      "detail": "Same hook set via lefthook or pre-commit.",
+      "milestone": "M0",
+      "priority": "P1",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Hooks: worktree-local git hooks installed by a script; pre-commit = staged lint profile with fix + bounded retry, whitespace check, generated-metadata check, vendor ma... (milestone M0)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.11",
+      "feature": "Doc gates: doc-sync aggregate, doc typecheck (compiles code fences), type-equiv (documented type declarations pasted into docs are verified against source by a gate), docs site build doubles as dead-link check, translation pairing records with merge-conflict repair command.",
+      "detail": "Python: docs code fences executed/type-checked; verified paste of key types (V19).",
+      "milestone": "M0, M23",
+      "priority": "P1",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "V19"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Doc gates: doc-sync aggregate, doc typecheck (compiles code fences), type-equiv (documented type declarations pasted into docs are verified against source by a gate), ... (milestone M0, M23)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.12",
+      "feature": "CI layout: broad lanes of independent gates, a smaller Node-version compatibility matrix, native Windows lane in a separate workflow, Python checks separate, required benchmarks on standard hosted Linux, real-API e2e in its own workflow, partitioned coverage using per-platform timing data.",
+      "detail": "CI lanes: gates, matrix (Python 3.11/3.12/3.13), Windows, macOS, benchmarks, provider-e2e (opt-in, self-skips without key).",
+      "milestone": "M0, M25",
+      "priority": "P0",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "CI lanes: gates, matrix (Python 3.11/3.12/3.13), Windows, macOS, benchmarks, provider-e2e (opt-in, self-skips without key)"
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.13",
+      "feature": "Per-file 100% coverage gate on package sources in CI (separate from the normal test command).",
+      "detail": "Start with 100% on security-critical modules (permission gate, analyzer, crypto); others graded.",
+      "milestone": "M25",
+      "priority": "P1",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Start with 100% on security-critical modules (permission gate, analyzer, crypto)"
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.14",
+      "feature": "Test taxonomy rules: real-API e2e self-skip without key; \"expected\" tests are owner-local process expectations; snapshot tests replay recorded sessions through shipped profiles without a key, with a `record` mode that needs a key.",
+      "detail": "Same three-way split (W1.5, X9.1/9.2).",
+      "milestone": "M25",
+      "priority": "P0",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "W1.5",
+        "X9.1",
+        "X9.2"
+      ],
+      "dependencies": [
+        "W1.5",
+        "X9.1",
+        "X9.2"
+      ],
+      "acceptance_criteria": [
+        "Implement and verify: Test taxonomy rules: real-API e2e self-skip without key; \"expected\" tests are owner-local process expectations; snapshot tests replay recorded sessions through shipped... (milestone M25)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.15",
+      "feature": "Release rehearsals: dependency-layout rehearsal and pack rehearsals (build packages exactly as release does) run credential-free; self-hosted runner failover only for trusted events (non-fork, non-bot PRs); manual publish stays hosted.",
+      "detail": "`release --dry-run` (C12.6) + documented failover to owner's free self-hosted runners with trust rules.",
+      "milestone": "M22",
+      "priority": "P1",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "C12.6"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Release rehearsals: dependency-layout rehearsal and pack rehearsals (build packages exactly as release does) run credential-free; self-hosted runner failover only for ... (milestone M22)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.16",
+      "feature": "Package hygiene checks: `publint`-style entrypoint validation and a clean \"consumer\" import check against built declarations.",
+      "detail": "Python: `twine check`, import smoke test in a clean venv; TS SDK: consumer check.",
+      "milestone": "M22",
+      "priority": "P1",
+      "tag_source": "T:DS-DEV",
+      "source": "T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Python: `twine check`, import smoke test in a clean venv",
+        "TS SDK: consumer check"
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.17",
+      "feature": "Windows signing docs as required reading for packaging; desktop packaging profile per signing mode.",
+      "detail": "Keel ships unsigned (D3 in Master); keep a `packaging/README` with modes ready for the day a certificate exists.",
+      "milestone": "M22",
+      "priority": "P2",
+      "tag_source": "T:DS-AGENTS, T:DS-DEV",
+      "source": "T:DS-AGENTS, T:DS-DEV",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "D3"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Windows signing docs as required reading for packaging; desktop packaging profile per signing mode (milestone M22)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.18",
+      "feature": "Update-time breaking-change notice: release carries the upgrade guide entries since the installed version.",
+      "detail": "Updater shows \"What changes for you\" before install (S+DS).",
+      "milestone": "M22, M19",
+      "priority": "P1",
+      "tag_source": "T:DS-AGENTS (upgrade guides)",
+      "source": "T:DS-AGENTS (upgrade guides)",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Update-time breaking-change notice: release carries the upgrade guide entries since the installed version (milestone M22, M19)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.19",
+      "feature": "Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task.",
+      "detail": "Keel benchmark runner uses the `sdk-minimal` profile and isolated workspaces (C13.1).",
+      "milestone": "M21",
+      "priority": "P0",
+      "tag_source": "T:DS-BENCH",
+      "source": "T:DS-BENCH",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "C13.1"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task (milestone M21)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "D7.20",
+      "feature": "Labels taxonomy and stacked PRs (native stacks, merge-forward vs rebase).",
+      "detail": "Private repo practice; optional.",
+      "milestone": "M0",
+      "priority": "P2",
+      "tag_source": "T:DS-AGENTS",
+      "source": "T:DS-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Labels taxonomy and stacked PRs (native stacks, merge-forward vs rebase) (milestone M0)."
+      ],
+      "section": "8. Dev workflow, build, CI and release (new items)",
+      "section_number": 8
+    },
+    {
+      "id": "V16",
+      "feature": "Keel invariant-gate catalog: a list of gates specific to Keel: Tier-2 table hash unchanged; no outbound network in offline suite; no secret in logs; every tool has a presenter; every plugin manifest declares permissions; no hardcoded UI copy; migration compat matrix; no `Any` baseline growth.",
+      "detail": "Create `gates/` with one script per invariant; each gate has a failing-fixture test proving it rejects bad input (D6.25).",
+      "milestone": "M0, M25",
+      "priority": "P0",
+      "tag_source": "S",
+      "source": "S",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "D6.25"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "each gate has a failing-fixture test proving it rejects bad input (D6.25)"
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`",
+      "section_number": 9
+    },
+    {
+      "id": "V17",
+      "feature": "Disposable-sandbox run mode: run the agent's tool execution in a container with a copy-on-write view of the project, then show a diff and apply only approved hunks back.",
+      "detail": "Podman/Docker optional; overlay or copy; reuse diff review dock; falls back to a temp-copy mode without containers. Never required.",
+      "milestone": "M5, M19",
+      "priority": "P1",
+      "tag_source": "S",
+      "source": "S",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Disposable-sandbox run mode: run the agent's tool execution in a container with a copy-on-write view of the project, then show a diff and apply only approved hunks back (milestone M5, M19)."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`",
+      "section_number": 9
+    },
+    {
+      "id": "V18",
+      "feature": "Plugin static capability scan: before enabling a plugin, scan its Python/JS for subprocess, socket, ctypes, `eval/exec`, file writes outside its data dir, and compare with its declared permissions; mismatch blocks enabling.",
+      "detail": "AST scan; show findings in install dialog; best-effort and labeled as such (not a sandbox).",
+      "milestone": "M10",
+      "priority": "P1",
+      "tag_source": "S",
+      "source": "S",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Plugin static capability scan: before enabling a plugin, scan its Python/JS for subprocess, socket, ctypes, `eval/exec`, file writes outside its data dir, and compare ... (milestone M10)."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`",
+      "section_number": 9
+    },
+    {
+      "id": "V19",
+      "feature": "Executable docs: code fences in user and internal docs run in CI against the mock model; \"paste of key types\" verified against source.",
+      "detail": "Doc tool extracts fences tagged `keel-run` and `keel-type`; fail on drift. Mirrors D7.11 for Python.",
+      "milestone": "M23, M25",
+      "priority": "P1",
+      "tag_source": "S",
+      "source": "S",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "D7.11"
+      ],
+      "dependencies": [
+        "D7.11"
+      ],
+      "acceptance_criteria": [
+        "Implement and verify: Executable docs: code fences in user and internal docs run in CI against the mock model; \"paste of key types\" verified against source (milestone M23, M25)."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`",
+      "section_number": 9
+    },
+    {
+      "id": "V20",
+      "feature": "Turn Replay Test builder: \"save this turn as a test\" button producing a snapshot fixture (recorded stream + expected log) for the builder's suite.",
+      "detail": "Export current turn's request/response stream with secrets scrubbed; stored under `tests/snapshots/`.",
+      "milestone": "M21, M25",
+      "priority": "P1",
+      "tag_source": "S",
+      "source": "S",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "stored under `tests/snapshots/`"
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`",
+      "section_number": 9
+    },
+    {
+      "id": "V21",
+      "feature": "Contract generator for plugin events: generate docs and JSON Schemas for every event type from code annotations, and fail CI if an event lacks `mode` and payload docs (D6.3).",
+      "detail": "Python `typing` + docstring parser; output into the private docs and plugin SDK.",
+      "milestone": "M8, M10",
+      "priority": "P1",
+      "tag_source": "S",
+      "source": "S",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "D6.3"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Contract generator for plugin events: generate docs and JSON Schemas for every event type from code annotations, and fail CI if an event lacks `mode` and payload docs ... (milestone M8, M10)."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`",
+      "section_number": 9
+    },
+    {
+      "id": "V22",
+      "feature": "Seam checklist linter: verifies each registered seam has a definition, a default provider and at least one consumer, and flags single-role \"seams\" (D3.1).",
+      "detail": "Reads the service registry at test time.",
+      "milestone": "M7",
+      "priority": "P2",
+      "tag_source": "S",
+      "source": "S",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "D3.1"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Reads the service registry at test time"
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`",
+      "section_number": 9
+    },
+    {
+      "id": "V23",
+      "feature": "Run-in-isolation toggle for risky plugins: run plugin code in a separate subprocess with its own env, reachable only via the RPC bridge.",
+      "detail": "Same pattern as MCP workers (Master 11.9); default for unsigned plugins.",
+      "milestone": "M10",
+      "priority": "P1",
+      "tag_source": "S",
+      "source": "S",
+      "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+      "references": [
+        "Master 11.9"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Implement and verify: Run-in-isolation toggle for risky plugins: run plugin code in a separate subprocess with its own env, reachable only via the RPC bridge (milestone M10)."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`",
+      "section_number": 9
+    }
+  ],
+  "metadata": {
+    "source_document": "Keel_Plan_v5_Addendum_6_DeepSeek_Harness_Full_Teardown.md",
+    "document_title": "Keel Plan v5 Addendum 6: DeepSeek Harness Full Teardown (Architecture, Packages, UI/UX, Builder Rules, CI)",
+    "document_intent": "Adds only items not already in Master Plan and Addenda 1-5. Free-only. Milestones follow v5. Every row names its source.",
+    "prefix_legend": {
+      "D": "Derived from the DeepSeek Harness (clean-room behavioral reimplementation in Python).",
+      "V": "Own ideas (builder protocol in Section 9), tagged [S].",
+      "C": "Conflict/decision rows in Section 11; metadata only, not feature rows."
+    },
+    "tag_legend": {
+      "[T:key]": "Read this session (21 Nov 2026) in that file. Behavior is reimplemented clean-room in Python (X0.10). Never copy code, names, icons or prompts.",
+      "[S]": "My suggestion, no repo behind it."
+    },
+    "deepseek_harness": {
+      "repo": "github.com/deepseek-ai/deepseek-harness",
+      "license": "MIT",
+      "stars": "273k",
+      "tagline": "everything is a plugin",
+      "source_keys": {
+        "DS-ARCH": "docs/architecture.md",
+        "DS-AGENTS": "AGENTS.md",
+        "DS-DEV": "docs/development.md",
+        "DS-SAFETY": "SAFETY.md",
+        "DS-GUIDE": "docs/user/guide/index.md",
+        "DS-BENCH": "BENCHMARK.md",
+        "DS-README": "README/tree (Addendum 5)"
+      }
+    },
+    "read_status": {
+      "read_in_full_this_pass": [
+        "DS-ARCH",
+        "DS-AGENTS",
+        "DS-DEV",
+        "DS-SAFETY",
+        "DS-GUIDE",
+        "DS-BENCH"
+      ],
+      "blocked_this_pass": [
+        "GitHub packages/ directory page",
+        "GitHub apps/ directory page"
+      ],
+      "note": "Package map comes from DS-AGENTS's own layout table; apps/* contents and each package README are unread (conflict C-12). Treat all DS package-level claims as [T:DS-AGENTS] summaries only until M0 reads them."
+    },
+    "adaptation_rule": "dsh is TypeScript on a framework called Cordis (Node >= 24.9, pnpm). Keel is a Python daemon + Electron renderer. Nothing in dsh's stack is adopted; only behaviors and design rules.",
+    "clean_room_specs": {
+      "stack_adoption": "None. Clean-room behavioral reimplementation only; no dsh code, names, icons or prompts are copied.",
+      "reimplementation_target": "Keel Python daemon (X0.10) + Electron renderer; Keel service registry keys: sessions, system_prompt, tools, agents, agent_loop, llm.",
+      "config_is_data_only": "Do NOT adopt dsh's !!js config feature (which allows code in config files). Config stays data-only; conditional composition via overlays/profiles only (conflict C-11).",
+      "tier2_non_replaceable": "Tier 2 safety services are plugins that cannot be replaced or disabled by profiles/patches (D1.1 exception, conflict C-10).",
+      "model_visible_equals_logged": "Every model request must be reconstructable from the session log; new model-visible input requires a session event; plugins register pure message projections (D2.11).",
+      "boundary_validation": "Trust types inside the process; validate at parser/config, queued messages, model/tool JSON, durable files and worker/process/wire boundaries (D6.8).",
+      "licensing_note": "dsh is MIT; SDK runtime wheel per platform must verify license/size (D1.8)."
+    },
+    "deepseek_teardown_areas": {
+      "tool pipeline": {
+        "reading_list": [
+          "docs/tool-execution-pipeline.md",
+          "docs/subsystems/tools",
+          "docs/subsystems/scope",
+          "docs/subsystems/core",
+          "docs/cookbook/* (adding a tool)",
+          "docs/defensive-patterns/README.md"
+        ],
+        "related_features": [
+          "D1.12",
+          "D2.2",
+          "D2.3",
+          "D3.9",
+          "D3.10",
+          "D3.14",
+          "D4.7"
+        ]
+      },
+      "agent lifecycle": {
+        "reading_list": [
+          "docs/agent-lifecycle.md",
+          "docs/cookbook/* (adding a package)",
+          "docs/subsystems/agent-team",
+          "docs/subsystems/conversation",
+          "docs/event-producer-consumer.md"
+        ],
+        "related_features": [
+          "D2.3",
+          "D2.5",
+          "D3.4",
+          "D3.5",
+          "D2.1",
+          "D2.2"
+        ]
+      },
+      "subagents": {
+        "reading_list": [
+          "docs/subsystems/subagent",
+          "docs/subsystems/agent-team"
+        ],
+        "related_features": [
+          "D3.3",
+          "D3.4",
+          "D3.5"
+        ]
+      },
+      "sessions": {
+        "reading_list": [
+          "docs/subsystems/session",
+          "docs/session-format-status.md",
+          ".agents/skills/* (dsh-session-projection)",
+          "docs/cookbook/* (reviewing persistence type changes)"
+        ],
+        "related_features": [
+          "D2.7",
+          "D2.8",
+          "D2.9",
+          "D2.10",
+          "D2.11",
+          "D2.12",
+          "D2.13",
+          "D2.14",
+          "D2.15",
+          "D3.18"
+        ]
+      },
+      "plugin system": {
+        "reading_list": [
+          "docs/capability-seams.md",
+          "docs/cookbook/* (adding a package, tool, LLM adapter, settings card; extension cookbook)",
+          "packages/README.md",
+          "vendor/README.md",
+          ".agents/skills/*"
+        ],
+        "related_features": [
+          "D1.1",
+          "D1.2",
+          "D1.3",
+          "D1.4",
+          "D1.9",
+          "D1.11",
+          "D3.1",
+          "D3.5",
+          "D3.11",
+          "D3.12",
+          "D3.13",
+          "D3.14",
+          "D3.15",
+          "D3.16",
+          "D3.17",
+          "D3.18",
+          "D3.19",
+          "D3.20",
+          "D4.6",
+          "D4.11",
+          "V18",
+          "V22",
+          "V23"
+        ]
+      },
+      "defensive patterns": {
+        "reading_list": [
+          "docs/defensive-patterns/README.md",
+          ".agents/skills/* (dsh-error-handling)"
+        ],
+        "related_features": [
+          "D5.5",
+          "D6.8",
+          "D6.11",
+          "D6.23"
+        ]
+      },
+      "testing": {
+        "reading_list": [
+          "docs/testing.md",
+          "apps/web/tests/*",
+          "scripts/run-gates.ts",
+          ".agents/skills/* (dsh-pre-push-checks)"
+        ],
+        "related_features": [
+          "D6.15",
+          "D6.25",
+          "D7.13",
+          "D7.14",
+          "V16",
+          "V19",
+          "V20"
+        ]
+      },
+      "packaging": {
+        "reading_list": [
+          "apps/cli/README.md",
+          "apps/desktop/README.md",
+          "packaging/",
+          ".agents/skills/* (dsh-create-upgrade-guide)"
+        ],
+        "related_features": [
+          "D1.8",
+          "D1.10",
+          "D7.5",
+          "D7.6",
+          "D7.7",
+          "D7.15",
+          "D7.16",
+          "D7.17",
+          "D7.18"
+        ]
+      },
+      "provider config": {
+        "reading_list": [
+          "docs/config-catalog.md",
+          "docs/user/guide/providers.md",
+          "python-sdk.md",
+          "docs/cookbook/* (adding an LLM adapter)"
+        ],
+        "related_features": [
+          "D1.3",
+          "D1.5",
+          "D3.21",
+          "D4.1",
+          "D4.2"
+        ]
+      }
+    },
+    "m0_reading_list": [
+      "docs/cordis-primer.md",
+      "docs/subsystems/* (session, tools, scope, core, llm-streaming, system-prompt, subagent, agent-team, conversation, working-directory)",
+      "docs/capability-seams.md",
+      "docs/tool-execution-pipeline.md",
+      "docs/agent-lifecycle.md",
+      "docs/event-producer-consumer.md",
+      "docs/cookbook/* (adding a package, tool, LLM adapter, settings card; extension cookbook; reviewing persistence type changes)",
+      "docs/defensive-patterns/README.md",
+      "docs/testing.md",
+      "docs/config-catalog.md",
+      "docs/session-format-status.md",
+      "docs/user/guide/providers.md",
+      "python-sdk.md",
+      "docs/user/develop/basic/index.md",
+      "apps/cli/README.md",
+      "apps/desktop/README.md",
+      "packaging/",
+      "apps/web/tests/*",
+      "benchmarks/AGENTS.md",
+      "snapshots/AGENTS.md",
+      "vendor/README.md",
+      "packages/README.md",
+      ".agents/skills/* (especially dsh-client-ui-ux, dsh-error-handling, dsh-pre-push-checks, dsh-create-upgrade-guide, dsh-session-projection, dsh-pr-description, dsh-prose-standard)",
+      ".agents/notes/implemented/*",
+      "scripts/run-gates.ts"
+    ],
+    "conflicts_with_earlier_plans": [
+      {
+        "id": "C-8",
+        "issue": "dsh requires 100% per-file coverage and a very large gate set; a solo owner with a free-tier CI may not afford the minutes (Master Section 8, CI row).",
+        "resolution": "Adopt gates in tiers: security-critical modules 100%, everything else graded; run heavy lanes on release tags and locally. Record in `DECISIONS.md`."
+      },
+      {
+        "id": "C-9",
+        "issue": "dsh is explicitly \"not secure, not production-ready, developer preview\"; Keel's goal is a shippable product.",
+        "resolution": "Copy the honesty (D5.x) but keep Keel's Tier-2 and approvals as hard requirements; do not use \"preview\" as an excuse for skipping security tests."
+      },
+      {
+        "id": "C-10",
+        "issue": "dsh makes plugins everything, including the safety layers (replaceable by patches).",
+        "resolution": "Keel keeps Tier 2 non-replaceable (D1.1)."
+      },
+      {
+        "id": "C-11",
+        "issue": "dsh's `!!js` config feature allows code in config files.",
+        "resolution": "Do not adopt: config stays data-only; conditional composition via overlays/profiles only."
+      },
+      {
+        "id": "C-12",
+        "issue": "`apps/*` and each package README remain unread.",
+        "resolution": "Treat all DS package-level claims as `[T:DS-AGENTS]` summaries only until M0 reads them."
+      }
+    ],
+    "builder_protocol_for_own_ideas": "For every V row (and any [S] row): (1) one-paragraph why + 2 similar products/standards by category; (2) free/license check with date; (3) spec in Keel's words; (4) smallest slice behind an experimental flag; (5) negative tests first if security-relevant; (6) end-to-end evidence incl. offline run; (7) owner review before default-on if it stores new personal data, uses network, or changes approvals.",
+    "priority_order": [
+      "Core model: D1.1-D1.5, D1.10, D2.1-D2.3, D2.7-D2.11, D2.13, D2.16, D3.1, D3.2, D3.9, D3.10",
+      "Builder constitution and gates: D6.1-D6.12, D6.15, D6.16, D6.25, D7.1, D7.12, V16",
+      "UI foundations: D4.1-D4.8, D4.11, D4.12",
+      "Safety copy and onboarding: D5.1-D5.5, V17",
+      "Everything else at its milestone; P2 after the v1.0 candidate is green. All rows enter PLAN-INDEX.json with their source tag."
+    ],
+    "counts": {
+      "D": 115,
+      "V": 8,
+      "total": 123
+    },
+    "uncertain_or_normalized_rows": [
+      "D6.1-D6.25: Section 7 table has columns ID | Rule | Gate? | M; no Priority or Source column. Priority set to null; source set to T:DS-AGENTS from the section heading; Rule mapped to feature, Gate? mapped to detail.",
+      "V16-V23: Section 9 table has columns ID | Idea | Approach for the builder | M | Pri; source set to S ([S] own idea) per Section 9 heading and Section 0 tag legend.",
+      "C-8..C-12 are conflict/decision rows, captured as metadata only, not counted as features.",
+      "C-12: apps/* and each package README are unread; all DS package-level claims (D3.11-D3.23) are [T:DS-AGENTS] summaries pending M0 verification.",
+      "D3.11: 'ptc-runtime' meaning explicitly 'to be verified' in the source document.",
+      "acceptance_criteria are derived heuristically: explicit test/gate/check clauses from each row are extracted when present; otherwise a generic implement-and-verify criterion is generated. They are not verbatim source text.",
+      "references/dependencies are parsed from cross-reference tokens in feature/detail text (e.g. W1.1, C5.5, X6.8, Master 9); dependencies are the subset preceded by dependency phrasing such as 'builds on', 'extends', 'backed by'."
+    ]
+  }
+}
