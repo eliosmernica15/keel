@@ -21,7 +21,14 @@
   ],
   "rewrites": [
     { "source": "/download", "destination": "/download.html" },
-    { "source": "/app", "destination": "/app.html" }
+    { "source": "/app", "destination": "/app.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/notices", "destination": "/notices.html" },
+    { "source": "/roadmap", "destination": "/roadmap.html" },
+    { "source": "/eula", "destination": "/eula.html" },
+    { "source": "/trademark", "destination": "/trademark.html" },
+    { "source": "/requirements", "destination": "/requirements.html" }
   ],
   "redirects": [
     { "source": "/app.html", "destination": "/app", "permanent": false }
