@@ -1,11 +1,23 @@
 # Final independent security + integration review — backend completion branch
 
 **Reviewed branch:** `integration/backend-completion-2026-11-24` (baseline `a64cd5d`)
+**Snapshot reviewed:** `4c9238f`; **revalidated at current tip `45babee`** — the branch
+moved during this review (see "Branch movement" below).
 **Reviewer branch:** `agent/final-review1` (read-only; no tracked source modified)
 **Date:** 2026-11-24
 **Scope:** `backend_workflows.py`, `webapp.py`/`cli/main.py` additions, `backend_events.py`,
 `backend_observability.py`, `backend_hub.py`, `backend_contracts.py`, W7 `cap_recording`
 and Y4 `verify_clean_removal` fixes.
+
+### Branch movement (important)
+
+While this review was running, other agents merged the review report into the delivery
+branch and landed follow-up commits (`0a79083`, `8f12694`, `c177c54`, `9a513f6`,
+`4f32b11`, `45babee`). None of the scoped source files (`backend_workflows.py`,
+`backend_events.py`, `webapp.py`, `cli/main.py`, `backend_observability.py`,
+`backend_hub.py`, `backend_contracts.py`) changed between the reviewed snapshot and
+`45babee`; H1–H5, M1–M5 and L1–L5 therefore still apply at the current tip. M6 has been
+fixed upstream and is marked resolved below.
 
 ## Verdict
 
@@ -16,7 +28,9 @@ idempotency/consumption guards are process-local only, and the durable event bus
 permanently corrupted by ordinary cross-process concurrency. Several MEDIUM defects
 (caller-controlled file read/write with caller-controlled permissions, wrong HTTP error
 statuses, unredacted secret persistence, a permanently wedged log after an interrupted
-append, and a "regression test" that is never collected) compound the risk.
+append, and a canned MCP "invocation" reported as success) compound the risk. One MEDIUM
+finding (an uncollected regression test) was fixed upstream during the review and is
+marked resolved.
 
 Good news first: the webapp endpoint correctly inherits the existing token + Origin
 gate, requires a strict boolean `confirm`, and rejects unknown workflow names; the CLI
@@ -216,20 +230,22 @@ so callers checking `ok` see success.
 invocation target, or rename/document the step as a deterministic simulation and set
 `ok=False` (with a distinct code) when the tool call fails.
 
-### M6. Regression test for the W7 `cap_recording` fix is never collected
-**File:** `keel/tests/test_w7_x1_y5_d1_backend.py:690` (nested inside
+### M6. Regression test for the W7 `cap_recording` fix was never collected — RESOLVED upstream
+**File (reviewed snapshot):** `keel/tests/test_w7_x1_y5_d1_backend.py:690` (nested inside
 `test_y3_8_browser_bound_pairing` at `:656`, with an undeclared `self` parameter).
 
-The new `test_w7_11_cap_recording_rejects_negative_bounds` is indented as a nested
-function and is therefore invisible to pytest. The W7.11 fix itself (`w7_x1_y5_d1_backend.py:740-743`)
-is correct, but its claimed regression guard does not run.
+At `4c9238f`, `test_w7_11_cap_recording_rejects_negative_bounds` was indented as a nested
+function and invisible to pytest. The W7.11 fix itself (`w7_x1_y5_d1_backend.py:740-743`)
+was correct, but its claimed regression guard did not run.
 
-**Evidence:** `pytest --collect-only` reports 39 collected tests in that file; the source
-contains 40 `def test_...` definitions, missing exactly
+**Evidence (snapshot):** `pytest --collect-only` reported 39 collected tests in that file
+versus 40 `def test_...` definitions; the missing test was exactly
 `test_w7_11_cap_recording_rejects_negative_bounds`.
 
-**Fix:** dedent the test to module level and drop the `self` parameter (use pytest's
-`pytest.raises`).
+**Resolution:** branch commit `9a513f6` dedented the test to module level and replaced
+`self.assertRaises` with plain `pytest`-style `try/except`. Re-collection at current tip
+`45babee` includes the test. No further action needed.
+
 
 ## Findings — LOW
 
@@ -257,16 +273,27 @@ contains 40 `def test_...` definitions, missing exactly
 
 ## Verification performed
 
-* Ran the full new test set: `test_backend_workflows`, `test_backend_contracts`,
-  `test_backend_contracts_hardening`, `test_backend_events`,
+* Ran the full new test set against the reviewed snapshot: `test_backend_workflows`,
+  `test_backend_contracts`, `test_backend_contracts_hardening`, `test_backend_events`,
   `test_backend_hub_integration`, `test_backend_observability` — **128 passed**.
+  These files are unchanged at current tip `45babee`.
 * Ran 252 existing cap/hub/webapp/CLI tests — all passed except two pre-existing
   environmental failures that also fail on baseline `a64cd5d`:
   `test_release_integrity.py::test_integrity_cli_on_real_artifacts` (release artifacts
   absent from the git archive) and `test_webapp.py::test_run_streams_events_and_done_marker`
   (local socket timeout). Neither is caused by this branch.
-* Reproduction scripts are in `probe/*.py` (untracked throwaways; integration and
-  baseline trees extracted to `probe/int` and `probe/base`).
+* A full-suite run against the *stale* `probe/int` extraction produced
+  **6 failed, 4184 passed, 51 skipped**. One of those,
+  `test_permission_contracts.py::test_w39_concurrent_approval_writes_are_lossless`, was
+  an order/timing-dependent Windows `PermissionError` (1 failure in 6 isolated reruns);
+  it was fixed upstream by branch commit `4f32b11` (path-keyed in-process lock plus
+  unique `mkstemp` temp files). The other five were missing release artifacts / changed
+  downloaded plan hashes. A separate clean-checkout full-suite result recorded on the
+  branch (`REVIEW-FINAL-QUALITY.md`, commit `49c551e`) likewise reports no deterministic
+  regression attributable to the eight batches.
+* Reproduction scripts are in `probe/*.py`. The `probe/int` and `probe/base` directories
+  are stale throwaway extractions from early in the review; re-extract the desired tip
+  before re-running any script.
 * Confirmed redaction (`probe_observability.py`): secrets in nested dicts/lists were
   `[REDACTED]` and no plaintext appeared in the log; 12 concurrent `record_event` calls
   produced a valid 12-event chain.
@@ -282,4 +309,4 @@ contains 40 `def test_...` definitions, missing exactly
 3. H3 — cross-process lock/atomic claim for replay and consumption.
 4. H4 — cross-process lock for the event bus append/read path.
 5. M1/M2 — confine roots, ignore caller permission rules, redact persisted results.
-6. M3/M4/M5/M6 — status mapping, crash recovery, honest MCP outcome, fix the test indent.
+6. M3/M4/M5 — status mapping, crash recovery, honest MCP outcome. (M6 was fixed upstream.)
