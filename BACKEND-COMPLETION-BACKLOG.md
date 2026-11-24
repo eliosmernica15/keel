@@ -19,6 +19,8 @@ Registry: 865 IDs — 854 verified / 9 not_started / 2 blocked.
 | 4 | Fix remaining documented LOW defects (negative bounds, _setting_present, precedence, retention, retired IDs, contact errors, AST offline check) | 6 modules | `agent/final-lowfix` | assigned |
 | 5 | Replace descriptor-only / weak tests with behavioral tests + mutation proof | 5 test files | `agent/final-tests` | assigned |
 | 6 | Reconcile stale inventories/docs, produce authoritative accounting | docs | `agent/final-docsync` | assigned |
+| 7 | Backend observability: hash-chained JSONL events, redaction, health, diagnostics | `keel/src/keel/backend_observability.py` | `agent/final-observe` | assigned |
+| 8 | Typed backend event union + durable EventBus + DeliveryTracker | `keel/src/keel/backend_events.py` | `agent/final-events` | assigned |
 
 ## Non-actionable / external (documented, not worked)
 - W1.18 (MIT license), Y6.4 (public repo): owner-gated conflicts D-036/D-037.
