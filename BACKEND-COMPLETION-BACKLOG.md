@@ -13,14 +13,14 @@ Registry: 865 IDs — 854 verified / 9 not_started / 2 blocked.
 
 | # | Item | IDs / scope | Agent | Status |
 |---|---|---|---|---|
-| 1 | Wire backend modules into real product workflows (webapp/CLI + orchestration seam) | 5 workflows | `agent/final-workflow` | assigned |
-| 2 | Close typed-contract gaps G1–G4 (envelope decoder, ModelId, schemas, dispatch assertion) | backend_hub | `agent/final-hub` | assigned |
-| 3 | Close 60 code/trace evidence gaps (D6 18, E5 13, E6/X5/X6 27, Y2 1, W7 1) | 60 verified IDs | `agent/final-trace` | assigned |
-| 4 | Fix remaining documented LOW defects (negative bounds, _setting_present, precedence, retention, retired IDs, contact errors, AST offline check) | 6 modules | `agent/final-lowfix` | assigned |
-| 5 | Replace descriptor-only / weak tests with behavioral tests + mutation proof | 5 test files | `agent/final-tests` | assigned |
-| 6 | Reconcile stale inventories/docs, produce authoritative accounting | docs | `agent/final-docsync` | assigned |
-| 7 | Backend observability: hash-chained JSONL events, redaction, health, diagnostics | `keel/src/keel/backend_observability.py` | `agent/final-observe` | assigned |
-| 8 | Typed backend event union + durable EventBus + DeliveryTracker | `keel/src/keel/backend_events.py` | `agent/final-events` | assigned |
+| 1 | Wire backend modules into real product workflows (webapp/CLI + orchestration seam) | 5 workflows | `agent/final-workflow` | **integrated + pushed** (30 tests) |
+| 2 | Close typed-contract gaps G1–G4 (envelope decoder, ModelId, schemas, dispatch assertion) | backend_hub | `agent/final-hub` | **integrated + pushed** (36 tests) |
+| 3 | Close 60 code/trace evidence gaps (D6 18, E5 13, E6/X5/X6 27, Y2 1, W7 1) | 60 verified IDs | `agent/final-trace` | **integrated + pushed** (421/421 now pass) |
+| 4 | Fix remaining documented LOW defects (negative bounds, _setting_present, precedence, retention, retired IDs, contact errors, AST offline check) | 6 modules + 2 lead fixes | `agent/final-lowfix` + lead | **integrated + pushed** (293 + 85 tests) |
+| 5 | Replace descriptor-only / weak tests with behavioral tests + mutation proof | 5 test files | `agent/final-tests` | **integrated + pushed** (290 tests + mutation proof) |
+| 6 | Reconcile stale inventories/docs, produce authoritative accounting | docs | `agent/final-docsync` | **integrated + pushed** |
+| 7 | Backend observability: hash-chained JSONL events, redaction, health, diagnostics | `keel/src/keel/backend_observability.py` | `agent/final-observe` | **integrated + pushed** (14 tests) |
+| 8 | Typed backend event union + durable EventBus + DeliveryTracker | `keel/src/keel/backend_events.py` | `agent/final-events` | **integrated + pushed** (52 tests) |
 
 ## Non-actionable / external (documented, not worked)
 - W1.18 (MIT license), Y6.4 (public repo): owner-gated conflicts D-036/D-037.
@@ -30,3 +30,9 @@ Registry: 865 IDs — 854 verified / 9 not_started / 2 blocked.
 
 ## Protocol
 Lead reviews every diff, re-runs targeted tests, merges approved work, runs regression gates, commits focused batches and pushes to `origin/integration/backend-completion-2026-11-24`, verifying remote SHA after each push.
+
+## Review stage
+- 2 independent reviewers (`agent/final-review1` security/integration, `agent/final-review2` tests/accounting) launched after all eight batches were pushed. Findings to be remediated before final delivery.
+
+## Delivery status
+All 8 implementation batches + 1 lead fix batch committed and pushed to `origin/integration/backend-completion-2026-11-24`; remote SHA verified after each push. Final full regression + review pending.
