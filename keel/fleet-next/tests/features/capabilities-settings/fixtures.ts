@@ -15,12 +15,17 @@ export const test = base.extend<{ consoleErrors: string[] }>({
       errors.push(`pageerror: ${error.message}\n${error.stack ?? ""}`),
     );
     page.on("console", (message) => {
-      if (message.type() === "error") {
-        const loc = message.location();
-        errors.push(
-          `console.error: ${message.text()} @ ${loc.url}:${loc.lineNumber + 1}:${loc.columnNumber + 1}`,
-        );
-      }
+      if (message.type() !== "error") return;
+      const loc = message.location();
+      // A test that deliberately mocks a 5xx bridge response also makes the
+      // browser log its own "Failed to load resource" line. That is network
+      // noise, not an application error; genuine console.error calls from the
+      // app are still captured by this gate.
+      if (message.text().startsWith("Failed to load resource:") &&
+          loc.url.includes("/api/bridge/")) return;
+      errors.push(
+        `console.error: ${message.text()} @ ${loc.url}:${loc.lineNumber + 1}:${loc.columnNumber + 1}`,
+      );
     });
     await use(errors);
     expect(errors, `The browser reported errors:\n${errors.join("\n") || "(none)"}`).toEqual([]);
@@ -181,11 +186,28 @@ export async function gotoDestination(
         await expect(sidebar).toHaveClass(/is-open/);
       }
     }
-    await page.locator('aside[aria-label="Main navigation"]')
-      .getByRole("button", { name: label, exact: true }).click({ force: true });
-  } else {
-    await page.getByRole("tab", { name: label, exact: true }).first().click({ force: true });
   }
+  // The shell is server-rendered before React hydrates; a force click that
+  // lands before hydration is silently lost. Click, verify the destination
+  // actually mounted, and retry rather than letting a stale node win.
+  const arrived = label === "Settings"
+    ? page.locator('aside[aria-label="Settings navigation"]')
+    : label === "Capabilities"
+      ? page.getByRole("heading", { name: "Capabilities", exact: true })
+      : page.getByRole("tabpanel", { name: label.toLowerCase() });
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const trigger = label === "Capabilities" || label === "Settings"
+      ? page.locator('aside[aria-label="Main navigation"]').getByRole("button", { name: label, exact: true })
+      : page.getByRole("tab", { name: label, exact: true }).first();
+    await trigger.click({ force: true });
+    try {
+      await expect(arrived).toBeVisible({ timeout: 4_000 });
+      return;
+    } catch {
+      // The click was lost to a re-render; try again on the fresh element.
+    }
+  }
+  await expect(arrived, `Could not open the ${label} surface`).toBeVisible();
 }
 
 export async function capabilitiesTab(page: Page, label: string): Promise<void> {

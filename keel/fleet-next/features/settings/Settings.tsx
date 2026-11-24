@@ -9,7 +9,7 @@ import { Icon } from "@/components/icons";
 import { useApp } from "@/lib/state";
 import s from "./settings.module.css";
 import { SETTINGS_SECTIONS, type SectionId } from "./settingsShared";
-import { CredentialsPanel, ProvidersPanel } from "./ProvidersSettings";
+import { AgentModelsPanel, CredentialsPanel, ProvidersPanel } from "./ProvidersSettings";
 import { NetworkPanel, PermissionsPanel, TrustPanel } from "./SecuritySettings";
 import { DiagnosticsPanel, PrivacyPanel } from "./SystemSettings";
 import { AccessibilityPanel, AppearancePanel, ResetPanel } from "./PreferencesSettings";
@@ -67,6 +67,7 @@ export default function Settings() {
   function renderSection(id: SectionId) {
     switch (id) {
       case "providers": return <ProvidersPanel />;
+      case "agent-models": return <AgentModelsPanel />;
       case "credentials": return <CredentialsPanel />;
       case "permissions": return <PermissionsPanel />;
       case "trust": return <TrustPanel />;

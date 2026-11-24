@@ -91,7 +91,7 @@ export function readRecord(value: unknown): Record<string, unknown> {
 }
 
 export type SectionId =
-  | "providers" | "credentials" | "permissions" | "trust" | "network"
+  | "providers" | "agent-models" | "credentials" | "permissions" | "trust" | "network"
   | "privacy" | "diagnostics" | "appearance" | "accessibility" | "reset";
 
 export interface SectionDef {
@@ -105,6 +105,7 @@ export interface SectionDef {
 
 export const SETTINGS_SECTIONS: SectionDef[] = [
   { id: "providers", title: "Providers & models", category: "Models & providers", description: "Configured providers, model catalogue and real model metadata.", keywords: "model catalog catalogue api key provider default", icon: "spark" },
+  { id: "agent-models", title: "Agent models", category: "Models & providers", description: "Set each agent's model through the real agent-update route, or clear it to use the provider default.", keywords: "agent model default per agent bots update provider catalog select", icon: "spark" },
   { id: "credentials", title: "Credentials", category: "Models & providers", description: "Session-only and persisted keys — never stored in this browser.", keywords: "secret key password credential token save remove secure", icon: "shield" },
   { id: "permissions", title: "Permission mode", category: "Security & trust", description: "Choose how much the agent may do before asking you.", keywords: "mode build plan autopilot accept edits approval policy", icon: "shield" },
   { id: "trust", title: "Workspace trust", category: "Security & trust", description: "Folders Keel may read and write, with explicit trust decisions.", keywords: "project folder path symlink revoke trusted workspace", icon: "folder" },

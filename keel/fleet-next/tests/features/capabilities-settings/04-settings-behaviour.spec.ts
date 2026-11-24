@@ -176,7 +176,7 @@ test("no console errors while visiting every capability tab and settings section
 
   await gotoDestination(page, "Settings");
   for (const section of [
-    "Providers & models", "Credentials", "Permission mode", "Workspace trust", "Network & egress",
+    "Providers & models", "Agent models", "Credentials", "Permission mode", "Workspace trust", "Network & egress",
     "Privacy & data", "System diagnostics", "Appearance", "Accessibility", "Reset to defaults",
   ]) {
     await settingsSection(page, section);

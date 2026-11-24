@@ -167,6 +167,186 @@ export function ProvidersPanel() {
   );
 }
 
+interface AgentRow {
+  id?: string;
+  name?: string;
+  provider?: string;
+  model?: string;
+  engine?: unknown;
+  role?: string;
+  [key: string]: unknown;
+}
+
+function agentModelState(input: unknown): AgentRow | null {
+  // bots/:id/update answers with {bot: {...}}; accept a bare bot as well so a
+  // changed bridge envelope cannot be mistaken for a failed save.
+  const obj = readRecord(input);
+  const bot = readRecord(obj.bot ?? obj);
+  return typeof bot.id === "string" ? bot : null;
+}
+
+/**
+ * Per-agent model settings. Every mutation goes through the real
+ * `bots/:id/update` route with the `model` field the backend accepts
+ * (fleet/service.py update_bot allow-list). Nothing is invented: a model id is
+ * only offered after a real catalogue response, and the current value is the
+ * one the bots list actually reported or the bridge confirmed on save.
+ */
+export function AgentModelsPanel() {
+  const { notify } = useApp();
+  const botsQ = useBridgeData<AgentRow[]>(async () => {
+    const body = await bridge.listBots();
+    return Array.isArray(body) ? body as AgentRow[] : asArray<AgentRow>(body, "bots");
+  });
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [confirmed, setConfirmed] = useState<Record<string, string>>({});
+  const [catalogs, setCatalogs] = useState<Record<string, string[]>>({});
+  const [catalogErrors, setCatalogErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState<string | null>(null);
+  const [catalogBusy, setCatalogBusy] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  function currentModel(bot: AgentRow): string {
+    const id = String(bot.id);
+    const value = confirmed[id] ?? (typeof bot.model === "string" ? bot.model : "");
+    return value.trim();
+  }
+
+  async function browseCatalog(bot: AgentRow) {
+    const id = String(bot.id);
+    const provider = String(bot.provider ?? "").trim();
+    if (!provider) return;
+    setCatalogBusy(id);
+    setCatalogErrors((prev) => ({ ...prev, [id]: "" }));
+    try {
+      const body = readRecord(await bridge.catalog({ name: provider, source: "offline" })) as unknown as CatalogPayload;
+      if (body.ok !== true) {
+        setCatalogErrors((prev) => ({ ...prev, [id]: String(body.detail ?? body.error ?? "The bridge did not return a catalogue.") }));
+        return;
+      }
+      setCatalogs((prev) => ({ ...prev, [id]: Array.isArray(body.models) ? body.models : [] }));
+    } catch (err) {
+      setCatalogErrors((prev) => ({ ...prev, [id]: errMessage(err) }));
+    } finally {
+      setCatalogBusy(null);
+    }
+  }
+
+  async function applyModel(bot: AgentRow, model: string) {
+    const id = String(bot.id);
+    const name = bot.name ?? id;
+    setBusy(id);
+    setErrors((prev) => ({ ...prev, [id]: "" }));
+    try {
+      const updated = agentModelState(await bridge.updateBot(id, { model }));
+      if (!updated) {
+        setErrors((prev) => ({ ...prev, [id]: "The bridge did not confirm the agent update." }));
+        return;
+      }
+      const value = typeof updated.model === "string" ? updated.model : model;
+      setConfirmed((prev) => ({ ...prev, [id]: value }));
+      setDrafts((prev) => ({ ...prev, [id]: value }));
+      if (value) notify(`Model saved for ${name}: ${value}.`, "success");
+      else notify(`Per-agent model cleared for ${name}; the provider default applies.`, "success");
+    } catch (err) {
+      setErrors((prev) => ({ ...prev, [id]: errMessage(err) }));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className={s.panel}>
+      <div className={s.sectionHead}>
+        <div>
+          <h2>Agent models</h2>
+          <p className={s.muted}>Each agent's model is stored by the bridge through the real agent-update route. A model is only selectable after the bridge returns it in a catalogue; leaving a model unset means the provider's own default applies.</p>
+        </div>
+        <Button onClick={botsQ.reload}><Icon name="refresh" size={14} /> Reload agents</Button>
+      </div>
+
+      <PanelState query={botsQ}>
+        {(agentsData) => {
+          const rows = agentsData.filter((bot) => typeof bot.id === "string");
+          if (rows.length === 0) return <EmptyState icon={<Icon name="spark" />} title="No agents to configure" description="Create an agent on the Fleet surface first. Nothing is assumed about a model until an agent exists." />;
+          return (
+            <ul className={s.list}>
+              {rows.map((bot) => {
+                const id = String(bot.id);
+                const name = bot.name ?? id;
+                const model = currentModel(bot);
+                const isEcho = bot.engine === "echo";
+                const provider = typeof bot.provider === "string" ? bot.provider.trim() : "";
+                const models = catalogs[id] ?? [];
+                return (
+                  <li className={s.row} key={id}>
+                    <div className={s.rowMain}>
+                      <div className={s.rowTitleLine}>
+                        <h3 className={s.rowTitle}>{name}</h3>
+                        {isEcho ? <Badge tone="neutral">Scripted Echo agent</Badge>
+                          : model ? <Badge tone="success" dot>Model: {model}</Badge>
+                          : <Badge tone="warning" dot>Provider default</Badge>}
+                        {provider && <Badge tone="neutral">{provider}</Badge>}
+                      </div>
+                      {isEcho ? (
+                        <p className={s.rowMeta}>This agent uses the scripted Echo harness and does not call a model, so no model control is shown. Switch it to a provider agent on the Fleet surface to use a real model.</p>
+                      ) : (
+                        <>
+                          <p className={s.rowMeta}>{model
+                            ? `This agent sends ${model} to ${provider || "its provider"}.`
+                            : "No per-agent model is set. The bridge falls back to the provider's own default."}</p>
+                          <TextField
+                            label={`Model for ${name}`}
+                            placeholder="Model id, or leave empty for the provider default"
+                            value={drafts[id] ?? model}
+                            onChange={(e) => setDrafts((prev) => ({ ...prev, [id]: e.target.value }))}
+                          />
+                          <div className={s.actionRow}>
+                            <Button size="sm" variant="primary" loading={busy === id}
+                              onClick={() => { void applyModel(bot, (drafts[id] ?? model).trim()); }}>
+                              Save model for {name}
+                            </Button>
+                            {model && (
+                              <Button size="sm" variant="ghost" disabled={busy !== null}
+                                onClick={() => { void applyModel(bot, ""); }}>
+                                Clear model for {name}
+                              </Button>
+                            )}
+                            {provider && (
+                              <Button size="sm" variant="ghost" loading={catalogBusy === id}
+                                onClick={() => { void browseCatalog(bot); }}>
+                                Browse offline catalogue
+                              </Button>
+                            )}
+                            {!provider && <span className={s.muted}>Provider not reported — catalogue selection is unavailable.</span>}
+                          </div>
+                          {models.length > 0 && (
+                            <label className={s.selectLabel}>Pick a model from the offline catalogue for {provider}
+                              <select value={drafts[id] ?? model} onChange={(e) => setDrafts((prev) => ({ ...prev, [id]: e.target.value }))}>
+                                <option value="">Use provider default</option>
+                                {models.map((m) => <option key={m} value={m}>{m}</option>)}
+                              </select>
+                            </label>
+                          )}
+                          {catalogs[id] && models.length === 0 && <p className={s.muted}>The offline catalogue returned no models for {provider}.</p>}
+                          {catalogErrors[id] && <p className={s.error} role="alert">{catalogErrors[id]}</p>}
+                        </>
+                      )}
+                      {errors[id] && <p className={s.error} role="alert">{errors[id]}</p>}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }}
+      </PanelState>
+
+      <p className={s.footerNote}>There is no bridge route for a global default-model setting. The save above writes only this agent's <code>model</code> field through <code>bots/:id/update</code>; per-project defaults are managed on the Code surface.</p>
+    </div>
+  );
+}
+
 type CredentialResult = { ok: boolean; text: string };
 type PendingRemoval = { provider: string; kind: "session" | "saved" };
 

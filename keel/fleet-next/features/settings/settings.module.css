@@ -79,6 +79,12 @@
 .factList li { border-left: 2px solid var(--line-strong); padding-left: 10px; line-height: 1.5; }
 .factList strong { color: var(--text); }
 
+.selectLabel { display: flex; flex-direction: column; gap: 5px; font-size: 11.5px; color: var(--muted); }
+.selectLabel select {
+  background: var(--panel); color: var(--text); border: 1px solid var(--line);
+  border-radius: 8px; padding: 7px 9px; font: inherit; font-size: 12px; max-width: 100%;
+}
+
 .modeFieldset { border: 1px solid var(--line); border-radius: 14px; padding: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 9px; margin: 0; }
 .modeOption {
   display: flex; align-items: flex-start; gap: 9px; border: 1px solid var(--line); border-radius: 11px;
