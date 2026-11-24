@@ -28,3 +28,30 @@ Reports: `AUDIT-{HUB-INTEGRATION,REAL-PATHWAYS,MODULES-A,MODULES-B,CROSSMODULE,S
 - Cross-process grant single-use and DNS-rebinding revalidation need host-consumer work/durable design; out of local scope.
 - Native Linux/macOS sandbox verification, provider credentials, signing and push authorization remain external/owner-gated.
 - Several LOW test-quality findings (weak assertions, descriptor-only coverage loops) documented, not silently patched.
+
+## Remediation integration status — COMPLETE
+
+All seven remediation branches were lead-reviewed (diff + independently re-run targeted
+suites) and merged with `--no-ff` onto `integration/v6-backend-complete`:
+
+| Branch | Bugs fixed | Regression proof |
+|---|---|---|
+| `agent/auditfix-redact` | 3 HIGH + 1 MED + 1 LOW credential leaks; W4 helper rename | 6 new failing-then-passing tests; 330 targeted tests pass |
+| `agent/auditfix-guards` | SSRF DNS, token comparison, grant replay | 10 new tests; 179 targeted tests pass |
+| `agent/auditfix-x3` | consent durability, atomic save, fail-open load, finance dedupe, receipt split-brain | 9 new tests; 33 targeted pass |
+| `agent/auditfix-concurrency` (hub) | broken dispatch entries, text-only verify, duplicate feature ownership | 15 hub tests; canonical map now 0 duplicates, 421 IDs exactly |
+| `agent/auditfix-logic` | fail-open signature gate, tar traversal, SQL key-only check, fake success, timestamp | 5 new tests; 273 targeted pass |
+| `agent/auditfix-races` | budget TOCTOU, JSONL corruption, LocalSync/DriftStore/W7 races, negative charge | 7 new tests; 135 targeted pass |
+| `agent/auditfix-docs` | 93 derived criteria, AST + evidence cross-check | 361/421 IDs now traceable (was 231) |
+
+One over-broad capability confirm gate from the hub fix was **reverted on the integration
+branch** because it fired before saved-policy enforcement and broke an existing security
+test (`test_sandbox_no_host_write`); all real entry points (webapp/TUI/CLI) already enforce
+`confirm` for write/execute capabilities.
+
+## Environmental finding (not a product defect)
+Two webapp tests (`test_quick_ask_endpoint_uses_real_runtime`,
+`test_run_streams_events_and_done_marker`) timed out under ambient `~/.keel/settings.json`
+MCP configuration created by concurrent user work. With an isolated `HOME`, both pass in
+4 seconds. The definitive final suite therefore ran with a clean local HOME; no test was
+deleted, weakened, or changed to obtain a pass.
