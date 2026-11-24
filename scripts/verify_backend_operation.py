@@ -212,9 +212,11 @@ def _analyze_module(path: Path) -> dict:
 def _analyze_test(path: Path) -> dict:
     info: dict = {
         "exists": path.is_file(),
-        "names": set(),      # function/class/decorator/attribute/name identifiers
-        "strings": set(),    # string constants (literal ID references)
-        "normalized": "",    # all identifiers normalized for token matching
+        "names": set(),            # module-level identifiers (structure only)
+        "strings": set(),          # module-level string constants
+        "test_names": set(),       # identifiers inside real test functions
+        "test_strings": set(),     # string constants inside real test functions
+        "normalized": "",          # normalized identifiers inside test functions
     }
     if not info["exists"]:
         return info
@@ -228,7 +230,22 @@ def _analyze_test(path: Path) -> dict:
             info["names"].add(n.attr)
         elif isinstance(n, ast.Constant) and isinstance(n.value, str):
             info["strings"].add(n.value)
-    info["normalized"] = _norm(" ".join(info["names"]))
+    # Evidence must live inside an actual test callable. A bare module-level
+    # `LABEL = "D6.1"` proves nothing about behavior and is explicitly rejected.
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if not node.name.startswith("test"):
+            continue
+        info["test_names"].add(node.name)
+        for inner in ast.walk(node):
+            if isinstance(inner, ast.Name):
+                info["test_names"].add(inner.id)
+            elif isinstance(inner, ast.Attribute):
+                info["test_names"].add(inner.attr)
+            elif isinstance(inner, ast.Constant) and isinstance(inner.value, str):
+                info["test_strings"].add(inner.value)
+    info["normalized"] = _norm(" ".join(info["test_names"]))
     return info
 
 
@@ -247,11 +264,11 @@ def _module_construct_ok(info: dict, fid: str) -> bool:
 def _test_reference_ok(info: dict, fid: str, symbols: set[str]) -> bool:
     if not info["exists"]:
         return False
-    if _norm(fid) in info["normalized"]:       # e.g. E7.29 -> test class E729_*
+    if _norm(fid) in info["normalized"]:       # e.g. E7.29 -> test E729_*
         return True
-    if fid in info["strings"]:                  # literal ID in a test string
+    if fid in info["test_strings"]:            # literal ID inside a test body
         return True
-    return bool(symbols & (info["names"] | info["strings"]))
+    return bool(symbols & (info["test_names"] | info["test_strings"]))
 
 
 # --- Path (b): evidence-doc per-ID table cross-check -------------------------
@@ -432,7 +449,9 @@ print("features:", len(features), "status:", dict(status))
 print("backend modules:", len(hub.modules()), "attributed IDs:", len(attribution))
 print("capabilities:", sorted(c for c in caps if c.startswith("backend.")))
 
-print("\n=== EVIDENCE-BASED GATE (reported only; statuses not changed) ===")
+strict = "--strict" in sys.argv
+print("\n=== EVIDENCE-BASED GATE (" +
+      ("ENFORCED" if strict else "reported only; statuses not changed") + ") ===")
 print(f"attributed IDs audited: {len(attribution)}")
 print(f"passing all checks: {len(attribution) - len(gate_failures)}")
 print(f"failing at least one check: {len(gate_failures)}")
@@ -444,6 +463,9 @@ for fid in sorted(gate_failures):
 print("NOTE: these failures are reported, not enforced. No status was "
       "downgraded; the lead decides remediation.")
 
+if strict and gate_failures:
+    errors.append(f"{len(gate_failures)} attributed IDs fail the evidence gate "
+                  "(run without --strict to list them)")
 if errors:
     print("\nBACKEND OPERATION VERIFICATION FAILED:")
     for e in errors:
