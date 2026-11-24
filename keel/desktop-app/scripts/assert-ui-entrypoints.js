@@ -7,12 +7,13 @@
  *   node keel/desktop-app/scripts/assert-ui-entrypoints.js \
  *        --resources "C:\path\to\Keel\win-unpacked\resources"
  *
- * It asserts the CURRENT, deliberately-unchanged entry-point contract:
- *   Electron  -> KEEL_UI_DIR = uiRoot()  = <resources>/site (packaged)
+ * It asserts the packaging-fixed entry-point contract:
+ *   Electron  -> KEEL_UI_DIR = uiRoot()  = <resources>/desktop/ui (full local UI)
+ *               rollback only: KEEL_UI_PROFILE=mirror -> <resources>/site
  *   Tauri     -> frontendDist           = <repo>/desktop/ui
  *   keel serve-> UI_DIR                 = KEEL_UI_DIR or <root>/desktop/ui
  *   /fleet    -> <root>/desktop/fleet (classic, via keel.fleet.routes)
- *   public /app -> <root>/site/app.html (static mirror)
+ *   public /app -> <root>/site/app.html (static mirror, never the desktop default)
  *   fleet-next is NOT a static UI root and must NOT be wired into any of them.
  *
  * The optional --resources mode inspects an ACTUAL unpacked Electron build.
@@ -69,38 +70,58 @@ const mainJs = read("desktop-app/main.js");
 const pkg = JSON.parse(read("desktop-app/package.json") || "{}");
 
 const uiRootBody = (mainJs.match(/function uiRoot\(\)\s*\{([\s\S]*?)\n\}/) || [])[1] || "";
-const uiRootOrder = [...uiRootBody.matchAll(/join\(res,\s*([^)]+)\)/g)]
+// Scope the candidate extraction to the `candidates` array only, so the
+// mirror rollback branch and the explicit override do not pollute the order.
+const candidatesBlock = (uiRootBody.match(/const candidates\s*=\s*\[([\s\S]*?)\]/) || [])[1] || "";
+const uiRootOrder = [...candidatesBlock.matchAll(/join\(res,\s*([^)]+)\)/g)]
   .map((m) => m[1].trim());
-check("Electron uiRoot() candidate order is site, desktop/ui, ui",
-  JSON.stringify(uiRootOrder.slice(0, 3)) ===
-    JSON.stringify(['"site"', '"desktop", "ui"', '"ui"']),
-  uiRootOrder.slice(0, 3).join(" -> "));
-check("Electron gates each candidate on index.html",
-  /existsSync\(join\(c,\s*"index\.html"\)\)/.test(mainJs));
+check("Electron uiRoot() local candidate order is desktop/ui, ui",
+  JSON.stringify(uiRootOrder.slice(0, 2)) ===
+    JSON.stringify(['"desktop", "ui"', '"ui"']),
+  uiRootOrder.join(" -> "));
+check("Electron gates each local candidate on index.html",
+  /existsSync\(join\(c,\s*"index\.html"\)\)/.test(uiRootBody));
+check("Electron mirror is only reachable via KEEL_UI_PROFILE=mirror",
+  /KEEL_UI_PROFILE/.test(uiRootBody) &&
+    /KEEL_UI_PROFILE[\s\S]{0,300}join\(res,\s*"site"\)/.test(uiRootBody) &&
+    !/candidates[\s\S]{0,200}"site"/.test(uiRootBody));
+check("Electron preserves explicit KEEL_UI_DIR override for rollback",
+  /process\.env\.KEEL_UI_DIR/.test(uiRootBody));
 check("Electron feeds uiRoot() into the sidecar as KEEL_UI_DIR",
   /KEEL_UI_DIR\s*=\s*uiRoot\(\)/.test(mainJs));
 check("Electron loads the sidecar over 127.0.0.1 (not a static file root)",
   /loadURL\(`http:\/\/127\.0\.0\.1:/.test(mainJs));
 
 const siteResource = (pkg.build?.extraResources || []).find((r) => r.to === "site");
-check("electron-builder ships ../site -> resources/site",
+check("electron-builder ships ../site -> resources/site (rollback only)",
   !!siteResource && siteResource.from === "../site",
   siteResource ? `${siteResource.from} -> ${siteResource.to}` : "missing");
-check("source site/index.html + site/app.html both exist",
-  fileExists("site/index.html") && fileExists("site/app.html"));
+const localResource = (pkg.build?.extraResources || []).find((r) => r.to === "desktop/ui");
+check("electron-builder ships ../desktop/ui -> resources/desktop/ui",
+  !!localResource && localResource.from === "../desktop/ui",
+  localResource ? `${localResource.from} -> ${localResource.to}` : "missing");
+check("source desktop/ui/index.html exists and is the full local UI",
+  fileExists("desktop/ui/index.html") &&
+    !/safe-mode-badge/.test(read("desktop/ui/index.html")));
+check("source site/app.html exists and carries the mirror badge",
+  fileExists("site/app.html") && /safe-mode-badge/.test(read("site/app.html")));
 info("Why this matters",
-  "site/index.html satisfies uiRoot() first; the bridge then serves site/app.html at '/'.");
+  "A packaged build now resolves resources/desktop/ui first; site is only used with KEEL_UI_PROFILE=mirror.");
 
 if (resourcesDir) {
   const res = resolve(resourcesDir);
-  const chosen = join(res, "site");
   check("--resources dir exists", dirExists(res), res);
-  check("packaged resources/site/index.html present", fileExists(join(res, "site", "index.html")));
-  check("packaged resources/site/app.html present", fileExists(join(res, "site", "app.html")));
-  const packagedRoot = dirExists(join(res, "site")) && fileExists(join(res, "site", "index.html"))
-    ? "site" : null;
-  check("packaged uiRoot() resolves to resources/site", packagedRoot === "site",
-    packagedRoot ? join(res, packagedRoot) : "no candidate with index.html");
+  check("packaged resources/desktop/ui/index.html present",
+    fileExists(join(res, "desktop", "ui", "index.html")));
+  check("packaged resources/site/app.html present (rollback target)",
+    fileExists(join(res, "site", "app.html")));
+  const localRoot = fileExists(join(res, "desktop", "ui", "index.html"))
+    ? join(res, "desktop", "ui") : null;
+  check("packaged default uiRoot() resolves to desktop/ui, not site", localRoot !== null,
+    localRoot || "no local root with index.html");
+  check("packaged default root is the full local UI (no mirror badge)",
+    localRoot !== null &&
+      !/safe-mode-badge/.test(readFileSync(join(localRoot, "index.html"), "utf8")));
 
   // Dependency-free app.asar main.js integrity check (asar = 4B header size,
   // JSON header, then file bytes at 16 + headerSize + offset).
@@ -176,4 +197,4 @@ if (failed.length) {
   console.error("FAILED: " + failed.map((f) => f.name).join("; "));
   process.exit(1);
 }
-console.log("All current entry-point assertions hold. No shipped renderer was changed.");
+console.log("All entry-point assertions hold: local UI wins, mirror is rollback-only.");

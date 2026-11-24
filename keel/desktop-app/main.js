@@ -58,12 +58,24 @@ function bundledSidecar() {
   return null;
 }
 
+// The packaged desktop product MUST render the full local UI (desktop/ui),
+// not the restricted browser-only mirror (site/app.html). The mirror is kept
+// only as an explicit rollback/diagnostic path:
+//   KEEL_UI_PROFILE=mirror  -> force resources/site (legacy behaviour)
+//   KEEL_UI_DIR=<dir>       -> explicit override (advanced; must have index.html)
+// Returning null is intentional: it lets the frozen sidecar serve the
+// desktop/ui it bundles itself (sidecar.spec:29) when no local root is shipped.
 function uiRoot() {
   const res = process.resourcesPath;
+  const explicit = process.env.KEEL_UI_DIR;
+  if (explicit && existsSync(join(explicit, "index.html"))) return explicit;
+  if (String(process.env.KEEL_UI_PROFILE || "").toLowerCase() === "mirror") {
+    const mirror = join(res, "site");
+    if (existsSync(join(mirror, "index.html"))) return mirror;
+  }
   const candidates = [
-    join(res, "site"),          // mirror build (shipped in production)
-    join(res, "desktop", "ui"), // legacy layout
-    join(res, "ui"),
+    join(res, "desktop", "ui"), // full local UI (shipped in production)
+    join(res, "ui"),            // legacy local layout
   ];
   for (const c of candidates) if (existsSync(join(c, "index.html"))) return c;
   return null;

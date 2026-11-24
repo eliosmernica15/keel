@@ -41,6 +41,13 @@
         ]
       },
       {
+        "from": "../desktop/ui",
+        "to": "desktop/ui",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
         "from": "../build/resources/keel",
         "to": "keel"
       }
