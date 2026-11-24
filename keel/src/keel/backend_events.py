@@ -6,7 +6,7 @@ This module is deliberately self-contained and stdlib-only.  It provides:
   ``to_dict`` / ``from_dict`` round-trips (``SCHEMA_VERSION``);
 * :class:`EventBus`, a publish/subscribe bus with per-subscriber cursors,
   idempotent event IDs, replay from a digest-chained JSONL log keyed by
-  ``state_root``, and a path-keyed lock so appends are atomic;
+  ``state_root``, and a cross-process exclusive lock so appends are atomic;
 * :class:`DeliveryTracker`, which records outgoing delivery *attempts* with
   deterministic backoff, terminal failure and cancellation.  No network and
   no sleeping happen here -- success is only ever recorded from an explicit
@@ -15,6 +15,13 @@ This module is deliberately self-contained and stdlib-only.  It provides:
 Every persisted record carries a sequence number and a SHA-256 digest that
 commits to its predecessor.  A truncated, reordered, edited or unparseable
 log raises :class:`CorruptRecordError` instead of silently losing events.
+A crash between appending a record and committing its ``.head`` marker is the
+one exception: the verified tail is rolled forward (or a partial tail is
+trimmed) under the same lock, and surfaced as a :class:`LogRecovery` value.
+
+Durability uses only the standard library: a re-entrant in-process lock is
+combined with an ``O_CREAT|O_EXCL`` lock file next to the log, so readers and
+writers in *different processes* observe the same serialised history.
 
 The event union is immutable by construction: all field values are scalars or
 tuples, so an event produced in one module can be consumed in another without
@@ -28,6 +35,7 @@ import json
 import os
 import tempfile
 import threading
+import time
 import types
 import typing
 from dataclasses import MISSING, dataclass, fields
@@ -45,6 +53,9 @@ __all__ = [
     "UnsupportedEventVersionError",
     "EventBusError",
     "CorruptRecordError",
+    "EventBusLockError",
+    "EventBusWriteError",
+    "LogRecovery",
     "DuplicateEventError",
     "DeliveryError",
     "DuplicateDeliveryError",
@@ -125,6 +136,44 @@ class CorruptRecordError(EventBusError):
         self.line = int(line)
         self.reason = str(reason)
         super().__init__(f"corrupt record {self.path}:{self.line}: {self.reason}")
+
+
+class EventBusLockError(EventBusError):
+    """The cross-process log lock could not be acquired or released.
+
+    A live lock is never stolen: acquisition fails closed with this typed
+    error after a bounded timeout.
+    """
+
+
+class EventBusWriteError(EventBusError):
+    """A durable write could not be completed (e.g. a short record write)."""
+
+
+@dataclass(frozen=True, slots=True)
+class LogRecovery:
+    """Typed description of an automatic recovery applied while opening a log.
+
+    ``action`` is ``"committed_tail"`` when verified records beyond the
+    committed head were rolled forward, or ``"truncated_tail"`` when an
+    incomplete trailing record was discarded.  Neither case leaves the log
+    unreadable; both are performed under the exclusive lock.
+    """
+
+    path: str
+    action: str
+    count: int
+    seq: int
+    digest: str
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "path": self.path,
+            "action": self.action,
+            "count": self.count,
+            "seq": self.seq,
+            "digest": self.digest,
+        }
 
 
 class DuplicateEventError(EventBusError):
@@ -631,8 +680,13 @@ def describe_event_schema() -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Durable JSONL records, digest chained and locked by resolved path
+# Durable JSONL records, digest chained and cross-process locked
 # ---------------------------------------------------------------------------
+
+# Bounded wait for a concurrent writer; stale locks are reclaimed only when
+# their owning PID is provably gone (or has aged out with no readable PID).
+_LOCK_TIMEOUT_SECONDS = 10.0
+_STALE_LOCK_SECONDS = 30.0
 
 _LOCKS_GUARD = threading.Lock()
 _PATH_LOCKS: dict[str, Any] = {}
@@ -646,13 +700,184 @@ class _BusSharedState:
         self.subscriptions: list[Subscription] = []
 
 
-def _path_lock(path: str | Path) -> Any:
-    """One re-entrant lock per resolved path, shared by all bus instances."""
+def _pid_alive(pid: int) -> bool:
+    """Best-effort liveness check; unknown outcomes are treated as alive.
+
+    ``os.kill(pid, 0)`` is deliberately *not* used on Windows: it can report
+    success for a process that has already exited, which would leave an
+    abandoned lock file unwedgeable.  Query the real exit code instead.
+    """
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
+        # PROCESS_QUERY_LIMITED_INFORMATION; no PROCESS_ALL_ACCESS needed.
+        handle = kernel32.OpenProcess(0x1000, False, pid)
+        if not handle:
+            return False
+        try:
+            code = wintypes.DWORD()
+            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
+                return True  # cannot tell: fail closed
+            return code.value == 259  # STILL_ACTIVE
+        finally:
+            kernel32.CloseHandle(handle)
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True  # a live process we may not signal
+    except OSError as exc:
+        return False if exc.errno == 3 else True  # ESRCH; else fail closed
+
+
+class _LogLock:
+    """Re-entrant guard combining an in-process ``RLock`` with a lock file.
+
+    The in-process lock preserves the existing 20-thread behaviour (including
+    re-entrant calls from subscriber callbacks) and serialises contenders
+    before they touch the file system.  The ``O_CREAT|O_EXCL`` lock file makes
+    the same critical section exclusive across *processes*.  Only the thread
+    that owns the file lock writes the PID marker, and nested acquisitions on
+    that thread simply increment a depth counter instead of re-locking.
+    """
+
+    def __init__(self, log_path: Path):
+        self.path = Path(log_path)
+        self.lock_path = Path(str(self.path) + ".lock")
+        self.thread_lock = threading.RLock()
+        self._local = threading.local()
+
+    @property
+    def _depth(self) -> int:
+        return getattr(self._local, "depth", 0)
+
+    def _lock_is_stale(self) -> bool:
+        try:
+            marker = self.lock_path.read_bytes().decode("ascii").strip()
+        except FileNotFoundError:
+            return True
+        except (OSError, UnicodeDecodeError):
+            return False  # unreadable marker: fail closed
+        try:
+            pid = int(marker.split(" ", 1)[0])
+        except (ValueError, IndexError):
+            pid = -1
+        if pid == os.getpid():
+            # Re-entrant depth handled in __enter__; anything else is a lock
+            # left behind by a dead thread in this process.  Fail closed.
+            return False
+        if pid > 0:
+            return not _pid_alive(pid)
+        # No usable PID: reclaim only a clearly aged-out lock.
+        try:
+            age = time.time() - self.lock_path.stat().st_mtime
+        except OSError:
+            return False
+        return age > _STALE_LOCK_SECONDS
+
+    def _acquire_file(self) -> int:
+        self.lock_path.parent.mkdir(parents=True, exist_ok=True)
+        deadline = time.monotonic() + _LOCK_TIMEOUT_SECONDS
+        while True:
+            try:
+                fd = os.open(str(self.lock_path),
+                             os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+                break
+            except FileExistsError:
+                if self._lock_is_stale():
+                    try:
+                        self.lock_path.unlink()
+                    except FileNotFoundError:
+                        pass
+                    except OSError as exc:
+                        raise EventBusLockError(
+                            f"cannot clear stale event log lock "
+                            f"{self.lock_path}: {exc}") from exc
+                    continue
+                if time.monotonic() >= deadline:
+                    raise EventBusLockError(
+                        f"timed out acquiring event log lock {self.lock_path}")
+                time.sleep(0.005)
+            except OSError as exc:
+                raise EventBusLockError(
+                    f"cannot create event log lock {self.lock_path}: {exc}") from exc
+        try:
+            marker = f"{os.getpid()} {time.time():.6f}\n".encode("ascii")
+            os.write(fd, marker)
+            os.fsync(fd)
+        except OSError as exc:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+            try:
+                self.lock_path.unlink()
+            except OSError:
+                pass
+            raise EventBusLockError(
+                f"cannot write event log lock {self.lock_path}: {exc}") from exc
+        return fd
+
+    def _release_file(self, fd: int) -> None:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+        # Windows can briefly refuse unlink while another contender reads the
+        # lock marker.  Retry instead of abandoning a file that would then
+        # look like a live lock to everyone else.
+        deadline = time.monotonic() + 0.5
+        while True:
+            try:
+                self.lock_path.unlink()
+                return
+            except FileNotFoundError:
+                return
+            except OSError:
+                if time.monotonic() >= deadline:
+                    return  # stale-lock handling will reclaim it
+                time.sleep(0.002)
+
+    def __enter__(self) -> "_LogLock":
+        self.thread_lock.acquire()
+        try:
+            depth = self._depth
+            if depth:
+                self._local.depth = depth + 1
+            else:
+                self._local.fd = self._acquire_file()
+                self._local.depth = 1
+            return self
+        except BaseException:
+            self.thread_lock.release()
+            raise
+
+    def __exit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
+        depth = self._depth
+        if depth <= 1:
+            fd = getattr(self._local, "fd", None)
+            if fd is not None:
+                self._release_file(fd)
+                self._local.fd = None
+            self._local.depth = 0
+        else:
+            self._local.depth = depth - 1
+        self.thread_lock.release()
+
+
+def _log_lock(path: str | Path) -> _LogLock:
+    """One combined lock per resolved path, shared by all bus instances."""
     key = os.path.normcase(str(Path(path).resolve()))
     with _LOCKS_GUARD:
         lock = _PATH_LOCKS.get(key)
         if lock is None:
-            lock = threading.RLock()
+            lock = _LogLock(Path(key))
             _PATH_LOCKS[key] = lock
         return lock
 
@@ -665,13 +890,28 @@ def _record_digest(record: Mapping[str, Any]) -> str:
 
 
 def _append_line(path: Path, record: Mapping[str, Any]) -> None:
+    """Append one complete record with a single durable write.
+
+    Called only while holding the log's exclusive lock.  A short write is
+    rolled back to the exact prior size, so a partial record can never become
+    visible to a reader (or wedge recovery).
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     line = json.dumps(record, sort_keys=True, separators=(",", ":"),
                       ensure_ascii=False)
-    with open(path, "a", encoding="utf-8", newline="\n") as handle:
-        handle.write(line + "\n")
-        handle.flush()
-        os.fsync(handle.fileno())
+    payload = (line + "\n").encode("utf-8")
+    fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    try:
+        before = os.fstat(fd).st_size
+        written = os.write(fd, payload)
+        os.fsync(fd)
+        if written != len(payload):
+            os.ftruncate(fd, before)
+            os.fsync(fd)
+            raise EventBusWriteError(
+                f"short write to {path}: {written} of {len(payload)} bytes")
+    finally:
+        os.close(fd)
 
 
 def _write_head(path: Path, count: int, digest: str) -> None:
@@ -697,19 +937,21 @@ def _write_head(path: Path, count: int, digest: str) -> None:
 
 
 class _JsonlStore:
-    """Append-only, digest-chained JSONL store with a path-keyed lock.
+    """Append-only, digest-chained JSONL store with a cross-process lock.
 
     A sibling ``.head`` file commits the record count and chain head, so
     truncation or deletion of the tail is detectable rather than silently
-    replaying a shorter history.
+    replaying a shorter history.  Reads, appends and head commits all run
+    under the same exclusive lock file next to the log.
     """
 
     def __init__(self, path: Path, *, validator: Any = None):
         self.path = Path(path)
         self.head_path = Path(str(path) + ".head")
         self.validator = validator
-        self.lock = _path_lock(self.path)
+        self.lock = _log_lock(self.path)
         self.records: list[dict[str, Any]] = []
+        self.last_recovery: LogRecovery | None = None
         self.reload()
 
     def reload(self) -> None:
@@ -729,7 +971,55 @@ class _JsonlStore:
             raise CorruptRecordError(self.path, 0, "invalid commit head")
         return head
 
+    @staticmethod
+    def _is_uncommitted_tail(head: dict[str, Any] | None, count: int,
+                             lineno: int, total: int) -> bool:
+        """Only a final line beyond a committed prefix may be an interrupted write."""
+        return head is not None and count >= head["count"] and lineno == total
+
+    def _parse_line(self, raw: bytes, lineno: int,
+                    records: list[dict[str, Any]], prev: str) -> dict[str, Any]:
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            raise CorruptRecordError(
+                self.path, lineno, "non-UTF-8 record") from None
+        if not text.strip():
+            raise CorruptRecordError(self.path, lineno, "blank line in log")
+        try:
+            obj = json.loads(text)
+        except (ValueError, TypeError):
+            raise CorruptRecordError(
+                self.path, lineno, "unparseable JSON record") from None
+        if not isinstance(obj, dict) or set(obj) != {"seq", "prev", "data", "digest"}:
+            raise CorruptRecordError(self.path, lineno, "unexpected record shape")
+        seq = obj["seq"]
+        if not isinstance(seq, int) or isinstance(seq, bool) or seq != len(records) + 1:
+            raise CorruptRecordError(self.path, lineno, f"bad sequence: {seq!r}")
+        if obj["prev"] != prev:
+            raise CorruptRecordError(self.path, lineno, "broken digest chain")
+        if obj["digest"] != _record_digest(obj):
+            raise CorruptRecordError(self.path, lineno, "digest mismatch")
+        if self.validator is not None:
+            self.validator(obj["data"], lineno)
+        return obj
+
+    def _truncate_tail(self, keep_bytes: int) -> None:
+        fd = os.open(str(self.path), os.O_WRONLY, 0o600)
+        try:
+            os.ftruncate(fd, keep_bytes)
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
     def _read(self) -> list[dict[str, Any]]:
+        """Verify the chain and reconcile the head with the durable records.
+
+        Must be called under ``self.lock``.  The head is the commit marker; a
+        *longer* verified log is an interrupted append and is rolled forward,
+        while a trailing incomplete line is trimmed.  Any other mismatch is
+        genuine corruption and still fails closed.
+        """
         has_log = self.path.is_file()
         has_head = self.head_path.is_file()
         if not has_log:
@@ -738,47 +1028,69 @@ class _JsonlStore:
                     self.path, 0, "log is missing but commit head has records")
             return []
         try:
-            text = self.path.read_text(encoding="utf-8")
+            lines = self.path.read_bytes().split(b"\n")
         except OSError as exc:
             raise CorruptRecordError(self.path, 0, f"cannot read log: {exc}") from exc
+        if lines and lines[-1] == b"":
+            lines.pop()
+        head = self._read_head() if has_head else None
+        line_ends: list[int] = []
+        cursor = 0
+        for line in lines:
+            cursor += len(line) + 1
+            line_ends.append(cursor)
+
         records: list[dict[str, Any]] = []
         prev = GENESIS_DIGEST
-        for lineno, raw in enumerate(text.splitlines(), 1):
-            if not raw.strip():
-                raise CorruptRecordError(self.path, lineno, "blank line in log")
+        tail_index: int | None = None
+        for lineno, raw in enumerate(lines, 1):
             try:
-                obj = json.loads(raw)
-            except (ValueError, TypeError):
-                raise CorruptRecordError(
-                    self.path, lineno, "unparseable JSON record") from None
-            if not isinstance(obj, dict) or set(obj) != {"seq", "prev", "data", "digest"}:
-                raise CorruptRecordError(self.path, lineno, "unexpected record shape")
-            seq = obj["seq"]
-            if not isinstance(seq, int) or isinstance(seq, bool) or seq != len(records) + 1:
-                raise CorruptRecordError(self.path, lineno, f"bad sequence: {seq!r}")
-            if obj["prev"] != prev:
-                raise CorruptRecordError(self.path, lineno, "broken digest chain")
-            if obj["digest"] != _record_digest(obj):
-                raise CorruptRecordError(self.path, lineno, "digest mismatch")
-            if self.validator is not None:
-                self.validator(obj["data"], lineno)
+                obj = self._parse_line(raw, lineno, records, prev)
+            except CorruptRecordError:
+                if self._is_uncommitted_tail(head, len(records), lineno, len(lines)):
+                    tail_index = lineno - 1
+                    break
+                raise
             records.append(obj)
             prev = obj["digest"]
-        if not has_head:
+
+        if tail_index is not None:
+            # Discard the incomplete trailing record and re-commit the verified
+            # prefix.  The lock guarantees no writer can observe the short log.
+            keep = line_ends[tail_index - 1] if tail_index else 0
+            self._truncate_tail(keep)
+            _write_head(self.head_path, len(records), prev)
+            self.last_recovery = LogRecovery(
+                path=str(self.path), action="truncated_tail", count=1,
+                seq=len(records), digest=prev)
+            return records
+
+        if head is None:
             if records:
                 raise CorruptRecordError(
                     self.path, len(records), "missing commit head for non-empty log")
             return records
-        head = self._read_head()
-        if head != {"count": len(records), "digest": prev}:
+        if head["count"] > len(records):
             raise CorruptRecordError(
                 self.path, len(records) + 1,
-                f"commit head mismatch: expected count={len(records)} digest={prev}")
+                "commit head claims more records than the log contains")
+        if head["count"] < len(records):
+            # Crash after the record was fsynced but before the head was
+            # replaced: every extra record passed the full chain validation.
+            _write_head(self.head_path, len(records), prev)
+            self.last_recovery = LogRecovery(
+                path=str(self.path), action="committed_tail",
+                count=len(records) - head["count"], seq=len(records), digest=prev)
+            return records
+        if head["digest"] != prev:
+            raise CorruptRecordError(
+                self.path, len(records) + 1,
+                f"commit head mismatch: expected digest={prev}")
         return records
 
     def append(self, data: dict[str, Any]) -> dict[str, Any]:
         with self.lock:
-            self.reload()
+            self.records = self._read()
             seq = len(self.records) + 1
             prev = self.records[-1]["digest"] if self.records else GENESIS_DIGEST
             record = {"seq": seq, "prev": prev, "data": data}
@@ -822,8 +1134,9 @@ class EventBus:
     """Publish/subscribe over a digest-chained JSONL log keyed by state_root.
 
     ``publish`` is atomic and idempotent per event ID.  It serialises append
-    *and* subscriber delivery under the path-keyed lock, so subscribers always
-    observe events in sequence order even with many concurrent publishers.
+    *and* subscriber delivery under an in-process lock plus an exclusive
+    lock file, so subscribers always observe events in sequence order even
+    with many concurrent publishers in separate processes.
     A handler that raises leaves its subscription cursor unchanged, giving
     at-least-once delivery rather than silent loss.
     """
@@ -875,6 +1188,11 @@ class EventBus:
         self._reindex()
 
     # -- public API ---------------------------------------------------------
+
+    @property
+    def last_recovery(self) -> LogRecovery | None:
+        """Typed record of an automatic tail recovery applied on load, if any."""
+        return self._store.last_recovery
 
     @property
     def events(self) -> tuple[BackendEvent, ...]:
@@ -1084,6 +1402,11 @@ class DeliveryTracker:
         self._rebuild()
 
     # -- public API ---------------------------------------------------------
+
+    @property
+    def last_recovery(self) -> LogRecovery | None:
+        """Typed record of an automatic tail recovery applied on load, if any."""
+        return self._store.last_recovery
 
     def register(self, event_id: str, target: str, *, max_attempts: int = 3,
                  base_delay: float = 0.05, backoff_factor: float = 2.0,
