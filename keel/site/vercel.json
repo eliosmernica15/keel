@@ -20,10 +20,19 @@
     }
   ],
   "rewrites": [
-    { "source": "/download", "destination": "/download.html" }
+    { "source": "/download", "destination": "/download.html" },
+    { "source": "/app", "destination": "/app.html" },
+    { "source": "/keel-in-chrome", "destination": "/keel-in-chrome.html" },
+    { "source": "/chrome-web-store", "destination": "/chrome-web-store.html" },
+    { "source": "/terms", "destination": "/eula.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/requirements", "destination": "/requirements.html" },
+    { "source": "/roadmap", "destination": "/roadmap.html" },
+    { "source": "/eula", "destination": "/eula.html" },
+    { "source": "/trademark", "destination": "/trademark.html" },
+    { "source": "/notices", "destination": "/notices.html" }
   ],
   "redirects": [
-    { "source": "/app", "destination": "/download", "permanent": false },
-    { "source": "/app.html", "destination": "/download", "permanent": false }
+    { "source": "/app.html", "destination": "/app", "permanent": false }
   ]
 }
