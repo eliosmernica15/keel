@@ -726,8 +726,9 @@ body.code-page .l-download-link {
 /* ----------------------------- latest news chip -------------------------- */
 body.code-page .l-news {
   position: fixed;
-  top: 76px;
-  right: 20px;
+  top: auto;
+  right: 24px;
+  bottom: 24px;
   z-index: 55;
   display: flex;
   align-items: center;
@@ -767,6 +768,9 @@ body.code-page .l-news-text a {
 }
 body.code-page .l-news-close {
   flex: 0 0 auto;
+  position: static;
+  top: auto;
+  right: auto;
   margin-left: auto;
   padding: 0 2px;
   border: 0;
@@ -924,7 +928,7 @@ body.code-page .l-modal-legal a {
   body.code-page .l-nav-actions { display: none; }
   body.code-page .l-nav-toggle { display: flex; margin-left: auto; }
   body.code-page .l-footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px; }
-  body.code-page .l-news { top: 72px; right: 16px; }
+  body.code-page .l-news { top: auto; right: 16px; bottom: 16px; }
 }
 @media (max-width: 640px) {
   body.code-page .l-nav-inner { width: calc(100% - 32px); height: 56px; }
@@ -935,9 +939,10 @@ body.code-page .l-modal-legal a {
   body.code-page .l-footer-bar { flex-direction: column; align-items: flex-start; }
   body.code-page .l-footer-sig { margin-right: 0; }
   body.code-page .l-news {
-    top: 64px;
+    top: auto;
     left: 16px;
     right: 16px;
+    bottom: 16px;
     max-width: none;
     padding: 9px 12px;
   }
