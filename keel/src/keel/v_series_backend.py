@@ -2312,12 +2312,23 @@ def verify_before_upload(bundle: ReleaseBundle, contents: Mapping[str, bytes],
                          previous_version: str,
                          signature_verifier: Callable[[str, str, bytes], bool] | None = None,
                          ) -> dict[str, Any]:
-    """Cross-check manifest, sizes, hashes, signatures, monotonicity, completion."""
+    """Cross-check manifest, sizes, hashes, signatures, monotonicity, completion.
+
+    Signatures are never treated as verified merely because a non-empty string
+    is present: if the bundle carries signatures but the caller did not supply a
+    ``signature_verifier``, the check fails closed.  Only an actual verifier can
+    turn a signature into a passing gate.
+    """
     if not isinstance(bundle, ReleaseBundle):
         raise ContractValidationError("bundle must be a ReleaseBundle")
     if signature_verifier is not None and not callable(signature_verifier):
         raise ContractValidationError("signature_verifier must be callable")
+    unverified_issue = None
+    if bundle.signatures and signature_verifier is None:
+        unverified_issue = "signatures present but no signature verifier configured"
     issues = list(verify_artifact_bytes(bundle, contents))
+    if unverified_issue is not None:
+        issues.append(unverified_issue)
     if _version_tuple(bundle.version) <= _version_tuple(previous_version):
         issues.append("version is not monotonically greater than %s" % previous_version)
     if bundle.completion_record is None or not bundle.completion_record:
@@ -2357,9 +2368,18 @@ def publish_steps(bundle: ReleaseBundle) -> tuple[str, ...]:
 
 
 def release_publish_report(bundle: ReleaseBundle, contents: Mapping[str, bytes],
-                           downloaded: Mapping[str, bytes],
-                           previous_version: str) -> dict[str, Any]:
-    before = verify_before_upload(bundle, contents, previous_version)
+                           downloaded: Mapping[str, bytes], previous_version: str,
+                           signature_verifier: Callable[[str, str, bytes], bool] | None = None,
+                           ) -> dict[str, Any]:
+    """Publish report; the aggregate ``passed`` is never true for unverified signatures.
+
+    A verifier may be supplied here (it is forwarded to ``verify_before_upload``);
+    without one, a bundle that carries signatures fails closed.
+    """
+    if signature_verifier is not None and not callable(signature_verifier):
+        raise ContractValidationError("signature_verifier must be callable")
+    before = verify_before_upload(bundle, contents, previous_version,
+                                  signature_verifier)
     after = verify_after_upload(bundle, downloaded)
     steps = publish_steps(bundle)
     return {"before": before, "after": after, "steps": list(steps),

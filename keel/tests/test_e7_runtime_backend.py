@@ -970,6 +970,22 @@ class E740_Inspector(unittest.TestCase):
         for query in ({"op": "set", "node_id": "root"}, {"call": "x"}, {"eval": "x"}):
             with self.assertRaises(eb.ValidationError):
                 self.service.query("w1", query)
+
+    def test_mutating_sql_in_query_values_is_refused(self):
+        """Unknown keys carrying DML/DDL must not pass the read-only gate."""
+        for query in (
+            {"sql": "DELETE FROM sessions"},
+            {"sql": "UPDATE sessions SET state='x'"},
+            {"sql": "DROP TABLE sessions"},
+            {"sql": "delete from sessions; select 1"},
+            {"sql": ["SELECT 1", "INSERT INTO audit VALUES (1)"]},
+            {"sql": b"TRUNCATE sessions"},
+        ):
+            with self.subTest(query=query), self.assertRaises(eb.ValidationError):
+                eb.assert_read_only_query(query)
+        # Read-only SQL-shaped text is still allowed.
+        eb.assert_read_only_query({"sql": "SELECT * FROM sessions"})
+        eb.assert_read_only_query({"op": "list"})
         with self.assertRaises(eb.NotFoundError):
             self.service.query("missing", {"op": "list"})
         with self.assertRaises(eb.NotFoundError):

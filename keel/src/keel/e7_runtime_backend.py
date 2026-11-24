@@ -2800,6 +2800,44 @@ _MUTATING_QUERY_KEYS = frozenset({
     "set", "write", "call", "invoke", "eval", "exec", "mutate", "delete",
 })
 
+# Key names alone are not enough: an unknown key such as ``sql`` may carry
+# arbitrary DML/DDL.  Fail closed on any mutating statement found in a value.
+_MUTATING_SQL_RE = re.compile(
+    r"\b(?:DELETE|UPDATE|INSERT|DROP|ALTER|TRUNCATE|CREATE|REPLACE|MERGE|"
+    r"GRANT|REVOKE|SET|EXEC|EXECUTE|CALL|VACUUM|ATTACH|DETACH|PRAGMA|"
+    r"COPY|LOAD|UPSERT|WRITE)\b",
+    re.IGNORECASE,
+)
+
+
+def _inspect_query_value(value: Any) -> None:
+    """Recursively refuse values carrying (or obscuring) mutating SQL."""
+    if isinstance(value, str):
+        if _MUTATING_SQL_RE.search(value):
+            raise ValidationError("inspector queries are read-only")
+        return
+    if isinstance(value, (bytes, bytearray)):
+        try:
+            text = bytes(value).decode("utf-8")
+        except UnicodeDecodeError:
+            raise ValidationError("inspector query values must be inspectable text") from None
+        if _MUTATING_SQL_RE.search(text):
+            raise ValidationError("inspector queries are read-only")
+        return
+    if isinstance(value, Mapping):
+        for key, item in value.items():
+            _inspect_query_value(key)
+            _inspect_query_value(item)
+        return
+    if isinstance(value, (list, tuple, set, frozenset)):
+        for item in value:
+            _inspect_query_value(item)
+        return
+    if value is None or isinstance(value, (bool, int, float)):
+        return
+    # An object we cannot inspect cannot be proven read-only.
+    raise ValidationError("inspector query values must be inspectable text")
+
 
 def assert_read_only_query(query: Mapping[str, Any]) -> None:
     if not isinstance(query, Mapping):
@@ -2808,6 +2846,9 @@ def assert_read_only_query(query: Mapping[str, Any]) -> None:
         raise ValidationError("inspector queries are read-only")
     if str(query.get("op", "get")) not in {"get", "list", "trace", "query"}:
         raise ValidationError("unknown read-only query operation")
+    for key, value in query.items():
+        _inspect_query_value(key)
+        _inspect_query_value(value)
 
 
 class InspectorService:

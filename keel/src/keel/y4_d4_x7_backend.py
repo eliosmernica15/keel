@@ -23,6 +23,7 @@ import hashlib
 import io
 import json
 import os
+import posixpath
 import re
 import tarfile
 from dataclasses import dataclass
@@ -580,18 +581,40 @@ ARTIFACT_SIZE_BUDGETS: Mapping[str, int] = {
 }
 
 
+def _safe_tar_member(name: str) -> str:
+    """Return a member name that resolves strictly inside the archive root.
+
+    Tar members use ``/`` separators regardless of the host OS.  Absolute paths,
+    Windows drives and any ``..`` segment that climbs above the root are refused
+    so a consumer extracting the archive cannot write outside its target dir.
+    """
+    if not isinstance(name, str) or not name:
+        raise BackendError("tar member name must be a non-empty string")
+    candidate = name.replace("\\", "/")
+    if "\x00" in candidate:
+        raise BackendError("tar member name contains a NUL byte: %r" % name)
+    if re.match(r"^[A-Za-z]:", candidate) or candidate.startswith("/"):
+        raise BackendError("tar member path is absolute: %r" % name)
+    normalized = posixpath.normpath(candidate)
+    if normalized in ("", ".", "..") or normalized.startswith("../") or \
+            posixpath.isabs(normalized):
+        raise BackendError("tar member path escapes archive root: %r" % name)
+    return normalized
+
+
 def deterministic_tarball(files: Mapping[str, bytes]) -> tuple[bytes, str]:
     """Y4.12: pack file trees into one reproducible gzipped tarball.
 
     Names are sorted and tar metadata (mtime/uid/gid/user) is zeroed; the gzip
     header carries no filename and a fixed mtime, so identical inputs always
-    yield identical bytes.
+    yield identical bytes.  Member paths are validated to stay inside the
+    archive root (no absolute paths or ``..`` traversal).
     """
     raw = io.BytesIO()
     with tarfile.open(fileobj=raw, mode="w", format=tarfile.USTAR_FORMAT) as tf:
         for name in sorted(files):
             data = bytes(files[name])
-            info = tarfile.TarInfo(name)
+            info = tarfile.TarInfo(_safe_tar_member(name))
             info.size = len(data)
             info.mtime = 0
             info.mode = 0o644

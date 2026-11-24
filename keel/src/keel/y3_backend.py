@@ -43,6 +43,7 @@ import re
 import threading
 import time
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Iterable, Mapping
 
@@ -572,12 +573,30 @@ def _job_items(job: TickJob, work: DueWork) -> tuple[str, ...]:
     return work.alerts
 
 
+def _tick_stamp(now: Any) -> str:
+    """Validate ``now`` as a strict ISO-8601 timestamp and normalize to text.
+
+    The stamp feeds idempotency keys, so arbitrary labels (or wrong types) must
+    not be accepted as a tick time.
+    """
+    if not isinstance(now, str) or not now.strip():
+        raise SchedulerError("tick needs a 'now' stamp")
+    text = now.strip()
+    candidate = text[:-1] + "+00:00" if text[-1] in "Zz" else text
+    if not re.match(r"^\d{4}-\d{2}-\d{2}[Tt ]\d{2}:\d{2}", candidate):
+        raise SchedulerError("tick 'now' must be an ISO-8601 timestamp: %r" % now)
+    try:
+        datetime.fromisoformat(candidate)
+    except (ValueError, TypeError):
+        raise SchedulerError("tick 'now' must be an ISO-8601 timestamp: %r" % now) from None
+    return text
+
+
 def tick(work: DueWork, *, now: str,
          ledger: IdempotencyLedger | None = None,
          guard: TickGuard | None = None) -> TickReport:
     """Run all seven tick duties once for ``now``; repeated keys are no-ops."""
-    if not now:
-        raise SchedulerError("tick needs a 'now' stamp")
+    now = _tick_stamp(now)
     ledger = ledger or IdempotencyLedger()
     outcomes: list[TickOutcome] = []
 
