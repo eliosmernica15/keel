@@ -22767,15 +22767,19 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/repo_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Already in Master; add \"no secret configured = reject all\", never \"accept unsigned\"."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_repo_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Repo contracts: webhook HMAC headers, evidence cross-walk, build-artifact disposition, crash-safe turn journal; 59 passing tests. Y6.4 excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22915,15 +22919,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/repo_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "M0: build a **cross-walk** from each of these to plan IDs; anything uncovered becomes a row. Training-data and model-architecture docs stay out of scope (Master 4.2.5)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_repo_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Repo contracts: webhook HMAC headers, evidence cross-walk, build-artifact disposition, crash-safe turn journal; 59 passing tests. Y6.4 excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22939,15 +22947,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/repo_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Move to `docs/archive/` (private) or ignore; ensure absent from artifacts (artifact allowlist scan)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_repo_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Repo contracts: webhook HMAC headers, evidence cross-walk, build-artifact disposition, crash-safe turn journal; 59 passing tests. Y6.4 excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -23276,8 +23288,10 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/repo_contracts.py"
+      ],
       "dependencies": [
         "Y2.4",
         "Y2.6"
@@ -23285,9 +23299,11 @@
       "acceptance_criteria": [
         "Write-ahead entry before each tool run, mark done after; on restart show \"interrupted tool, retry or skip\". Extends Y2.4/Y2.6."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_repo_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Repo contracts: webhook HMAC headers, evidence cross-walk, build-artifact disposition, crash-safe turn journal; 59 passing tests. Y6.4 excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

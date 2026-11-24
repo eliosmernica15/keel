@@ -878,14 +878,14 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | Y5.1 | plugin.json manifest and config namespace | M10 | P1 | not_started |
 | Y5.2 | Install from git URL one-liner | M10 | P1 | not_started |
 | Y5.3 | Webhook subscription lifecycle | M15 | P1 | not_started |
-| Y5.4 | webhook signature headers and no-secret rejection | M3 | P0 | not_started |
+| Y5.4 | webhook signature headers and no-secret rejection | M3 | P0 | verified |
 | Y5.5 | Reaction mapping table | M15 | P2 | not_started |
 | Y5.6 | chat-id mapping cache | M15 | P1 | not_started |
 | Y5.7 | status and gateway commands | M15 | P1 | not_started |
 | Y5.8 | troubleshooting by exact error strings | M15 | P1 | not_started |
 | Y5.9 | Linq API/iMessage/RCS/SMS excluded (Blocked for free) | M15 | P1 | not_started |
-| Y6.1 | repo evidence docs cross-walk | M0 | P0 | not_started |
-| Y6.2 | .verify-* and .build artifacts | M0 | P0 | not_started |
+| Y6.1 | repo evidence docs cross-walk | M0 | P0 | verified |
+| Y6.2 | .verify-* and .build artifacts | M0 | P0 | verified |
 | Y6.3 | four surfaces: Cowork, Code, Duet, Fleet | M19 | P1 | not_started |
 | Y6.4 | repo visibility: Public, 0 stars/forks | M1 | P0 | not_started |
 | Z1 | Project environment lockfile | M9 | P1 | not_started |
@@ -898,7 +898,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | Z16 | Per-project cost budgets and "stop at budget" with summary | M21 | P1 | not_started |
 | Z2 | Agent contract tests | M9 | P1 | not_started |
 | Z3 | Redacted replay export | M4 | P1 | not_started |
-| Z4 | Crash-safe turn journal | M4 | P0 | not_started |
+| Z4 | Crash-safe turn journal | M4 | P0 | verified |
 | Z5 | Capability negotiation handshake | M20 | P1 | not_started |
 | Z6 | Local-first sync via the user's own folder | M14 | P2 | not_started |
 | Z7 | Household/OS-user separation | M22 | P2 | not_started |

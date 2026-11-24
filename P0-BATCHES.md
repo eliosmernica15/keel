@@ -1,14 +1,8 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **10 not-started P0 features** in 6 source groups.
+Generated from PLAN-INDEX.json: **6 not-started P0 features** in 4 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
-
-## Y6 — 3 features
-
-- `Y6.1` (M0) repo evidence docs cross-walk
-- `Y6.2` (M0) .verify-* and .build artifacts
-- `Y6.4` (M1) repo visibility: Public, 0 stars/forks
 
 ## W1 — 2 features
 
@@ -24,10 +18,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 
 - `W4.3` (M6) OAuth for remote servers: PKCE, discovery, refresh; credentials stored outside project config; `oauth:false` for header-key servers.
 
-## Y5 — 1 features
+## Y6 — 1 features
 
-- `Y5.4` (M3) webhook signature headers and no-secret rejection
-
-## Z — 1 features
-
-- `Z4` (M4) Crash-safe turn journal
+- `Y6.4` (M1) repo visibility: Public, 0 stars/forks

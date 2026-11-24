@@ -10910,14 +10910,14 @@
     "id": "Y5.4",
     "feature": "webhook signature headers and no-secret rejection",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M3",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\repo_contracts.py",
+    "test_references": "keel\\tests\\test_repo_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "Y5.5",
@@ -10988,27 +10988,27 @@
     "id": "Y6.1",
     "feature": "repo evidence docs cross-walk",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M0",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\repo_contracts.py",
+    "test_references": "keel\\tests\\test_repo_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "Y6.2",
     "feature": ".verify-* and .build artifacts",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M0",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\repo_contracts.py",
+    "test_references": "keel\\tests\\test_repo_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "Y6.3",
@@ -11170,14 +11170,14 @@
     "id": "Z4",
     "feature": "Crash-safe turn journal",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M4",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\repo_contracts.py",
+    "test_references": "keel\\tests\\test_repo_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "Z5",

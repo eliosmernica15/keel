@@ -838,14 +838,14 @@ Y4.9,Persona file with rigor contract + coding-agent routing + desktop control p
 Y5.1,plugin.json manifest and config namespace,local_module,not_started,M10,P1,,,False,False,"source_file_missing, test_file_missing"
 Y5.2,Install from git URL one-liner,local_module,not_started,M10,P1,,,False,False,"source_file_missing, test_file_missing"
 Y5.3,Webhook subscription lifecycle,local_module,not_started,M15,P1,,,False,False,"source_file_missing, test_file_missing"
-Y5.4,webhook signature headers and no-secret rejection,local_module,not_started,M3,P0,,,False,False,"source_file_missing, test_file_missing"
+Y5.4,webhook signature headers and no-secret rejection,local_module,verified,M3,P0,keel\src\keel\repo_contracts.py,keel\tests\test_repo_contracts.py,False,True,
 Y5.5,Reaction mapping table,local_module,not_started,M15,P2,,,False,False,"source_file_missing, test_file_missing"
 Y5.6,chat-id mapping cache,local_module,not_started,M15,P1,,,False,False,"source_file_missing, test_file_missing"
 Y5.7,status and gateway commands,local_module,not_started,M15,P1,,,False,False,"source_file_missing, test_file_missing"
 Y5.8,troubleshooting by exact error strings,local_module,not_started,M15,P1,,,False,False,"source_file_missing, test_file_missing"
 Y5.9,Linq API/iMessage/RCS/SMS excluded (Blocked for free),local_module,not_started,M15,P1,,,False,False,"source_file_missing, test_file_missing"
-Y6.1,repo evidence docs cross-walk,local_module,not_started,M0,P0,,,False,False,"source_file_missing, test_file_missing"
-Y6.2,.verify-* and .build artifacts,local_module,not_started,M0,P0,,,False,False,"source_file_missing, test_file_missing"
+Y6.1,repo evidence docs cross-walk,local_module,verified,M0,P0,keel\src\keel\repo_contracts.py,keel\tests\test_repo_contracts.py,False,True,
+Y6.2,.verify-* and .build artifacts,local_module,verified,M0,P0,keel\src\keel\repo_contracts.py,keel\tests\test_repo_contracts.py,False,True,
 Y6.3,"four surfaces: Cowork, Code, Duet, Fleet",local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
 Y6.4,"repo visibility: Public, 0 stars/forks",local_module,not_started,M1,P0,,,False,False,"source_file_missing, test_file_missing"
 Z1,Project environment lockfile,local_module,not_started,M9,P1,,,False,False,"source_file_missing, test_file_missing"
@@ -858,7 +858,7 @@ Z15,Prompt-injection regression corpus,local_module,not_started,M3,P1,,,False,Fa
 Z16,"Per-project cost budgets and ""stop at budget"" with summary",local_module,not_started,M21,P1,,,False,False,"source_file_missing, test_file_missing"
 Z2,Agent contract tests,local_module,not_started,M9,P1,,,False,False,"source_file_missing, test_file_missing"
 Z3,Redacted replay export,local_module,not_started,M4,P1,,,False,False,"source_file_missing, test_file_missing"
-Z4,Crash-safe turn journal,local_module,not_started,M4,P0,,,False,False,"source_file_missing, test_file_missing"
+Z4,Crash-safe turn journal,local_module,verified,M4,P0,keel\src\keel\repo_contracts.py,keel\tests\test_repo_contracts.py,False,True,
 Z5,Capability negotiation handshake,local_module,not_started,M20,P1,,,False,False,"source_file_missing, test_file_missing"
 Z6,Local-first sync via the user's own folder,local_module,not_started,M14,P2,,,False,False,"source_file_missing, test_file_missing"
 Z7,Household/OS-user separation,local_module,not_started,M22,P2,,,False,False,"source_file_missing, test_file_missing"
