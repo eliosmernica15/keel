@@ -17,9 +17,12 @@ What Tier 2 refuses (outline() enumerates it):
 
 from __future__ import annotations
 
+import os
 import posixpath
 import re
+import stat
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from .shell_ast import Decline, IRREVERSIBLE, MUTATE_LOCAL, READ, analyze
@@ -99,7 +102,8 @@ def _is_system(path: str) -> bool:
     return bool(_SYSTEM_RE.match(p))
 
 
-def _classify_target(path: str) -> str | None:
+def _classify_lexical(path: str) -> str | None:
+    """Classify a path *string* (no filesystem resolution)."""
     p = _expand(path)
     if _RAW_DEVICE_RE.match(_norm(p)):
         return "raw device"
@@ -110,6 +114,59 @@ def _classify_target(path: str) -> str | None:
     if _REMOTE_STORE_RE.search(p.replace("\\", "/")):
         return "remote-store credentials path"
     return None
+
+
+# Windows junctions are reparse points but ``stat.S_ISLNK`` is False for them.
+# Checking the reparse-point attribute (and POSIX symlink mode) catches both.
+_REPARSE_POINT = 0x400  # FILE_ATTRIBUTE_REPARSE_POINT
+
+
+def resolved_path(path: str | Path) -> Path:
+    """Resolve symlinks / Windows junctions, failing closed on unresolved paths.
+
+    ``strict=False`` is intentional: most Tier-2 targets do not exist yet (the
+    tool is about to create them), and a lexical classification must still be
+    applied to them.  A resolution error, on the other hand, means we cannot
+    know the real target — that is refused by the caller.
+    """
+    try:
+        return Path(_expand(str(path))).resolve(strict=False)
+    except (OSError, ValueError, RuntimeError) as exc:
+        raise ValueError(f"cannot resolve path for safety check: {exc}") from exc
+
+
+def symlink_components(path: str | Path) -> list[Path]:
+    """Return path components that are symlinks or Windows junctions."""
+    absolute = Path(os.path.abspath(os.path.expanduser(str(path))))
+    found: list[Path] = []
+    current = Path(absolute.anchor) if absolute.anchor else Path(".")
+    for part in absolute.parts:
+        current = current / part
+        try:
+            info = os.lstat(current)
+        except (OSError, ValueError):
+            continue
+        if stat.S_ISLNK(info.st_mode) or (getattr(info, "st_file_attributes", 0) & _REPARSE_POINT):
+            found.append(current)
+    return found
+
+
+def _classify_target(path: str) -> str | None:
+    """Classify the *real* target of a path, not just its lexical spelling.
+
+    A harmless-looking name inside a workspace can be a symlink/junction to a
+    protected location (``.ssh``, ``.aws``, ``C:\\Windows``, ...).  Both the
+    lexical and the resolved form are classified; the resolved verdict wins.
+    This closes the Tier-2 envelope bypass reported in H-3.
+    """
+    lexical = _classify_lexical(path)
+    try:
+        resolved_text = str(resolved_path(path))
+    except ValueError:
+        # Cannot know the real target — refuse rather than guess.
+        return "unresolved path"
+    resolved = _classify_lexical(resolved_text)
+    return resolved or lexical or None
 
 
 @dataclass(frozen=True)

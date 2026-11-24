@@ -76,7 +76,7 @@ _HTTP_STATUS_HINTS = {
                     "manifest_invalid", "unknown_action", "path_escape",
                     "bound_exceeded", "replay_denied", "unknown_request",
                     "missing_request_id", "bad_project", "bad_rules",
-                    "no_allowed_tools", "lock_timeout"}),
+                    "no_allowed_tools", "lock_timeout", "ledger_integrity"}),
 }
 
 
@@ -260,10 +260,46 @@ def _slug(value: Any, limit: int = 40) -> str:
     return text[:limit]
 
 
+def _trusted_state_base() -> Path:
+    """Server-controlled root.  Caller params can never influence this value."""
+    raw = os.environ.get("KEEL_STATE_DIR")
+    if not raw:
+        try:
+            from . import settings
+            configured = settings.default_state_root()
+            raw = str(configured) if configured else None
+        except Exception:
+            raw = None
+    if not raw:
+        raw = str(Path.home() / ".keel")
+    return Path(str(raw)).expanduser().resolve()
+
+
+def _contained(candidate: Path, base: Path) -> bool:
+    """True when *candidate* is the base itself or lies beneath it."""
+    try:
+        candidate_rel = candidate.relative_to(base)
+    except ValueError:
+        return False
+    return candidate_rel != Path("..") and ".." not in candidate_rel.parts
+
+
 def _state_root(params: Mapping[str, Any]) -> Path:
-    raw = params.get("state_root") or os.environ.get("KEEL_STATE_DIR") \
-        or str(Path.home() / ".keel")
-    root = Path(str(raw)).expanduser().resolve()
+    """Resolve state_root only inside the trusted base (M-5).
+
+    A caller may select a *subdirectory* of ``KEEL_STATE_DIR`` (multi-project
+    use) but can no longer name an arbitrary writable directory.
+    """
+    base = _trusted_state_base()
+    raw = params.get("state_root")
+    if raw is None or not str(raw).strip():
+        root = base
+    else:
+        root = Path(str(raw)).expanduser().resolve()
+        if not _contained(root, base):
+            raise WorkflowError(
+                "bad_state_root",
+                "state_root must be inside the configured state directory")
     root.mkdir(parents=True, exist_ok=True)
     return root
 
@@ -278,21 +314,126 @@ def _result_path(state_root: str | Path, name: str) -> Path:
     return _ledger_dir(state_root) / f"{name}-results.jsonl"
 
 
+# --- Tamper-evident JSONL ledgers (M-6) -------------------------------------
+# Records form an HMAC-SHA256 chain: each one commits to its predecessor.  The
+# key is held outside the ledger file (0600, optionally KEEL_LEDGER_KEY), so
+# editing/appending/truncating records cannot produce a valid chain.
+
+_GENESIS_HASH = "0" * 64
+_LEDGER_KEY_NAME = ".ledger.key"
+
+
+def _head_path(path: Path) -> Path:
+    """Per-ledger committed head, used to detect truncation of the tail."""
+    return path.parent / (".chain." + path.name + ".head")
+
+
+def _write_chain_head(path: Path, seq: int, digest: str, key: bytes) -> None:
+    head_path = _head_path(path)
+    body = _canonical({"seq": seq, "hash": digest}).encode("utf-8")
+    payload = {"seq": seq, "hash": digest,
+               "mac": hmac.new(key, body, hashlib.sha256).hexdigest()}
+    temporary = head_path.with_name(head_path.name + f".{os.getpid()}.tmp")
+    with open(temporary, "w", encoding="utf-8") as handle:
+        handle.write(_canonical(payload) + "\n")
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(temporary, head_path)
+
+
+def _verify_chain_head(path: Path, records: list[dict], key: bytes) -> None:
+    head_path = _head_path(path)
+    if not head_path.is_file():
+        if records:
+            raise WorkflowError(
+                "ledger_integrity", "missing ledger head (possible truncation)")
+        return
+    try:
+        head = json.loads(head_path.read_text(encoding="utf-8").strip())
+        body = _canonical({"seq": head["seq"], "hash": head["hash"]}).encode("utf-8")
+        expected_mac = hmac.new(key, body, hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(str(head["mac"]), expected_mac):
+            raise WorkflowError("ledger_integrity", "ledger head MAC mismatch")
+    except WorkflowError:
+        raise
+    except (ValueError, KeyError, TypeError) as exc:
+        raise WorkflowError("ledger_integrity", "malformed ledger head") from exc
+    expected_seq = records[-1]["seq"] if records else 0
+    expected_hash = records[-1]["hash"] if records else _GENESIS_HASH
+    if head.get("seq") != expected_seq or head.get("hash") != expected_hash:
+        raise WorkflowError("ledger_integrity", "ledger truncation detected")
+
+
+def _ledger_key(path: Path) -> bytes:
+    raw = os.environ.get("KEEL_LEDGER_KEY")
+    if raw:
+        return raw.encode("utf-8")
+    key_path = path.parent / _LEDGER_KEY_NAME
+    with _locked_path(key_path):
+        try:
+            return key_path.read_bytes()
+        except FileNotFoundError:
+            pass
+        key = secrets.token_bytes(32)
+        try:
+            descriptor = os.open(key_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        except FileExistsError:
+            return key_path.read_bytes()
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(key)
+            handle.flush()
+            os.fsync(handle.fileno())
+        return key
+
+
+def _record_digest(record: dict, key: bytes) -> str:
+    body = {name: value for name, value in record.items() if name != "hash"}
+    return hmac.new(key, _canonical(body).encode("utf-8"), hashlib.sha256).hexdigest()
+
+
 def _read_jsonl(path: str | Path) -> list[dict]:
     target = Path(path)
     if not target.is_file():
         return []
     records: list[dict] = []
     with _locked_path(target):
-        for line in target.read_text(encoding="utf-8").splitlines():
+        lines = target.read_text(encoding="utf-8").splitlines()
+        if not any(line.strip() for line in lines):
+            return []
+        key = _ledger_key(target)
+        expected_prev = _GENESIS_HASH
+        expected_seq = 1
+        for number, line in enumerate(lines, 1):
             if not line.strip():
                 continue
             try:
                 record = json.loads(line)
-            except ValueError:
-                continue
-            if isinstance(record, dict):
-                records.append(record)
+            except ValueError as exc:
+                raise WorkflowError(
+                    "ledger_integrity",
+                    f"malformed ledger record at line {number}") from exc
+            if not isinstance(record, dict):
+                raise WorkflowError(
+                    "ledger_integrity",
+                    f"non-object ledger record at line {number}")
+            if not {"seq", "prev_hash", "hash"}.issubset(record):
+                raise WorkflowError(
+                    "ledger_integrity",
+                    f"unauthenticated legacy record at line {number}")
+            if (record.get("seq") != expected_seq
+                    or record.get("prev_hash") != expected_prev):
+                raise WorkflowError(
+                    "ledger_integrity",
+                    f"ledger sequence/chain gap at line {number}")
+            recorded = record.get("hash")
+            if (not isinstance(recorded, str)
+                    or not hmac.compare_digest(recorded, _record_digest(record, key))):
+                raise WorkflowError(
+                    "ledger_integrity", f"ledger hash mismatch at line {number}")
+            expected_prev = recorded
+            expected_seq += 1
+            records.append(record)
+        _verify_chain_head(target, records, key)
     return records
 
 
@@ -301,20 +442,26 @@ def _append_jsonl(path: str | Path, record: dict) -> int:
     with _locked_path(target):
         target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         records = _read_jsonl(target)
+        key = _ledger_key(target)
+        seq = len(records) + 1
         payload = dict(record)
-        payload["sequence"] = len(records) + 1
+        payload["seq"] = seq
+        payload["sequence"] = seq  # backward-compatible alias
+        payload["prev_hash"] = records[-1]["hash"] if records else _GENESIS_HASH
         payload.setdefault("record_id", f"rec_{secrets.token_hex(8)}")
         payload.setdefault("at", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
         # DLP before persistence: ledgers are sensitive artifacts.
         safe = _redact(payload)
+        safe["hash"] = _record_digest(safe, key)
         descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
         with os.fdopen(descriptor, "a", encoding="utf-8") as handle:
             handle.write(_canonical(safe) + "\n")
             handle.flush()
             os.fsync(handle.fileno())
+        _write_chain_head(target, seq, safe["hash"], key)
         with contextlib.suppress(OSError):
             os.chmod(target, 0o600)
-        return int(payload["sequence"])
+        return seq
 
 
 def _idempotency_key(name: str, params: Mapping[str, Any]) -> str:
@@ -392,54 +539,64 @@ def _execute(name: str, params: Mapping[str, Any],
     params = dict(params)
     try:
         state_root = _state_root(params)
+    except WorkflowError as exc:
+        return {"workflow": name, "ok": False, "code": exc.code,
+                "error": exc.message[:300], "result": {}, "steps": [],
+                "persisted": None, "http_status": _http_status(exc.code)}
     except (OSError, ValueError) as exc:
         return {"workflow": name, "ok": False, "code": "bad_state_root",
                 "error": str(exc)[:300], "result": {}, "steps": [],
                 "persisted": None, "http_status": 400}
-    with _execution(state_root, name, params) as ctx:
-        if ctx is None:
-            path = _result_path(state_root, name)
-            prior = next((r for r in _read_jsonl(path)
-                          if r.get("idempotency_key") ==
-                          _idempotency_key(name, params)), {})
-            return _replay_response(name, prior)
-        ctx["started"] = time.monotonic()
-        try:
-            result = impl(params, state_root, ctx)
-            if not isinstance(result, dict):
-                raise WorkflowError("bad_result", "implementation returned a non-object")
-            ctx["result"] = result
-            ctx["ok"] = bool(result.get("ok", True))
-            ctx["code"] = result.get("code")
-        except WorkflowError as exc:
-            _step(ctx["steps"], exc.code, ok=False, error=exc.message[:300])
-            ctx["result"] = {**exc.detail, "error": exc.message[:300]}
-            ctx["ok"] = False
-            ctx["code"] = exc.code
-        except Exception as exc:  # never report a caught crash as success
-            code = f"{type(exc).__name__.lower()}_error"
-            _step(ctx["steps"], code, ok=False,
-                  error=f"{type(exc).__name__}: {exc}"[:300])
-            ctx["result"] = {"error": f"{type(exc).__name__}: {exc}"[:300]}
-            ctx["ok"] = False
-            ctx["code"] = code
-        code = str(ctx.get("code") or ("ok" if ctx["ok"] else "failed"))
-        status = _http_status(code)
-        if isinstance(ctx["result"], dict):
-            ctx["result"].setdefault("http_status", status)
-        response = {
-            "workflow": name,
-            "ok": bool(ctx["ok"]),
-            "code": code,
-            "idempotency_key": ctx["key"],
-            # Redact before returning as well as before persisting: the web/CLI
-            # surfaces must never echo a secret that appeared in a tool result.
-            "result": _redact(ctx["result"]),
-            "steps": _redact(ctx["steps"]),
-            "persisted": None,  # filled by the context manager on exit
-            "http_status": status,
-        }
-        return response
+    try:
+        with _execution(state_root, name, params) as ctx:
+            if ctx is None:
+                path = _result_path(state_root, name)
+                prior = next((r for r in _read_jsonl(path)
+                              if r.get("idempotency_key") ==
+                              _idempotency_key(name, params)), {})
+                return _replay_response(name, prior)
+            ctx["started"] = time.monotonic()
+            try:
+                result = impl(params, state_root, ctx)
+                if not isinstance(result, dict):
+                    raise WorkflowError("bad_result", "implementation returned a non-object")
+                ctx["result"] = result
+                ctx["ok"] = bool(result.get("ok", True))
+                ctx["code"] = result.get("code")
+            except WorkflowError as exc:
+                _step(ctx["steps"], exc.code, ok=False, error=exc.message[:300])
+                ctx["result"] = {**exc.detail, "error": exc.message[:300]}
+                ctx["ok"] = False
+                ctx["code"] = exc.code
+            except Exception as exc:  # never report a caught crash as success
+                code = f"{type(exc).__name__.lower()}_error"
+                _step(ctx["steps"], code, ok=False,
+                      error=f"{type(exc).__name__}: {exc}"[:300])
+                ctx["result"] = {"error": f"{type(exc).__name__}: {exc}"[:300]}
+                ctx["ok"] = False
+                ctx["code"] = code
+            code = str(ctx.get("code") or ("ok" if ctx["ok"] else "failed"))
+            status = _http_status(code)
+            if isinstance(ctx["result"], dict):
+                ctx["result"].setdefault("http_status", status)
+            response = {
+                "workflow": name,
+                "ok": bool(ctx["ok"]),
+                "code": code,
+                "idempotency_key": ctx["key"],
+                # Redact before returning as well as before persisting: the web/CLI
+                # surfaces must never echo a secret that appeared in a tool result.
+                "result": _redact(ctx["result"]),
+                "steps": _redact(ctx["steps"]),
+                "persisted": None,  # filled by the context manager on exit
+                "http_status": status,
+            }
+            return response
+    except WorkflowError as exc:
+        # Ledger integrity failures fail closed with a stable typed code.
+        return {"workflow": name, "ok": False, "code": exc.code,
+                "error": exc.message[:300], "result": {}, "steps": [],
+                "persisted": None, "http_status": _http_status(exc.code)}
 
 
 def _finalize(name: str, params: Mapping[str, Any],
@@ -447,14 +604,18 @@ def _finalize(name: str, params: Mapping[str, Any],
     """Wrap ``_execute`` and attach the ledger location to the response."""
     response = _execute(name, params, impl)
     if isinstance(params, Mapping):
-        state_root = _state_root(dict(params))
-        path = _result_path(state_root, name)
-        key = response.get("idempotency_key")
-        match = next((r for r in reversed(_read_jsonl(path))
-                      if r.get("idempotency_key") == key), None)
-        if match is not None:
-            response["persisted"] = {"path": str(path),
-                                     "sequence": match.get("sequence")}
+        try:
+            state_root = _state_root(dict(params))
+            path = _result_path(state_root, name)
+            key = response.get("idempotency_key")
+            match = next((r for r in reversed(_read_jsonl(path))
+                          if r.get("idempotency_key") == key), None)
+            if match is not None:
+                response["persisted"] = {"path": str(path),
+                                         "sequence": match.get("sequence")}
+        except (WorkflowError, OSError, ValueError):
+            # ``_execute`` already produced the typed failure response.
+            pass
     return response
 
 

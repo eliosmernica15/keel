@@ -6,10 +6,17 @@ exits 1 and the model records zero requests.
 
 from __future__ import annotations
 
+import http.client
+import ipaddress
 import json
 import os
 import re
+import socket
+import ssl
 import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 import uuid
 from dataclasses import dataclass, field
 from typing import Any
@@ -34,6 +41,135 @@ _FILE_CHANGE_TOOLS = frozenset({
     "copy_file", "make_dir",
 })
 DIAG_PREFIX = "[keel"
+
+# --- SSRF-hardened web fetch ------------------------------------------------
+# One DNS resolution feeds both the security decision and the connection.  A
+# redirect is followed only after the *new* URL passes the full check again.
+_MAX_SSRF_REDIRECTS = 5
+_SSRF_REDIRECT_CODES = frozenset({301, 302, 303, 307, 308})
+_SSRF_LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1", "0.0.0.0", "[::1]"})
+_SSRF_METADATA_IPS = frozenset({"169.254.169.254", "fd00:ec2::254"})
+
+
+def _ssrf_getaddrinfo(host: str, port: int | None):
+    """Single, injectable resolver seam for the whole fetch operation.
+
+    Tests can replace this one symbol to simulate hostile DNS; production code
+    has no other route to a hostname resolution for ``web_fetch``.
+    """
+    return socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+
+
+def _ssrf_ip_allowed(addr: str) -> bool:
+    """Fail closed for anything but a public unicast IP literal."""
+    try:
+        ip = ipaddress.ip_address(str(addr).split("%", 1)[0])
+    except ValueError:
+        return False
+    if (ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved
+            or ip.is_multicast or ip.is_unspecified):
+        return False
+    if str(ip) in _SSRF_METADATA_IPS:
+        return False
+    return True
+
+
+def _validate_fetch_url(url: str) -> dict:
+    """Validate a URL completely and return the exact address to connect to."""
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError("url must be http or https")
+    host = parsed.hostname or ""
+    if not host or host.lower() in _SSRF_LOCAL_HOSTS:
+        raise ValueError(f"refusing to fetch local address: {host}")
+    try:
+        port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    except ValueError as exc:
+        raise ValueError(f"invalid url port: {exc}") from exc
+    from .egress import check_url
+    check_url(url)
+    try:
+        infos = _ssrf_getaddrinfo(host, port)
+    except socket.gaierror as exc:
+        raise ValueError(f"cannot resolve hostname: {host}") from exc
+    if not infos:
+        raise ValueError(f"cannot resolve hostname: {host}")
+    for info in infos:
+        addr = info[4][0]
+        if not _ssrf_ip_allowed(addr):
+            raise ValueError(f"refusing to fetch private/internal address: {addr}")
+    # Every resolved address passed, so pin the first one for the connection.
+    return {"url": url, "host": host, "port": port,
+            "ip": infos[0][4][0], "scheme": parsed.scheme}
+
+
+def _pinned_connection_class(validated: dict, ssl_context):
+    """Build an HTTP(S) connection class bound to the pre-validated IP.
+
+    ``self.host`` stays the original hostname, so the ``Host`` header, TLS SNI
+    and certificate verification all still refer to the intended host.  Only
+    the TCP destination is replaced with the validated address.
+    """
+    scheme = validated["scheme"]
+    host = validated["host"]
+    port = validated["port"]
+    pinned_ip = validated["ip"]
+    base = http.client.HTTPSConnection if scheme == "https" else http.client.HTTPConnection
+
+    class _PinnedConnection(base):  # type: ignore[valid-type,misc]
+        def __init__(self, _ignored_host, _ignored_port=None, **kwargs):
+            kwargs.pop("context", None)
+            if scheme == "https":
+                super().__init__(host, port, context=ssl_context, **kwargs)
+            else:
+                super().__init__(host, port, **kwargs)
+            def _connect(address, timeout=None, source_address=None):
+                # Connect to the literal validated IP.  This deliberately does
+                # not call socket.create_connection/getaddrinfo at all: a
+                # second resolution (DNS rebinding) must be impossible.
+                family = socket.AF_INET6 if ":" in pinned_ip else socket.AF_INET
+                sock = socket.socket(family, socket.SOCK_STREAM)
+                try:
+                    if timeout is not None:
+                        sock.settimeout(timeout)
+                    if source_address:
+                        sock.bind(source_address)
+                    sock.connect((pinned_ip, address[1]))
+                except BaseException:
+                    sock.close()
+                    raise
+                return sock
+
+            self._create_connection = _connect
+
+    return _PinnedConnection
+
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Disable urllib's automatic redirect following.
+
+    3xx responses surface as ``HTTPError`` so the caller can re-validate each
+    ``Location`` and enforce a bounded hop count.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def _build_ssrf_opener(validated: dict, ssl_context):
+    connection_class = _pinned_connection_class(validated, ssl_context)
+
+    class _PinnedHTTPHandler(urllib.request.HTTPHandler):
+        def http_open(self, req):
+            return self.do_open(connection_class, req)
+
+    class _PinnedHTTPSHandler(urllib.request.HTTPSHandler):
+        def https_open(self, req):
+            return self.do_open(connection_class, req)
+
+    return urllib.request.build_opener(
+        _PinnedHTTPHandler, _PinnedHTTPSHandler, _NoRedirectHandler,
+        urllib.request.ProxyHandler({}))
 
 
 class CliValidationError(Exception):
@@ -239,7 +375,7 @@ class RealTools:
         if dispatched is not None:
             return dispatched
         if name == "read_file":
-            path = tool_input["path"]
+            path = self._revalidate_path(tool_input["path"])
             with open(path, "rb") as fh:
                 data = fh.read(self.CAP_BYTES + 1)
             if len(data) > self.CAP_BYTES or b"\x00" in data:
@@ -250,7 +386,7 @@ class RealTools:
                                                 "numLines": text.count("\n")}}
             return text, payload
         if name == "write_file":
-            path = tool_input["path"]
+            path = self._revalidate_path(tool_input["path"])
             content = tool_input["content"]
             self._check_dlp(content)
             with open(path, "w", encoding="utf-8", newline="\n") as fh:
@@ -259,7 +395,7 @@ class RealTools:
             return f"wrote {path} ({len(content)} chars)", \
                 {"type": "text", "file": {"filePath": path, "content": content}}
         if name == "edit_file":
-            path = tool_input["path"]
+            path = self._revalidate_path(tool_input["path"])
             old = tool_input["old_string"]
             new = tool_input["new_string"]
             with open(path, "r", encoding="utf-8") as fh:
@@ -410,13 +546,39 @@ class RealTools:
         return result
 
     def _safe_path(self, raw: str) -> str:
-        import os
-        from .safety import _classify_target, _expand
+        """Classify the *resolved* path and return it for the actual open.
+
+        A symlink/junction inside the workspace may point outside the
+        authorised root (the process working directory).  Resolving first
+        closes the Tier-2 bypass where an innocuous-looking name hides
+        ``.ssh``/``.aws`` or another project's files.
+        """
+        from .safety import (_classify_target, _expand, resolved_path,
+                             symlink_components)
         path = os.path.expanduser(str(raw))
         kind = _classify_target(_expand(path))
         if kind:
             raise ValueError(f"path refused ({kind}): {raw}")
-        return path
+        real = resolved_path(path)
+        if symlink_components(path):
+            root = resolved_path(os.getcwd())
+            try:
+                inside = os.path.commonpath([str(real), str(root)]) == str(root)
+            except ValueError:
+                inside = False
+            if not inside:
+                raise ValueError(
+                    f"path escapes the authorized root via symlink/junction: {raw}")
+        # Re-classify the real target so a junction to a protected path fails
+        # with an explicit reason even when it happens to stay under cwd.
+        kind = _classify_target(_expand(str(real)))
+        if kind:
+            raise ValueError(f"path refused ({kind}): {raw}")
+        return str(real)
+
+    def _revalidate_path(self, raw: str) -> str:
+        """Re-resolve immediately before an open to close the TOCTOU window."""
+        return self._safe_path(raw)
 
     def _delete_file(self, tool_input: dict):
         import os
@@ -739,61 +901,58 @@ class RealTools:
                                              project_root=project_root)
         return str(results), {"workflow": name, "results": results}
 
-    def _web_fetch(self, tool_input: dict):
-        import urllib.request, urllib.parse, html, re
-        url = tool_input["url"]
-        parsed = urllib.parse.urlparse(url)
-        if parsed.scheme not in ("http", "https"):
-            raise ValueError("url must be http or https")
-        from .egress import check_url
-        check_url(url)
-        host = parsed.hostname or ""
-        # Resolve hostname and check all resulting IPs
-        import socket
-        try:
-            infos = socket.getaddrinfo(host, None)
-        except socket.gaierror:
-            raise ValueError(f"cannot resolve hostname: {host}")
-        for info in infos:
-            addr = info[4][0]
-            # Check for private/loopback/link-local/reserved
-            import ipaddress
-            try:
-                ip = ipaddress.ip_address(addr)
-            except ValueError:
-                continue
-            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast or ip.is_unspecified:
-                raise ValueError(f"refusing to fetch private/internal address: {addr}")
-            # Block cloud metadata endpoints
-            if str(ip) in ("169.254.169.254", "fd00:ec2::254"):
-                raise ValueError(f"refusing to fetch cloud metadata endpoint: {addr}")
-        # Also check hostname directly
-        if host.lower() in ("localhost", "127.0.0.1", "::1", "0.0.0.0"):
-            raise ValueError(f"refusing to fetch local address: {host}")
-        timeout = int(tool_input.get("timeout", 30))
-        max_bytes = int(tool_input.get("max_bytes", 2_000_000))
-        req = urllib.request.Request(url, headers={"User-Agent": "Keel/1.0", "Accept": "text/html,application/json,text/plain"})
-        import ssl
+    @staticmethod
+    def _web_ssl_context():
         try:
             import certifi
-            _ctx = ssl.create_default_context(cafile=certifi.where())
+            return ssl.create_default_context(cafile=certifi.where())
         except Exception:
-            _ctx = ssl.create_default_context()
-        opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=_ctx), urllib.request.ProxyHandler({}))
-        with opener.open(req, timeout=timeout) as resp:
-            data = resp.read(max_bytes + 1)
-            content_type = resp.headers.get("Content-Type", "")
-            final_url = resp.geturl()
+            return ssl.create_default_context()
+
+    def _web_fetch(self, tool_input: dict):
+        import html as html_mod
+        import re as re_mod
+        url = tool_input["url"]
+        timeout = int(tool_input.get("timeout", 30))
+        max_bytes = int(tool_input.get("max_bytes", 2_000_000))
+        ssl_context = self._web_ssl_context()
+        current = url
+        for hop in range(_MAX_SSRF_REDIRECTS + 1):
+            # Full re-validation on EVERY hop.  The IP returned here is the
+            # one the connection is pinned to, so check and use cannot diverge.
+            validated = _validate_fetch_url(current)
+            opener = _build_ssrf_opener(validated, ssl_context)
+            req = urllib.request.Request(
+                current, headers={"User-Agent": "Keel/1.0",
+                                  "Accept": "text/html,application/json,text/plain"})
+            try:
+                with opener.open(req, timeout=timeout) as resp:
+                    data = resp.read(max_bytes + 1)
+                    content_type = resp.headers.get("Content-Type", "")
+                    final_url = resp.geturl()
+            except urllib.error.HTTPError as exc:
+                location = (exc.headers.get("Location")
+                            if exc.code in _SSRF_REDIRECT_CODES else None)
+                exc.close()
+                if not location:
+                    raise
+                if hop >= _MAX_SSRF_REDIRECTS:
+                    raise ValueError("too many redirects")
+                current = urllib.parse.urljoin(current, location)
+                continue
+            break
+        else:
+            raise ValueError("too many redirects")
         truncated = len(data) > max_bytes
         data = data[:max_bytes]
         text = data.decode("utf-8", errors="replace")
         if "html" in content_type.lower():
             # strip tags
-            text = re.sub(r"<script.*?</script>", " ", text, flags=re.S | re.I)
-            text = re.sub(r"<style.*?</style>", " ", text, flags=re.S | re.I)
-            text = re.sub(r"<[^>]+>", " ", text)
-            text = html.unescape(text)
-            text = re.sub(r"\s+", " ", text).strip()
+            text = re_mod.sub(r"<script.*?</script>", " ", text, flags=re_mod.S | re_mod.I)
+            text = re_mod.sub(r"<style.*?</style>", " ", text, flags=re_mod.S | re_mod.I)
+            text = re_mod.sub(r"<[^>]+>", " ", text)
+            text = html_mod.unescape(text)
+            text = re_mod.sub(r"\s+", " ", text).strip()
         return text[:20000], {"url": final_url, "content_type": content_type, "bytes": len(data), "truncated": truncated}
 
     def _web_search(self, tool_input: dict):
