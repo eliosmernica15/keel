@@ -131,11 +131,24 @@ isinstance(obj, (type/str/tuple/dict/set/...))`. They test the declaration, not 
 (behavior is covered elsewhere). Not harmful, but they inflate apparent test count.
 Recommended fix: rely on the per-ID behavioral tests and keep declaration checks minimal.
 
-**L4 — "definitive final suite 4071 passed" predates the 8 batches.** 128 tests in the
-six new/expanded files pass in the integration tree, but no post-integration full-suite
-result is recorded; `master-plan-v6-test-evidence.md` still calls 4071 the definitive
-final result. Recommended fix: record a fresh clean-environment full-suite number after
-the integration (the backlog correctly labels 4071 as the *baseline*).
+**L4 — "definitive final suite 4071 passed, 0 failed" is not reproducible in a clean checkout.**
+A fresh clean-HOME full run of integration HEAD `5996938` gave **7 failed, 4187 passed,
+51 skipped, 3707 subtests, exit 1** (787s). I isolated the 7 failures:
+- 6 reproduce identically on the baseline (`c36b05e`) and are pre-existing/environmental:
+  four missing release artifacts (`test_distribution_package.py` ×2,
+  `test_gap_closure.py::test_c12_*`, `test_release_integrity.py::test_integrity_cli_*`)
+  because `dist/`/`release/` are not present in a fresh checkout; and
+  `test_plan_index.py::test_authoritative_source_hashes_unchanged` (expected hash
+  `da1dd5dc...` vs actual `47b346bc...` for `Keel_Master_Plan_v5.md`, identical on both trees).
+- 1 (`test_quick_ask.py::test_quick_ask_endpoint_uses_real_runtime`, TypeError) fails only
+  in the full run; it passes at baseline, passes in isolation on integration, and passes
+  when run together with all six new/expanded test files → order-dependent/flaky, not a
+  deterministic regression from the 8 batches.
+`master-plan-v6-test-evidence.md` and `FINAL-ENGINEERING-REPORT.md` still call 4071/0 failed
+the definitive final result. Recommended fix: record the real post-integration number,
+fix or document the 6 environmental failures, and investigate the order-dependent
+`test_quick_ask` failure before claiming a green full suite (the backlog correctly labels
+4071 as the *baseline*).
 
 ---
 
@@ -174,3 +187,5 @@ the integration (the backlog correctly labels 4071 as the *baseline*).
 5. `python scripts/verify_v6_audit.py` → `CONSISTENCY OK`;
    `python scripts/verify_backend_operation.py` → `BACKEND OPERATION VERIFICATION OK`
    (with the HIGH 2 caveat about what "OK" means).
+6. Full suite at integration HEAD: 4187 passed / 51 skipped / 7 failed — none of the 7 is a
+   deterministic regression attributable to the 8 batches (see L4).
