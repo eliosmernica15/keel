@@ -14,6 +14,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import sqlite3
 import sys
 import tempfile
 import threading
@@ -932,6 +933,117 @@ class TestZ16ProjectBudgets(unittest.TestCase):
             self.budgets.record("alpha", kind="bogus")
         with self.assertRaises(ValueError):
             self.budgets.set_budget("../escape", local_tokens=1)
+
+
+class TestAuditRaceRegressions(unittest.TestCase):
+    """Regressions for the confirmed concurrency defects in the Z backend."""
+
+    def test_z16_budget_concurrent_records_do_not_overspend(self):
+        with tempfile.TemporaryDirectory() as td:
+            budgets = zb.ProjectBudgets(Path(td))
+            budgets.set_budget("demo", local_tokens=100)
+            errors: list[Exception] = []
+            barrier = threading.Barrier(30)
+
+            def worker(index: int) -> None:
+                try:
+                    barrier.wait()
+                    budgets.record("demo", kind="local", tokens=10,
+                                   ts=float(index + 1))
+                except zb.BudgetExceeded:
+                    pass
+                except BaseException as exc:  # surfaced by the assertion below
+                    errors.append(exc)
+
+            threads = [threading.Thread(target=worker, args=(i,)) for i in range(30)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+
+            self.assertEqual(errors, [])
+            rows = zb._read_jsonl(Path(td) / "project-usage.jsonl")
+            self.assertEqual(len(rows), 10)
+            self.assertEqual(sum(int(row["tokens"]) for row in rows), 100)
+            self.assertTrue(budgets.check("demo")["stopped"])
+
+    def test_append_jsonl_stress_keeps_every_record_and_valid_json(self):
+        for round_no in range(8):
+            with self.subTest(round=round_no), tempfile.TemporaryDirectory() as td:
+                path = Path(td) / "usage.jsonl"
+                barrier = threading.Barrier(30)
+
+                def writer(index: int) -> None:
+                    barrier.wait()
+                    zb._append_jsonl(path, {"i": index, "pad": "x" * 256})
+
+                threads = [threading.Thread(target=writer, args=(i,))
+                           for i in range(30)]
+                for thread in threads:
+                    thread.start()
+                for thread in threads:
+                    thread.join()
+                records = zb._read_jsonl(path)  # fails closed on a torn record
+                self.assertEqual(sorted(int(r["i"]) for r in records),
+                                 list(range(30)))
+
+    def test_z6_multiple_instances_share_one_valid_chain(self):
+        with tempfile.TemporaryDirectory() as td:
+            instances = [zb.LocalSync(Path(td)) for _ in range(4)]
+            errors: list[Exception] = []
+            barrier = threading.Barrier(40)
+
+            def worker(index: int) -> None:
+                try:
+                    barrier.wait()
+                    instances[index % len(instances)].append(
+                        f"key{index}", index, ts=float(index + 1))
+                except BaseException as exc:  # surfaced by the assertion below
+                    errors.append(exc)
+
+            threads = [threading.Thread(target=worker, args=(i,)) for i in range(40)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+
+            self.assertEqual(errors, [])
+            chain = zb.LocalSync(Path(td)).changes()
+            self.assertEqual([c.seq for c in chain], list(range(1, 41)))
+
+    def test_z10_driftstore_records_from_many_threads(self):
+        with tempfile.TemporaryDirectory() as td:
+            db_path = Path(td) / "drift.sqlite"
+            store = zb.DriftStore(db_path)
+            try:
+                errors: list[Exception] = []
+                barrier = threading.Barrier(30)
+
+                def worker(index: int) -> None:
+                    try:
+                        barrier.wait()
+                        store.record("model", "hash", "v1", 0.5,
+                                     ts=float(index + 1))
+                    except BaseException as exc:  # surfaced by the assertion below
+                        errors.append(exc)
+
+                threads = [threading.Thread(target=worker, args=(i,))
+                           for i in range(30)]
+                for thread in threads:
+                    thread.start()
+                for thread in threads:
+                    thread.join()
+
+                self.assertEqual(errors, [])
+                conn = sqlite3.connect(db_path)
+                try:
+                    rows = conn.execute(
+                        "SELECT COUNT(*) FROM model_health").fetchone()[0]
+                finally:
+                    conn.close()
+                self.assertEqual(rows, 30)
+            finally:
+                store.close()
 
 
 if __name__ == "__main__":
