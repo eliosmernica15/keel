@@ -12,6 +12,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
 
 ROOT = Path(__file__).resolve().parent
 SITE = ROOT / "keel" / "site"
@@ -25,9 +26,29 @@ def check(name: str, cond: bool, detail: str = "") -> None:
     results.append((name, bool(cond), detail))
 
 
+ROUTE_MAP = {
+    "/login": "/login.html",
+    "/new": "/new.html",
+    "/app": "/app.html",
+    "/download": "/download.html",
+    "/privacy": "/privacy.html",
+    "/terms": "/terms.html",
+    "/notices": "/notices.html",
+    "/roadmap": "/roadmap.html",
+    "/eula": "/eula.html",
+    "/trademark": "/trademark.html",
+    "/requirements": "/requirements.html",
+}
+
+
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *args):
         pass
+
+    def translate_path(self, path):
+        clean = path.split("?", 1)[0].split("#", 1)[0].rstrip("/") or "/"
+        path = ROUTE_MAP.get(clean, path)
+        return super().translate_path(path)
 
 
 def serve():
@@ -90,26 +111,46 @@ def run():
         check("landing: auth triggers", bool(auth), str(len(auth)))
         if auth:
             auth[0].click()
-            check("landing: modal opens", visible(driver, "#l-auth-modal, #authModal"))
-            driver.find_element(By.CSS_SELECTOR,
-                                "#l-auth-email, #authEmail").send_keys("test@example.com")
-            driver.find_element(By.CSS_SELECTOR,
-                                "[data-auth-form-view] form button[type=submit], "
-                                "#authForm button[type=submit]").click()
-            check("landing: success view", visible(driver, "[data-auth-success], #authSuccessView"))
-            check("landing: links to /app",
-                  bool(driver.find_elements(By.CSS_SELECTOR,
-                                            '[data-auth-success] a[href="/app"], '
-                                            '#authSuccessView a[href="/app"]')))
-            check("landing: login flag",
-                  driver.execute_script("return localStorage.getItem('keel_logged_in')") == "true")
-            stay = driver.find_elements(By.CSS_SELECTOR,
-                                        "[data-auth-success] [data-auth-close], "
-                                        "#authSuccessView [data-modal-close]")
-            if stay:
-                stay[0].click()
+            check("landing: auth routes to /login", "/login" in driver.current_url,
+                  driver.current_url)
         errs = console_errors(driver)
         check("landing: no console errors", not errs, str(errs[:3]))
+
+        driver.get(base + "/login.html")
+        driver.implicitly_wait(3)
+        login_text = driver.find_element(By.TAG_NAME, "body").text
+        for needle in ["Question what", "Continue with Google", "Continue with Apple",
+                       "Explore plans", "Max and Ultra", "Frequently asked questions"]:
+            check("login: has " + needle, needle.lower() in login_text.lower())
+        check("login: email placeholder",
+              "Enter your email" in driver.page_source)
+        check("login: no dead # links",
+              not driver.execute_script("return [...document.querySelectorAll('a[href=\"#\"]')].length"))
+        check("login: 3 plan cards", len(driver.find_elements(
+            By.CSS_SELECTOR, ".login-plan-card")) >= 3)
+        email_inputs = [e for e in driver.find_elements(By.CSS_SELECTOR, "input")
+                        if (e.get_attribute("placeholder") or "").lower().find("email") >= 0
+                        or e.get_attribute("type") == "email"]
+        check("login: email input", bool(email_inputs))
+        if email_inputs:
+            email_inputs[0].send_keys("test@example.com")
+            submits = driver.find_elements(By.XPATH,
+                                           "//button[contains(., 'Continue with email')]")
+            if submits:
+                submits[0].click()
+                try:
+                    WebDriverWait(driver, 5).until(
+                        lambda d: "/app" in d.current_url)
+                    landed = True
+                except Exception:
+                    landed = False
+                check("login: email sign-in goes to /app", landed, driver.current_url)
+                check("login: login flag",
+                      driver.execute_script("return localStorage.getItem('keel_logged_in')") == "true")
+        errs = [e for e in console_errors(driver)
+                if "/api/health" not in e.get("message", "")
+                and "/api/capabilities/invoke" not in e.get("message", "")]
+        check("login: no console errors", not errs, str(errs[:3]))
 
         driver.get(base + "/download.html")
         driver.implicitly_wait(3)
@@ -125,6 +166,74 @@ def run():
             check("download: mega closes", not visible(driver, ".kp-mega"))
         errs = console_errors(driver)
         check("download: no console errors", not errs, str(errs[:3]))
+        da = [el for el in driver.find_elements(By.CSS_SELECTOR, "[data-auth-open]")
+              if el.is_displayed()]
+        check("download: auth triggers", bool(da), str(len(da)))
+        if da:
+            da[0].click()
+            check("download: auth routes to /login", "/login" in driver.current_url,
+                  driver.current_url)
+
+        driver.get(base + "/plugins.html")
+        driver.implicitly_wait(3)
+        pl_text = driver.find_element(By.TAG_NAME, "body").text
+        for needle in ["Plugins", "Your plugins", "Most used", "Google Drive",
+                       "Popular workflows", "Trending", "Categories",
+                       "AI models & agents", "Show all"]:
+            check("plugins: has " + needle, needle.lower() in pl_text.lower())
+        check("plugins: no dead # links",
+              not driver.execute_script("return [...document.querySelectorAll('a[href=\"#\"]')].length"))
+        driver.save_screenshot(str(SHOTS / "plugins.png"))
+
+        driver.get(base + "/projects.html")
+        driver.implicitly_wait(3)
+        pr_text = driver.find_element(By.TAG_NAME, "body").text
+        for needle in ["Projects", "Looking to start a project?", "Upload materials",
+                       "New project"]:
+            check("projects: has " + needle, needle.lower() in pr_text.lower())
+        check("projects: no dead # links",
+              not driver.execute_script("return [...document.querySelectorAll('a[href=\"#\"]')].length"))
+        driver.save_screenshot(str(SHOTS / "projects.png"))
+
+        driver.get(base + "/artifacts.html")
+        driver.implicitly_wait(3)
+        ar_text = driver.find_element(By.TAG_NAME, "body").text
+        for needle in ["Artifacts", "Make something new", "Docs", "Slides",
+                       "Design", "GPT-6.2 vs Fable 5.2 Prompts", "Discover Kosovo"]:
+            check("artifacts: has " + needle, needle.lower() in ar_text.lower())
+        check("artifacts: no dead # links",
+              not driver.execute_script("return [...document.querySelectorAll('a[href=\"#\"]')].length"))
+        driver.save_screenshot(str(SHOTS / "artifacts.png"))
+
+        driver.get(base + "/new.html")
+        driver.implicitly_wait(3)
+        new_body = driver.find_element(By.TAG_NAME, "body").text
+        check("new: greeting", "You're here" in new_body)
+        check("new: recents", "Keel harness build plan" in new_body)
+        check("new: sidebar entries",
+              all(x in new_body for x in ["New", "Search", "Projects", "Artifacts", "Plugins"]))
+        try:
+            new_ph = driver.find_element(By.CSS_SELECTOR, "textarea, input[type=text]").get_attribute("placeholder") or ""
+        except Exception:
+            new_ph = ""
+        check("new: composer", "help you today" in new_ph.lower(), new_ph)
+        check("new: no dead # links",
+              not driver.execute_script("return [...document.querySelectorAll('a[href=\"#\"]')].length"))
+        st = [el for el in driver.find_elements(
+            By.CSS_SELECTOR,
+            "[data-search-trigger], #nav-search, #n-nav-search, button[id$='nav-search']")
+              if el.is_displayed()]
+        check("new: sidebar search trigger", bool(st))
+        if st:
+            st[0].click()
+            check("palette: opens", visible(driver, ".ksp-root"))
+            check("palette: recent rows",
+                  len(driver.find_elements(By.CSS_SELECTOR, ".ksp-row")) >= 8)
+            check("palette: input present", visible(driver, ".ksp-input"))
+            driver.save_screenshot(str(SHOTS / "search-palette.png"))
+            driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
+            check("palette: closes on Escape", not visible(driver, ".ksp-root"))
+        driver.save_screenshot(str(SHOTS / "new.png"))
 
         driver.get(base + "/app.html")
         driver.implicitly_wait(3)

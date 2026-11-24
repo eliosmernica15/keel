@@ -56,7 +56,8 @@ for needle in ["Build with", "For developers", "Use Cases", "Industries",
 routes = {
     "/", "/app", "/app.html", "/download", "/download.html", "/download.json",
     "/privacy", "/terms", "/notices", "/roadmap", "/eula", "/trademark",
-    "/requirements", "/sitemap.xml", "/robots.txt", "/manifest.webmanifest",
+    "/requirements", "/login", "/new", "/plugins", "/projects", "/artifacts",
+    "/sitemap.xml", "/robots.txt", "/manifest.webmanifest",
     "/sw.js", "/api/download-manifest",
 }
 for html in sorted(SITE.glob("*.html")):
@@ -86,7 +87,41 @@ for html in sorted(SITE.glob("*.html")):
         if matches:
             fail(f"unrebranded {brand!r} x{len(matches)} in {html.name}")
 
+login = read(SITE / "login.html")
+for needle in ["Question what", "Continue with Google", "Continue with Apple",
+               "Enter your email", "Continue with email", "Explore plans",
+               "Max and Ultra", "Frequently asked questions"]:
+    check(needle.lower() in login.lower(), f"login page missing: {needle!r}")
+
+new = read(SITE / "new.html")
+for needle in ["You're here", "New", "Search", "Projects", "Artifacts", "Plugins",
+               "Keel harness build plan", "Recent artifacts", "Elios"]:
+    check(needle.lower() in new.lower(), f"new page missing: {needle!r}")
+
+pl = read(SITE / "plugins.html")
+for needle in ["Plugins", "Your plugins", "Most used", "Popular workflows",
+               "Trending", "Categories", "Google Drive", "Add"]:
+    check(needle.lower() in pl.lower(), f"plugins page missing: {needle!r}")
+pr = read(SITE / "projects.html")
+for needle in ["Projects", "Looking to start a project?", "New project",
+               "Upload materials"]:
+    check(needle.lower() in pr.lower(), f"projects page missing: {needle!r}")
+ar = read(SITE / "artifacts.html") + read(SITE / "ui" / "artifacts.js")
+for needle in ["Artifacts", "Make something new", "Docs", "Slides", "Design",
+               "GPT-6.2 vs Fable 5.2 Prompts"]:
+    check(needle.lower() in ar.lower(), f"artifacts page missing: {needle!r}")
+
 vercel = read(SITE / "vercel.json")
+check('{ "source": "/login", "destination": "/login.html" }' in vercel,
+      "vercel.json does not route /login")
+check('{ "source": "/new", "destination": "/new.html" }' in vercel,
+      "vercel.json does not route /new")
+check('{ "source": "/plugins", "destination": "/plugins.html" }' in vercel,
+      "vercel.json does not route /plugins")
+check('{ "source": "/projects", "destination": "/projects.html" }' in vercel,
+      "vercel.json does not route /projects")
+check('{ "source": "/artifacts", "destination": "/artifacts.html" }' in vercel,
+      "vercel.json does not route /artifacts")
 check('{ "source": "/app", "destination": "/app.html" }' in vercel,
       "vercel.json does not route /app to the app")
 check('{ "source": "/app", "destination": "/download"' not in vercel,

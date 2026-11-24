@@ -339,7 +339,11 @@ function initAuthModal() {
     const trigger = target.closest('[data-auth-open]');
     if (!trigger) return;
     event.preventDefault();
-    open(trigger);
+    // Sign-in and sign-up now happen on the dedicated /login page.
+    const intent = trigger.getAttribute('data-auth-intent') || 'login';
+    const next = trigger.getAttribute('href') || trigger.getAttribute('data-next') || '';
+    window.location.assign('/login?intent=' + encodeURIComponent(intent) +
+      (next ? '&next=' + encodeURIComponent(next) : ''));
   });
 
   modal.querySelectorAll('[data-auth-close]').forEach((button) => {
