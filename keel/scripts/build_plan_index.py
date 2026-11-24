@@ -1754,6 +1754,33 @@ BACKEND_EVIDENCE: dict[str, tuple[str, str, str, str]] = {
 
 }
 
+def _derived_backend_acceptance_criteria(
+    fid: str, feature_text: str, backend_evidence: tuple[str, str, str, str]
+) -> list[str]:
+    """Build criteria for a backend-attributed row whose source omitted them.
+
+    A `verified` row must have a criterion to satisfy. The 93 attributed IDs
+    that arrived with empty `acceptance_criteria` are given criteria derived
+    from their own feature text and the module/test/evidence attribution that
+    was already hardcoded in BACKEND_EVIDENCE. Every entry is explicitly
+    labelled DERIVED: these are reconciliation criteria, NOT requirements that
+    were silently attributed to the source documents.
+    """
+    module, source_path, test_path, evidence_doc = backend_evidence
+    label = "[DERIVED - source omitted acceptance criteria]"
+    clean_feature = " ".join(str(feature_text or fid).split())
+    return [
+        f"{label} Implement the feature '{clean_feature}' in module {module} "
+        f"({source_path}).",
+        f"{label} A behavioral test for {fid} exists in {test_path} and passes.",
+        f"{label} Behavior for {fid} is reachable through the capability "
+        f"hub's backend index for module {module}.",
+        f"{label} Module {module} declares {fid} via a real code construct "
+        f"(registry key/membership or mapped symbol), with evidence recorded "
+        f"in {evidence_doc}.",
+    ]
+
+
 def _load_extra_features() -> list[dict]:
     """Load features from addenda 3-7 normalized extraction files."""
     out: list[dict] = []
@@ -1769,8 +1796,14 @@ def _load_extra_features() -> list[dict]:
             if not fid:
                 continue
             backend_evidence = BACKEND_EVIDENCE.get(fid)
-            # Normalize to the registry schema; never claim verification just
-            # because a source or test file path happens to be mentioned.
+            # Normalize to the registry schema. A hardcoded source/test path
+            # is an attribution claim, not behavioral verification; the
+            # strengthened scripts/verify_backend_operation.py audits the
+            # evidence behind each attributed ID separately. Where the source
+            # document omitted acceptance criteria for an attributed ID, we
+            # add explicitly DERIVED criteria (never invented source
+            # requirements) so no verified row is left with nothing to
+            # satisfy.
             src = str(f.get("references") or "")
             tags = str(f.get("tag/source") or "")
             implemented_ids = (TOOL_CONTRACT_IDS | X1_REPO_TOKENS |
@@ -1864,6 +1897,10 @@ def _load_extra_features() -> list[dict]:
                         REPO_CONTRACT_EVIDENCE if fid in REPO_CONTRACT_TOKENS else
                         PRODUCT_EVIDENCE if fid in PRODUCT_TOKENS else
                         backend_evidence[3] if backend_evidence else "")
+            criteria = _as_list(f.get("acceptance_criteria"))
+            if not criteria and backend_evidence:
+                criteria = _derived_backend_acceptance_criteria(
+                    fid, f.get("feature") or fid, backend_evidence)
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),
@@ -1880,7 +1917,7 @@ def _load_extra_features() -> list[dict]:
                     "verified" if verified else "not_started"),
                 "source_files": src_files,
                 "dependencies": _as_list(f.get("dependencies")),
-                "acceptance_criteria": _as_list(f.get("acceptance_criteria")),
+                "acceptance_criteria": criteria,
                 "test_references": test_files,
                 # Tier describes implementation type, never progress status.
                 # Not-started rows are still typed as local_module unless the
