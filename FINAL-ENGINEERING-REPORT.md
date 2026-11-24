@@ -88,7 +88,7 @@ real invocation, rejection of unknown modules/functions and feature-index integr
 ## E. Verification
 See `master-plan-v6-test-evidence.md` for exact commands and outputs.
 - Integrated-tree full suite (20 modules, before remediation): **3992 passed, 48 skipped, 3621 subtests, 0 failed** in 669.93s.
-- Final post-remediation full suite: see the final evidence entry recorded at completion.
+- **Final post-remediation full suite: 4029 passed, 48 skipped, 3621 subtests, 0 failed** (`python -m pytest -q -o faulthandler_timeout=120`, 490.94s). 1079 backend test cases collected.
 - Governance: `verify_v6_audit.py`, `verify_backend_operation.py`, dependency-graph freshness, license gate — all green.
 
 ## F. Security
