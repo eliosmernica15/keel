@@ -28,6 +28,10 @@ interface SkillRow {
   [key: string]: unknown;
 }
 
+function isBundledScope(scope: unknown): boolean {
+  return scope === "bundled" || scope === "builtin" || scope === "built-in";
+}
+
 function suspectCount(value: number | string[] | undefined): number {
   if (Array.isArray(value)) return value.length;
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
@@ -213,9 +217,13 @@ export default function SkillsPanel() {
                             label={`Enable ${row.name ?? "skill"}`}
                           />
                         </div>
-                        <IconButton label={`Remove ${row.name ?? "skill"}`} onClick={() => setRemoveTarget(row)} disabled={busy !== null}>
-                          <Icon name="trash" size={15} />
-                        </IconButton>
+                        {/* The bridge refuses removal from the bundled root; do not
+                            render a control that can only produce an error. */}
+                        {!isBundledScope(row.scope) && (
+                          <IconButton label={`Remove ${row.name ?? "skill"}`} onClick={() => setRemoveTarget(row)} disabled={busy !== null}>
+                            <Icon name="trash" size={15} />
+                          </IconButton>
+                        )}
                       </div>
                     </li>
                   );

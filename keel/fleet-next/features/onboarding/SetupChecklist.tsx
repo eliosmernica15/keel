@@ -54,7 +54,12 @@ export default function SetupChecklist({ onNavigate }: SetupChecklistProps) {
           {visible.map((item) => (
             <li key={item.id} className={s.checklistItem}>
               <Icon name={item.required ? "warning" : "info"} size={14} className={s.checklistIcon} />
-              <button type="button" className={s.checklistLink} onClick={() => onNavigate(destination(item.id))}>
+              <button type="button" className={s.checklistLink} onClick={() => {
+                // The tour item is an action, not a page: replay it at its own
+                // step instead of silently navigating to Cowork.
+                if (item.id === "tour") { restartAtStep("tour"); restartOnboarding(); }
+                else onNavigate(destination(item.id));
+              }}>
                 <span>{item.label}</span>
                 <small>{item.required ? "Required" : "Optional"}</small>
               </button>

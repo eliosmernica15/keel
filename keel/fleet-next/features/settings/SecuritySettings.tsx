@@ -81,9 +81,16 @@ function isTrusted(value: unknown): boolean {
 }
 
 function riskyPath(path: string): string | null {
-  const normalized = path.trim().toLowerCase().replace(/\/+/g, "/");
-  const withoutTrailing = normalized.replace(/\/+$/, "");
-  if (["", "/", "c:", "c:/", "c:/users", "c:/windows", "c:/program files", "/etc", "/system", "/users"].includes(withoutTrailing)) {
+  // Windows paths arrive with backslashes (e.g. `C:\`, `C:\Users`); normalise
+  // them so a drive root or home directory cannot slip past the warning.
+  const normalized = path.trim().toLowerCase().replace(/\\/g, "/").replace(/\/+/g, "/");
+  const withoutTrailing = normalized.replace(/\/+$/, "") || "/";
+  const driveRoot = /^[a-z]:$/;
+  const risky = [
+    "/", "c:/users", "c:/windows", "c:/program files",
+    "/etc", "/system", "/users", "/home", "/root",
+  ];
+  if (driveRoot.test(withoutTrailing) || risky.includes(withoutTrailing)) {
     return "This is a root, home or system location. Trusting it can expose a very large tree — review it carefully.";
   }
   return null;

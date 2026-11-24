@@ -104,7 +104,10 @@ export function CommandsPanel() {
     const names = new Set(backend.map((c) => String(c.name ?? "").toLowerCase()));
     const client: CommandRow[] = SLASH_COMMANDS
       .filter((c) => !names.has(c.name.toLowerCase()))
-      .map((c) => ({ name: c.name, description: c.description, argument_hint: c.usage, source: "fleet-next client" }));
+      // Client slash commands are reference material: commands/execute only
+      // resolves names from the bridge catalogue, so offering "Run" here would
+      // be a control that can only fail.
+      .map((c) => ({ name: c.name, description: c.description, argument_hint: c.usage, source: "fleet-next client", client_only: true }));
     return [...backend, ...client];
   }, [commandsQ.data]);
 
@@ -177,9 +180,14 @@ export function CommandsPanel() {
                       </div>
                       <p className={s.rowDesc}>{cmd.description ?? "No description reported."}</p>
                       {(cmd.argument_hint ?? cmd.usage) && <p className={s.mono}>Usage: {cmd.argument_hint ?? cmd.usage}</p>}
+                      {cmd.client_only === true && (
+                        <p className={s.muted}>Client reference only — not runnable via bridge.</p>
+                      )}
                     </div>
                     <div className={s.rowActions}>
-                      <Button size="sm" onClick={() => { setTarget(cmd); setResult(null); setError(null); }}>Run…</Button>
+                      {cmd.client_only !== true && (
+                        <Button size="sm" onClick={() => { setTarget(cmd); setResult(null); setError(null); }}>Run…</Button>
+                      )}
                     </div>
                   </li>
                 ))}

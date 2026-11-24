@@ -13,7 +13,7 @@ import type { Surface } from "@/lib/types";
 import {
   STEP_IDS, ITEM_IDS, readMode, readStep, restartAtStep, updateChecklist,
   useChecklist, writeMode, writeStep,
-  type Checklist, type Mode, type StepId,
+  type Checklist, type ItemId, type Mode, type StepId,
 } from "./progress";
 import s from "./onboarding.module.css";
 
@@ -92,6 +92,19 @@ const SURFACE_CHOICES: Array<{ surface: Surface; icon: IconName; title: string; 
   { surface: "fleet", icon: "fleet", title: "Set up Fleet", description: "Manage named agents, groups, tasks and scheduled routines." },
 ];
 
+// Which checklist item a step's "Skip for now" defers. A skipped item is
+// recorded as deferred so the sidebar checklist stops showing it, while the
+// required-progress counter still counts only genuinely completed items.
+const STEP_ITEM: Partial<Record<StepId, ItemId>> = {
+  welcome: "surface",
+  provider: "provider",
+  workspace: "workspace",
+  permission: "permission",
+  capabilities: "capabilities",
+  channels: "channels",
+  tour: "tour",
+};
+
 /* ------------------------------- component -------------------------------- */
 
 export default function Onboarding({ onDone }: { onDone: () => void }) {
@@ -146,7 +159,7 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
     setTrustStatus(IDLE);
   }, []);
 
-  const advance = useCallback((skipItem?: keyof Checklist) => {
+  const advance = useCallback((skipItem?: ItemId) => {
     if (skipItem) updateChecklist({ [skipItem]: "deferred" } as Partial<Checklist>);
     const i = Math.max(0, STEP_IDS.indexOf(current));
     goto(STEP_IDS[Math.min(i + 1, STEP_IDS.length - 1)]);
@@ -156,6 +169,14 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
     completeOnboarding();
     onDone();
   }, [completeOnboarding, onDone]);
+
+  // "Skip for now" is a real decision: it records the current item as deferred
+  // and moves on. On the final step it means "Finish later" — close without
+  // claiming the tour was taken, so the setup stays resumable.
+  const skipCurrent = useCallback(() => {
+    if (stepIndex >= STEP_IDS.length - 1) { close(); return; }
+    advance(STEP_ITEM[current]);
+  }, [advance, close, current, stepIndex]);
 
   const finish = useCallback(() => {
     updateChecklist({ tour: "done" });
@@ -448,7 +469,7 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
     {
       icon: "shield", title: "Approve a safe action", surface: "cowork",
       copy: "Read the operation and scope before deciding.",
-      guidance: "An approval card appears only when the agent requests a real action. Read the operation and scope, then choose Allow once or Deny. This tour cannot create one.",
+      guidance: "An approval card appears only when the agent requests a real action. Read the operation and scope, then choose Allow once, Always allow or Don't allow. This tour cannot create one.",
     },
     {
       icon: "file", title: "View a changed file", surface: "code",
@@ -473,7 +494,7 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
       case "welcome":
         return (
           <>
-            <p className={s.lead}>One local work environment, four ways to work. Pick where to begin — you can switch at any time.</p>
+            <p className={s.lead}>One local work environment. Pick one of three places to begin below — you can switch surfaces at any time, including to Duet&apos;s split view.</p>
             <div className={s.choiceGrid}>
               {SURFACE_CHOICES.map((c) => (
                 <button key={c.surface} type="button" className={s.choiceCard} onClick={() => chooseSurface(c.surface)}>
@@ -505,7 +526,7 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
       case "provider":
         return (
           <>
-            <p className={s.lead}>Connect a provider so Keel can answer. Verification is real: saving with the button below asks the bridge to fetch the provider's live model list.</p>
+            <p className={s.lead}>Connect a provider so Keel can answer. Verification is real: <b>Verify &amp; use for this session</b> asks the bridge to fetch the provider&apos;s live model list. Saving is a separate, optional step that stores the key on this device.</p>
             <StatusLine status={providersStatus} />
             {providers.length > 0 && (
               <div className={s.providerList} role="radiogroup" aria-label="Provider">
@@ -610,6 +631,9 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
                 );
               })}
             </div>
+            {projects.length === 0 && projectsStatus.kind === "idle" && (
+              <p className={s.muted}>No local projects are registered yet. Paste an absolute path above to add one.</p>
+            )}
             {pendingProject && (
               <Card className={s.trustCard}>
                 <div className={s.subhead}>Explicit trust decision</div>
@@ -624,9 +648,11 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
                   <Button variant="primary" onClick={() => void trustProject(true)} disabled={trustStatus.kind === "loading"}>Trust this folder</Button>
                   <Button onClick={() => void trustProject(false)} disabled={trustStatus.kind === "loading"}>Keep it untrusted</Button>
                 </div>
-                <StatusLine status={trustStatus} />
               </Card>
             )}
+            {/* The decision card disappears once the choice is recorded; keep the
+                result outside it so the user actually sees what the bridge did. */}
+            <StatusLine status={trustStatus} />
           </>
         );
 
@@ -761,12 +787,12 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
               <Button size="sm" variant="ghost" onClick={() => goto(STEP_IDS[stepIndex - 1])}>Back</Button>
             )}
             {current === "tour" && (
-              <Button size="sm" variant="ghost" onClick={() => { restartAtStep("welcome"); setStep("welcome"); }}>Restart tour</Button>
+              <Button size="sm" variant="ghost" onClick={() => goto("tour")}>Restart tour</Button>
             )}
           </div>
           <div className={s.footerRight}>
             {current !== "welcome" && (
-              <Button size="sm" variant="ghost" onClick={() => advance()}>
+              <Button size="sm" variant="ghost" onClick={skipCurrent}>
                 {footHint === "Close" ? "Finish later" : "Skip for now"}
               </Button>
             )}
