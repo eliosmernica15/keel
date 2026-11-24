@@ -65,6 +65,7 @@ import hashlib
 import hmac
 import json
 import re
+import threading
 import time
 from dataclasses import dataclass, replace
 from datetime import date, datetime, timezone
@@ -1190,16 +1191,25 @@ def remaining_seconds(grant: TimeBoxedGrant, now: int) -> int:
     return max(0, grant.expires_at - int(now))
 
 
+# Guards the check-then-consume transition so a JIT grant can be granted to
+# exactly one caller even when several threads attempt to use it at once.
+_GRANT_CONSUME_LOCK = threading.Lock()
+
+
 def consume_grant(grant: TimeBoxedGrant, now: int) -> GrantDecision:
     """Use a grant. A JIT grant is single-use; expired/consumed grants deny."""
-    if not is_active(grant, now):
-        reason = "grant_expired" if int(now) > grant.expires_at else "grant_inactive"
-        return GrantDecision(False, reason, remaining_seconds(grant, now))
-    if grant.just_in_time:
-        return GrantDecision(
-            True, "just_in_time_granted", remaining_seconds(grant, now)
-        )
-    return GrantDecision(True, "time_boxed_granted", remaining_seconds(grant, now))
+    with _GRANT_CONSUME_LOCK:
+        if not is_active(grant, now):
+            reason = "grant_expired" if int(now) > grant.expires_at else "grant_inactive"
+            return GrantDecision(False, reason, remaining_seconds(grant, now))
+        remaining = remaining_seconds(grant, now)
+        if grant.just_in_time:
+            # Mark the grant consumed within the same critical section as the
+            # check so the same object cannot be replayed within its TTL.
+            # This is the single sanctioned mutation of the frozen dataclass.
+            object.__setattr__(grant, "consumed", True)
+            return GrantDecision(True, "just_in_time_granted", remaining)
+        return GrantDecision(True, "time_boxed_granted", remaining)
 
 
 # ---------------------------------------------------------------------------

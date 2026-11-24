@@ -714,14 +714,18 @@ class CoverageGate:
             line_total += total
             if total and covered == 0:
                 dead.append(path)
-        percent = round(100.0 * covered_total / line_total, 2) if line_total else 100.0
+        # A report that measured no lines says nothing about coverage and must
+        # not vacuously satisfy the gate (100% of zero lines is not a pass).
+        has_coverage_data = line_total > 0
+        percent = round(100.0 * covered_total / line_total, 2) if has_coverage_data else 0.0
         return {
             "percent": percent,
             "exempted": exempted,
             "dead_code_candidates": dead,
             "line_coverage_necessary": True,
             "line_coverage_sufficient": False,
-            "passed": percent >= threshold and not dead,
+            "has_coverage_data": has_coverage_data,
+            "passed": has_coverage_data and percent >= threshold and not dead,
         }
 
 

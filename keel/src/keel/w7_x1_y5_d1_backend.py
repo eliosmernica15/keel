@@ -24,6 +24,7 @@ import os
 import re
 import secrets
 import shlex
+import tempfile
 import threading
 import time
 import urllib.parse
@@ -70,11 +71,47 @@ def _scrub_secrets(text: str) -> str:
     return out
 
 
+# Serialises read-modify-write cycles (and the replace itself) across every
+# caller, including separate manager instances pointing at the same file.
+_WRITE_LOCK = threading.RLock()
+
+
+def _contained_path(root: str | Path, name: str, *, label: str = "path") -> Path:
+    """Build ``root / name`` while rejecting traversal/NUL in caller input.
+
+    Caller-supplied credential and log directories must not be able to escape
+    the directory they name via ``..`` segments or an embedded NUL byte.
+    """
+    if "\x00" in str(root) or "\x00" in str(name):
+        raise BackendError(f"invalid {label}: NUL byte")
+    base = Path(root)
+    if any(part == ".." for part in base.parts) or ".." in Path(name).parts:
+        raise BackendError(f"invalid {label}: traversal not allowed")
+    candidate = base / name
+    resolved_base = base.resolve()
+    resolved = candidate.resolve()
+    if resolved != resolved_base and resolved_base not in resolved.parents:
+        raise BackendError(f"{label} escapes its base directory")
+    return candidate
+
+
 def _atomic_write(path: Path, payload: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".tmp")
-    tmp.write_text(payload, encoding="utf-8")
-    os.replace(tmp, path)
+    with _WRITE_LOCK:
+        # A unique temp file in the destination directory prevents concurrent
+        # writers from sharing (and interleaving into) a fixed ``.tmp`` name.
+        fd, tmp_name = tempfile.mkstemp(
+            prefix=path.name + ".", suffix=".tmp", dir=str(path.parent))
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                handle.write(payload)
+            os.replace(tmp_name, path)
+        except BaseException:
+            try:
+                os.unlink(tmp_name)
+            except OSError:
+                pass
+            raise
 
 
 def _load_json(path: Path, default: Any) -> Any:
@@ -649,7 +686,8 @@ def generic_error(request_id: str | None = None, *,
 
 def log_error_detail(log_path: str | Path, request_id: str, detail: str) -> Path:
     """W7.12: write the real detail to the server-only log (never the client)."""
-    path = Path(log_path)
+    path = _contained_path(Path(log_path).parent, Path(log_path).name,
+                           label="log path")
     path.parent.mkdir(parents=True, exist_ok=True)
     entry = {"ts": _utc_now(), "request_id": request_id,
              "detail": str(detail)[:4000]}
@@ -1095,7 +1133,9 @@ class WebhookSubscriptionManager:
     """Y5.3: subscribe/unsubscribe with a retained signing secret."""
 
     def __init__(self, credentials_dir: str | Path):
-        self.path = Path(credentials_dir) / "webhook-subscriptions.json"
+        self.path = _contained_path(
+            credentials_dir, "webhook-subscriptions.json", label="credentials path")
+        self._lock = threading.RLock()
 
     def _load(self) -> dict:
         doc = _load_json(self.path, {})
@@ -1116,9 +1156,10 @@ class WebhookSubscriptionManager:
         entry = {"id": sub_id, "url": url, "events": events, "label": str(label)[:80],
                  "signing_secret": secrets.token_urlsafe(32), "created_at": _utc_now(),
                  "active": True}
-        doc = self._load()
-        doc.setdefault("subscriptions", {})[sub_id] = entry
-        _atomic_write(self.path, json.dumps(doc, indent=2) + "\n")
+        with self._lock:
+            doc = self._load()
+            doc.setdefault("subscriptions", {})[sub_id] = entry
+            _atomic_write(self.path, json.dumps(doc, indent=2) + "\n")
         return entry
 
     def get(self, sub_id: str) -> dict | None:
@@ -1128,12 +1169,13 @@ class WebhookSubscriptionManager:
         return list(self._load().get("subscriptions", {}).values())
 
     def unsubscribe(self, sub_id: str) -> bool:
-        doc = self._load()
-        entry = doc.get("subscriptions", {}).get(sub_id)
-        if not entry:
-            return False
-        entry["active"] = False
-        _atomic_write(self.path, json.dumps(doc, indent=2) + "\n")
+        with self._lock:
+            doc = self._load()
+            entry = doc.get("subscriptions", {}).get(sub_id)
+            if not entry:
+                return False
+            entry["active"] = False
+            _atomic_write(self.path, json.dumps(doc, indent=2) + "\n")
         return True
 
 
@@ -1184,16 +1226,19 @@ class ChatIdCache:
     """Y5.6: cache external↔internal chat ids under the credentials dir."""
 
     def __init__(self, credentials_dir: str | Path):
-        self.path = Path(credentials_dir) / "chat-id-map.json"
+        self.path = _contained_path(
+            credentials_dir, "chat-id-map.json", label="credentials path")
+        self._lock = threading.RLock()
 
     def _load(self) -> dict:
         doc = _load_json(self.path, {})
         return doc if isinstance(doc, dict) else {}
 
     def put(self, channel: str, external_id: str, internal_id: str) -> None:
-        doc = self._load()
-        doc.setdefault(channel, {})[str(external_id)] = str(internal_id)
-        _atomic_write(self.path, json.dumps(doc, indent=2) + "\n")
+        with self._lock:
+            doc = self._load()
+            doc.setdefault(channel, {})[str(external_id)] = str(internal_id)
+            _atomic_write(self.path, json.dumps(doc, indent=2) + "\n")
 
     def get(self, channel: str, external_id: str) -> str | None:
         return self._load().get(channel, {}).get(str(external_id))

@@ -9,6 +9,7 @@ individually traceable in the evidence document.
 from __future__ import annotations
 
 import ast
+import threading
 from dataclasses import replace
 from datetime import date, timedelta
 from pathlib import Path
@@ -482,10 +483,40 @@ def test_x53_time_box_auto_expires_with_countdown() -> None:
 def test_x53_just_in_time_grant_is_single_use() -> None:
     grant = issue_grant("clipboard.read", now=100, duration_seconds=60, just_in_time=True)
     first = consume_grant(grant, 100)
-    assert first.granted is True
-    consumed = replace(grant, consumed=True)
-    second = consume_grant(consumed, 101)
-    assert second.granted is False
+    assert first.granted is True and first.reason == "just_in_time_granted"
+    # Consumption is enforced inside the API, not by the caller mutating state.
+    assert grant.consumed is True
+    assert is_active(grant, 101) is False
+    second = consume_grant(grant, 101)  # same grant object: replay must be denied
+    assert second.granted is False and second.reason == "grant_inactive"
+    assert consume_grant(grant, 102).granted is False  # repeated replay stays denied
+    # Non-JIT grants remain reusable within their time box.
+    boxed = issue_grant("tool.write", now=100, duration_seconds=60)
+    assert consume_grant(boxed, 100).granted is True
+    assert consume_grant(boxed, 101).granted is True
+    assert boxed.consumed is False
+
+
+def test_x53_jit_grant_concurrent_consumption_succeeds_once() -> None:
+    grant = issue_grant("clipboard.read", now=100, duration_seconds=60, just_in_time=True)
+    count = 16
+    barrier = threading.Barrier(count)
+    decisions = []
+    collect_lock = threading.Lock()
+
+    def worker():
+        barrier.wait()
+        decision = consume_grant(grant, 101)
+        with collect_lock:
+            decisions.append(decision)
+
+    threads = [threading.Thread(target=worker) for _ in range(count)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert sum(decision.granted for decision in decisions) == 1
+    assert grant.consumed is True
 
 
 # ---------------------------------------------------------------------------

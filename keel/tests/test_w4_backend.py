@@ -207,6 +207,16 @@ def test_w41_bad_commands_fail_without_crashing():
         assert not result.ok and result.data["code"] == code, argv
 
 
+def test_w41_auth_and_logout_without_server_name_return_typed_error():
+    store = w.McpConfigStore()
+    for argv in (["auth"], ["logout"], ["auth", "--client-id", "x"],
+                 ["logout", "--global"]):
+        result = w.dispatch_mcp_command(argv, store)
+        assert not result.ok, argv
+        assert result.data["code"] == "missing_server_name", argv
+        assert "missing_server_name" in result.message, argv
+
+
 def test_w41_mcps_panel_exposes_backend_actions():
     store = w.McpConfigStore()
     store.add_server("project", "srv", {"type": "local", "command": ["python", "-m", "srv"]})
