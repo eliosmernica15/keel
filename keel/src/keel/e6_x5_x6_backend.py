@@ -234,6 +234,55 @@ __all__ = [
     "validate_feature_config",
 ]
 
+
+# ---------------------------------------------------------------------------
+# feature traceability declaration (ID -> implementing symbols)
+# ---------------------------------------------------------------------------
+
+# Explicit ID -> implementing-symbol declaration for all 27 E6/X5/X6 rows.
+# Every value names only symbols that really exist in this module and are
+# exercised in tests/test_e6_x5_x6_backend.py. The name is deliberately not
+# one of backend_hub's reserved registry attributes; FEATURE_LIFECYCLES above
+# remains the runtime registry used by backend_hub.verify.
+FEATURE_TRACEABILITY: dict[str, tuple[str, ...]] = {
+    "E6.2": ("CredentialEditor", "InMemoryCredentialSeam",
+             "SHARED_CREDENTIAL_WARNING", "DELETION_IRREVERSIBLE_WARNING"),
+    "E6.3": ("detect_env_credential", "HintStatus", "CredentialHint"),
+    "E6.4": ("should_refresh", "update_published", "edit_model_list",
+             "restore_defaults"),
+    "E6.6": ("parse_models_response", "build_candidate", "save_candidate",
+             "fallback_manual"),
+    "E6.7": ("ModelPicker", "ModelRef"),
+    "E6.11": ("lookup_troubleshooting", "render_troubleshooting_page",
+              "TROUBLESHOOTING_CATALOG"),
+    "E6.12": ("HotReloadAdapter", "InMemoryConfigSeam", "can_open_in_editor"),
+    "E6.13": ("check_model_compatibility", "ClientUpgradeRequired", "parse_semver"),
+    "E6.14": ("build_config_catalog", "catalog_digest", "assert_catalog_current"),
+    "X5.2": ("classification_from_labels", "redaction_required",
+             "egress_allowed", "DataPolicy"),
+    "X5.3": ("issue_grant", "is_active", "remaining_seconds", "consume_grant"),
+    "X5.4": ("CapabilityTokenIssuer", "CapabilityToken", "AuditEntry"),
+    "X5.7": ("review_rules", "prune_unused", "StandingRule"),
+    "X5.8": ("resolve_profile", "operation_allowed", "SandboxProfile"),
+    "X5.10": ("seal_export", "verify_import", "EXPORT_SCHEMA_VERSION"),
+    "X5.11": ("build_data_handling_cards", "assert_no_retention_claims",
+              "EgressRecord"),
+    "X5.12": ("evaluate_dependency", "ManagedPolicy", "DependencyDecision"),
+    "X5.13": ("detect_secret_paste", "PasteWarning"),
+    "X6.1": ("plugin_scaffold", "detect_changes", "MockHost"),
+    "X6.2": ("compare_event_streams", "permission_denial_check",
+             "GoldenEventStream"),
+    "X6.3": ("generate_python_sdk", "generate_typescript_sdk",
+             "assert_sdk_version_pinned"),
+    "X6.4": ("parse_version", "deprecation_headers", "is_compatible", "is_sunset"),
+    "X6.5": ("explorer_access", "ExplorerDecision"),
+    "X6.6": ("validate_event", "SubscriptionRegistry", "EVENT_SCHEMAS"),
+    "X6.8": ("resolve_layers", "ConfigLayer", "LAYER_PRECEDENCE"),
+    "X6.9": ("search_settings", "diff_against_defaults", "reset_section",
+             "export_settings", "import_settings"),
+    "X6.10": ("feature_enabled", "validate_feature_config", "FEATURE_LIFECYCLES"),
+}
+
 SCHEMA = "e6-x5-x6-backend/v1"
 
 

@@ -652,3 +652,36 @@ def test_all_31_not_started_feature_ids_are_covered():
     for feature_id in ids:
         assert feature_id in source, feature_id
         assert feature_id in test_source, feature_id
+
+
+# ---------------------------------------------------------------------------
+# Y3.8 (device-approval pairing flow) — attributed to this module by the
+# canonical registry.
+# ---------------------------------------------------------------------------
+
+
+def test_y3_8_browser_bound_pairing():
+    """Y3.8: a sealed pairing code is completable only by its own client/browser."""
+    key = b"synthetic-test-key-32-bytes-long!!"
+    signin = m.BrowserBoundSignIn(key)
+    fp_a = m.browser_fingerprint({"User-Agent": "Y3.8-A", "Accept-Language": "en"})
+    fp_b = m.browser_fingerprint({"User-Agent": "Y3.8-B", "Accept-Language": "en"})
+    assert fp_a != fp_b
+
+    cookie = signin.bind_pairing("client-1", fp_a)
+    # Correct client + browser + non-empty approval code completes the flow.
+    assert signin.complete_pairing(cookie, "client-1", fp_a, "PAIR-1") is True
+    # A different client, a different browser or an empty code fails closed.
+    assert signin.complete_pairing(cookie, "client-2", fp_a, "PAIR-1") is False
+    assert signin.complete_pairing(cookie, "client-1", fp_b, "PAIR-1") is False
+    assert signin.complete_pairing(cookie, "client-1", fp_a, "") is False
+    # A sign-in cookie cannot be replayed as a pairing cookie (kind mismatch).
+    signin_cookie = signin.start(fp_a)["cookie"]
+    assert signin.complete_pairing(signin_cookie, "client-1", fp_a, "PAIR-1") is False
+
+    # The declaration names the real pairing surface.
+    assert set(m.FEATURE_TRACEABILITY) == {"Y3.8"}
+    assert m.FEATURE_TRACEABILITY["Y3.8"] == (
+        "BrowserBoundSignIn", "bind_pairing", "complete_pairing")
+    assert hasattr(m.BrowserBoundSignIn, "bind_pairing")
+    assert hasattr(m.BrowserBoundSignIn, "complete_pairing")

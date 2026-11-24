@@ -666,3 +666,20 @@ def test_module_is_stdlib_only_deterministic_and_side_effect_free():
     assert d6.fingerprint({"a": [1, 2]}) == d6.fingerprint({"a": [1, 2]})
     assert d6.canonical_bytes({"b": 1, "a": 2}) == b'{"a":2,"b":1}'
     assert d6.all_error_codes() == d6.all_error_codes()
+
+
+def test_d6_feature_traceability_registry_maps_real_symbols():
+    """Every declared D6 ID resolves to real, usable module symbols."""
+    expected = {
+        "D6.1", "D6.3", "D6.4", "D6.5", "D6.6", "D6.7", "D6.8", "D6.9",
+        "D6.10", "D6.11", "D6.12", "D6.13", "D6.15", "D6.16", "D6.19",
+        "D6.22", "D6.24", "D6.25",
+    }
+    assert set(d6.FEATURE_TRACEABILITY) == expected
+    for fid, names in d6.FEATURE_TRACEABILITY.items():
+        assert names, fid
+        for name in names:
+            obj = getattr(d6, name, None)
+            assert obj is not None, (fid, name)
+            assert callable(obj) or isinstance(
+                obj, (type, str, tuple, dict, set, frozenset)), (fid, name)

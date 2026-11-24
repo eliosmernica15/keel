@@ -35,6 +35,21 @@ from pathlib import Path
 from typing import Any, Callable
 
 
+# ---------------------------------------------------------------------------
+# feature traceability declaration (ID -> implementing symbols)
+# ---------------------------------------------------------------------------
+
+# PLAN-INDEX.json attributes Y3.8 (device-approval pairing flow) to this
+# module. The explicit, AST-visible declaration maps that ID to the real
+# pairing symbols defined by BrowserBoundSignIn below; each is exercised in
+# tests/test_w7_x1_y5_d1_backend.py. The name is deliberately not one of
+# backend_hub's reserved registry attributes, so backend_hub.verify keeps its
+# AST fallback behaviour for this module.
+FEATURE_TRACEABILITY: dict[str, tuple[str, ...]] = {
+    "Y3.8": ("BrowserBoundSignIn", "bind_pairing", "complete_pairing"),
+}
+
+
 class BackendError(RuntimeError):
     """Base error for this module."""
 

@@ -141,3 +141,37 @@ corresponding top-level gate or loader (e.g. `assert_release_ready` in the
 release gate, `ImportGate` in the test harness, `DocCoverageChecker` in CI).
 Row statuses in `PLAN-INDEX.json` remain `not_started` until a lead verifies
 that integration in the live application.
+
+## Per-ID traceability: ID → implementing symbols → behavioral test
+
+The module declares the 18 BACKEND rows in `FEATURE_TRACEABILITY` (AST-visible
+string keys mapping to real symbol names). This table names the concrete
+definitions in `keel/src/keel/d6_reliability_backend.py` and the concrete
+behavioral test functions in `keel/tests/test_d6_reliability_backend.py` for
+every implemented ID. It is the per-ID cross-check consumed by
+`scripts/verify_backend_operation.py`.
+
+| ID | Implementing symbols (`keel.d6_reliability_backend`) | Behavioral test function |
+| --- | --- | --- |
+| D6.1 | `ApiChangeRecorder`, `check_upgrade_guide`, `SchemaVersion`, `assert_monotonic`, `scan_schema_version` | `test_api_change_recorder_checks_consumers_and_upgrade_note`, `test_upgrade_guide_check_detects_unrecorded_breaking_changes`, `test_schema_version_is_positive_monotonic_and_literal` |
+| D6.3 | `EventCatalog`, `EventSpec`, `assert_never` | `test_event_catalog_documents_modes_payloads_and_defaults`, `test_closed_union_exhaustive_check_rejects_unknown_member` |
+| D6.4 | `Request`, `Spec`, `resolve`, `run`, `find_hidden_defaults` | `test_resolve_records_defaults_and_run_refuses_unresolved_request`, `test_find_hidden_defaults_flags_or_fallback_inside_run` |
+| D6.5 | `PluginTunables`, `validate_plugin_config`, `lint_plugin_source` | `test_plugin_config_validates_missing_unknown_and_out_of_range`, `test_plugin_lint_allowlist_and_magic_number_detection` |
+| D6.6 | `ReferenceRegistry`, `load_with_references` | `test_missing_referent_aborts_load_with_known_names`, `test_reference_load_resolves_nested_referents_and_rejects_duplicates` |
+| D6.7 | `SessionId`, `RequestId`, `PluginId`, `SnapshotId`, `brand_id`, `audit_id_annotations` | `test_brand_id_rejects_empty_and_unknown_kind`, `test_audit_id_annotations_flags_bare_str_ids` |
+| D6.8 | `Boundary`, `BoundaryRegistry`, `trust` | `test_boundary_registry_validates_shape_and_fails_on_unknown_boundary`, `test_in_process_values_must_be_explicitly_trusted` |
+| D6.9 | `CastBaseline`, `scan_cast_calls` | `test_cast_baseline_flags_new_unreasoned_casts` |
+| D6.10 | `classify_path`, `ImportGate`, `assert_source_import` | `test_source_only_gate_rejects_artifact_imports`, `test_artifact_gate_requires_declared_dependency` |
+| D6.11 | `KeelError`, `all_error_codes`, `audit_except_handlers` | `test_keel_error_hierarchy_codes_are_unique_and_structured`, `test_untrusted_state_and_unknown_outcome_stop_dependent_work`, `test_except_gate_requires_named_error_and_reason` |
+| D6.12 | `audit_docstrings`, `find_restating_comments` | `test_docstring_audit_reports_missing_args_returns_and_budget`, `test_restating_comments_are_flagged` |
+| D6.13 | `DocCoverageChecker`, `assert_docs_in_sync` | `test_doc_coverage_requires_docs_for_matching_changes` |
+| D6.15 | `SnapshotRegistry`, `assert_keyless` | `test_snapshot_registry_replays_exactly`, `test_keyless_fixtures_reject_volatile_keys_values_and_platforms` |
+| D6.16 | `validate_projection`, `SdkProjectionValidator` | `test_sdk_projection_detects_missing_mismatched_and_stale_expectations`, `test_sdk_projection_validator_registry_and_manifest` |
+| D6.19 | `VendorManifest`, `render_vendor_manifest` | `test_vendor_manifest_pins_shas_and_logs_local_patches`, `test_vendor_changes_require_manifest_update` |
+| D6.22 | `scan_markers`, `assert_release_ready` | `test_release_gate_fails_on_open_fixme` |
+| D6.24 | `TypingAudit`, `JustifiedDynamic` | `test_typing_audit_flags_untyped_public_functions` |
+| D6.25 | `GateRegistry`, `top_level_gate` | `test_gate_registry_requires_each_gate_to_reject_its_invalid_case` |
+
+The earlier classification table above was written with a non-conforming
+`Tests` column that contained counts, not test names; this table supplies the
+concrete test functions required for traceability. No ID or status was changed.

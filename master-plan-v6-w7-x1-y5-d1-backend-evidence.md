@@ -113,6 +113,19 @@ and persist atomically under the credentials dir; the programmatic helper
 `ReversibleEffectScope` unwinds effects LIFO on `unload()`; `leaked()` /
 `detect_effect_leaks()` is the acceptance leak detector.
 
+### Y3.8 — device-approval pairing flow (1)
+
+`PLAN-INDEX.json` attributes Y3.8 to this module (source
+`src/keel/w7_x1_y5_d1_backend.py`, test `tests/test_w7_x1_y5_d1_backend.py`,
+evidence this document), even though the ID prefix is Y3. The module declares
+it in the AST-visible `FEATURE_TRACEABILITY` dict; the symbols below are real
+definitions on `BrowserBoundSignIn`, and both named tests exercise the actual
+sealed-pairing behavior (client/browser binding, non-empty code, kind mismatch).
+
+| ID | Requirement realized | Symbols | Test |
+| --- | --- | --- | --- |
+| Y3.8 | Device-approval pairing: short code, approval elsewhere, bound to initiating client/browser | `BrowserBoundSignIn`, `BrowserBoundSignIn.bind_pairing`, `BrowserBoundSignIn.complete_pairing` | `test_y3_8_browser_bound_pairing`, `test_w7_7_browser_bound_signin` |
+
 ## 3. Test evidence
 
 Targeted run (from `keel/`):

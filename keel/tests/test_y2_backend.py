@@ -731,3 +731,16 @@ def test_checkin_cadence_and_cron_fire():
     trigger = cron_engine.evaluate(now=0.0)[0]
     assert trigger.due is True
     assert cron_engine.fire(trigger, now=0.0).kind is y.RoutineKind.CRON
+
+
+def test_y2_16_feature_traceability_maps_real_symbols():
+    """Y2.16 resolves to real compaction symbols exercised above."""
+    pairs = y.FEATURE_TRACEABILITY
+    assert set(pairs) == {"Y2.16"}
+    names = pairs["Y2.16"]
+    assert "plan_compaction" in names
+    for name in names:
+        obj = getattr(y, name, None)
+        assert obj is not None, name
+        assert callable(obj) or isinstance(
+            obj, (type, int, str, tuple, dict, set, frozenset)), name

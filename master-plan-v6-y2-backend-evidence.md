@@ -158,3 +158,18 @@ This module is deliberately not wired into the live runtime. To adopt it:
    fixture for the voice harness.
 7. Y2.24-Y2.25: serve `SSEStream` frames from per-user connections and register
    routines in the scheduler with `RoutineEngine.evaluate(...)`.
+
+## Per-ID traceability: ID → implementing symbols → behavioral test
+
+The compaction-knobs ID is declared in `FEATURE_TRACEABILITY` in
+`keel/src/keel/y2_backend.py` (AST-visible string key mapping to real symbols).
+This row names the concrete definitions and the concrete behavioral test
+functions in `keel/tests/test_y2_backend.py`; it is the per-ID cross-check
+consumed by `scripts/verify_backend_operation.py`.
+
+| ID | Implementing symbols (`keel.y2_backend`) | Behavioral test function |
+| --- | --- | --- |
+| Y2.16 | `DEFAULT_KEEP_LAST_USER_TURNS`, `DEFAULT_MEMORY_BUDGET_CHARS`, `CompactionConfig`, `CompactionMethod`, `plan_compaction` | `test_compaction_defaults_and_method_validation`, `test_compaction_keeps_last_n_user_turns_and_bounds_memory`, `test_compaction_idle_consolidation_and_summary_method` |
+
+All other Y2 IDs already passed the evidence gate; no registry row status was
+changed and no other module was modified.
