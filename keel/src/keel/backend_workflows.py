@@ -11,8 +11,9 @@ workflows:
                 -> replay denial / revocation -> durable audit
     delegation  parent task -> bounded child tasks -> inherited hidden
                 contexts -> real bounded child processes -> aggregation
-    mcp         manifest validation -> discovery -> permission -> real
-                invocation -> failure handling -> runtime cleanup
+    mcp         manifest validation -> discovery -> permission -> bounded
+                invocation descriptor (dry run; no caller command executed)
+                -> real failure handling -> runtime cleanup
     recovery    create state -> execute -> interrupt -> reconstruct from the
                 same state root -> verify replay and sync chain
 
@@ -24,13 +25,25 @@ calls with the same parameters are denied as replays (idempotency guard).
 
 This module is stdlib-only, performs no network I/O, and starts no paid
 service.  The only subprocesses it starts are short-lived, bound local
-``sys.executable`` jobs with fixed inline programs (used by the delegation and
-MCP workflows to execute real, bounded work).
+``sys.executable`` jobs with fixed inline programs (used by the delegation
+workflow to execute real, bounded work and by the MCP workflow to produce a
+deterministic invocation descriptor).  No caller-supplied command is ever
+executed.
+
+Security boundaries enforced here: approval possession and expiry use a
+server-held clock and a stored token digest; replay/single-use guards use an
+exclusive cross-process file lock around check-and-commit; filesystem access is
+confined to a root derived from the state root; all persisted or returned
+payloads pass through ``keel.redaction``; and results carry an ``http_status``
+hint for the web layer.
 """
 
 from __future__ import annotations
 
+import contextlib
+import errno
 import hashlib
+import hmac
 import json
 import os
 import re
@@ -42,9 +55,46 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable, Iterator, Mapping
 
+from .redaction import redact_text
+
 WORKFLOW_NAMES = ("request", "approval", "delegation", "mcp", "recovery")
 _LEDGER_DIR = "backend-workflows"
 _SLUG_RE = re.compile(r"[^A-Za-z0-9._-]+")
+
+# Security bounds.  All are deliberately independent of caller params.
+_DEFAULT_TTL_SECONDS = 300
+_MAX_TTL_SECONDS = 86400  # 24 hours
+_LOCK_TIMEOUT_SECONDS = 15.0
+_STALE_LOCK_SECONDS = 60.0
+
+# HTTP status hints for the web layer.  webapp.py owns the actual mapping; these
+# hints let it stop guessing without this module importing the web stack.
+_HTTP_STATUS_HINTS = {
+    403: frozenset({"operation_denied", "csrf_denied", "permission_denied",
+                    "revoked", "missing_token", "invalid_token"}),
+    400: frozenset({"bad_params", "bad_state_root", "bad_ttl", "bad_manifest",
+                    "manifest_invalid", "unknown_action", "path_escape",
+                    "bound_exceeded", "replay_denied", "unknown_request",
+                    "missing_request_id", "bad_project", "bad_rules",
+                    "no_allowed_tools", "lock_timeout"}),
+}
+
+
+def _http_status(code: str) -> int:
+    for status, codes in _HTTP_STATUS_HINTS.items():
+        if code in codes:
+            return status
+    return 500
+
+
+def _now() -> int:
+    """Trusted, server-held clock used by every time-sensitive check.
+
+    This is intentionally a module-level function: caller-supplied params can
+    never influence it.  Tests may monkeypatch ``backend_workflows._now`` via
+    pytest's ``monkeypatch``; there is no params/HTTP/CLI route to this seam.
+    """
+    return int(time.time())
 
 # Fixed, bounded inline programs executed by subprocesses.  They accept data
 # only through argv; no caller-supplied code is ever executed.
@@ -82,6 +132,12 @@ class WorkflowError(Exception):
 
 _PATH_LOCKS: dict[str, threading.RLock] = {}
 _PATH_LOCKS_GUARD = threading.Lock()
+_LOCAL = threading.local()
+
+# A process-local RLock is not enough: the CLI and a threaded webapp (or two
+# webapp instances sharing KEEL_STATE_DIR) can pass a check at the same instant.
+# Every check-then-commit critical section is therefore also guarded by an
+# exclusive, on-disk lock file created with O_CREAT|O_EXCL.
 
 
 def _lock_for_path(path: str | Path) -> threading.RLock:
@@ -92,6 +148,102 @@ def _lock_for_path(path: str | Path) -> threading.RLock:
             lock = threading.RLock()
             _PATH_LOCKS[key] = lock
         return lock
+
+
+def _acquire_file_lock(lock_path: Path) -> int:
+    deadline = time.monotonic() + _LOCK_TIMEOUT_SECONDS
+    while True:
+        try:
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+            break
+        except FileExistsError:
+            try:
+                age = time.time() - lock_path.stat().st_mtime
+            except OSError:
+                age = 0.0
+            if age > _STALE_LOCK_SECONDS:
+                with contextlib.suppress(OSError):
+                    lock_path.unlink()
+                continue
+            if time.monotonic() >= deadline:
+                raise WorkflowError(
+                    "lock_timeout",
+                    f"timed out acquiring workflow lock {lock_path}")
+            time.sleep(0.005)
+        except OSError as exc:
+            # Windows can report EACCES/EPERM instead of FileExistsError while
+            # another process is creating/removing the exclusive lock file.
+            # Treat transient sharing errors as contention, never as success.
+            if exc.errno in (errno.EACCES, errno.EPERM, errno.EBUSY,
+                             errno.EAGAIN, errno.EINTR):
+                if time.monotonic() >= deadline:
+                    raise WorkflowError(
+                        "lock_timeout",
+                        f"timed out acquiring workflow lock {lock_path}") from exc
+                time.sleep(0.005)
+                continue
+            raise WorkflowError(
+                "lock_error", f"cannot create workflow lock {lock_path}: {exc}")
+    try:
+        marker = f"{os.getpid()} {time.time():.6f}\n".encode("ascii")
+        os.write(fd, marker)
+        os.fsync(fd)
+    except OSError as exc:
+        with contextlib.suppress(OSError):
+            os.close(fd)
+        with contextlib.suppress(OSError):
+            lock_path.unlink()
+        raise WorkflowError("lock_error", f"cannot write workflow lock: {exc}") from exc
+    return fd
+
+
+@contextmanager
+def _locked_path(path: str | Path) -> Iterator[None]:
+    """Hold the thread lock and a cross-process file lock for *path*.
+
+    Re-entrant for the same thread/path (``_read_jsonl`` and ``_append_jsonl``
+    are called from inside an already-locked ``_execution`` block).  A timeout
+    fails closed with a typed ``lock_timeout`` error.
+    """
+    target = Path(path)
+    thread_lock = _lock_for_path(target)
+    lock_path = target.with_name(target.name + ".lock")
+    key = str(lock_path)
+    depths = getattr(_LOCAL, "depths", None)
+    if depths is None:
+        depths = _LOCAL.depths = {}
+    with thread_lock:
+        depth = int(depths.get(key, 0))
+        fd: int | None = None
+        if depth == 0:
+            lock_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            fd = _acquire_file_lock(lock_path)
+        depths[key] = depth + 1
+        try:
+            yield
+        finally:
+            depths[key] = depth
+            if fd is not None:
+                with contextlib.suppress(OSError):
+                    os.close(fd)
+                with contextlib.suppress(OSError):
+                    lock_path.unlink()
+
+
+def _redact(node: Any) -> Any:
+    """Deep-redact string values using keel.redaction's DLP vocabulary.
+
+    Secret-shaped values (API keys, inline credentials, bearer tokens, ...)
+    are replaced before anything is persisted to, or returned from, a
+    workflow.  Inputs are never mutated.
+    """
+    if isinstance(node, str):
+        return redact_text(node)[0]
+    if isinstance(node, dict):
+        return {key: _redact(value) for key, value in node.items()}
+    if isinstance(node, (list, tuple)):
+        return [_redact(value) for value in node]
+    return node
 
 
 def _canonical(value: Any) -> str:
@@ -118,7 +270,7 @@ def _state_root(params: Mapping[str, Any]) -> Path:
 
 def _ledger_dir(state_root: str | Path) -> Path:
     path = Path(state_root) / _LEDGER_DIR
-    path.mkdir(parents=True, exist_ok=True)
+    path.mkdir(parents=True, exist_ok=True, mode=0o700)
     return path
 
 
@@ -131,7 +283,7 @@ def _read_jsonl(path: str | Path) -> list[dict]:
     if not target.is_file():
         return []
     records: list[dict] = []
-    with _lock_for_path(target):
+    with _locked_path(target):
         for line in target.read_text(encoding="utf-8").splitlines():
             if not line.strip():
                 continue
@@ -146,17 +298,22 @@ def _read_jsonl(path: str | Path) -> list[dict]:
 
 def _append_jsonl(path: str | Path, record: dict) -> int:
     target = Path(path)
-    with _lock_for_path(target):
-        target.parent.mkdir(parents=True, exist_ok=True)
+    with _locked_path(target):
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         records = _read_jsonl(target)
         payload = dict(record)
         payload["sequence"] = len(records) + 1
         payload.setdefault("record_id", f"rec_{secrets.token_hex(8)}")
         payload.setdefault("at", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
-        with target.open("a", encoding="utf-8") as handle:
-            handle.write(_canonical(payload) + "\n")
+        # DLP before persistence: ledgers are sensitive artifacts.
+        safe = _redact(payload)
+        descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+        with os.fdopen(descriptor, "a", encoding="utf-8") as handle:
+            handle.write(_canonical(safe) + "\n")
             handle.flush()
             os.fsync(handle.fileno())
+        with contextlib.suppress(OSError):
+            os.chmod(target, 0o600)
         return int(payload["sequence"])
 
 
@@ -185,7 +342,7 @@ def _execution(state_root: Path, name: str,
     path = _result_path(state_root, name)
     key = _idempotency_key(name, params)
     ctx: dict = {"steps": [], "state_root": state_root, "key": key}
-    with _lock_for_path(path):
+    with _locked_path(path):
         prior = next((r for r in _read_jsonl(path)
                       if r.get("idempotency_key") == key), None)
         if prior is not None:
@@ -217,10 +374,11 @@ def _replay_response(name: str, prior: dict) -> dict:
         "error": "idempotency key was already used for this workflow",
         "idempotency_key": prior.get("idempotency_key"),
         "result": {"prior_sequence": prior.get("sequence"),
-                   "prior_code": prior.get("code")},
+                   "prior_code": prior.get("code"), "http_status": 400},
         "steps": [{"step": "replay_guard", "ok": False,
                    "error": "duplicate invocation"}],
         "persisted": None,
+        "http_status": 400,
     }
 
 
@@ -230,14 +388,14 @@ def _execute(name: str, params: Mapping[str, Any],
     if not isinstance(params, Mapping):
         return {"workflow": name, "ok": False, "code": "bad_params",
                 "error": "params must be a JSON object", "result": {},
-                "steps": [], "persisted": None}
+                "steps": [], "persisted": None, "http_status": 400}
     params = dict(params)
     try:
         state_root = _state_root(params)
     except (OSError, ValueError) as exc:
         return {"workflow": name, "ok": False, "code": "bad_state_root",
                 "error": str(exc)[:300], "result": {}, "steps": [],
-                "persisted": None}
+                "persisted": None, "http_status": 400}
     with _execution(state_root, name, params) as ctx:
         if ctx is None:
             path = _result_path(state_root, name)
@@ -265,14 +423,21 @@ def _execute(name: str, params: Mapping[str, Any],
             ctx["result"] = {"error": f"{type(exc).__name__}: {exc}"[:300]}
             ctx["ok"] = False
             ctx["code"] = code
+        code = str(ctx.get("code") or ("ok" if ctx["ok"] else "failed"))
+        status = _http_status(code)
+        if isinstance(ctx["result"], dict):
+            ctx["result"].setdefault("http_status", status)
         response = {
             "workflow": name,
             "ok": bool(ctx["ok"]),
-            "code": str(ctx.get("code") or ("ok" if ctx["ok"] else "failed")),
+            "code": code,
             "idempotency_key": ctx["key"],
-            "result": ctx["result"],
-            "steps": ctx["steps"],
+            # Redact before returning as well as before persisting: the web/CLI
+            # surfaces must never echo a secret that appeared in a tool result.
+            "result": _redact(ctx["result"]),
+            "steps": _redact(ctx["steps"]),
             "persisted": None,  # filled by the context manager on exit
+            "http_status": status,
         }
         return response
 
@@ -307,6 +472,24 @@ _DEFAULT_PROVIDER = {
 }
 
 
+def _confined_dir(root: Path, raw: Any, *, must_exist: bool = True) -> Path:
+    """Resolve *raw* and require it to stay inside the trusted *root*.
+
+    ``resolve()`` follows symlinks, so a symlink pointing outside the trusted
+    root is rejected by the same containment check as a ``..`` traversal.
+    """
+    target = Path(str(raw or "")).expanduser()
+    if not target.is_absolute():
+        target = root / target
+    resolved = target.resolve()
+    base = root.resolve()
+    if resolved != base and base not in resolved.parents:
+        raise WorkflowError("path_escape", "path escapes the trusted root")
+    if must_exist and not resolved.is_dir():
+        raise WorkflowError("not_found", f"not a directory: {resolved}")
+    return resolved
+
+
 def _confined_file(root: Path, raw: Any) -> Path:
     target = Path(str(raw or "")).expanduser()
     if not target.is_absolute():
@@ -314,7 +497,7 @@ def _confined_file(root: Path, raw: Any) -> Path:
     resolved = target.resolve()
     base = root.resolve()
     if resolved != base and base not in resolved.parents:
-        raise WorkflowError("path_escape", "tool path escapes the project root")
+        raise WorkflowError("path_escape", "tool path escapes the trusted root")
     if not resolved.is_file():
         raise WorkflowError("not_found", f"not a file: {resolved}")
     return resolved
@@ -334,11 +517,23 @@ def _request_impl(params: dict, state_root: Path, ctx: dict) -> dict:
     from .tools.registry import create_native_registry
     from .x3_memory_backend import X3Backend
 
-    # 1. session / project resolution
-    project_root = Path(str(params.get("project_root") or os.getcwd())).expanduser().resolve()
-    if not project_root.is_dir():
-        _fail(steps, "bad_project", f"project root is not a directory: {project_root}")
-    working_dir = Path(str(params.get("working_dir") or project_root)).expanduser().resolve()
+    # 1. session / project resolution.  The caller may name a subdirectory of
+    #    the trusted root but never the root itself: project_root/working_dir
+    #    are no longer free-form paths chosen by the request.
+    trusted_root = state_root.resolve()
+    try:
+        project_root = _confined_dir(
+            trusted_root,
+            params.get("project_root") if params.get("project_root") is not None
+            else trusted_root)
+        working_dir = _confined_dir(
+            project_root,
+            params.get("working_dir") if params.get("working_dir") is not None
+            else project_root)
+    except WorkflowError:
+        raise
+    _step(steps, "paths_confined", trusted_root=str(trusted_root),
+          project_root=str(project_root), working_dir=str(working_dir))
     directory = DirectoryContext(
         project_root=str(project_root), working_dir=str(working_dir),
         write_roots=(str(project_root),), process_cwd=os.getcwd())
@@ -397,17 +592,21 @@ def _request_impl(params: dict, state_root: Path, ctx: dict) -> dict:
     tool_input = {"path": str(target)}
     tools = create_native_registry(RealTools())
     try:
-        rules = (
-            parse_rules("deny", list(params.get("deny_rules") or []))[0],
-            parse_rules("ask", list(params.get("ask_rules") or []))[0],
-            parse_rules("allow", list(params.get("allow_rules") or []))[0],
-        )
+        # Caller rules may only *narrow* access.  deny rules are checked first
+        # by permissions.evaluate(); ask/allow rules from params are ignored so
+        # a saved deny can never be widened, and the mode is pinned to the
+        # server default (no caller-selected bypassPermissions).
+        deny_rules = parse_rules(
+            "deny", list(params.get("deny_rules") or []))[0]
     except Exception as exc:
         _fail(steps, "bad_rules", f"invalid permission rules: {exc}")
+    rules = (deny_rules, [], [])
+    _step(steps, "permission_rules_confined", trusted_mode="default",
+          caller_ask_rules="ignored", caller_allow_rules="ignored",
+          deny_rule_count=len(deny_rules))
     decision = evaluate_permission(
         tool_name=tool_name, tool_input=tool_input, rules=rules,
-        mode=str(params.get("permission_mode") or "default"),
-        interactive=False, tool_registry=tools)
+        mode="default", interactive=False, tool_registry=tools)
     journal.snapshot_model(model, tools.schemas(["read_file"]))
     journal.start_turn(0)
     journal.add_user(str(params.get("prompt") or query))
@@ -529,14 +728,13 @@ def _issuer_for(events: list[dict]) -> Any:
     issuer = CapabilityTokenIssuer()
     for event in events:
         if event.get("action") == "request":
-            token = event.get("token_dict") or {}
-            issuer.issue(str(token.get("subject", "")),
-                         tuple(token.get("scope", ())),
-                         int(token.get("issued_at", 0)),
-                         int(token.get("expires_at", 0)) -
-                         int(token.get("issued_at", 0)))
+            issuer.issue(str(event.get("subject", "")),
+                         (str(event.get("scope", "")),),
+                         int(event.get("issued_at", 0)),
+                         int(event.get("expires_at", 0)) -
+                         int(event.get("issued_at", 0)))
         elif event.get("action") == "revoke":
-            issuer.revoke(str(event.get("token_id", "")))
+            issuer.revoke(str(event.get("capability_id", "")))
     return issuer
 
 
@@ -566,10 +764,21 @@ def _approval_request(params: dict, state_root: Path, ctx: dict) -> dict:
               f"operation {operation!r} is not allowed by sandbox profile {profile.value}")
     _step(steps, "operation_allowed", operation=operation, profile=profile.value)
 
-    now = int(params.get("now") or time.time())
-    ttl = int(params.get("ttl_seconds") or 300)
-    if ttl <= 0:
-        _fail(steps, "bad_ttl", "ttl_seconds must be positive")
+    # Time is server-held: a caller-supplied "now" is deliberately ignored.
+    now = _now()
+    raw_ttl = params.get("ttl_seconds")
+    if raw_ttl is None:
+        ttl = _DEFAULT_TTL_SECONDS
+    elif isinstance(raw_ttl, bool):
+        _fail(steps, "bad_ttl", "ttl_seconds must be an integer")
+    else:
+        try:
+            ttl = int(raw_ttl)
+        except (TypeError, ValueError):
+            _fail(steps, "bad_ttl", "ttl_seconds must be an integer")
+    if not (1 <= ttl <= _MAX_TTL_SECONDS):
+        _fail(steps, "bad_ttl",
+              f"ttl_seconds must be between 1 and {_MAX_TTL_SECONDS}")
     request_id = str(params.get("request_id") or
                      "apr_" + ctx["key"].split(":")[-1][:16])
     subject = str(params.get("subject") or request_id)
@@ -578,11 +787,17 @@ def _approval_request(params: dict, state_root: Path, ctx: dict) -> dict:
     token = issuer.issue(subject, (scope,), now, ttl_seconds=ttl)
     sealed = seal_value(token.to_dict(), _approval_key_file(state_root),
                         ttl=ttl, now=now)
+    # sealed_digest is the possession anchor: a resolver must present the token
+    # whose SHA-256 matches.  The sealed string is retained only as audit
+    # evidence; the unsealed token_dict is never written to the ledger.
+    sealed_digest = hashlib.sha256(sealed.encode("utf-8")).hexdigest()
     _approval_record(state_root, action="request", request_id=request_id,
-                     token=sealed, token_id=token.token_id,
-                     token_dict=token.to_dict(), subject=subject,
+                     token=sealed, sealed_digest=sealed_digest,
+                     capability_id=token.token_id, subject=subject,
                      scope=scope, operation=operation, profile=profile.value,
-                     now=now, digest=_digest(token.to_dict()))
+                     issued_at=int(token.issued_at),
+                     expires_at=int(token.expires_at), now=now,
+                     digest=_digest(token.to_dict()))
     _step(steps, "approval_persisted", request_id=request_id,
           token_id=token.token_id, expires_at=token.expires_at)
     return {"request_id": request_id, "token": sealed,
@@ -596,69 +811,89 @@ def _approval_resolve(params: dict, state_root: Path, ctx: dict) -> dict:
     from .w7_x1_y5_d1_backend import unseal_value
 
     request_id = str(params.get("request_id") or "")
-    events = _approval_events(state_root, request_id)
-    requests = [e for e in events if e.get("action") == "request"]
-    if not requests:
-        _fail(steps, "unknown_request", f"no approval request {request_id!r}")
-    request = requests[-1]
-    if any(e.get("action") == "consume" for e in events):
-        _fail(steps, "replay_denied", f"approval {request_id!r} was already consumed")
-    if any(e.get("action") == "revoke" for e in events):
-        _fail(steps, "revoked", f"approval {request_id!r} was revoked")
-    now = int(params.get("now") or time.time())
-    sealed = str(params.get("token") or request.get("token") or "")
-    payload = unseal_value(sealed, _approval_key_file(state_root), now=now)
-    # seal_value() appends its own `exp`; compare only the issued token fields.
-    issued_fields = ({k: v for k, v in payload.items() if k != "exp"}
-                     if isinstance(payload, dict) else None)
-    if issued_fields is None or _digest(issued_fields) != request.get("digest"):
-        _fail(steps, "invalid_token", "approval token failed integrity verification")
-    issuer = _issuer_for(events)
-    expected = issuer.issue(
-        str(request["token_dict"]["subject"]),
-        tuple(request["token_dict"]["scope"]),
-        int(request["token_dict"]["issued_at"]),
-        int(request["token_dict"]["expires_at"]) -
-        int(request["token_dict"]["issued_at"]))
-    verdict = issuer.verify(expected, (request["scope"],), now)
-    if not verdict.allowed:
-        _fail(steps, "permission_denied", f"token verification failed: {verdict.reason}")
-    scope = str(request["scope"])
-    grant = issue_grant(scope, now, duration_seconds=max(
-        1, int(request["token_dict"]["expires_at"]) - now), just_in_time=True)
-    decision = consume_grant(grant, now)
-    if not decision.granted:
-        _fail(steps, "grant_denied", f"grant could not be consumed: {decision.reason}")
-    _approval_record(state_root, action="consume", request_id=request_id,
-                     token_id=request["token_id"], grant_id=grant.grant_id,
-                     now=now, decision=decision.to_dict(),
-                     request_digest=request.get("digest"))
-    _step(steps, "grant_consumed", grant_id=grant.grant_id,
-          reason=decision.reason, remaining_seconds=decision.remaining_seconds)
+    if not request_id.strip():
+        _fail(steps, "missing_request_id", "request_id is required")
+    supplied = params.get("token")
+    if not isinstance(supplied, str) or not supplied.strip():
+        _fail(steps, "missing_token",
+              "the caller must present the sealed approval token")
+    now = _now()  # trusted server clock; params["now"] is never consulted
+    events_path = _approval_events_path(state_root)
+    # The replay/revocation flags and the durable consume record must change in
+    # one cross-process critical section, otherwise two processes can both see
+    # "unconsumed" and spend the same single-use grant.
+    with _locked_path(events_path):
+        events = _approval_events(state_root, request_id)
+        requests = [e for e in events if e.get("action") == "request"]
+        if not requests:
+            _fail(steps, "unknown_request", f"no approval request {request_id!r}")
+        request = requests[-1]
+        if any(e.get("action") == "consume" for e in events):
+            _fail(steps, "replay_denied", f"approval {request_id!r} was already consumed")
+        if any(e.get("action") == "revoke" for e in events):
+            _fail(steps, "revoked", f"approval {request_id!r} was revoked")
+        # Possession: compare the presented token's digest with the digest
+        # recorded at issue time.  Never fall back to the stored token.
+        expected_digest = str(request.get("sealed_digest") or "")
+        supplied_digest = hashlib.sha256(supplied.encode("utf-8")).hexdigest()
+        if not expected_digest or not hmac.compare_digest(
+                supplied_digest, expected_digest):
+            _fail(steps, "invalid_token",
+                  "presented approval token does not match the issued token")
+        payload = unseal_value(supplied, _approval_key_file(state_root), now=now)
+        # seal_value() appends its own `exp`; compare only the issued token fields.
+        issued_fields = ({k: v for k, v in payload.items() if k != "exp"}
+                         if isinstance(payload, dict) else None)
+        if issued_fields is None or _digest(issued_fields) != request.get("digest"):
+            _fail(steps, "invalid_token", "approval token failed integrity verification")
+        issuer = _issuer_for(events)
+        expected = issuer.issue(
+            str(request.get("subject", "")), (str(request.get("scope", "")),),
+            int(request.get("issued_at", 0)),
+            int(request.get("expires_at", 0)) - int(request.get("issued_at", 0)))
+        verdict = issuer.verify(expected, (str(request.get("scope")),), now)
+        if not verdict.allowed:
+            _fail(steps, "permission_denied", f"token verification failed: {verdict.reason}")
+        scope = str(request.get("scope"))
+        grant = issue_grant(scope, now, duration_seconds=max(
+            1, int(request.get("expires_at", 0)) - now), just_in_time=True)
+        decision = consume_grant(grant, now)
+        if not decision.granted:
+            _fail(steps, "grant_denied", f"grant could not be consumed: {decision.reason}")
+        _approval_record(state_root, action="consume", request_id=request_id,
+                         capability_id=request.get("capability_id"),
+                         grant_id=grant.grant_id, now=now,
+                         decision=decision.to_dict(),
+                         request_digest=request.get("digest"))
+        _step(steps, "grant_consumed", grant_id=grant.grant_id,
+              reason=decision.reason, remaining_seconds=decision.remaining_seconds)
+        audit_events = len(_approval_events(state_root, request_id))
     return {"request_id": request_id, "grant": decision.to_dict(),
-            "grant_id": grant.grant_id, "token_id": request["token_id"],
-            "audit_events": len(_approval_events(state_root, request_id))}
+            "grant_id": grant.grant_id,
+            "token_id": request.get("capability_id"),
+            "audit_events": audit_events}
 
 
 def _approval_revoke(params: dict, state_root: Path, ctx: dict) -> dict:
     steps = ctx["steps"]
     request_id = str(params.get("request_id") or "")
-    events = _approval_events(state_root, request_id)
-    requests = [e for e in events if e.get("action") == "request"]
-    if not requests:
-        _fail(steps, "unknown_request", f"no approval request {request_id!r}")
-    if any(e.get("action") == "revoke" for e in events):
-        _fail(steps, "already_revoked", f"approval {request_id!r} was already revoked")
-    request = requests[-1]
-    _approval_record(state_root, action="revoke", request_id=request_id,
-                     token_id=request["token_id"],
-                     now=int(params.get("now") or time.time()),
-                     request_digest=request.get("digest"))
-    _step(steps, "approval_revoked", request_id=request_id,
-          token_id=request["token_id"])
+    with _locked_path(_approval_events_path(state_root)):
+        events = _approval_events(state_root, request_id)
+        requests = [e for e in events if e.get("action") == "request"]
+        if not requests:
+            _fail(steps, "unknown_request", f"no approval request {request_id!r}")
+        if any(e.get("action") == "revoke" for e in events):
+            _fail(steps, "already_revoked", f"approval {request_id!r} was already revoked")
+        request = requests[-1]
+        _approval_record(state_root, action="revoke", request_id=request_id,
+                         capability_id=request.get("capability_id"),
+                         now=_now(), request_digest=request.get("digest"))
+        _step(steps, "approval_revoked", request_id=request_id,
+              capability_id=request.get("capability_id"))
+        audit_events = len(_approval_events(state_root, request_id))
     return {"request_id": request_id, "revoked": True,
-            "token_id": request["token_id"], "audit_events":
-            len(_approval_events(state_root, request_id))}
+            "token_id": request.get("capability_id"),
+            "audit_events": audit_events}
 
 
 def _approval_impl(params: dict, state_root: Path, ctx: dict) -> dict:
@@ -914,7 +1149,13 @@ def _mcp_impl(params: dict, state_root: Path, ctx: dict) -> dict:
         _fail(steps, "session_id_leak", "session id was sent without opt-in")
     _step(steps, "connected", connection=connected, meta=meta.to_dict())
 
-    # 5. real bounded invocation via a short local child process
+    # 5. deterministic invocation *descriptor* via a short local child process.
+    #    There is no OS sandbox in this stdlib-only seam, so a caller-supplied
+    #    server_config.command is never executed: doing so would be arbitrary
+    #    code execution.  The fixed inline program only hashes the tool + args,
+    #    and a real subprocess failure is propagated as a real failure.  The
+    #    workflow therefore reports itself as a dry run rather than claiming an
+    #    MCP server was contacted.
     tool = str(params.get("tool") or allowed[0])
     force_failure = bool(params.get("fail") or tool == "fail")
     args = _canonical(params.get("tool_input") or {"tool": tool})
@@ -940,7 +1181,11 @@ def _mcp_impl(params: dict, state_root: Path, ctx: dict) -> dict:
                    "output_tail": lines[-5:]}
     if failure is None and invocation.get("tool") != tool:
         failure = {"reason": "wrong_tool_result", "output": invocation}
-    _step(steps, "invoked", status=status, failure=failure, output=invocation)
+    caller_command = (server_config or {}).get("command") if isinstance(
+        server_config, Mapping) else None
+    _step(steps, "invoked", status=status, failure=failure, output=invocation,
+          simulated=True, command_executed=False,
+          configured_command_present=bool(caller_command))
 
     # 6. cleanup: runtime disconnect only, config bytes unchanged
     disconnected = w4.disconnect_server(state, server)
@@ -957,13 +1202,18 @@ def _mcp_impl(params: dict, state_root: Path, ctx: dict) -> dict:
                        "omitted": list(prompt.omitted_servers)},
         "invocation": invocation, "failure": failure,
         "cleanup": disconnected, "config_digest": config_digest,
+        "dry_run": True, "command_executed": False,
     })
     _step(steps, "cleanup_verified", disconnected=disconnected,
           config_digest=config_digest_after)
-    outcome = "failure_handled" if failure is not None else "success"
+    outcome = "failure_handled" if failure is not None else "dry_run_descriptor"
     return {
-        "ok": True,
-        "code": "ok",
+        "ok": False,
+        "code": "tool_failure" if failure is not None else "dry_run",
+        "dry_run": True,
+        "command_executed": False,
+        "reason": "configured MCP command is not executed; deterministic "
+                  "descriptor only (no sandbox available)",
         "outcome": outcome, "plugin": plugin.name,
         "surfaces": list(plugin.surfaces),
         "manifest_digest": manifest_digest, "server": server,
@@ -997,8 +1247,13 @@ def _recovery_impl(params: dict, state_root: Path, ctx: dict) -> dict:
     session_root = z_backend.user_state_root(
         state_root, user=user, environ={"USERNAME": user}) / "sessions" / session_id
     session_root.mkdir(parents=True, exist_ok=True)
-    workspace = Path(str(params.get("folder") or
-                         (state_root / "workspaces" / session_id))).expanduser().resolve()
+    # The caller may only name a workspace inside the trusted state root.
+    # Resolving before mkdir rejects traversal and symlink escapes, and the
+    # validation happens before any caller-influenced file is written.
+    workspace = _confined_dir(
+        state_root.resolve(),
+        params.get("folder") if params.get("folder") is not None
+        else state_root / "workspaces" / session_id, must_exist=False)
     workspace.mkdir(parents=True, exist_ok=True)
     content = str(params.get("content") or f"recovery marker {session_id}\n")
     marker = workspace / "recovery-note.md"
@@ -1123,7 +1378,7 @@ def run_workflow(name: str, params: Mapping[str, Any]) -> dict:
     if handler is None:
         return {"workflow": str(name), "ok": False, "code": "unknown_workflow",
                 "error": f"unknown workflow {name!r}; expected one of {WORKFLOW_NAMES}",
-                "result": {}, "steps": [], "persisted": None}
+                "result": {}, "steps": [], "persisted": None, "http_status": 404}
     return handler(params)
 
 
