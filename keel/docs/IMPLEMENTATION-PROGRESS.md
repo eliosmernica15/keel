@@ -1201,3 +1201,30 @@ Shared types/API/state, UI primitives and icon set, design-token mapping, app sh
 - Only one real viewport (912×670) available; other required sizes were statically reviewed, not pixel-verified.
 - No file-level diff/apply/revert, browser preview, tool catalogue, egress-rules, retention or diagnostics-bundle routes exist in the bridge; the UI shows explicit unavailable states rather than fake controls.
 - Rendering switch (Electron/Tauri → `fleet-next`) and the public-mirror boundary remain packaging/workstream gates; legacy renderers were not repointed.
+
+
+### Continuation round — integration results
+
+- **Subagents:** Playwright E2E/viewport verification; shared-primitive accessibility; Electron/Tauri renderer audit; continuous QA. All four delivered exclusive-ownership results; no ownership conflicts occurred.
+- **Renderer audit outcome (`UI-DESKTOP-RENDERING.md`):** the packaged Electron app currently resolves `resources/site` and serves the browser-only `site/app.html` mirror, not the local UI; `keel serve` serves `desktop/ui`, Tauri uses `frontendDist: ../ui`, and `fleet-next` is not reachable from any shipped entry point. No renderer was repointed — that is a gated packaging decision (G4/G6). Added `desktop-app/scripts/assert-ui-entrypoints.js`: 21/21 source checks and 26/26 with a real unpacked Electron layout.
+- **QA found eight real defects, all fixed and re-verified:**
+  - QA-001 SSE named frames were never delivered (bridge emits `event: row`) — shared subscriber now listens for the named event and generic frames exactly once.
+  - QA-002 `shells/clear/finished` was POSTed but is a GET route — corrected.
+  - QA-003 permission mode written by Settings/Onboarding was not read by Cowork — composer now loads and persists it.
+  - QA-004 Capabilities claimed unconditional "Live bridge data" — replaced with honest copy.
+  - QA-005 Fleet showed answered questions as waiting — answered `ask_id` set is now excluded.
+  - QA-006 command palette had no focus trap / invalid listbox roles — real buttons + Tab trap.
+  - QA-007 Fleet opened two SSE connections — now one.
+  - QA-008 `keep-awake` payload key corrected to `{on: …}`.
+- **Lead fixes:** sidebar "New task" now creates a real bridge bot (verified live: bot count 7 → 8); skip link, roving tabindex + arrow keys for the surface switch, `role=tabpanel`, Escape-closable drawers, pre-paint `color-scheme`, focus-visible radius cleanup, numeric ResizeHandle ARIA values; drawers now default closed below 900 px (found by inspecting the generated 360px screenshot).
+- **Verification:** `npx tsc --noEmit` exit 0; `node tests/ui/verify-ui.mjs` → 14 pass / 0 fail / 4 skipped; `npm run build` pass; six-viewport read-only probe found 0 horizontal overflow; browser checks confirmed skip link, tabpanel, color-scheme, roving tabindex `[0,-1,-1,-1]`, no listbox, button scrim, arrow-key surface switching and 0 console errors.
+
+
+### Continuation round — final E2E verification
+
+- Added `@playwright/test@1.65.1` as a **devDependency** only; Chromium installed locally. No new runtime dependency.
+- Added `playwright.config.ts` (dev webServer on :3300, isolated `KEEL_DIST_DIR=.next-e2e`, bridge env inject) and an optional production-style config. Added seven E2E specs + fixtures covering launch/onboarding, navigation, themes, command palette and shortcuts, surface data, console-error gating, and 6 viewports × 6 destinations.
+- E2E found six more real defects, **all fixed and re-verified**: D-E2E-001 infinite command-registration loop; D-E2E-002 dev CSP blocked React Refresh (`'unsafe-eval'` now dev-only); D-E2E-004 typed palette query was erased; D-E2E-005 Code/Duet work area collapsed to 0 px at 1024×768 (drawer breakpoint moved to 1100 px); D-E2E-006 hydration mismatch from `useChecklist()` reading localStorage during first render; D-E2E-003 was a harmless Next-generated `tsconfig.json` include.
+- Final real results: `npx playwright test --workers=2` → **52 passed / 0 failed / 0 skipped**; production-config run → **52 passed / 0 failed / 0 skipped**; `npx tsc --noEmit` clean; `npm run build` pass; QA harness 14 pass / 0 fail / 4 skipped.
+- 36 required viewport × destination screenshots plus the first-run screenshot regenerated. The 360/390 captures show drawers closed with the workspace visible; 1024×768 Code/Duet show a real work area.
+- See `UI-E2E-GUIDE.md`, `UI-DEFECT-LOG.md` and `UI-DESKTOP-RENDERING.md` for full evidence, including what remains unverified (live model turn, packaged Electron/Tauri GUI, computed contrast, screen-reader walkthrough).

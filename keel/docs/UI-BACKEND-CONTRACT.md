@@ -122,7 +122,11 @@ Verified routes: `skills`, `skills/manage`, `skills/{install,remove,enable}`; `c
 
 ### 3.6 Streaming
 
-`GET /api/fleet/events` is SSE. Frames carry `seq` cursors. Use `lib/api.ts subscribeEvents`. Never re-render the whole application per frame; batch updates with rAF and append only new sequence numbers.
+`GET /api/fleet/events` is SSE. The bridge emits **named** `event: row\ndata: <row>\n\n` frames (`routes.py:1748`) plus `: ping` keep-alives. Named frames do **not** reach `EventSource.onmessage`, so `lib/api.ts subscribeEvents` registers both an `addEventListener("row", …)` listener and a generic `onmessage` handler, delivering each frame exactly once. Frames carry `seq` cursors. Never re-render the whole application per frame; batch updates with rAF and append only new sequence numbers.
+
+Two method/payload details corrected during the continuation round:
+- `shells/clear/finished` is a **GET** route (`routes.py:528`). The frontend previously POSTed and silently failed.
+- `keep-awake` reads `{"on": true|false}` (`routes.py:773`), not `{"enabled": …}`.
 
 ---
 

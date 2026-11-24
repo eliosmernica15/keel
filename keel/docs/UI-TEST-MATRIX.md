@@ -10,7 +10,11 @@ No result is marked `pass` without recorded command output.
 | TypeScript check | `npx tsc --noEmit` (in `keel/fleet-next`) | **pass** | no output, exit 0 (final run after all subagents landed) |
 | Production build | `npm run build` (in `keel/fleet-next`) | **pass** | compiled in 3.5–14 s; 5/5 static pages generated; `/` 90 kB, 193 kB First Load JS |
 | Python suite (regression guard) | `python -m pytest -q` (in `keel/`) | see progress doc | started; no Python files were changed by this workstream |
-| UI contract checks | `node tests/ui/verify-ui.mjs` | **pass (11)** / 4 skipped | `{"info":1,"pass":11,"skipped":4}`; evidence `tests/ui/results.json` |
+| UI contract checks | `node tests/ui/verify-ui.mjs` | **pass (14)** / 4 skipped | `{"info":1,"pass":14,"skipped":4}` after fixing QA-001…QA-008; evidence `tests/ui/results.json` |
+| Read-only six-viewport probe | `node tests/ui/verify-viewports.mjs` | **pass (one full run)** | 6 viewports × surfaces, 0 horizontal overflow; hardened re-runs were flaky because the dev server refused connections |
+| Desktop entry-point assertions | `node desktop-app/scripts/assert-ui-entrypoints.js [--resources …]` | **pass** | 21/21 source checks; 26/26 with a real unpacked Electron layout |
+| Playwright E2E suite (dev) | `npx playwright test --workers=2` | **pass** | 52 passed / 0 failed / 0 skipped |
+| Playwright E2E suite (production) | `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2` | **pass** | 52 passed / 0 failed / 0 skipped; full details in `UI-E2E-GUIDE.md` |
 | Live bridge GET probe | harness-invoked `probe_bridge.py` | **pass** | 11 read-only endpoints → HTTP 200 |
 | Browser walkthrough | in-app Chromium against `next start` on :3200 | **pass** | all 6 surfaces render, 0 console errors, no horizontal overflow at 912×670; theme + palette + surface persistence verified |
 
@@ -28,7 +32,7 @@ No result is marked `pass` without recorded command output.
 
 ## Viewport matrix (no horizontal overflow)
 
-Only one real viewport (912×670) was available in the in-app browser; the in-app browser has no viewport emulation and `window.resizeTo` is blocked. All other sizes were reviewed statically by Subagent F (no risky fixed widths outside `@media`; responsive drawers below 900 px). They are **not** pixel-verified.
+The in-app browser has no viewport emulation and `window.resizeTo` is blocked. Coverage now comes from (a) a real 912×670 walkthrough, (b) a read-only Playwright probe of all six required viewports (`tests/ui/verify-viewports.mjs`), and (c) Playwright screenshots at all six sizes (`tests/e2e/screenshots/`). A 360px screenshot exposed a real defect — both drawers opened over the workspace on first load — now fixed by defaulting drawers closed below 900 px.
 
 | Viewport | Cowork | Code | Duet | Fleet | Settings | Onboarding |
 |---|---|---|---|---|---|---|
@@ -59,7 +63,7 @@ Only one real viewport (912×670) was available in the in-app browser; the in-ap
 |---|---|---|
 | Live bridge round-trip (read + UI render) | pass | BFF `/api/bridge/*` → bridge HTTP 200; 7 real endpoints observed in browser network log |
 | Live model turn / streaming | blocked | no provider credentials on this host |
-| Browser E2E (full Playwright suite) | not run | Playwright is not a project dependency; manual in-app Chromium walkthrough performed instead |
+| Browser E2E (full Playwright suite) | pass | @playwright/test 1.65.1 installed as devDependency; 52/52 tests in both dev and production configs; 36 viewport × surface screenshots regenerated |
 | Electron packaged build | not in scope | packaging workstream; see `UI-ARCHITECTURE.md` G4 |
 | Tauri packaged build | not in scope | packaging workstream |
 | Public `/app` mirror | unchanged | separate surface |
