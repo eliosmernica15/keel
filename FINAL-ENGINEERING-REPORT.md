@@ -216,3 +216,37 @@ for provenance. Current authoritative certification:
 
 The gate remains a certification layer over tests and declarations; it does not claim
 native cross-platform or live-provider verification.
+
+# Backend completion delivery — GitHub push verification (2026-11-24)
+
+## Delivery
+- Repository: https://github.com/eliosmernica15/keel
+- Integration branch: `integration/backend-completion-2026-11-24`
+- Starting commit: `a64cd5dae8d760c164106be01496e2a9e6b7d530`
+- The branch was created, pushed and its remote SHA verified BEFORE implementation began.
+- Every reviewed batch was committed and pushed immediately; the remote SHA was verified with `git ls-remote origin refs/heads/integration/backend-completion-2026-11-24` after each push.
+- `main` was never modified (`origin/main` remained `ecba9d2b9678ab7a3a744c62683eea28a1ce01ee` throughout).
+- Direct branch URL: https://github.com/eliosmernica15/keel/tree/integration/backend-completion-2026-11-24
+
+## Backlog execution (all pushed)
+1. Real product workflows (`backend_workflows.py`): request, approval, delegation, MCP, recovery — exposed through webapp `POST /api/backend-workflows/<name>` and CLI `keel backend-workflow`, with durable JSONL ledgers, idempotency replay guards and permission checks.
+2. Typed contracts in the hub: canonical envelopes, `ModelId` conversion, 144 signature-derived function schemas, startup dispatch validation.
+3. Feature traceability: all 421 attributed IDs now pass the strengthened evidence gate (was 361).
+4. Remaining LOW defects: bounded ledgers, tri-state settings, AST-based offline build check, negative recording bounds, unknown removal keys, approval cross-instance write race, seal-key init race, Literal schema typing.
+5. Test quality: descriptor-only tests replaced with behavioral coverage plus mutation proofs.
+6. Inventory reconciliation: 865 authoritative registry; 228 base subset; 398 checklist contracts a separate observability inventory — not summed.
+7. Observability: hash-chained JSONL events, redaction, health snapshots, diagnostics.
+8. Typed event union (18 kinds), durable `EventBus`, `DeliveryTracker` with cross-process atomic appends and crash recovery.
+
+## Independent review
+- 2 independent reviewers, both with dedicated worktrees and no implementation ownership.
+- Review 1 (security/integration): 4 HIGH + 6 MEDIUM findings, ALL reproduced then fixed and re-verified by the same reviewer → **PASS**.
+- Review 2 (tests/accounting): 2 HIGH findings, fixed and re-verified → **PASS**.
+- All actionable LOW findings fixed or documented with rationale.
+
+## Final verification
+- Full suite under a clean local HOME (ambient MCP config from concurrent user work isolated): see `master-plan-v6-test-evidence.md` for the definitive command and result.
+- `verify_v6_audit.py`: CONSISTENCY OK (865 rows).
+- `verify_backend_operation.py --strict`: OK, 421/421 traceable, non-zero exit on any evidence failure.
+- Dependency graph FRESH; license gate OK; 8 workflow YAMLs parse; all `uses:` refs full-SHA pinned.
+- Registry unchanged: 854 verified / 9 not_started / 2 blocked; no status inflation.
