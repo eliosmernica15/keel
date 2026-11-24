@@ -642,13 +642,23 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     return
                 result = _workflows.run_workflow(name, request.get("params", {}))
                 code = str(result.get("code") or "")
-                status = HTTPStatus.OK if result.get("ok") else (
-                    HTTPStatus.BAD_REQUEST if code in {
+                hinted = result.get("http_status")
+                if result.get("ok"):
+                    status = HTTPStatus.OK
+                elif isinstance(hinted, int) and 400 <= hinted <= 599:
+                    # Workflows declare the accurate denial/status (403 for
+                    # policy/permission denials, 400 for bad input) so real
+                    # security failures are not reported as server errors.
+                    status = HTTPStatus(hinted)
+                else:
+                    status = HTTPStatus.BAD_REQUEST if code in {
                         "bad_params", "bad_state_root", "unknown_workflow",
                         "permission_denied", "replay_denied", "bound_exceeded",
                         "unsupported_tool", "path_escape", "not_found",
                         "revoked", "invalid_token", "unknown_request",
-                    } else HTTPStatus.INTERNAL_SERVER_ERROR)
+                        "bad_ttl", "invalid_token", "operation_denied",
+                        "csrf_denied", "bad_manifest",
+                    } else HTTPStatus.INTERNAL_SERVER_ERROR
                 self._send_json(result, status)
                 return
             if path in ("/api/profiles/create", "/api/profiles/activate",
