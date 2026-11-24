@@ -1975,12 +1975,25 @@ class X3Backend:
         contact = contacts.get(contact_id)
         if contact is None:
             raise X3Error(f"unknown contact: {contact_id}")
+        # Validate everything *before* mutating durable state.  ``save()`` is a
+        # JSON write; caller-supplied sets/objects must fail as a typed X3Error
+        # instead of leaking ``TypeError: ... is not JSON serializable``.
+        updates: dict[str, Any] = {}
         for key in ("name", "email", "phone", "notes", "tags"):
             if key in changes:
-                contact[key] = changes[key]
+                value = changes[key]
+                try:
+                    json.dumps(value, allow_nan=False)
+                except (TypeError, ValueError, OverflowError):
+                    raise X3Error(
+                        f"contact change {key!r} is not JSON serializable") from None
+                updates[key] = value
         if "follow_up" in changes:
-            contact["follow_up"] = (_iso(_parse_day(changes["follow_up"]))
-                                    if changes["follow_up"] else None)
+            when = changes["follow_up"]
+            if when is not None and not isinstance(when, str):
+                raise X3Error("contact follow_up must be a date string or None")
+            updates["follow_up"] = _iso(_parse_day(when)) if when else None
+        contact.update(updates)
         contact["updated"] = self.stamp()
         self.save()
         return contact

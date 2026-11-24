@@ -52,6 +52,7 @@ import fnmatch
 import hashlib
 import json
 import re
+from collections import deque
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable, Iterable, Mapping, Sequence
@@ -423,12 +424,35 @@ class CorrelationId:
                 "generation": self.generation, "value": self.value}
 
 
+#: Retired correlation IDs are kept in a bounded FIFO.  Only the most recent
+#: ``MAX_RETIRED_CORRELATION_IDS`` values remain recognisable as retired; this is
+#: a memory bound, not a security guarantee about arbitrary caller-supplied
+#: values.  Generations increase monotonically per (session, server), so
+#: ``rotate()`` never reproduces an evicted value.
+MAX_RETIRED_CORRELATION_IDS = 4096
+
+
 class CorrelationIdStore:
     """In-memory-only registry; IDs are opaque, namespaced and rotating."""
 
-    def __init__(self) -> None:
+    def __init__(self,
+                 retired_capacity: int = MAX_RETIRED_CORRELATION_IDS) -> None:
+        if (isinstance(retired_capacity, bool)
+                or not isinstance(retired_capacity, int)
+                or retired_capacity < 1):
+            raise ContractValidationError("retired_capacity must be a positive integer")
+        self._retired_capacity = retired_capacity
         self._current: dict[tuple[str, str], CorrelationId] = {}
+        self._retired_order: deque[str] = deque(maxlen=retired_capacity)
         self._retired: set[str] = set()
+
+    def _retire(self, value: str) -> None:
+        if value in self._retired:
+            return
+        if len(self._retired_order) >= self._retired_capacity:
+            self._retired.discard(self._retired_order.popleft())
+        self._retired_order.append(value)
+        self._retired.add(value)
 
     def rotate(self, session: str, server: str, token: str) -> CorrelationId:
         sess = _as_str(session, "session")
@@ -438,7 +462,7 @@ class CorrelationIdStore:
         generation = (self._current[key].generation + 1) if key in self._current else 1
         previous = self._current.get(key)
         if previous is not None:
-            self._retired.add(previous.value)
+            self._retire(previous.value)
         value = content_hash([sess, srv, generation, tok])
         cid = CorrelationId(sess, srv, generation, value)
         self._current[key] = cid
@@ -462,7 +486,8 @@ class CorrelationIdStore:
 
     def snapshot(self) -> dict[str, Any]:
         return {"current": [c.to_dict() for _, c in sorted(self._current.items())],
-                "retired_count": len(self._retired)}
+                "retired_count": len(self._retired),
+                "retired_capacity": self._retired_capacity}
 
 
 def build_mcp_meta(store: CorrelationIdStore, session: str, server: str,

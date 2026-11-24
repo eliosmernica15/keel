@@ -32,6 +32,7 @@ executes; it never claims an external side effect that did not happen.
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import math
@@ -1407,23 +1408,226 @@ def inspector_build_plan(spec: InspectorBuildSpec) -> dict:
     }
 
 
+# Conservative text patterns retained for non-Python build recipes (shell, JS,
+# JSON, ...).  Python sources are additionally analysed with ``ast`` below.
 _NETWORK_BUILD_PATTERNS = (
     re.compile(r"https?://"),
     re.compile(r"\b(?:curl|wget)\b"),
     re.compile(r"\bfetch\s*\("),
+    re.compile(r"\burlopen\s*\("),
+    re.compile(r"\burlretrieve\s*\("),
+    re.compile(r"\bcreate_connection\s*\("),
+    re.compile(r"\b(?:import|from)\s+"
+               r"(?:socket|urllib|requests|http|httpx|aiohttp|ftplib|smtplib)\b"),
+)
+
+# Roots of modules whose import alone gives a build step network reach.
+_NETWORK_MODULE_ROOTS = frozenset({
+    "socket", "ssl", "urllib", "http", "httplib", "requests", "httpx",
+    "aiohttp", "ftplib", "smtplib", "imaplib", "poplib", "nntplib",
+    "telnetlib", "xmlrpc", "websocket", "websockets", "grpc", "paramiko",
+})
+
+# High-signal call targets detected even without a statically resolved import.
+_NETWORK_CALLS = frozenset({
+    "urlopen", "urlretrieve", "create_connection", "socket.socket",
+    "fetch", "download", "sendmail", "requests.get", "requests.post",
+    "requests.request", "urllib.request.urlopen",
+})
+
+_PYTHON_SUFFIXES = (".py", ".pyw", ".pyi")
+
+_OFFLINE_SCAN_LIMITS = (
+    "Static analysis only: no build is executed and no runtime sandbox is used.",
+    "Python sources (.py/.pyw/.pyi) are parsed with ast; unparseable Python fails closed.",
+    "Other languages are checked with conservative text patterns (network only); "
+    "file-write detection applies to Python sources.",
+    "Dynamic code (eval/exec), non-literal imports and indirect calls are flagged "
+    "when statically resolvable; fully opaque runtime behaviour cannot be proven absent.",
+    "A clean report is a best-effort static check, not proof of offline execution.",
 )
 
 
+def _static_string(node: ast.AST) -> str | None:
+    """Resolve literal strings, concatenations, joins and constant f-strings."""
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        left, right = _static_string(node.left), _static_string(node.right)
+        if left is not None and right is not None:
+            return left + right
+    if isinstance(node, ast.JoinedStr):
+        parts = [_static_string(value) for value in node.values]
+        if all(part is not None for part in parts):
+            return "".join(parts)
+    if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "join" and node.args):
+        items = node.args[0]
+        if isinstance(items, (ast.List, ast.Tuple)):
+            separator = _static_string(node.func.value)
+            parts = [_static_string(element) for element in items.elts]
+            if separator is not None and all(part is not None for part in parts):
+                return separator.join(parts)
+    return None
+
+
+def _dynamic_import_target(call: ast.Call) -> str | None:
+    """Return the literal module name of a dynamic import, if resolvable."""
+    if call.args:
+        if isinstance(call.func, ast.Name) and call.func.id == "__import__":
+            return _static_string(call.args[0])
+        if (isinstance(call.func, ast.Attribute)
+                and call.func.attr == "import_module"):
+            return _static_string(call.args[0])
+    return None
+
+
+def _static_dotted(node: ast.AST, bindings: Mapping[str, str]) -> str | None:
+    """Resolve a Name/Attribute/getattr chain to a dotted name where possible."""
+    if isinstance(node, ast.Name):
+        return bindings.get(node.id, node.id)
+    if isinstance(node, ast.Attribute):
+        base = _static_dotted(node.value, bindings)
+        return None if base is None else f"{base}.{node.attr}"
+    if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+            and node.func.id == "getattr" and len(node.args) >= 2):
+        base = _static_dotted(node.args[0], bindings)
+        attribute = _static_string(node.args[1])
+        if base is not None and attribute is not None:
+            return f"{base}.{attribute}"
+    return None
+
+
+def _call_leaf(call: ast.Call) -> str:
+    if isinstance(call.func, ast.Name):
+        return call.func.id
+    if isinstance(call.func, ast.Attribute):
+        return call.func.attr
+    return ""
+
+
+def _file_write_mode(call: ast.Call) -> bool:
+    for argument in call.args[1:2]:
+        mode = _static_string(argument)
+        if mode and any(flag in mode for flag in "wax+"):
+            return True
+    for keyword in call.keywords:
+        if keyword.arg == "mode":
+            mode = _static_string(keyword.value)
+            if mode and any(flag in mode for flag in "wax+"):
+                return True
+    return False
+
+
+def _is_file_write_call(call: ast.Call, bindings: Mapping[str, str]) -> bool:
+    dotted = _static_dotted(call.func, bindings) or ""
+    leaf = _call_leaf(call)
+    if leaf in ("write_text", "write_bytes", "write_file"):
+        return True
+    if leaf == "open" and _file_write_mode(call):
+        return True
+    if dotted == "os.open":
+        for argument in call.args[1:]:
+            flags = _static_dotted(argument, bindings) or _static_string(argument) or ""
+            if re.search(r"O_(?:WRONLY|RDWR|APPEND|CREAT|TRUNC)", flags):
+                return True
+    return dotted in {
+        "os.write", "os.replace", "os.rename", "shutil.copy",
+        "shutil.copyfile", "shutil.copy2", "shutil.move",
+    }
+
+
+def _python_violations(text: str, name: str) -> list[str]:
+    """AST-based static scan; syntax errors and opaque code fail closed."""
+    try:
+        tree = ast.parse(text, filename=name)
+    except (SyntaxError, ValueError, TypeError, RecursionError, MemoryError) as exc:
+        return ["unparseable_python:%s" % type(exc).__name__]
+
+    bindings: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.asname:
+                    bindings[alias.asname] = alias.name
+                else:
+                    # ``import urllib.request`` binds the root name ``urllib``;
+                    # the full path is recovered attribute by attribute.
+                    root = alias.name.split(".")[0]
+                    bindings[root] = root
+        elif isinstance(node, ast.ImportFrom):
+            base = node.module or ""
+            for alias in node.names:
+                dotted = f"{base}.{alias.name}" if base else alias.name
+                bindings[alias.asname or alias.name] = dotted
+        elif isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
+            target = _dynamic_import_target(node.value)
+            if target is not None:
+                for item in node.targets:
+                    if isinstance(item, ast.Name):
+                        bindings[item.id] = target
+
+    reasons: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name.split(".")[0] in _NETWORK_MODULE_ROOTS:
+                    reasons.append("network_import:%s" % alias.name)
+        elif isinstance(node, ast.ImportFrom):
+            base = node.module or ""
+            for alias in node.names:
+                dotted = f"{base}.{alias.name}" if base else alias.name
+                if dotted.split(".")[0] in _NETWORK_MODULE_ROOTS:
+                    reasons.append("network_import:%s" % dotted)
+        elif isinstance(node, ast.Call):
+            target = _dynamic_import_target(node)
+            if target is not None and target.split(".")[0] in _NETWORK_MODULE_ROOTS:
+                reasons.append("dynamic_network_import:%s" % target)
+            dotted = _static_dotted(node.func, bindings)
+            if dotted is not None:
+                if dotted.split(".")[0] in _NETWORK_MODULE_ROOTS or dotted in _NETWORK_CALLS:
+                    reasons.append("network_call:%s" % dotted)
+            if _is_file_write_call(node, bindings):
+                reasons.append("file_write:%s" % (_call_leaf(call=node) or "call"))
+            if isinstance(node.func, ast.Name) and node.func.id in ("eval", "exec"):
+                reasons.append("dynamic_code:%s" % node.func.id)
+        elif (isinstance(node, ast.Constant) and isinstance(node.value, str)
+              and ("http://" in node.value or "https://" in node.value)):
+            reasons.append("network_url_literal")
+    return list(dict.fromkeys(reasons))
+
+
 def check_offline_build(sources: Mapping[str, str]) -> dict:
-    """Pure source-text check: no build step may fetch from the network."""
+    """Statically check build sources for network reach and file writes.
+
+    This is a *source-text* check, not a build and not a runtime sandbox: it
+    parses Python sources with :mod:`ast` and applies conservative text
+    patterns to every source.  ``clean=True`` means only that no forbidden
+    construct was found.  See ``limits`` for what cannot be proven.
+    """
+    if not isinstance(sources, Mapping):
+        raise InspectorError("sources must be a mapping of name to source text")
     violations: list[str] = []
-    for name, text in sorted(sources.items()):
-        if any(pattern.search(str(text)) for pattern in _NETWORK_BUILD_PATTERNS):
+    reasons: dict[str, list[str]] = {}
+    checked: list[str] = []
+    for raw_name, raw_text in sorted(sources.items(), key=lambda item: str(item[0])):
+        name = str(raw_name)
+        checked.append(name)
+        if not isinstance(raw_text, str):
+            raise InspectorError("source %r must be text" % name)
+        found = ["text_pattern:%s" % pattern.pattern
+                 for pattern in _NETWORK_BUILD_PATTERNS
+                 if pattern.search(raw_text)]
+        if name.lower().endswith(_PYTHON_SUFFIXES):
+            found.extend(_python_violations(raw_text, name))
+        if found:
             violations.append(name)
+            reasons[name] = list(dict.fromkeys(found))
     return {
-        "feature_id": "D3.22", "checked": sorted(sources),
-        "violations": violations, "clean": not violations,
-        "network": False, "io_performed": False,
+        "feature_id": "D3.22", "checked": checked,
+        "violations": violations, "reasons": reasons,
+        "clean": not violations, "network": False, "io_performed": False,
+        "method": "ast+text", "limits": _OFFLINE_SCAN_LIMITS,
     }
 
 

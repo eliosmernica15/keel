@@ -636,6 +636,24 @@ class TestZ11HealthBoard(unittest.TestCase):
             "slack.token": "x", "slack.connecting": True}, now=1)
         self.assertEqual(connecting["status"], zb.STATUS_CONNECTING)
 
+    def test_explicit_false_and_zero_are_not_present_settings(self):
+        """A disabled flag is distinguishable from an absent one (Z11 audit)."""
+        integration = zb.Integration("flag", "connector", ("flag.enabled",))
+        disabled = zb.probe(integration, {"flag.enabled": False}, now=1)
+        self.assertEqual(disabled["status"], zb.STATUS_DORMANT)
+        self.assertEqual(disabled["missing_settings"], [])
+        self.assertEqual(disabled["disabled_settings"], ["flag.enabled"])
+        zero = zb.probe(integration, {"flag.enabled": 0}, now=1)
+        self.assertEqual(zero["status"], zb.STATUS_DORMANT)
+        self.assertEqual(zero["disabled_settings"], ["flag.enabled"])
+        absent = zb.probe(integration, {}, now=1)
+        self.assertEqual(absent["status"], zb.STATUS_DORMANT)
+        self.assertEqual(absent["missing_settings"], ["flag.enabled"])
+        self.assertEqual(absent["disabled_settings"], [])
+        self.assertFalse(zb._setting_present(False))
+        self.assertFalse(zb._setting_present(0))
+        self.assertTrue(zb._setting_present("x"))
+
     def test_board_summary_and_ordering(self):
         settings = {"slack.token": "x", "cal.token": "y", "mcp.fs.path": "/tmp"}
         board = zb.health_board(self.integrations, settings, now=1000)
