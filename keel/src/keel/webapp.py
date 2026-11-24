@@ -623,6 +623,34 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                         {"error": str(exc), "code": exc.code},
                         HTTPStatus(status))
                 return
+            # ---------------- Real backend product workflows
+            # Same token/origin gate as every other POST (checked above) plus
+            # the same strict boolean confirm requirement as capability invoke.
+            if path.startswith("/api/backend-workflows/"):
+                name = path[len("/api/backend-workflows/"):].strip("/")
+                request = self._json_body(256_000, too_large="params too large")
+                if request is None:
+                    return
+                if request.get("confirm") is not True:
+                    self._send_json({"error": "confirmation_required",
+                                     "workflow": name}, HTTPStatus.CONFLICT)
+                    return
+                from . import backend_workflows as _workflows
+                if name not in _workflows.WORKFLOWS:
+                    self._send_json({"error": "unknown_workflow", "workflow": name},
+                                    HTTPStatus.NOT_FOUND)
+                    return
+                result = _workflows.run_workflow(name, request.get("params", {}))
+                code = str(result.get("code") or "")
+                status = HTTPStatus.OK if result.get("ok") else (
+                    HTTPStatus.BAD_REQUEST if code in {
+                        "bad_params", "bad_state_root", "unknown_workflow",
+                        "permission_denied", "replay_denied", "bound_exceeded",
+                        "unsupported_tool", "path_escape", "not_found",
+                        "revoked", "invalid_token", "unknown_request",
+                    } else HTTPStatus.INTERNAL_SERVER_ERROR)
+                self._send_json(result, status)
+                return
             if path in ("/api/profiles/create", "/api/profiles/activate",
                         "/api/profiles/remove"):
                 request = self._json_body(2_000_000)

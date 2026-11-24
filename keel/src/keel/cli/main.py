@@ -17,6 +17,8 @@ _TOP_LEVEL_USAGE = (
     "  keel -p \"prompt\" | \"prompt\"       run one prompt (print mode)\n"
     "  keel init [--force]                  generate AGENTS.md\n"
     "  keel capability list|describe|invoke local capability hub\n"
+    "  keel backend-workflow <name> --params JSON [--confirm]\n"
+    "                                       run an integrated backend workflow\n"
     "  keel tui                             interactive terminal UI\n"
     "  keel serve | web | fleet [--port N]  local loopback web UI\n"
     "  keel provider list|validate|smoke    provider registry and checks\n"
@@ -80,6 +82,8 @@ def main(argv: list[str] | None = None) -> int:
         return _session_cmd(argv[1:])
     if argv and argv[0] == "capability":
         return _capability_cmd(argv[1:])
+    if argv and argv[0] == "backend-workflow":
+        return _backend_workflow_cmd(argv[1:])
     if argv and argv[0] == "tui":
         from ..tui import Tui
 
@@ -305,6 +309,34 @@ def _capability_cmd(argv: list[str]) -> int:
         return 0
     sys.stderr.write(usage)
     return 1
+
+
+def _backend_workflow_cmd(argv: list[str]) -> int:
+    from .. import backend_workflows
+
+    usage = ("usage: keel backend-workflow <name> --params JSON [--confirm]\n"
+             "  names: " + ", ".join(backend_workflows.WORKFLOW_NAMES) + "\n"
+             "  every workflow mutates durable state and requires --confirm\n")
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        sys.stderr.write(usage)
+        return 0
+    name = argv[0]
+    params: dict = {}
+    if "--params" in argv and argv.index("--params") + 1 < len(argv):
+        try:
+            params = json.loads(argv[argv.index("--params") + 1])
+        except json.JSONDecodeError:
+            sys.stderr.write("--params must be valid JSON\n")
+            return 1
+        if not isinstance(params, dict):
+            sys.stderr.write("--params must be a JSON object\n")
+            return 1
+    if "--confirm" not in argv:
+        sys.stderr.write(f"{name} requires --confirm (workflow writes durable state)\n")
+        return 1
+    result = backend_workflows.run_workflow(name, params)
+    sys.stdout.write(json.dumps(result, indent=2, default=str) + "\n")
+    return 0 if result.get("ok") else 1
 
 
 def _webhook_cmd(argv: list[str]) -> int:
