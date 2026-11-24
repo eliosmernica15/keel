@@ -1269,8 +1269,27 @@ class Integration:
                 "display_name": self.display_name or self.id}
 
 
+# A required setting is classified into three distinct states: absent (the key
+# was never configured), disabled (the key is configured but explicitly turned
+# off with ``False``/``0``) and present (a usable value).  Collapsing the first
+# two into "missing", or treating the second as present, made a disabled
+# required flag look like a healthy integration on the health board (Z11 audit).
+SETTING_ABSENT = "absent"
+SETTING_DISABLED = "disabled"
+SETTING_PRESENT = "present"
+
+
+def _setting_state(value: Any) -> str:
+    if value is None or value == "" or value == [] or value == {}:
+        return SETTING_ABSENT
+    if value is False or value == 0:
+        return SETTING_DISABLED
+    return SETTING_PRESENT
+
+
 def _setting_present(value: Any) -> bool:
-    return value is not None and value != "" and value != [] and value != {}
+    """True only for a usable value; ``False``/``0`` are explicitly disabled."""
+    return _setting_state(value) == SETTING_PRESENT
 
 
 def probe(integration: Integration, settings: Mapping[str, Any], *,
@@ -1279,9 +1298,15 @@ def probe(integration: Integration, settings: Mapping[str, Any], *,
     if integration.kind not in ("connector", "channel", "mcp_server"):
         raise ValueError(f"unknown integration kind: {integration.kind}")
     _require_dict(settings, "settings")
-    missing = [key for key in integration.required_settings
-               if not _setting_present(settings.get(key))]
-    if missing:
+    missing: list[str] = []
+    disabled: list[str] = []
+    for key in integration.required_settings:
+        state = _setting_state(settings.get(key))
+        if state == SETTING_ABSENT:
+            missing.append(key)
+        elif state == SETTING_DISABLED:
+            disabled.append(key)
+    if missing or disabled:
         status = STATUS_ERROR if settings.get(f"{integration.id}.last_error") \
             else STATUS_DORMANT
         last_probe = None
@@ -1295,7 +1320,8 @@ def probe(integration: Integration, settings: Mapping[str, Any], *,
         status = STATUS_ACTIVE
         last_probe = time.time() if now is None else _require_number(now, "now")
     return {"id": integration.id, "kind": integration.kind, "status": status,
-            "missing_settings": missing, "last_probe": last_probe,
+            "missing_settings": missing, "disabled_settings": disabled,
+            "last_probe": last_probe,
             "display_name": integration.display_name or integration.id}
 
 

@@ -523,20 +523,50 @@ class TickReport:
         return {"outcomes": [o.to_dict() for o in self.outcomes]}
 
 
-class IdempotencyLedger:
-    """In-memory key ledger; real persistence belongs behind a storage seam."""
+#: Upper bound on retained idempotency keys.  Dedup is guaranteed only for the
+#: most recent ``capacity`` claims; older keys are intentionally forgotten so a
+#: long-lived scheduler cannot grow without bound.  Real persistence belongs
+#: behind a storage seam.
+DEFAULT_IDEMPOTENCY_CAPACITY = 4096
 
-    def __init__(self) -> None:
-        self._seen: set[str] = set()
+
+class IdempotencyLedger:
+    """Thread-safe key ledger with bounded FIFO retention.
+
+    ``capacity`` must be a positive integer; anything else raises
+    :class:`SchedulerError`.  Once full, claiming a new key evicts the oldest
+    retained key, so the ledger holds at most ``capacity`` keys at any time.
+    """
+
+    def __init__(self, capacity: int = DEFAULT_IDEMPOTENCY_CAPACITY) -> None:
+        if isinstance(capacity, bool) or not isinstance(capacity, int) or capacity < 1:
+            raise SchedulerError("idempotency capacity must be a positive integer")
+        self._capacity = capacity
+        self._seen: dict[str, None] = {}  # insertion-ordered FIFO
+        self._lock = threading.Lock()
+
+    @property
+    def capacity(self) -> int:
+        return self._capacity
+
+    def __len__(self) -> int:
+        with self._lock:
+            return len(self._seen)
 
     def claim(self, key: str) -> bool:
-        if key in self._seen:
-            return False
-        self._seen.add(key)
-        return True
+        if not isinstance(key, str) or not key:
+            raise SchedulerError("idempotency key must be a non-empty string")
+        with self._lock:
+            if key in self._seen:
+                return False
+            if len(self._seen) >= self._capacity:
+                self._seen.pop(next(iter(self._seen)))
+            self._seen[key] = None
+            return True
 
     def snapshot(self) -> tuple[str, ...]:
-        return tuple(sorted(self._seen))
+        with self._lock:
+            return tuple(sorted(self._seen))
 
 
 class TickGuard:
@@ -597,7 +627,10 @@ def tick(work: DueWork, *, now: str,
          guard: TickGuard | None = None) -> TickReport:
     """Run all seven tick duties once for ``now``; repeated keys are no-ops."""
     now = _tick_stamp(now)
-    ledger = ledger or IdempotencyLedger()
+    # An empty ledger is falsy once it implements __len__; identity, not truth
+    # value, decides whether the caller supplied one.
+    if ledger is None:
+        ledger = IdempotencyLedger()
     outcomes: list[TickOutcome] = []
 
     def _run() -> None:

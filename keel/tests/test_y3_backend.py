@@ -245,6 +245,31 @@ def test_y3_7_repeated_tick_deduplicates_and_guard_blocks_overlap():
     assert y3.tick(_work(), now=stamp, guard=guard).outcomes
 
 
+def test_y3_7_idempotency_ledger_is_bounded_and_typed():
+    """The ledger cannot grow without bound; its cap and errors are explicit."""
+    ledger = y3.IdempotencyLedger(capacity=2)
+    assert ledger.claim("a") is True
+    assert ledger.claim("b") is True
+    assert ledger.claim("a") is False          # still remembered
+    assert ledger.claim("c") is True            # evicts the oldest key
+    assert ledger.claim("a") is True            # evicted keys can be reclaimed
+    assert tuple(sorted(ledger.snapshot())) == ("a", "c")
+    assert ledger.capacity == 2
+
+    with pytest.raises(y3.SchedulerError):
+        y3.IdempotencyLedger(capacity=0)
+    with pytest.raises(y3.SchedulerError):
+        y3.IdempotencyLedger(capacity="2")
+    with pytest.raises(y3.SchedulerError):
+        ledger.claim("")
+
+    default = y3.IdempotencyLedger()
+    assert default.capacity == y3.DEFAULT_IDEMPOTENCY_CAPACITY
+    for i in range(y3.DEFAULT_IDEMPOTENCY_CAPACITY + 25):
+        assert default.claim("k%d" % i) is True
+    assert len(default.snapshot()) == y3.DEFAULT_IDEMPOTENCY_CAPACITY
+
+
 def test_y3_7_tick_guard_serializes_concurrent_acquire():
     guard = y3.TickGuard()
     guard.acquire()  # this thread is inside a tick

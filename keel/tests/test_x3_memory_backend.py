@@ -358,6 +358,18 @@ def test_x313_crm_followups_and_vault_sanitization(tmp_path, backend):
     assert "\\---" in text and "Ada" in text
 
 
+def test_x313_update_contact_rejects_non_serializable_changes(backend):
+    contact = backend.add_contact("Ada", email="ada@example.test")
+    with pytest.raises(X3Error, match="serializable"):
+        backend.update_contact(contact["id"], tags={1, 2})
+    assert backend.list_contacts()[0]["tags"] == []   # durable state untouched
+    with pytest.raises(X3Error, match="serializable"):
+        backend.update_contact(contact["id"], notes=object())
+    assert backend.list_contacts()[0]["notes"] == ""  # durable state untouched
+    updated = backend.update_contact(contact["id"], tags=["friend"], notes="ok")
+    assert updated["tags"] == ["friend"] and updated["notes"] == "ok"
+
+
 # --- X3.14 finance CSV -------------------------------------------------------
 
 def test_x314_finance_csv_import_categorize_and_reject_network(backend):

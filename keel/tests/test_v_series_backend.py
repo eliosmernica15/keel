@@ -207,6 +207,22 @@ class TestV6CorrelationIds(unittest.TestCase):
         self.assertFalse(store.is_retired(b1.value))
         self.assertEqual(len(json.dumps(store.snapshot())), len(json.dumps(store.snapshot())))
 
+    def test_retired_ids_are_bounded_and_fail_closed(self):
+        store = v.CorrelationIdStore(retired_capacity=4)
+        values = [store.rotate("s", "srv", "tok%d" % i).value for i in range(12)]
+        snap = store.snapshot()
+        self.assertEqual(snap["retired_count"], 4)
+        self.assertEqual(snap["retired_capacity"], 4)
+        for value in values[-5:-1]:
+            self.assertTrue(store.is_retired(value))
+        self.assertFalse(store.is_retired(values[0]))   # oldest was evicted
+        self.assertFalse(store.is_retired(values[-1]))  # current is never retired
+        default = v.CorrelationIdStore()
+        self.assertEqual(default.snapshot()["retired_capacity"],
+                         v.MAX_RETIRED_CORRELATION_IDS)
+        with self.assertRaises(v.ContractValidationError):
+            v.CorrelationIdStore(retired_capacity=0)
+
     def test_meta_only_for_advertising_servers_never_session_id(self):
         store = v.CorrelationIdStore()
         self.assertEqual(v.build_mcp_meta(store, "s1", "srv", False), {})
