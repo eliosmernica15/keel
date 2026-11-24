@@ -674,7 +674,10 @@ function normalizeStatus(value: unknown): StatusRow[] {
   }
   if (typeof value === "string") {
     for (const line of value.split(/\r?\n/)) {
-      const m = line.match(/^(\S{1,2})\s+(.+)$/);
+      // `git status --porcelain` uses a two-column XY code. A worktree-only
+      // modification is " M path" (leading space) and an index-only change is
+      // "M  path"; both must be captured. Renames carry "old -> new".
+      const m = line.match(/^([ \t]?[A-Za-z?!][A-Za-z?!]?)[ \t]+(.+)$/);
       if (!m) continue;
       out.push({ path: m[2].trim(), state: m[1].trim() });
     }

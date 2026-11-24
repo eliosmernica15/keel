@@ -46,7 +46,18 @@ export default function Code() {
 
   const [explorerWidth, setExplorerWidth] = useState(() => storedNumber("keel-code:explorer-width", 264, 220, 440));
   const [rightWidth, setRightWidth] = useState(() => storedNumber("keel-code:right-width", 352, 280, 560));
-  const [rightTab, setRightTab] = useState<RightTab>("review");
+  // Hydrate in the lazy initialiser. Previously the write effect ran before
+  // the read effect on mount and overwrote a saved panel choice with "review".
+  const [rightTab, setRightTab] = useState<RightTab>(() => {
+    try {
+      const raw = localStorage.getItem("keel-code:right-tab");
+      if (raw) {
+        const value = JSON.parse(raw) as RightTab;
+        if (RIGHT_TABS.some((t) => t.value === value)) return value;
+      }
+    } catch { /* ignore malformed local state */ }
+    return "review";
+  });
   const [tabs, setTabs] = useState<OpenTab[]>([]);
   const [activePath, setActivePath] = useState<string | null>(null);
   const [hydratedFor, setHydratedFor] = useState<string | null>(null);
@@ -72,17 +83,24 @@ export default function Code() {
   useEffect(() => { try { localStorage.setItem("keel-code:right-width", JSON.stringify(rightWidth)); } catch {} }, [rightWidth]);
   useEffect(() => { try { localStorage.setItem("keel-code:right-tab", JSON.stringify(rightTab)); } catch {} }, [rightTab]);
 
-  // Hydrate file tabs only for the project they belong to; never show stale paths.
+  // Hydrate file tabs and pane geometry only for the project they belong to;
+  // never show stale paths or another project's layout.
   useEffect(() => {
     let paths: string[] = [];
     let active: string | null = null;
     try {
       const raw = localStorage.getItem("keel-code:tabs");
       if (raw) {
-        const saved = JSON.parse(raw) as { projectId?: string; paths?: unknown; active?: unknown };
+        const saved = JSON.parse(raw) as {
+          projectId?: string; paths?: unknown; active?: unknown;
+          explorerWidth?: unknown; rightWidth?: unknown; rightTab?: unknown;
+        };
         if (saved.projectId === selectedId) {
           paths = Array.isArray(saved.paths) ? saved.paths.filter((p): p is string => typeof p === "string") : [];
           active = typeof saved.active === "string" ? saved.active : paths[0] ?? null;
+          if (typeof saved.explorerWidth === "number") setExplorerWidth(clamp(saved.explorerWidth, 220, 440));
+          if (typeof saved.rightWidth === "number") setRightWidth(clamp(saved.rightWidth, 280, 560));
+          if (RIGHT_TABS.some((t) => t.value === saved.rightTab)) setRightTab(saved.rightTab as RightTab);
         }
       }
     } catch { /* ignore malformed local state */ }
@@ -94,19 +112,14 @@ export default function Code() {
   useEffect(() => {
     if (hydratedFor !== selectedId || !selectedId) return;
     try {
-      localStorage.setItem("keel-code:tabs", JSON.stringify({ projectId: selectedId, paths: tabs.map((t) => t.path), active: activePath }));
+      localStorage.setItem("keel-code:tabs", JSON.stringify({
+        projectId: selectedId,
+        paths: tabs.map((t) => t.path),
+        active: activePath,
+        explorerWidth, rightWidth, rightTab,
+      }));
     } catch { /* ignore */ }
-  }, [hydratedFor, selectedId, tabs, activePath]);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("keel-code:right-tab");
-      if (raw) {
-        const value = JSON.parse(raw) as RightTab;
-        if (RIGHT_TABS.some((t) => t.value === value)) setRightTab(value);
-      }
-    } catch { /* ignore */ }
-  }, []);
+  }, [hydratedFor, selectedId, tabs, activePath, explorerWidth, rightWidth, rightTab]);
 
   /* ---- actions ----------------------------------------------------- */
   const selectProject = useCallback((id: string | null) => {
@@ -126,12 +139,12 @@ export default function Code() {
   }, []);
 
   const closeTab = useCallback((path: string) => {
-    setTabs((prev) => {
-      const next = prev.filter((t) => t.path !== path);
-      setActivePath((current) => current === path ? (next[next.length - 1]?.path ?? null) : current);
-      return next;
-    });
-  }, []);
+    if (tabs.find((t) => t.path === path)?.dirty &&
+        !window.confirm("This file has unsaved edits. Close it and discard them?")) return;
+    const next = tabs.filter((t) => t.path !== path);
+    setTabs(next);
+    if (activePath === path) setActivePath(next[next.length - 1]?.path ?? null);
+  }, [tabs, activePath]);
 
   const setDirty = useCallback((path: string, dirty: boolean) => {
     setTabs((prev) => prev.map((t) => t.path === path ? { ...t, dirty } : t));
@@ -361,12 +374,20 @@ export default function Code() {
                   action={<Button variant="primary" onClick={() => setQuickOpen(true)}><Icon name="search" size={15} /> Quick open</Button>}
                 />
               ) : (
-                <FileView
-                  key={`${selectedId}:${activePath}`}
-                  projectId={selectedId as string}
-                  path={activeTab.path}
-                  onDirtyChange={(dirty) => setDirty(activeTab.path, dirty)}
-                />
+                // Keep every open file mounted so an unsaved buffer and its
+                // change indicator survive a tab switch. Only the active pane
+                // is visible; no file contents are persisted in localStorage.
+                <div className={s.fileStack}>
+                  {tabs.map((tab) => (
+                    <div key={`${selectedId}:${tab.path}`} className={s.filePane} hidden={tab.path !== activePath}>
+                      <FileView
+                        projectId={selectedId as string}
+                        path={tab.path}
+                        onDirtyChange={(dirty) => setDirty(tab.path, dirty)}
+                      />
+                    </div>
+                  ))}
+                </div>
               )
             )}
           </div>

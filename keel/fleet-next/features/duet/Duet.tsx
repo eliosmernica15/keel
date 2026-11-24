@@ -48,6 +48,34 @@ function store(key: string, value: unknown) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* ignore */ }
 }
 
+interface SavedLayout {
+  tabs: WorkspaceTab[];
+  activeId: string;
+  recent: WorkspaceTab[];
+  explorerWidth?: number;
+  contextWidth?: number;
+  explorerOpen?: boolean;
+  contextOpen?: boolean;
+  contextTab?: ContextTab;
+}
+
+/** Layouts are stored as a map keyed by project id. A single-record shape
+ *  could be overwritten while switching projects, leaking one project's tabs
+ *  into another's (or clearing the previous project's saved layout). */
+function readLayouts(): Record<string, SavedLayout> {
+  try {
+    const raw = localStorage.getItem("keel-duet:tabs:v1");
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    // Migrate the older single-project record if one is present.
+    if (Array.isArray(parsed.tabs) && typeof parsed.projectId === "string") {
+      return { [parsed.projectId]: { tabs: parsed.tabs as WorkspaceTab[], activeId: String(parsed.activeId ?? ""), recent: Array.isArray(parsed.recent) ? parsed.recent as WorkspaceTab[] : [] } };
+    }
+    return parsed as Record<string, SavedLayout>;
+  } catch { return {}; }
+}
+
 function tabIcon(kind: TabKind): React.ReactNode {
   switch (kind) {
     case "review": return <Icon name="tasks" size={14} />;
@@ -149,6 +177,7 @@ export default function Duet() {
   const [treeQuery, setTreeQuery] = useState("");
   const [dragId, setDragId] = useState<string | null>(null);
   const [terminalStates, setTerminalStates] = useState<Record<string, TerminalState>>({});
+  const [dirtyTabs, setDirtyTabs] = useState<Record<string, boolean>>({});
   const [addOpen, setAddOpen] = useState(false);
   const [addPath, setAddPath] = useState("");
   const [addName, setAddName] = useState("");
@@ -189,28 +218,39 @@ export default function Duet() {
     let nextActive = "review";
     let nextRecent: WorkspaceTab[] = [];
     try {
-      const raw = localStorage.getItem("keel-duet:tabs:v1");
-      if (raw) {
-        const saved = JSON.parse(raw) as { projectId?: string; tabs?: WorkspaceTab[]; activeId?: string; recent?: WorkspaceTab[] };
-        if (saved.projectId === selectedId && Array.isArray(saved.tabs)) {
-          nextTabs = saved.tabs.filter((t) => t && typeof t.id === "string" && typeof t.kind === "string");
-          nextActive = typeof saved.activeId === "string" ? saved.activeId : (nextTabs[0]?.id ?? "");
-          nextRecent = Array.isArray(saved.recent) ? saved.recent : [];
-        }
+      const saved = selectedId ? readLayouts()[selectedId] : undefined;
+      if (saved && Array.isArray(saved.tabs)) {
+        nextTabs = saved.tabs.filter((t) => t && typeof t.id === "string" && typeof t.kind === "string");
+        nextActive = typeof saved.activeId === "string" ? saved.activeId : (nextTabs[0]?.id ?? "");
+        nextRecent = Array.isArray(saved.recent) ? saved.recent : [];
+        if (typeof saved.explorerWidth === "number") setExplorerWidth(clamp(saved.explorerWidth, 220, 440));
+        if (typeof saved.contextWidth === "number") setContextWidth(clamp(saved.contextWidth, 240, 480));
+        if (typeof saved.explorerOpen === "boolean") setExplorerOpen(saved.explorerOpen);
+        if (typeof saved.contextOpen === "boolean") setContextOpen(saved.contextOpen);
+        if (saved.contextTab === "context" || saved.contextTab === "environment") setContextTab(saved.contextTab);
       }
     } catch { /* ignore malformed state */ }
     setTabs(nextTabs);
     setActiveId(nextActive);
     setRecent(nextRecent);
     setTerminalStates({});
+    setDirtyTabs({});
     setTreeQuery("");
     setHydratedFor(selectedId);
   }, [selectedId]);
 
   useEffect(() => {
     if (hydratedFor !== selectedId || !selectedId) return;
-    store("keel-duet:tabs:v1", { projectId: selectedId, tabs, activeId, recent });
-  }, [hydratedFor, selectedId, tabs, activeId, recent]);
+    try {
+      const layouts = readLayouts();
+      layouts[selectedId] = {
+        tabs, activeId, recent,
+        explorerWidth, contextWidth, explorerOpen, contextOpen, contextTab,
+      };
+      store("keel-duet:tabs:v1", layouts);
+    } catch { /* ignore */ }
+  }, [hydratedFor, selectedId, tabs, activeId, recent,
+    explorerWidth, contextWidth, explorerOpen, contextOpen, contextTab]);
 
   /* ---- tab actions ------------------------------------------------ */
   const openFile = useCallback((path: string) => {
@@ -226,16 +266,16 @@ export default function Duet() {
   }, []);
 
   const closeTab = useCallback((id: string) => {
-    setTabs((prev) => {
-      const idx = prev.findIndex((t) => t.id === id);
-      if (idx < 0) return prev;
-      const target = prev[idx];
-      const next = prev.filter((t) => t.id !== id);
-      setActiveId((current) => current === id ? (next[Math.min(idx, next.length - 1)]?.id ?? "") : current);
-      setRecent((r) => [target, ...r.filter((x) => x.id !== id)].slice(0, 8));
-      return next;
-    });
-  }, []);
+    if (dirtyTabs[id] && !window.confirm("This file has unsaved edits. Close it and discard them?")) return;
+    const idx = tabs.findIndex((t) => t.id === id);
+    if (idx < 0) return;
+    const target = tabs[idx];
+    const next = tabs.filter((t) => t.id !== id);
+    setTabs(next);
+    setActiveId((current) => current === id ? (next[Math.min(idx, next.length - 1)]?.id ?? "") : current);
+    setRecent((r) => [target, ...r.filter((x) => x.id !== id)].slice(0, 8));
+    setDirtyTabs((prev) => { const copy = { ...prev }; delete copy[id]; return copy; });
+  }, [tabs, dirtyTabs]);
 
   const restoreRecent = useCallback(() => {
     if (!recent.length) return;
@@ -264,6 +304,7 @@ export default function Duet() {
     setActiveId("review");
     setRecent([]);
     setTerminalStates({});
+    setDirtyTabs({});
     setExplorerWidth(264);
     setContextWidth(300);
     setExplorerOpen(true);
@@ -279,6 +320,7 @@ export default function Duet() {
     setActiveId("review");
     setRecent([]);
     setTerminalStates({});
+    setDirtyTabs({});
     setTreeQuery("");
     projects.select(id);
   };
@@ -407,6 +449,9 @@ export default function Duet() {
               {tab.kind === "terminal" && terminalStates[tab.id]?.running ? (
                 <span className={s.processDot} role="img" aria-label="process running" title="Process running" />
               ) : null}
+              {tab.kind === "file" && dirtyTabs[tab.id] ? (
+                <span className={s.dirtyDot} role="img" aria-label="Unsaved changes" title="Unsaved changes" />
+              ) : null}
               <button type="button" className={s.tabClose} aria-label={`Close ${tabLabel(tab)}`}
                 onClick={(e) => { e.stopPropagation(); closeTab(tab.id); }}>
                 <Icon name="close" size={12} />
@@ -530,12 +575,22 @@ export default function Duet() {
                 </section>
               ) : activeTab.kind === "browser" ? (
                 <LocalPreview project={project} onClose={() => closeTab(activeTab.id)} />
-              ) : activeTab.path ? (
-                <FileView
-                  key={`${selectedId}:${activeTab.path}`}
-                  projectId={selectedId as string}
-                  path={activeTab.path}
-                />
+              ) : activeTab.kind === "file" && activeTab.path ? (
+                // Mounted file panes keep their in-memory buffers and change
+                // indicators while other tabs are active. Nothing is persisted.
+                <section className={s.pane}>
+                  <div className={s.fileStack}>
+                    {tabs.filter((t) => t.kind === "file" && t.path).map((t) => (
+                      <div key={`${selectedId}:${t.id}`} className={s.filePane} hidden={t.id !== activeTab.id}>
+                        <FileView
+                          projectId={selectedId as string}
+                          path={t.path as string}
+                          onDirtyChange={(dirty) => setDirtyTabs((prev) => ({ ...prev, [t.id]: dirty }))}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
               ) : (
                 <EmptyState icon={<Icon name="error" size={24} />} title="File tab has no path" description="Close this tab and open a file from the explorer." />
               )

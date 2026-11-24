@@ -56,6 +56,9 @@
 .dirtyDot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); flex: none; }
 .tabSpacer { flex: 1; min-width: 8px; }
 .workArea { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
+.fileStack { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
+.filePane { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
+.filePane[hidden] { display: none; }
 
 .rightTabs { padding: 6px 8px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
 .rightBody { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
