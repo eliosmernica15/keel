@@ -434,3 +434,19 @@ defects:
 No backend test was removed or weakened. keel/scripts/check_version_sync.py is included
 as REQUIRED_BACKEND_DEPENDENCY because the backend release version gate
 (	est_version_sync.py) imports it.
+
+## Authoritative clean candidate — v2
+
+The first candidate branch `release/backend-production-readiness-2026-11-24` received an
+unrelated frontend commit (`6970867 feat(site): rebuild /download...`) from concurrent work
+sharing the checkout. To preserve that work without importing it, the authoritative candidate
+was rebuilt as `release/backend-production-readiness-2026-11-24-v2` from `origin/main` with
+only the backend paths listed in this manifest. The earlier branch and the frontend commit
+remain untouched. All backend fixes from the earlier candidate are present in v2.
+
+| Field | Value |
+|---|---|
+| Authoritative candidate branch | `release/backend-production-readiness-2026-11-24-v2` |
+| Authoritative candidate SHA | `cbdfc28d0994986223dd802e47a078a0aeaf5203` |
+| Excluded unrelated commit | `6970867` (frontend `/download` rebuild) |
+| Frontend/desktop paths in v2 | only the documented one-line `Cargo.toml` version constant |
