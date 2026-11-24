@@ -31,8 +31,10 @@ Registry: 865 IDs — 854 verified / 9 not_started / 2 blocked.
 ## Protocol
 Lead reviews every diff, re-runs targeted tests, merges approved work, runs regression gates, commits focused batches and pushes to `origin/integration/backend-completion-2026-11-24`, verifying remote SHA after each push.
 
-## Review stage
-- 2 independent reviewers (`agent/final-review1` security/integration, `agent/final-review2` tests/accounting) launched after all eight batches were pushed. Findings to be remediated before final delivery.
+## Review stage — COMPLETE, all HIGH findings remediated
+- `agent/final-review1` (security/integration): 4 HIGH + MEDIUM findings — approval token bypass, caller-controlled expiry, process-local replay guards, cross-process event-log corruption, arbitrary paths, unredacted results, wrong HTTP status, canned MCP success. Fixed in `27f591d`, `3496cf4`, `e848c5d`; re-verification in progress.
+- `agent/final-review2` (tests/accounting): 2 HIGH — stale 361/421 certification docs and advisory/gameable evidence gate. Fixed by strict `--strict` mode + test-scoped reference checks (`0a79083`) and authoritative 421/421 doc amendments (`8f12694`); re-verification in progress.
+- Lead also fixed a real cross-instance approval-write race (`4f32b11`) and an uncollected regression test (`9a513f6`).
 
 ## Delivery status
 All 8 implementation batches + 1 lead fix batch committed and pushed to `origin/integration/backend-completion-2026-11-24`; remote SHA verified after each push. Final full regression + review pending.
