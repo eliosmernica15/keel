@@ -430,6 +430,7 @@ defects:
 - keel/tests/test_desktop_hardening.py (Electron main.js invariants)
 - keel/tests/test_web_surface_hardening.py (site/PWA assets)
 - keel/tests/test_validation_script.py (desktop validation script)
+- keel/tests/test_website_download_only.py (public website content/policy)
 
 No backend test was removed or weakened. keel/scripts/check_version_sync.py is included
 as REQUIRED_BACKEND_DEPENDENCY because the backend release version gate
