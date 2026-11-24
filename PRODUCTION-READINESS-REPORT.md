@@ -172,6 +172,8 @@ no credentials, no history rewrite.
 
 Verdict: **IMPLEMENTATION PRODUCTION-HARDENED — PROMOTION BLOCKED BY UNVERIFIED MANDATORY GATES**.
 
+Final full suite on candidate: 4419 passed / 8 failed / 51 skipped / 3707 subtests — 2 load-dependent tests pass in isolation; 6 require untracked generated release artifacts or downloaded plan docs. See `master-plan-v6-test-evidence.md`.
+
 What remains to authorize promotion: free/native Linux and macOS runner execution (macOS
 read isolation currently blocked by `sandbox-exec` SIGABRT), a disposable free-tier provider
 credential for live smoke tests, a clean-VM upgrade/rollback drill, a real credential-revocation

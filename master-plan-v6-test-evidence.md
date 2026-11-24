@@ -216,3 +216,27 @@ the untouched baseline (missing generated `release/`/`dist/` artifacts and a dow
 drift) and 1 is the order-dependent HTTP timeout that passes in isolation. These are environmental,
 not product defects; the definitive run used the prepared local environment where those artifacts
 and a clean MCP config exist.
+
+## Production-readiness candidate v2 — definitive full suite
+
+Candidate: `release/backend-production-readiness-2026-11-24-v2`, HEAD `3f6d7e5`.
+Command (clean local HOME; from `keel/`):
+
+```
+python -m pytest -q -o faulthandler_timeout=120
+```
+
+Result:
+
+```
+8 failed, 4419 passed, 51 skipped, 3707 subtests passed in 583.79s (0:09:43)
+```
+
+The 8 failures are accounted for:
+- 2 are order/load-dependent (`test_tool_requires_approval_then_approved_runs`,
+  `test_e2e_milestone_6b`); both PASS in isolation against the exact candidate.
+- 6 require generated or downloaded artifacts that are not tracked in a clean checkout:
+  `keel/release/RELEASE-MANIFEST.json`, `RELEASE-SHA256SUMS.txt`, `keel/dist/` (5 tests)
+  and `keel/downloads/Keel_Master_Plan_v5.md` (1 pinned-hash test). These are pre-existing
+  release-artifact gates, not backend code defects. No test was deleted, weakened, skipped
+  or altered to obtain this result; the same 6 failures are documented on earlier baselines.
