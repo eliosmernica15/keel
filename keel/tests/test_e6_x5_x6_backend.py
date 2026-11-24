@@ -519,6 +519,36 @@ def test_x53_jit_grant_concurrent_consumption_succeeds_once() -> None:
     assert grant.consumed is True
 
 
+def test_x53_jit_grant_snapshot_cannot_replay_after_consume() -> None:
+    """C8: single-use lives in shared state, not in this dataclass instance."""
+    grant = issue_grant("deploy", 1000, duration_seconds=600, just_in_time=True)
+    snapshot = grant.to_dict()
+    assert snapshot["consumed"] is False
+
+    first = consume_grant(grant, 1001)
+    assert first.granted is True and first.reason == "just_in_time_granted"
+
+    replay = TimeBoxedGrant(**snapshot)  # round-tripped before consumption
+    second = consume_grant(replay, 1002)
+    assert second.granted is False
+    assert second.reason == "grant_inactive"
+    assert consume_grant(TimeBoxedGrant(**snapshot), 1003).granted is False
+
+
+def test_x53_unregistered_grant_is_denied() -> None:
+    """A fabricated, unsigned grant descriptor must never be trusted."""
+    fabricated = TimeBoxedGrant(
+        grant_id="fabricated-grant",
+        scope="deploy",
+        issued_at=1000,
+        expires_at=10**9,
+        just_in_time=True,
+    )
+    decision = consume_grant(fabricated, 1002)
+    assert decision.granted is False
+    assert decision.reason == "grant_inactive"
+
+
 # ---------------------------------------------------------------------------
 # X5.4 -- capability tokens
 # ---------------------------------------------------------------------------

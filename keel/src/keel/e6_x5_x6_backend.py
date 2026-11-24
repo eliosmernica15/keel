@@ -1171,15 +1171,23 @@ def issue_grant(
     duration_seconds: int = 1800,
     just_in_time: bool = False,
 ) -> TimeBoxedGrant:
-    """Issue an "allow for N minutes" grant (default 30 minutes)."""
+    """Issue an "allow for N minutes" grant (default 30 minutes).
+
+    Issuance installs a fresh shared consumption record for the grant id. The
+    id is deterministic, so re-issuing the same grant parameters intentionally
+    starts a new grant; every other copy of that id shares this one record.
+    """
     issued = int(now)
-    return TimeBoxedGrant(
+    grant = TimeBoxedGrant(
         grant_id=id_for("grant", scope, issued, duration_seconds, just_in_time),
         scope=scope,
         issued_at=issued,
         expires_at=issued + int(duration_seconds),
         just_in_time=bool(just_in_time),
     )
+    with _GRANT_CONSUME_LOCK:
+        _GRANT_STATES[grant.grant_id] = _GrantState()
+    return grant
 
 
 def is_active(grant: TimeBoxedGrant, now: int) -> bool:
@@ -1191,22 +1199,45 @@ def remaining_seconds(grant: TimeBoxedGrant, now: int) -> int:
     return max(0, grant.expires_at - int(now))
 
 
-# Guards the check-then-consume transition so a JIT grant can be granted to
-# exactly one caller even when several threads attempt to use it at once.
+@dataclass
+class _GrantState:
+    """In-process consumption record shared by every copy of one grant id.
+
+    ``TimeBoxedGrant`` is a serialisable *description*. Keeping single-use state
+    on that object lets a caller snapshot it before consumption and reconstruct
+    an unconsumed replica. The authoritative state lives here, keyed by
+    ``grant_id``, so a round-tripped snapshot cannot replay a spent grant.
+    """
+
+    consumed: bool = False
+
+
+# Guards both issuance and the check-then-consume transition so a JIT grant is
+# granted to exactly one caller even when several threads race on it, and so a
+# copied dataclass shares the same consumption record as the original.
 _GRANT_CONSUME_LOCK = threading.Lock()
+_GRANT_STATES: dict[str, _GrantState] = {}
 
 
 def consume_grant(grant: TimeBoxedGrant, now: int) -> GrantDecision:
-    """Use a grant. A JIT grant is single-use; expired/consumed grants deny."""
+    """Use a grant. A JIT grant is single-use; expired/consumed grants deny.
+
+    Consumption is bound to the issued grant id in ``_GRANT_STATES``, not to
+    the dataclass instance: serialising and rebuilding a grant cannot mint a
+    fresh use. Grants that were never issued deny as well (they are unsigned
+    descriptions, so their fields cannot be trusted).
+    """
     with _GRANT_CONSUME_LOCK:
-        if not is_active(grant, now):
+        state = _GRANT_STATES.get(grant.grant_id)
+        if state is None or not is_active(grant, now) or state.consumed:
             reason = "grant_expired" if int(now) > grant.expires_at else "grant_inactive"
             return GrantDecision(False, reason, remaining_seconds(grant, now))
         remaining = remaining_seconds(grant, now)
         if grant.just_in_time:
-            # Mark the grant consumed within the same critical section as the
-            # check so the same object cannot be replayed within its TTL.
-            # This is the single sanctioned mutation of the frozen dataclass.
+            # Mark the shared record inside the same critical section as the
+            # check. The local flag is also set to keep is_active()/to_dict()
+            # consistent for callers holding this object.
+            state.consumed = True
             object.__setattr__(grant, "consumed", True)
             return GrantDecision(True, "just_in_time_granted", remaining)
         return GrantDecision(True, "time_boxed_granted", remaining)
