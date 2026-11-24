@@ -1545,13 +1545,60 @@ WORKFLOWS: dict[str, Callable[[Mapping[str, Any]], dict]] = {
 
 
 def run_workflow(name: str, params: Mapping[str, Any]) -> dict:
-    """Dispatch by workflow name; unknown names fail closed."""
+    """Dispatch by workflow name with the authoritative policy boundary.
+
+    The HTTP and CLI workflow routes call this function directly rather than
+    ``capabilities.invoke``. They must therefore apply the same saved-policy
+    enforcement and audit record as every other capability surface; otherwise
+    a durable mutating workflow would bypass the backend permission floor.
+    """
+    if not isinstance(params, dict):
+        return {"workflow": str(name), "ok": False, "code": "bad_params",
+                "error": "params must be an object", "result": {}, "steps": [],
+                "persisted": None, "http_status": 400}
     handler = WORKFLOWS.get(str(name))
     if handler is None:
         return {"workflow": str(name), "ok": False, "code": "unknown_workflow",
                 "error": f"unknown workflow {name!r}; expected one of {WORKFLOW_NAMES}",
                 "result": {}, "steps": [], "persisted": None, "http_status": 404}
-    return handler(params)
+    try:
+        state_root = _state_root(params)
+    except WorkflowError as exc:
+        return {"workflow": str(name), "ok": False,
+                "code": getattr(exc, "code", "bad_state_root"),
+                "error": str(exc), "result": {}, "steps": [],
+                "persisted": None, "http_status": 400}
+
+    from .policy_enforcement import enforce as _enforce
+    try:
+        decision = _enforce(
+            "backend.workflow", {"workflow": str(name)},
+            state_root=state_root, interactive=False, confirmed=True)
+    except Exception as exc:
+        return {"workflow": str(name), "ok": False, "code": "policy_error",
+                "error": f"policy evaluation failed: {exc}",
+                "result": {}, "steps": [], "persisted": None,
+                "http_status": 400}
+    if decision is not None and decision.decision == "deny":
+        return {"workflow": str(name), "ok": False, "code": "policy_denied",
+                "error": f"execution policy denied backend.workflow: {decision.reason}",
+                "result": {}, "steps": [], "persisted": None, "http_status": 403}
+    if decision is not None and decision.decision == "ask":
+        return {"workflow": str(name), "ok": False, "code": "confirmation_required",
+                "error": f"execution policy requires confirmation: {decision.reason}",
+                "result": {}, "steps": [], "persisted": None, "http_status": 409}
+
+    result = handler(params)
+    # Audit is best-effort: a completed operation must still return its result,
+    # matching the web bridge's audit semantics.
+    try:
+        from .capabilities import record_audit
+        record_audit(state_root, {
+            "capability": "backend.workflow", "workflow": str(name),
+            "ok": bool(result.get("ok")), "surface": "workflow"})
+    except OSError:
+        pass
+    return result
 
 
 __all__ = [

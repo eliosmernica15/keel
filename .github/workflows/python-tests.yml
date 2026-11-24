@@ -28,14 +28,82 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.11"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "22"
       - name: Install keel + pytest
         working-directory: keel
         run: |
           # All runtime/test deps are hash-pinned in requirements.lock.txt.
           python -m pip install --require-hashes -r requirements.lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
+      - name: Dependency lock freshness (pyproject vs requirements.lock.txt)
+        shell: bash
+        working-directory: keel
+        run: |
+          python - <<'PY'
+          import re, sys, tomllib
+          from pathlib import Path
+
+          project = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+          lock = Path("requirements.lock.txt").read_text(encoding="utf-8").splitlines()
+          entries, current = {}, None
+          for line in lock:
+              if line.startswith("#") or not line.strip():
+                  continue
+              m = re.match(r"^([A-Za-z0-9_.-]+)==([^\s;]+)", line)
+              if m:
+                  current = m.group(1).lower().replace("_", "-")
+                  entries[current] = {"version": m.group(2), "hashes": 0}
+                  continue
+              if current and re.match(r"^\s+--hash=sha256:[0-9a-f]{64}", line):
+                  entries[current]["hashes"] += 1
+
+          required = []
+          for req in project.get("project", {}).get("dependencies", []):
+              required.append(re.match(r"^([A-Za-z0-9_.-]+)", req).group(1))
+          for req in project.get("build-system", {}).get("requires", []):
+              required.append(re.match(r"^([A-Za-z0-9_.-]+)", req).group(1))
+          required += ["pip", "pytest", "pyinstaller"]
+
+          errors = []
+          for name in required:
+              key = name.lower().replace("_", "-")
+              if key not in entries or entries[key]["hashes"] < 1:
+                  errors.append(f"{name}: missing pinned version/hash in requirements.lock.txt")
+          for name, info in entries.items():
+              if info["hashes"] < 1:
+                  errors.append(f"{name}: lock entry has no SHA256 hash")
+
+          if errors:
+              print("LOCK FRESHNESS FAILED:")
+              for err in errors:
+                  print("  -", err)
+              sys.exit(1)
+          print(f"LOCK FRESHNESS OK: {len(entries)} pinned packages, {len(required)} required pins checked")
+          PY
+      - name: Install JS dependencies from lockfile (npm ci)
+        shell: bash
+        working-directory: keel/desktop-app
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          node -e '
+            const fs = require("fs");
+            const lock = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
+            const pinned = lock.packages["node_modules/electron-builder"].version;
+            const installed = JSON.parse(fs.readFileSync("node_modules/electron-builder/package.json", "utf8")).version;
+            if (installed !== pinned) {
+              console.error(`electron-builder mismatch: installed ${installed}, locked ${pinned}`);
+              process.exit(1);
+            }
+            console.log(`electron-builder pinned from lockfile: ${installed}`);
+          '
       - name: Generate release artifacts required by integrity tests
         working-directory: keel
+        env:
+          # npx must resolve the lockfile-installed local binary, never the registry.
+          npm_config_offline: "true"
         run: |
           # pyinstaller/pillow already installed from requirements.lock.txt.
           python -m keel.release build --platform auto --out release

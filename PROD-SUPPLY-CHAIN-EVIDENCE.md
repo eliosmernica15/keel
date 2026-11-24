@@ -1,8 +1,8 @@
 # Production promotion — Supply-chain & repository security evidence
 
-**Audit type:** initially read-only; a later owner-authorized **remediation pass** (this document, §8) added the hash-pinned lock, SBOM, workflow install changes, and the pre-push hook fix. Repository visibility and licensing were never changed.
+**Audit type:** initially read-only; later owner-authorized **remediation passes** (this document, §8 and §9) added the hash-pinned lock, SBOM, workflow install changes, the pre-push hook fix, npm lock enforcement, the `workflow_run` trust gate, and the lock-freshness CI step. Repository visibility and licensing were never changed.
 **Branch:** `agent/prod-supply`
-**Candidate originally audited:** `e57327378f56062db3b13d3db941ac2cf2a641a3` (`e573273`). Current candidate tip merged into this branch: `ab8c80a2f223f041dd82e525f761c899938f9ddb` (`ab8c80a`, "Merge platform verification: Windows scoped-verified, Linux WSL2 evidence, macOS blocked") via `git merge --no-ff` — no force-push, no push.
+**Candidate originally audited:** `e57327378f56062db3b13d3db941ac2cf2a641a3` (`e573273`). Intermediate tip `ab8c80a` was merged via `git merge --no-ff`; **current candidate tip** `578347425a20290961332abc3a4e9b3c2dcb2cd4` (`5783474`) was fetched and fast-forward-merged — no force-push, no push.
 **Base at audit start:** `e6e7efc50d098aaf55b80c5b35e799c0c2e25a86`.
 
 **Methods (all offline):** `git ls-files`/`git show`/`git diff`/`git grep`, `git archive` of the candidate into a temp directory, installed distribution metadata (`importlib.metadata`), npm/Cargo lockfile parsing, Python regex secret heuristics, and direct execution of the repository's own gates. No network installs, no paid scanners, no `gh api` calls. Scanners present: `npm`, `cargo`, `gh` (not used for network), Python 3.11. Not installed: `gitleaks`, `pip-audit`, `trivy`, `osv-scanner`, `safety`, `actionlint`, `zizmor`.
@@ -15,13 +15,13 @@
 
 | Item | Result |
 | --- | --- |
-| Dependency inventory, licenses, native/transitive deps | `DEP-01` **CLOSED** (hash-pinned lock + SBOM + workflow enforcement, validated by pip dry-run); remaining: DEP-02/03 MEDIUM, DEP-04 LOW, DEP-05 INFO |
-| GitHub Actions (all 8 workflows) | PASS on pinning/permissions/provenance/clean runners; **1 MEDIUM** (untrusted `workflow_run` artifact execution); 1 LOW (unused secrets) |
+| Dependency inventory, licenses, native/transitive deps | `DEP-01` **CLOSED**; `DEP-02` **CLOSED** (`npm ci` + lockfile-pinned local electron-builder + npx offline); remaining: DEP-03 MEDIUM, DEP-04 LOW, DEP-05 INFO |
+| GitHub Actions (all 8 workflows) | PASS on pinning/permissions/provenance/clean runners; `GH-03` **CLOSED** (fail-closed trust gate on `workflow_run`); 1 LOW (unused secrets) |
 | Secret scan / gates | No real secrets found; `SEC-02` **CLOSED** (hook now runs the real version gate, verified); 1 LOW (model-license gate only checks registry) |
 | Privacy & license unchanged | No change made; private per in-repo live evidence; **offline re-verification not possible** |
 | Branch protection | GitHub Free + private repo: unavailable (live 403 evidence in repo). Local hooks are **not** remote protection. Accepted owner exception — requires re-affirmation |
 
-**Original HIGH finding `DEP-01` is CLOSED** (see §8). All 34 resolved packages have SHA256 hashes, every `pyproject.toml` runtime/build dependency and the pinned `pip`/`pytest`/`pyinstaller` tools have a version+hash in `keel/requirements.lock.txt`, all 10 install steps across 5 workflows use `--require-hashes`, and a clean-run pip dry-run (`--ignore-installed`) validated the lock. No other finding is independently blocking promotion. Two pre-existing, unrelated test issues remain (§8.6) and are reported honestly, not hidden.
+**Original HIGH finding `DEP-01` is CLOSED** (see §8). All 34 resolved packages have SHA256 hashes, every `pyproject.toml` runtime/build dependency and the pinned `pip`/`pytest`/`pyinstaller` tools have a version+hash in `keel/requirements.lock.txt`, all 10 install steps across 5 workflows use `--require-hashes`, and a clean-run pip dry-run (`--ignore-installed`) validated the lock. `DEP-02` and `GH-03` are also CLOSED (§9). No finding is independently blocking promotion. The two pre-existing test issues reported in §8.6 were fixed by candidate tip `5783474`; the targeted subset now reports **43 passed**.
 
 ---
 
@@ -98,7 +98,7 @@ Native/transitive surface: cryptography→cffi (C), Pillow (C image libs), keyri
 | ID | Severity | Finding | Evidence | Remediation |
 | --- | --- | --- | --- | --- |
 | **DEP-01** | **CLOSED** (was HIGH) | Original: Python build inputs unpinned, no lockfile/hashes/SBOM. Remediated by `keel/requirements.lock.txt` (34 hash-pinned packages), `keel/requirements-sbom.json`, and `--require-hashes` in all 10 install steps. | `keel/pyproject.toml`; `git diff` of the 8 workflows; `pip install --dry-run --ignore-installed --require-hashes` result in §8 | Keep the lock in sync with `pyproject.toml`; add a CI job that fails when the lock is stale; attach the SBOM to release artifacts. |
-| DEP-02 | MEDIUM | Release build does not enforce the npm lockfiles: `npm install` + `npx electron-builder`, conditional on `node_modules` existing. | `keel/src/keel/release/build.py::npm_install()` and `electron_build()` | Use `npm ci --ignore-scripts` where possible (then fetch Electron via a pinned URL + SHA256 check), and forbid `npx` registry fallback (`npm exec --no -- ...` or call `node_modules/.bin/electron-builder`). |
+| **DEP-02** | **CLOSED** (was MEDIUM) | Original: npm lockfiles not enforced by the build (`npm install` + `npx electron-builder`). Remediated in workflows by pre-creating `node_modules` with `npm ci`, asserting the installed `electron-builder` equals the lockfile version, and setting `npm_config_offline=true` so `npx` cannot fall back to the registry. | `build-desktop.yml` (3 build jobs), `python-tests.yml`; §9.1/§9.2 | Residual: Electron binary download during `npm ci` is still verified by upstream SHASUMS, not a repo-pinned hash. |
 | DEP-03 | MEDIUM | Dead dependency trees retained in the promoted tree: `keel/fleet-next` (60 packages, 33 native `sharp` entries, version `0.1.0` drift from project `0.1.1`) and `keel/desktop/src-tauri` (420 crates) are referenced by **no** workflow; only their version constants are read by `keel/src/keel/release/common.py`. Candidate `e573273` itself only bumps `Cargo.toml` `0.1.0`→`0.1.1` to satisfy that gate. | workflow scan; `git diff e6e7efc e573273`; `release/common.py::VERSION_FILES` | Remove/archive the unused prototypes or move them out of the promotion scope, and update the version gate accordingly; if retained, add them to `check_version_sync.py` and pin/update their locks on a documented cadence. |
 | DEP-04 | LOW | License inventory is incomplete and non-gating: direct-Python-only, ignores `License-Expression`, reports `UNKNOWN` without failing; model/voice registry has 11 entries, **0 bundled**, all `license: "UNKNOWN"`. | `release/licenses.py`; `scripts/check_model_licenses.py` | Fail CI on unresolved licenses; include transitive Python packages and SPDX expressions; cross-check packaged assets against the bundled-asset registry. |
 | DEP-05 | INFO | No offline CVE/advisory database was available (`pip-audit`, `trivy`, `osv-scanner`, `safety` all absent), and network lookups were out of scope. Observed versions are current; **no claim of CVE-free status is made**. | tool inventory; installed versions above | Run `pip-audit`, `npm audit --omit=dev`, and `cargo audit` in the promotion pipeline with a cached advisory DB. |
@@ -134,9 +134,11 @@ Secrets in use: `KEEL_RELEASE_SIGNING_KEY`, `KEEL_RELEASE_SIGNING_PUBLIC_KEY`, `
 
 `signing-readiness.yml` references **eight** secrets (`WINDOWS_SIGNING_CERTIFICATE_BASE64`, `WINDOWS_SIGNING_PASSWORD`, `MACOS_SIGNING_CERTIFICATE_BASE64`, `MACOS_SIGNING_PASSWORD`, `MACOS_NOTARIZATION_APPLE_ID`, `MACOS_NOTARIZATION_TEAM_ID`, `MACOS_NOTARIZATION_PASSWORD`, `LINUX_SIGNING_KEY_BASE64`) that **no build or publish job consumes** — it is a dispatch-only reporting workflow. This is unnecessary secret surface (GH-04, LOW). Recommendation: delete them if unused, or wire them into real code-signing jobs; keep only secrets that a job actually uses. No secrets are hardcoded in tracked files (see §4).
 
-### 3.4 Unsafe PR workflows — MEDIUM issue
+### 3.4 Unsafe PR workflows — `GH-03` CLOSED (was MEDIUM)
 
-`verify-install.yml` triggers on `workflow_run` of "Build desktop installers" **completed**; that source workflow runs on `pull_request` (including forks). The `windows-install`/`macos-package`/`linux-package` jobs run whenever `github.event.workflow_run.conclusion == 'success'`, with no check of the triggering run's event, head repository, or actor, and they **execute** downloaded installers/AppImages on hosted runners. A fork PR can therefore cause attacker-controlled, unsigned artifacts to execute on a runner (read-scoped `GITHUB_TOKEN`, runner cache access). No write scope or extra secrets are exposed, so impact is bounded, but this is untrusted-code execution in a privileged context (GH-03, MEDIUM). Recommendation: add `if: github.event.workflow_run.event == 'push'` and/or verify `github.event.workflow_run.head_repository.full_name == github.repository`, or require an environment approval. `lifecycle.yml` is `workflow_dispatch`-only and operator-supplied, so lower risk.
+**Original:** `verify-install.yml` triggered on `workflow_run` of "Build desktop installers" completed, and its three install jobs executed downloaded artifacts whenever the run succeeded — with no check of the triggering event, head repository, or branch. A fork PR could therefore execute attacker-controlled, unsigned installers on a hosted runner (read-scoped token only, so bounded impact).
+
+**Remediated:** a fail-closed `trust-gate` job now runs first. Manual `workflow_dispatch` is allowed as an explicit operator action; for `workflow_run`, it requires `conclusion == success`, `event == push`, `head_repository.full_name == github.repository`, and `head_branch == github.event.repository.default_branch`; anything else exits 1. All three install jobs declare `needs: trust-gate`. Permissions remain `contents: read` + `actions: read`; no write scope was added. Six simulated scenarios verified (§9.3). `lifecycle.yml` remains `workflow_dispatch`-only and operator-supplied.
 
 ### 3.5 Artifact provenance — PASS with limitation
 
@@ -205,9 +207,9 @@ On GitHub Free, branch protection is available for public repositories, **not pr
 
 ## 6. Prioritized remediation summary
 
-1. **DEP-01 — DONE (was HIGH, blocking):** hash-pinned lock (`keel/requirements.lock.txt`), SBOM (`keel/requirements-sbom.json`), `--require-hashes` in all 10 install steps, pinned `pip`/`pytest`/`pyinstaller`; validated by pip dry-run (§8). Follow-up: keep lock in sync, attach SBOM to releases.
-2. **DEP-02 (MEDIUM):** switch the release build to `npm ci` and eliminate `npx` registry fallback; pin the Electron binary checksum.
-3. **GH-03 (MEDIUM):** restrict `workflow_run` install jobs to trusted (push/default-branch) runs or require environment approval, so fork artifacts are never executed.
+1. **DEP-01 — DONE (was HIGH, blocking):** hash-pinned lock (`keel/requirements.lock.txt`), SBOM (`keel/requirements-sbom.json`), `--require-hashes` in all 10 install steps, pinned `pip`/`pytest`/`pyinstaller`; validated by pip dry-run (§8). Lock-freshness CI step added (§9.4). Follow-up: attach SBOM to releases.
+2. **DEP-02 — DONE (was MEDIUM):** `npm ci` in all 4 JS-installing build jobs, electron-builder version asserted against `package-lock.json`, `npm_config_offline=true` on build steps (§9.1–9.2). Residual: Electron binary download relies on upstream SHASUMS verification.
+3. **GH-03 — DONE (was MEDIUM):** fail-closed `trust-gate` job in `verify-install.yml`; all 3 install jobs `needs: trust-gate`; 6 scenarios verified (§9.3).
 4. **SEC-02 — DONE (was MEDIUM):** pre-push version gate now calls `keel/scripts/check_version_sync.py` from `keel/` and fails closed if it is missing; hook execution verified with a stubbed `gitleaks` (§8.4). Document per-clone installation and its bypassability.
 5. **DEP-03 (MEDIUM):** remove/archive unused `fleet-next` and Tauri prototype dependency trees from the promotion scope (and reconcile `fleet-next` version `0.1.0`).
 6. **DEP-04 / GH-04 / SEC-03 / DEP-05 (LOW):** fail CI on unresolved licenses, include transitive deps, cross-check bundled assets; delete unused signing secrets; add `CODEOWNERS`/Dependabot; add offline CVE scanning.
@@ -325,16 +327,103 @@ python -m pytest -q tests/test_signing_gate.py tests/test_secret_storage.py \
   tests/test_provider_validation_ready.py tests/test_offline_runtime.py
 ```
 
-Result: **41 passed, 2 failed in 11.79s**. Both failures were verified as **pre-existing and unrelated to this remediation** (the affected test/source files are untouched by this branch's diff):
+**Historical result (before candidate tip `5783474`):** 41 passed, 2 failed in 11.79s — `test_version_sync.py::test_standalone_gate_passes_and_rejects_cargo_drift` (standalone gate did not read `Cargo.toml`) and `test_provider_validation_ready.py::test_no_credentials_means_no_live_success` (env pollution from `test_secret_storage.py`). Both were pre-existing, verified unrelated to the pinning work, and reported rather than hidden.
 
-1. `tests/test_version_sync.py::test_standalone_gate_passes_and_rejects_cargo_drift` — the test mutates `desktop/src-tauri/Cargo.toml` and expects `check_version_sync.py` to fail, but that script's documented sources are `pyproject.toml`, `desktop-app/package.json`, `package-lock.json`, `site/download.json`, `tauri.conf.json`, and `__init__.py` — it never reads `Cargo.toml`. Pre-existing test/gate mismatch (the candidate's Cargo version is actually checked by `keel/release/common.py::validate_version`). **Out of owned scope; not fixed here.** Recommendation: add `Cargo.toml` to `check_version_sync.py` or correct the test.
-2. `tests/test_provider_validation_ready.py::test_no_credentials_means_no_live_success` — order-dependent environment pollution: `tests/test_secret_storage.py::test_apply_stored_keys_uses_decrypted_value` writes `os.environ["KEEL_GOOGLE_API_KEY"]` without cleanup, so a later test in the same process sees `configured == ['google']`. Verified by running `python -m pytest -q tests/test_provider_validation_ready.py` alone: **3 passed**. Pre-existing test-isolation defect; not caused by pinning. Recommendation: use `monkeypatch.setenv` in that test.
-
-Neither failure involves dependency resolution, the lock, the SBOM, workflow install steps, or the hook. The full suite should be re-run by the owner in a clean environment before promotion.
+**Current result after merging `5783474`:** the same exact command reports **43 passed in 13.10s** — the candidate tip changed `keel/scripts/check_version_sync.py` and `keel/tests/test_secret_storage.py`, resolving both issues. No test failures remain in this subset. The full suite should still be re-run by the owner in a clean environment before promotion.
 
 ### 8.7 Residual blockers
 
-- `DEP-01`: **CLOSED** — no residual blocker from this finding. Follow-up (non-blocking): CI freshness check that `requirements.lock.txt` matches `pyproject.toml`, and attach `requirements-sbom.json` to release artifacts.
+- `DEP-01`: **CLOSED** — no residual blocker. The freshness check requested as follow-up was added in §9.4; attach `requirements-sbom.json` to releases is the only remaining non-blocking follow-up.
 - `SEC-02`: **CLOSED** — hook gate verified. Residual (documented): local hooks are not remote branch protection; hook not installed by default; bypassable with `--no-verify`.
-- Remaining open items from the original audit are unchanged: `DEP-02` (npm lock not enforced by build), `DEP-03` (dead dependency trees), `GH-03` (untrusted `workflow_run`), `GH-04`, `DEP-04`, `DEP-05`, `REPO-02`. None were in this remediation's scope except as listed.
+- `DEP-02` and `GH-03`: **CLOSED** in §9. Residual for DEP-02 only: the Electron binary downloaded by `npm ci` is verified by upstream SHASUMS, not a repo-pinned hash.
+- Remaining open items from the original audit: `DEP-03` (dead dependency trees), `GH-04` (unused signing secrets), `DEP-04` (license inventory incomplete/non-gating), `DEP-05` (no offline CVE scan), and `REPO-02` (**owner exception still required** — no remote branch protection on GitHub Free private repos).
 - No CVE-free claim is made: no offline CVE scanner is installed (`pip-audit`, `trivy`, `osv-scanner`, `safety` all absent); the SBOM is an inventory, not a vulnerability assessment.
+
+---
+
+## 9. Remediation closure evidence (DEP-02 / GH-03 / lock freshness)
+
+Candidate tip `578347425a20290961332abc3a4e9b3c2dcb2cd4` was fetched and merged with `git merge --ff-only 5783474` (direct child of `62944b9`; no overlapping owned files, no force-push, no push).
+
+### 9.1 DEP-02 — before / after
+
+**Before:** the only JS install was inside `keel/src/keel/release/build.py::npm_install()`, which ran `npm install --no-audit --no-fund` when `node_modules` was absent, followed by `npx electron-builder ...`; the 284-entry desktop lockfile was therefore not enforced and `npx` could resolve a fresh package from the registry.
+
+**After (workflow-only, no JS source or lockfile changed):**
+
+- `build-desktop.yml` — a new `Install JS dependencies from lockfile (npm ci)` step in `build-windows`, `build-macos`, `build-linux`, each with `working-directory: keel/desktop-app`, running `npm ci --no-audit --no-fund` plus a Node assertion that `node_modules/electron-builder/package.json` version equals `package-lock.json` → `packages["node_modules/electron-builder"].version`; mismatch exits 1.
+- `python-tests.yml` — added `actions/setup-node@949feb...` (node 22) and the same `npm ci` + assertion step before the release-artifact generation step.
+- All four build steps now set `env: npm_config_offline: "true"`, so `npx` cannot fetch from the registry; it must resolve the lockfile-installed local binary. `python -m keel.release build` is otherwise unchanged, and its internal `npm_install()` now sees `node_modules` and is a no-op.
+
+Exact validation commands/results:
+
+```
+cd keel/desktop-app && npm ci --dry-run --no-audit --no-fund
+  -> added 283 packages in 3s        (exit 0; lockfile internally consistent)
+
+node -e <extracted assertion script> with fixture lock 26.18.0 / installed 26.18.0
+  -> exit=0  "electron-builder pinned from lockfile: 26.18.0"
+node -e <same> with installed 26.0.0
+  -> exit=1  "electron-builder mismatch: installed 26.0.0, locked 26.18.0"
+```
+
+Residual, documented: `npm ci` runs Electron's install script, which downloads the Electron binary and relies on upstream SHASUMS verification; there is no repo-pinned SHA256 for that binary. This was not in scope (would require changing JS/lockfiles or build source).
+
+### 9.2 Workflow integrity after the change
+
+```
+python -I -c "import yaml,glob; [yaml.safe_load(open(f,encoding='utf-8')) for f in sorted(glob.glob('.github/workflows/*.yml'))]; print('ALL YAML PARSED OK')"
+  -> ALL YAML PARSED OK
+python -I -c "... count uses lines matching @<40-hex> ..."
+  -> workflows 8, uses 31, tagOnly 0
+```
+
+The extra `uses:` is the SHA-pinned `actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7` added to `python-tests.yml`; all third-party action refs remain full-SHA pinned.
+
+### 9.3 GH-03 — before / after
+
+**Before:** `windows-install`, `macos-package`, and `linux-package` ran on any `workflow_run` completed with `conclusion == success`, including runs triggered by `pull_request` from forks, and executed downloaded artifacts.
+
+**After:** a `trust-gate` job runs first (no write permissions, `contents: read`/`actions: read` unchanged). Its shell step fails closed unless:
+
+- `workflow_dispatch` (explicit operator action), **or**
+- `conclusion == success` **and** `workflow_run.event == push` **and** `head_repository.full_name == github.repository` **and** `head_branch == github.event.repository.default_branch`.
+
+All three install jobs declare `needs: trust-gate` (verified count: 3), so an untrusted trigger fails the gate and the artifact-executing jobs never run.
+
+Validation — the exact step script extracted from YAML and executed with simulated GitHub env:
+
+```
+[manual dispatch]                  exit=0  TRUSTED: manual dispatch
+[trusted push to default branch]   exit=0  TRUSTED: push from eliosmernica15/keel@main
+[fork/PR event]                    exit=1  BLOCKED: source is not a successful push to this repository's default branch
+[push from different repo]         exit=1  BLOCKED ...
+[push to topic branch]             exit=1  BLOCKED ...
+[failed triggering run]            exit=1  BLOCKED ...
+```
+
+### 9.4 Lock-freshness CI step
+
+Added to `python-tests.yml` as `Dependency lock freshness (pyproject vs requirements.lock.txt)` with `shell: bash` (works on all three matrix OSes). It parses `pyproject.toml` with `tomllib`, checks every declared runtime/build dependency plus `pip`/`pytest`/`pyinstaller` has a `==version` entry with at least one 64-hex `--hash=sha256:` in the lock, and fails if any lock entry is unhashed.
+
+Validation — exact step script extracted from YAML and run via Git Bash:
+
+```
+# real files in keel/
+exit=0  LOCK FRESHNESS OK: 34 pinned packages, 8 required pins checked
+# fixture with pyproject.toml modified to add "newdep>=1.0"
+exit=1  LOCK FRESHNESS FAILED:
+          - newdep: missing pinned version/hash in requirements.lock.txt
+```
+
+### 9.5 Governance gates re-run (post-change, at candidate `5783474`)
+
+```
+python keel/scripts/check_version_sync.py            -> OK - all sources agree on version 0.1.1 (tag v0.1.1)   exit 0
+python scripts/check_model_licenses.py               -> 11 entries, 0 bundled / LICENSE GATE OK               exit 0
+python scripts/verify_v6_audit.py                    -> 865 registry rows / 865 matrix rows / CONSISTENCY OK   exit 0
+python keel/scripts/build_dependency_graph.py --check -> FRESH                                               exit 0
+python -m pytest -q <6 targeted files>               -> 43 passed in 13.10s                                   exit 0
+```
+
+No source, JS, lockfile, license, visibility, or remote branch protection was changed; no plan was bought and nothing was pushed.

@@ -84,9 +84,31 @@ jobs:
             "KEEL_SIGNING_KEY_PATH=" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
             Write-Host "No owner release signing key configured (builds will be unsigned)"
           }
+      - name: Install JS dependencies from lockfile (npm ci)
+        shell: bash
+        working-directory: keel/desktop-app
+        run: |
+          set -euo pipefail
+          # npm ci enforces package-lock.json integrity hashes; npm install would not.
+          npm ci --no-audit --no-fund
+          # Fail closed if electron-builder is not the exact lockfile-pinned local binary.
+          node -e '
+            const fs = require("fs");
+            const lock = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
+            const pinned = lock.packages["node_modules/electron-builder"].version;
+            const installed = JSON.parse(fs.readFileSync("node_modules/electron-builder/package.json", "utf8")).version;
+            if (installed !== pinned) {
+              console.error(`electron-builder mismatch: installed ${installed}, locked ${pinned}`);
+              process.exit(1);
+            }
+            console.log(`electron-builder pinned from lockfile: ${installed}`);
+          '
       - name: Build installers (Python release manager)
         shell: powershell
         working-directory: keel
+        env:
+          # npx must resolve the lockfile-installed local binary, never the registry.
+          npm_config_offline: "true"
         run: |
           # All runtime/build deps are hash-pinned in requirements.lock.txt.
           python -m pip install --require-hashes -r requirements.lock.txt
@@ -129,8 +151,30 @@ jobs:
             echo "KEEL_SIGNING_KEY_PATH=" >> "$GITHUB_ENV"
             echo "No owner release signing key configured (builds will be unsigned)"
           fi
+      - name: Install JS dependencies from lockfile (npm ci)
+        shell: bash
+        working-directory: keel/desktop-app
+        run: |
+          set -euo pipefail
+          # npm ci enforces package-lock.json integrity hashes; npm install would not.
+          npm ci --no-audit --no-fund
+          # Fail closed if electron-builder is not the exact lockfile-pinned local binary.
+          node -e '
+            const fs = require("fs");
+            const lock = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
+            const pinned = lock.packages["node_modules/electron-builder"].version;
+            const installed = JSON.parse(fs.readFileSync("node_modules/electron-builder/package.json", "utf8")).version;
+            if (installed !== pinned) {
+              console.error(`electron-builder mismatch: installed ${installed}, locked ${pinned}`);
+              process.exit(1);
+            }
+            console.log(`electron-builder pinned from lockfile: ${installed}`);
+          '
       - name: Build installers (Python release manager)
         working-directory: keel
+        env:
+          # npx must resolve the lockfile-installed local binary, never the registry.
+          npm_config_offline: "true"
         run: |
           # All runtime/build deps are hash-pinned in requirements.lock.txt.
           python -m pip install --require-hashes -r requirements.lock.txt
@@ -177,8 +221,30 @@ jobs:
             echo "KEEL_SIGNING_KEY_PATH=" >> "$GITHUB_ENV"
             echo "No owner release signing key configured (builds will be unsigned)"
           fi
+      - name: Install JS dependencies from lockfile (npm ci)
+        shell: bash
+        working-directory: keel/desktop-app
+        run: |
+          set -euo pipefail
+          # npm ci enforces package-lock.json integrity hashes; npm install would not.
+          npm ci --no-audit --no-fund
+          # Fail closed if electron-builder is not the exact lockfile-pinned local binary.
+          node -e '
+            const fs = require("fs");
+            const lock = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
+            const pinned = lock.packages["node_modules/electron-builder"].version;
+            const installed = JSON.parse(fs.readFileSync("node_modules/electron-builder/package.json", "utf8")).version;
+            if (installed !== pinned) {
+              console.error(`electron-builder mismatch: installed ${installed}, locked ${pinned}`);
+              process.exit(1);
+            }
+            console.log(`electron-builder pinned from lockfile: ${installed}`);
+          '
       - name: Build installers (Python release manager)
         working-directory: keel
+        env:
+          # npx must resolve the lockfile-installed local binary, never the registry.
+          npm_config_offline: "true"
         run: |
           # All runtime/build deps are hash-pinned in requirements.lock.txt.
           python -m pip install --require-hashes -r requirements.lock.txt

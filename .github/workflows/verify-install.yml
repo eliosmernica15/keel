@@ -4,6 +4,9 @@ name: Verify installed packages (clean runners)
 # the triggering run, install them on a fresh native runner, start the bundled
 # Python sidecar, verify authenticated UI serving, then uninstall/clean up.
 # Build success alone is NOT treated as installation validation.
+# A fail-closed trust-gate job prevents workflow_run from a PR/fork from
+# executing untrusted artifacts; only successful pushes to this repo's default
+# branch (or explicit manual dispatch) are allowed.
 
 on:
   workflow_run:
@@ -24,7 +27,41 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  trust-gate:
+    name: Trusted trigger guard (fail closed)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assert trusted workflow_run source
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SOURCE_EVENT: ${{ github.event.workflow_run.event }}
+          SOURCE_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+          SOURCE_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          THIS_REPO: ${{ github.repository }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          set -euo pipefail
+          echo "event=$EVENT_NAME source_event=$SOURCE_EVENT repo=$SOURCE_REPO branch=$SOURCE_BRANCH"
+          # Manual dispatch is an authorized, explicit operator action.
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "TRUSTED: manual dispatch"
+            exit 0
+          fi
+          # workflow_run artifacts from a PR/fork are untrusted: fail closed.
+          if [ "$CONCLUSION" != "success" ] \
+             || [ "$SOURCE_EVENT" != "push" ] \
+             || [ "$SOURCE_REPO" != "$THIS_REPO" ] \
+             || [ "$SOURCE_BRANCH" != "$DEFAULT_BRANCH" ]; then
+            echo "BLOCKED: source is not a successful push to this repository's default branch" >&2
+            echo "Refusing to execute artifacts from a fork/PR/untrusted run." >&2
+            exit 1
+          fi
+          echo "TRUSTED: push from $SOURCE_REPO@$SOURCE_BRANCH"
+
   windows-install:
+    needs: trust-gate
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: windows-latest
     steps:
@@ -84,6 +121,7 @@ jobs:
           Write-Host "CLEANUP_PASS"
 
   macos-package:
+    needs: trust-gate
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: macos-latest
     steps:
@@ -106,6 +144,7 @@ jobs:
           echo "MACOS_PACKAGE_CONTENT_PASS"
 
   linux-package:
+    needs: trust-gate
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
