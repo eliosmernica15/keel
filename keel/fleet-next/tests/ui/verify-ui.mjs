@@ -25,6 +25,10 @@ const KEEL = path.resolve(APP, ".."); // keel
 
 const IGNORE_DIRS = new Set([
   "node_modules", ".next", ".git", "tests", "public", "out", "dist", ".turbo",
+  // Next.js build output (the E2E workstream uses a separate distDir,
+  // `.next-e2e`). Generated JS is not source and must not be scanned —
+  // string-literal fragments in bundles produced false endpoint/a11y findings.
+  ".next-e2e",
 ]);
 const SRC_EXTS = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".css"]);
 
@@ -455,13 +459,87 @@ if (probe && !probe.error) {
 }
 
 // ---------------------------------------------------------------------------
+// 5b. CONTINUOUS-QA REGRESSIONS (added after the backend-reconciliation audit)
+// Each check below is a focused guard for a defect found by manual source
+// review. They are deliberately narrow and cite the evidence that motivated
+// them; they are not a substitute for the broader checks above.
+// ---------------------------------------------------------------------------
+const routesPath = path.join(KEEL, "src/keel/fleet/routes.py");
+let routesSrc = "";
+try { routesSrc = fs.readFileSync(routesPath, "utf8"); } catch { /* reported below */ }
+
+// API-03 — `shells/clear/finished` is implemented in the GET dispatcher only
+// (routes.py:528). The shared client used to POST it, which falls through
+// dispatch_post and returns an error. Derive the expected method from the
+// dispatcher that actually contains the literal so a backend fix is honoured.
+if (routesSrc) {
+  const postAt = routesSrc.indexOf("def dispatch_post");
+  const getSlice = postAt > 0 ? routesSrc.slice(0, postAt) : routesSrc;
+  const postSlice = postAt > 0 ? routesSrc.slice(postAt) : "";
+  const getHas = /["']finished["']/.test(getSlice) && /["']clear["']/.test(getSlice);
+  const postHas = /["']finished["']/.test(postSlice) && /["']clear["']/.test(postSlice);
+  const expected = postHas ? "POST" : getHas ? "GET" : null;
+  const ep = frontendEndpoints.find((e) => e.path.endsWith("/shells/clear/finished"));
+  check("API-03", "shells/clear/finished call method matches the backend dispatcher",
+    expected && ep && ep.method === expected ? "pass" : "fail",
+    !expected ? "could not determine backend method from routes.py"
+      : !ep ? "no frontend call site found"
+        : `backend=${expected}, frontend=${ep.method} at ${loc(ep.file, ep.line)}`,
+    [{ backendEvidence: "routes.py:528 (GET dispatcher)", expected, actual: ep?.method ?? null }]);
+} else {
+  check("API-03", "shells/clear/finished call method matches the backend dispatcher", "skipped", "routes.py not readable");
+}
+
+// EVT-01 — the bridge emits named `event: row` SSE frames (routes.py:1748).
+// EventSource.onmessage only fires for unnamed / `message` frames, so a
+// subscribeEvents() that only sets onmessage silently drops every live event.
+if (routesSrc) {
+  const emitted = routesSrc.match(/event:\s*([A-Za-z_-]+)\\ndata:/)?.[1] ?? null;
+  const apiSrc = fs.readFileSync(path.join(APP, "lib/api.ts"), "utf8");
+  const at = apiSrc.indexOf("export function subscribeEvents");
+  const block = at >= 0 ? apiSrc.slice(at) : "";
+  const hasOnMessage = /onmessage\s*=/.test(block);
+  const hasNamed = emitted ? new RegExp(`addEventListener\\(["']${emitted}["']`).test(block) : false;
+  const ok = emitted === null ? true : hasNamed || !hasOnMessage;
+  const onMessageLine = at >= 0 && hasOnMessage
+    ? apiSrc.slice(0, at).split("\n").length + block.slice(0, block.indexOf("onmessage")).split("\n").length - 1
+    : 0;
+  check("EVT-01", "Shared SSE subscriber listens for the event name the bridge emits",
+    ok ? "pass" : "fail",
+    emitted === null ? "backend emits unnamed frames; onmessage is sufficient"
+      : ok ? `backend emits '${emitted}'; subscriber registers a matching listener`
+        : `backend emits '${emitted}' but subscribeEvents only sets onmessage (${loc(path.join(APP, "lib/api.ts"), onMessageLine)})`,
+    [{ backendEvent: emitted, onmessage: hasOnMessage, namedListener: hasNamed }]);
+} else {
+  check("EVT-01", "Shared SSE subscriber listens for the event name the bridge emits", "skipped", "routes.py not readable");
+}
+
+// FAB-02 — the permission-mode preference written by Settings/Onboarding is
+// advertised as being read by the composer at startup. Guard that promise.
+// A fix may legitimately wire the persisted mode through the shared shell
+// state rather than directly inside features/cowork, so scan every source file
+// except the two writer workstreams (settings/onboarding).
+const consumerSources = sourceFiles
+  .filter((f) => !/[\\/](features[\\/](settings|onboarding))[\\/]/.test(f))
+  .map((f) => fs.readFileSync(f, "utf8")).join("\n");
+const securitySrc = (() => { try { return fs.readFileSync(path.join(APP, "features/settings/SecuritySettings.tsx"), "utf8"); } catch { return ""; } })();
+const modeWritten = /keel-mode/.test(securitySrc) || fs.existsSync(path.join(APP, "features/onboarding/progress.ts"));
+const modeReadByComposer = /keel-mode|readMode\(/.test(consumerSources);
+check("FAB-02", "Permission-mode preference is consumed by the Cowork composer",
+  !modeWritten || modeReadByComposer ? "pass" : "fail",
+  !modeWritten ? "no permission-mode preference writer found"
+    : modeReadByComposer ? "composer source references the persisted mode"
+      : "Settings/Onboarding write 'keel-mode' and show a success message, but no Cowork/Composer source reads it",
+  [{ writer: "features/settings/SecuritySettings.tsx:35 / features/onboarding/progress.ts:161", composerReader: modeReadByComposer }]);
+
+// ---------------------------------------------------------------------------
 // 6. SKIPPED browser-only checks (never claim what was not run)
 // ---------------------------------------------------------------------------
 for (const [id, name, why] of [
-  ["E2E-01", "Playwright end-to-end flows", "Playwright is not installed (no node_modules, not in package.json)"],
-  ["VIS-01", "Visual regression screenshots at 6 viewports", "no browser / no Playwright; static CSS review only"],
-  ["A11Y-06", "Runtime a11y tree / keyboard walkthrough / contrast", "static source analysis cannot compute computed styles or focus order"],
-  ["PERF-01", "Runtime virtualization / streaming re-render profiling", "requires a running browser with a live bridge"],
+  ["E2E-01", "Playwright end-to-end flows", "not run by this harness: Playwright 1.65.1 is installed by another workstream (tests/e2e), but QA does not own or execute that suite"],
+  ["VIS-01", "Visual regression screenshots at 6 viewports", "no visual-regression baseline exists; see verify-viewports.mjs for read-only overflow measurements at 6 viewports"],
+  ["A11Y-06", "Runtime a11y tree / keyboard walkthrough / contrast", "static source analysis cannot compute computed styles or focus order; in-app browser was disconnected during the QA audit"],
+  ["PERF-01", "Runtime virtualization / streaming re-render profiling", "requires a running browser with a live model turn; no provider credentials on this host"],
 ]) check(id, name, "skipped", why);
 
 // ---------------------------------------------------------------------------

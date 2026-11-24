@@ -3,6 +3,7 @@
 **Generated:** 2026-11-24 · **Worktree:** `keel-frontend-worktree` · **Branch:** `feat/frontend-unified-workspace`
 **Scope:** static quality, API contract, no-fabricated-data, accessibility and responsive triage of `keel/fleet-next`.
 This report records only checks that were actually executed. No browser test is claimed.
+**Update:** §10 (2026-11-24) records a later continuous-QA pass; the tool-availability notes in §1 describe the state at the time of the original audit (Playwright has since been installed by another workstream, and a read-only headless probe was added — see §10.4).
 
 ---
 
@@ -141,3 +142,49 @@ No other defects were found by the executed checks. Items that *looked* like def
 | Live data | network log + Fleet snapshot | 7 bridge GETs, all 2xx; Fleet shows 7 real agents and 2 real tasks |
 | PWA freshness | `caches.keys()` before/after SW update | `keel-fleet-shell-v2` → `keel-shell-v3` (DF-003 fix confirmed) |
 | Regression guard | `python -m pytest -q` | 22 failed / 2531 passed / 51 skipped — pre-existing backend baseline, see §7 |
+
+---
+
+## 10. Continuous QA pass (2026-11-24, after backend reconciliation)
+
+Scope: re-audit of the current worktree, including concurrent uncommitted work by other agents. Full detail, defect IDs and re-test procedure are in `keel/docs/UI-DEFECT-LOG.md`.
+
+### 10.1 What changed since §9
+
+- The reconciliation merge `5a670c3` did **not** change `routes.py`; the SSE emitter still sends only named `event: row` frames (`routes.py:1748`).
+- Other workstreams added Playwright 1.65.1 + `tests/e2e`, a11y hardening in `components/ui.tsx` / `app/page.tsx`, and a separate `.next-e2e` build directory. The harness now ignores `.next-e2e` (generated bundles previously produced 17 false API-01 findings and 80 false FAB-01 matches).
+
+### 10.2 New defects (all previously unreported)
+
+| ID | Severity | One-line finding | Owner | Status |
+|---|---|---|---|---|
+| QA-001 | High | `subscribeEvents` only sets `onmessage`; bridge emits only `event: row`, so Cowork live streaming/events never arrive | Shared API + Cowork | open |
+| QA-002 | Medium-High | `clearFinishedShells()` POSTs a GET-only backend route; Terminal "Clear finished" always fails | Code & Duet / Shared API | open |
+| QA-003 | Medium | Permission-mode `keel-mode` is written with a success message but never read by the composer | Settings + Cowork + Onboarding | open |
+| QA-004 | Medium | Capabilities header unconditionally claims "Live bridge data" / "connected bridge" | Capabilities | open |
+| QA-005 | Medium | Fleet ActivityPanel re-renders answered questions as pending (all `ask` rows, no status filter) | Fleet | open |
+| QA-006 | Medium | Command palette has `aria-modal="true"` but no Tab focus trap | Shell | open |
+| QA-007 | Low | Fleet opens two SSE connections; one is dead for named frames | Fleet | open |
+| QA-008 | Low (latent) | `keepAwake` sends `{enabled}` but backend reads `{"on"}`; no current caller | Shared API | open |
+
+DF-001…DF-004 remain fixed and verified (§4). No fabricated providers/models/audit data, no placeholder click handlers, no fake toasts and no localStorage-stored secrets were found in this pass.
+
+### 10.3 Harness extension
+
+`tests/ui/verify-ui.mjs` gained three focused regression guards, each derived from source actually read:
+
+- `API-03` — derives the expected HTTP method for `shells/clear/finished` from the dispatcher that contains the literal; accepts either a client fix or a backend POST handler.
+- `EVT-01` — compares the SSE event name emitted by `routes.py` with the listeners registered by `subscribeEvents`.
+- `FAB-02` — checks that a writer of `keel-mode` has a matching reader in `features/cowork/**`.
+
+Final run: `node tests/ui/verify-ui.mjs` → `{"info":1,"pass":11,"fail":3,"skipped":4}`, exit code 1 — the three failures are exactly QA-001/002/003. Evidence in `tests/ui/results.json`.
+
+### 10.4 Browser / viewport checks actually run
+
+- `webfetch` GET `http://127.0.0.1:3200/` and `/api/bridge/{providers,bots}` → app shell rendered, both endpoints returned real JSON with no secrets. **No state-changing HTTP method was issued.**
+- In-app browser: **unavailable** — `tools.browser.tabs.open` returned `[browser.disconnected]`.
+- Added `tests/ui/verify-viewports.mjs` (read-only, no backend mutation). One successful run against the `:3300` dev server measured 32 surface/viewport combinations across 6 viewports with **0 horizontal overflow**; a `pageerror` about `unsafe-eval` under the dev CSP appeared on the dev server. The script was subsequently hardened to wait for React hydration and assert each surface switch, but the server refused connections during both re-runs, so **the hardened result is not yet obtained** and `viewport-results.json` currently records the failed re-run, not the successful measurement. See `UI-DEFECT-LOG.md` §3–4. Earlier "not pixel-verified" claims are therefore only partially retired.
+
+### 10.5 A11y observations that were checked and found already fixed
+
+`components/ui.tsx` and `app/page.tsx` gained a skip link, roving tabindex for tabs/surface switch, Escape handling for mobile panels, a real focus trap in `Dialog`, `aria-valuenow/min/max` on `ResizeHandle` with values passed by all four call sites, and `TextField`/`Textarea` hint/error wiring. These are **not** reported as defects. QA-006 (command-palette Tab trap) remains open because that custom dialog was not covered by the same changes.
