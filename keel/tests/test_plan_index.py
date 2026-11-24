@@ -63,7 +63,10 @@ def test_authoritative_source_hashes_unchanged():
             "b42219150271fa9e",
     }
     for name, prefix in expected.items():
-        digest = hashlib.sha256((DOWNLOADS / name).read_bytes()).hexdigest()
+        # Git may check these out with CRLF on Windows; hash normalized bytes
+        # so the assertion tests content, not the checkout's EOL policy.
+        content = (DOWNLOADS / name).read_bytes().replace(b"\r\n", b"\n")
+        digest = hashlib.sha256(content).hexdigest()
         assert digest.startswith(prefix), f"{name} changed: {digest}"
 
 

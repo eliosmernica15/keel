@@ -67,6 +67,8 @@ class AskBroker:
             if pending is None or pending["bot_id"] != bot_id:
                 return False
             pending["answer"] = answer
+            # The waiting caller consumes (pops) the entry in wait(); popping
+            # here would race with a waiter that has not looked it up yet.
             pending["event"].set()
         return True
 
@@ -76,8 +78,14 @@ class AskBroker:
         if pending is None:
             return None
         if not pending["event"].wait(timeout_s):
+            # A timed-out ask is unroutable; release it as well.
+            with self._lock:
+                self._pending.pop(ask_id, None)
             return None
-        return pending["answer"]
+        answer = pending["answer"]
+        with self._lock:
+            self._pending.pop(ask_id, None)
+        return answer
 
     # ------------------------------------------------------------ sweep
     def expire_sweep(self, store, *, timeout_s: float = 300.0) -> int:
