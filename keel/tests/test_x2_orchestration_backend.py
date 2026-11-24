@@ -683,8 +683,120 @@ def test_x2_16_supervisor_jobs_and_crash_surface():
             literal.stop_all()
 
 
-def test_all_feature_ids_are_covered():
-    assert FEATURE_IDS == tuple(f"X2.{i}" for i in range(1, 17))
+def test_x2_all_16_ids_execute_real_behavior():
+    """Behavioural replacement for the old ID-tuple equality guard.
+
+    Every X2.* ID is executed through a real symbol with concrete inputs and
+    its exact output asserted.  Replacing any implementation with a no-op now
+    fails this test instead of passing on a tuple comparison.
+    """
+
+    def diag_probe():
+        out = attach_diagnostics(
+            {"ok": True}, ["a.py"],
+            lambda p: [{"file": p, "line": 1, "code": "E",
+                        "severity": "error", "message": "bad"}])
+        return out["needs_resolution"], out["diagnostics"]["degraded"]
+
+    def action_probe():
+        with tempfile.TemporaryDirectory() as tmp:
+            plan = CodeActionRouter(tmp).plan(
+                "rename", {"file": "a.py", "old_name": "x", "new_name": "y",
+                           "line": 7})
+            return plan["fallback_used"], plan["source"], plan["requires_semantic_verification"]
+
+    def repro_probe():
+        with tempfile.TemporaryDirectory() as tmp:
+            guard = BugReproGuard(Path(tmp) / "r.json")
+            guard.require_repro("bug-42", "desc")
+            guard.confirm_repro({"failed": 1})
+            return guard.status()["confirmed"]
+
+    def dependency_probe():
+        with tempfile.TemporaryDirectory() as tmp:
+            cache = Path(tmp) / "cache"
+            (cache / "libfoo").mkdir(parents=True)
+            (cache / "libfoo" / "CHANGELOG.md").write_text(
+                "v2: breaking change", encoding="utf-8")
+            assistant = DependencyUpgradeAssistant(cache, Path(tmp) / "j.json")
+            planned = assistant.plan([{"name": "libfoo", "from": "1", "to": "2"}])
+            return (planned[0]["changelog"]["found"],
+                    "breaking change" in planned[0]["changelog"]["excerpt"])
+
+    def notebook_probe():
+        old = NotebookDoc.from_json(json.dumps({"cells": [
+            {"cell_type": "code", "id": "c1", "source": "print(1)\n", "outputs": []}]}))
+        new = NotebookDoc.from_json(json.dumps({"cells": [
+            {"cell_type": "code", "id": "c1", "source": "print(2)", "outputs": []}]}))
+        return cell_diff(old, new)[0]["change"]
+
+    def supervisor_probe():
+        with tempfile.TemporaryDirectory() as tmp:
+            sup = ProcessSupervisor(Path(tmp) / "jobs")
+            try:
+                job = sup.start("hello", [sys.executable, "-c", "print('hi')"])
+                sup.wait("hello")
+                return job["status"], sup.status("hello")["status"]
+            finally:
+                sup.stop_all()
+
+    probes = {
+        "X2.1": diag_probe,
+        "X2.2": action_probe,
+        "X2.3": lambda: run_tdd("t", {"failed": 1, "raw": "FAILED t"},
+                                lambda: None, {"passed": 4, "failed": 0})["verified"],
+        "X2.4": repro_probe,
+        "X2.5": lambda: parse_unified_diff(DIFF)["src/app.py"],
+        "X2.6": lambda: (lambda r: (r["clean"], r["conflicts"][0]["lines"]))(
+            preview_conflicts({"a.py": {1, 2, 5}}, {"a.py": {5, 9}, "b.py": {3}})),
+        "X2.7": lambda: (lambda s: (s.runner, s.failed, s.passed, s.skipped))(
+            summarize("\x1b[31mFAILED tests/test_a.py::test_x\x1b[0m\n"
+                      "1 failed, 5 passed, 2 skipped in 0.4s\n", "pytest")),
+        "X2.8": lambda: next(
+            h["uncovered_lines"] for h in CoverageHints().hint(
+                {"a.py": [10, 11, 12, 20], "b.py": [3], "c.py": [1, 2, 3]},
+                {"a.py": {"executed_lines": [11]}, "b.py": [3]}, max_hints=3)["hints"]
+            if h["file"] == "a.py"),
+        "X2.9": dependency_probe,
+        "X2.10": lambda: len(MigrationAssistant().start("python-3.8-to-3.11")["steps"]),
+        "X2.11": notebook_probe,
+        "X2.12": lambda: (lambda s: (s["type"], s["source"]))(
+            CommitHygiene(["feat(core): add cache"]).suggest_type(
+                ["src/core/cache.py"], "feat(core): add cache")),
+        "X2.13": lambda: MonorepoGraph({
+            "pkg": {"paths": ["packages/pkg"], "depends_on": [], "test_command": "pytest pkg"},
+            "pkg2": {"paths": ["packages/pkg2"], "depends_on": ["pkg"], "test_command": "pytest pkg2"},
+            "app": {"paths": ["apps/app"], "depends_on": ["pkg2"], "test_command": "pytest app"},
+            "other": {"paths": ["apps/other"], "depends_on": [], "test_command": "pytest other"},
+        }).affected(["packages/pkg/mod.py"]),
+        "X2.14": lambda: (lambda e: (e["cited"][0]["symbol"], e["lines_examined"]))(
+            ExplanationBuilder(SymbolIndex({"src/app.py": [
+                {"name": "main", "kind": "function", "start_line": 10, "end_line": 15}]}
+            )).explain_change(DIFF)),
+        "X2.15": lambda: (LanguagePacks().detect("main.rs"), len(LanguagePacks().list())),
+        "X2.16": supervisor_probe,
+    }
+    expected = {
+        "X2.1": (True, False),
+        "X2.2": (True, "text_edit", True),
+        "X2.3": True,
+        "X2.4": True,
+        "X2.5": [11, 12, 13],
+        "X2.6": (False, [5]),
+        "X2.7": ("pytest", 1, 5, 2),
+        "X2.8": [10, 12, 20],
+        "X2.9": (True, True),
+        "X2.10": 4,
+        "X2.11": "modified",
+        "X2.12": ("feat", "history"),
+        "X2.13": ["app", "pkg", "pkg2"],
+        "X2.14": ("main", 3),
+        "X2.15": ("rust", 10),
+        "X2.16": ("running", "exited"),
+    }
+    assert set(probes) == set(FEATURE_IDS) == set(expected)
+    for fid in FEATURE_IDS:
+        assert probes[fid]() == expected[fid], fid
 
 
 if __name__ == "__main__":

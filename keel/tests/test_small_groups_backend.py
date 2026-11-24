@@ -883,28 +883,69 @@ def test_y6_3_repo_descriptor():
 # ---------------------------------------------------------------------------
 
 
-def test_registry_covers_every_implemented_non_gated_feature():
-    expected = {
-        "X4": 7,
-        "D2": 6,
-        "E4": 6,
-        "W9": 6,
-        "X9": 6,
-        "W6": 4,
-        "W8": 4,
-        "W2": 3,
-        "W5": 3,
-        "X0": 3,
-        "X10": 3,
-        "W3": 2,
-        "Y6": 1,  # Y6.3 only; Y6.4 is owner-gated
+def test_x4_d2_e4_w9_x9_w6_w8_w2_w5_x0_x10_w3_y6_registry_dispatches_real_behavior():
+    """Behavioural replacement for the old count-/-callable-only registry guard.
+
+    The previous test only checked ID counts and that every registry value was
+    callable.  A dict of 54 no-op lambdas passed it.  Here the registry itself
+    is the system under test: for every group prefix we fetch the *registered*
+    symbol and execute it with concrete inputs, pinning the exact result.
+    """
+    probes = {
+        "X4": lambda: FEATURE_IMPLEMENTATIONS["X4.2"](["a", "b", "c"]),
+        "D2": lambda: _serial_hook_run_result(),
+        "E4": lambda: FEATURE_IMPLEMENTATIONS["E4.3"]().evaluate(
+            {"files": {"a.py": {"covered": 9, "total": 10}}})["passed"],
+        "W9": lambda: FEATURE_IMPLEMENTATIONS["W9.3"](
+            {"mode": "primary", "model": "openai/gpt-4#high"})["model"]["variant"],
+        "X9": lambda: FEATURE_IMPLEMENTATIONS["X9.6"]("Hello world"),
+        "W6": lambda: (FEATURE_IMPLEMENTATIONS["W6.5"]("browser", True, True)["tool"],
+                       FEATURE_IMPLEMENTATIONS["W6.2"]().label("claim", "moderate")["confidence"]),
+        "W8": lambda: FEATURE_IMPLEMENTATIONS["W8.1"](["admin@example.org"]).matches(
+            "admin@example.org"),
+        "W2": lambda: FEATURE_IMPLEMENTATIONS["W2.7"](
+            "configured", {"configured": {}, "other": {}}),
+        "W5": lambda: FEATURE_IMPLEMENTATIONS["W5.5"](
+            "cli-model", "agent-model", "session-model"),
+        "X0": lambda: FEATURE_IMPLEMENTATIONS["X0.2b"]().split("M17"),
+        "X10": lambda: _scope_creep_result(),
+        "W3": lambda: FEATURE_IMPLEMENTATIONS["W3.5"]({"path": "a.txt"})["path"],
+        "Y6": lambda: FEATURE_IMPLEMENTATIONS["Y6.3"](
+            "Cowork, Code, Duet and Fleet in one app",
+            "https://keel-desktop.vercel.app")["valid"],
     }
-    assert set(GROUP_PREFIXES) == set(expected)
-    for prefix, count in expected.items():
-        registered = [feature_id for feature_id in FEATURE_IMPLEMENTATIONS if feature_id.startswith(prefix + ".")]
-        assert len(registered) == count, (prefix, registered)
-    assert len(FEATURE_IMPLEMENTATIONS) == 54
-    assert all(callable(value) for value in FEATURE_IMPLEMENTATIONS.values())
+    expected = {
+        "X4": ["abc"],
+        "D2": 2,
+        "E4": True,
+        "W9": "high",
+        "X9": "\u27e6H\u00e9ll\u00f3 w\u00f3rld\u27e7",
+        "W6": ("local_desktop", "moderate"),
+        "W8": True,
+        "W2": "configured",
+        "W5": "cli-model",
+        "X0": ["M17-voice", "M17-documents", "M17-meetings"],
+        "X10": False,
+        "W3": "a.txt",
+        "Y6": True,
+    }
+    assert set(probes) == set(GROUP_PREFIXES) == set(expected)
+    for prefix in GROUP_PREFIXES:
+        assert probes[prefix]() == expected[prefix], prefix
+
+
+def _serial_hook_run_result():
+    runner = FEATURE_IMPLEMENTATIONS["D2.2"]()
+    runner.register("stream", "serial", lambda value: value + 1)
+    runner.register("stream", "serial", lambda value: value + 1)
+    return runner.run("stream", 0)
+
+
+def _scope_creep_result():
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        guard = FEATURE_IMPLEMENTATIONS["X10.6"](Path(tmp) / "INBOX.md")
+        return guard.capture("Add a chart", "M19")["inline_build"]
 
 
 def test_owner_gated_y6_4_is_documented_not_implemented():

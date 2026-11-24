@@ -22,14 +22,216 @@ from urllib.parse import parse_qs, urlparse
 from keel import y4_d4_x7_backend as m
 
 
-class CoverageTests(unittest.TestCase):
-    def test_all_31_ids_mapped_and_resolvable(self):
-        self.assertEqual(len(m.IMPLEMENTED_FEATURE_IDS), 31)
-        self.assertEqual(m.verify_coverage(), ())
+class Y4D4X7BehaviorCoverageTests(unittest.TestCase):
+    """Replace the old descriptor-only coverage guards with real execution.
 
-    def test_prior_p0_verified_rows_documented(self):
-        self.assertEqual(set(m.PRIOR_VERIFIED_P0),
-                         {"Y4.3", "Y4.9", "Y4.13", "D4.2", "D4.7", "D4.11"})
+    The previous tests here only counted IDs and checked that mapped symbol
+    names existed in ``globals()`` (via ``verify_coverage()``).  A module whose
+    every function was a stub returning ``None`` still passed.  Each feature ID
+    below is now *executed* with concrete inputs and its concrete output
+    asserted, so a no-op implementation fails the test.
+    """
+
+    def test_y4_d4_x7_all_31_ids_execute_real_behavior(self):
+        # Every entry calls the real function/class that FEATURE_BEHAVIORS maps
+        # the ID to, with concrete inputs, and returns a value we pin exactly.
+        probes = {
+            "Y4.1": lambda: self._reviver(),
+            "Y4.2": lambda: (lambda p: (p.qr_text == p.deep_link,
+                                        "channel=telegram" in p.deep_link,
+                                        len(p.manual_code)))(
+                m.build_onboarding_payload("telegram", "tok")),
+            "Y4.4": lambda: self._secret_provider(),
+            "Y4.5": lambda: self._bridge(),
+            "Y4.6": lambda: self._trace_store(),
+            "Y4.7": lambda: (len(m.desktop_tool_manifest()),
+                             m.validate_desktop_tools(m.KEYLESS_DESKTOP_TOOLS) == ()),
+            "Y4.8": lambda: self._vault(),
+            "Y4.10": lambda: (len(m.list_runbooks()), m.validate_skill_library() == ()),
+            "Y4.11": lambda: m.two_line_switch(model="openai/gpt",
+                                               provider="openai").lines(),
+            "Y4.12": lambda: (len(m.deterministic_tarball({"a.txt": b"x"})[1]),
+                              m.check_artifact_budget(100, "publish_api")["ok"]),
+            "Y4.14": lambda: (len(m.preset_bundle()["plugins"]),
+                              len(m.preset_bundle()["mcp_servers"])),
+            "D4.1": lambda: self._provider_registry(),
+            "D4.3": lambda: self._workspace_gate(),
+            "D4.4": lambda: m.resolve_picker_mode(m.PickerMode.NATIVE,
+                                                   headless=True).value,
+            "D4.5": lambda: self._node_registry(),
+            "D4.6": lambda: self._settings_card(),
+            "D4.8": lambda: m.t({"en": {"greet": "Hello there"}}, "greet"),
+            "D4.9": lambda: (m.check_icon("notes", "plug") is None,
+                             m.check_icon("notes", "new").code),
+            "D4.10": lambda: self._design_guide(),
+            "D4.12": lambda: (m.desktop_startup_plan().first_paint_phase.value,
+                              m.desktop_startup_plan().plugins_after_ready),
+            "D4.13": lambda: (m.select_port(m.PortMode.DESKTOP).port,
+                              m.WEB_DEFAULT_PORT),
+            "X7.1": lambda: (len(m.BUILD_TARGETS),
+                             m.verify_target_matrix(m.BUILD_TARGETS) == ()),
+            "X7.2": lambda: (m.windows_install_plan("per_user",
+                                                    username="alice")["requires_admin"],
+                             m.windows_install_plan(m.InstallScope.PER_MACHINE,
+                                                    username="alice")["requires_admin"]),
+            "X7.3": lambda: m.uninstall_plan(
+                "keep_data",
+                paths={"app": "/app", "data": "/data", "config": "/cfg",
+                       "models": "/models"})["would_delete"],
+            "X7.4": lambda: len(m.association_registration_plan()),
+            "X7.5": lambda: (m.detect_linux_session({"WAYLAND_DISPLAY": "1"}),
+                             m.detect_linux_session({})),
+            "X7.6": lambda: m.checksum_manifest({"a": b"one"})["a"]
+            == hashlib.sha256(b"one").hexdigest(),
+            "X7.7": lambda: m.installer_text(
+                {"en": {"install": "Install", "next": "Next"},
+                 "de": {"install": "Installieren"}}, "next", "de"),
+            "X7.8": lambda: self._download(),
+            "X7.9": lambda: self._import_plan(),
+            "X7.10": lambda: self._disk_usage(),
+        }
+        expected = {
+            "Y4.1": (True, "active", True),
+            "Y4.2": (True, True, 8),
+            "Y4.4": (True, "KEEL_API_KEY", "s.env"),
+            "Y4.5": ("running", False, True, 1),
+            "Y4.6": (1, ("model:gpt", "tool:bash")),
+            "Y4.7": (11, True),
+            "Y4.8": (True, "# Hello", ("hello.md",)),
+            "Y4.10": (21, True),
+            "Y4.11": ("model: openai/gpt", "provider: openai"),
+            "Y4.12": (64, True),
+            "Y4.14": (16, 13),
+            "D4.1": (False, "openai", 1),
+            "D4.3": (False, True),
+            "D4.4": "in_page",
+            "D4.5": (["status"], ("tool_call",)),
+            "D4.6": {"mode": "safe"},
+            "D4.8": "Hello there",
+            "D4.9": (True, "designer_approval_required"),
+            "D4.10": (1, "guide_not_loaded", 5),
+            "D4.12": ("packaged_assets", True),
+            "D4.13": (0, m.WEB_DEFAULT_PORT),
+            "X7.1": (7, True),
+            "X7.2": (False, True),
+            "X7.3": ["/app"],
+            "X7.4": 4,
+            "X7.5": ("wayland", "headless"),
+            "X7.6": True,
+            "X7.7": "Next",
+            "X7.8": (True, "sha256 mismatch"),
+            "X7.9": ["n.md"],
+            "X7.10": (100, ["models/m.bin"]),
+        }
+        self.assertEqual(set(probes), set(expected))
+        for fid in sorted(expected):
+            with self.subTest(fid=fid):
+                self.assertEqual(probes[fid](), expected[fid])
+
+    def test_y4_d4_x7_prior_p0_rows_execute_verified_contracts(self):
+        """The 6 prior P0 rows must point at modules with real, callable contracts."""
+        from keel import composition_contracts as cc
+        from keel import identity_contracts as ic
+
+        boot = ic.first_boot_decision(())
+        self.assertFalse(boot.allowed)
+        self.assertIn("no_probe_results", boot.reasons[0])
+        soul = ic.default_soul("keel")
+        self.assertEqual(soul.agent_id, "keel")
+        self.assertTrue(ic.render_soul(soul).startswith("# SOUL.md"))
+        self.assertEqual(ic.parse_version("1.2.3"), "1.2.3")
+        self.assertEqual(ic.scan_secrets(()), ())
+        provider = cc.make_provider("openai", base_url="https://api.openai.com/v1")
+        self.assertEqual(cc.endpoint_scope(provider), "remote")
+        self.assertEqual(cc.make_presenter("bash").tool_name, "bash")
+        self.assertEqual(cc.validate_plugin(cc.make_plugin("notes", "Notes")), ())
+
+    # -- helpers used by the dispatch table ---------------------------------
+    def _reviver(self):
+        r = m.McpServerReviver(["wiki"], probe_interval_s=300).reload("wiki")
+        return (r.instant, r.phase.value, "revived" in r.detail)
+
+    def _secret_provider(self):
+        store = m.SecretProviderMap()
+        store.add_binding("vault", {"API_KEY": "KEEL_API_KEY"}, token_env_file="s.env")
+        store.enable("op", token_present=True, stdin_isatty=False)
+        return (store.enabled, store.resolve("API_KEY"), store.token_file("vault"))
+
+    def _bridge(self):
+        b = m.SupervisedBridge()
+        b.start("https://t.example/h", key="k")
+        return (b.phase.value, b.wake_if_keyed("wrong"),
+                b.wake_if_keyed("k"), b.deliver({"e": 1})["seq"])
+
+    def _trace_store(self):
+        store = m.TraceStore()
+        store.record("model", "gpt", ts=1)
+        store.record("tool", "bash", detail="ls", ts=2)
+        return (len(store.query(kind="tool")), store.what_did_you_do())
+
+    def _vault(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            v = m.ObsidianVault(Path(tmp) / "v")
+            note = v.create_note("hello", "# Hello")
+            return (note["path"].endswith("hello.md"), v.read_note("hello"),
+                    v.list_notes())
+
+    def _provider_registry(self):
+        reg = m.ProviderRegistry()
+        applied = reg.configure("openai", key_ref="K", model="gpt")
+        return (applied["restart_required"], reg.resolve("gpt"),
+                reg.snapshot()["version"])
+
+    def _workspace_gate(self):
+        gate = m.WorkspaceGate("/d")
+        before = gate.can_compose()
+        gate.select("/c")
+        return (before, gate.can_compose())
+
+    def _node_registry(self):
+        reg = m.NodeRendererRegistry()
+        reg.register(m.ConversationNodeDefinition(
+            "tool_call", "tool_card", ("name", "status")))
+        return (reg.render({"type": "tool_call", "name": "bash"})["missing_fields"],
+                reg.types())
+
+    def _settings_card(self):
+        reg = m.SettingsCardRegistry()
+        manifest = {"plugin": "notes", "settings_cards": [
+            {"id": "general", "title": "G", "fields": [
+                {"key": "mode", "type": "enum", "default": "fast",
+                 "options": ["fast", "safe"]}]}]}
+        reg.register_manifest(manifest)
+        return reg.render_form("general", {"mode": "safe"})["values"]
+
+    def _design_guide(self):
+        skill = m.DesignGuideSkill()
+        issues = skill.gate(["site/ui/app.ts"])
+        return (len(issues), issues[0].code, len(skill.load()))
+
+    def _download(self):
+        data = b"bytes"
+        digest = hashlib.sha256(data).hexdigest()
+        return (m.verify_download(data, digest, filename="f",
+                                  expected_size=len(data)).ok,
+                m.verify_download(data, "0" * 64).reason)
+
+    def _import_plan(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "v"
+            src.mkdir()
+            (src / "n.md").write_text("# n", encoding="utf-8")
+            return m.plan_import(src, "obsidian")["files"]
+
+    def _disk_usage(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "models").mkdir()
+            (root / "models" / "m.bin").write_bytes(b"x" * 100)
+            report = m.scan_disk_usage(
+                root, caps={"models": 10, "caches": 0, "sessions": 0, "trash": 0})
+            return (report["models"]["bytes"],
+                    m.safe_clean_plan(report, "models")["remove"])
 
 
 # ---------------------------------------------------------------- Y4

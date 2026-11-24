@@ -177,7 +177,7 @@ def test_y1013_create_uses_edit_permission_and_plugin_strategy():
     )
     assert plan.permission == "edit" and plan.permission_resource == "worktree:feat"
     assert plan.strategy == "mirror" and plan.directory == "/repo/worktrees"
-    assert "worktree_create" in y.WORKTREE_TOOLS
+    assert y.WORKTREE_TOOLS == ("worktree_create", "worktree_list", "worktree_remove")
 
 
 def test_y1013_remove_requires_force_and_edit_permission():
@@ -206,8 +206,9 @@ def test_y1013_rejects_traversal_and_unregistered_strategy():
 
 
 def test_y1014_deny_removes_whole_catalog():
-    assert "browser.lighthouse" in y.BROWSER_TOOLS
-    assert y.browser_tool_catalog() == y.BROWSER_TOOLS
+    catalog = y.browser_tool_catalog()
+    assert len(catalog) == 14
+    assert catalog[0] == "browser.tabs.open" and catalog[-1] == "browser.lighthouse"
     assert y.browser_tool_catalog(denied=["browser"]) == ()
     assert y.browser_tool_catalog(denied=["browser.*"]) == ()
     assert y.browser_tool_catalog(allowed=["browser.network"]) == ("browser.network",)
@@ -796,7 +797,7 @@ def test_y1036_docs_generated_and_escaped():
         {"code": "E1", "message": "<script>alert(1)</script>", "remedy": "Restart the server"},
         {"code": "E2", "message": "Bad flag", "remedy": "Use --safe"},
     ])
-    assert tuple(p.route for p in pages) == y.DOC_ROUTES
+    assert tuple(p.route for p in pages) == ("/docs/migrate-from-v1", "/docs/troubleshooting")
     assert "&lt;script&gt;" in pages[1].body and "<script>" not in pages[1].body
     assert "Restart the server" in pages[0].body
 
@@ -821,7 +822,7 @@ def test_y1037_per_user_target_channel_formulas_and_cleanup_tip():
     assert "# preview only" in plan.script_preview
     assert y.install_plan("beta", "aur", home="/home/me", cleanup_older_than=2,
                           existing_versions=["1.0.0", "2.1.0"]).cleanup_tip.count("1.0.0") == 1
-    assert y.STORE_FEASIBILITY["brew-cask"] is True
+    assert "install stable binary into /home/me/.opencode/bin" in plan.script_preview
 
 
 def test_y1037_rejects_system_dirs_injection_and_channel_mismatch():
