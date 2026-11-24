@@ -22,11 +22,19 @@ preview before PDF render, read-later imports that never overwrite a vault
 file, spreadsheet writes to a copy, dry-run file organisation, safe-delete to
 a trash directory, opt-in + consent gated clipboard queries, and user-owned
 feed registration.
+
+Durability notes: saves are sealed with an HMAC keyed by a sidecar file and
+written atomically under a per-state-path lock.  Loading is fail-closed --
+corrupt, legacy or tampered state raises :class:`X3StateError` instead of
+silently resetting.  The only recovery is the explicit
+:meth:`X3Backend.recover_state` path, which quarantines the untrusted file
+without reading its contents; it cannot accept a forged consent or root.
 """
 
 from __future__ import annotations
 
 import base64
+import copy
 import csv
 import hashlib
 import hmac
@@ -40,6 +48,8 @@ import secrets
 import shutil
 import sqlite3
 import struct
+import tempfile
+import threading
 import time
 import xml.etree.ElementTree as ET
 import zlib
@@ -58,8 +68,45 @@ class X3Error(ValueError):
     """Raised when an X3 operation violates a local safety rule."""
 
 
+class X3StateError(X3Error):
+    """Raised when durable state is corrupt or fails integrity verification.
+
+    Loading is fail-closed: unreadable, truncated, legacy or tampered state is
+    never silently replaced with a fresh default.  The only recovery is the
+    explicit :meth:`X3Backend.recover_state` quarantine path, which discards
+    the untrusted file wholesale and therefore cannot accept forged content.
+    """
+
+
 class ConsentDenied(PermissionError):
     """Raised when an agent queries private data without explicit consent."""
+
+
+# One re-entrant lock per resolved state path, shared by every X3Backend
+# instance in the process.  Temp files are unique per save, but the lock also
+# serialises read-modify-write so concurrent callers cannot lose updates.
+_STATE_LOCKS: dict[str, threading.RLock] = {}
+_STATE_LOCKS_GUARD = threading.Lock()
+_STATE_KEY_FILE = ".x3_state_key"
+_TEMP_PREFIX = "x3_state."
+_TEMP_SUFFIX = ".tmp"
+_INTEGRITY_ALG = "hmac-sha256"
+
+
+def _state_lock_for(path: Path) -> threading.RLock:
+    key = str(path)
+    with _STATE_LOCKS_GUARD:
+        lock = _STATE_LOCKS.get(key)
+        if lock is None:
+            lock = threading.RLock()
+            _STATE_LOCKS[key] = lock
+        return lock
+
+
+def _canonical_state(state: dict) -> bytes:
+    """Stable byte representation used for both sealing and verification."""
+    return json.dumps(state, ensure_ascii=False, sort_keys=True,
+                      separators=(",", ":")).encode("utf-8")
 
 
 def _utc() -> datetime:
@@ -486,22 +533,128 @@ class X3Backend:
         self.root = Path(state_root).expanduser().resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self.path = self.root / "x3_state.json"
+        self._key_path = self.root / _STATE_KEY_FILE
         self._clock = clock or _utc
+        self._lock = _state_lock_for(self.path)
         self._clipboard_passphrase: str | None = None  # never persisted
+        self._state_key = self._load_or_create_key()
+        self._sweep_stale_temps()
         self._state: dict[str, Any] = self._load()
+        self._saved_state: dict[str, Any] = copy.deepcopy(self._state)
 
     # -- persistence / helpers ------------------------------------------------
 
+    @classmethod
+    def recover_state(cls, state_root: str | Path, *,
+                      clock: Callable[[], datetime] | None = None) -> "X3Backend":
+        """Explicit recovery from corrupt/tampered state.
+
+        The untrusted file is *quarantined* (renamed aside, never parsed or
+        merged) and a fresh sealed state is created.  Initiators must call this
+        deliberately: because no content from the untrusted file is accepted,
+        recovery cannot mask tampering or silently re-grant a forged consent.
+        """
+        root = Path(state_root).expanduser().resolve()
+        root.mkdir(parents=True, exist_ok=True)
+        suffix = f"{int(time.time())}.{secrets.token_hex(4)}"
+        path = root / "x3_state.json"
+        if path.exists():
+            os.replace(path, root / f"x3_state.corrupt.{suffix}.json")
+        key_path = root / _STATE_KEY_FILE
+        if key_path.exists():
+            os.replace(key_path, root / f"{_STATE_KEY_FILE}.corrupt.{suffix}")
+        return cls(root, clock=clock)
+
+    def _load_or_create_key(self) -> bytes:
+        """Load (or atomically create) the local HMAC key for state sealing.
+
+        The key lives beside the state file but is never part of it, so editing
+        only ``x3_state.json`` cannot produce a valid signature.  An attacker
+        with full filesystem access can replace both files, but doing so
+        invalidates all prior state (fail-closed) rather than being accepted.
+        """
+        lock = _state_lock_for(self._key_path)
+        for _attempt in range(5):
+            with lock:
+                if self._key_path.is_file():
+                    try:
+                        key = bytes.fromhex(self._key_path.read_text(
+                            encoding="ascii").strip())
+                    except (OSError, ValueError, UnicodeError) as exc:
+                        raise X3StateError("x3 state key is corrupt") from exc
+                    if len(key) != 32:
+                        raise X3StateError("x3 state key has an invalid length")
+                    return key
+                secret = secrets.token_bytes(32)
+                try:
+                    descriptor = os.open(self._key_path,
+                                         os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+                except FileExistsError:  # another instance won the race
+                    continue
+                with os.fdopen(descriptor, "w", encoding="ascii") as handle:
+                    handle.write(secret.hex())
+                return secret
+            time.sleep(0.01)
+        raise X3StateError("could not initialise the x3 state key")
+
+    def _sweep_stale_temps(self) -> None:
+        """Remove orphaned temp files from a process killed mid-write.
+
+        In-process writers are excluded by the shared lock; this backend does
+        not support two processes writing the same state root concurrently.
+        """
+        with self._lock:
+            for stale in self.root.glob(f"{_TEMP_PREFIX}*{_TEMP_SUFFIX}"):
+                try:
+                    stale.unlink()
+                except OSError:
+                    pass
+
     def _load(self) -> dict[str, Any]:
-        if self.path.is_file():
+        if not self.path.is_file():
+            return {"version": SCHEMA_VERSION,
+                    "context": {"approved_roots": [], "consent": {}, "clipboard": {}}}
+        try:
+            raw = self.path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            raise X3StateError(f"x3 state file is unreadable: {exc}") from exc
+        try:
+            document = json.loads(raw)
+        except ValueError as exc:
+            raise X3StateError(f"x3 state file contains invalid JSON: {exc}") from exc
+        if not isinstance(document, dict):
+            raise X3StateError("x3 state file must contain a JSON object")
+        envelope = document.pop("integrity", None)
+        if not isinstance(envelope, dict) or envelope.get("alg") != _INTEGRITY_ALG:
+            raise X3StateError(
+                "x3 state file is missing valid integrity metadata; "
+                "refusing to load untrusted state")
+        expected = hmac.new(self._state_key, _canonical_state(document),
+                            hashlib.sha256).hexdigest()
+        digest = envelope.get("digest")
+        if not isinstance(digest, str) or not hmac.compare_digest(digest, expected):
+            raise X3StateError(
+                "x3 state failed integrity verification; refusing to load "
+                "untrusted state")
+        if document.get("version") != SCHEMA_VERSION:
+            raise X3StateError(f"unsupported x3 state version: {document.get('version')!r}")
+        return document
+
+    @staticmethod
+    def _replace_with_retry(source: Path, target: Path) -> None:
+        """Atomic replace with a short backoff for transient Windows sharing errors."""
+        delay = 0.005
+        for attempt in range(6):
             try:
-                data = json.loads(self.path.read_text(encoding="utf-8"))
-                if isinstance(data, dict) and data.get("version") == SCHEMA_VERSION:
-                    return data
-            except (OSError, ValueError):
-                pass
-        return {"version": SCHEMA_VERSION,
-                "context": {"approved_roots": [], "consent": {}, "clipboard": {}}}
+                os.replace(source, target)
+                return
+            except OSError as exc:
+                transient = (isinstance(exc, PermissionError)
+                             or getattr(exc, "winerror", None) in (5, 32))
+                if not transient or attempt == 5:
+                    raise
+                time.sleep(delay)
+                delay = min(delay * 2, 0.05)
 
     def _section(self, name: str) -> dict[str, Any]:
         section = self._state.setdefault(name, {})
@@ -511,10 +664,43 @@ class X3Backend:
         return section
 
     def save(self) -> None:
-        temp = self.path.with_suffix(".json.tmp")
-        temp.write_text(json.dumps(self._state, ensure_ascii=False, indent=2, sort_keys=True),
-                        encoding="utf-8")
-        os.replace(temp, self.path)
+        """Seal and atomically persist state, restoring memory if the write fails."""
+        with self._lock:
+            # Deep snapshot: the digest and the written bytes describe exactly
+            # the same state even if another thread mutates a nested section.
+            document = copy.deepcopy(self._state)
+            document["integrity"] = {
+                "alg": _INTEGRITY_ALG,
+                "digest": hmac.new(self._state_key, _canonical_state(document),
+                                   hashlib.sha256).hexdigest(),
+            }
+            payload = json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True)
+            descriptor, name = tempfile.mkstemp(prefix=_TEMP_PREFIX, suffix=_TEMP_SUFFIX,
+                                                dir=str(self.root))
+            temp = Path(name)
+            handle = None
+            try:
+                handle = os.fdopen(descriptor, "w", encoding="utf-8")
+                handle.write(payload)
+                handle.flush()
+                os.fsync(handle.fileno())
+                handle.close()
+                handle = None
+                self._replace_with_retry(temp, self.path)
+                self._saved_state = copy.deepcopy(self._state)
+                temp = None  # ownership transferred to the atomic replace
+            except Exception:
+                # A failed save never leaves in-memory state ahead of the file.
+                self._state = copy.deepcopy(self._saved_state)
+                raise
+            finally:
+                if handle is not None:
+                    handle.close()
+                if temp is not None:
+                    try:
+                        temp.unlink()
+                    except OSError:
+                        pass
 
     def now(self) -> datetime:
         value = self._clock()
@@ -541,7 +727,26 @@ class X3Backend:
         return path
 
     def _grant(self, key: str) -> None:
-        self._section("context").setdefault("consent", {})[key] = self.stamp()
+        """Record a consent and persist it before reporting success.
+
+        The mutation happens under the shared state lock together with the
+        save, so a grant can never be in-memory-only and later become durable
+        because of an unrelated save.  If persistence fails the grant is
+        withdrawn again (fail closed).
+        """
+        with self._lock:
+            consent = self._section("context").setdefault("consent", {})
+            previous = consent.get(key)
+            consent[key] = self.stamp()
+            try:
+                self.save()  # re-entrant lock
+            except Exception:
+                current = self._section("context").get("consent", {})
+                if previous is None:
+                    current.pop(key, None)
+                else:
+                    current[key] = previous
+                raise
 
     def _has_consent(self, key: str) -> bool:
         return key in self._section("context").get("consent", {})
@@ -900,21 +1105,42 @@ class X3Backend:
         for key, value in (decisions or {}).items():
             if key in record["fields"]:
                 record["fields"][key] = value
+        previous = record["status"]
         if not approve:
             record["status"] = "rejected"
-            self.save()
+            try:
+                self.save()
+            except Exception:
+                record["status"] = previous
+                raise
             return record
         fields = record["fields"]
         if not fields.get("total") or not fields.get("date"):
             raise X3Error("receipt needs total and date before commit")
-        with self._receipt_db() as conn:
-            conn.execute("INSERT OR REPLACE INTO receipts VALUES (?,?,?,?,?,?,?,?)",
-                         (record["id"], str(fields.get("merchant", "")),
-                          str(fields.get("date", "")), str(fields.get("total", "")),
-                          str(fields.get("tax", "")), str(fields.get("currency", "USD")),
-                          str(record.get("source", "")), str(record.get("raw", ""))))
+        # Persist the review queue first: if the JSON write fails, no SQLite row
+        # is committed and no visible state changes.  If SQLite then fails,
+        # compensate by restoring and re-saving the pending status.
         record["status"] = "committed"
-        self.save()
+        try:
+            self.save()
+        except Exception:
+            record["status"] = previous
+            raise
+        try:
+            with self._receipt_db() as conn:
+                conn.execute("INSERT OR REPLACE INTO receipts VALUES (?,?,?,?,?,?,?,?)",
+                             (record["id"], str(fields.get("merchant", "")),
+                              str(fields.get("date", "")), str(fields.get("total", "")),
+                              str(fields.get("tax", "")), str(fields.get("currency", "USD")),
+                              str(record.get("source", "")), str(record.get("raw", ""))))
+        except Exception:
+            record["status"] = previous
+            try:
+                self.save()
+            except Exception:
+                pass  # best effort; surface the original database error
+            record["status"] = previous
+            raise
         return record
 
     def receipt_rows(self) -> list[dict]:
@@ -1851,14 +2077,16 @@ class X3Backend:
                     skipped += 1
                     continue
                 fingerprint = hashlib.sha256(f"{day}|{description}|{amount}".encode()).hexdigest()[:16]
-                existing = conn.execute("SELECT 1 FROM transactions WHERE id=?", (fingerprint,)).fetchone()
-                if existing:
+                # A single INSERT OR IGNORE keeps dedupe atomic: concurrent
+                # imports of the same row cannot race a SELECT/INSERT pair and
+                # raise a raw IntegrityError (rowcount 0 means "already there").
+                cursor = conn.execute("INSERT OR IGNORE INTO transactions VALUES (?,?,?,?,?,?)",
+                                      (fingerprint, day, description, amount,
+                                       self._categorize(description), str(source)))
+                if cursor.rowcount == 1:
+                    imported += 1
+                else:
                     skipped += 1
-                    continue
-                conn.execute("INSERT INTO transactions VALUES (?,?,?,?,?,?)",
-                             (fingerprint, day, description, amount,
-                              self._categorize(description), str(source)))
-                imported += 1
         return {"imported": imported, "skipped": skipped, "errors": errors,
                 "source": str(source)}
 
