@@ -189,3 +189,58 @@ fix or document the 6 environmental failures, and investigate the order-dependen
    (with the HIGH 2 caveat about what "OK" means).
 6. Full suite at integration HEAD: 4187 passed / 51 skipped / 7 failed — none of the 7 is a
    deterministic regression attributable to the 8 batches (see L4).
+
+---
+
+# Reverification — current integration HEAD `e848c5d` (2026-11-24)
+
+Scope: re-ran the five requested probes on a fresh detached worktree at the current
+integration tip (which contains `0a79083`, `8f12694`, `9a513f6`, `4f32b11` as ancestors).
+No tracked source was edited.
+
+## Verdict: PASS — all five probes pass
+
+| # | Probe | Result | Evidence |
+|---|-------|--------|----------|
+| 1 | `python scripts/verify_backend_operation.py --strict` | **PASS** | `=== EVIDENCE-BASED GATE (ENFORCED) ===`, `passing all checks: 421`, `failing at least one check: 0`, `BACKEND OPERATION VERIFICATION OK`, `STRICT_EXIT=0` |
+| 2 | Bare module-level `LABEL = "D6.1"` + `"ApiChangeRecorder"` with zero test functions | **PASS** | `_analyze_test` reports `real test functions: []`, `test_strings: []`, `_test_reference_ok(...) == False` |
+| 3 | Zeroed `acceptance_criteria` for `D6.1` in `PLAN-INDEX.json` + `parity.json`, run `--strict` | **PASS** | `passing all checks: 420`, `1 x acceptance_criteria empty`, `BACKEND OPERATION VERIFICATION FAILED`, exit code `1` |
+| 4 | Docs no longer present 361/60 as current | **PASS** | All eight named docs carry a `## FINAL AMENDMENT — all 421 traceability gaps closed (authoritative)` section with `421 / 421 = 100.0%`, `0 / 421 = 0.0%`, and an explicit sentence that earlier `361/421` and `60` figures are historical provenance. Residual stale sentences are inside sections the amendment supersedes (see below). |
+| 5 | Registry integrity | **PASS** | SHA-256 `62fd5c6ac2d166e8cb1f5752c168d22d56d767c7e6a5bf9384696756a4a5b2f6`, parity byte-identical, 865 rows, `{'verified':854,'blocked':2,'not_started':9}` |
+
+Supporting targeted run at `e848c5d`: `test_w7_x1_y5_d1_backend.py` +
+`test_permission_contracts.py` + `test_backend_workflows.py` → **127 passed**
+(confirms the recovered nested `test_w7_11_cap_recording_rejects_negative_bounds` is
+collected and the approval-store cross-instance lock fix is covered).
+
+## HIGH findings status
+
+- **HIGH 1 (stale 361/60 accounting) — RESOLVED.** `BACKEND-COMPLETION-ACCOUNTING.md`
+  now uses `T_B = 421`, `L_B = 0`, `completion_backend_certified = 421/421 = 100.0%`,
+  and every other doc has the authoritative amendment. Verifier agrees (421/421).
+- **HIGH 2 (advisory-only/gameable gate) — RESOLVED.** `--strict` enforces a non-zero exit,
+  and ID/symbol references are now collected only inside real `test*` function bodies.
+  Both original gaming vectors (bare module string; gate failures exiting 0) are closed.
+
+## Remaining (non-blocking) findings
+
+- **R1 (LOW, residual of HIGH 1):** `BACKEND-COMPLETION-ACCOUNTING.md` line 77 still says
+  "The 60 limited rows are listed in `REMAINING-WORK-MATRIX.md` §5" inside the already
+  updated Formula 2 section (lines 56-57 and 73-74 are 421/0). The final amendment
+  supersedes it, but the sentence should be deleted or rewritten to "0 limited rows".
+- **R2 (LOW, cosmetic):** in `--strict` mode the verifier still prints
+  `NOTE: these failures are reported, not enforced.` (line ~462). It should say
+  "enforced: any failure is a hard error".
+- **R3 (LOW, prior M1 not addressed):** `FINAL-ENGINEERING-REPORT.md` lines 196-198,
+  `AUDIT-REMEDIATION-SUMMARY.md` line 12, `keel/docs/IMPLEMENTATION-PROGRESS.md`
+  lines 1164-1166 and `BACKEND-IMPLEMENTATION-DETAIL.md` lines 56-61 still claim no
+  normal product workflow directly consumes the backend modules. The webapp/CLI
+  `/api/backend-workflows/*` and `backend-workflow` surfaces added in batch 1 do.
+- **R4 (LOW, prior M2 not addressed):** `FINAL-ENGINEERING-REPORT.md` lines 31-33 still
+  present `433 verified / 430 not_started / 2 blocked` as current without an inline
+  "historical" marker.
+- **R5 (LOW, prior L1/L2 not addressed):** accounting §5 still says "410 unique contract
+  IDs" (410 rows, 409 unique — `S4-PLAN-016` duplicated); `BACKLOG-traceability-failures.txt`
+  still has no header saying its 60 failures are resolved.
+
+None of R1-R5 invalidates the five requested probes or the accounting/registry numbers.
