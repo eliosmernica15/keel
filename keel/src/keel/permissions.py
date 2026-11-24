@@ -245,13 +245,34 @@ def evaluate(*, tool_name: str, tool_input: dict,
     deny, ask, allow = rules
     op_class, indeterminate = _operation_class(tool_name, tool_input, tool_registry)
 
-    for category_rules, label in ((deny, "deny"), (ask, "ask"), (allow, "allow")):
+    # Config deny rules are the first hard floor (DECISIONS.md D-001): a
+    # matching deny wins over a saved policy allow. A policy forbid still wins
+    # over any config ask/allow grant, which is checked immediately below.
+    for rule in deny:
+        if _tool_match(rule, tool_name) and _specifier_match(
+                rule, tool_name, tool_input, op_class, tool_registry):
+            return Decision("deny", "rule", f"denied by rule {rule.raw!r}",
+                            "config", rule.raw, op_class, indeterminate)
+
+    # Saved execution policies are binding at this boundary: a forbidden
+    # command or denied egress host cannot be widened by ask/allow rules or
+    # by bypassPermissions mode. Only an explicit policy ALLOW is permissive;
+    # a deny/ask verdict is returned before any config grant is considered.
+    #
+    # Production fix: previously this check ran *after* the rule loop, so an
+    # exact/broad config allow (or ask) rule returned early and silently
+    # bypassed a forbidden exec/egress policy.
+    from .policy_enforcement import enforce as _enforce_policy
+
+    policy_decision = _enforce_policy(tool_name, tool_input or {},
+                                      interactive=interactive)
+    if policy_decision is not None and policy_decision.decision != "allow":
+        return policy_decision
+
+    for category_rules, label in ((ask, "ask"), (allow, "allow")):
         for rule in category_rules:
             if _tool_match(rule, tool_name) and _specifier_match(
                     rule, tool_name, tool_input, op_class, tool_registry):
-                if label == "deny":
-                    return Decision("deny", "rule", f"denied by rule {rule.raw!r}",
-                                    "config", rule.raw, op_class, indeterminate)
                 if label == "ask":
                     if not interactive:
                         return Decision("deny", "consent_required",
@@ -263,13 +284,8 @@ def evaluate(*, tool_name: str, tool_input: dict,
                 return Decision("allow", "rule", f"allowed by rule {rule.raw!r}",
                                 "config", rule.raw, op_class, indeterminate)
 
-    # Saved execution policies are binding at this boundary: a forbidden
-    # command or denied egress host cannot be widened by ask/allow rules or
-    # by bypassPermissions mode. Config deny rules above take precedence.
-    from .policy_enforcement import enforce as _enforce_policy
-
-    policy_decision = _enforce_policy(tool_name, tool_input or {},
-                                      interactive=interactive)
+    # An explicit policy allow overrides the mode baseline (but never a config
+    # deny, which returned above).
     if policy_decision is not None:
         return policy_decision
 
