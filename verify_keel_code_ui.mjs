@@ -34,8 +34,8 @@ check(/<body[^>]*class="[^"]*\bcode-page\b/.test(html), 'body carries code-page 
 check(/<body[^>]*class="[^"]*\blanding\b/.test(html), 'body carries landing class (shared tokens)');
 check(html.includes('/ui/landing.css'), 'links shared landing.css');
 check(html.includes('/ui/keel-code.css'), 'links keel-code.css');
-check(html.includes('/ui/landing.js'), 'loads shared landing.js');
-check(html.includes('/ui/keel-code.js'), 'loads keel-code.js');
+check(!html.includes('/ui/landing.js'), 'does not load shared landing.js (avoids double-binding)');
+check(html.includes('/ui/keel-code.js'), 'loads self-contained keel-code.js');
 check(html.includes('id="top"'), 'has #top main anchor');
 check(html.includes('Breadcrumb'), 'has breadcrumb navigation');
 

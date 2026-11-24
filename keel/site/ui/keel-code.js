@@ -1120,6 +1120,45 @@
     });
   }
 
+  /* --------------------------- mobile menu ---------------------------- */
+  function initMobileMenu() {
+    var toggle = document.getElementById('navToggle');
+    var menu = document.getElementById('mobileMenu');
+    if (!toggle || !menu || toggle.__cMobileBound) return;
+    toggle.__cMobileBound = true;
+
+    function close() {
+      menu.classList.remove('open');
+      menu.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open menu');
+    }
+
+    toggle.addEventListener('click', function (event) {
+      if (event) event.stopPropagation();
+      var willOpen = menu.hidden || !menu.classList.contains('open');
+      menu.classList.toggle('open', willOpen);
+      menu.hidden = !willOpen;
+      toggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      toggle.setAttribute('aria-label', willOpen ? 'Close menu' : 'Open menu');
+    });
+
+    menu.addEventListener('click', function (event) {
+      var target = event && event.target;
+      if (target && (target.closest('a') || target.closest('button'))) close();
+    });
+    document.addEventListener('click', function (event) {
+      var target = event && event.target;
+      if (menu.hidden) return;
+      if (!target || !target.closest('.l-nav-inner')) close();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event && (event.key === 'Escape' || event.key === 'Esc') && !menu.hidden) {
+        close();
+      }
+    });
+  }
+
   /* ------------------------------- boot ------------------------------- */
   function boot() {
     if (!document.body || !document.body.classList ||
@@ -1127,8 +1166,11 @@
       return;
     }
 
-    /* Shared shell behaviours first (other handlers depend on their state). */
+    /* Shared shell behaviours. This page intentionally does not load the
+       shared landing.js: it binds the same selectors and would toggle each
+       control twice. keel-code.js is the single owner here. */
     safe(initMegaMenus);
+    safe(initMobileMenu);
     safe(initFaq);
     safe(initPlanTabs);
     safe(initAuthModal);
