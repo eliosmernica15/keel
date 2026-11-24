@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge, Button, Dialog, EmptyState, IconButton, TextField } from "@/components/ui";
 import { Icon } from "@/components/icons";
 import { bridge, errMessage } from "@/lib/api";
@@ -9,12 +9,15 @@ import type { Bot, FleetEvent } from "@/lib/types";
 import s from "./fleet.module.css";
 import { Avatar, ResourceNotice, StreamNotice } from "./Bits";
 import {
-  fmtDate, number, redact, statusTone, text, unwrap, wrapped,
-  useBridgeResource, type FleetGroup, type GroupRow,
+  fmtDate, number, redact, statusTone, text, unwrap,
+  useBridgeResource, type FleetGroup, type GroupRow, type Resource,
 } from "./support";
 
-export default function Groups({ bots, events, streamError, onRetryStream }: {
+const ROUND_TERMINAL = new Set(["done", "failed", "denied", "busy"]);
+
+export default function Groups({ bots, groupsResource, events, streamError, onRetryStream }: {
   bots: Bot[];
+  groupsResource: Resource<FleetGroup[]>;
   events: FleetEvent[];
   streamError: boolean;
   onRetryStream: () => void;
@@ -25,9 +28,12 @@ export default function Groups({ bots, events, streamError, onRetryStream }: {
   const [deleteTarget, setDeleteTarget] = useState<FleetGroup | null>(null);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
+  // A round is tracked from the real `seq` returned by the 202 response until
+  // every member has a terminal member_status row after that seq. This closes
+  // the gap between posting a message and the first "running" row arriving.
+  const [round, setRound] = useState<{ startSeq: number; memberCount: number } | null>(null);
+  const [roundConflict, setRoundConflict] = useState(false);
 
-  const groupsResource = useBridgeResource(
-    useCallback(() => bridge.groups().then((r) => wrapped<FleetGroup>(r as Record<string, unknown>, "groups")), []), []);
   const detailResource = useBridgeResource(
     useCallback(() => bridge.group(selectedId as string).then((r) => r as { group?: FleetGroup; rows?: GroupRow[] }), [selectedId]),
     [selectedId]);
@@ -48,6 +54,13 @@ export default function Groups({ bots, events, streamError, onRetryStream }: {
   }, [detailResource.data, liveRows]);
 
   const activeMembers = rows.filter((r) => text(r.kind) === "member_status" && text((r.body as Record<string, unknown> | undefined)?.status) === "running");
+  const terminalCount = round
+    ? rows.filter((r) => number(r.seq, 0) > round.startSeq && text(r.kind) === "member_status" &&
+        ROUND_TERMINAL.has(text((r.body as Record<string, unknown> | undefined)?.status))).length
+    : 0;
+  const roundActive = Boolean(round && terminalCount < round.memberCount) || activeMembers.length > 0;
+
+  useEffect(() => { setRound(null); setRoundConflict(false); setDraft(""); }, [selectedId]);
 
   async function createGroup(name: string, ids: string[]) {
     setBusy(true);
@@ -75,17 +88,24 @@ export default function Groups({ bots, events, streamError, onRetryStream }: {
 
   async function send() {
     const content = draft.trim();
-    if (!content || !selectedId || busy || activeMembers.length > 0) return;
+    if (!content || !selectedId || busy || roundActive) return;
     setBusy(true);
+    setRoundConflict(false);
     try {
-      await bridge.groupMessage(selectedId, content);
+      const res = await bridge.groupMessage(selectedId, content) as { queued?: boolean; seq?: number; busy?: boolean };
+      if (res && res.queued === false) throw new Error("busy");
+      // The 202 body really carries the user-row seq (routes.py:1331).
+      setRound({ startSeq: number(res?.seq, 0), memberCount: (selected?.members ?? []).length });
       notify("Message posted; the group round is running.", "success");
       setDraft("");
       detailResource.reload();
     } catch (e) {
       const msg = errMessage(e);
-      if (/409|busy/i.test(msg)) notify("A group round is already active — wait for it to finish before sending again.", "warning");
-      else notify(msg, "error");
+      if (/409|busy/i.test(msg)) {
+        setRoundConflict(true);
+        notify("A group round is already active — wait for it to finish before sending again.", "warning");
+        detailResource.reload();
+      } else notify(msg, "error");
     } finally { setBusy(false); }
   }
 
@@ -168,16 +188,19 @@ export default function Groups({ bots, events, streamError, onRetryStream }: {
                   </div>
 
                   <div className={s.item}>
-                    <Icon name="info" size={16} />
-                    <span className={s.hintNote}>
-                      {busy || activeMembers.length > 0
-                        ? "A round is active — sending is disabled until it finishes to prevent duplicate or recursive triggers."
-                        : "The bridge runs one round per message; each member replies at most once."}
+                    <Icon name={roundConflict ? "warning" : "info"} size={16} />
+                    <span className={s.hintNote} role="status">
+                      {roundConflict
+                        ? "The bridge refused a second message with 409/busy. Sending stays disabled until the current round finishes."
+                        : busy || roundActive
+                          ? "A round is active — sending is disabled until every member has a terminal status, preventing duplicate or recursive triggers."
+                          : "The bridge runs one round per message; each member replies at most once."}
                     </span>
+                    {roundConflict && <Button size="sm" variant="secondary" onClick={() => { setRoundConflict(false); detailResource.reload(); }}>Recheck round</Button>}
                   </div>
                   <div className={s.composer}>
                     <textarea aria-label="Group message" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={`Message ${selected.name || "group"}…`} className={s.composerText} />
-                    <Button variant="primary" disabled={!draft.trim() || busy || activeMembers.length > 0} onClick={() => void send()}>
+                    <Button variant="primary" disabled={!draft.trim() || busy || roundActive || roundConflict} onClick={() => void send()}>
                       <Icon name="send" size={15} /> Send
                     </Button>
                   </div>

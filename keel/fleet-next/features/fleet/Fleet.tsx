@@ -16,7 +16,7 @@ import Tasks from "./Tasks";
 import Routines from "./Routines";
 import Library from "./Library";
 import Audit from "./Audit";
-import { wrapped, useBridgeResource, useFleetEvents } from "./support";
+import { wrapped, useBridgeResource, useFleetEvents, type FleetGroup } from "./support";
 
 type Tab = "agents" | "groups" | "tasks" | "routines" | "library" | "audit";
 const TABS: Array<{ value: Tab; label: string; icon: IconName }> = [
@@ -36,6 +36,8 @@ export default function Fleet() {
 
   const botsResource = useBridgeResource(
     useCallback(() => bridge.listBots().then((r) => wrapped<Bot>(r as Record<string, unknown>, "bots")), []), []);
+  const groupsResource = useBridgeResource(
+    useCallback(() => bridge.groups().then((r) => wrapped<FleetGroup>(r as Record<string, unknown>, "groups")), []), []);
   const tasksResource = useBridgeResource(
     useCallback(() => bridge.tasks().then((r) => wrapped<FleetTask>(r as Record<string, unknown>, "tasks")), []), []);
   const routinesResource = useBridgeResource(
@@ -55,7 +57,7 @@ export default function Fleet() {
   const bots = botsResource.data ?? [];
   const counts: Record<Tab, number> = {
     agents: bots.length,
-    groups: 0,
+    groups: (groupsResource.data ?? []).length,
     tasks: (tasksResource.data ?? []).length,
     routines: (routinesResource.data ?? []).length,
     library: wrapped<LibraryItem>(libraryResource.data as Record<string, unknown>, "files").length,
@@ -63,11 +65,11 @@ export default function Fleet() {
   };
 
   const refreshAll = useCallback(() => {
-    botsResource.reload(); tasksResource.reload(); routinesResource.reload(); libraryResource.reload();
-  }, [botsResource.reload, tasksResource.reload, routinesResource.reload, libraryResource.reload]);
+    botsResource.reload(); groupsResource.reload(); tasksResource.reload(); routinesResource.reload(); libraryResource.reload();
+  }, [botsResource.reload, groupsResource.reload, tasksResource.reload, routinesResource.reload, libraryResource.reload]);
 
-  const unavailable = botsResource.unavailable || tasksResource.unavailable || routinesResource.unavailable || libraryResource.unavailable;
-  const primaryError = botsResource.error ?? tasksResource.error ?? routinesResource.error ?? libraryResource.error;
+  const unavailable = botsResource.unavailable || groupsResource.unavailable || tasksResource.unavailable || routinesResource.unavailable || libraryResource.unavailable;
+  const primaryError = botsResource.error ?? groupsResource.error ?? tasksResource.error ?? routinesResource.error ?? libraryResource.error;
 
   useEffect(() => {
     registerCommands([
@@ -82,7 +84,7 @@ export default function Fleet() {
       case "agents":
         return <Agents botsResource={botsResource} events={events} streamError={streamError} onRetryStream={retryStream} onChanged={refreshAll} focusBotId={focusBotId} />;
       case "groups":
-        return <Groups bots={bots} events={events} streamError={streamError} onRetryStream={retryStream} />;
+        return <Groups bots={bots} groupsResource={groupsResource} events={events} streamError={streamError} onRetryStream={retryStream} />;
       case "tasks":
         return <Tasks tasksResource={tasksResource} bots={bots} onOpenBot={(id) => { setFocusBotId(id); setTab("agents"); }} />;
       case "routines":
@@ -92,7 +94,7 @@ export default function Fleet() {
       case "audit":
         return <Audit botsResource={botsResource} />;
     }
-  }, [tab, botsResource, bots, events, streamError, retryStream, refreshAll, tasksResource, routinesResource, libraryResource, focusBotId]);
+  }, [tab, botsResource, bots, groupsResource, events, streamError, retryStream, refreshAll, tasksResource, routinesResource, libraryResource, focusBotId]);
 
   return (
     <div className={s.root}>

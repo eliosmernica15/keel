@@ -196,7 +196,7 @@ function RoutineDetail({ routine, detail, runs, busy, onAction, onEdit, onDelete
         <Button size="sm" variant="primary" disabled={busy || paused || !enabled || running} onClick={() => void onAction(r.id, "run")}><Icon name="play" size={14} /> Run now</Button>
         {paused
           ? <Button size="sm" variant="secondary" disabled={busy} onClick={() => void onAction(r.id, "resume")}>Resume</Button>
-          : <Button size="sm" variant="secondary" disabled={busy} onClick={() => void onAction(r.id, "pause")}><Icon name="pause" size={14} /> Pause</Button>}
+          : <Button size="sm" variant="secondary" disabled={busy} onClick={() => void onAction(r.id, "pause", { reason: "paused from UI" })}><Icon name="pause" size={14} /> Pause</Button>}
         {enabled
           ? <Button size="sm" variant="ghost" disabled={busy} onClick={() => void onAction(r.id, "disable")}>Disable</Button>
           : <Button size="sm" variant="ghost" disabled={busy} onClick={() => void onAction(r.id, "enable")}>Enable</Button>}

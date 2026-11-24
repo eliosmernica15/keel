@@ -9,7 +9,7 @@ import type { Bot, BotRow, FleetEvent } from "@/lib/types";
 import s from "./fleet.module.css";
 import { ActivityBadge, ActivityDot } from "./Bits";
 import {
-  deriveActivity, delegations, fmtDate, fmtElapsed, number, redact, text, wrapped,
+  deriveActivity, delegations, parentDelegations, fmtDate, fmtElapsed, number, redact, text, wrapped,
   useBridgeResource, useNow, type DelegationLink,
 } from "./support";
 
@@ -18,8 +18,11 @@ const ROW_KINDS = ["step", "approval", "ask", "turn_end", "message", "notice"] a
 function rowText(row: BotRow): string {
   const b = (row.body ?? {}) as Record<string, unknown>;
   switch (text(row.kind)) {
-    case "message":
-      return `${text(b.role) === "user" ? "You" : "Agent"}: ${redact(b.content).slice(0, 200)}`;
+    case "message": {
+      const from = b.delegated_from as Record<string, unknown> | undefined;
+      const origin = from ? `Delegated from ${text(from.name) || text(from.id) || "parent"}: ` : "";
+      return `${origin}${text(b.role) === "user" ? "You" : "Agent"}: ${redact(b.content).slice(0, 200)}`;
+    }
     case "step":
       return `${text(b.name) || "step"} — ${redact(b.detail || b.status).slice(0, 200)}`;
     case "approval":
@@ -56,6 +59,7 @@ export default function ActivityPanel({ bot, bots, events, onOpenBot, onChanged 
   const rows = rowsResource.data ?? [];
   const activity = deriveActivity(rows, events.filter((e) => !e.bot_id || e.bot_id === bot.id), now, text(bot.engine));
   const links: DelegationLink[] = delegations(rows, bots);
+  const parents = parentDelegations(rows, bots);
   const pendingApprovals = rows.filter((r) => text(r.kind) === "approval" && text((r.body as Record<string, unknown> | undefined)?.status) === "pending");
   // The bridge appends a second `ask` row with status:"answered" and the same
   // ask_id. Only unanswered questions should stay in "waiting for you".
@@ -186,15 +190,28 @@ export default function ActivityPanel({ bot, bots, events, onOpenBot, onChanged 
       <div className={s.panel}>
         <div className={s.panelHead}>
           <h4 className={s.panelTitle}>Subagents &amp; delegation</h4>
-          <Badge tone="neutral">{links.length} reported</Badge>
+          <Badge tone="neutral">{links.length + parents.length} reported</Badge>
         </div>
-        {links.length === 0 ? (
+        {links.length === 0 && parents.length === 0 ? (
           <p className={s.hintNote}>
-            The bridge reports delegation links on tool rows only; it does not expose
-            <code> parent_id</code> / child-id hierarchy fields. No subagent tree is shown rather than inventing one.
+            The bridge reports parent/child links only as row fields (<code>delegated</code> /
+            <code> delegated_from</code>). It exposes no <code>parent_id</code> / child-id
+            hierarchy table, so no tree is invented here.
           </p>
         ) : (
           <div className={s.tree}>
+            {parents.map((p, i) => (
+              <div className={s.treeNode} key={`parent-${p.parentId}-${i}`}>
+                <Badge tone="info" dot>received from parent</Badge>
+                <span className={s.lineValue}>{p.parentName} → this agent</span>
+                {p.taskId && <span className={s.itemMeta}>task {p.taskId}</span>}
+                {p.parentId && bots.some((b) => b.id === p.parentId) ? (
+                  <button className={s.linkBtn} onClick={() => onOpenBot(p.parentId as string)}>Open parent conversation</button>
+                ) : (
+                  <span className={s.hintNote}>parent not in fleet roster</span>
+                )}
+              </div>
+            ))}
             {links.map((l, i) => (
               <div className={s.treeNode} key={`${l.to}-${i}`}>
                 <Badge tone={l.ok ? "info" : "danger"} dot>{l.ok ? "delegated" : "delegation failed"}</Badge>

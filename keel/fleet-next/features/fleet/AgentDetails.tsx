@@ -123,7 +123,13 @@ export default function AgentDetails({ bot, onClose, onChanged }: {
             </div>
             <div className={s.field}><label htmlFor="agent-provider">Provider</label><input id="agent-provider" value={provider} onChange={(e) => setProvider(e.target.value)} placeholder="auto" /></div>
             <div className={s.field}><label htmlFor="agent-model">Model</label><input id="agent-model" value={model} onChange={(e) => setModel(e.target.value)} placeholder="model id" /></div>
-            <div className={s.field}><label htmlFor="agent-reasoning">Reasoning effort</label><input id="agent-reasoning" value={reasoning} onChange={(e) => setReasoning(e.target.value)} placeholder="optional" /></div>
+            <div className={s.field}>
+              <label htmlFor="agent-reasoning">Reasoning effort</label>
+              <select id="agent-reasoning" value={reasoning} onChange={(e) => setReasoning(e.target.value)}>
+                <option value="">auto (not set)</option>
+                {["minimal", "none", "low", "medium", "high", "xhigh", "max"].map((v) => <option key={v} value={v}>{v}</option>)}
+              </select>
+            </div>
           </div>
           <div><Button variant="primary" loading={saving} onClick={() => void save({ engine, provider: provider.trim() || "auto", model: model.trim(), reasoning_effort: reasoning.trim() }, "Engine")}>Save engine</Button></div>
         </div>
@@ -200,7 +206,7 @@ function HistorySection({ auditResource, rowsResource }: {
   const audits = auditResource.data ?? [];
   const filtered = audits.filter((a) => {
     if (tool && !text(a.tool_name).toLowerCase().includes(tool.toLowerCase())) return false;
-    if (result !== "all" && text(a.outcome ?? a.decision).toLowerCase() !== result) return false;
+    if (result !== "all" && ![a.event, a.decision, a.outcome].some((v) => text(v).toLowerCase() === result)) return false;
     if (date && !text(a.created_at).startsWith(date)) return false;
     return true;
   });
@@ -212,11 +218,16 @@ function HistorySection({ auditResource, rowsResource }: {
         <input aria-label="Filter by tool" placeholder="Filter tool…" value={tool} onChange={(e) => setTool(e.target.value)} />
         <select aria-label="Filter by result" value={result} onChange={(e) => setResult(e.target.value)}>
           <option value="all">All results</option>
+          <option value="requested">requested</option>
+          <option value="decided">decided</option>
+          <option value="outcome">outcome</option>
+          <option value="policy_revoked">policy_revoked</option>
           <option value="granted">granted</option>
           <option value="refused">refused</option>
           <option value="executed">executed</option>
           <option value="error">error</option>
           <option value="timeout">timeout</option>
+          <option value="delegate">delegate</option>
         </select>
         <input aria-label="Filter by date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
       </div>

@@ -41,6 +41,7 @@ export default function Tasks({ tasksResource, bots, onOpenBot }: {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<FleetTask | null>(null);
+  const [deletedTask, setDeletedTask] = useState<{ id: string; title: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
   const tasks = tasksResource.data ?? [];
@@ -96,7 +97,14 @@ export default function Tasks({ tasksResource, bots, onOpenBot }: {
   }
 
   async function cancel(id: string) {
-    await patch(id, { status: "cancelled" }, "Task cancelled.");
+    setBusy(true);
+    try {
+      // Verified real route: routes.py `tasks/<id>/cancel`.
+      await api(`tasks/${id}/cancel`, { method: "POST", body: "{}" });
+      notify("Task cancelled.", "success");
+      tasksResource.reload(); eventsResource.reload();
+    } catch (e) { notify(errMessage(e), "error"); }
+    finally { setBusy(false); }
   }
   async function undo(id: string) {
     setBusy(true);
@@ -111,10 +119,24 @@ export default function Tasks({ tasksResource, bots, onOpenBot }: {
     setBusy(true);
     try {
       await bridge.deleteTask(t.id);
+      // The bridge soft-deletes tasks and keeps ONE previous snapshot
+      // (service.py undo_task). Expose the real restore path immediately.
+      setDeletedTask({ id: t.id, title: text(t.title) || t.id });
       notify("Task deleted.", "success");
       setDeleteTarget(null);
       if (selectedId === t.id) setSelectedId(null);
       tasksResource.reload();
+    } catch (e) { notify(errMessage(e), "error"); }
+    finally { setBusy(false); }
+  }
+  async function undoDelete() {
+    if (!deletedTask) return;
+    setBusy(true);
+    try {
+      await bridge.undoTask(deletedTask.id);
+      notify(`Task “${deletedTask.title}” restored.`, "success");
+      setDeletedTask(null);
+      tasksResource.reload(); eventsResource.reload();
     } catch (e) { notify(errMessage(e), "error"); }
     finally { setBusy(false); }
   }
@@ -197,10 +219,22 @@ export default function Tasks({ tasksResource, bots, onOpenBot }: {
         )}
       </ResourceNotice>
 
+      {deletedTask && (
+        <div className={s.item} role="status">
+          <Icon name="info" size={16} />
+          <div className={s.grow}>
+            <div className={s.itemTitle}>Task “{deletedTask.title}” deleted</div>
+            <div className={s.itemMeta}>The bridge keeps one previous-state snapshot for tasks; this is the real restore path.</div>
+          </div>
+          <Button size="sm" variant="secondary" disabled={busy} onClick={() => void undoDelete()}>Undo delete</Button>
+          <IconButton label="Dismiss undo" onClick={() => setDeletedTask(null)}><Icon name="close" size={14} /></IconButton>
+        </div>
+      )}
+
       <CreateTaskDialog open={createOpen} bots={bots} busy={busy} onClose={() => setCreateOpen(false)} onCreate={create} />
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete task?"
         footer={<><Button variant="ghost" onClick={() => setDeleteTarget(null)}>Cancel</Button><Button variant="danger" loading={busy} onClick={() => deleteTarget && void remove(deleteTarget)}>Delete task</Button></>}>
-        <p className={s.hintNote}>“{text(deleteTarget?.title)}” will be removed. Use Undo from the task list where the bridge supports restoring a previous state.</p>
+        <p className={s.hintNote}>“{text(deleteTarget?.title)}” will be soft-deleted by the bridge. An “Undo delete” action appears afterwards; only one previous state is kept.</p>
       </Dialog>
     </div>
   );

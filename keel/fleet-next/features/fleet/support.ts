@@ -156,6 +156,16 @@ export function statusTone(status?: string): Tone {
 
 /* ---------------------------------------------------------- live activity  */
 
+/**
+ * Only the terminal reasons the Python runtime actually emits for a failed
+ * turn. Provider "stop"/"end_turn"/"max_tokens" reasons are deliberately NOT
+ * failures: the bridge reports them as a completed turn.
+ */
+const FAILED_TERMINAL_REASONS = new Set([
+  "not_configured", "provider_unknown", "provider_error", "internal_error",
+  "timeout", "agent_busy", "error", "failed", "cancelled",
+]);
+
 export interface ActivityView {
   state: "working" | "waiting" | "idle" | "failed" | "unknown";
   phrase: string;
@@ -188,6 +198,7 @@ export function deriveActivity(
   let openSteps = 0;
   let lastRunning: { name?: string; detail?: string; ts?: string | number } | undefined;
   let lastError: string | undefined;
+  let turnFailure: string | undefined;
   let approval: ActivityView["pendingApproval"];
   let ask: ActivityView["pendingAsk"];
   let lastTurn: ActivityView["lastTurn"];
@@ -221,12 +232,20 @@ export function deriveActivity(
         ask = { id: text(b.ask_id ?? b.id), question: text(b.question || b.text).slice(0, 200) };
       }
     } else if (r.kind === "turn_end") {
+      const reason = text(b.terminal_reason);
       lastTurn = {
         endedAt: at || undefined,
         durationMs: number(b.duration_ms, 0),
         steps: number(b.num_steps, 0),
-        reason: text(b.terminal_reason) || undefined,
+        reason: reason || undefined,
       };
+      // A turn_end closes the previous turn: an error from an older turn must
+      // not keep the card in a permanent "failed" state. turn_core only emits
+      // these concrete failure reasons (see keel/src/keel/fleet/turn_core.py).
+      lastError = undefined;
+      turnFailure = FAILED_TERMINAL_REASONS.has(reason.toLowerCase())
+        ? `Turn ended: ${reason}`
+        : undefined;
       openSteps = 0;
     } else if (r.kind === "message" && text(b.role) === "assistant") {
       lastMessage = text(b.content).slice(0, 140);
@@ -264,13 +283,18 @@ export function deriveActivity(
       openSteps, lastTurn, lastAt,
     };
   }
-  if (lastError) {
-    return { state: "failed", phrase: `${prefix}A tool call failed`, detail: lastError, elapsedMs: null, openSteps, lastTurn, lastAt };
+  if (lastError || turnFailure) {
+    return {
+      state: "failed",
+      phrase: `${prefix}${turnFailure ? "Turn failed" : "A tool call failed"}`,
+      detail: turnFailure || lastError,
+      elapsedMs: null, openSteps, lastTurn, lastAt,
+    };
   }
   if (lastTurn) {
     return {
       state: "idle",
-      phrase: `${prefix}Turn complete${lastTurn.steps ? ` · ${lastTurn.steps} steps` : ""}`,
+      phrase: `${prefix}${turnFailure ? "Turn failed" : "Turn complete"}${lastTurn.steps ? ` · ${lastTurn.steps} steps` : ""}`,
       detail: lastTurn.reason || (lastMessage ? redact(lastMessage) : lastNotice),
       elapsedMs: lastTurn.endedAt ? since(lastTurn.endedAt, now) : null,
       openSteps, lastTurn, lastAt,
@@ -305,8 +329,12 @@ export function delegations(rows: BotRow[], bots: Bot[]): DelegationLink[] {
   for (const r of rows) {
     const b = (r.body ?? {}) as Record<string, unknown>;
     if (text(b.name) !== "send_to_bot") continue;
-    const d = (b.delegated ?? b.delegation ?? {}) as Record<string, unknown>;
-    if (!d || !Object.keys(d).length) continue;
+    // The executor emits `delegated` (to/to_id/reply/ok); an inline error can
+    // carry only `delegated_to` + `from_bot`. Both are real row fields.
+    const nested = (b.delegated ?? b.delegation) as Record<string, unknown> | undefined;
+    const d: Record<string, unknown> = nested && Object.keys(nested).length
+      ? nested
+      : { to_id: b.delegated_to, from_id: b.from_bot, ok: b.ok, detail: b.detail };
     const to = text(d.to ?? d.to_id);
     if (!to) continue;
     const target = bots.find((x) => x.id === d.to_id || x.name === d.to);
@@ -314,9 +342,34 @@ export function delegations(rows: BotRow[], bots: Bot[]): DelegationLink[] {
       from: text(d.from ?? d.from_id) || "this agent",
       to: target?.name || to,
       toId: target?.id,
-      ok: d.ok !== false,
+      ok: d.ok !== false && b.error === undefined,
       detail: redact(d.detail || d.reply),
       ts: text((r as Record<string, unknown>).created_at ?? r.ts) || undefined,
+    });
+  }
+  return out;
+}
+
+/** A child agent's user row carries `delegated_from` (delegation.py:39). */
+export interface ParentLink {
+  parentId?: string;
+  parentName: string;
+  ts?: string;
+  taskId?: string;
+}
+export function parentDelegations(rows: BotRow[], bots: Bot[]): ParentLink[] {
+  const out: ParentLink[] = [];
+  for (const r of rows) {
+    const b = (r.body ?? {}) as Record<string, unknown>;
+    const d = b.delegated_from as Record<string, unknown> | undefined;
+    if (!d || typeof d !== "object") continue;
+    const id = text(d.id);
+    const parent = bots.find((x) => x.id === id);
+    out.push({
+      parentId: parent?.id ?? (id || undefined),
+      parentName: parent?.name || text(d.name) || id || "parent agent",
+      ts: text((r as Record<string, unknown>).created_at ?? r.ts) || undefined,
+      taskId: text(b.task_id) || undefined,
     });
   }
   return out;

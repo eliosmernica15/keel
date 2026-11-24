@@ -15,11 +15,6 @@ const MAX_FILE_BYTES = 2 * 1024 * 1024; // verified in keel/src/keel/fleet/libra
 function mimeOf(item: LibraryItem): string {
   return text((item as Record<string, unknown>).mime, text(item.type, "application/octet-stream"));
 }
-function previewable(mime: string): boolean {
-  return mime.startsWith("image/") || mime === "application/pdf" || mime.startsWith("text/") ||
-    ["application/json", "application/xml", "application/javascript", "text/typescript", "text/x-python", "text/x-sh", "text/x-sql", "text/yaml", "text/csv", "text/markdown", "text/html", "text/css"].includes(mime);
-}
-
 export default function Library({ libraryResource, bots, tasks }: {
   libraryResource: Resource<LibraryItem[] | { files?: LibraryItem[] }>;
   bots: Bot[];
@@ -117,7 +112,7 @@ export default function Library({ libraryResource, bots, tasks }: {
                     <div className={s.itemMeta}>{fmtBytes(number(f.size, 0))} · {fmtDate(f.created)}</div>
                     <div className={s.itemMeta}>{bots.find((b) => b.id === f.bot_id)?.name || text(f.bot_id, "unknown agent")}</div>
                     <div className={s.row}>
-                      {previewable(mimeOf(f)) && <Button size="sm" variant="ghost" onClick={() => setPreviewId(f.id)}>Preview</Button>}
+                      <Button size="sm" variant="ghost" onClick={() => setPreviewId(f.id)}>Preview</Button>
                       <a className="keel-btn keel-btn--ghost keel-btn--sm" href={bridge.downloadUrl(f.id)} download>Download</a>
                       <IconButton label={`Delete ${text(f.name) || f.id}`} onClick={() => setDeleteTarget(f)}><Icon name="trash" size={14} /></IconButton>
                     </div>
@@ -134,7 +129,7 @@ export default function Library({ libraryResource, bots, tasks }: {
                       <div className={s.itemMeta}>{fmtBytes(number(f.size, 0))} · {fmtDate(f.created)} · {bots.find((b) => b.id === f.bot_id)?.name || text(f.bot_id, "unknown agent")}{f.task_id ? ` · task ${text(f.task_id)}` : ""}</div>
                     </div>
                     <div className={s.actions}>
-                      {previewable(mimeOf(f)) && <Button size="sm" variant="ghost" onClick={() => setPreviewId(f.id)}>Preview</Button>}
+                      <Button size="sm" variant="ghost" onClick={() => setPreviewId(f.id)}>Preview</Button>
                       <a className="keel-btn keel-btn--ghost keel-btn--sm" href={bridge.downloadUrl(f.id)} download>Download</a>
                       <Button size="sm" variant="danger" onClick={() => setDeleteTarget(f)}>Delete</Button>
                     </div>
@@ -163,7 +158,7 @@ export default function Library({ libraryResource, bots, tasks }: {
         {preview && (
           <div className={s.stack}>
             <iframe className={s.preview} src={bridge.previewUrl(preview.id)} title={`Preview of ${text(preview.name) || preview.id}`} sandbox="" />
-            <div className={s.hintNote}>Preview served by the bridge with its own restrictive Content-Security-Policy; scripts are disabled. If your browser cannot render this type inline, open the preview in a new tab.</div>
+            <div className={s.hintNote}>Every library file has a real preview route. The bridge serves images/PDFs inline and all other types as <code>text/plain</code> with a restrictive CSP, so active content cannot execute. If your browser cannot render a type inline, use Download.</div>
             <div className={s.row}>
               <a className="keel-btn keel-btn--secondary keel-btn--sm" href={bridge.previewUrl(preview.id)} target="_blank" rel="noopener noreferrer"><Icon name="external" size={14} /> Open preview in tab</a>
               <a className="keel-btn keel-btn--secondary keel-btn--sm" href={bridge.downloadUrl(preview.id)} download><Icon name="download" size={14} /> Download</a>

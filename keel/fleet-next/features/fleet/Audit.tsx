@@ -38,7 +38,7 @@ export default function Audit({ botsResource }: { botsResource: Resource<Bot[]> 
     if (agent && a.agent_id !== agent) return false;
     if (tool && !text(a.tool_name).toLowerCase().includes(tool.toLowerCase())) return false;
     if (date && !text(a.created_at).startsWith(date)) return false;
-    if (result !== "all" && text(a.outcome ?? a.decision ?? a.event).toLowerCase() !== result) return false;
+    if (result !== "all" && ![a.event, a.decision, a.outcome].some((v) => text(v).toLowerCase() === result)) return false;
     return true;
   }), [rows, agent, tool, date, result]);
 
@@ -65,12 +65,14 @@ export default function Audit({ botsResource }: { botsResource: Resource<Bot[]> 
                 <option value="all">All results</option>
                 <option value="requested">requested</option>
                 <option value="decided">decided</option>
+                <option value="outcome">outcome</option>
+                <option value="policy_revoked">policy_revoked</option>
                 <option value="granted">granted</option>
                 <option value="refused">refused</option>
                 <option value="executed">executed</option>
                 <option value="error">error</option>
                 <option value="timeout">timeout</option>
-                <option value="policy_revoked">policy revoked</option>
+                <option value="delegate">delegate</option>
               </select>
               <input aria-label="Filter by date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
               <span className={s.hintNote}>{filtered.length} of {data.length} entries</span>
