@@ -113,6 +113,12 @@ def _slug(text: str, limit: int = 80) -> str:
     return (slug or "item")[:limit]
 
 
+# Screenshot regions come from callers; cap synthetic PNG generation so a
+# single oversized region cannot exhaust memory.
+_MAX_CAPTURE_DIMENSION = 4096
+_MAX_CAPTURE_PIXELS = 16_000_000
+
+
 def _png_bytes(width: int, height: int, rgb: tuple[int, int, int] = (255, 255, 255)) -> bytes:
     """Encode a minimal truecolour PNG using only zlib/struct."""
 
@@ -251,6 +257,13 @@ import ast  # noqa: E402  (kept near the helper that uses it)
 _ALLOWED_BINOPS = (ast.Add, ast.Sub, ast.Mult, ast.Div)
 _ALLOWED_UNARY = (ast.UAdd, ast.USub)
 _CELL_RE = re.compile(r"^[A-Za-z]{1,3}[1-9]\d*$")
+# String literals are matched first so cell-looking text inside a quoted
+# argument (e.g. CELL("A1")) is never rewritten as a cell reference.
+_REF_TOKEN_RE = re.compile(
+    r"\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'"
+    r"|\b([A-Za-z]{1,3}[1-9]\d*):([A-Za-z]{1,3}[1-9]\d*)\b"
+    r"|\b([A-Za-z]{1,3}[1-9]\d*)\b"
+)
 
 
 def _column_index(letters: str) -> int:
@@ -313,15 +326,16 @@ class _FormulaEvaluator:
         source = str(expr or "").strip().lstrip("=")
         if not source:
             raise X3Error("#REF!")
-        # One pass handles ranges and single refs so generated CELL("A1")
-        # strings are never substituted a second time.
+        # One pass handles ranges, single refs and string literals so
+        # generated CELL("A1") strings are never substituted a second time
+        # and quoted refs stay intact.
         def replace_ref(match: re.Match[str]) -> str:
+            if match.group(0)[0] in "\"'":
+                return match.group(0)
             if match.group(1):
                 return _expand_range(match.group(1), match.group(2))
             return f'CELL("{match.group(3).upper()}")'
-        source = re.sub(
-            r"\b([A-Za-z]{1,3}[1-9]\d*):([A-Za-z]{1,3}[1-9]\d*)\b|\b([A-Za-z]{1,3}[1-9]\d*)\b",
-            replace_ref, source)
+        source = _REF_TOKEN_RE.sub(replace_ref, source)
         try:
             tree = ast.parse(source, mode="eval")
         except SyntaxError as exc:
@@ -2024,6 +2038,9 @@ class X3Backend:
             raise X3Error("region needs integer x, y, width and height") from exc
         if min(width, height) <= 0 or min(x, y) < 0:
             raise X3Error("region must have positive size and non-negative origin")
+        if (width > _MAX_CAPTURE_DIMENSION or height > _MAX_CAPTURE_DIMENSION
+                or width * height > _MAX_CAPTURE_PIXELS):
+            raise X3Error("region dimensions exceed the capture limit")
         if image_bytes is None:
             png = _png_bytes(width, height)
             cropped = False

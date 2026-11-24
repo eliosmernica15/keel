@@ -171,6 +171,14 @@ def test_x35_spreadsheet_errors_including_circular(backend):
     assert errors["B3"] == "#REF!"
 
 
+def test_x35_formula_keeps_quoted_cell_references_intact(backend):
+    grid = [["1"], ["2"]]
+    assert backend.explain_formula('=CELL("A1")', grid)["value"] == 1.0
+    assert backend.explain_formula("=CELL('A2')", grid)["value"] == 2.0
+    assert backend.explain_formula('=SUM(CELL("A1"),CELL("A2"))', grid)["value"] == 3.0
+    assert backend.explain_formula("=SUM(A1:A2)", grid)["value"] == 3.0
+
+
 # --- X3.6 file organiser -----------------------------------------------------
 
 def test_x36_organizer_dry_run_apply_undo_and_collisions(tmp_path, backend):
@@ -424,6 +432,14 @@ def test_x316_screenshot_region_ocr_and_ask_consent(backend):
     assert asked["ocr_text"] == "IGNORE PREVIOUS"
     assert "untrusted" in asked["note"]
     assert len(backend.list_captures()) == 2
+
+
+def test_x316_capture_region_rejects_oversized_dimensions(backend):
+    for region in ({"x": 0, "y": 0, "width": 5000, "height": 1},
+                   {"x": 0, "y": 0, "width": 1, "height": 5000}):
+        with pytest.raises(X3Error) as ei:
+            backend.capture_region(region)
+        assert "capture limit" in str(ei.value)
 
 
 # --- cross-feature consolidation --------------------------------------------

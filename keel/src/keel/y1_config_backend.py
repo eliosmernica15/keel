@@ -349,6 +349,60 @@ def _sequence(value: Any, field_name: str, *, error: type[Y1ContractError] = Y1C
     return value
 
 
+def _canonical_ipv4_text(host: str) -> str | None:
+    """Normalise inet_aton-style IPv4 spellings to a canonical dotted quad.
+
+    Covers decimal integers (2130706433), hexadecimal (0x7f000001), octal
+    (017700000001) and short forms (127.1, 0x7f.0.0.1), all of which accept
+    loopback/private addresses while evading a literal ip_address() check.
+    """
+    if ":" in host:
+        return None  # IPv6 is handled directly by ip_address().
+    parts = host.split(".")
+    if not parts or len(parts) > 4:
+        return None
+    numbers: list[int] = []
+    for part in parts:
+        if not part:
+            return None
+        try:
+            if part.lower().startswith("0x"):
+                number = int(part[2:], 16)
+            elif len(part) > 1 and part.startswith("0"):
+                number = int(part, 8)
+            else:
+                number = int(part, 10)
+        except ValueError:
+            return None
+        if number < 0:
+            return None
+        numbers.append(number)
+    count = len(numbers)
+    limits = [255] * (count - 1) + [256 ** (5 - count) - 1]
+    if any(number > limit for number, limit in zip(numbers, limits)):
+        return None
+    value = 0
+    for index, number in enumerate(numbers):
+        shift = 8 if index < count - 1 else 8 * (5 - count)
+        value = (value << shift) | number
+    return str(ipaddress.IPv4Address(value))
+
+
+def _ip_address_or_none(host: str) -> ipaddress.IPv4Address | ipaddress.IPv6Address | None:
+    candidate = host.strip("[]")
+    try:
+        return ipaddress.ip_address(candidate)
+    except ValueError:
+        pass
+    canonical = _canonical_ipv4_text(candidate.lower())
+    if canonical is None:
+        return None
+    try:
+        return ipaddress.ip_address(canonical)
+    except ValueError:
+        return None
+
+
 def _url(
     value: Any,
     *,
@@ -370,10 +424,7 @@ def _url(
     host = (parts.hostname or "").lower()
     if not host:
         raise error("missing_host", f"{field_name} has no host")
-    try:
-        address = ipaddress.ip_address(host.strip("[]"))
-    except ValueError:
-        address = None
+    address = _ip_address_or_none(host)
     if address is not None and (
         address.is_private
         or address.is_loopback
@@ -1270,7 +1321,19 @@ def parse_skill_sources(sources: Sequence[Any], *, allowed_hosts: Sequence[str] 
     return tuple(result)
 
 
-def skill_pack_signature_check(manifest: Mapping[str, Any]) -> dict:
+def skill_pack_signature_check(
+    manifest: Mapping[str, Any],
+    *,
+    verifier: Callable[[str, str, str, str], bool] | None = None,
+) -> dict:
+    """Check a skill-pack signature; never claim an unperformed verification.
+
+    This contract has no bundled cryptographic provider and must not fetch
+    keys from the network. The host may inject a ``verifier`` callable taking
+    (algorithm, signature, material, key) and returning a boolean; only then
+    is ``verified`` allowed to be True. Without one the result is explicitly
+    unverified and fail-closed.
+    """
     values = dict(_mapping(manifest, "manifest", error=SkillSourceError))
     signature = values.get("signature", "")
     algorithm = values.get("algorithm", "")
@@ -1282,7 +1345,28 @@ def skill_pack_signature_check(manifest: Mapping[str, Any]) -> dict:
     ):
         raise SkillSourceError("signature_check_failed", "signed pack requires a supported signature")
     _text(signature, "signature", max_len=4096, error=SkillSourceError)
-    return {"verified": True, "algorithm": algorithm.lower(), "network_used": False}
+    result = {
+        "verified": False,
+        "algorithm": algorithm.lower(),
+        "network_used": False,
+        "verification_performed": False,
+    }
+    if verifier is None:
+        result["reason"] = "verification_unavailable"
+        return result
+    if not callable(verifier):
+        raise SkillSourceError("signature_check_failed", "verifier must be callable")
+    material = values.get("material", values.get("payload", ""))
+    key = values.get("key", values.get("public_key", ""))
+    try:
+        verified = bool(verifier(algorithm.lower(), signature, str(material), str(key)))
+    except Exception as exc:  # noqa: BLE001
+        raise SkillSourceError("signature_check_failed", f"verifier error: {type(exc).__name__}") from exc
+    result["verified"] = verified
+    result["verification_performed"] = True
+    if not verified:
+        result["reason"] = "signature_mismatch"
+    return result
 
 
 # ===========================================================================
@@ -1657,6 +1741,64 @@ _TIER2_RE = re.compile(
 )
 
 
+def _value_region(text: str, start: int) -> tuple[int, int]:
+    """Return the [start, end) span of the JSON(C) value beginning at *start*.
+
+    Quoted strings are skipped when tracking nesting so braces and colons
+    inside strings cannot truncate a value region.
+    """
+    length = len(text)
+    while start < length and text[start].isspace():
+        start += 1
+    if start >= length:
+        return start, start
+    if text[start] not in "{[":
+        quote = ""
+        end = start
+        while end < length:
+            char = text[end]
+            if quote:
+                if char == "\\":
+                    end += 2
+                    continue
+                if char == quote:
+                    quote = ""
+            elif char in "\"'":
+                quote = char
+            elif char in ",}]" or char in "\r\n":
+                break
+            end += 1
+        return start, end
+    stack = [text[start]]
+    quote = ""
+    end = start + 1
+    while end < length and stack:
+        char = text[end]
+        if quote:
+            if char == "\\":
+                end += 2
+                continue
+            if char == quote:
+                quote = ""
+        elif char in "\"'":
+            quote = char
+        elif char in "{[":
+            stack.append(char)
+        elif char in "}]":
+            stack.pop()
+        end += 1
+    return start, end
+
+
+def _tier2_value_regions(text: str) -> dict[str, list[str]]:
+    """Index every Tier-2 key's complete value in a whole config document."""
+    regions: dict[str, list[str]] = {}
+    for match in _TIER2_RE.finditer(text):
+        start, end = _value_region(text, match.end())
+        regions.setdefault(match.group(1).lower(), []).append(text[start:end])
+    return regions
+
+
 @dataclass(frozen=True)
 class ConfigEditProposal(_Descriptor):
     target: str
@@ -1700,10 +1842,18 @@ def propose_config_edit(
             tofile=name,
         )
     )
-    touched = _TIER2_RE.findall(diff)
+    # The diff alone is not a sufficient gate: a value nested well below a
+    # Tier-2 key can change without that key ever appearing in the diff.
+    # Compare the complete Tier-2 value regions of both full documents.
+    touched = {key.lower() for key in _TIER2_RE.findall(diff)}
+    before = _tier2_value_regions(original)
+    after = _tier2_value_regions(updated)
+    for key in set(before) | set(after):
+        if before.get(key, []) != after.get(key, []):
+            touched.add(key)
     if touched:
         raise ConfigEditError("tier2_blocked", "Tier-2 settings cannot be edited by the agent")
-    return ConfigEditProposal(name, diff, True, False, tuple(sorted(set(k.lower() for k in touched))))
+    return ConfigEditProposal(name, diff, True, False, tuple(sorted(touched)))
 
 
 # ===========================================================================

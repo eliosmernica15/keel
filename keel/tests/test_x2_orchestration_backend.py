@@ -184,6 +184,24 @@ def test_x2_2_lsp_provider_validated_and_falls_back_on_malformed():
         assert plan["fallback_used"] is True, "LSP edits must not escape the workspace"
 
 
+def test_x2_2_apply_revalidates_path_containment():
+    with tempfile.TemporaryDirectory() as tmp:
+        router = CodeActionRouter(tmp)
+        seen = []
+        edit = {"op": "replace", "range": {"start_line": 1, "end_line": 1},
+                "new_text": "x"}
+        for escaping in ("../../etc/passwd", "sub/../../escape.py",
+                         str(Path(tmp).parent / "outside.py")):
+            plan = {"changes": {escaping: [edit]}}
+            with must_raise(BackendError):
+                router.apply(plan, lambda f, e: seen.append(f))
+        assert seen == [], "no edit outside the root may reach the executor"
+
+        good = {"changes": {"a.py": [edit]}}
+        result = router.apply(good, lambda f, e: seen.append(f))
+        assert result["ok"] is True and seen == ["a.py"]
+
+
 # ---------------------------------------------------------------------------
 # X2.3 -- TDD loop with evidence
 # ---------------------------------------------------------------------------
