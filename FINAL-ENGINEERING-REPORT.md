@@ -172,3 +172,28 @@ Security: **PARTIAL** (native Linux/macOS verification external).
 Platform support: **PARTIAL** (Windows native; Linux/macOS external).
 Production release: **BLOCKED** (signing, clean-VM, push authorization, owner gates).
 No production-ready claim made. No push/release/deploy/visibility change.
+
+## Additive reconciliation amendment (2026-11-24 — no result changed)
+
+This section is appended; the assessments and test results above are unchanged and remain
+authoritative. It resolves stale inventory counts used in earlier documentation.
+
+- **Canonical registry:** `PLAN-INDEX.json`, SHA-256
+  `62fd5c6ac2d166e8cb1f5752c168d22d56d767c7e6a5bf9384696756a4a5b2f6` — **865 rows:
+  854 verified, 9 not_started, 2 blocked**. The 433 / 430 / 2 figures found in older
+  matrix snapshots are historical provenance only and are not planning authority.
+- **Non-additive inventories:** the 228-row v5 base registry is a subset of 865;
+  `feature-checklist.md`'s 398 observable contracts (410 unique IDs in the rendered
+  tables) are a separate cross-cutting observability inventory and are never summed with
+  the registry.
+- **Backend accounting:** deduplicated denominator **421** backend-attributed IDs;
+  421 / 421 = 100.0% `verified`, but only 361 / 421 = 85.7% fully traceable and
+  60 / 421 = 14.3% verified with certification limitation. See
+  `BACKEND-COMPLETION-ACCOUNTING.md`.
+- **Remaining work:** 9 `not_started` (7 D6 conventions + W1.18 + Y6.4) and 2 `blocked`
+  (C11.1/C11.2); 9 rows excluded as owner-gated/external/dormant. See
+  `REMAINING-WORK-MATRIX.md`.
+- **Consumption boundary:** real capability entry points are verified and 5 / 5 workflows
+  passed, but no normal product workflow directly consumes the backend modules — an
+  intentional capability boundary while workflow integration proceeds in parallel.
+  This does not change the production-readiness assessment above.

@@ -149,3 +149,20 @@ not product defects (verified: they pass in 4-6s with isolated HOME).
 Governance gates after final integration:
 `verify_v6_audit.py` CONSISTENCY OK; `verify_backend_operation.py` OK (361/421 traceable IDs);
 dependency graph FRESH; license gate OK; 8 workflow YAMLs parse; 30 `uses:` full-SHA pinned.
+
+## Additive cross-reference — docsync reconciliation (2026-11-24, no result changed)
+
+This appendix adds pointers only; the test result and gate outputs above are unchanged and
+remain authoritative.
+
+- Registry state at reconciliation: `PLAN-INDEX.json` SHA-256
+  `62fd5c6ac2d166e8cb1f5752c168d22d56d767c7e6a5bf9384696756a4a5b2f6` — 865 rows,
+  854 verified / 9 not_started / 2 blocked. No status was altered.
+- The `361/421` traceable-ID figure above is restated as **361 / 421 fully traceable + 60
+  verified with certification limitation = 421 backend-attributed IDs**; the 60 are
+  evidence-layer gaps, not test failures or status downgrades
+  (`REGISTRY-EVIDENCE-INTEGRITY.md` §4, `REMAINING-WORK-MATRIX.md` §5).
+- Dedup backend denominator and completion formulas: `BACKEND-COMPLETION-ACCOUNTING.md`.
+- The 5 / 5 workflows (102 / 102 steps) are reported in `AUDIT-REMEDIATION-SUMMARY.md`
+  and `BACKEND-IMPLEMENTATION-DETAIL.md`; the clean-environment full-suite result above
+  is not modified by this appendix.
