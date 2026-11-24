@@ -245,6 +245,17 @@ def test_fs_event_bus_validation_and_allow_path():
         bus.dispatch("not a request")
 
 
+def test_fs_listener_exception_is_wrapped_in_a_typed_policy_error():
+    bus = db.FsEventBus()
+
+    def broken(_request):
+        raise RuntimeError("plugin exploded")
+
+    bus.register("broken", 2, (db.FsEvent.BEFORE_WRITE,), broken)
+    with pytest.raises(db.FsPolicyError, match="broken"):
+        bus.dispatch(db.FsRequest(db.FsEvent.BEFORE_WRITE, "x.txt"))
+
+
 # ---------------------------------------------------------------------------
 # D3.12 — deliverables
 # ---------------------------------------------------------------------------
@@ -444,6 +455,15 @@ def test_schedule_validation():
         service.is_due("missing", now)
     with pytest.raises(db.ScheduleError, match="invalid datetime"):
         service.is_due("x", "yesterday")
+
+
+def test_schedule_rejects_non_finite_hours():
+    service = db.ScheduleService()
+    now = datetime(2026, 1, 1)
+    for value in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(db.ScheduleError, match="positive"):
+            service.schedule("non-finite", "prompt", hours=value, now=now)
+    assert service.describe()["follow_ups"] == []
 
 
 # ---------------------------------------------------------------------------

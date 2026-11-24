@@ -17,6 +17,7 @@ import hashlib
 import tempfile
 import unittest
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from keel import y4_d4_x7_backend as m
 
@@ -72,6 +73,18 @@ class Y4_2PairingTests(unittest.TestCase):
         self.assertEqual(len(p.manual_code), 8)
         self.assertEqual(p.manual_code,
                          m.build_onboarding_payload("telegram", "token123").manual_code)
+
+    def test_deep_link_url_encodes_token_and_cannot_inject_query_parameters(self):
+        token = "abc&host=evil.example&port=1"
+        p = m.build_onboarding_payload("telegram", token,
+                                       host="127.0.0.1", port=8739)
+        query = parse_qs(urlparse(p.deep_link).query)
+        self.assertEqual(query["token"], [token])
+        self.assertEqual(query["host"], ["127.0.0.1"])
+        self.assertEqual(query["port"], ["8739"])
+        self.assertEqual(p.deep_link.count("host="), 1)
+        self.assertEqual(p.deep_link.count("port="), 1)
+        self.assertIn("token=abc%26host%3Devil.example%26port%3D1", p.deep_link)
 
     def test_empty_token_rejected(self):
         with self.assertRaises(m.BackendError):

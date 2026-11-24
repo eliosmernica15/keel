@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import secrets
 from dataclasses import dataclass, replace
@@ -662,7 +663,12 @@ class FsEventBus:
         reasons: list[str] = []
         for listener in self._ordered(request.event):
             chain.append(listener.name)
-            answer = listener.decision(request)
+            try:
+                answer = listener.decision(request)
+            except Exception as exc:
+                # A plugin must not break the typed-error contract of dispatch.
+                raise FsPolicyError(
+                    f"fs listener {listener.name!r} failed: {exc}") from exc
             if answer is None or answer == "allow":
                 continue
             if answer != "veto":
@@ -1121,8 +1127,8 @@ class ScheduleService:
         if item_id in self._items:
             raise ScheduleError(f"duplicate follow-up {item_id!r}")
         hours = float(hours)
-        if hours <= 0:
-            raise ScheduleError("hours must be positive")
+        if not math.isfinite(hours) or hours <= 0:
+            raise ScheduleError("hours must be a finite positive number")
         start = _as_datetime(now)
         item = ScheduledFollowUp(
             id=item_id, prompt=_nonempty(prompt, "prompt"), hours=hours,

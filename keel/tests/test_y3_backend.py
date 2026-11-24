@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import importlib.util
 import sys
+import threading
 from pathlib import Path
 
 import pytest
@@ -244,6 +245,33 @@ def test_y3_7_repeated_tick_deduplicates_and_guard_blocks_overlap():
     assert y3.tick(_work(), now=stamp, guard=guard).outcomes
 
 
+def test_y3_7_tick_guard_serializes_concurrent_acquire():
+    guard = y3.TickGuard()
+    guard.acquire()  # this thread is inside a tick
+    started = threading.Event()
+    outcome: list[str] = []
+
+    def contender() -> None:
+        started.set()
+        try:
+            guard.acquire()
+            outcome.append("acquired")
+        except y3.SchedulerError:
+            outcome.append("refused")
+
+    # Holding the guard's lock must block a concurrent acquire at the lock,
+    # not merely at the (racy) boolean check that follows it.
+    with guard._lock:
+        thread = threading.Thread(target=contender)
+        thread.start()
+        assert started.wait(1.0)
+        assert outcome == [], "concurrent acquire passed while a tick was active"
+    thread.join(1.0)
+    assert not thread.is_alive()
+    assert outcome == ["refused"]
+    guard.release()
+
+
 def test_y3_7_tick_requires_now():
     with pytest.raises(y3.SchedulerError):
         y3.tick(_work(), now="")
@@ -280,6 +308,19 @@ def test_y3_8_expiry_at_thirty_minutes_and_retry():
     assert retried.code != session.code
     assert retried.state is y3.PairingState.PENDING
     assert retried.attempts == 2
+
+
+def test_y3_8_retry_persists_the_retried_session():
+    clock, state = _clock_factory()
+    broker = y3.PairingBroker(clock)
+    original = broker.create("phone-nonce")
+    state["now"] += y3.PAIRING_TTL_SECONDS + 1
+    assert broker.poll(original.code).state is y3.PairingState.EXPIRED
+    retried = broker.retry(original.code, "phone-nonce-2")
+    stored = broker.poll(retried.code)
+    assert stored is retried
+    assert stored.attempts == retried.attempts == original.attempts + 1
+    assert stored.state is y3.PairingState.PENDING
 
 
 def test_y3_8_cancel_and_deny_states():

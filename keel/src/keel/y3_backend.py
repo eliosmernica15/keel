@@ -40,6 +40,7 @@ import json
 import math
 import os
 import re
+import threading
 import time
 from dataclasses import dataclass
 from enum import Enum
@@ -542,14 +543,17 @@ class TickGuard:
 
     def __init__(self) -> None:
         self._active = False
+        self._lock = threading.Lock()
 
     def acquire(self) -> None:
-        if self._active:
-            raise SchedulerError("a scheduler tick is already in progress")
-        self._active = True
+        with self._lock:
+            if self._active:
+                raise SchedulerError("a scheduler tick is already in progress")
+            self._active = True
 
     def release(self) -> None:
-        self._active = False
+        with self._lock:
+            self._active = False
 
 
 def _job_items(job: TickJob, work: DueWork) -> tuple[str, ...]:
@@ -699,8 +703,13 @@ class PairingBroker:
                                  PairingState.DENIED):
             raise PairingError(f"cannot retry a {session.state.value} pairing")
         fresh = self.create(nonce)
-        return PairingSession(fresh.code, fresh.created_at, PairingState.PENDING,
-                              attempts=session.attempts + 1)
+        retried = PairingSession(fresh.code, fresh.created_at,
+                                 PairingState.PENDING,
+                                 attempts=session.attempts + 1)
+        # create() stored attempts=1; replace it so pollers see the same
+        # object/attempt count the caller was handed back.
+        self._sessions[fresh.code] = retried
+        return retried
 
 
 # ---------------------------------------------------------------------------

@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
+from urllib.parse import urlencode
 
 
 class BackendError(ValueError):
@@ -180,8 +181,10 @@ def build_onboarding_payload(channel: PairingChannel | str, token: str, *,
     key = _clean(token)
     if not key:
         raise BackendError("pairing token must not be empty")
-    link = (f"keel://pair?channel={chan.value}&token={key}"
-            f"&host={host}&port={int(port)}")
+    # Encode every query value: an unencoded token containing '&' could inject
+    # or override host/port parameters in the deep link.
+    link = "keel://pair?" + urlencode({"channel": chan.value, "token": key,
+                                       "host": host, "port": int(port)})
     code = hashlib.sha256(key.encode("utf-8")).hexdigest()[:8].upper()
     return PairingPayload(
         chan, link, link, code,
