@@ -3,7 +3,12 @@
 
 export interface ApiRequestError extends Error {
   status?: number;
+  /** Stable BFF error code (bridge_unavailable, bridge_unreachable, bad_path…). */
+  code?: string;
 }
+
+/** BFF failures that cannot recover within this browser session. */
+const PERMANENT_ERROR_CODES = new Set(["bridge_unavailable", "bad_path"]);
 
 const RETRYABLE_STATUS = new Set([502, 504]); // BFF proxy gateway failures
 const MAX_READ_ATTEMPTS = 2;
@@ -45,11 +50,16 @@ export async function api<T = any>(
         body = { raw: text };
       }
       if (!resp.ok) {
-        const detail = body?.detail ?? body?.error ?? body?.refused ?? `http ${resp.status}`;
+        const code = typeof body?.error === "string" ? body.error : undefined;
+        const detail = body?.detail ?? code ?? body?.refused ?? `http ${resp.status}`;
         const error = new Error(detail) as ApiRequestError;
         error.status = resp.status;
+        error.code = code;
         lastError = error;
-        if (attempt < attempts - 1 && RETRYABLE_STATUS.has(resp.status)) {
+        // Permanent configuration/path failures cannot recover in-session;
+        // retrying them only doubles traffic and delays the honest error.
+        const transient = RETRYABLE_STATUS.has(resp.status) && !(code && PERMANENT_ERROR_CODES.has(code));
+        if (attempt < attempts - 1 && transient) {
           await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS * (attempt + 1)));
           continue;
         }

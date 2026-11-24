@@ -128,7 +128,7 @@ Two method/payload details corrected during the continuation round:
 - `shells/clear/finished` is a **GET** route (`routes.py:528`). The frontend previously POSTed and silently failed.
 - `keep-awake` reads `{"on": true|false}` (`routes.py:773`), not `{"enabled": …}`.
 
-**Transient gateway failures:** the shared `lib/client.ts` retries **idempotent reads only** (GET/HEAD) at most once, with a 300 ms backoff, when the BFF returns HTTP 502/504 or the connection drops. POST/PUT/DELETE are never retried automatically — approvals, trust decisions, uploads and mutations must not be duplicated. The error still surfaces to the UI after the retry budget is exhausted, so `isBridgeUnavailable()` states remain truthful.
+**Transient gateway failures:** the shared `lib/client.ts` retries **idempotent reads only** (GET/HEAD) at most once, with a 300 ms backoff, when the BFF returns HTTP 502/504 or the connection drops. Permanent BFF codes (`bridge_unavailable`, `bad_path`) are never retried. POST/PUT/DELETE are never retried automatically — approvals, trust decisions, uploads and mutations must not be duplicated. Errors carry `status` and the stable BFF `error` code; `errMessage()` prefers the code over a free-form `detail`, and `isBridgeUnavailable()` checks 502/504 status and `bridge_*` codes, so error banners stay truthful even when the upstream detail is just an exception name.
 
 ---
 

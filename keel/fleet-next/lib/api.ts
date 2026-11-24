@@ -3,7 +3,7 @@
 // reach the browser. The Python bridge remains authoritative for execution,
 // permissions, trust and secrets; this module only describes the contract.
 
-import { api } from "./client";
+import { api, type ApiRequestError } from "./client";
 import type {
   ApiErrorShape,
   Bot,
@@ -25,15 +25,27 @@ import type {
 
 export { api };
 
-/** Normalise whatever the bridge returns into a readable error. */
+/** Normalise whatever the bridge returns into a readable error.
+ *  The BFF's stable `error` code is preferred over a free-form `detail`, which
+ *  for upstream failures can be just an exception name ("TypeError"). */
 export function errMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
+  if (err instanceof Error) {
+    const e = err as ApiRequestError;
+    if (e.code) return e.code;
+    if (e.status === 502 || e.status === 504) return `http ${e.status}`;
+    return e.message;
+  }
   const e = err as ApiErrorShape;
-  return e?.detail || e?.error || e?.refused || e?.raw || "Request failed";
+  return e?.error || e?.detail || e?.refused || e?.raw || "Request failed";
 }
 
 /** True when the BFF reports that the local bridge is not configured/running. */
 export function isBridgeUnavailable(err: unknown): boolean {
+  if (err instanceof Error) {
+    const e = err as ApiRequestError;
+    if (e.status === 502 || e.status === 504) return true;
+    if (e.code?.startsWith("bridge_")) return true;
+  }
   const msg = errMessage(err).toLowerCase();
   return msg.includes("bridge_unavailable") || msg.includes("bridge_unreachable") ||
     msg.includes("bridge_refused") || msg.includes("http 502") || msg.includes("http 504");
