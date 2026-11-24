@@ -1,4 +1,4 @@
-# Production promotion manifest — backend completion plan
+# Production promotion manifest â€” backend completion plan
 
 | Field | Value |
 |---|---|
@@ -409,7 +409,7 @@ frontend-only evidence are explicitly excluded.
 | `scripts/verify_backend_operation.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
 | `scripts/verify_v6_audit.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
 
-## Explicit scope exception — required version-sync constant
+## Explicit scope exception â€” required version-sync constant
 
 `keel/desktop/src-tauri/Cargo.toml` contains a **single version string** change
 (`0.1.0` -> `0.1.1`). It is classified `REQUIRED_BACKEND_DEPENDENCY` because the
@@ -417,3 +417,20 @@ backend release/version-consistency gate (`tests/test_signing_gate.py` ->
 `keel/release/common.py::validate_version`) fails collection without it. It is
 not a UI, styling, component or behavior change: no desktop source logic is
 imported. Documented here so the promotion contains no unexplained path.
+
+## Excluded frontend-only tests
+
+The following test files were part of the delivery branch but test **frontend/desktop
+source that is explicitly excluded** from this backend-only promotion. They were removed
+from the candidate only (not from the delivery branch) so the candidate contains a coherent
+backend test suite; their failures were purely due to absent frontend source, not backend
+defects:
+
+- keel/tests/test_accessibility_hardening.py (static checks of site HTML/CSS)
+- keel/tests/test_desktop_hardening.py (Electron main.js invariants)
+- keel/tests/test_web_surface_hardening.py (site/PWA assets)
+- keel/tests/test_validation_script.py (desktop validation script)
+
+No backend test was removed or weakened. keel/scripts/check_version_sync.py is included
+as REQUIRED_BACKEND_DEPENDENCY because the backend release version gate
+(	est_version_sync.py) imports it.
