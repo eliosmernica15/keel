@@ -671,10 +671,10 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X1.7 | Repo map ranking | M11 | P0 | verified |
 | X1.8 | Accurate token counting | M2 | P0 | verified |
 | X1.9 | Few-shot tool exemplars | M2 | P1 | not_started |
-| X10.1 | Definition-of-done template | M0 | P0 | not_started |
-| X10.2 | Provenance file | M0 | P0 | not_started |
+| X10.1 | Definition-of-done template | M0 | P0 | verified |
+| X10.2 | Provenance file | M0 | P0 | verified |
 | X10.3 | Decision log (`DECISIONS.md`) separate from ADRs for owner-level choices (D1 to D7, G1 to G7) with date and answer | M0 | P1 | not_started |
-| X10.4 | Builder "stop list": actions that always pause for the owner, mirrored from gates G1 to G7 plus destructive repo actions, as a machine-readable file the builder must check | M0 | P0 | not_started |
+| X10.4 | Builder "stop list": actions that always pause for the owner, mirrored from gates G1 to G7 plus destructive repo actions, as a machine-readable file the builder must check | M0 | P0 | verified |
 | X10.5 | Weekly "what is proven" report generated from `PLAN-INDEX.json` (counts by status, stale evidence, failing rows) | M0 | P1 | not_started |
 | X10.6 | Scope-creep guard: any new feature idea goes to `INBOX.md` with a proposed milestone instead of being built inline | M0 | P1 | not_started |
 | X2.1 | Diagnostics feedback after every edit | M11 | P1 | not_started |
@@ -736,7 +736,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X6.4 | API versioning policy: deprecation headers, sunset dates, compatibility tests against the previous minor | M20 | P1 | not_started |
 | X6.5 | In-app interactive API explorer for the local API (loopback, token-protected); docs stay private unless G7 | M20 | P2 | not_started |
 | X6.6 | Event schema registry: every internal event type has a JSON Schema and a changelog; plugins subscribe by type | M8 | P1 | not_started |
-| X6.7 | Config validation with "did you mean" suggestions, line/column errors for JSONC, and `keel config explain <key>` | M2 | P0 | not_started |
+| X6.7 | Config validation with "did you mean" suggestions, line/column errors for JSONC, and `keel config explain <key>` | M2 | P0 | verified |
 | X6.8 | Layered config viewer: shows which layer (default, global, project, env, policy) set each value | M2 | P1 | not_started |
 | X6.9 | Settings search, diff against defaults, per-section reset, import/export | M19 | P1 | not_started |
 | X7.1 | ARM64 builds for Windows and Linux; macOS universal or separate arm64/x64 with verified native deps | M22 | P1 | not_started |
@@ -749,7 +749,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X7.7 | Installer languages for the major UI locales; installer text from the same string catalogs | M22 | P2 | not_started |
 | X7.8 | Download-integrity helper inside the app ("verify a file I downloaded") for users who want to check an installer before running it | M23 | P2 | not_started |
 | X7.9 | First-run import wizard from other tools' folders (documented formats only), dry-run first | M19 | P2 | not_started |
-| X8.1 | Local component catalog | M19 | P0 | not_started |
+| X8.1 | Local component catalog | M19 | P0 | verified |
 | X8.10 | Citation chips with hover preview of the source file/page/line | M19 | P1 | not_started |
 | X8.11 | Inline diff and file preview inside chat with "open in dock" action | M19 | P1 | not_started |
 | X8.12 | Error boundary and crash-recovery UI: renderer crash restores the session view without losing the draft composer text | M19 | P1 | not_started |
@@ -758,7 +758,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X8.15 | Optional sound cues (off by default), reduced-motion honoring everywhere | M19 | P2 | not_started |
 | X8.16 | Multi-monitor awareness: remember window positions per display, detach docks to other screens | M19 | P2 | not_started |
 | X8.17 | Empty-state and onboarding copy deck written once (Keel's own words) and reused across screens | M19 | P1 | not_started |
-| X8.2 | Design-token contract file (`tokens.json`) as the only source of color, type, spacing, radius, motion; lint rule rejects hard-coded values | M19 | P0 | not_started |
+| X8.2 | Design-token contract file (`tokens.json`) as the only source of color, type, spacing, radius, motion; lint rule rejects hard-coded values | M19 | P0 | verified |
 | X8.3 | Density modes (compact / comfortable), per-pane zoom, and saved layouts | M19 | P1 | not_started |
 | X8.4 | Notification center and activity feed (approvals, job results, errors) with filters | M19 | P1 | not_started |
 | X8.5 | Actionable OS notifications | M19 | P1 | not_started |

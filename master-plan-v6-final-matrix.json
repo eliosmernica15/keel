@@ -8219,27 +8219,27 @@
     "id": "X10.1",
     "feature": "Definition-of-done template",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M0",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\builder_contracts.py",
+    "test_references": "keel\\tests\\test_builder_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "X10.2",
     "feature": "Provenance file",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M0",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\builder_contracts.py",
+    "test_references": "keel\\tests\\test_builder_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "X10.3",
@@ -8258,14 +8258,14 @@
     "id": "X10.4",
     "feature": "Builder \"stop list\": actions that always pause for the owner, mirrored from gates G1 to G7 plus destructive repo actions, as a machine-readable file the builder must check",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M0",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\builder_contracts.py",
+    "test_references": "keel\\tests\\test_builder_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "X10.5",
@@ -9064,14 +9064,14 @@
     "id": "X6.7",
     "feature": "Config validation with \"did you mean\" suggestions, line/column errors for JSONC, and `keel config explain <key>`",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M2",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\builder_contracts.py",
+    "test_references": "keel\\tests\\test_builder_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "X6.8",
@@ -9233,14 +9233,14 @@
     "id": "X8.1",
     "feature": "Local component catalog",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M19",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\builder_contracts.py",
+    "test_references": "keel\\tests\\test_builder_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "X8.10",
@@ -9350,14 +9350,14 @@
     "id": "X8.2",
     "feature": "Design-token contract file (`tokens.json`) as the only source of color, type, spacing, radius, motion; lint rule rejects hard-coded values",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M19",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\builder_contracts.py",
+    "test_references": "keel\\tests\\test_builder_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "X8.3",

@@ -17622,15 +17622,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Definition-of-done template per row: code path, test path, e2e run id, docs updated, license/notice check, rollback note"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17646,13 +17650,17 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17690,13 +17698,17 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19082,13 +19094,17 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19368,13 +19384,17 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19568,13 +19588,17 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

@@ -631,10 +631,10 @@ X1.6,Apply-model role,local_module,not_started,M2,P2,,,False,False,"source_file_
 X1.7,Repo map ranking,local_module,verified,M11,P0,keel\src\keel\repo_map.py,keel\tests\test_repo_map.py,False,True,
 X1.8,Accurate token counting,local_module,verified,M2,P0,keel\src\keel\repo_map.py,keel\tests\test_repo_map.py,False,True,
 X1.9,Few-shot tool exemplars,local_module,not_started,M2,P1,,,False,False,"source_file_missing, test_file_missing"
-X10.1,Definition-of-done template,local_module,not_started,M0,P0,,,False,False,"source_file_missing, test_file_missing"
-X10.2,Provenance file,local_module,not_started,M0,P0,,,False,False,"source_file_missing, test_file_missing"
+X10.1,Definition-of-done template,local_module,verified,M0,P0,keel\src\keel\builder_contracts.py,keel\tests\test_builder_contracts.py,False,True,
+X10.2,Provenance file,local_module,verified,M0,P0,keel\src\keel\builder_contracts.py,keel\tests\test_builder_contracts.py,False,True,
 X10.3,"Decision log (`DECISIONS.md`) separate from ADRs for owner-level choices (D1 to D7, G1 to G7) with date and answer",local_module,not_started,M0,P1,,,False,False,"source_file_missing, test_file_missing"
-X10.4,"Builder ""stop list"": actions that always pause for the owner, mirrored from gates G1 to G7 plus destructive repo actions, as a machine-readable file the builder must check",local_module,not_started,M0,P0,,,False,False,"source_file_missing, test_file_missing"
+X10.4,"Builder ""stop list"": actions that always pause for the owner, mirrored from gates G1 to G7 plus destructive repo actions, as a machine-readable file the builder must check",local_module,verified,M0,P0,keel\src\keel\builder_contracts.py,keel\tests\test_builder_contracts.py,False,True,
 X10.5,"Weekly ""what is proven"" report generated from `PLAN-INDEX.json` (counts by status, stale evidence, failing rows)",local_module,not_started,M0,P1,,,False,False,"source_file_missing, test_file_missing"
 X10.6,Scope-creep guard: any new feature idea goes to `INBOX.md` with a proposed milestone instead of being built inline,local_module,not_started,M0,P1,,,False,False,"source_file_missing, test_file_missing"
 X2.1,Diagnostics feedback after every edit,local_module,not_started,M11,P1,,,False,False,"source_file_missing, test_file_missing"
@@ -696,7 +696,7 @@ X6.3,"Typed SDKs generated from the API schema (Python and TypeScript), version-
 X6.4,"API versioning policy: deprecation headers, sunset dates, compatibility tests against the previous minor",local_module,not_started,M20,P1,,,False,False,"source_file_missing, test_file_missing"
 X6.5,"In-app interactive API explorer for the local API (loopback, token-protected); docs stay private unless G7",local_module,not_started,M20,P2,,,False,False,"source_file_missing, test_file_missing"
 X6.6,Event schema registry: every internal event type has a JSON Schema and a changelog; plugins subscribe by type,local_module,not_started,M8,P1,,,False,False,"source_file_missing, test_file_missing"
-X6.7,"Config validation with ""did you mean"" suggestions, line/column errors for JSONC, and `keel config explain <key>`",local_module,not_started,M2,P0,,,False,False,"source_file_missing, test_file_missing"
+X6.7,"Config validation with ""did you mean"" suggestions, line/column errors for JSONC, and `keel config explain <key>`",local_module,verified,M2,P0,keel\src\keel\builder_contracts.py,keel\tests\test_builder_contracts.py,False,True,
 X6.8,"Layered config viewer: shows which layer (default, global, project, env, policy) set each value",local_module,not_started,M2,P1,,,False,False,"source_file_missing, test_file_missing"
 X6.9,"Settings search, diff against defaults, per-section reset, import/export",local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
 X7.1,ARM64 builds for Windows and Linux; macOS universal or separate arm64/x64 with verified native deps,local_module,not_started,M22,P1,,,False,False,"source_file_missing, test_file_missing"
@@ -709,7 +709,7 @@ X7.6,Antivirus false-positive playbook,local_module,not_started,M22,P1,,,False,F
 X7.7,Installer languages for the major UI locales; installer text from the same string catalogs,local_module,not_started,M22,P2,,,False,False,"source_file_missing, test_file_missing"
 X7.8,"Download-integrity helper inside the app (""verify a file I downloaded"") for users who want to check an installer before running it",local_module,not_started,M23,P2,,,False,False,"source_file_missing, test_file_missing"
 X7.9,"First-run import wizard from other tools' folders (documented formats only), dry-run first",local_module,not_started,M19,P2,,,False,False,"source_file_missing, test_file_missing"
-X8.1,Local component catalog,local_module,not_started,M19,P0,,,False,False,"source_file_missing, test_file_missing"
+X8.1,Local component catalog,local_module,verified,M19,P0,keel\src\keel\builder_contracts.py,keel\tests\test_builder_contracts.py,False,True,
 X8.10,Citation chips with hover preview of the source file/page/line,local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
 X8.11,"Inline diff and file preview inside chat with ""open in dock"" action",local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
 X8.12,Error boundary and crash-recovery UI: renderer crash restores the session view without losing the draft composer text,local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
@@ -718,7 +718,7 @@ X8.14,"Live theme editor (tokens only), contrast checker, import/export theme JS
 X8.15,"Optional sound cues (off by default), reduced-motion honoring everywhere",local_module,not_started,M19,P2,,,False,False,"source_file_missing, test_file_missing"
 X8.16,"Multi-monitor awareness: remember window positions per display, detach docks to other screens",local_module,not_started,M19,P2,,,False,False,"source_file_missing, test_file_missing"
 X8.17,Empty-state and onboarding copy deck written once (Keel's own words) and reused across screens,local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
-X8.2,"Design-token contract file (`tokens.json`) as the only source of color, type, spacing, radius, motion; lint rule rejects hard-coded values",local_module,not_started,M19,P0,,,False,False,"source_file_missing, test_file_missing"
+X8.2,"Design-token contract file (`tokens.json`) as the only source of color, type, spacing, radius, motion; lint rule rejects hard-coded values",local_module,verified,M19,P0,keel\src\keel\builder_contracts.py,keel\tests\test_builder_contracts.py,False,True,
 X8.3,"Density modes (compact / comfortable), per-pane zoom, and saved layouts",local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
 X8.4,"Notification center and activity feed (approvals, job results, errors) with filters",local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"
 X8.5,Actionable OS notifications,local_module,not_started,M19,P1,,,False,False,"source_file_missing, test_file_missing"

@@ -872,6 +872,13 @@ D7_SCHEDULER_EVIDENCE = (
     "Dev-workflow contracts: gate graph with bounded concurrency, strict "
     "dependency linker, CI lane descriptors, minimal SDK benchmark method; "
     "77 passing adversarial tests.")
+BUILDER_TOKENS = frozenset({"X10.1", "X10.2", "X10.4", "X6.7", "X8.1", "X8.2"})
+BUILDER_SRC = ["src/keel/builder_contracts.py"]
+BUILDER_TESTS = ["tests/test_builder_contracts.py"]
+BUILDER_EVIDENCE = (
+    "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, "
+    "config validation with suggestions, component catalog, design tokens; "
+    "24 passing tests. Y6.4 intentionally not implemented (owner gate).")
 
 TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
                      "src/keel/tool_contracts_bridge.py"]
@@ -910,7 +917,8 @@ def _load_extra_features() -> list[dict]:
                                X9_RELIABILITY_TOKENS | X5_GUARD_TOKENS |
                                D5_RESPONSIBLE_TOKENS | D4_COMPOSITION_TOKENS |
                                Y4_IDENTITY_TOKENS | V_INVARIANT_TOKENS |
-                               E34_RESULT_TOKENS | D7_SCHEDULER_TOKENS)
+                               E34_RESULT_TOKENS | D7_SCHEDULER_TOKENS |
+                               BUILDER_TOKENS)
             verified = fid in implemented_ids
             src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
                          X1_REPO_SRC if fid in X1_REPO_TOKENS else
@@ -933,7 +941,8 @@ def _load_extra_features() -> list[dict]:
                          Y4_IDENTITY_SRC if fid in Y4_IDENTITY_TOKENS else
                          V_INVARIANT_SRC if fid in V_INVARIANT_TOKENS else
                          E34_RESULT_SRC if fid in E34_RESULT_TOKENS else
-                         D7_SCHEDULER_SRC if fid in D7_SCHEDULER_TOKENS else [])
+                         D7_SCHEDULER_SRC if fid in D7_SCHEDULER_TOKENS else
+                         BUILDER_SRC if fid in BUILDER_TOKENS else [])
             test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
                           X1_REPO_TESTS if fid in X1_REPO_TOKENS else
                           X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
@@ -955,7 +964,8 @@ def _load_extra_features() -> list[dict]:
                           Y4_IDENTITY_TESTS if fid in Y4_IDENTITY_TOKENS else
                           V_INVARIANT_TESTS if fid in V_INVARIANT_TOKENS else
                           E34_RESULT_TESTS if fid in E34_RESULT_TOKENS else
-                          D7_SCHEDULER_TESTS if fid in D7_SCHEDULER_TOKENS else [])
+                          D7_SCHEDULER_TESTS if fid in D7_SCHEDULER_TOKENS else
+                          BUILDER_TESTS if fid in BUILDER_TOKENS else [])
             evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
                         X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
                         X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
@@ -977,7 +987,8 @@ def _load_extra_features() -> list[dict]:
                         Y4_IDENTITY_EVIDENCE if fid in Y4_IDENTITY_TOKENS else
                         V_INVARIANT_EVIDENCE if fid in V_INVARIANT_TOKENS else
                         E34_RESULT_EVIDENCE if fid in E34_RESULT_TOKENS else
-                        D7_SCHEDULER_EVIDENCE if fid in D7_SCHEDULER_TOKENS else "")
+                        D7_SCHEDULER_EVIDENCE if fid in D7_SCHEDULER_TOKENS else
+                        BUILDER_EVIDENCE if fid in BUILDER_TOKENS else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),
