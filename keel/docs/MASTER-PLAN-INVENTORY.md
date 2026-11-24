@@ -104,3 +104,39 @@ reconciled dispositions above are documentation/owner decisions rather than
 fresh acceptance runs of all 865 criteria. A recalculation must be made from a
 regenerated `PLAN-INDEX.json` by the lead, after owner decisions on W1.18,
 C11.1, C11.2 and Y6.4 are recorded.
+
+
+## 7. Final reconciliation (end of full-plan round)
+
+Evidence delivered this round, all committed and pushed on `feat/frontend-completion-2026-11-24`:
+
+- Electron renderer fixed and **packaged app launched**: full local `desktop/ui` loads by default; mirror is explicit rollback (`KEEL_UI_PROFILE=mirror`). Evidence: `UI-DESKTOP-PACKAGING.md`; 31/31 packaged assertions.
+- Python workspace trust enforced at the runtime boundary (tree/read/write/review/terminal), approval summaries redacted via `redact_text`, ask lifecycle and mode-table `deny` corrected. Evidence: `UI-SECURITY-ROUND2.md`, 44 security/agent tests passing.
+- 7 Python regressions from reverted Windows-safety fixes restored; baseline comparison complete (`PYTHON-BASELINE-COMPARISON.md`): main 2 failed/1289 passed, feature (pre-merge) 9 failed/4020 passed; all 6 deterministic regressions fixed.
+- Agent execution runtime traced end-to-end and verified real (`AGENT-EXECUTION-AUDIT.md`); provider lifecycle and genuine local Echo turn verified (`PROVIDER-VERIFICATION.md`, 27 tests).
+- Frontend residual criteria closed: zoom/SR fallback (`UI-ZOOM-A11Y.md`, 15 tests), full-plan QA (`FULL-PLAN-QA.md`), 142 E2E tests and 108 feature tests.
+- Licensing: root `THIRD_PARTY_NOTICES.md` + per-package inventory delivered. The MIT `LICENSE` draft was removed on lead review to honour DECISIONS.md D-037 (Keel code remains proprietary).
+
+### Updated registry-derived status (evidence-backed reconciliation)
+
+| Status | Count | Change |
+|---|---:|---|
+| verified | 860 | +6 (D6.2, D6.14, D6.17, D6.18, D6.20, D6.23 — builder-process docs) |
+| implemented-unverified | 0 | — |
+| partial | 1 | D6.21 (PR template documented but no GitHub label/template config exists) |
+| not_started | 0 | — |
+| blocked | 4 | C11.1, C11.2 (owner security gates), W1.18 MIT portion (D-037), Y6.4 (owner decision D-036) |
+| **Total** | **865** | unchanged |
+
+- Verified percentage: 860/865 = **99.4 %**; against applicable requirements excluding owner-blocked items: 860/861 = **99.9 %**.
+- Remaining implementation: 1/865 = **0.1 %**.
+- Blocked: 4/865 = **0.5 %** (all owner/external gates; none can be closed by an agent without authorization).
+
+The separate frontend evidence remains `UI-REQUIREMENTS-MATRIX.md` (150 criteria, 131 verified in the last frontend report, with the residual zoom/SR criteria closed this round). Registry percentages are **not** whole-product production readiness: live provider turn, Tauri native build, packaged-platform UX audit and screen-reader hardware checks remain externally gated.
+
+### Final external gates (unchanged from §4, with status)
+1. Live external provider turn — no operator credential (explicitly not requested or stored).
+2. Tauri build/launch — MSVC `link.exe` unavailable; free Build Tools installation requires admin/restart.
+3. Screen-reader/NVDA/VoiceOver manual speech walkthrough — software/platform unavailable; manual steps documented.
+4. Native Ctrl+ zoom gesture — CDP cannot drive browser chrome; CSS-viewport proxy + page-scale evidence recorded.
+5. Owner decisions: repo visibility (D-036), security hygiene (C11.1/C11.2), MIT rejection (D-037).
