@@ -282,8 +282,10 @@ class E711_PlanMode(unittest.TestCase):
         self.assertIs(service.plan_command("s1", ["exit"]).mode, eb.PlanMode.ACT)
         exited = service.exit("s1")
         self.assertEqual(set(exited), {"status", "mode", "plan_revision", "session_id"})
-        self.assertEqual(eb.plan_exit_schema(), eb.plan_exit_schema())
-        self.assertEqual(eb.plan_exit_schema()["schema_version"], 1)
+        schema = eb.plan_exit_schema()
+        self.assertEqual((schema["schema_version"], schema["feature_id"]), (1, "E7.11"))
+        self.assertEqual([f["name"] for f in schema["fields"]],
+                         ["status", "mode", "plan_revision", "session_id"])
         with self.assertRaises(eb.NotFoundError):
             eb.PlanModeService().exit("missing")
 
@@ -322,13 +324,13 @@ class E712_AgentPresets(unittest.TestCase):
 class E713_ProjectionCache(unittest.TestCase):
     def test_throttling_and_mandatory_checkpoints(self):
         cache = eb.ProjectionCache(throttle_seq=3)
-        self.assertIsNotNone(cache.checkpoint("s1", 1, {"view": 1}))
+        first = cache.checkpoint("s1", 1, {"view": 1})
+        self.assertEqual((first.event_seq, first.reason), (1, "periodic"))
         self.assertIsNone(cache.checkpoint("s1", 2, {"view": 2}))
         self.assertIsNone(cache.checkpoint("s1", 3, {"view": 3}))
         self.assertEqual(cache.checkpoint("s1", 4, {"view": 4}).event_seq, 4)
         forced = cache.checkpoint("s1", 5, {"view": 5}, reason="turn_end")
         self.assertEqual(forced.reason, "turn_end")
-        eb.MANDATORY_CHECKPOINT_REASONS.__contains__("detach")
         self.assertIn("detach", eb.MANDATORY_CHECKPOINT_REASONS)
 
     def test_stale_and_dirty_state_fail_closed(self):
@@ -692,7 +694,7 @@ class E730_AuthFlows(unittest.TestCase):
         registry.begin("k")
         with self.assertRaises(eb.ValidationError):
             registry.complete("k", "api_key=supersecretvalue")
-        self.assertIsNotNone(registry.active("k"))
+        self.assertEqual(registry.active("k"), "attempt-1")
         # An opaque reference is still accepted after the rejection.
         result = registry.complete("k", "vault://ref/2")
         self.assertEqual(result.credential_ref, "vault://ref/2")
@@ -1073,14 +1075,279 @@ class E743_UseProviders(unittest.TestCase):
 
 
 class CrossCutting(unittest.TestCase):
-    def test_exactly_the_36_open_rows_are_indexed(self):
-        eb.assert_feature_index_complete()
-        self.assertEqual(len(eb.FEATURE_IDS), 36)
-        self.assertEqual(len(set(eb.FEATURE_IDS)), 36)
-        descriptors = eb.feature_descriptors()
-        self.assertEqual(len(descriptors), 36)
-        self.assertTrue(all(d.scope == "backend_descriptor_and_policy" for d in descriptors))
-        self.assertEqual({d.feature_id for d in descriptors}, set(eb.FEATURE_SURFACES))
+    def test_e7_all_36_ids_execute_real_behavior(self):
+        """Behavioural replacement for the old index/count-only guard.
+
+        The previous test only called ``assert_feature_index_complete()`` and
+        counted descriptors.  Every E7 ID below is now executed against the
+        real implementation with concrete inputs and an exact output pinned,
+        so a stubbed/no-op implementation fails this test.
+        """
+
+        def workspace_probe():
+            before = eb.make_snapshot({"a.py": "1", "b.py": "2"})
+            after = eb.make_snapshot({"a.py": "9", "c.py": "3"})
+            feed = eb.WorkspaceChangeFeed()
+            feed.begin_turn("s1", 1, before)
+            turn = feed.end_turn("s1", 2, after)
+            return (turn.added, turn.modified, turn.removed, turn.describe()["feature_id"])
+
+        def scheduler_probe():
+            store = eb.SchedulerStore()
+            store.schedule(eb.ScheduledTask("t1", "s1", 5, "later"))
+            store.schedule(eb.ScheduledTask("t2", "s2", 2, "now"))
+            return [d.task_id for d in store.due(2)]
+
+        def ssh_probe():
+            seam = eb.SshSeam()
+            seam.connect(eb.SshConnectionDescriptor("host", eb.SshAuthMethod.AGENT, "helper-v1"))
+            a = seam.open_stream("host", "run-tests")
+            b = seam.open_stream("host", "tail-logs")
+            return a.stream_id, b.stream_id
+
+        def office_probe():
+            kit = eb.OfficeKit()
+            kit.register({"name": "wasm-engine", "kind": "wasm",
+                          "operations": ["render_pdf", "recalculate"]})
+            kit.register(eb.OfficeEngine("soffice", eb.OfficeEngineKind.NATIVE,
+                                         ("render_pdf", "convert")))
+            return kit.select("render_pdf").name, kit.select("recalculate").name
+
+        def auth_flow_probe():
+            registry = eb.AuthFlowRegistry()
+            registry.register("creds.json", "oauth-plugin", "digest-1")
+            attempt = registry.begin("creds.json")
+            result = registry.complete("creds.json", "vault://ref/1")
+            return attempt, result.credential_ref
+
+        def card_probe():
+            registry = eb.CardRegistry()
+            registry.register("plugin-offer", ["install", "dismiss"],
+                              lambda action, payload: "%s:%s" % (action, payload.get("id", "")))
+            registry.create("card-1", "plugin-offer")
+            return (registry.invoke("card-1", "install", {"id": "p1"}),
+                    registry.card("card-1").status)
+
+        def mirror_probe():
+            results = [eb.MirrorResult("fast-bad", 1, False),
+                       eb.MirrorResult("slow-ok", 50, True, "d1"),
+                       eb.MirrorResult("a-ok", 50, True, "d2"),
+                       eb.MirrorResult("fast-ok", 20, True, "d3")]
+            return eb.fastest_valid_mirror(results).name
+
+        def market_probe():
+            source = eb.validate_index_source(eb.IndexSource(
+                "private", eb.IndexSourceKind.URL, "https://example.com/index.json"))
+            raw = ('{"plugins":[{"plugin_id":"p.one","version":"1.2.0",'
+                   '"digest":"' + "a" * 64 + '"}]}')
+            return eb.parse_market_index(source, raw)[0].plugin_id
+
+        def hook_probe():
+            registry = eb.HookBridgeRegistry()
+            registry.register(eb.HookFormat.CLAUDE_CODE, lambda d: eb.HookDescriptor(
+                eb.HookFormat.CLAUDE_CODE, "PostToolUse", str(d["command"]), "claude"))
+            hook = registry.translate(eb.HookFormat.CLAUDE_CODE, {"command": "lint"})
+            return hook.event, hook.command, registry.formats()
+
+        def plugin_probe():
+            policy = eb.AgentPluginPolicy()
+            proposal = eb.PluginProposal("p1", "abc123", "diff://host", "served://client")
+            return policy.propose(proposal).value, policy.OFF_BY_DEFAULT
+
+        def workflow_probe():
+            wf = eb.Workflow((
+                eb.WorkflowNode("scan", eb.WorkflowOp.TOOL, "scanner"),
+                eb.WorkflowNode("peers", eb.WorkflowOp.FANOUT, "subagent", max_fanout=3),
+                eb.WorkflowNode("verify", eb.WorkflowOp.CHECK, "checker")))
+            loop = eb.LoopUntilDone(wf, max_iterations=3)
+            done = loop.tick(0, {"verify": True})
+            pending = loop.tick(1, {"verify": False})
+            return (done.done,
+                    [s.targets for s in pending.steps if s.op is eb.WorkflowOp.FANOUT])
+
+        def webhook_probe():
+            runtime = eb.WebhookRuntime()
+            runtime.register_rule(eb.WebhookRule("repo-events", True, ("x-signature",)))
+            runtime.register_adapter("github")
+            spawn = runtime.deliver(eb.WebhookDelivery(
+                "github", "repo-events", True, "d" * 64, "confirm-1"))
+            return spawn.describe()["feature_id"], spawn.confirmation_required
+
+        def inspector_probe():
+            service = eb.InspectorService()
+            service.register_worker("w1", (
+                eb.PluginTreeNode("root", "core", None, "live"),
+                eb.PluginTreeNode("child", "plugin", "root", "live")))
+            return ([n["node_id"] for n in service.query("w1", {"op": "list"})["nodes"]],
+                    service.trace("w1", "child"))
+
+        def storage_probe():
+            seam = eb.StorageSeam()
+            seam.register_backend(eb.StorageBackend("main", eb.StorageBackendKind.SQLITE))
+            seam.put(eb.DomainRecord("tasks", "t1", {"done": False}))
+            return seam.get("tasks", "t1")
+
+        def resources_probe():
+            service = eb.McpResourcesService()
+            service.register(eb.ResourceProvider("conn-1", "file:///shared/", ("agent-a",)))
+            return len(service.list_resources("agent-a")), service.list_resources("agent-b")
+
+        def token_probe():
+            folded = eb.TokenMeter().fold("s1", 10, 2)
+            return folded.revision, folded.total_tokens
+
+        def query_probe():
+            service = eb.SessionQueryService()
+            service.add_message("s1", 1, "alpha beta alpha")
+            service.add_message("s2", 1, "alpha alpha alpha beta")
+            return service.exact("s1", 1)
+
+        def plan_probe():
+            service = eb.PlanModeService()
+            service.queue_selection("s1", "pending plan")
+            flushed = service.flush("s1", 7)
+            return flushed.plan, flushed.revision
+
+        def shell_probe():
+            registry = eb.ShellEnvRegistry()
+            registry.declare("core", eb.EnvFact("KEEL_PROJECT_ROOT", "/work", "project", "exec-1"))
+            return dict(registry.snapshot("exec-1").facts)
+
+        def lsp_probe():
+            service = eb.LspService()
+            service.register_provider("pyright")
+            result = service.dispatch({"operation": "definition", "path": "a.py",
+                                       "line": 1, "column": 2})
+            return result["operation"], result["provider"]
+
+        def stt_probe():
+            service = eb.SpeechToTextService()
+            service.register(eb.SttProvider("local", eb.RecognizerKind.LOCAL))
+            draft = service.transcribe("local", "audio.wav", "  ship  it ")
+            return draft.draft_only, draft.text, draft.describe()["feature_id"]
+
+        def upload_probe():
+            service = eb.UploadService()
+            service.stage("u1", "s1", "hello ")
+            staged = service.stage("u1", "s1", b"world")
+            return staged.state.value, staged.size
+
+        def forge_probe():
+            service = eb.ForgeService()
+            service.register(eb.ForgeProvider(
+                "github", r"https://github\.com/(?P<ref>[^/]+/[^/]+)/pull/\d+"))
+            found = service.parse_url("https://github.com/acme/repo/pull/12")
+            return found.provider, found.ref
+
+        def auth_registry_probe():
+            registry = eb.AuthRegistry()
+            registry.register("token", eb.CredentialSource.TOKEN, lambda c: c == "good-token")
+            registry.register("pairing", eb.CredentialSource.PAIRING, lambda c: c == "pair-code")
+            auth = registry.authenticate([("peer-2", "pair-code"), ("peer-1", "good-token")])
+            return auth.peer_id, auth.verifier
+
+        def recommend_probe():
+            policy = eb.RecommendationPolicy()
+            return (len(policy.recommend("I need a CSV viewer", {"plugin.foo": "csv"})),
+                    policy.recommend("nice app", {"plugin.foo": "csv"}))
+
+        def feedback_probe():
+            log = eb.FeedbackLog()
+            log.append(eb.FeedbackEvent("s1", 7, eb.FeedbackValue.UP, 0, "note"))
+            return log.cas_for("s1", 7)
+
+        def seams_probe():
+            seams = eb.ProviderSeams()
+            seams.register(eb.UseProvider("playwright", eb.UseProviderKind.BROWSER,
+                                          ("browser.click",), ("page-1",)))
+            return seams.resolve(eb.UseProviderKind.BROWSER, "playwright").tools
+
+        probes = {
+            "E7.1": token_probe,
+            "E7.3": lambda: eb.compaction_decision(eb.PressureEvent(
+                eb.PressureEventKind.POST_STEP, "s1", 0.95)).value,
+            "E7.4": lambda: eb.SessionStatusStore().acknowledge("s1", 3).last_read_seq,
+            "E7.5": workspace_probe,
+            "E7.7": lambda: [s.path for s in eb.path_completions(
+                "src/", [{"path": "src/b.py", "kind": "file"}, "src/a.py", "docs/readme.md"])],
+            "E7.8": lambda: eb.parse_at_paths("see @src/a.py and @src/a.py plus @docs/x.md"),
+            "E7.9": query_probe,
+            "E7.10": lambda: eb.fallback_title("  a\n b "),
+            "E7.11": plan_probe,
+            "E7.12": lambda: eb.parse_preset_yaml(
+                "name: build\nrevision: 2\ncomponents: [scanner, editor]").components,
+            "E7.13": lambda: eb.ProjectionCache(throttle_seq=3).checkpoint(
+                "s1", 1, {"v": 1}).event_seq,
+            "E7.14": lambda: eb.reconcile(
+                {}, {"old": eb.McpInstance("old", "x", "connected")}).stop,
+            "E7.15": scheduler_probe,
+            "E7.16": ssh_probe,
+            "E7.17": shell_probe,
+            "E7.22": lsp_probe,
+            "E7.24": stt_probe,
+            "E7.25": office_probe,
+            "E7.26": upload_probe,
+            "E7.27": forge_probe,
+            "E7.28": lambda: eb.RolePolicy().snapshot(eb.Role.VIEWER).methods,
+            "E7.29": auth_registry_probe,
+            "E7.30": auth_flow_probe,
+            "E7.31": card_probe,
+            "E7.32": recommend_probe,
+            "E7.33": mirror_probe,
+            "E7.34": market_probe,
+            "E7.35": feedback_probe,
+            "E7.36": hook_probe,
+            "E7.37": plugin_probe,
+            "E7.38": workflow_probe,
+            "E7.39": webhook_probe,
+            "E7.40": inspector_probe,
+            "E7.41": storage_probe,
+            "E7.42": resources_probe,
+            "E7.43": seams_probe,
+        }
+
+        expected = {
+            "E7.1": (1, 12),
+            "E7.3": "compact",
+            "E7.4": 3,
+            "E7.5": (("c.py",), ("a.py",), ("b.py",), "E7.5"),
+            "E7.7": ["src/a.py", "src/b.py"],
+            "E7.8": ("src/a.py", "docs/x.md"),
+            "E7.9": "alpha beta alpha",
+            "E7.10": "a b",
+            "E7.11": ("pending plan", 7),
+            "E7.12": ("scanner", "editor"),
+            "E7.13": 1,
+            "E7.14": ("old",),
+            "E7.15": ["t2"],
+            "E7.16": ("stream-1", "stream-2"),
+            "E7.17": {"KEEL_PROJECT_ROOT": "/work"},
+            "E7.22": ("definition", "pyright"),
+            "E7.24": (True, "ship it", "E7.24"),
+            "E7.25": ("soffice", "wasm-engine"),
+            "E7.26": ("staged", 11),
+            "E7.27": ("github", "acme/repo"),
+            "E7.28": ("session.list", "session.read"),
+            "E7.29": ("peer-1", "token"),
+            "E7.30": ("attempt-1", "vault://ref/1"),
+            "E7.31": ("install:p1", "handled:install"),
+            "E7.32": (1, ()),
+            "E7.33": "fast-ok",
+            "E7.34": "p.one",
+            "E7.35": 1,
+            "E7.36": ("PostToolUse", "lint", ("claude_code",)),
+            "E7.37": ("pending_review", True),
+            "E7.38": (True, [("subagent-1", "subagent-2", "subagent-3")]),
+            "E7.39": ("E7.39", True),
+            "E7.40": (["child", "root"], ("child", "root")),
+            "E7.41": {"done": False},
+            "E7.42": (1, ()),
+            "E7.43": ("browser.click",),
+        }
+        self.assertEqual(set(probes), set(expected))
+        for fid in sorted(expected):
+            with self.subTest(fid=fid):
+                self.assertEqual(probes[fid](), expected[fid])
 
     def test_module_is_stdlib_only_and_io_free(self):
         path = Path(eb.__file__)
