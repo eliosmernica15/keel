@@ -119,3 +119,33 @@ or converted to a fake success.
 Static checks: no `ruff`/`mypy`/`flake8` installed in this environment. `python -m py_compile`
 and `python -m compileall -q src/keel` both pass; `git diff --check` clean. All 8 workflow
 YAMLs parse and all 30 `uses:` refs are full-SHA pinned.
+
+## FINAL adversarial-audit full-suite run (authoritative, post-remediation)
+
+All 10 audit findings remediations were integrated before this run. Ambient
+`~/.keel/settings.json` MCP servers (from concurrent user work) were isolated by running
+with a clean local HOME that preserved Keel state but stripped `mcpServers`; in that same
+environment the two previously timing-out webapp tests passed in 6.5s.
+
+Command (from `keel/`, clean HOME):
+
+```
+python -m pytest -q -o faulthandler_timeout=120
+```
+
+Result:
+
+```
+4071 passed, 48 skipped, 3640 subtests passed in 585.13s (0:09:45)
+```
+
+**0 failed, exit code 0.** +42 passing tests vs the 4029 pre-audit baseline (new regression
+tests for every confirmed audit defect). 48 skips unchanged; no test deleted or weakened.
+
+Under 15 concurrent agents an earlier reproduction gave 4027 passed / 2 failed / 48 skipped /
+3621 subtests; the 2 failures were 30s localhost HTTP timeouts caused by ambient MCP config,
+not product defects (verified: they pass in 4-6s with isolated HOME).
+
+Governance gates after final integration:
+`verify_v6_audit.py` CONSISTENCY OK; `verify_backend_operation.py` OK (361/421 traceable IDs);
+dependency graph FRESH; license gate OK; 8 workflow YAMLs parse; 30 `uses:` full-SHA pinned.

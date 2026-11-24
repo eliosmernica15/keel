@@ -163,7 +163,7 @@ All fixed with regression tests. Native Linux/macOS sandbox execution remains un
   3621 subtests — the 2 failures were 30s localhost HTTP timeouts caused by ambient MCP
   servers in `~/.keel/settings.json` from concurrent user work (with an isolated HOME both
   pass in 4-6s). No product defect.
-- Definitive final clean-environment full-suite result: see `master-plan-v6-test-evidence.md`.
+- **Definitive final clean-environment full-suite result: 4071 passed, 48 skipped, 3640 subtests, 0 failed** (`python -m pytest -q -o faulthandler_timeout=120`, 585.13s; see `master-plan-v6-test-evidence.md`).
 
 ## Final production-readiness assessment (unchanged)
 Backend functionality and real capability-surface integration: **PASS**.
