@@ -553,6 +553,36 @@ def test_realtime_secret_token_is_unpredictable_and_never_disclosed():
     assert secret.public_dict()["token"] == "[redacted]"
 
 
+def test_realtime_secret_is_valid_rejects_wrong_token():
+    """C10: a known session id must not make an arbitrary token valid."""
+    issuer = y.RealtimeSecretIssuer(clock=lambda: 0.0)
+    issued = issuer.issue("session-A", now=1000.0)
+    assert issuer.is_valid(issued, now=1001.0) is True
+
+    wrong = y.RealtimeSecret(
+        token="totally-wrong-token",
+        session_id=issued.session_id,
+        expires_at=issued.expires_at,
+        issued_at=issued.issued_at,
+    )
+    assert issuer.is_valid(wrong, now=1001.0) is False
+
+    # A genuine token from another session cannot be relabelled either.
+    other = issuer.issue("session-B", now=1000.0)
+    relabelled = y.RealtimeSecret(
+        token=other.token,
+        session_id="session-A",
+        expires_at=other.expires_at,
+        issued_at=other.issued_at,
+    )
+    assert issuer.is_valid(relabelled, now=1001.0) is False
+    assert issuer.is_valid(other, now=1001.0) is True
+
+    # A token minted by a different issuer is not registered with this one.
+    foreign = y.RealtimeSecretIssuer(clock=lambda: 0.0).issue("session-A", now=1000.0)
+    assert issuer.is_valid(foreign, now=1001.0) is False
+
+
 def test_handoff_task_relays_to_text_loop():
     seam = y.RecordingTextLoopSeam()
     relay = y.HandoffRelay(seam=seam, clock=lambda: 1000.0)
