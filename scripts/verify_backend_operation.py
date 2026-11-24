@@ -460,8 +460,9 @@ for reason, count in sorted(check_totals.items(), key=lambda kv: -kv[1]):
 print("\nper-ID failures:")
 for fid in sorted(gate_failures):
     print(f"  {fid:8s} [{attribution[fid]}] " + "; ".join(gate_failures[fid]))
-print("NOTE: these failures are reported, not enforced. No status was "
-      "downgraded; the lead decides remediation.")
+print("NOTE: " + ("ENFORCED: failures cause a non-zero exit." if strict else
+      "these failures are reported, not enforced. No status was "
+      "downgraded; the lead decides remediation."))
 
 if strict and gate_failures:
     errors.append(f"{len(gate_failures)} attributed IDs fail the evidence gate "

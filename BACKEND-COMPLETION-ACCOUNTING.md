@@ -74,7 +74,7 @@ completion_backend_certified = T_B / B = 421 / 421 = 1.00000 = 100.0%
 limitation_rate             = L_B / B =   0 / 421 = 0.00000 = 0.0%
 ```
 
-The 60 limited rows are listed in `REMAINING-WORK-MATRIX.md` §5. They remain `verified`;
+The 60 rows formerly listed as limited in `REMAINING-WORK-MATRIX.md` §5 are now fully traceable (historical list only). They remain `verified`;
 the gap is in the evidence/certification layer (prose-only ID mentions, module-level
 evidence docs without per-ID rows), not in the implementation status.
 
