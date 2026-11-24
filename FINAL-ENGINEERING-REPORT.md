@@ -67,7 +67,7 @@ Branch: `integration/v6-backend-complete` (local only). Baseline: `0865817`.
 - 865 canonical IDs unchanged; no requirement removed to improve apparent progress.
 - Final registry: **854 verified / 9 not_started / 2 blocked** (was 433/430/2).
 - 421 newly implemented backend features attributed by each module's declared registry; cross-references to other modules' IDs were NOT attributed.
-- 9 not_started: 7 D6 human-workflow conventions with no honest local runtime artifact, plus 2 owner-gated conflicts (W1.18 MIT license, Y6.4 public repo — DECISIONS D-036/D-037).
+- 9 not_started: 7 D6 human-workflow conventions with no honest local runtime artifact, plus 2 `not_started` rows rejected as written (W1.18 MIT license, Y6.4 public repo — DECISIONS D-036/D-037); canonical registry does not mark them owner-gated.
 - 2 blocked: C11.1/C11.2 (GitHub Free plan + owner security gates).
 - P0 share 27.7%; `original_priority` preserved; parity identical.
 
@@ -148,7 +148,7 @@ untouched. `BACKEND-IMPLEMENTATION-DETAIL.md` present.
    "fully integrated into production workflows" claim was overstated and is corrected here.
 5. **Registry certification was shallow** (dict membership; 93 empty criteria; evidence =
    doc filename). Fixed: derived criteria for 93 rows, AST + evidence-doc symbol/test
-   cross-check; 361/421 IDs now traceable (was 231). No status downgraded; limitation
+   cross-check; **HISTORICAL** 361/421 (superseded: 421/421) IDs now traceable (was 231). No status downgraded; limitation
    documented in `REGISTRY-EVIDENCE-INTEGRITY.md`.
 
 ## Security defects found and fixed
@@ -187,8 +187,8 @@ authoritative. It resolves stale inventory counts used in earlier documentation.
   tables) are a separate cross-cutting observability inventory and are never summed with
   the registry.
 - **Backend accounting:** deduplicated denominator **421** backend-attributed IDs;
-  421 / 421 = 100.0% `verified`, but only 361 / 421 = 85.7% fully traceable and
-  60 / 421 = 14.3% verified with certification limitation. See
+  421 / 421 = 100.0% `verified`, but only **HISTORICAL** 361 / 421 (superseded: 421/421) = 85.7% fully traceable and
+  **HISTORICAL** 60 / 421 (superseded: 421/421) = 14.3% verified with certification limitation. See
   `BACKEND-COMPLETION-ACCOUNTING.md`.
 - **Remaining work:** 9 `not_started` (7 D6 conventions + W1.18 + Y6.4) and 2 `blocked`
   (C11.1/C11.2); 9 rows excluded as owner-gated/external/dormant. See
@@ -206,7 +206,7 @@ A later remediation batch (`agent/final-trace`, merged and pushed) added AST-vis
 `python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
 and `--strict` enforces the gate with a non-zero exit on any failure.
 
-All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+All earlier figures of ****HISTORICAL** 361 / 421 (superseded: 421/421) traceable** and ****HISTORICAL** 60 failing (superseded: 421/421) IDs** in this document
 are **historical** — they describe the state before that batch and are retained only
 for provenance. Current authoritative certification:
 
@@ -218,6 +218,9 @@ The gate remains a certification layer over tests and declarations; it does not 
 native cross-platform or live-provider verification.
 
 # Backend completion delivery — GitHub push verification (2026-11-24)
+
+**Authoritative test result for the promoted backend: 4214 passed / 48 skipped / 3707 subtests / 0 failed.** Earlier figures (e.g. 4071) are historical stage results.
+
 
 ## Delivery
 - Repository: https://github.com/eliosmernica15/keel
