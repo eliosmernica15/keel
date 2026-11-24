@@ -68,6 +68,7 @@ import json
 import os
 import re
 import threading
+import tempfile
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -642,6 +643,24 @@ _APPROVAL_VERSION = 1
 _LOCK_TIMEOUT_S = 5.0
 _LOCK_STALE_S = 30.0
 
+# Cross-instance correctness: several ApprovalStore objects in the same process
+# may target one approval file.  A file lock alone is fragile under load (a
+# holder stalled > _LOCK_STALE_S has its lock stolen) and a fixed .tmp path can
+# be shared by two writers.  Serialise the whole read-modify-write per resolved
+# path in-process; the on-disk lock still coordinates other processes.
+_APPROVAL_PATH_LOCKS: dict[str, threading.RLock] = {}
+_APPROVAL_PATH_LOCKS_GUARD = threading.Lock()
+
+
+def _path_lock(path: Path) -> threading.RLock:
+    key = str(path.resolve())
+    with _APPROVAL_PATH_LOCKS_GUARD:
+        lock = _APPROVAL_PATH_LOCKS.get(key)
+        if lock is None:
+            lock = threading.RLock()
+            _APPROVAL_PATH_LOCKS[key] = lock
+        return lock
+
 
 def _request_to_dict(request: ApprovalRequest) -> dict:
     return {
@@ -710,9 +729,11 @@ class ApprovalStore:
 
     def _write_atomic(self, doc: dict) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = self.path.with_suffix(".json.tmp")
+        fd, tmp_name = tempfile.mkstemp(
+            prefix=self.path.name + ".", suffix=".tmp", dir=str(self.path.parent))
+        tmp = Path(tmp_name)
         try:
-            with open(tmp, "w", encoding="utf-8") as handle:
+            with os.fdopen(fd, "w", encoding="utf-8") as handle:
                 json.dump(doc, handle, indent=2, ensure_ascii=False)
                 handle.flush()
                 os.fsync(handle.fileno())
@@ -901,7 +922,7 @@ class ApprovalStore:
                                reason="proposed pattern matches a configured deny"),
                     reply_enum)
 
-            with self._file_lock():
+            with _path_lock(self.path), self._file_lock():
                 doc = self._load()
                 key = (request.action, pattern)
                 already = any(
