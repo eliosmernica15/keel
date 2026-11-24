@@ -996,21 +996,26 @@ _INLINE_SECRET_RE = re.compile(
     r"(?i)(?P<key>\b\w*(?:pin|token|password|secret)\w*)\s*[:=]\s*"
     r"(?P<value>(?:(?!" + _SECRET_ASSIGNMENT + r")[^\r\n,;])*)"
 )
+# A bearer credential has no assignment key, so it needs its own rule:
+# ``authorization: Bearer <token>`` previously survived untouched.
+_BEARER_RE = re.compile(r"(?i)\b(?:Bearer|Basic)\s+[^\s,;'\"\r\n]{4,}")
 
 
 def redact_diagnostics(text: str, secrets: Iterable[str] = ()) -> str:
     """Redact known secrets and any inline PIN/token values from diagnostics.
 
     The complete value of an inline assignment is removed: a multi-word secret
-    (``token=super secret value``) must not leak its remaining words.
+    (``token=super secret value``) must not leak its remaining words.  Bare
+    Bearer/Basic credentials are removed as well.
     """
     redacted = str(text)
     for secret in secrets:
         if secret:
             redacted = redacted.replace(secret, "[REDACTED]")
-    return _INLINE_SECRET_RE.sub(
+    redacted = _INLINE_SECRET_RE.sub(
         lambda match: f"{match.group('key')}=[REDACTED]", redacted,
     )
+    return _BEARER_RE.sub("[REDACTED]", redacted)
 
 
 def assert_signing_pin_not_persisted(config: Mapping[str, object]) -> None:

@@ -256,6 +256,35 @@ def test_w7_15_share_tokens_and_public_redaction():
     assert "<script>" not in m.render_share_html({"text": "<script>alert(1)</script>"})
 
 
+def test_w7_15_public_share_redacts_multiword_and_bearer_secrets():
+    """Audit C1: published share artifacts must not carry credential values."""
+    transcript = {
+        "messages": [{"role": "user",
+                      "content": "my token=super secret value and Bearer abcdef1234567890"}],
+        "tool_calls": [{"args": "password=hunter2 secret"}],
+    }
+    view = m.public_share_view(transcript)
+    assert "super secret value" not in view["text"]
+    assert "abcdef1234567890" not in view["text"]
+    assert "Bearer" not in view["text"]
+    assert all("hunter2 secret" not in p for p in view["tool_previews"])
+    rendered = m.render_share_html(view)
+    assert "super secret value" not in rendered
+    assert "abcdef1234567890" not in rendered
+    assert "hunter2 secret" not in rendered
+
+    # A caller may hand render_share_html a view it built itself; it must
+    # still scrub before publishing.
+    raw = m.render_share_html({"text": "my token=super secret value",
+                               "tool_previews": ["Bearer abcdef1234567890"]})
+    assert "super secret value" not in raw
+    assert "abcdef1234567890" not in raw
+
+    shown = m.redact_keys_for_display("token=super secret value")
+    assert "super secret value" not in shown
+    assert "[REDACTED]" in shown
+
+
 def test_w7_18_atomic_spend_ledger():
     ledger = m.AtomicSpendLedger({"vendor-a": 10.0})
     for _ in range(10):

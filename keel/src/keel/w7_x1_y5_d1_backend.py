@@ -50,6 +50,24 @@ _SECRET_RE = re.compile(
     r"gh[pousr]_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{8,})\b"
 )
 _EMAIL_RE = re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b")
+# Public-share output must not publish assignment-style credentials.  As in
+# the other backends, the value runs to the next assignment/newline rather
+# than to the next space, so "token=super secret value" is removed in full.
+_SECRET_KEYWORDS = (
+    r"api[_-]?key|access[_-]?token|token|password|secret|authorization|pin"
+)
+_NEXT_ASSIGNMENT = (
+    r"['\"]?\b\w*(?:" + _SECRET_KEYWORDS + r")\w*['\"]?\s*[:=]"
+)
+_ASSIGNED_SECRET_RE = re.compile(
+    r"(?i)(?P<key>\b\w*(?:" + _SECRET_KEYWORDS + r")\w*)\s*['\"]?\s*[:=]\s*"
+    r"(?:"
+    r"(?P<q>['\"])(?:(?!(?P=q))[^\r\n])*(?P=q)"
+    r"|(?:['\"]?(?:Bearer|Basic)\s+)?"
+    r"(?:(?!(?:" + _NEXT_ASSIGNMENT + r"))[^\r\n])*"
+    r")"
+)
+_BARE_BEARER_RE = re.compile(r"(?i)\b(?:Bearer|Basic)\s+[^\s,;'\"\r\n]{4,}")
 
 
 def _utc_now() -> str:
@@ -67,6 +85,8 @@ def _b64u_decode(text: str) -> bytes:
 def _scrub_secrets(text: str) -> str:
     """Remove credential-shaped substrings and e-mail addresses from text."""
     out = _SECRET_RE.sub("[REDACTED]", str(text))
+    out = _ASSIGNED_SECRET_RE.sub(lambda m: f"{m.group('key')}=[REDACTED]", out)
+    out = _BARE_BEARER_RE.sub("[REDACTED]", out)
     out = _EMAIL_RE.sub("[REDACTED]", out)
     return out
 
@@ -741,8 +761,10 @@ def public_share_view(transcript: dict, *, preview_chars: int = 160) -> dict:
 
 def render_share_html(view: dict) -> str:
     """W7.15/Z3: local HTML export using the same public redaction level."""
-    safe_text = html.escape(str(view.get("text", "")))
-    items = "".join(f"<li>{html.escape(str(p))}</li>"
+    # Scrub again: callers may hand this renderer a view they built themselves
+    # rather than one returned by ``public_share_view``.
+    safe_text = html.escape(_scrub_secrets(str(view.get("text", ""))))
+    items = "".join(f"<li>{html.escape(_scrub_secrets(str(p)))}</li>"
                     for p in view.get("tool_previews", []))
     return ("<!doctype html><html><body>"
             f"<main><p>{safe_text}</p><ul>{items}</ul></main>"

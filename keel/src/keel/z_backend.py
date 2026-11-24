@@ -455,13 +455,33 @@ def run_contract_tests(pack_root: str | Path,
 # Z3 — Redacted replay export
 # ===========================================================================
 
+# Assignment values must be consumed in full, including spaces: a short
+# first word ("token=super secret value") previously prevented any match at
+# all.  Stop at the next secret-key assignment or a line break, and treat a quoted
+# value as bounded by its closing quote.  Dict keys and Bearer credentials
+# keep their existing handling (the rules below run in order).
+_SECRET_KEYWORDS = (
+    r"api[_-]?key|access[_-]?token|token|password|secret|authorization|pin"
+)
+_NEXT_ASSIGNMENT = (
+    r"['\"]?\b\w*(?:" + _SECRET_KEYWORDS + r")\w*['\"]?\s*[:=]"
+)
+_ASSIGNED_SECRET_RE = re.compile(
+    r"(?i)\b\w*(?:" + _SECRET_KEYWORDS + r")\w*\s*['\"]?\s*[:=]\s*"
+    r"(?:"
+    r"(?P<q>['\"])(?:(?!(?P=q))[^\r\n])*(?P=q)"
+    r"|(?:['\"]?(?:Bearer|Basic)\s+)?"
+    r"(?:(?!(?:" + _NEXT_ASSIGNMENT + r"))[^\r\n])*"
+    r")"
+)
+_BARE_BEARER_RE = re.compile(r"(?i)\b(?:Bearer|Basic)\s+[^\s,;'\"\r\n]{4,}")
+
 _REDACTION_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("api_key", re.compile(
         r"\b(?:sk-[A-Za-z0-9_\-]{12,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{20,})\b")),
     ("email", re.compile(r"\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b")),
-    ("secret", re.compile(
-        r"(?i)\b(?:api[_-]?key|token|password|secret|authorization)\s*[:=]\s*"
-        r"['\"]?(?:(?:Bearer|Basic)\s+)?[A-Za-z0-9_\-/+.]{6,}['\"]?")),
+    ("secret", _ASSIGNED_SECRET_RE),
+    ("secret", _BARE_BEARER_RE),
     ("home_path", re.compile(
         r"(?:[A-Za-z]:[\\/]Users[\\/]|/home/|/Users/)[^\s\"'<>]+")),
     ("abs_path", re.compile(
