@@ -57,6 +57,21 @@ from typing import Any, Callable, Iterable, Mapping, Sequence
 
 
 # ---------------------------------------------------------------------------
+# feature traceability declaration (ID -> implementing symbols)
+# ---------------------------------------------------------------------------
+
+# Explicit, AST-visible declaration for the traceability gap on Y2.16. Every
+# named symbol is really defined below and exercised by the compaction tests in
+# tests/test_y2_backend.py. The name is deliberately not one of backend_hub's
+# reserved registry attributes, so backend_hub.verify keeps its AST fallback
+# behaviour for this module.
+FEATURE_TRACEABILITY: dict[str, tuple[str, ...]] = {
+    "Y2.16": ("DEFAULT_KEEP_LAST_USER_TURNS", "DEFAULT_MEMORY_BUDGET_CHARS",
+              "CompactionConfig", "CompactionMethod", "plan_compaction"),
+}
+
+
+# ---------------------------------------------------------------------------
 # shared helpers: canonical bytes, deterministic ids, clocks, typed errors
 # ---------------------------------------------------------------------------
 

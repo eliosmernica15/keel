@@ -99,3 +99,35 @@ run the signing checklist in CI when a certificate exists, keep the Linux
 formats in the release matrix, and publish `known_limitations_section()` in the
 desktop README and About view. No credentials, network endpoints or deployment
 actions were introduced here.
+
+## Per-ID traceability: ID → implementing symbols → behavioral test
+
+`keel/src/keel/e5_backend.py` exposes the explicit declaration
+`feature_traceability_declaration()` — a tuple of `(ID, symbols)` pairs whose
+string literals map each of the 13 IDs to real symbols defined in that module.
+It is intentionally a function-local tuple-of-pairs rather than a module-level
+registry so that `backend_hub.verify('e5_backend')` keeps its AST fallback and
+still reports the docstring-only E5 IDs as *not declared* (see
+`keel/tests/test_backend_hub_integration.py`). The per-ID rows below name the
+concrete symbols and the concrete behavioral test functions in
+`keel/tests/test_e5_backend.py`; this is the cross-check consumed by
+`scripts/verify_backend_operation.py`.
+
+| ID | Implementing symbols (`keel.e5_backend`) | Behavioral test function |
+| --- | --- | --- |
+| E5.2 | `release_identity`, `assert_release_identity` | `test_e5_2_shell_and_backend_share_one_exact_version`, `test_e5_2_adversarial_split_identity_rejected` |
+| E5.3 | `bundled_runtime_descriptor`, `assert_bundled_runtime` | `test_e5_3_bundled_runtime_descriptor_is_self_consistent`, `test_e5_3_adversarial_system_or_shell_runtime_rejected` |
+| E5.5 | `activation_descriptor`, `ActivationJournal`, `execute_activation`, `recover_activation`, `TransactionLock` | `test_e5_5_health_check_probes_staged_profile_and_gates_swap`, `test_e5_5_recovery_combines_journal_with_actual_directories` |
+| E5.6 | `seed_manifest`, `assert_seed_manifest`, `offline_install_gate` | `test_e5_6_seed_manifest_is_deterministic_and_uncompressed`, `test_e5_6_offline_install_gate_and_first_run_descriptor` |
+| E5.7 | `update_unit_descriptor`, `assert_update_unit`, `update_schedule`, `update_install_plan` | `test_e5_7_update_unit_binds_all_three_components`, `test_e5_7_install_plan_verifies_before_stopping_backend` |
+| E5.8 | `plugin_manager_surface`, `authorize_plugin_operation` | `test_e5_8_surface_lists_only_structured_operations`, `test_e5_8_valid_operations_authorized` |
+| E5.10 | `locale_payload`, `assert_locale_payload`, `i18n_gate_scope` | `test_e5_10_localized_payload_shared_with_english_fallback`, `test_e5_10_adversarial_payload_rejected` |
+| E5.11 | `dev_home_descriptor`, `dev_debug_ports`, `devtools_descriptor`, `effective_dev_config` | `test_e5_11_dev_home_is_disposable_and_scoped`, `test_e5_11_devtools_toggle_and_packaged_override_isolation` |
+| E5.13 | `validate_app_id`, `validate_release_prerequisites` | `test_e5_13_valid_app_ids`, `test_e5_13_release_prerequisites_ready_when_complete` |
+| E5.16 | `update_environment`, `assert_distinct_update_origins` | `test_e5_16_named_environments_have_distinct_origins`, `test_e5_16_adversarial_shared_origin_rejected` |
+| E5.17 | `signing_plan`, `assert_signing_steps_complete`, `redact_diagnostics`, `assert_signing_pin_not_persisted` | `test_e5_17_signing_plan_covers_required_steps`, `test_e5_17_diagnostics_redacted_and_pin_never_persisted` |
+| E5.18 | `linux_release_targets`, `assert_linux_release_targets` | `test_e5_18_linux_formats_declared_and_validated`, `test_e5_18_adversarial_format_set_rejected` |
+| E5.19 | `known_limitations_section`, `assert_known_limitations_complete` | `test_e5_19_section_documents_every_required_topic`, `test_e5_19_adversarial_incomplete_section_rejected` |
+
+The earlier per-row table named symbols only; this table adds the concrete test
+function column required for the evidence gate. No ID or status was changed.

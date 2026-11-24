@@ -60,6 +60,41 @@ from typing import NewType
 
 
 # ---------------------------------------------------------------------------
+# feature traceability declaration (ID -> implementing symbols)
+# ---------------------------------------------------------------------------
+
+# Explicit, AST-visible declaration of the 18 BACKEND-classified D6 rows this
+# module implements. Each value names only symbols that are really defined
+# below and exercised in tests/test_d6_reliability_backend.py. The name is
+# deliberately not one of backend_hub's reserved registry attributes: this is
+# a traceability declaration for the evidence gate, not a runtime feature
+# registry (backend_hub.verify must keep using its AST fallback for this
+# module).
+FEATURE_TRACEABILITY: dict[str, tuple[str, ...]] = {
+    "D6.1": ("ApiChangeRecorder", "check_upgrade_guide", "SchemaVersion",
+             "assert_monotonic", "scan_schema_version"),
+    "D6.3": ("EventCatalog", "EventSpec", "assert_never"),
+    "D6.4": ("Request", "Spec", "resolve", "run", "find_hidden_defaults"),
+    "D6.5": ("PluginTunables", "validate_plugin_config", "lint_plugin_source"),
+    "D6.6": ("ReferenceRegistry", "load_with_references"),
+    "D6.7": ("SessionId", "RequestId", "PluginId", "SnapshotId", "brand_id",
+             "audit_id_annotations"),
+    "D6.8": ("Boundary", "BoundaryRegistry", "trust"),
+    "D6.9": ("CastBaseline", "scan_cast_calls"),
+    "D6.10": ("classify_path", "ImportGate", "assert_source_import"),
+    "D6.11": ("KeelError", "all_error_codes", "audit_except_handlers"),
+    "D6.12": ("audit_docstrings", "find_restating_comments"),
+    "D6.13": ("DocCoverageChecker", "assert_docs_in_sync"),
+    "D6.15": ("SnapshotRegistry", "assert_keyless"),
+    "D6.16": ("validate_projection", "SdkProjectionValidator"),
+    "D6.19": ("VendorManifest", "render_vendor_manifest"),
+    "D6.22": ("scan_markers", "assert_release_ready"),
+    "D6.24": ("TypingAudit", "JustifiedDynamic"),
+    "D6.25": ("GateRegistry", "top_level_gate"),
+}
+
+
+# ---------------------------------------------------------------------------
 # shared helpers + typed error hierarchy (D6.11)
 # ---------------------------------------------------------------------------
 

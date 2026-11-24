@@ -948,3 +948,21 @@ def test_sunset_invalid_date_fails_closed() -> None:
     except BackendError:
         return
     raise AssertionError("expected BackendError for invalid sunset date")
+
+
+def test_e6_x5_x6_feature_traceability_registry_maps_real_symbols() -> None:
+    """Every declared E6/X5/X6 ID resolves to real, usable module symbols."""
+    expected = {
+        "E6.2", "E6.3", "E6.4", "E6.6", "E6.7", "E6.11", "E6.12", "E6.13",
+        "E6.14", "X5.2", "X5.3", "X5.4", "X5.7", "X5.8", "X5.10", "X5.11",
+        "X5.12", "X5.13", "X6.1", "X6.2", "X6.3", "X6.4", "X6.5", "X6.6",
+        "X6.8", "X6.9", "X6.10",
+    }
+    assert set(b.FEATURE_TRACEABILITY) == expected
+    for fid, names in b.FEATURE_TRACEABILITY.items():
+        assert names, fid
+        for name in names:
+            obj = getattr(b, name, None)
+            assert obj is not None, (fid, name)
+            assert callable(obj) or isinstance(
+                obj, (type, int, str, tuple, dict, set, frozenset)), (fid, name)

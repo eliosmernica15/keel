@@ -36,6 +36,47 @@ from dataclasses import dataclass, replace
 from typing import Callable, Iterable, Mapping
 from urllib.parse import urlsplit
 
+
+# ---------------------------------------------------------------------------
+# feature traceability declaration (ID -> implementing symbols)
+# ---------------------------------------------------------------------------
+
+def feature_traceability_declaration() -> tuple[tuple[str, tuple[str, ...]], ...]:
+    """E5.x feature ID -> concrete symbols that implement it.
+
+    This is an explicit, AST-visible declaration used by the evidence gate:
+    the string ID keys and the symbol names are literal constructs in this
+    function body, and every named symbol is really defined in this module and
+    exercised in ``tests/test_e5_backend.py``.
+
+    It is deliberately a tuple-of-pairs returned by a function rather than a
+    module-level dict or one of backend_hub's reserved registry attributes:
+    ``backend_hub.verify('e5_backend')`` must keep using its AST fallback and
+    must keep reporting the docstring-only E5 IDs as *not declared* (see
+    ``tests/test_backend_hub_integration.py``). This declaration is traceability
+    evidence, not a runtime feature registry.
+    """
+    return (
+        ("E5.2", ("release_identity", "assert_release_identity")),
+        ("E5.3", ("bundled_runtime_descriptor", "assert_bundled_runtime")),
+        ("E5.5", ("activation_descriptor", "ActivationJournal",
+                  "execute_activation", "recover_activation", "TransactionLock")),
+        ("E5.6", ("seed_manifest", "assert_seed_manifest", "offline_install_gate")),
+        ("E5.7", ("update_unit_descriptor", "assert_update_unit",
+                  "update_schedule", "update_install_plan")),
+        ("E5.8", ("plugin_manager_surface", "authorize_plugin_operation")),
+        ("E5.10", ("locale_payload", "assert_locale_payload", "i18n_gate_scope")),
+        ("E5.11", ("dev_home_descriptor", "dev_debug_ports",
+                   "devtools_descriptor", "effective_dev_config")),
+        ("E5.13", ("validate_app_id", "validate_release_prerequisites")),
+        ("E5.16", ("update_environment", "assert_distinct_update_origins")),
+        ("E5.17", ("signing_plan", "assert_signing_steps_complete",
+                   "redact_diagnostics", "assert_signing_pin_not_persisted")),
+        ("E5.18", ("linux_release_targets", "assert_linux_release_targets")),
+        ("E5.19", ("known_limitations_section", "assert_known_limitations_complete")),
+    )
+
+
 __all__ = [
     # errors
     "E5BackendError", "ReleaseIdentityError", "RuntimeIsolationError",
