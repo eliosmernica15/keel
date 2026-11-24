@@ -32,6 +32,36 @@ const QUICK_PROMPTS = [
 const WINDOW_SIZE = 150;
 const WINDOW_PAGE = 100;
 
+interface ScrollRestore {
+  /** Stable row sequence from data-cowork-seq, when an anchor was available. */
+  seq: string | null;
+  /** Row top relative to the scroll viewport's top (bottom-aligned for jump). */
+  offset: number;
+  /** Fallback: distance from the viewport top to the bottom before the change. */
+  distance: number;
+}
+
+function rowNodes(el: HTMLElement): HTMLElement[] {
+  return Array.from(el.querySelectorAll<HTMLElement>("[data-cowork-seq]"));
+}
+
+function captureRowAnchor(el: HTMLElement, align: "top" | "bottom"): ScrollRestore {
+  const viewportTop = el.getBoundingClientRect().top;
+  const nodes = rowNodes(el).filter((node) => node.getBoundingClientRect().height > 0);
+  const node = align === "bottom"
+    ? nodes[nodes.length - 1]
+    : nodes.find((candidate) => {
+      const rect = candidate.getBoundingClientRect();
+      return rect.bottom > viewportTop + 1 && rect.top < viewportTop + el.clientHeight;
+    });
+  const rect = node?.getBoundingClientRect();
+  return {
+    seq: node?.getAttribute("data-cowork-seq") ?? null,
+    offset: rect ? (align === "bottom" ? el.clientHeight - rect.height : rect.top - viewportTop) : 0,
+    distance: align === "bottom" ? 0 : Math.max(0, el.scrollHeight - el.scrollTop),
+  };
+}
+
 const TONE: Record<string, "neutral" | "info" | "success" | "warning" | "danger"> = {
   idle: "neutral", running: "info", completed: "success",
   "waiting-for-user": "warning", queued: "warning", paused: "warning",
@@ -114,7 +144,7 @@ export default function Cowork() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const atBottom = useRef(true);
   const [showJump, setShowJump] = useState(false);
-  const restoreBottom = useRef<number | null>(null);
+  const scrollRestore = useRef<ScrollRestore | null>(null);
   const pendingSeq = useRef<string | null>(null);
   const streamRef = useRef<StreamBuffer | null>(null);
   if (!streamRef.current) streamRef.current = new StreamBuffer();
@@ -161,7 +191,7 @@ export default function Cowork() {
     setStreamError(null);
     setSearchOpen(false); setQuery(""); setActiveMatch(-1);
     setWindowCount(WINDOW_SIZE);
-    restoreBottom.current = null; pendingSeq.current = null;
+    scrollRestore.current = null; pendingSeq.current = null;
     stream.clear();
     lastEventSeq.current = 0;
     lastAttempt.current = null;
@@ -221,7 +251,7 @@ export default function Cowork() {
     stream.clear();
     setWindowCount(WINDOW_SIZE);
     setSearchOpen(false); setQuery(""); setActiveMatch(-1);
-    restoreBottom.current = null; pendingSeq.current = null;
+    scrollRestore.current = null; pendingSeq.current = null;
     if (!botId) { setRows([]); setBusy(false); setAnsweredAsks(new Set()); setModels([]); return; }
     void loadRows(botId);
     setWorkLogOpen(true);
@@ -317,24 +347,35 @@ export default function Cowork() {
   useLayoutEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    if (restoreBottom.current != null) {
-      const distance = restoreBottom.current;
-      restoreBottom.current = null;
-      const raf = requestAnimationFrame(() => { el.scrollTop = Math.max(0, el.scrollHeight - distance); });
-      return () => cancelAnimationFrame(raf);
-    }
     if (pendingSeq.current != null) {
       const seq = pendingSeq.current;
       pendingSeq.current = null;
       const raf = requestAnimationFrame(() => {
-        const node = Array.from(el.querySelectorAll("[data-cowork-seq]"))
-          .find((n) => n.getAttribute("data-cowork-seq") === seq);
+        const node = rowNodes(el).find((n) => n.getAttribute("data-cowork-seq") === seq);
         if (!node) return;
         const details = node.closest("details");
         if (details) details.open = true;
         node.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
       });
       return () => cancelAnimationFrame(raf);
+    }
+    const restore = scrollRestore.current;
+    if (restore) {
+      scrollRestore.current = null;
+      // Prefer the stable row seq: layout changes in neighbouring rows (new
+      // group headings, different bubble heights) cannot shift the anchor.
+      const node = restore.seq
+        ? rowNodes(el).find((n) => n.getAttribute("data-cowork-seq") === restore.seq)
+        : null;
+      if (node) {
+        const offset = node.getBoundingClientRect().top - el.getBoundingClientRect().top;
+        el.scrollTop += offset - restore.offset;
+      } else {
+        // The anchor left the window (e.g. a collapse): keep the old distance
+        // from the bottom instead of jumping unpredictably.
+        el.scrollTop = Math.max(0, el.scrollHeight - restore.distance);
+      }
+      return;
     }
     if (!atBottom.current) return;
     const raf = requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
@@ -365,17 +406,23 @@ export default function Cowork() {
 
   const showEarlier = useCallback(() => {
     const el = scrollRef.current;
-    // Distance from the current scroll offset to the bottom. Restoring this
-    // after prepending older rows keeps the message under the user's eye.
-    if (el) restoreBottom.current = Math.max(0, el.scrollHeight - el.scrollTop);
+    // Anchor the row currently at the top of the viewport; the distance is
+    // only used if that row is no longer rendered after paging.
+    if (el) scrollRestore.current = captureRowAnchor(el, "top");
     setWindowCount((count) => Math.min(rows.length, count + WINDOW_PAGE));
   }, [rows.length]);
 
   const jumpToLatest = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    if (hiddenCount > 0) { restoreBottom.current = 0; setWindowCount(WINDOW_SIZE); }
-    el.scrollTo({ top: el.scrollHeight, behavior: reduceMotion ? "auto" : "smooth" });
+    if (hiddenCount > 0) {
+      // Collapsing the window keeps the newest row; bottom-align it through
+      // the same anchored restore path (distance fallback = scroll to bottom).
+      scrollRestore.current = captureRowAnchor(el, "bottom");
+      setWindowCount(WINDOW_SIZE);
+    } else {
+      el.scrollTo({ top: el.scrollHeight, behavior: reduceMotion ? "auto" : "smooth" });
+    }
     atBottom.current = true; setShowJump(false);
   }, [hiddenCount, reduceMotion]);
 
