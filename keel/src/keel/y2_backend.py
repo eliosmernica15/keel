@@ -27,10 +27,13 @@ implemented in ``keel.transcript_contracts``; this module does not duplicate
 them.  Integration into the live runtime is a separate lead decision (the
 seams are recorded in ``master-plan-v6-y2-backend-evidence.md``).
 
-Design rules, identical to the transcript contracts: stdlib only, no uuid or
-randomness, no network/socket, no import-time I/O.  Every id is a deterministic
+Design rules, identical to the transcript contracts: stdlib only, no uuid, no
+network/socket, no import-time I/O.  Every identity id is a deterministic
 SHA-256 prefix of canonical JSON, every clock is injectable, and all failures
-are typed.  Time is only ever used for stamps, never for identity.
+are typed.  Time is only ever used for stamps, never for identity.  The one
+deliberate exception is the voice realtime bearer token, which uses the
+standard-library CSPRNG (``secrets``) so it cannot be guessed from the session
+metadata published in its redacted form.
 """
 
 from __future__ import annotations
@@ -40,6 +43,7 @@ import json
 import math
 import os
 import re
+import secrets
 import struct
 import threading
 import time
@@ -1092,7 +1096,9 @@ def plan_compaction(turns: Sequence[Turn], config: CompactionConfig, *,
     # 'summary' always summarises; 'auto' only summarises when a trigger fires.
     summarise = should or method is CompactionMethod.SUMMARY
     user_turns = [t for t in items if t.role == "user"]
-    verbatim = tuple(user_turns[-config.keep_last_user_turns:]) if summarise else ()
+    keep = config.keep_last_user_turns
+    # A zero slice bound must keep *no* turns (user_turns[-0:] is all turns).
+    verbatim = tuple(user_turns[-keep:]) if summarise and keep else ()
     verbatim_ids = {id(t) for t in verbatim}
     summary = "\n".join(t.text for t in items if id(t) not in verbatim_ids) \
         if summarise else ""
@@ -1459,7 +1465,7 @@ class RealtimeSecret:
 
 
 class RealtimeSecretIssuer:
-    """Issue deterministic, short-lived tokens; no uuid, no RNG."""
+    """Issue short-lived bearer tokens from a CSPRNG; no deterministic token."""
 
     def __init__(self, ttl_seconds: int = DEFAULT_REALTIME_SECRET_TTL_SECONDS,
                  *, clock: Callable[[], float] | None = None) -> None:
@@ -1467,7 +1473,6 @@ class RealtimeSecretIssuer:
             raise VoiceError("ttl_seconds must be positive")
         self.ttl_seconds = int(ttl_seconds)
         self._clock = clock
-        self._nonce = 0
         self._revoked: set[str] = set()
         self._lock = threading.RLock()
 
@@ -1480,9 +1485,10 @@ class RealtimeSecretIssuer:
             raise VoiceError("a session id is required")
         current = self._now(now)
         with self._lock:
-            self._nonce += 1
-            token = new_id("realtime", session_id, current, self._nonce,
-                           length=24)
+            # Never derive the bearer token from session_id, issued_at or the
+            # counter: public_dict() publishes the first two, and the counter
+            # is trivially guessable.  256 bits from the stdlib CSPRNG.
+            token = secrets.token_urlsafe(32)
             return RealtimeSecret(token=token, session_id=str(session_id),
                                   expires_at=current + self.ttl_seconds,
                                   issued_at=current)

@@ -38,6 +38,7 @@ import os
 import re
 import sqlite3
 import tempfile
+import threading
 import time
 from collections import defaultdict
 from dataclasses import dataclass
@@ -460,7 +461,7 @@ _REDACTION_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("email", re.compile(r"\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b")),
     ("secret", re.compile(
         r"(?i)\b(?:api[_-]?key|token|password|secret|authorization)\s*[:=]\s*"
-        r"['\"]?([A-Za-z0-9_\-/+]{6,})['\"]?")),
+        r"['\"]?(?:(?:Bearer|Basic)\s+)?[A-Za-z0-9_\-/+.]{6,}['\"]?")),
     ("home_path", re.compile(
         r"(?:[A-Za-z]:[\\/]Users[\\/]|/home/|/Users/)[^\s\"'<>]+")),
     ("abs_path", re.compile(
@@ -491,7 +492,9 @@ def redact_record(value: Any) -> Any:
     if isinstance(value, str):
         return redact_text(value)[0]
     if isinstance(value, dict):
-        return {key: redact_record(item) for key, item in value.items()}
+        # A credential may be used as a mapping key (e.g. {"sk-...": "ok"}).
+        return {redact_text(key)[0] if isinstance(key, str) else key:
+                redact_record(item) for key, item in value.items()}
     if isinstance(value, list):
         return [redact_record(item) for item in value]
     return value
@@ -509,9 +512,11 @@ def render_replay(session: Mapping[str, Any], *, title: str = "Keel replay") -> 
     redacted_events = [redact_record(event) for event in events]
     preview: list[dict] = []
     for event in events:
-        for value in event.values() if isinstance(event, dict) else []:
-            if isinstance(value, str):
-                preview.extend(redact_text(value)[1])
+        parts = tuple(event.keys()) + tuple(event.values()) \
+            if isinstance(event, dict) else (event,)
+        for part in parts:
+            if isinstance(part, str):
+                preview.extend(redact_text(part)[1])
     events_digest = _sha256_json(redacted_events)
     manifest = {"schema": "keel.replay-manifest/1", "events": redacted_events,
                 "events_sha256": events_digest, "event_count": len(redacted_events)}
@@ -728,6 +733,9 @@ class LocalSync:
     def __init__(self, root: str | Path):
         self.root = Path(root)
         self.changes_path = self.root / "changes.jsonl"
+        # Serialises read-chain / compute-seq / append so concurrent writers
+        # cannot reuse the same seq and prev digest.
+        self._lock = threading.RLock()
 
     def changes(self) -> list[Change]:
         records = _read_jsonl(self.changes_path)
@@ -757,14 +765,15 @@ class LocalSync:
         _safe_relpath(key, "sync key")
         _require_str(device, "device")
         stamp = time.time() if ts is None else _require_number(ts, "ts")
-        existing = self.changes()
-        payload = {"seq": len(existing) + 1, "key": key, "value": value,
-                   "ts": stamp, "device": device,
-                   "prev": existing[-1].checksum if existing else GENESIS_DIGEST}
-        record = dict(payload)
-        record["checksum"] = _change_checksum(payload)
-        _append_jsonl(self.changes_path, record)
-        return Change(**record)
+        with self._lock:
+            existing = self.changes()
+            payload = {"seq": len(existing) + 1, "key": key, "value": value,
+                       "ts": stamp, "device": device,
+                       "prev": existing[-1].checksum if existing else GENESIS_DIGEST}
+            record = dict(payload)
+            record["checksum"] = _change_checksum(payload)
+            _append_jsonl(self.changes_path, record)
+            return Change(**record)
 
     def materialize(self) -> dict:
         """Resolve every key with LWW; expose ties as explicit conflicts."""

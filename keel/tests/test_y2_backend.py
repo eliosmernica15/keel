@@ -10,6 +10,7 @@ the live session loop, web app, CLI or any existing test.
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
 
 import pytest
@@ -347,6 +348,22 @@ def test_compaction_keeps_last_n_user_turns_and_bounds_memory():
     assert plan.to_dict()["verbatim_ids"] == ("u1", "u2", "u3", "u4")
 
 
+def test_compaction_keeps_only_last_four_user_turns_with_more_than_four():
+    turns = [y.Turn("a0", "assistant", "preamble")]
+    turns.extend(y.Turn(f"u{i}", "user", f"question {i}") for i in range(1, 7))
+    config = y.CompactionConfig(method="summary")
+    plan = y.plan_compaction(turns, config, last_activity=0.0, now=0.0)
+    assert [t.id for t in plan.verbatim_turns] == ["u3", "u4", "u5", "u6"]
+    assert "question 1" in plan.summary_text and "question 2" in plan.summary_text
+    assert "question 3" not in plan.summary_text
+
+    none = y.plan_compaction(
+        turns, y.CompactionConfig(method="summary", keep_last_user_turns=0),
+        last_activity=0.0, now=0.0)
+    assert none.verbatim_turns == ()
+    assert all(f"question {i}" in none.summary_text for i in range(1, 7))
+
+
 def test_compaction_idle_consolidation_and_summary_method():
     turns = [y.Turn("u1", "user", "short")]
     idle = y.plan_compaction(
@@ -519,6 +536,21 @@ def test_realtime_secret_expiry_revocation_and_redaction():
     assert not issuer.is_valid(other, now=1000.0)
     with pytest.raises(y.VoiceError):
         y.RealtimeSecretIssuer(0)
+
+
+def test_realtime_secret_token_is_unpredictable_and_never_disclosed():
+    issuer = y.RealtimeSecretIssuer(clock=lambda: 0.0)
+    secret = issuer.issue("session-1", now=1000.0)
+    # The old derivation was guessable from the published session id / issued_at
+    # plus a one-based counter; none of those inputs may determine the token.
+    guess = y.new_id("realtime", "session-1", 1000.0, 1, length=24)
+    assert secret.token != guess
+    assert len(secret.token) >= 32
+    other_issuer = y.RealtimeSecretIssuer(clock=lambda: 0.0)
+    assert other_issuer.issue("session-1", now=1000.0).token != secret.token
+    assert secret.token not in json.dumps(secret.public_dict())
+    assert secret.token not in json.dumps(secret.to_dict())
+    assert secret.public_dict()["token"] == "[redacted]"
 
 
 def test_handoff_task_relays_to_text_loop():

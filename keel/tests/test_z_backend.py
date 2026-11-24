@@ -16,6 +16,7 @@ import hashlib
 import json
 import sys
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
@@ -39,8 +40,8 @@ class TestScope(unittest.TestCase):
         source = (Path(zb.__file__)).read_text(encoding="utf-8")
         tree = ast.parse(source)
         allowed = {"__future__", "getpass", "hashlib", "hmac", "html", "json",
-                   "math", "os", "re", "sqlite3", "tempfile", "time",
-                   "collections", "dataclasses", "pathlib", "typing"}
+                   "math", "os", "re", "sqlite3", "tempfile", "threading",
+                   "time", "collections", "dataclasses", "pathlib", "typing"}
         imports = set()
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
@@ -207,6 +208,22 @@ class TestZ3RedactedReplay(unittest.TestCase):
         labels = {item["label"] for item in preview}
         self.assertTrue({"api_key", "email", "secret", "home_path"} <= labels)
 
+    def test_redaction_removes_full_bearer_credential_and_dict_keys(self):
+        text = "Authorization: Bearer abcdef123456 and api_key=hunter2secret"
+        redacted, _ = zb.redact_text(text)
+        self.assertNotIn("abcdef123456", redacted)
+        self.assertNotIn("Bearer", redacted)
+        self.assertNotIn("hunter2secret", redacted)
+        record = {"sk-abcdefghijklmnop": "ok", "token=abcdef123456": "also ok",
+                  "content": "Authorization: Bearer abcdef123456"}
+        result = zb.redact_record(record)
+        self.assertNotIn("sk-abcdefghijklmnop", json.dumps(result))
+        self.assertNotIn("abcdef123456", json.dumps(result))
+        session = {"events": [dict(record, role="user")]}
+        rendered = zb.render_replay(session)
+        self.assertNotIn("abcdef123456", rendered["html"])
+        self.assertNotIn("sk-abcdefghijklmnop", rendered["html"])
+
     def test_redact_record_recurses(self):
         record = {"role": "user", "content": "mail bob@example.org",
                   "meta": ["token=abcdef123456"]}
@@ -307,6 +324,41 @@ class TestZ6LocalSync(unittest.TestCase):
         self.assertEqual(first.prev, zb.GENESIS_DIGEST)
         self.assertEqual(second.prev, first.checksum)
         self.assertEqual(len(self.sync.changes()), 2)
+
+    def test_concurrent_appends_keep_one_valid_hash_chain(self):
+        # Force both callers to read the chain before either writes: without a
+        # lock both compute seq=1/prev=genesis and the chain becomes invalid.
+        real_changes = self.sync.changes
+        second_entered = threading.Event()
+        calls = {"n": 0}
+
+        def interleaved_changes():
+            calls["n"] += 1
+            if calls["n"] == 1:
+                second_entered.wait(0.3)
+            else:
+                second_entered.set()
+            return real_changes()
+
+        self.sync.changes = interleaved_changes
+        errors: list[Exception] = []
+
+        def worker(index: int) -> None:
+            try:
+                self.sync.append(f"key{index}", index, ts=float(index + 1))
+            except Exception as exc:  # pragma: no cover - failure path
+                errors.append(exc)
+
+        threads = [threading.Thread(target=worker, args=(i,)) for i in range(2)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        self.assertEqual(errors, [])
+        self.assertEqual(calls["n"], 2)
+        chain = zb.LocalSync(Path(self.tmp.name)).changes()
+        self.assertEqual([c.seq for c in chain], [1, 2])
+        self.assertEqual(chain[1].prev, chain[0].checksum)
 
     def test_tampered_record_fails_checksum(self):
         self.sync.append("memory.note", "hello", ts=1)
