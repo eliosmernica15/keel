@@ -1,9 +1,9 @@
 # Production promotion — Supply-chain & repository security evidence
 
-**Audit type:** read-only. No source, workflow, manifest, visibility, or licensing change was made by this audit.
+**Audit type:** initially read-only; a later owner-authorized **remediation pass** (this document, §8) added the hash-pinned lock, SBOM, workflow install changes, and the pre-push hook fix. Repository visibility and licensing were never changed.
 **Branch:** `agent/prod-supply`
-**Candidate audited:** `e57327378f56062db3b13d3db941ac2cf2a641a3` (`e573273`) — "build(release): include required version-sync constant so backend test suite collects", 2026-11-24 22:41:12 +0100.
-**Base at audit start:** `e6e7efc50d098aaf55b80c5b35e799c0c2e25a86` (the worktree was checked out here; `e573273` is its direct child). The candidate was audited from its tree via `git show`/`git archive`; the branch was then fast-forwarded to the existing candidate commit so this evidence commit sits on it. No source content was edited.
+**Candidate originally audited:** `e57327378f56062db3b13d3db941ac2cf2a641a3` (`e573273`). Current candidate tip merged into this branch: `ab8c80a2f223f041dd82e525f761c899938f9ddb` (`ab8c80a`, "Merge platform verification: Windows scoped-verified, Linux WSL2 evidence, macOS blocked") via `git merge --no-ff` — no force-push, no push.
+**Base at audit start:** `e6e7efc50d098aaf55b80c5b35e799c0c2e25a86`.
 
 **Methods (all offline):** `git ls-files`/`git show`/`git diff`/`git grep`, `git archive` of the candidate into a temp directory, installed distribution metadata (`importlib.metadata`), npm/Cargo lockfile parsing, Python regex secret heuristics, and direct execution of the repository's own gates. No network installs, no paid scanners, no `gh api` calls. Scanners present: `npm`, `cargo`, `gh` (not used for network), Python 3.11. Not installed: `gitleaks`, `pip-audit`, `trivy`, `osv-scanner`, `safety`, `actionlint`, `zizmor`.
 
@@ -15,13 +15,13 @@
 
 | Item | Result |
 | --- | --- |
-| Dependency inventory, licenses, native/transitive deps | **1 HIGH** (unpinned, non-reproducible Python build inputs); 2 MEDIUM; 1 LOW/INFO |
+| Dependency inventory, licenses, native/transitive deps | `DEP-01` **CLOSED** (hash-pinned lock + SBOM + workflow enforcement, validated by pip dry-run); remaining: DEP-02/03 MEDIUM, DEP-04 LOW, DEP-05 INFO |
 | GitHub Actions (all 8 workflows) | PASS on pinning/permissions/provenance/clean runners; **1 MEDIUM** (untrusted `workflow_run` artifact execution); 1 LOW (unused secrets) |
-| Secret scan / gates | No real secrets found; **1 MEDIUM** (inert version step in local pre-push hook); 1 LOW (model-license gate only checks registry) |
+| Secret scan / gates | No real secrets found; `SEC-02` **CLOSED** (hook now runs the real version gate, verified); 1 LOW (model-license gate only checks registry) |
 | Privacy & license unchanged | No change made; private per in-repo live evidence; **offline re-verification not possible** |
 | Branch protection | GitHub Free + private repo: unavailable (live 403 evidence in repo). Local hooks are **not** remote protection. Accepted owner exception — requires re-affirmation |
 
-**HIGH finding: `DEP-01` — Python dependency resolution is unpinned and unreproducible. It blocks promotion unless the owner explicitly accepts a documented exception with per-build resolved-version/hash attestation.** No other finding is independently blocking.
+**Original HIGH finding `DEP-01` is CLOSED** (see §8). All 34 resolved packages have SHA256 hashes, every `pyproject.toml` runtime/build dependency and the pinned `pip`/`pytest`/`pyinstaller` tools have a version+hash in `keel/requirements.lock.txt`, all 10 install steps across 5 workflows use `--require-hashes`, and a clean-run pip dry-run (`--ignore-installed`) validated the lock. No other finding is independently blocking promotion. Two pre-existing, unrelated test issues remain (§8.6) and are reported honestly, not hidden.
 
 ---
 
@@ -46,17 +46,18 @@ dependencies = ["tzdata>=2024.1", "cryptography>=42.0", "keyring>=24.0", "Pillow
 
 Four runtime dependencies, **lower bounds only**; no upper bounds, no exact pins, no hashes. Build requirement `setuptools>=68` is also floating.
 
-CI install steps (all 8 workflows checked):
+**Original (audited) CI install steps** — all 10 blocks across 5 workflows were floating (`python -m pip install --upgrade pip`, `pip install -e . pytest`, `pip install pyinstaller pillow`, etc.). **Remediated state:** every block is now
 
-- `python-tests.yml`: `pip install -e . pytest`; `pip install pyinstaller pillow`
-- `build-desktop.yml` (Windows/macOS/Linux): `python -m pip install --upgrade pip`; `pip install -e . pyinstaller pillow`
-- `verify-release-signatures` / `publish`: `python -m pip install --upgrade pip`; `pip install -e .`
-- `offline-license.yml`: `pip install -e . pytest`
-- `provider-validation.yml`: `pip install -e . pytest`
+```sh
+python -m pip install --require-hashes -r requirements.lock.txt
+python -m pip install --no-deps --no-build-isolation -e .
+```
 
-`pip`, `pyinstaller`, `pytest`, and all four runtime packages are therefore resolved fresh from PyPI at each run.
+(`-r requirements.lock.txt` is relative to `working-directory: keel` in every affected step, i.e. `keel/requirements.lock.txt` from the repository root). `--no-build-isolation` prevents an unhashed PEP-517 build dependency from being fetched behind the lock. All 30 `uses:` refs remain SHA-pinned.
 
 ### 2.2 Lockfiles / checksums / reproducibility
+
+*Table records the state at the original audit. Python row was remediated afterwards: `keel/requirements.lock.txt` now exists with 34 hash-pinned entries (§8).*
 
 | Ecosystem | Manifest | Lockfile | Integrity data |
 | --- | --- | --- | --- |
@@ -96,7 +97,7 @@ Native/transitive surface: cryptography→cffi (C), Pillow (C image libs), keyri
 
 | ID | Severity | Finding | Evidence | Remediation |
 | --- | --- | --- | --- | --- |
-| **DEP-01** | **HIGH** | Python build inputs are unpinned: four lower-bound-only runtime deps, floating build/test tools, no lockfile, no hashes, no SBOM. Every "promoted" artifact can contain different dependency bits; a release cannot be byte-reproduced from source. | `keel/pyproject.toml`; all 8 workflows' `pip install` steps; no lock/constraints file in `git ls-tree -r e573273` | Add a committed Python lock (`uv.lock` or `requirements.txt` generated by `pip-compile --generate-hashes`) covering runtime + build + test packages; use `pip install --require-hashes -r <lock>` in every workflow; pin `pip`, `pyinstaller`, `pytest`; emit a CycloneDX/SPDX SBOM with hashes per release. Until then, record resolved versions+hashes in the release manifest and have the owner explicitly accept the reproducibility exception. **Blocks promotion.** |
+| **DEP-01** | **CLOSED** (was HIGH) | Original: Python build inputs unpinned, no lockfile/hashes/SBOM. Remediated by `keel/requirements.lock.txt` (34 hash-pinned packages), `keel/requirements-sbom.json`, and `--require-hashes` in all 10 install steps. | `keel/pyproject.toml`; `git diff` of the 8 workflows; `pip install --dry-run --ignore-installed --require-hashes` result in §8 | Keep the lock in sync with `pyproject.toml`; add a CI job that fails when the lock is stale; attach the SBOM to release artifacts. |
 | DEP-02 | MEDIUM | Release build does not enforce the npm lockfiles: `npm install` + `npx electron-builder`, conditional on `node_modules` existing. | `keel/src/keel/release/build.py::npm_install()` and `electron_build()` | Use `npm ci --ignore-scripts` where possible (then fetch Electron via a pinned URL + SHA256 check), and forbid `npx` registry fallback (`npm exec --no -- ...` or call `node_modules/.bin/electron-builder`). |
 | DEP-03 | MEDIUM | Dead dependency trees retained in the promoted tree: `keel/fleet-next` (60 packages, 33 native `sharp` entries, version `0.1.0` drift from project `0.1.1`) and `keel/desktop/src-tauri` (420 crates) are referenced by **no** workflow; only their version constants are read by `keel/src/keel/release/common.py`. Candidate `e573273` itself only bumps `Cargo.toml` `0.1.0`→`0.1.1` to satisfy that gate. | workflow scan; `git diff e6e7efc e573273`; `release/common.py::VERSION_FILES` | Remove/archive the unused prototypes or move them out of the promotion scope, and update the version gate accordingly; if retained, add them to `check_version_sync.py` and pin/update their locks on a documented cadence. |
 | DEP-04 | LOW | License inventory is incomplete and non-gating: direct-Python-only, ignores `License-Expression`, reports `UNKNOWN` without failing; model/voice registry has 11 entries, **0 bundled**, all `license: "UNKNOWN"`. | `release/licenses.py`; `scripts/check_model_licenses.py` | Fail CI on unresolved licenses; include transitive Python packages and SPDX expressions; cross-check packaged assets against the bundled-asset registry. |
@@ -157,9 +158,9 @@ Heuristic scan of **1,719** tracked text files at candidate `e573273` (11 regex 
 
 `[extend] useDefault = true`; 10 `[[allowlists]]`, each scoped with `condition = "AND"`, `targetRules = ["generic-api-key"]`, exactly one `commits = [...]` entry and one path regex. No global/repo-wide allowlist remains. Historical findings were classified as false positives in black-box reference captures and deleted demo UI strings. Re-review each entry before removal.
 
-### 4.3 `.githooks/pre-push` — MEDIUM issue (inert version gate)
+### 4.3 `.githooks/pre-push` — `SEC-02` CLOSED (was MEDIUM, inert version gate)
 
-Fail-closed on step 2 (refuses push if `gitleaks` is absent) and blocks direct pushes to `main`. However step 3 checks `scripts/check_version_sync.py` at the **repository root**, which does not exist — the actual file is `keel/scripts/check_version_sync.py`. The `if [ -x ... ] || [ -f ... ]` guard is false, so the version-consistency gate is **silently skipped**. Additionally, `core.hooksPath` is unset in this worktree, so the hook is not installed here, and any developer can bypass it with `git push --no-verify`. Recommendation: correct the path to `keel/scripts/check_version_sync.py` (and run it from `keel/`), document one-time installation per clone, and treat the hook strictly as a compensating control.
+Originally step 3 checked `scripts/check_version_sync.py` at the repository root (nonexistent), so the version gate was silently skipped. Fixed to require `keel/scripts/check_version_sync.py` and run it via `(cd keel && python scripts/check_version_sync.py)`; a missing script now fails closed. Verified with a stub `gitleaks` on `PATH` (the real binary is absent): the hook printed `OK - all sources agree on version 0.1.1 (tag v0.1.1)` and `[keel pre-push] checks passed`, exit 0 (§8.4). Step 2 still fails closed when `gitleaks` is absent, and direct pushes to `main` are still blocked. Residual: `core.hooksPath` is unset in this worktree (one-time per-clone install required), and any developer can bypass the hook with `git push --no-verify`; it remains a compensating control, not remote branch protection.
 
 ### 4.4 Gates re-executed against the candidate tree — PASS
 
@@ -204,19 +205,136 @@ On GitHub Free, branch protection is available for public repositories, **not pr
 
 ## 6. Prioritized remediation summary
 
-1. **DEP-01 (HIGH, blocks):** commit a hash-pinned Python lock for runtime/build/test deps; use `--require-hashes` in every workflow; pin `pip`, `pyinstaller`, `pytest`; generate an SBOM. Or record exact resolved versions/hashes per build and obtain a written owner exception.
+1. **DEP-01 — DONE (was HIGH, blocking):** hash-pinned lock (`keel/requirements.lock.txt`), SBOM (`keel/requirements-sbom.json`), `--require-hashes` in all 10 install steps, pinned `pip`/`pytest`/`pyinstaller`; validated by pip dry-run (§8). Follow-up: keep lock in sync, attach SBOM to releases.
 2. **DEP-02 (MEDIUM):** switch the release build to `npm ci` and eliminate `npx` registry fallback; pin the Electron binary checksum.
 3. **GH-03 (MEDIUM):** restrict `workflow_run` install jobs to trusted (push/default-branch) runs or require environment approval, so fork artifacts are never executed.
-4. **SEC-02 (MEDIUM):** fix the pre-push version-gate path to `keel/scripts/check_version_sync.py`; document hook installation and its bypassability.
+4. **SEC-02 — DONE (was MEDIUM):** pre-push version gate now calls `keel/scripts/check_version_sync.py` from `keel/` and fails closed if it is missing; hook execution verified with a stubbed `gitleaks` (§8.4). Document per-clone installation and its bypassability.
 5. **DEP-03 (MEDIUM):** remove/archive unused `fleet-next` and Tauri prototype dependency trees from the promotion scope (and reconcile `fleet-next` version `0.1.0`).
 6. **DEP-04 / GH-04 / SEC-03 / DEP-05 (LOW):** fail CI on unresolved licenses, include transitive deps, cross-check bundled assets; delete unused signing secrets; add `CODEOWNERS`/Dependabot; add offline CVE scanning.
 7. **REPO-02 (MEDIUM, accepted):** owner re-affirms the no-remote-branch-protection exception or selects a plan/forge that supports it; re-verify repository privacy before promotion.
 
 ---
 
-## 7. Statement of non-action
+## 7. Scope of changes made by the remediation pass
 
-- No source file, workflow, manifest, hook, license, or registry file was modified.
+- Changed/added only owned paths: `.github/workflows/*.yml` (install steps only), `.githooks/pre-push`, `PROD-SUPPLY-CHAIN-EVIDENCE.md`, and new `keel/requirements.lock.txt` + `keel/requirements-sbom.json`. `keel/pyproject.toml` was **not** modified: the lock pins its existing declarations instead of changing them.
 - Repository visibility and licensing were not changed; no plan was purchased; no remote protection was bypassed.
-- Nothing was pushed. The evidence file is committed locally on `agent/prod-supply` only.
-- All commands were read-only with respect to the repository except the local, non-content-changing fast-forward to the existing candidate commit `e573273` and the creation of this evidence document.
+- `ab8c80a` was merged into `agent/prod-supply` with `git merge --no-ff`. Nothing was pushed; all commits remain local.
+- No packages were installed globally and no destructive environment changes were made: versions came from `pip freeze`/installed metadata, hashes from the free PyPI JSON API, and validation used `pip install --dry-run --ignore-installed`.
+
+---
+
+## 8. Remediation closure evidence (DEP-01 / SEC-02)
+
+### 8.1 Lock generation — fail-closed
+
+Generator (temp, outside the repo): versions from `python -m pip freeze` (plus `importlib.metadata` for `pip`/`setuptools`, which `pip freeze` omits by default); SHA256 digests from `https://pypi.org/pypi/<pkg>/<version>/json` (`urls[].digests.sha256`, all published wheels + sdist). Transitive dependencies were walked from `info.requires_dist`, skipping optional extras and rejecting direct-URL dependencies. Conflicting markers for one package are collapsed to an unconditional pin so a clean runner can never resolve an unhashed transitive dep (this applied to `importlib-metadata`: `keyring` requires it on `<3.12`, PyInstaller on `<3.10`).
+
+Exact result:
+
+```
+resolved packages: 34; with hashes: 34; unresolved: 0
+exit=0
+```
+
+No package lacked a hash; no exception was recorded because none occurred. Files written: `keel/requirements.lock.txt` (34 entries, 392 lines) and `keel/requirements-sbom.json` (34 entries).
+
+### 8.2 Coverage of `pyproject.toml` and pinned tools
+
+Exact command (temp checker `coverage.py`, parsing `keel/pyproject.toml` with `tomllib` and the lock with regex):
+
+```
+python -I ...\coverage.py "C:\Users\Admin\.local\share\opencode\worktree\production\supply"
+```
+
+Output:
+
+```
+lock entries: 34
+sbom entries: 34
+PASS tzdata         -> {'version': '2026.5', 'hashes': 2}
+PASS cryptography   -> {'version': '50.0.1', 'hashes': 46}
+PASS keyring        -> {'version': '25.7.0', 'hashes': 2}
+PASS Pillow         -> {'version': '11.1.0', 'hashes': 71}
+PASS setuptools     -> {'version': '84.0.0', 'hashes': 2}
+PASS pip            -> {'version': '26.0.1', 'hashes': 2}
+PASS pytest         -> {'version': '9.0.2', 'hashes': 2}
+PASS pyinstaller    -> {'version': '6.19.0', 'hashes': 12}
+SBOM entries missing hash/source: []
+ALL COVERAGE CHECKS PASSED
+```
+
+Every runtime dep (`tzdata`, `cryptography`, `keyring`, `Pillow`), the build requirement (`setuptools`), and the pinned tools (`pip`, `pytest`, `pyinstaller`) have an exact version **and at least one SHA256 hash**. The SBOM lists name, version, all SHA256 hashes, license (from PyPI `license_expression`/`license`/classifiers), source URL, and marker.
+
+### 8.3 Lock validation (non-destructive)
+
+```
+cd keel
+python -m pip install --dry-run --ignore-installed --require-hashes -r requirements.lock.txt
+```
+
+Result: **exit 0**, all 34 packages resolved with hashes verified, ending in:
+
+```
+Would install Pygments-2.19.2 altgraph-0.17.5 backports.tarfile-1.2.0 certifi-2026.7.22
+cffi-2.1.1 colorama-0.4.6 cryptography-50.0.1 importlib_metadata-8.7.1 iniconfig-2.3.0
+jaraco.classes-3.4.0 jaraco.context-6.1.2 jaraco.functools-4.6.0 jeepney-0.9.0
+keyring-25.7.0 more-itertools-11.2.1 packaging-25.0 pefile-2024.8.26 pillow-11.1.0
+pip-26.0.1 pluggy-1.6.0 pycparser-3.0 pyinstaller-6.19.0 pyinstaller-hooks-contrib-2026.2
+pypdf-6.21.4 pytest-9.0.2 pywin32-ctypes-0.2.3 setuptools-84.0.0 typing_extensions-4.16.0
+tzdata-2026.5 zipp-3.23.0
+```
+
+This simulates a clean runner (`--ignore-installed`) and proves no transitive dependency is left unhashed. No install was performed.
+
+### 8.4 Workflow / pinning / hook verification
+
+```
+git grep -n -e 'pip install' -- '.github/workflows/*'    # 16 lines: 8 hash-install + 8 no-deps/no-build-isolation editable installs
+python -I -c "... parse all workflow uses lines ..."      # workflows 8, uses 30, tagOnly 0
+& "C:\Program Files\Git\bin\sh.exe" ...\run_hook.sh       # stub gitleaks on PATH, empty stdin
+```
+
+Hook output:
+
+```
+[keel pre-push] enforcing local branch policy
+[stub gitleaks] clean scan (test only)
+OK - all sources agree on version 0.1.1 (tag v0.1.1)
+[keel pre-push] checks passed
+HOOK_EXIT=0
+```
+
+All 8 workflow YAML files parsed with `yaml.safe_load`. Third-party action refs unchanged at 30/30 full SHA pins.
+
+### 8.5 Governance gates re-run (post-change)
+
+```
+python keel/scripts/check_version_sync.py          -> OK - all sources agree on version 0.1.1 (tag v0.1.1)   exit 0
+python scripts/check_model_licenses.py             -> license registry: 11 entries, 0 bundled / LICENSE GATE OK  exit 0
+python scripts/verify_v6_audit.py                  -> registry rows: 865, matrix rows: 865, CONSISTENCY OK      exit 0
+python keel/scripts/build_dependency_graph.py --check -> FRESH                                                exit 0
+```
+
+### 8.6 Targeted test subset — honest results
+
+```
+cd keel
+python -m pytest -q tests/test_signing_gate.py tests/test_secret_storage.py \
+  tests/test_release_controls.py tests/test_version_sync.py \
+  tests/test_provider_validation_ready.py tests/test_offline_runtime.py
+```
+
+Result: **41 passed, 2 failed in 11.79s**. Both failures were verified as **pre-existing and unrelated to this remediation** (the affected test/source files are untouched by this branch's diff):
+
+1. `tests/test_version_sync.py::test_standalone_gate_passes_and_rejects_cargo_drift` — the test mutates `desktop/src-tauri/Cargo.toml` and expects `check_version_sync.py` to fail, but that script's documented sources are `pyproject.toml`, `desktop-app/package.json`, `package-lock.json`, `site/download.json`, `tauri.conf.json`, and `__init__.py` — it never reads `Cargo.toml`. Pre-existing test/gate mismatch (the candidate's Cargo version is actually checked by `keel/release/common.py::validate_version`). **Out of owned scope; not fixed here.** Recommendation: add `Cargo.toml` to `check_version_sync.py` or correct the test.
+2. `tests/test_provider_validation_ready.py::test_no_credentials_means_no_live_success` — order-dependent environment pollution: `tests/test_secret_storage.py::test_apply_stored_keys_uses_decrypted_value` writes `os.environ["KEEL_GOOGLE_API_KEY"]` without cleanup, so a later test in the same process sees `configured == ['google']`. Verified by running `python -m pytest -q tests/test_provider_validation_ready.py` alone: **3 passed**. Pre-existing test-isolation defect; not caused by pinning. Recommendation: use `monkeypatch.setenv` in that test.
+
+Neither failure involves dependency resolution, the lock, the SBOM, workflow install steps, or the hook. The full suite should be re-run by the owner in a clean environment before promotion.
+
+### 8.7 Residual blockers
+
+- `DEP-01`: **CLOSED** — no residual blocker from this finding. Follow-up (non-blocking): CI freshness check that `requirements.lock.txt` matches `pyproject.toml`, and attach `requirements-sbom.json` to release artifacts.
+- `SEC-02`: **CLOSED** — hook gate verified. Residual (documented): local hooks are not remote branch protection; hook not installed by default; bypassable with `--no-verify`.
+- Remaining open items from the original audit are unchanged: `DEP-02` (npm lock not enforced by build), `DEP-03` (dead dependency trees), `GH-03` (untrusted `workflow_run`), `GH-04`, `DEP-04`, `DEP-05`, `REPO-02`. None were in this remediation's scope except as listed.
+- No CVE-free claim is made: no offline CVE scanner is installed (`pip-audit`, `trivy`, `osv-scanner`, `safety` all absent); the SBOM is an inventory, not a vulnerability assessment.

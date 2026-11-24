@@ -47,12 +47,16 @@ else
     exit 1
 fi
 
-# 3. Version consistency gate (if the repository provides one).
-if [ -x scripts/check_version_sync.py ] || [ -f scripts/check_version_sync.py ]; then
-    if ! python scripts/check_version_sync.py; then
+# 3. Version consistency gate. The script lives under keel/, not at the
+# repository root; run it from keel/ so its relative path resolution works.
+if [ -f keel/scripts/check_version_sync.py ]; then
+    if ! (cd keel && python scripts/check_version_sync.py); then
         echo "[keel pre-push] BLOCKED: version consistency check failed." >&2
         exit 1
     fi
+else
+    echo "[keel pre-push] BLOCKED: keel/scripts/check_version_sync.py is missing." >&2
+    exit 1
 fi
 
 echo "[keel pre-push] checks passed"
