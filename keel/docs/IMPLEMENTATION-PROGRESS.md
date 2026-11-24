@@ -1131,3 +1131,73 @@ wired into the CLI (opt-in `KEEL_MODEL_ROUTING`), read-only SQLite explorer with
 query safety (`db_explorer.py`), SARIF 2.1.0 emission/ingestion (`sarif.py`),
 offline SVG charts/diagrams (`charts.py`), and macro/prompt/spec authoring
 helpers (`authoring.py`), plus session import/stats over the bridge.
+
+
+---
+
+# Frontend workstream — unified workspace (2026-11-24)
+
+This section is **appended** to the existing batch ledger. It tracks the frontend workstream only. Status vocabulary: `implemented+verified`, `implemented (unverified)`, `partial`, `blocked`, `not started`. A placeholder is not a completed feature.
+
+## Repository / Git setup — verified
+
+| Item | Value |
+|---|---|
+| Remote | `https://github.com/eliosmernica15/keel.git` |
+| Original branch (untouched) | `integration/v6-addenda-complete` @ `c297d7a` |
+| Pre-existing change (preserved, excluded from all frontend commits) | `keel/scripts/build_plan_index.py` in the original worktree |
+| Frontend branch | `feat/frontend-unified-workspace` |
+| Worktree | `C:\Users\Admin\Desktop\keel-frontend-worktree` |
+| Renderer target | `fleet-next`; see `UI-ARCHITECTURE.md` for the decision record |
+
+## Phase status (final)
+
+| Phase | Status | Evidence |
+|---|---|---|
+| 0 — Repository & architecture audit | done | remote/branch/worktree verified; renderer inventory in `UI-ARCHITECTURE.md`; routes verified in `UI-BACKEND-CONTRACT.md` |
+| 1 — Foundations (tokens, primitives, contract) | implemented + verified | `app/globals.css`, `app/ui.css`, `components/{ui,icons,ErrorBoundary}.tsx`, `lib/{types,api,state}.ts*`; tsc + build + browser pass |
+| 2 — Unified shell | implemented + verified | `app/page.tsx` reduced 3,823 → ~280 lines; top bar, four surfaces, sidebar, context panel, status strip, command palette, notices, drawers, shortcuts; browser-verified |
+| 3 — Cowork | implemented + verified | `features/cowork/`; timeline, work log, approvals, questions, drafts, real library uploads; browser-render verified (no live model turn — no credentials) |
+| 4 — Code | implemented + verified | `features/code/`; trust gate, tree, guarded file read/write, read-only review, real terminal; browser-render verified |
+| 5 — Duet | implemented + verified | `features/duet/`; tabbed panes, resize, persistence, honest preview gap; browser-render verified |
+| 6 — Fleet | implemented + verified | `features/fleet/`; agents, groups, tasks, routines, library, audit, policies; browser-rendered 7 real agents / 2 real tasks |
+| 7 — Capabilities | implemented + verified | `features/capabilities/`; skills/MCP/connectors/tools/commands/workflows with real bridge data; browser-render verified |
+| 8 — Settings & security | implemented + verified | `features/settings/`; providers, masked credentials, modes, trust, privacy, diagnostics, appearance; browser-render verified |
+| 9 — Onboarding | implemented + verified | `features/onboarding/`; 8-step resumable wizard + sidebar checklist; browser screenshot verified |
+| 10 — Motion / a11y / responsive | partial | tokens + reduced motion + focus rules implemented; one real viewport exercised, static review for the rest (see `UI-TEST-MATRIX.md`) |
+| 11 — Integration & verification | done with documented gaps | tsc pass, build pass, QA harness 11 pass/4 skipped, browser walkthrough, Python regression run |
+| 12 — Documentation & local commits | done | this section + five new UI docs; focused local commits on the frontend branch |
+
+## Subagent work log (final)
+
+| Agent | Responsibility | Actual deliverables | Verification |
+|---|---|---|---|
+| A | Cowork | 7 files in `features/cowork/`; SSE with rAF batching, approvals `once\|always\|never`, questions, work log, per-bot drafts, real `uploadLibrary` with per-file status and retry | tsc clean for folder; contract cross-checked; browser render |
+| B | Code & Duet | `features/code/{Code,workspace}.tsx`, `features/duet/Duet.tsx`; explicit trust gate, tree, read-only viewer, guarded write, read-only git review, real shells, persistent panes | tsc clean; browser render both surfaces |
+| C | Fleet | 10 files incl. `Fleet.tsx`; roster, details drawer, groups, tasks, routines, library, audit, real policy revoke; honest gaps for subagent tree and recoverable delete | tsc clean; browser render with live bridge data |
+| D | Capabilities & settings | 11 files; real skills/MCP/connectors/commands/workflows, masked credentials, searchable settings | tsc clean; browser render both surfaces |
+| E | Onboarding | 4 files; 8-step resumable wizard, real provider verification, explicit workspace trust, no mandatory cloud | tsc clean; browser screenshot |
+| F | QA | `tests/ui/{verify-ui.mjs,route_scan.py,probe_bridge.py,results.json,QA-REPORT.md}` | 11 pass / 4 skipped; 81 endpoint call sites mapped; 0 fabricated-data/static-a11y violations; DF-001 fixed and re-verified |
+
+## Lead-owned work
+
+Shared types/API/state, UI primitives and icon set, design-token mapping, app shell, error boundary, service-worker freshness fix, all six UI docs, cross-agent contract corrections, integration fixes (surface persistence on reload, stale SW cache), verification and commits.
+
+## Verification log (real commands)
+
+| Command | Result |
+|---|---|
+| `npx tsc --noEmit` (in `keel/fleet-next`) | pass, no output |
+| `npm run build` (in `keel/fleet-next`) | pass; 5/5 pages generated; `/` 90 kB |
+| `node tests/ui/verify-ui.mjs` | `{"info":1,"pass":11,"skipped":4}` |
+| Live bridge GET probe (harness) | 11 endpoints, all HTTP 200 |
+| In-app Chromium walkthrough on `next start` :3200 | all 6 surfaces render; 0 console errors; theme toggle, theme persistence, command palette, surface persistence verified |
+| `python -m pytest -q` (in `keel/`) | **22 failed, 2531 passed, 51 skipped** — all 22 failures are in untouched backend/release/plan areas (release manifest absent, plan hashes, tool registry, policy enforcement, session export, webapp upload path); no Python files were changed by this workstream; these are pre-existing baseline failures, not regressions introduced here |
+
+## Known limitations / deferred
+
+- No live model turn or streaming: no provider credentials on this host.
+- Playwright is not a project dependency; full E2E/visual-regression suite was not run. Manual browser walkthrough performed instead.
+- Only one real viewport (912×670) available; other required sizes were statically reviewed, not pixel-verified.
+- No file-level diff/apply/revert, browser preview, tool catalogue, egress-rules, retention or diagnostics-bundle routes exist in the bridge; the UI shows explicit unavailable states rather than fake controls.
+- Rendering switch (Electron/Tauri → `fleet-next`) and the public-mirror boundary remain packaging/workstream gates; legacy renderers were not repointed.
