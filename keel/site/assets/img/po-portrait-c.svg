@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="po-pc-title">
+  <title id="po-pc-title">Abstract portrait</title>
+  <defs><clipPath id="po-pc-clip"><rect width="160" height="160" rx="18"/></clipPath></defs>
+  <g clip-path="url(#po-pc-clip)">
+    <rect width="160" height="160" fill="#ecd9d1"/>
+    <circle cx="132" cy="28" r="30" fill="#dfc3b8" opacity=".6"/>
+    <path d="M16 160c3-30 24-47 64-47s61 17 64 47z" fill="#9a7359"/>
+    <rect x="70" y="98" width="20" height="22" rx="9" fill="#b07b58"/>
+    <ellipse cx="80" cy="73" rx="30" ry="35" fill="#c68d68"/>
+    <path d="M49 74c-2-27 12-42 31-42s33 15 31 42c-5-6-7-14-9-18-8 8-37 11-45 2-3 5-5 11-8 16z" fill="#5c3b2c"/>
+    <circle cx="49" cy="74" r="6" fill="#5c3b2c"/>
+    <circle cx="111" cy="74" r="6" fill="#5c3b2c"/>
+    <circle cx="69" cy="74" r="2.3" fill="#33241d"/>
+    <circle cx="91" cy="74" r="2.3" fill="#33241d"/>
+    <path d="M74 89c4 3 9 3 13 0" fill="none" stroke="#8b523c" stroke-width="2" stroke-linecap="round"/>
+    <path d="M16 160c3-30 24-47 64-47s61 17 64 47z" fill="#9a7359"/>
+    <path d="M64 119c5 7 27 7 32 0" fill="none" stroke="#b99278" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

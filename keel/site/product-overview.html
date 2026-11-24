@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel — Product overview</title>
+  <meta name="description" content="Put Keel to work: hand off tasks, turn ideas into code and documents, and keep every project moving from one place." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/product/overview" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f7f6f2" />
+  <link rel="stylesheet" href="/ui/product-overview.css" />
+  <script src="/ui/product-overview.js" defer></script>
+</head>
+<body class="po-body">
+
+  <!-- ==================== header / mega navigation ==================== -->
+  <header class="po-site-header" id="po-header">
+    <div class="po-nav-inner">
+    <a class="po-brand" href="/" aria-label="Keel home">
+      <img class="po-brand-mark" src="/assets/img/po-mark.svg" alt="" />
+      <span>Keel</span>
+    </a>
+
+    <nav class="po-main-nav" aria-label="Primary">
+      <div class="po-nav-item" data-nav="product">
+        <button class="po-nav-trigger" type="button" aria-expanded="false" aria-controls="po-menu-product">Product <span class="po-chevron" aria-hidden="true"></span></button>
+        <div class="po-mega" id="po-menu-product" hidden>
+          <div class="po-mega-grid">
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Products</p>
+              <a class="po-mega-link" href="/product/overview">Keel</a>
+              <a class="po-mega-link" href="/product/overview">Keel Code</a>
+              <a class="po-mega-link" href="/product/overview">Keel Cowork</a>
+              <a class="po-mega-link" href="/product/overview">Keel Duet</a>
+              <a class="po-mega-link" href="/requirements">Keel Platform</a>
+              <a class="po-mega-link" href="/product/overview">Keel Tag</a>
+              <p class="po-mega-subhead">Specialized</p>
+              <a class="po-mega-link" href="/privacy">Keel Security</a>
+              <a class="po-mega-link" href="/product/overview">Keel Science</a>
+            </div>
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Capabilities</p>
+              <a class="po-mega-link" href="#capabilities">Artifacts</a>
+              <a class="po-mega-link" href="#capabilities">Design</a>
+              <a class="po-mega-link" href="#capabilities">Connectors</a>
+              <a class="po-mega-link" href="#capabilities">Plugins</a>
+              <a class="po-mega-link" href="#capabilities">Skills</a>
+            </div>
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Extensions</p>
+              <a class="po-mega-link" href="/keel-in-chrome">Keel in Chrome</a>
+              <a class="po-mega-link" href="/download">Keel for Google Workspace</a>
+              <a class="po-mega-link" href="/download">Keel for Microsoft 365</a>
+            </div>
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Models</p>
+              <a class="po-mega-link" href="/product/overview">Mythos (including Fable) <span aria-hidden="true">↗</span></a>
+              <a class="po-mega-link" href="/product/overview">Opus <span aria-hidden="true">↗</span></a>
+              <a class="po-mega-link" href="/product/overview">Sonnet <span aria-hidden="true">↗</span></a>
+              <a class="po-mega-link" href="/product/overview">Haiku <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+          <div class="po-mega-footer">
+            <a class="po-mega-link" href="/product/overview">Import to Keel</a>
+            <a class="po-mega-link" href="/download">Download apps <span aria-hidden="true">↓</span></a>
+            <a class="po-mega-link" href="/app">Login <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="po-nav-item" data-nav="developers">
+        <button class="po-nav-trigger" type="button" aria-expanded="false" aria-controls="po-menu-developers">Developers <span class="po-chevron" aria-hidden="true"></span></button>
+        <div class="po-mega" id="po-menu-developers" hidden>
+          <div class="po-mega-grid">
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Build with</p>
+              <a class="po-mega-link" href="/product/overview">Keel Code</a>
+              <a class="po-mega-link" href="/requirements">Keel Platform</a>
+              <a class="po-mega-link" href="/roadmap">Keel Ship</a>
+              <a class="po-mega-link" href="/roadmap">Code Review</a>
+              <a class="po-mega-link" href="/requirements">Managed Agents</a>
+            </div>
+            <div class="po-mega-col">
+              <p class="po-mega-heading">For developers</p>
+              <a class="po-mega-link" href="/requirements">Keel Academy <span aria-hidden="true">↗</span></a>
+              <a class="po-mega-link" href="mailto:hello@keel.dev">Community</a>
+              <a class="po-mega-link" href="/notices">Developer blog <span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Explore</p>
+              <a class="po-mega-link" href="/app">Open the console</a>
+              <a class="po-mega-link" href="/requirements">Documentation</a>
+            </div>
+          </div>
+          <div class="po-mega-footer">
+            <a class="po-mega-link" href="/requirements">Explore here <span aria-hidden="true">↓</span></a>
+            <a class="po-mega-link" href="/download">Download apps <span aria-hidden="true">↓</span></a>
+            <a class="po-mega-link" href="/app">Login <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="po-nav-item" data-nav="enterprise">
+        <button class="po-nav-trigger" type="button" aria-expanded="false" aria-controls="po-menu-enterprise">Enterprise <span class="po-chevron" aria-hidden="true"></span></button>
+        <div class="po-mega" id="po-menu-enterprise" hidden>
+          <div class="po-mega-grid">
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Enterprise</p>
+              <a class="po-mega-link" href="/product/overview">Overview</a>
+              <a class="po-mega-link" href="/product/overview">Keel Code for Enterprise</a>
+              <a class="po-mega-link" href="/requirements">Keel Platform</a>
+              <a class="po-mega-link" href="/roadmap">Keel Ship</a>
+            </div>
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Use Cases</p>
+              <a class="po-mega-link" href="#use-case">AI Agents</a>
+              <a class="po-mega-link" href="#work">Coding</a>
+              <a class="po-mega-link" href="#use-case">Commerce</a>
+              <p class="po-mega-subhead">Departments</p>
+              <a class="po-mega-link" href="mailto:hello@keel.dev">Customer support</a>
+              <a class="po-mega-link" href="/privacy">Cybersecurity</a>
+              <a class="po-mega-link" href="/terms">Legal</a>
+              <a class="po-mega-link" href="mailto:hello@keel.dev">Sales</a>
+            </div>
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Industries</p>
+              <a class="po-mega-link" href="/product/overview">Financial advisors</a>
+              <a class="po-mega-link" href="/product/overview">Financial services</a>
+              <a class="po-mega-link" href="/product/overview">Government</a>
+              <a class="po-mega-link" href="/product/overview">Healthcare</a>
+              <a class="po-mega-link" href="/product/overview">Higher education</a>
+              <a class="po-mega-link" href="/product/overview">K-12 teachers</a>
+              <a class="po-mega-link" href="/product/overview">Life sciences</a>
+              <a class="po-mega-link" href="/product/overview">Manufacturing</a>
+              <a class="po-mega-link" href="/product/overview">Nonprofits</a>
+            </div>
+          </div>
+          <div class="po-mega-footer">
+            <a class="po-mega-link" href="/notices">Browse marketplace</a>
+            <a class="po-mega-link" href="/notices">Customers</a>
+            <a class="po-mega-link" href="mailto:hello@keel.dev">Contact sales</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="po-nav-item" data-nav="resources">
+        <button class="po-nav-trigger" type="button" aria-expanded="false" aria-controls="po-menu-resources">Resources <span class="po-chevron" aria-hidden="true"></span></button>
+        <div class="po-mega" id="po-menu-resources" hidden>
+          <div class="po-mega-grid">
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Insights</p>
+              <a class="po-mega-link" href="#faq">Resources</a>
+              <a class="po-mega-link" href="/notices">Articles</a>
+              <a class="po-mega-link" href="/notices">Webinars</a>
+              <a class="po-mega-link" href="/notices">Customer stories</a>
+              <a class="po-mega-link" href="/notices">Marketplace</a>
+              <a class="po-mega-link" href="/notices">Keel news <span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Learn</p>
+              <a class="po-mega-link" href="/requirements">Keel Academy <span aria-hidden="true">↗</span></a>
+              <a class="po-mega-link" href="/requirements">Courses <span aria-hidden="true">↗</span></a>
+              <a class="po-mega-link" href="/requirements">Tutorials <span aria-hidden="true">↗</span></a>
+              <a class="po-mega-link" href="#use-case">Use cases <span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Connect</p>
+              <a class="po-mega-link" href="/notices">Events <span aria-hidden="true">↗</span></a>
+              <a class="po-mega-link" href="mailto:hello@keel.dev">Community <span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="po-mega-col">
+              <p class="po-mega-heading">Pricing</p>
+              <a class="po-mega-link" href="/product/overview">Overview</a>
+              <a class="po-mega-link" href="/requirements">API</a>
+            </div>
+          </div>
+          <div class="po-mega-footer">
+            <a class="po-mega-link" href="#faq">Help centre</a>
+            <a class="po-mega-link" href="/notices">Keel news</a>
+            <a class="po-mega-link" href="mailto:hello@keel.dev">Contact us</a>
+          </div>
+        </div>
+      </div>
+
+      <a class="po-nav-link" href="/product/overview">Pricing</a>
+    </nav>
+
+    <div class="po-header-actions">
+      <a class="po-btn po-btn-ghost" href="/app">Log in</a>
+      <button class="po-btn po-btn-dark po-auth-open" type="button">Get Keel</button>
+      <button class="po-hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="po-mobile-menu"><span></span><span></span><span></span></button>
+    </div>
+    </div>
+
+    <div class="po-mobile-menu" id="po-mobile-menu" hidden>
+      <a class="po-mobile-link" href="#work">Product</a>
+      <a class="po-mobile-link" href="/requirements">Developers</a>
+      <a class="po-mobile-link" href="#change">Enterprise</a>
+      <a class="po-mobile-link" href="#faq">Resources</a>
+      <a class="po-mobile-link" href="/product/overview">Pricing</a>
+      <a class="po-mobile-link" href="/product/overview">Product overview</a>
+      <a class="po-mobile-link" href="/download">Download desktop app</a>
+      <a class="po-mobile-link" href="/app">Log in</a>
+      <button class="po-btn po-btn-dark po-auth-open" type="button">Get Keel</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== hero ==================== -->
+    <section class="po-hero" id="top" aria-labelledby="po-hero-title">
+      <div class="po-hero-collage" aria-hidden="true">
+        <img class="po-collage po-collage-a" src="/assets/img/po-portrait-a.svg" alt="" />
+        <img class="po-collage po-collage-b" src="/assets/img/po-portrait-b.svg" alt="" />
+        <img class="po-collage po-collage-c" src="/assets/img/po-portrait-c.svg" alt="" />
+      </div>
+      <div class="po-hero-inner">
+        <h1 class="po-hero-title" id="po-hero-title">Give Keel more</h1>
+        <p class="po-hero-subtitle">Turn your thinking into code, documents and more.</p>
+        <div class="po-hero-actions">
+          <button class="po-btn po-btn-dark po-auth-open" type="button">Get Keel</button>
+          <a class="po-btn po-btn-outline" href="/product/overview">See plans</a>
+        </div>
+        <a class="po-download-link" href="/download">Download desktop app</a>
+      </div>
+      <div class="po-hero-card" aria-hidden="true">
+        <span class="po-hero-card-label">Research</span>
+        <p class="po-hero-card-q">Summarize the latest research on distributed teams.</p>
+        <p class="po-hero-card-a">Keel pulls out three themes, links every source and drafts a one-page brief you can edit.</p>
+        <img class="po-hero-card-icons" src="/assets/img/po-app-icons.svg" alt="" />
+      </div>
+    </section>
+
+    <!-- ==================== value grid ==================== -->
+    <section class="po-value-grid" aria-labelledby="po-value-heading">
+      <h2 class="po-sr-only" id="po-value-heading">Why Keel</h2>
+      <article class="po-value-item">
+        <p class="po-value-kicker">01</p>
+        <h3 class="po-value-title">Take tasks off your desk</h3>
+        <p class="po-value-body">Hand off the busywork and the deep work. Keel keeps moving while you focus on the decisions only you can make.</p>
+      </article>
+      <article class="po-value-item">
+        <p class="po-value-kicker">02</p>
+        <h3 class="po-value-title">Turn ideas into something real</h3>
+        <p class="po-value-body">Start with a sentence, a sketch or a messy note. Keel turns it into a draft, a deck, a plan or working code.</p>
+      </article>
+      <article class="po-value-item">
+        <p class="po-value-kicker">03</p>
+        <h3 class="po-value-title">Extend what you can do</h3>
+        <p class="po-value-body">Connect the tools you already use, add skills and let Keel work across your whole stack.</p>
+      </article>
+    </section>
+
+    <!-- ==================== put Keel to work ==================== -->
+    <section class="po-work" id="work" aria-labelledby="po-work-title">
+      <h2 class="po-section-title" id="po-work-title">Put Keel to work</h2>
+      <p class="po-section-sub">Hand off tasks on the go or on a schedule, steer from anywhere, and edit anything before it goes out.</p>
+
+      <div class="po-persona-tabs" role="tablist" aria-label="Choose a role">
+        <button class="po-persona-tab is-active" type="button" role="tab" aria-selected="true" data-persona="everyone" aria-controls="po-showcase-copy">Everyone</button>
+        <button class="po-persona-tab" type="button" role="tab" aria-selected="false" data-persona="marketing" aria-controls="po-showcase-copy">Marketing</button>
+        <button class="po-persona-tab" type="button" role="tab" aria-selected="false" data-persona="sales" aria-controls="po-showcase-copy">Sales</button>
+        <button class="po-persona-tab" type="button" role="tab" aria-selected="false" data-persona="finance" aria-controls="po-showcase-copy">Finance</button>
+        <button class="po-persona-tab" type="button" role="tab" aria-selected="false" data-persona="human-resources" aria-controls="po-showcase-copy">Human resources</button>
+        <button class="po-persona-tab" type="button" role="tab" aria-selected="false" data-persona="legal" aria-controls="po-showcase-copy">Legal</button>
+        <button class="po-persona-tab" type="button" role="tab" aria-selected="false" data-persona="product" aria-controls="po-showcase-copy">Product</button>
+      </div>
+
+      <div class="po-work-showcase">
+        <div class="po-showcase-copy" id="po-showcase-copy" role="tabpanel" aria-label="Use case showcase">
+          <p class="po-showcase-time">8:00 AM · Product</p>
+          <h3 class="po-showcase-title">Keep up with meetings all day</h3>
+          <p class="po-showcase-desc">Keel reads your notes, pulls out the decisions and sends a tidy recap before your next meeting starts.</p>
+        </div>
+        <div class="po-showcase-visual">
+          <div class="po-chat-card">
+            <p class="po-chat-prompt">After each of my meetings, send me a short recap with the decisions, owners and next steps.</p>
+            <div class="po-chat-steps">
+              <p class="po-chat-step">Read the meeting notes</p>
+              <p class="po-chat-step">Pull out decisions and owners</p>
+              <p class="po-chat-step">Draft the recap</p>
+            </div>
+            <span class="po-chat-model">Opus High</span>
+          </div>
+          <div class="po-output-card">
+            <span class="po-output-label">The result</span>
+            <p class="po-output-title">Meeting recap · Product sync</p>
+            <p class="po-output-line">Decision: ship the new onboarding on Thursday.</p>
+            <p class="po-output-line">Owners: Design owns the copy, Engineering owns the rollout.</p>
+            <p class="po-output-line">Next: review the final checklist before launch.</p>
+          </div>
+          <img class="po-app-strip" src="/assets/img/po-app-icons.svg" alt="" />
+        </div>
+      </div>
+
+      <div class="po-work-steps">
+        <article class="po-step-card">
+          <span class="po-step-num" aria-hidden="true">01</span>
+          <h3 class="po-step-title">Give it a task</h3>
+          <p class="po-step-body">Describe what you need in plain language. No special syntax and no setup.</p>
+        </article>
+        <article class="po-step-card">
+          <span class="po-step-num" aria-hidden="true">02</span>
+          <h3 class="po-step-title">Set the context</h3>
+          <p class="po-step-body">Attach files, link your tools and tell Keel what good looks like.</p>
+        </article>
+        <article class="po-step-card">
+          <span class="po-step-num" aria-hidden="true">03</span>
+          <h3 class="po-step-title">Choose when it runs</h3>
+          <p class="po-step-body">Run it now, on a schedule, or the moment a trigger fires.</p>
+        </article>
+        <article class="po-step-card">
+          <span class="po-step-num" aria-hidden="true">04</span>
+          <h3 class="po-step-title">Steer from anywhere</h3>
+          <p class="po-step-body">Check in from your phone, redirect mid-task or add a new constraint.</p>
+        </article>
+        <article class="po-step-card">
+          <span class="po-step-num" aria-hidden="true">05</span>
+          <h3 class="po-step-title">Edit before it ships</h3>
+          <p class="po-step-body">Review the draft, leave a comment and make the final call yourself.</p>
+        </article>
+        <article class="po-step-card">
+          <span class="po-step-num" aria-hidden="true">06</span>
+          <h3 class="po-step-title">Keep it all together</h3>
+          <p class="po-step-body">Every task, file and outcome stays searchable in your workspace.</p>
+        </article>
+      </div>
+
+      <div class="po-work-visual-2">
+        <div class="po-work-visual-copy">
+          <h3>Up to date and as close as your inbox</h3>
+          <p>Keel watches the threads that matter and delivers the short version when there is something to act on.</p>
+          <h3>Upgrade your H2 copy in one bounceback check in</h3>
+          <p>Send a draft, get a sharper version back, and keep the tone that sounds like you.</p>
+        </div>
+        <div class="po-mini-ui" aria-hidden="true">
+          <p class="po-mini-ui-label">Today</p>
+          <p class="po-mini-ui-row">Funding round · recap ready</p>
+          <p class="po-mini-ui-row">H2 copy · 3 suggestions</p>
+          <p class="po-mini-ui-row">Customer notes · filed</p>
+        </div>
+        <img class="po-app-strip" src="/assets/img/po-app-icons.svg" alt="" />
+      </div>
+
+      <button class="po-text-link" type="button" data-try-prompt="After each of my meetings, send me a short recap with the decisions, owners and next steps.">Try it in Keel <span aria-hidden="true">→</span></button>
+    </section>
+
+    <!-- ==================== testimonial ==================== -->
+    <section class="po-testimonial" aria-labelledby="po-testimonial-quote">
+      <img class="po-testimonial-media" src="/assets/img/po-laptop.svg" alt="Keel running on a laptop" />
+      <blockquote class="po-testimonial-quote" id="po-testimonial-quote">I give Keel a call transcript, a couple of bullets and some context. 10 minutes later I have a strategy deck that's ready to go. It's become my go-to tool for thinking partner.</blockquote>
+      <p class="po-testimonial-author">Ian Goodman <span>CEO, Customer.io</span></p>
+    </section>
+
+    <!-- ==================== change the way you work ==================== -->
+    <section class="po-change" id="change" aria-labelledby="po-change-title">
+      <h2 class="po-section-title" id="po-change-title">Change the way you work</h2>
+      <p class="po-section-sub">Small shifts add up. Here is what changes when Keel is part of the day.</p>
+      <div class="po-change-grid">
+        <article class="po-change-col">
+          <h3 class="po-change-title">Build at the speed of thought</h3>
+          <p class="po-change-body">Go from rough idea to working prototype in a single conversation. Keel writes, tests and iterates alongside you.</p>
+        </article>
+        <article class="po-change-col">
+          <h3 class="po-change-title">The system is your context layer</h3>
+          <p class="po-change-body">Your files, tools and history become one living source of truth, so nothing important gets lost between apps.</p>
+        </article>
+        <article class="po-change-col">
+          <h3 class="po-change-title">Your tools now think with you</h3>
+          <p class="po-change-body">Connectors and skills bring Keel into the places you already work, turning every tool into a thinking partner.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ==================== see what Keel can do ==================== -->
+    <section class="po-capabilities" id="capabilities" aria-labelledby="po-cap-title">
+      <h2 class="po-section-title" id="po-cap-title">See what Keel can do</h2>
+      <label class="po-cap-search" for="po-cap-search">
+        <span class="po-sr-only">Search use cases</span>
+        <input id="po-cap-search" type="search" placeholder="Search use cases" autocomplete="off" />
+      </label>
+
+      <div class="po-cap-tabs" role="tablist" aria-label="Filter use cases">
+        <button class="po-cap-tab is-active" type="button" role="tab" aria-selected="true" data-cap-tab="all" aria-controls="po-hub po-cap-detail">All use cases</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="marketing" aria-controls="po-hub po-cap-detail">Marketing</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="design" aria-controls="po-hub po-cap-detail">Design</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="sales" aria-controls="po-hub po-cap-detail">Sales</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="engineering" aria-controls="po-hub po-cap-detail">Engineering</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="product" aria-controls="po-hub po-cap-detail">Product</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="education" aria-controls="po-hub po-cap-detail">Education</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="finance" aria-controls="po-hub po-cap-detail">Finance</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="legal" aria-controls="po-hub po-cap-detail">Legal</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="operations" aria-controls="po-hub po-cap-detail">Operations</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="customer-success" aria-controls="po-hub po-cap-detail">Customer Success</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="human-resources" aria-controls="po-hub po-cap-detail">Human Resources</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="research" aria-controls="po-hub po-cap-detail">Research</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="software-engineering" aria-controls="po-hub po-cap-detail">Software Engineering</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="security" aria-controls="po-hub po-cap-detail">Security</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="it" aria-controls="po-hub po-cap-detail">IT</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="startups" aria-controls="po-hub po-cap-detail">Startups</button>
+        <button class="po-cap-tab" type="button" role="tab" aria-selected="false" data-cap-tab="nonprofits" aria-controls="po-hub po-cap-detail">Nonprofits</button>
+      </div>
+
+      <div class="po-hub" id="po-hub">
+        <div class="po-hub-core"><span>Keel</span></div>
+        <div class="po-hub-node" data-caps="data" data-search="analyze data">
+          <span class="po-hub-node-title">Analyze data</span>
+          <span class="po-hub-node-desc">Find the signal in any spreadsheet.</span>
+        </div>
+        <div class="po-hub-node" data-caps="build engineering product startups" data-search="build applications">
+          <span class="po-hub-node-title">Build applications</span>
+          <span class="po-hub-node-desc">Go from prompt to working app.</span>
+        </div>
+        <div class="po-hub-node" data-caps="write marketing design education legal customer-success" data-search="write and edit">
+          <span class="po-hub-node-title">Write and edit</span>
+          <span class="po-hub-node-desc">Draft, tighten and polish in your voice.</span>
+        </div>
+        <div class="po-hub-node" data-caps="summarize research finance operations" data-search="summarize text">
+          <span class="po-hub-node-title">Summarize text</span>
+          <span class="po-hub-node-desc">The short version of the long read.</span>
+        </div>
+        <div class="po-hub-node" data-caps="brainstorm marketing product startups" data-search="brainstorm ideas">
+          <span class="po-hub-node-title">Brainstorm ideas</span>
+          <span class="po-hub-node-desc">Explore ten directions before lunch.</span>
+        </div>
+        <div class="po-hub-node" data-caps="automate operations it sales" data-search="automate workflows">
+          <span class="po-hub-node-title">Automate workflows</span>
+          <span class="po-hub-node-desc">Put repeat work on a schedule.</span>
+        </div>
+        <div class="po-hub-node" data-caps="learn education research human-resources" data-search="learn and explain">
+          <span class="po-hub-node-title">Learn and explain</span>
+          <span class="po-hub-node-desc">Understand anything, one question at a time.</span>
+        </div>
+        <div class="po-hub-node" data-caps="creative design marketing nonprofits" data-search="creative projects">
+          <span class="po-hub-node-title">Creative projects</span>
+          <span class="po-hub-node-desc">Turn a spark into something you can share.</span>
+        </div>
+      </div>
+
+      <div class="po-cap-detail" id="po-cap-detail">
+        <article class="po-cap-card" data-category="quick-tasks" data-caps="finance research operations" data-search="analyze data spreadsheet">
+          <h3 class="po-cap-card-title">Analyze a spreadsheet</h3>
+          <p class="po-cap-card-body">Drop in a sheet and ask a question. Keel explores the numbers, explains the trend and builds a table you can reuse.</p>
+        </article>
+        <article class="po-cap-card" data-category="quick-tasks" data-caps="research operations legal" data-search="summarize text report">
+          <h3 class="po-cap-card-title">Summarize a long report</h3>
+          <p class="po-cap-card-body">Get the key findings, the open questions and the page references without reading every line yourself.</p>
+        </article>
+        <article class="po-cap-card" data-category="editable-work" data-caps="marketing sales customer-success" data-search="write and edit email">
+          <h3 class="po-cap-card-title">Draft a customer email</h3>
+          <p class="po-cap-card-body">Describe the outcome and the audience. Keel writes a clear draft that you can reshape before it goes out.</p>
+        </article>
+        <article class="po-cap-card" data-category="editable-work" data-caps="education marketing nonprofits" data-search="write and edit rewrite">
+          <h3 class="po-cap-card-title">Rewrite for clarity</h3>
+          <p class="po-cap-card-body">Keep your meaning and your tone, while Keel tightens the structure and cuts the clutter.</p>
+        </article>
+        <article class="po-cap-card" data-category="tools" data-caps="sales operations it" data-search="connectors crm tools">
+          <h3 class="po-cap-card-title">Connect your CRM</h3>
+          <p class="po-cap-card-body">Bring account history into the conversation so every reply starts with the full picture.</p>
+        </article>
+        <article class="po-cap-card" data-category="tools" data-caps="operations it startups software-engineering" data-search="automate workflows integrations">
+          <h3 class="po-cap-card-title">Build a workflow</h3>
+          <p class="po-cap-card-body">Chain the steps you repeat every week and let Keel run them across the tools you already use.</p>
+        </article>
+        <article class="po-cap-card" data-category="yours" data-caps="design product engineering" data-search="skills customize your way">
+          <h3 class="po-cap-card-title">Make it yours</h3>
+          <p class="po-cap-card-body">Save the instructions, formats and shortcuts your team uses so Keel works the way you do.</p>
+        </article>
+        <article class="po-cap-card" data-category="yours" data-caps="research legal education security" data-search="your documents knowledge memory">
+          <h3 class="po-cap-card-title">Work from your docs</h3>
+          <p class="po-cap-card-body">Add your own sources and Keel grounds every answer in the material you trust.</p>
+        </article>
+        <article class="po-cap-card" data-category="control" data-caps="operations sales finance" data-search="schedule tasks control">
+          <h3 class="po-cap-card-title">Schedule a recurring task</h3>
+          <p class="po-cap-card-body">Set it once and let Keel deliver the update every morning, week or quarter.</p>
+        </article>
+        <article class="po-cap-card" data-category="control" data-caps="legal finance operations security" data-search="review before sending approval">
+          <h3 class="po-cap-card-title">Review before it ships</h3>
+          <p class="po-cap-card-body">Nothing goes out without you. Check the work, leave a note and approve the final version.</p>
+        </article>
+        <article class="po-cap-card" data-category="anywhere" data-caps="sales marketing human-resources" data-search="on the go mobile anywhere">
+          <h3 class="po-cap-card-title">Work from your phone</h3>
+          <p class="po-cap-card-body">Hand off a task between meetings and pick up the result wherever you are.</p>
+        </article>
+        <article class="po-cap-card" data-category="anywhere" data-caps="product engineering design" data-search="pick up where you left off sync">
+          <h3 class="po-cap-card-title">Pick up where you left off</h3>
+          <p class="po-cap-card-body">Your threads, files and progress follow you across desktop, web and mobile.</p>
+        </article>
+        <article class="po-cap-card" data-category="memory" data-caps="product human-resources education" data-search="memory preferences remember">
+          <h3 class="po-cap-card-title">Remember your preferences</h3>
+          <p class="po-cap-card-body">Keel learns the details you repeat, so you do not have to explain them twice.</p>
+        </article>
+        <article class="po-cap-card" data-category="memory" data-caps="education research startups nonprofits" data-search="learn and explain memory">
+          <h3 class="po-cap-card-title">Learn something new</h3>
+          <p class="po-cap-card-body">Ask a follow-up, go deeper, or switch the explanation until it clicks.</p>
+        </article>
+      </div>
+
+      <p class="po-cap-empty" id="po-cap-empty" hidden>No use cases match that search.</p>
+    </section>
+
+    <!-- ==================== use case demo ==================== -->
+    <section class="po-usecase" id="use-case" aria-labelledby="po-usecase-heading">
+      <h2 class="po-usecase-heading" id="po-usecase-heading">I'm in Marketing and I need to make the Company numbers.</h2>
+      <div class="po-usecase-grid">
+        <div class="po-usecase-side">
+          <p class="po-usecase-label">Role</p>
+          <div class="po-role-list" role="group" aria-label="Role">
+            <button class="po-role is-active" type="button" data-role="Marketing" aria-pressed="true">Marketing</button>
+            <button class="po-role" type="button" data-role="Sales" aria-pressed="false">Sales</button>
+            <button class="po-role" type="button" data-role="Finance" aria-pressed="false">Finance</button>
+            <button class="po-role" type="button" data-role="Human resources" aria-pressed="false">Human resources</button>
+            <button class="po-role" type="button" data-role="Legal" aria-pressed="false">Legal</button>
+            <button class="po-role" type="button" data-role="Product" aria-pressed="false">Product</button>
+          </div>
+          <p class="po-usecase-label">Company size</p>
+          <div class="po-size-list" role="group" aria-label="Company size">
+            <button class="po-size is-active" type="button" data-size="Any" aria-pressed="true">Any</button>
+            <button class="po-size" type="button" data-size="Startup" aria-pressed="false">Startup</button>
+            <button class="po-size" type="button" data-size="Mid-market" aria-pressed="false">Mid-market</button>
+            <button class="po-size" type="button" data-size="Enterprise" aria-pressed="false">Enterprise</button>
+          </div>
+        </div>
+
+        <div class="po-usecase-stage" id="po-usecase-stage" aria-live="polite">
+          <div class="po-stage-card po-stage-email">
+            <span class="po-stage-tag">Campaign-Paused</span>
+            <p class="po-stage-heading">Congratulations Paul!</p>
+            <p class="po-stage-copy">Your campaign is ready for the final review. Keel has drafted the readout and flagged the two numbers to double-check.</p>
+          </div>
+          <div class="po-stage-card po-stage-metric">
+            <strong>97%</strong>
+            <span>Campaign has reached 97% of its goal.</span>
+          </div>
+          <img class="po-stage-art" src="/assets/img/po-stage.svg" alt="" />
+        </div>
+
+        <div class="po-usecase-tasks">
+          <p class="po-usecase-label">Task</p>
+          <div class="po-task-list" role="group" aria-label="Task">
+            <button class="po-task" type="button" data-task="Campaign readout" aria-pressed="false">Campaign readout</button>
+            <button class="po-task" type="button" data-task="Call prep" aria-pressed="false">Call prep</button>
+            <button class="po-task" type="button" data-task="Earnings comps" aria-pressed="false">Earnings comps</button>
+            <button class="po-task" type="button" data-task="JD check" aria-pressed="false">JD check</button>
+            <button class="po-task" type="button" data-task="Legal research drafting" aria-pressed="false">Legal research drafting</button>
+            <button class="po-task" type="button" data-task="Action tracking" aria-pressed="false">Action tracking</button>
+            <button class="po-task" type="button" data-task="Asset creation" aria-pressed="false">Asset creation</button>
+            <button class="po-task" type="button" data-task="QBR deck" aria-pressed="false">QBR deck</button>
+            <button class="po-task" type="button" data-task="Month-end close" aria-pressed="false">Month-end close</button>
+            <button class="po-task" type="button" data-task="Survey readout" aria-pressed="false">Survey readout</button>
+            <button class="po-task" type="button" data-task="Deposition prep" aria-pressed="false">Deposition prep</button>
+            <button class="po-task" type="button" data-task="Feedback digest" aria-pressed="false">Feedback digest</button>
+            <button class="po-task" type="button" data-task="Audience intelligence" aria-pressed="false">Audience intelligence</button>
+            <button class="po-task" type="button" data-task="CRM hygiene" aria-pressed="false">CRM hygiene</button>
+            <button class="po-task" type="button" data-task="Budget reforecast" aria-pressed="false">Budget reforecast</button>
+            <button class="po-task" type="button" data-task="Merit analysis" aria-pressed="false">Merit analysis</button>
+            <button class="po-task" type="button" data-task="Contract redline" aria-pressed="false">Contract redline</button>
+            <button class="po-task" type="button" data-task="Metrics dashboard" aria-pressed="false">Metrics dashboard</button>
+          </div>
+          <button class="po-view-usecase" type="button">View use case <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FAQ ==================== -->
+    <section class="po-faq" id="faq" aria-labelledby="po-faq-heading">
+      <h2 class="po-section-title" id="po-faq-heading">FAQ</h2>
+      <div class="po-faq-list">
+        <div class="po-faq-item">
+          <button class="po-faq-q" type="button" aria-expanded="false" aria-controls="faq-a-1">What should I use Keel for? <span class="po-faq-icon" aria-hidden="true"></span></button>
+          <div class="po-faq-a" id="faq-a-1" hidden><p>Everyday knowledge work: writing, research, analysis, planning and building software. Start with one task, add context, and decide what gets shipped.</p></div>
+        </div>
+        <div class="po-faq-item">
+          <button class="po-faq-q" type="button" aria-expanded="false" aria-controls="faq-a-2">How much does it cost to use? <span class="po-faq-icon" aria-hidden="true"></span></button>
+          <div class="po-faq-a" id="faq-a-2" hidden><p>There is a free plan for getting started and paid plans for heavier use and teams. <a href="/product/overview">See the plans</a> for current pricing and limits.</p></div>
+        </div>
+        <div class="po-faq-item">
+          <button class="po-faq-q" type="button" aria-expanded="false" aria-controls="faq-a-3">Is my data secure with Keel? <span class="po-faq-icon" aria-hidden="true"></span></button>
+          <div class="po-faq-a" id="faq-a-3" hidden><p>Your work stays in your workspace, and you can connect your own provider keys in the app. We do not train on your private conversations. <a href="/privacy">Read the privacy policy</a> for details.</p></div>
+        </div>
+        <div class="po-faq-item">
+          <button class="po-faq-q" type="button" aria-expanded="false" aria-controls="faq-a-4">Can Keel integrate with my existing tools? <span class="po-faq-icon" aria-hidden="true"></span></button>
+          <div class="po-faq-a" id="faq-a-4" hidden><p>Yes. Bring Google Workspace, Microsoft 365, your CRM and other tools into the conversation with connectors and skills, or use the desktop app with local files.</p></div>
+        </div>
+        <div class="po-faq-item">
+          <button class="po-faq-q" type="button" aria-expanded="false" aria-controls="faq-a-5">Is there an API for Keel? <span class="po-faq-icon" aria-hidden="true"></span></button>
+          <div class="po-faq-a" id="faq-a-5" hidden><p>Yes. The Platform and API let you embed Keel in your own products and workflows. <a href="/requirements">Developer documentation</a> has the details.</p></div>
+        </div>
+        <div class="po-faq-item">
+          <button class="po-faq-q" type="button" aria-expanded="false" aria-controls="faq-a-6">How do I get started? <span class="po-faq-icon" aria-hidden="true"></span></button>
+          <div class="po-faq-a" id="faq-a-6" hidden><p>Open the app, start free or pick a plan, and give Keel one task. You can also <a href="/download">download the desktop app</a> to work with local files.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== CTA ==================== -->
+    <section class="po-cta" id="get-keel" aria-labelledby="po-cta-title">
+      <h2 id="po-cta-title">Don't know where to start? Ask Keel.</h2>
+      <p>Keel works with you to tackle your most complex challenges.</p>
+      <form class="po-ask-form" id="po-ask-form">
+        <label class="po-sr-only" for="po-ask-input">Ask a question</label>
+        <input id="po-ask-input" type="text" placeholder="Ask a question..." required />
+        <button class="po-btn po-btn-coral" type="submit">Ask Keel</button>
+      </form>
+      <p class="po-ask-result" id="po-ask-result" role="status" aria-live="polite" hidden></p>
+      <div class="po-cta-actions">
+        <button class="po-btn po-btn-dark po-auth-open" type="button">Get Keel</button>
+        <a class="po-btn po-btn-outline" href="/product/overview">See plans</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== dark footer ==================== -->
+  <footer class="po-footer" id="po-footer">
+    <div class="po-footer-top">
+      <a class="po-brand po-footer-brand" href="/" aria-label="Keel home">
+        <img class="po-brand-mark" src="/assets/img/po-mark.svg" alt="" />
+        <span>Keel</span>
+      </a>
+      <span class="po-news-chip">Latest news <a href="/download">Keel Desktop is here.</a> <button class="po-news-dismiss" type="button" aria-label="Dismiss latest news">×</button></span>
+      <form class="po-footer-search" id="po-footer-search-form" role="search">
+        <label class="po-sr-only" for="po-footer-search">Search help</label>
+        <input id="po-footer-search" type="search" placeholder="How can we help today?" autocomplete="off" />
+        <button type="submit" class="po-footer-search-btn" aria-label="Search">→</button>
+      </form>
+    </div>
+
+    <div class="po-footer-grid">
+      <nav class="po-footer-col" aria-label="Products">
+        <h2 class="po-footer-heading">Products</h2>
+        <a class="po-footer-link" href="/product/overview">Keel</a>
+        <a class="po-footer-link" href="/product/overview">Keel Code</a>
+        <a class="po-footer-link" href="/product/overview">Keel Cowork</a>
+        <a class="po-footer-link" href="/product/overview">Keel Duet</a>
+        <a class="po-footer-link" href="/requirements">Keel Platform</a>
+        <a class="po-footer-link" href="/product/overview">Keel Tag</a>
+        <a class="po-footer-link" href="/product/overview">Keel Science</a>
+        <a class="po-footer-link" href="/privacy">Keel Security</a>
+        <a class="po-footer-link" href="/roadmap">Keel Ship</a>
+        <a class="po-footer-link" href="/roadmap">Code Review</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Capabilities">
+        <h2 class="po-footer-heading">Capabilities</h2>
+        <a class="po-footer-link" href="#capabilities">Artifacts</a>
+        <a class="po-footer-link" href="#capabilities">Design</a>
+        <a class="po-footer-link" href="#capabilities">Connectors</a>
+        <a class="po-footer-link" href="#capabilities">Plugins</a>
+        <a class="po-footer-link" href="#capabilities">Skills</a>
+        <a class="po-footer-link" href="#capabilities">Analyze data</a>
+        <a class="po-footer-link" href="#capabilities">Write and edit</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Extensions">
+        <h2 class="po-footer-heading">Extensions</h2>
+        <a class="po-footer-link" href="/keel-in-chrome">Keel in Chrome</a>
+        <a class="po-footer-link" href="/chrome-web-store">Chrome Web Store</a>
+        <a class="po-footer-link" href="/download">Keel for Google Workspace</a>
+        <a class="po-footer-link" href="/download">Keel for Microsoft 365</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Models">
+        <h2 class="po-footer-heading">Models</h2>
+        <a class="po-footer-link" href="/product/overview">Mythos (including Fable)</a>
+        <a class="po-footer-link" href="/product/overview">Opus</a>
+        <a class="po-footer-link" href="/product/overview">Sonnet</a>
+        <a class="po-footer-link" href="/product/overview">Haiku</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Enterprise">
+        <h2 class="po-footer-heading">Enterprise</h2>
+        <a class="po-footer-link" href="/product/overview">Overview</a>
+        <a class="po-footer-link" href="/product/overview">Keel Code for Enterprise</a>
+        <a class="po-footer-link" href="/requirements">Keel Platform</a>
+        <a class="po-footer-link" href="/roadmap">Keel Ship</a>
+        <a class="po-footer-link" href="mailto:hello@keel.dev">Contact sales</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Departments">
+        <h2 class="po-footer-heading">Departments</h2>
+        <a class="po-footer-link" href="mailto:hello@keel.dev">Customer support</a>
+        <a class="po-footer-link" href="/privacy">Cybersecurity</a>
+        <a class="po-footer-link" href="/terms">Legal</a>
+        <a class="po-footer-link" href="mailto:hello@keel.dev">Sales</a>
+        <a class="po-footer-link" href="/product/overview">Finance</a>
+        <a class="po-footer-link" href="/product/overview">Human resources</a>
+        <a class="po-footer-link" href="#work">Product</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Industries">
+        <h2 class="po-footer-heading">Industries</h2>
+        <a class="po-footer-link" href="/product/overview">Financial advisors</a>
+        <a class="po-footer-link" href="/product/overview">Financial services</a>
+        <a class="po-footer-link" href="/product/overview">Government</a>
+        <a class="po-footer-link" href="/product/overview">Healthcare</a>
+        <a class="po-footer-link" href="/product/overview">Higher education</a>
+        <a class="po-footer-link" href="/product/overview">K-12 teachers</a>
+        <a class="po-footer-link" href="/product/overview">Life sciences</a>
+        <a class="po-footer-link" href="/product/overview">Manufacturing</a>
+        <a class="po-footer-link" href="/product/overview">Nonprofits</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Programs">
+        <h2 class="po-footer-heading">Programs</h2>
+        <a class="po-footer-link" href="/requirements">Keel Academy</a>
+        <a class="po-footer-link" href="/requirements">Courses</a>
+        <a class="po-footer-link" href="/requirements">Tutorials</a>
+        <a class="po-footer-link" href="#use-case">Use cases</a>
+        <a class="po-footer-link" href="/notices">Events</a>
+        <a class="po-footer-link" href="mailto:hello@keel.dev">Partner network</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Developers">
+        <h2 class="po-footer-heading">Developers</h2>
+        <a class="po-footer-link" href="/requirements">Developer docs</a>
+        <a class="po-footer-link" href="/notices">Developer blog</a>
+        <a class="po-footer-link" href="/app">Console</a>
+        <a class="po-footer-link" href="/product/overview">Keel Code</a>
+        <a class="po-footer-link" href="/requirements">Managed Agents</a>
+        <a class="po-footer-link" href="/notices">Status</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Platform">
+        <h2 class="po-footer-heading">Platform</h2>
+        <a class="po-footer-link" href="/requirements">Overview</a>
+        <a class="po-footer-link" href="/requirements">Keel in AWS</a>
+        <a class="po-footer-link" href="/requirements">Keel on AWS</a>
+        <a class="po-footer-link" href="/requirements">Microsoft Foundry</a>
+        <a class="po-footer-link" href="/requirements">Extended thinking with Keel Code</a>
+        <a class="po-footer-link" href="/roadmap">Manuscript</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Resources">
+        <h2 class="po-footer-heading">Resources</h2>
+        <a class="po-footer-link" href="#faq">Resources</a>
+        <a class="po-footer-link" href="/notices">Articles</a>
+        <a class="po-footer-link" href="/notices">Webinars</a>
+        <a class="po-footer-link" href="/notices">Customer stories</a>
+        <a class="po-footer-link" href="/notices">Marketplace</a>
+        <a class="po-footer-link" href="/notices">Keel news</a>
+        <a class="po-footer-link" href="/requirements">Documentation</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Help and security">
+        <h2 class="po-footer-heading">Help and security</h2>
+        <a class="po-footer-link" href="/notices">Availability</a>
+        <a class="po-footer-link" href="/requirements">Check files</a>
+        <a class="po-footer-link" href="/privacy">Regional compliance</a>
+        <a class="po-footer-link" href="mailto:hello@keel.dev">Report a bug</a>
+        <a class="po-footer-link" href="/privacy">Trust centre</a>
+        <a class="po-footer-link" href="mailto:hello@keel.dev">Support centre</a>
+        <a class="po-footer-link" href="/privacy">Privacy policy</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Company">
+        <h2 class="po-footer-heading">Company</h2>
+        <a class="po-footer-link" href="/">Keel</a>
+        <a class="po-footer-link" href="mailto:hello@keel.dev">Careers</a>
+        <a class="po-footer-link" href="mailto:hello@keel.dev">Jobs</a>
+        <a class="po-footer-link" href="/notices">News</a>
+        <a class="po-footer-link" href="/notices">Transparency</a>
+        <a class="po-footer-link" href="/privacy">Trust &amp; safety</a>
+        <a class="po-footer-link" href="mailto:hello@keel.dev">Contact</a>
+      </nav>
+      <nav class="po-footer-col" aria-label="Terms and policies">
+        <h2 class="po-footer-heading">Terms and policies</h2>
+        <a class="po-footer-link" href="/privacy">Privacy policy</a>
+        <a class="po-footer-link" href="/terms">Terms of service</a>
+        <a class="po-footer-link" href="/terms">Consumer terms</a>
+        <a class="po-footer-link" href="/terms">Usage policy</a>
+        <a class="po-footer-link" href="/eula">EULA</a>
+        <a class="po-footer-link" href="/trademark">Trademark</a>
+        <a class="po-footer-link" href="/notices">Notices</a>
+        <a class="po-footer-link" href="/notices">Responsible disclosure</a>
+        <a class="po-footer-link" href="/privacy">Cookie settings</a>
+      </nav>
+    </div>
+
+    <p class="po-footer-search-result" id="po-footer-search-result" aria-live="polite" hidden></p>
+
+    <div class="po-footer-bottom">
+      <span>KEEL 2026 All rights reserved.</span>
+      <div class="po-footer-socials">
+        <a class="po-footer-social" href="/notices" aria-label="Keel on X"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16M20 4L4 20" /></svg></a>
+        <a class="po-footer-social" href="/notices" aria-label="Keel on LinkedIn"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4 9h4v11H4zM6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM11 9h4v1.7c.8-1.2 2-2 3.5-2 2.5 0 3.5 1.6 3.5 4.3V20h-4v-6c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2 1-2.2 2.4V20h-4z" /></svg></a>
+        <a class="po-footer-social" href="/notices" aria-label="Keel on GitHub"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.4-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.5.1 2.8.6.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2z" /></svg></a>
+        <a class="po-footer-social" href="/notices" aria-label="Keel on YouTube"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M22 12s0-3.4-.4-5a2.5 2.5 0 0 0-1.8-1.8C18.2 4.8 12 4.8 12 4.8s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7C2 8.6 2 12 2 12s0 3.4.4 5a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-5 .4-5zM10 15V9l5.2 3z" /></svg></a>
+      </div>
+      <a class="po-footer-link" href="/notices">Add to Preferred Sources</a>
+      <button class="po-lang" type="button">English <span class="po-chevron" aria-hidden="true"></span></button>
+    </div>
+  </footer>
+
+  <!-- ==================== auth modal ==================== -->
+  <div class="po-modal" id="po-auth-modal" hidden>
+    <div class="po-modal-backdrop" data-modal-close></div>
+    <div class="po-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="po-auth-title" aria-describedby="po-auth-desc">
+      <button class="po-modal-close" type="button" data-modal-close aria-label="Close dialog">×</button>
+      <h2 class="po-modal-title" id="po-auth-title">Welcome to Keel</h2>
+      <p class="po-modal-desc" id="po-auth-desc">Sign in to pick up where you left off.</p>
+      <button class="po-google-btn" type="button"><span aria-hidden="true">G</span> Continue with Google</button>
+      <div class="po-modal-divider" aria-hidden="true"><span>or</span></div>
+      <form class="po-auth-form" id="po-auth-form">
+        <label class="po-sr-only" for="po-auth-email">Email address</label>
+        <input id="po-auth-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
+        <button class="po-btn po-btn-dark" type="submit">Continue with email</button>
+      </form>
+      <p class="po-modal-fine">By continuing you agree to Keel's <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms of Service</a>.</p>
+      <p class="po-modal-note">Demo sign-in — no real account is created.</p>
+    </div>
+  </div>
+
+  <div class="po-toast" id="po-toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
