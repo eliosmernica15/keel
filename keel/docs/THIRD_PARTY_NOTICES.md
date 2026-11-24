@@ -1,6 +1,17 @@
 # Keel — Third-Party Notices
 
-Keel's licensing: proprietary (see `LICENSE`).
+> **Current audit (2026-11-24):** the repository-root `THIRD_PARTY_NOTICES.md`
+> is the current dependency audit, and `keel/docs/DEPENDENCY-LICENSE-INVENTORY.md`
+> is its generated per-package table. `DECISIONS.md` D-037 rejects applying MIT
+> to Keel code; a draft MIT `LICENSE` created this round was removed on lead
+> review. The proprietary manifests remain authoritative, and the owner-gated
+> W1.18 MIT portion is recorded in `keel/docs/MASTER-PLAN-INVENTORY.md` §6.1.
+> The text below is the historical notice, preserved rather than rewritten.
+
+Historical statement from this notice: Keel's licensing was recorded here as
+proprietary, with a pointer to a `LICENSE` file that was not present in the tree
+at the time. Do not read this line as a current license grant; see the note
+above and the root notice.
 
 Where upstream code, assets, or documentation are reused **unchanged**, their
 original notices are preserved below. Where Keel rewrites or re-implements

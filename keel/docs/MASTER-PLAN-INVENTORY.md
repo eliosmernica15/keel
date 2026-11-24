@@ -59,3 +59,48 @@ Using registry statuses as the starting inventory (not yet independently re-veri
 - Blocked: 2/862 = **0.2 %** (plus external environment gates tracked separately)
 
 These percentages will be re-calculated after independent verification. Do not treat them as proof of whole-product production readiness.
+
+## 6. Reconciliation entries — full-plan completion round (2026-11-24)
+
+`PLAN-INDEX.json` and `parity.json` were **read but not edited**. The table in
+§1 and the percentages in §5 therefore still describe the registry as landed;
+the dispositions below are reconciliation recommendations recorded in this
+tracking document for the lead to apply when regenerating the registries.
+
+### 6.1 The eleven non-verified rows
+
+| ID | Registry | Evidence landed in this round | Reconciled disposition |
+|---|---|---|---|
+| D6.2 | not_started | `keel/docs/internal/BUILDER-PROCESS.md` documents the extension points (`plugin_contracts.py`, `capability_seams.py`, `hooks.py`, tool/provider registries) and the architecture-doc rule; UI commits added surfaces and E2E without a loop change. | **documented** (builder convention); no runtime artifact, registry status unchanged by this agent. |
+| D6.14 | not_started | `BUILDER-PROCESS.md` D6.14; behaviour-named assertions in `UI-TEST-MATRIX.md`; obsolete Escape behaviour changed with its test in `e038550`; QA re-tests in `UI-DEFECT-LOG.md` §6. | **documented**; tests-with-behaviour practice evidenced, registry status unchanged. |
+| D6.17 | not_started | `keel/docs/internal/AGENT-NOTES.md`; durable rationale in `DECISIONS.md` D-036/D-037; `keel/docs/plan-sources/*` frozen and never edited; proprietary drafts marked not authoritative. | **documented**; registry status unchanged. |
+| D6.18 | not_started | `BUILDER-PROCESS.md` D6.18; dependency choices and licenses audited in root `THIRD_PARTY_NOTICES.md` and `keel/docs/DEPENDENCY-LICENSE-INVENTORY.md`; Playwright reused rather than a bespoke browser driver (`UI-E2E-GUIDE.md` §1); no new runtime dep this round. | **documented**; registry status unchanged. |
+| D6.20 | not_started | `BUILDER-PROCESS.md` D6.20; exact local commands/results in `UI-TEST-MATRIX.md` (`tsc`, `next build`, `verify-ui.mjs`, focused `--grep` E2E, a11y suite); no Python claim where no Python file changed. | **documented** (Owner in §2 was Agent G; Agent H recorded the practice from QA evidence); registry status unchanged. |
+| D6.21 | not_started | `BUILDER-PROCESS.md` D6.21 and `keel/docs/internal/PR-DESCRIPTION-TEMPLATE.md`; conventional `kind(scope):` commit subjects; `.githooks/pre-push` blocks direct `main` pushes and fails closed on missing gitleaks. | **partially documented**: template and rewrite rule recorded; GitHub label config/PR template absent and owner/lead-gated. Registry status unchanged. |
+| D6.23 | not_started | `keel/docs/internal/DEFENSIVE-PATTERNS.md` written from Keel's own invariants and this round's defects; read-before-touch triggers mapped to source/test evidence. | **documented**; deliberately no fake "read" flag. Registry status unchanged. |
+| W1.18 | not_started | Root `THIRD_PARTY_NOTICES.md` delivered with a full audited dependency inventory at `keel/docs/DEPENDENCY-LICENSE-INVENTORY.md`; `@playwright/test` 1.65.1 confirmed Apache-2.0 from its own metadata, LICENSE and NOTICE. A draft MIT `LICENSE` was removed on lead review. | **THIRD_PARTY_NOTICES implemented; MIT portion rejected by owner decision D-037** (Keel code remains proprietary per `keel/pyproject.toml`, `keel/desktop-app/package.json` and `build/LICENSE.txt`). No registry status change without owner approval. |
+| C11.1 | blocked | `.githooks/pre-push` is the documented local compensating control (installed via `core.hooksPath .githooks`); GitHub free-plan limitation recorded in that hook. | **blocked — unchanged**. Owner decision on forge/branch protection required; no repo visibility or security settings changed. |
+| C11.2 | blocked | Same local hook (no direct `main` push, fail-closed gitleaks); 2FA / signed commits / token least privilege / pinned Actions are host settings not available to an agent. | **blocked — unchanged**. Owner/external gate; no settings changed. |
+| Y6.4 | not_started | `DECISIONS.md` D-036 rejects public visibility as a stale planning artifact under owner gate G1; `Keel_Master_Plan_v6.md` §5.1 locks private/proprietary. | **blocked — unchanged**. Do not change visibility; no request to GitHub was made. |
+
+### 6.2 Previously reported blockers under active investigation (§4)
+
+| Item | Evidence observed this round | Disposition |
+|---|---|---|
+| Electron packaged renderer | `keel/docs/UI-DESKTOP-RENDERING.md`: packaged sidecar inspected and executed, Electron GUI **not** launched; packaged Electron resolves `resources/site` (BYOK mirror) while the local bridge serves `desktop/ui`; repointing is a packaging decision. | Still gated; no shipped-renderer switch claimed. |
+| Tauri build (`link.exe` missing) | Same document: no Tauri binary available, no build claimed; v5 §5.1 locks Tauri out of the product architecture. | Not built / not claimed this round. |
+| Real provider turn | `UI-DEFECT-LOG.md` §4: no provider credentials on this host (`configured:false` for all five); E2E uses a throwaway **test-only** bridge token. | Not verified; no provider key used. |
+| Python 7-failure baseline comparison | No fresh Python suite result was produced by this documentation workstream; no Python file was changed by it. | Retain prior status; do not inherit a pass. |
+| Bridge 504 root cause | `UI-TEST-MATRIX.md` final run: 7 of 8 E2E failures attributed to shared-bridge 504 console noise (`QA-F-011`), with single-worker re-runs passing; client retries idempotent GETs only. | Environmental/backend reliability finding; not treated as an accessibility or product pass. |
+| Long-history performance | `UI-ACCESSIBILITY-AUDIT.md` stress results: 1200-row transcript, 400 agents and 1600-node tree all had 0 idle mutations; 3/3 pass. | Evidence landed for bounded-history/windowing behaviour. |
+| Screen reader | `UI-ACCESSIBILITY-AUDIT.md` §4: NVDA/JAWS/VoiceOver not used; only ARIA roles/names/states and live-region presence checked. | **Not verified**; no screen-reader claim. |
+| Real 200 % browser zoom | `04-zoom-keyboard-walkthrough.spec.ts` uses a 720×450 CSS viewport as the 200 % proxy; all six destinations had no overflow, and the final a11y suite was 12 pass / 0 fail. | Verified as a **layout proxy**, not native browser/OS zoom. |
+| QA defects QA-001…QA-008 | `UI-DEFECT-LOG.md` §6 records all eight fixed with fix and re-test evidence; `e038550` fixed the search Escape defect and error copy. | Closed with re-tests; stale defect rows remain as history. |
+
+### 6.3 Percentages
+
+No percentage is recomputed here: the registry was not regenerated, and the
+reconciled dispositions above are documentation/owner decisions rather than
+fresh acceptance runs of all 865 criteria. A recalculation must be made from a
+regenerated `PLAN-INDEX.json` by the lead, after owner decisions on W1.18,
+C11.1, C11.2 and Y6.4 are recorded.
