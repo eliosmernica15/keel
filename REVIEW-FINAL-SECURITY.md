@@ -310,3 +310,47 @@ versus 40 `def test_...` definitions; the missing test was exactly
 4. H4 — cross-process lock for the event bus append/read path.
 5. M1/M2 — confine roots, ignore caller permission rules, redact persisted results.
 6. M3/M4/M5 — status mapping, crash recovery, honest MCP outcome. (M6 was fixed upstream.)
+
+---
+
+# RE-VERIFICATION (final follow-up)
+
+**Branch tip re-tested:** `e848c5d` (fetched from `origin`, `probe/int` re-extracted from
+that commit). All original probes were re-run unchanged unless noted; adapted probes are
+in `probe/reverify_adapted.py`.
+
+## Result: PASS — every HIGH and MEDIUM finding is CLOSED
+
+| ID | Finding | Original probe re-run at `e848c5d` | Result |
+|---|---|---|---|
+| H1 | Stored-token fallback / no possession check | `probe_token_fallback.py` | **CLOSED** — `resolve without token: False missing_token`. `backend_workflows.py:816-842` now requires a string token and compares its SHA-256 to `sealed_digest` with `hmac.compare_digest`; `token_dict` is no longer written to the ledger. |
+| H2 | Caller-controlled clock / TTL | `probe_approval.py` plus adapted monkeypatch of `bw._now` (the original script's final resolve is now a legitimate replay denial, not an expiry bypass) | **CLOSED** — with a token issued at fake time `1_700_000_000` (TTL 60) and the real clock restored, a resolve claiming `now=1_700_000_030` returns `False invalid_token`. `_now()` at `:90-97` is module-level and params are ignored; TTL is bounded to 1…86400 (`:769-781`). |
+| H3 | Process-local replay / single-use guards | `probe_race.py`, `probe_race2.py` | **CLOSED** — race probe: 1 `consume` event, 1 successful grant, 7 `replay_denied`; identical-params probe: 1 success + 5 `replay_denied`, 1 ledger record. `_locked_path()` (`:153-231`) adds `O_EXCL` cross-process locks around check-and-commit. |
+| H4 | Non-atomic event log appends | `probe_events_race.py` (3 trials × 8 processes) | **CLOSED** — all 3 trials: 8 lines with sequences `[1..8]`, 8 successful publishes, `read ok (8 events)`, no `CorruptRecordError`. `_LogLock` at `backend_events.py:784-882` adds an OS-level exclusive lock; appends are single durable writes (`:892-909`). |
+| M1 | Arbitrary file read/write via caller-chosen roots | `probe_paths.py` (adapted wrapper for the final assertion) | **CLOSED** — `REQUEST ok: False path_escape`, `content leaked: False`; `RECOVERY ok: False path_escape`, no marker file. Webapp POST returned `400 path_escape`. `project_root`/`folder` are confined under `state_root` (`:475-503`, `:523-532`, `:1253`); caller allow/ask rules are ignored (`:594-609`). |
+| M2 | Unredacted secrets in workflow results/ledgers | `probe_paths.py` + `probe/reverify_adapted.py` | **CLOSED** — `plaintext in response: False`, `plaintext in ledger: False` for a file containing `API_KEY=supersecret123`; `_redact()` is applied before both persistence and return (`:233-247`, `:309`, `:435-438`). |
+| M3 | Wrong HTTP status mapping | `probe/reverify_adapted.py` webapp POSTs | **CLOSED** — `operation_denied → 403`, `csrf_denied → 403`, `bad_manifest → 400`, `ttl_zero → 400 bad_ttl`, `path_escape → 400`. `webapp.py:643-661` consumes `result["http_status"]`; `backend_workflows._HTTP_STATUS_HINTS` supplies it. |
+| M4 | Interrupted append permanently wedges event log | `probe_head_crash.py` | **CLOSED** — after rolling the `.head` back to `count=0`, `reopen: ok 1` and `append after corruption: ok`; `backend_events._read()` (`:1015-1085`) rolls the committed head forward for a verified trailing record. |
+| M5 | Canned MCP invocation reported as success | `probe/reverify_adapted.py` | **CLOSED** — success path: `ok=False code=dry_run dry_run=True command_executed=False`; failure path: `ok=False code=tool_failure outcome=failure_handled`. `backend_workflows.py:1184-1217` labels the step as a dry run and no longer reports `ok=True`. |
+| M6 | Uncollected W7 regression test | `pytest --collect-only` | **CLOSED** — `40 tests collected`, including `test_w7_11_cap_recording_rejects_negative_bounds`. |
+
+**Test evidence at `e848c5d`:** 183 passed for the six backend test files plus
+`test_w7_x1_y5_d1_backend.py`; 252 existing cap/hub/webapp/CLI tests passed with only the
+known baseline-environmental `test_run_streams_events_and_done_marker` socket timeout.
+
+## Remaining findings (LOW, non-blocking)
+
+* **L2 (still open)** — the workflow's own `headers`/`expected_origin` CSRF check still
+  accepts both values from params (`backend_workflows.py:751-758`). The webapp's independent
+  Origin gate covers HTTP; do not treat the workflow check as an independent control.
+* **L3 (still open)** — `backend_workflows._approval_key_file` (`:693-713`) still creates
+  the key with `O_EXCL` and writes its bytes in a second step, leaving a theoretical
+  empty-file/rotation race across processes.
+* **L4 (still open)** — `backend_contracts.annotation_schema` (`:566`) still emits
+  `{"type": "string"}` for non-string `Literal` values.
+* **L1, L5 (resolved/accepted)** — `ttl_seconds=0` now returns `400 bad_ttl`; `state_root`
+  is still caller-selectable but is now the trust anchor for all path confinement, so it
+  is no longer a cross-boundary escape.
+
+**Final verdict: PASS.** No HIGH or MEDIUM finding from the original review is
+reproducible at integration HEAD `e848c5d`. Only the three LOW items above remain.
