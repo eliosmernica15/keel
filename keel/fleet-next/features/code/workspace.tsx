@@ -505,6 +505,7 @@ export function FileView({ projectId, path, onDirtyChange }: {
   const [data, setData] = useState<FileRead | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [bridgeDown, setBridgeDown] = useState(false);
   const [buffer, setBuffer] = useState("");
   const [dirty, setDirty] = useState(false);
@@ -512,28 +513,33 @@ export function FileView({ projectId, path, onDirtyChange }: {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [reload, setReload] = useState(0);
+  const readRequestId = useRef(0);
   const dirtyCb = useRef(onDirtyChange);
   const areaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => { dirtyCb.current = onDirtyChange; }, [onDirtyChange]);
 
   useEffect(() => {
+    // A slow read for an older path/reload must never replace a newer file.
+    const id = ++readRequestId.current;
     let alive = true;
+    const current = () => alive && id === readRequestId.current;
     setLoading(true);
     setError(null);
+    setSaveError(null);
     setBridgeDown(false);
     setEditing(false);
     setDirty(false);
     dirtyCb.current?.(false);
     bridge.readFile(projectId, path)
-      .then((res) => { if (alive) { setData(res); setBuffer(typeof res?.content === "string" ? res.content : ""); } })
+      .then((res) => { if (current()) { setData(res); setBuffer(typeof res?.content === "string" ? res.content : ""); } })
       .catch((err) => {
-        if (!alive) return;
+        if (!current()) return;
         setError(errMessage(err));
         setBridgeDown(isBridgeUnavailable(err));
         setData(null);
       })
-      .finally(() => { if (alive) setLoading(false); });
+      .finally(() => { if (current()) setLoading(false); });
     return () => { alive = false; };
   }, [projectId, path, reload]);
 
@@ -566,7 +572,9 @@ export function FileView({ projectId, path, onDirtyChange }: {
       dirtyCb.current?.(false);
       setReload((n) => n + 1);
     } catch (err) {
-      setError(errMessage(err));
+      // Keep the failure distinct from a read failure. No write is retried
+      // automatically: the operator must explicitly confirm another save.
+      setSaveError(errMessage(err));
       setConfirmOpen(false);
     } finally { setSaving(false); }
   };
@@ -595,6 +603,17 @@ export function FileView({ projectId, path, onDirtyChange }: {
       title="Could not read this file"
       description={error}
       action={<Button onClick={() => setReload((n) => n + 1)}><Icon name="refresh" size={15} /> Retry</Button>}
+    />
+  );
+
+  // A failed write is NOT a failed read. Never relabel it, and never let a
+  // "Retry" affordance silently repeat a non-idempotent POST.
+  if (saveError) return (
+    <EmptyState
+      icon={<Icon name="error" size={26} />}
+      title="Could not save this file"
+      description={`${saveError} The edited buffer is unchanged; no write was retried automatically. Return to the editor to confirm another save.`}
+      action={<Button variant="primary" onClick={() => setSaveError(null)}>Return to editor</Button>}
     />
   );
 
@@ -715,31 +734,64 @@ export function ReviewView({ projectId }: { projectId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [bridgeDown, setBridgeDown] = useState(false);
   const [tick, setTick] = useState(0);
+  const requestId = useRef(0);
 
   useEffect(() => {
+    // Refresh while a read is still pending must win: a slow older review
+    // response can otherwise overwrite the newer Git state.
+    const id = ++requestId.current;
     let alive = true;
+    const current = () => alive && id === requestId.current;
     setLoading(true); setError(null); setBridgeDown(false);
     bridge.review(projectId)
-      .then((res) => { if (alive) setData(res); })
+      .then((res) => { if (current()) setData(res); })
       .catch((err) => {
-        if (!alive) return;
+        if (!current()) return;
         setError(errMessage(err)); setBridgeDown(isBridgeUnavailable(err)); setData(null);
       })
-      .finally(() => { if (alive) setLoading(false); });
+      .finally(() => { if (current()) setLoading(false); });
     return () => { alive = false; };
   }, [projectId, tick]);
 
-  if (loading) return <div className={s.centered}><Spinner label="Reading review" /><p>Reading Git state…</p></div>;
+  const refresh = () => setTick((t) => t + 1);
+  const reportedBranch = data && typeof (data as Record<string, unknown>).branch === "string"
+    ? (data as Record<string, unknown>).branch as string : "";
+  const head = (
+    <div className={s.panelHead}>
+      <div>
+        <h3>Review</h3>
+        <p className={s.muted}>{reportedBranch ? `Branch: ${reportedBranch}` : "Branch not reported by bridge"}</p>
+      </div>
+      <div className={s.rowGap}>
+        <Badge tone="info">Read-only</Badge>
+        <IconButton label="Refresh review" onClick={refresh}><Icon name="refresh" size={15} /></IconButton>
+      </div>
+    </div>
+  );
+
+  if (loading) return (
+    <div className={s.panelBody}>{head}
+      <div className={s.centered}><Spinner label="Reading review" /><p>Reading Git state…</p></div>
+    </div>
+  );
   if (bridgeDown) return (
-    <EmptyState icon={<Icon name="warning" size={26} />} title="Bridge unavailable"
-      description={error ?? "The bridge could not be reached."}
-      action={<Button variant="primary" onClick={() => setTick((t) => t + 1)}>Retry</Button>} />
+    <div className={s.panelBody}>{head}
+      <EmptyState icon={<Icon name="warning" size={26} />} title="Bridge unavailable"
+        description={error ?? "The bridge could not be reached."}
+        action={<Button variant="primary" onClick={refresh}>Retry</Button>} />
+    </div>
   );
   if (error) return (
-    <EmptyState icon={<Icon name="error" size={26} />} title="Review failed" description={error}
-      action={<Button onClick={() => setTick((t) => t + 1)}>Retry</Button>} />
+    <div className={s.panelBody}>{head}
+      <EmptyState icon={<Icon name="error" size={26} />} title="Review failed" description={error}
+        action={<Button onClick={refresh}>Retry</Button>} />
+    </div>
   );
-  if (!data) return <EmptyState icon={<Icon name="info" size={26} />} title="No review data" description="The bridge returned no review payload." />;
+  if (!data) return (
+    <div className={s.panelBody}>{head}
+      <EmptyState icon={<Icon name="info" size={26} />} title="No review data" description="The bridge returned no review payload." />
+    </div>
+  );
 
   const raw = data as ReviewData & Record<string, unknown>;
   const bridgeError = textBlock(raw.error);
@@ -748,20 +800,10 @@ export function ReviewView({ projectId }: { projectId: string }) {
   const diffStat = textBlock(raw.diff_stat ?? raw.diffstat);
   const log = textBlock(raw.log);
   const diff = textBlock(raw.diff);
-  const branch = typeof raw.branch === "string" ? raw.branch : "";
 
   return (
     <div className={s.panelBody}>
-      <div className={s.panelHead}>
-        <div>
-          <h3>Review</h3>
-          <p className={s.muted}>{branch ? `Branch: ${branch}` : "Branch not reported by bridge"}</p>
-        </div>
-        <div className={s.rowGap}>
-          <Badge tone="info">Read-only</Badge>
-          <IconButton label="Refresh review" onClick={() => setTick((t) => t + 1)}><Icon name="refresh" size={15} /></IconButton>
-        </div>
-      </div>
+      {head}
       {bridgeError && <p className={s.errorBox} role="alert">{bridgeError}</p>}
       {!isGit ? (
         <EmptyState icon={<Icon name="info" size={24} />} title="No Git work tree reported"

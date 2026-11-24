@@ -14,7 +14,7 @@
 //  - The reviewer is comment-only. This pane never renders an edit, save,
 //    write, trust, apply or execute control for it (or for anyone).
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { bridge, errMessage, isBridgeUnavailable } from "@/lib/api";
 import { asArray, BridgeError } from "@/features/code/workspace";
 import { Badge, EmptyState, IconButton, Spinner } from "@/components/ui";
@@ -174,8 +174,13 @@ export default function ReviewPairView() {
   const [error, setError] = useState<string | null>(null);
   const [bridgeDown, setBridgeDown] = useState(false);
   const [tick, setTick] = useState(0);
+  const requestId = useRef(0);
 
   const load = useCallback(async () => {
+    // A delayed bots/rows read from an older refresh must not replace newer
+    // identity or review state.
+    const id = ++requestId.current;
+    const current = () => id === requestId.current;
     setLoading(true);
     setError(null);
     setBridgeDown(false);
@@ -189,17 +194,19 @@ export default function ReviewPairView() {
         builder ? bridge.botRows(builder.id) : Promise.resolve([]),
         reviewer ? bridge.botRows(reviewer.id) : Promise.resolve([]),
       ]);
+      if (!current()) return;
       setState({
         bots, builder, reviewer,
         builderRows: normalizeRows(builderRaw),
         reviewerRows: normalizeRows(reviewerRaw),
       });
     } catch (err) {
+      if (!current()) return;
       setError(errMessage(err));
       setBridgeDown(isBridgeUnavailable(err));
       setState(null);
     } finally {
-      setLoading(false);
+      if (current()) setLoading(false);
     }
   }, []);
 

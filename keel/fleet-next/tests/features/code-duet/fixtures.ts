@@ -13,6 +13,15 @@ export interface CapturedRequest {
   body: unknown;
 }
 
+/** Test-controlled behaviour for one bridge call. Used to force delayed /
+ *  out-of-order responses and real 502/504 envelopes without changing app code. */
+export interface RoutePlan {
+  delayMs?: number;
+  fail?: { status: number; body?: unknown; raw?: string };
+  body?: unknown;
+}
+export type RouteHook = (info: { path: string; method: string; call: number }) => RoutePlan | undefined;
+
 export interface BridgeState {
   trusted: Record<string, boolean>;
   files: Record<string, string>;
@@ -23,6 +32,9 @@ export interface BridgeState {
    *  Defaults are empty so tests must opt in to any "configured" state. */
   bots: Record<string, unknown>[];
   botRows: Record<string, Record<string, unknown>[]>;
+  /** Optional per-call delay/failure/payload override. */
+  routeHook?: RouteHook;
+  calls: Record<string, number>;
 }
 
 export interface Harness {
@@ -66,13 +78,19 @@ export const test = base.extend<{ harness: Harness }>({
       shellHandle: null,
       bots: [],
       botRows: {},
+      calls: {},
     };
     const requests: CapturedRequest[] = [];
     const consoleErrors: string[] = [];
     let shellCount = 0;
 
     page.on("console", (msg) => {
-      if (msg.type() === "error") consoleErrors.push(msg.text());
+      if (msg.type() !== "error") return;
+      // Intentionally injected 502/504 fixtures make the browser log a
+      // resource-load error. That is the expected signal under test, not an
+      // application defect; all other console errors still fail the test.
+      if (/Failed to load resource: the server responded with a status of 50[24]/.test(msg.text())) return;
+      consoleErrors.push(msg.text());
     });
     page.on("pageerror", (err) => consoleErrors.push(`pageerror: ${err.message}`));
 
@@ -90,8 +108,24 @@ export const test = base.extend<{ harness: Harness }>({
       }
       requests.push({ method, path: url.pathname + url.search, body });
 
+      const callKey = `${method} ${path}`;
+      const call = (state.calls[callKey] = (state.calls[callKey] ?? 0) + 1);
+      const plan = state.routeHook?.({ path, method, call });
+      if (plan?.delayMs) await new Promise((resolve) => setTimeout(resolve, plan.delayMs));
+      if (plan?.fail) {
+        const f = plan.fail;
+        return route.fulfill({
+          status: f.status,
+          contentType: f.raw === undefined ? "application/json" : "text/plain",
+          body: f.raw !== undefined ? f.raw : JSON.stringify(f.body ?? { error: "bridge_unavailable" }),
+        });
+      }
       const json = (value: unknown, status = 200) =>
-        route.fulfill({ status, contentType: "application/json", body: JSON.stringify(value) });
+        route.fulfill({
+          status,
+          contentType: "application/json",
+          body: JSON.stringify(plan && "body" in plan ? plan.body : value),
+        });
       // The shell initially mounts Cowork before hydration switches to the
       // requested surface. Cowork opens an EventSource; a JSON MIME type here
       // would produce a real browser console error. Serve a valid SSE frame.
