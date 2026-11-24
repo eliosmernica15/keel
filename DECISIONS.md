@@ -49,6 +49,8 @@
 | D-033 | G7 private-source CLI default; free-only search; docs out of scope | no | decided |
 | D-034 | Owner gates G1–G7 adopted as binding builder stop-list | **yes** | awaiting owner |
 | D-035 | Remaining open owner decisions D1, D2, D6, D7 | **yes** | awaiting owner |
+| D-036 | Y6.4 "repo visibility Public" conflicts with v5 §0.1 private-source requirement — REJECTED as written; repo stays private | **yes** | owner-gated (do not implement) |
+| D-037 | W1.18 "MIT license" conflicts with proprietary all-rights-reserved requirement — THIRD_PARTY_NOTICES only, Keel code NOT MIT | **yes** | owner-gated (do not implement) |
 
 **Totals:** 35 decisions recorded; **4 require owner approval** (D-005, D-007, D-034, D-035).
 
@@ -708,3 +710,22 @@ This decision record was produced by resolving metadata from the eight extracted
 | `base-verification.json` | `metadata.owner_gates` (G1–G7), security_requirements, architecture_constraints, free_first_rules, privacy_rules | D-001, D-002, D-006, D-008, D-011, D-012, D-016–D-019, D-021, D-034, D-035 |
 
 > Reminder: this file and the source metadata are PRIVATE. Do not publish, ship, or link them from any public surface (see G7 and §0.1).
+
+
+---
+
+## D-036 — Y6.4 "repo visibility public" (REJECTED as written)
+
+- Conflicting requirements: Y6.4 records "repo visibility: Public" as a P0 row. Keel Master Plan v5 section 0.1 and the owner's standing instruction require the source repo to remain PRIVATE.
+- Alternatives: (a) make repo public — violates owner gate G1; (b) keep private, treat Y6.4 as a stale planning artifact — CHOSEN.
+- Security implications: making private proprietary source public would expose internal plans/research/implementation; irreversible in effect.
+- Resolution: DO NOT implement Y6.4 as written. Repository stays private (live-verified). Record as owner-gated/blocked with reason "conflicts with private-source requirement". No visibility change made.
+- Owner approval required: yes (G1).
+
+## D-037 — W1.18 "MIT license" (REJECTED for Keel code)
+
+- Conflicting requirements: W1.18 asks for "MIT license + THIRD_PARTY_NOTICES". Keel v5 section 0.2 requires Keel's own code proprietary, all rights reserved; only third-party components keep their licenses.
+- Alternatives: (a) MIT on Keel code — violates section 0.2; (b) THIRD_PARTY_NOTICES only, Keel proprietary — CHOSEN.
+- Legal implications: an MIT grant on Keel code would forfeit proprietary status and permit public redistribution.
+- Resolution: Implement THIRD_PARTY_NOTICES portion only; Keel code stays proprietary. W1.18 recorded as partially owner-gated (MIT portion rejected). No open-source license added to Keel source.
+- Owner approval required: yes (G7 / section 0.2).

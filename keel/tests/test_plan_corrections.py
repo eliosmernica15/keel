@@ -76,11 +76,13 @@ def test_every_result_carries_real_evidence():
 
 
 def test_verifier_ids_match_plan_index_p0_rows():
+    # Feature IDs are stable; a row becoming `verified` must not change which
+    # IDs this verifier module covers. Only source identity matters, not the
+    # moving progress status.
     registry = json.loads((REPO / pc.PLAN_INDEX).read_text(encoding="utf-8"))
     in_plan = {f["id"] for f in registry["features"]
                if f["id"].startswith("X0.")
-               and f["priority"] == "P0"
-               and f["status"] == "not_started"}
+               and f["priority"] == "P0"}
     assert in_plan == EXPECTED_IDS
     assert {verify(REPO).id for verify in pc.P0_VERIFIERS} == EXPECTED_IDS
 

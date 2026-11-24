@@ -23,12 +23,15 @@ Date: 2026-11-24.
 ## Verification
 - Registry consistency, dependency-graph freshness, license gate: all green.
 - Offline CI lane + 4 offline runtime tests pass.
-- Per-batch targeted tests: all passing (hundreds of tests).
-- Final full suite: see `master-plan-v6-test-evidence.md` (authoritative final run to be recorded at completion).
+- Per-batch targeted tests: all passing across 42 specialist branches.
+- **Final full suite: 2963 passed, 48 skipped, 2502 subtests, 0 failed** (`python -m pytest -q -o faulthandler_timeout=120`, 461s, commit `38ae621`). See `master-plan-v6-test-evidence.md`.
+- Fixed a genuine test-pollution defect: the offline import test evicted all `keel.*` modules from `sys.modules` without restoring them, invalidating class identities captured by other tests; it now snapshots/restores them. No test was deleted or weakened.
 
 ## Remaining
-- `not_started` features: see PLAN-INDEX.json / REMAINING-WORK-MATRIX.md.
-- Owner-gated: C11.1/C11.2 posture, plan upgrade decision, 2FA, signing identity, provider credentials, phone hardware, clean-VM/native runners, push authorization.
+- **All locally achievable P0 features are complete.** Registry: 433 verified / 430 not_started (all P1/P2) / 2 blocked.
+- The only 2 not-started P0 rows are owner-gated conflicts REJECTED via DECISIONS.md D-036/D-037: Y6.4 (public repo — violates private-source requirement), W1.18 (MIT license — violates proprietary requirement). Not implemented.
+- Remaining P1/P2 work (430 rows) continues as capacity permits; no feature silently omitted.
+- Owner/external gates: C11.1/C11.2 posture, GitHub plan upgrade decision, 2FA, signing identity, provider credentials, phone hardware, clean-VM/native runners, push authorization.
 - No claim of production readiness; no push performed.
 
 ## Verdicts

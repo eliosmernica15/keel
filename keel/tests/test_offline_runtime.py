@@ -81,12 +81,24 @@ def test_no_outbound_import_hooks():
         return original(*args, **kwargs)
 
     socket.socket = tracked  # type: ignore[assignment]
+    # Snapshot every keel module we evict so the rest of the suite keeps the
+    # SAME module objects (and therefore the same class identities). Deleting
+    # them permanently makes `isinstance(x, Tool)` fail in tests that imported
+    # Tool at collection time — a real test-pollution defect, fixed here.
+    saved = {
+        name: module for name, module in list(sys.modules.items())
+        if name == "keel" or name.startswith("keel.")
+    }
     try:
-        for name in list(sys.modules):
-            if name == "keel" or name.startswith("keel."):
-                del sys.modules[name]
+        for name in saved:
+            del sys.modules[name]
         import keel  # noqa: F401
         import keel.webapp  # noqa: F401
     finally:
+        # Discard the fresh copies and restore the originals.
+        for name in list(sys.modules):
+            if name == "keel" or name.startswith("keel."):
+                del sys.modules[name]
+        sys.modules.update(saved)
         socket.socket = original  # type: ignore[assignment]
     assert not calls, f"network used during import: {calls[:3]}"

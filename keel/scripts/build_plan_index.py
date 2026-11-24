@@ -818,6 +818,81 @@ X0_PLAN_EVIDENCE = (
     "and is valid (P0 share, M19 splits, dependency graph, Duet modes, "
     "free-tier register, license gate, offline lane, clean-room specs) with "
     "14 passing tests incl. 9 tamper cases.")
+X9_RELIABILITY_TOKENS = frozenset({"X9.1", "X9.3", "X9.5", "X9.7"})
+X9_RELIABILITY_SRC = ["src/keel/reliability_contracts.py"]
+X9_RELIABILITY_TESTS = ["tests/test_reliability_contracts.py"]
+X9_RELIABILITY_EVIDENCE = (
+    "Reliability contracts: fixture model server, provider contract suite "
+    "against real adapters, cross-platform path/permission matrix, migration "
+    "matrix with checksums; 39 passing tests.")
+X5_GUARD_TOKENS = frozenset({"X5.1", "X5.5", "X5.6", "X5.9"})
+X5_GUARD_SRC = ["src/keel/clipboard_guard.py"]
+X5_GUARD_TESTS = ["tests/test_clipboard_guard.py"]
+X5_GUARD_EVIDENCE = (
+    "Clipboard/screen guard + sensitive-project mode, mass-change guard and "
+    "filesystem change journal; 31 passing adversarial tests.")
+D5_RESPONSIBLE_TOKENS = frozenset({"D5.1", "D5.2", "D5.3", "D5.4", "D5.5"})
+D5_RESPONSIBLE_SRC = ["src/keel/responsible_use.py"]
+D5_RESPONSIBLE_TESTS = ["tests/test_responsible_use.py"]
+D5_RESPONSIBLE_EVIDENCE = (
+    "Responsible-use disclosures, sandbox-limits wording, safety checklist, "
+    "warranty disclaimer (G5 draft) and fail-closed sandbox-failure policy; "
+    "25 passing tests + generated RESPONSIBLE-USE.md.")
+D4_COMPOSITION_TOKENS = frozenset({"D4.2", "D4.7", "D4.11"})
+D4_COMPOSITION_SRC = ["src/keel/composition_contracts.py"]
+D4_COMPOSITION_TESTS = ["tests/test_composition_contracts.py"]
+D4_COMPOSITION_EVIDENCE = (
+    "Composition contracts: typed layers, deterministic merge, protected "
+    "core, path containment, secret redaction; 51 passing adversarial tests.")
+Y4_IDENTITY_TOKENS = frozenset({"Y4.3", "Y4.9", "Y4.13"})
+Y4_IDENTITY_SRC = ["src/keel/identity_contracts.py"]
+Y4_IDENTITY_TESTS = ["tests/test_identity_contracts.py"]
+Y4_IDENTITY_EVIDENCE = (
+    "Identity contracts: first-boot sign-in test-fire, persona/rigor/routing "
+    "descriptor with originality gate, version badge + zero-secret scan; "
+    "69 passing adversarial tests.")
+V_INVARIANT_TOKENS = frozenset({"V1", "V2", "V5", "V16", "V24", "V26", "V31"})
+V_INVARIANT_SRC = ["src/keel/invariant_contracts.py"]
+V_INVARIANT_TESTS = ["tests/test_invariant_contracts.py"]
+V_INVARIANT_EVIDENCE = (
+    "Invariant/conformance contracts: scoped plugin tree, policy simulator "
+    "trace, strictness presets, Keel gate catalog, tool conformance kit, "
+    "request reconstruction, transport spike descriptors; 56 passing tests.")
+E34_RESULT_TOKENS = frozenset({"E3.3", "E3.8", "E4.5", "E4.8", "E4.15"})
+E34_RESULT_SRC = ["src/keel/result_contracts.py"]
+E34_RESULT_TESTS = ["tests/test_result_contracts.py"]
+E34_RESULT_EVIDENCE = (
+    "Result/snapshot contracts: agent-name grammar, result object with "
+    "diagnostic sanitization, versioned snapshots, test isolation, keyless "
+    "change log; 60 passing adversarial tests.")
+D7_SCHEDULER_TOKENS = frozenset({"D7.1", "D7.9", "D7.12", "D7.19"})
+D7_SCHEDULER_SRC = ["src/keel/gate_scheduler.py"]
+D7_SCHEDULER_TESTS = ["tests/test_gate_scheduler.py"]
+D7_SCHEDULER_EVIDENCE = (
+    "Dev-workflow contracts: gate graph with bounded concurrency, strict "
+    "dependency linker, CI lane descriptors, minimal SDK benchmark method; "
+    "77 passing adversarial tests.")
+BUILDER_TOKENS = frozenset({"X10.1", "X10.2", "X10.4", "X6.7", "X8.1", "X8.2"})
+BUILDER_SRC = ["src/keel/builder_contracts.py"]
+BUILDER_TESTS = ["tests/test_builder_contracts.py"]
+BUILDER_EVIDENCE = (
+    "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, "
+    "config validation with suggestions, component catalog, design tokens; "
+    "24 passing tests. Y6.4 intentionally not implemented (owner gate).")
+REPO_CONTRACT_TOKENS = frozenset({"Y5.4", "Y6.1", "Y6.2", "Z4"})
+REPO_CONTRACT_SRC = ["src/keel/repo_contracts.py"]
+REPO_CONTRACT_TESTS = ["tests/test_repo_contracts.py"]
+REPO_CONTRACT_EVIDENCE = (
+    "Repo contracts: webhook HMAC headers, evidence cross-walk, build-artifact "
+    "disposition, crash-safe turn journal; 59 passing tests. Y6.4 excluded "
+    "(owner gate).")
+PRODUCT_TOKENS = frozenset({"W1.10", "W4.3", "W6.1", "W6.3"})
+PRODUCT_SRC = ["src/keel/product_contracts.py"]
+PRODUCT_TESTS = ["tests/test_product_contracts.py"]
+PRODUCT_EVIDENCE = (
+    "Product contracts: SAFETY.md first-run notice, OAuth descriptor with "
+    "out-of-project credentials, accuracy-over-approval, anti-sycophancy; "
+    "62 passing tests. W1.18 (MIT) excluded (owner gate).")
 
 TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
                      "src/keel/tool_contracts_bridge.py"]
@@ -852,7 +927,13 @@ def _load_extra_features() -> list[dict]:
                                X1_EDIT_TOKENS | W2_AGENT_TOKENS | BATCH4_TOKENS |
                                D3_SEAM_TOKENS | E6_PROVIDER_TOKENS |
                                Y2_TRANSCRIPT_TOKENS | W7_SECURITY_TOKENS |
-                               A6_TOKENS | E5_DESKTOP_TOKENS | X0_PLAN_TOKENS)
+                               A6_TOKENS | E5_DESKTOP_TOKENS | X0_PLAN_TOKENS |
+                               X9_RELIABILITY_TOKENS | X5_GUARD_TOKENS |
+                               D5_RESPONSIBLE_TOKENS | D4_COMPOSITION_TOKENS |
+                               Y4_IDENTITY_TOKENS | V_INVARIANT_TOKENS |
+                               E34_RESULT_TOKENS | D7_SCHEDULER_TOKENS |
+                               BUILDER_TOKENS | REPO_CONTRACT_TOKENS |
+                               PRODUCT_TOKENS)
             verified = fid in implemented_ids
             src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
                          X1_REPO_SRC if fid in X1_REPO_TOKENS else
@@ -867,7 +948,18 @@ def _load_extra_features() -> list[dict]:
                          W7_SECURITY_SRC if fid in W7_SECURITY_TOKENS else
                          A6_SRC if fid in A6_TOKENS else
                          E5_DESKTOP_SRC if fid in E5_DESKTOP_TOKENS else
-                         X0_PLAN_SRC if fid in X0_PLAN_TOKENS else [])
+                         X0_PLAN_SRC if fid in X0_PLAN_TOKENS else
+                         X9_RELIABILITY_SRC if fid in X9_RELIABILITY_TOKENS else
+                         X5_GUARD_SRC if fid in X5_GUARD_TOKENS else
+                         D5_RESPONSIBLE_SRC if fid in D5_RESPONSIBLE_TOKENS else
+                         D4_COMPOSITION_SRC if fid in D4_COMPOSITION_TOKENS else
+                         Y4_IDENTITY_SRC if fid in Y4_IDENTITY_TOKENS else
+                         V_INVARIANT_SRC if fid in V_INVARIANT_TOKENS else
+                         E34_RESULT_SRC if fid in E34_RESULT_TOKENS else
+                         D7_SCHEDULER_SRC if fid in D7_SCHEDULER_TOKENS else
+                         BUILDER_SRC if fid in BUILDER_TOKENS else
+                         REPO_CONTRACT_SRC if fid in REPO_CONTRACT_TOKENS else
+                         PRODUCT_SRC if fid in PRODUCT_TOKENS else [])
             test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
                           X1_REPO_TESTS if fid in X1_REPO_TOKENS else
                           X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
@@ -881,7 +973,18 @@ def _load_extra_features() -> list[dict]:
                           W7_SECURITY_TESTS if fid in W7_SECURITY_TOKENS else
                           A6_TESTS if fid in A6_TOKENS else
                           E5_DESKTOP_TESTS if fid in E5_DESKTOP_TOKENS else
-                          X0_PLAN_TESTS if fid in X0_PLAN_TOKENS else [])
+                          X0_PLAN_TESTS if fid in X0_PLAN_TOKENS else
+                          X9_RELIABILITY_TESTS if fid in X9_RELIABILITY_TOKENS else
+                          X5_GUARD_TESTS if fid in X5_GUARD_TOKENS else
+                          D5_RESPONSIBLE_TESTS if fid in D5_RESPONSIBLE_TOKENS else
+                          D4_COMPOSITION_TESTS if fid in D4_COMPOSITION_TOKENS else
+                          Y4_IDENTITY_TESTS if fid in Y4_IDENTITY_TOKENS else
+                          V_INVARIANT_TESTS if fid in V_INVARIANT_TOKENS else
+                          E34_RESULT_TESTS if fid in E34_RESULT_TOKENS else
+                          D7_SCHEDULER_TESTS if fid in D7_SCHEDULER_TOKENS else
+                          BUILDER_TESTS if fid in BUILDER_TOKENS else
+                          REPO_CONTRACT_TESTS if fid in REPO_CONTRACT_TOKENS else
+                          PRODUCT_TESTS if fid in PRODUCT_TOKENS else [])
             evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
                         X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
                         X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
@@ -895,7 +998,18 @@ def _load_extra_features() -> list[dict]:
                         W7_SECURITY_EVIDENCE if fid in W7_SECURITY_TOKENS else
                         A6_EVIDENCE if fid in A6_TOKENS else
                         E5_DESKTOP_EVIDENCE if fid in E5_DESKTOP_TOKENS else
-                        X0_PLAN_EVIDENCE if fid in X0_PLAN_TOKENS else "")
+                        X0_PLAN_EVIDENCE if fid in X0_PLAN_TOKENS else
+                        X9_RELIABILITY_EVIDENCE if fid in X9_RELIABILITY_TOKENS else
+                        X5_GUARD_EVIDENCE if fid in X5_GUARD_TOKENS else
+                        D5_RESPONSIBLE_EVIDENCE if fid in D5_RESPONSIBLE_TOKENS else
+                        D4_COMPOSITION_EVIDENCE if fid in D4_COMPOSITION_TOKENS else
+                        Y4_IDENTITY_EVIDENCE if fid in Y4_IDENTITY_TOKENS else
+                        V_INVARIANT_EVIDENCE if fid in V_INVARIANT_TOKENS else
+                        E34_RESULT_EVIDENCE if fid in E34_RESULT_TOKENS else
+                        D7_SCHEDULER_EVIDENCE if fid in D7_SCHEDULER_TOKENS else
+                        BUILDER_EVIDENCE if fid in BUILDER_TOKENS else
+                        REPO_CONTRACT_EVIDENCE if fid in REPO_CONTRACT_TOKENS else
+                        PRODUCT_EVIDENCE if fid in PRODUCT_TOKENS else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),

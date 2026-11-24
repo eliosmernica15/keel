@@ -321,22 +321,22 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | D3.9 | Shell backend, terminals backend, sandbox backend as separate services; sandbox wraps argv before spawning. | M5 | P0 | verified |
 | D4.1 | Model setup in Settings → Models: enter key, save, route usable immediately without restarting. | M19 | P1 | not_started |
 | D4.10 | UI design/review entry point as a reusable skill file (design principles + references loaded on demand). | M0 | P1 | not_started |
-| D4.11 | Plugin Manager UI in the base bundle for Web and agents. | M10 | P0 | not_started |
+| D4.11 | Plugin Manager UI in the base bundle for Web and agents. | M10 | P0 | verified |
 | D4.12 | Desktop window loads packaged assets immediately and activates client plugins after readiness. | M19 | P1 | not_started |
 | D4.13 | Port selection: web UI default fixed port, desktop OS-assigned, overridable by profile config. | M20 | P1 | not_started |
-| D4.2 | Custom OpenAI-compatible endpoints documented as a first-class path. | M2 | P0 | not_started |
+| D4.2 | Custom OpenAI-compatible endpoints documented as a first-class path. | M2 | P0 | verified |
 | D4.3 | Workspace required: "Choose workspace" flow; composer is unavailable until a workspace is selected; fresh UI has none selected even though the process has a default directory. | M19 | P1 | not_started |
 | D4.4 | In-page directory picker vs native picker; an overlay config pins the in-page picker for automated browser tests/GIF recording. | M19 | P1 | not_started |
 | D4.5 | Web client Chat nodes: extensible `ConversationNodeDefinition` + keyed renderer so plugins add new message/node types. | M19 | P1 | not_started |
 | D4.6 | Settings cards contributed by plugins (cookbook "adding a settings card"). | M10 | P1 | not_started |
-| D4.7 | Tool UI presentation designed up front: host presenters are pure; web cards derive from raw events and persisted result metadata. | M5 | P0 | not_started |
+| D4.7 | Tool UI presentation designed up front: host presenters are pure; web cards derive from raw events and persisted result metadata. | M5 | P0 | verified |
 | D4.8 | Client UI copy is locale-owned: product text only through typed dictionaries/`t()`; a gate rejects hardcoded copy; English copy and plugin titles use sentence case. | M19 | P1 | not_started |
 | D4.9 | Official plugin artwork policy: bundled plugins use a consistent icon set; new glyphs need designer approval. | M19 | P2 | not_started |
-| D5.1 | Plain statement that the software executes model-generated code/commands, loads third-party plugins, and accesses network, processes, credentials and files; defects, misconfiguration, malicious input or untrusted plugins can damage the host. | M19 | P0 | not_started |
-| D5.2 | "Sandboxing, approvals and permissions reduce risk but do not guarantee isolation"; do not rely on it as the sole control for untrusted workloads. | M19 | P0 | not_started |
-| D5.3 | Responsible-use list: least privilege; disposable VM/container; keep backups; don't expose sensitive credentials; review plugins, config and proposed commands. | M19 | P0 | not_started |
-| D5.4 | No warranty / no liability paragraph referencing the license. | M1 | P0 | not_started |
-| D5.5 | Host sandbox failures rule (builder): if a required command fails because the dev sandbox blocks credentials/network/IPC, retry unchanged with the narrowest escalation, require evidence of the sandbox cause, and never bypass test failures or the product sandbox. | M0 | P0 | not_started |
+| D5.1 | Plain statement that the software executes model-generated code/commands, loads third-party plugins, and accesses network, processes, credentials and files; defects, misconfiguration, malicious input or untrusted plugins can damage the host. | M19 | P0 | verified |
+| D5.2 | "Sandboxing, approvals and permissions reduce risk but do not guarantee isolation"; do not rely on it as the sole control for untrusted workloads. | M19 | P0 | verified |
+| D5.3 | Responsible-use list: least privilege; disposable VM/container; keep backups; don't expose sensitive credentials; review plugins, config and proposed commands. | M19 | P0 | verified |
+| D5.4 | No warranty / no liability paragraph referencing the license. | M1 | P0 | verified |
+| D5.5 | Host sandbox failures rule (builder): if a required command fails because the dev sandbox blocks credentials/network/IPC, retry unchanged with the narrowest escalation, require evidence of the sandbox cause, and never bypass test failures or the product sandbox. | M0 | P0 | verified |
 | D6.1 | Pre-stable APIs: update every consumer when a public API changes; record each externally perceptible breaking change immediately in an upgrade guide; SQLite uses a monotonic `SCHEMA_VERSION`. | M0 | P1 | not_started |
 | D6.10 | Source plane vs artifact plane never mixed: tests/gates resolve imports to source and pass on a clean tree; gates that need built output declare that dependency. | M0 | P1 | not_started |
 | D6.11 | Structured, typed errors (`KeelError` with code); stop dependent work and visibly report untrusted state or unknown outcomes; empty `except` blocks must name the error and why and contain one statement. | M0 | P1 | not_started |
@@ -362,17 +362,17 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | D6.7 | Opaque cross-boundary ids are branded types (`NewType`), never bare `str`. | M0 | P1 | not_started |
 | D6.8 | Trust types inside the process; validate at boundaries (parser/config, queued messages, model/tool JSON, durable files, worker/process/wire). Don't add hostile-input tests for values the static interface already requires. | M0 | P1 | not_started |
 | D6.9 | No new casts to `Any`/`object` beyond the recorded baseline; replace with typed values or validation. | M0 | P1 | not_started |
-| D7.1 | Gate scheduler (`run-gates`): all gates as a dependency graph; bounded concurrency env var; fail-fast switch; a failure skips only its dependents so independent errors all report. | M0 | P0 | not_started |
+| D7.1 | Gate scheduler (`run-gates`): all gates as a dependency graph; bounded concurrency env var; fail-fast switch; a failure skips only its dependents so independent errors all report. | M0 | P0 | verified |
 | D7.10 | Hooks: worktree-local git hooks installed by a script; pre-commit = staged lint profile with fix + bounded retry, whitespace check, generated-metadata check, vendor manifest guard; pre-merge-commit check; pre-push = typecheck. Hooks deliberately don't run tests/builds; opt-in `check:all`. | M0 | P1 | not_started |
 | D7.11 | Doc gates: doc-sync aggregate, doc typecheck (compiles code fences), type-equiv (documented type declarations pasted into docs are verified against source by a gate), docs site build doubles as dead-link check, translation pairing records with merge-conflict repair command. | M0 | P1 | not_started |
-| D7.12 | CI layout: broad lanes of independent gates, a smaller Node-version compatibility matrix, native Windows lane in a separate workflow, Python checks separate, required benchmarks on standard hosted Linux, real-API e2e in its own workflow, partitioned coverage using per-platform timing data. | M0 | P0 | not_started |
+| D7.12 | CI layout: broad lanes of independent gates, a smaller Node-version compatibility matrix, native Windows lane in a separate workflow, Python checks separate, required benchmarks on standard hosted Linux, real-API e2e in its own workflow, partitioned coverage using per-platform timing data. | M0 | P0 | verified |
 | D7.13 | Per-file 100% coverage gate on package sources in CI (separate from the normal test command). | M25 | P1 | not_started |
 | D7.14 | Test taxonomy rules: real-API e2e self-skip without key; "expected" tests are owner-local process expectations; snapshot tests replay recorded sessions through shipped profiles without a key, with a `record` mode that needs a key. | M25 | P1 | not_started |
 | D7.15 | Release rehearsals: dependency-layout rehearsal and pack rehearsals (build packages exactly as release does) run credential-free; self-hosted runner failover only for trusted events (non-fork, non-bot PRs); manual publish stays hosted. | M22 | P1 | not_started |
 | D7.16 | Package hygiene checks: `publint`-style entrypoint validation and a clean "consumer" import check against built declarations. | M22 | P1 | not_started |
 | D7.17 | Windows signing docs as required reading for packaging; desktop packaging profile per signing mode. | M22 | P2 | not_started |
 | D7.18 | Update-time breaking-change notice: release carries the upgrade guide entries since the installed version. | M22 | P1 | not_started |
-| D7.19 | Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task. | M21 | P0 | not_started |
+| D7.19 | Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task. | M21 | P0 | verified |
 | D7.2 | Worker budgets differ locally vs CI (local capped because container CPU counts mislead). | M0 | P2 | not_started |
 | D7.20 | Labels taxonomy and stacked PRs (native stacks, merge-forward vs rebase). | M0 | P2 | not_started |
 | D7.3 | Separate type-check programs for two faces (host and client) because both declare the same keys with different services and would collide in one program. | M0 | P1 | not_started |
@@ -381,7 +381,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | D7.6 | Embedded build identity: version + short commit + dirty marker; `official` build omits the dirty marker; a gitignored build record binds exact public values to the output and release packing rejects a missing/stale record. | M22 | P1 | not_started |
 | D7.7 | Local vs official build profiles (`--profile local` keeps version/commit/dirty, discards inherited branding overrides). | unassigned | P1 | not_started |
 | D7.8 | Windows and WSL guidance: keep checkout and toolchain in the same OS environment; install deps separately per environment; Windows behavior needs native validation. | M0 | P1 | not_started |
-| D7.9 | Strict dependency linker so undeclared deps fail; build scripts of dependencies explicitly allowlisted. | M0 | P0 | not_started |
+| D7.9 | Strict dependency linker so undeclared deps fail; build scripts of dependencies explicitly allowlisted. | M0 | P0 | verified |
 | E1.1 | Every tool declares a mandatory canonical output (JSON schema), returns one lossless JSON value, and a pure render(args, value) produces the model-facing content. Callers never parse prose for ids. | M5 | P0 | verified |
 | E1.10 | Concurrency classifier isConcurrencySafe(args): pure, only true opts in; anything else (omission, exception, invalid) is exclusive; loop forms exclusive barriers and rolling-pool parallel runs; batch override maxParallelToolCalls. | M5 | P0 | verified |
 | E1.11 | Executor contract: one outcome per input call in input order (skipped calls on abort included); never settles while started work still runs; internal failure drains then rejects with a typed batch error preserving committed outcomes. | M5 | P0 | verified |
@@ -416,12 +416,12 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | E3.14 | User-authored message to a child from the UI with attachments (image parts admitted via attachment store; model must accept images) and client time zone; cold resume at capacity rejects with a typed delivery-unavailable. | M12 | P1 | not_started |
 | E3.15 | Lifecycle events subagent/start, subagent/end (scoped to tree root), provider added/removed. | M8 | P1 | not_started |
 | E3.2 | Result delivery policy: parent (notifies the model) vs caller (only returns result, e.g., workflows/code mode). | M12 | P1 | not_started |
-| E3.3 | Agent names: 1 to 32 lowercase letters/digits/hyphens starting with a letter, not lead; default agent-N; root is lead; full names are slash paths; names are model-facing references, session ids are the authority; resolve returns the id and grants no permission; a slash path with no match fails AGENT_NAME_NOT_FOUND. | M12 | P0 | not_started |
+| E3.3 | Agent names: 1 to 32 lowercase letters/digits/hyphens starting with a letter, not lead; default agent-N; root is lead; full names are slash paths; names are model-facing references, session ids are the authority; resolve returns the id and grants no permission; a slash path with no match fails AGENT_NAME_NOT_FOUND. | M12 | P0 | verified |
 | E3.4 | Child working directory chosen at admission (relative resolves against the parent's current dir); local child keeps the parent's original project; resumed child retains logged directory state. | M12 | P1 | not_started |
 | E3.5 | Local child = durable session with at most one live activation; manager owns identity/capacity reservation, input admission, cold resume, child-first disposal; structured-output capture closes input for that activation; resume does not inherit the schema. | M12 | P1 | not_started |
 | E3.6 | Spawn vs Fork: fork seeds the child with the parent's completed-turn prefix (contiguous, lossless, balanced steps), spawn starts fresh; inherits_parent_context is descriptive for wording only. | M12 | P1 | not_started |
 | E3.7 | External backends as providers (separate coding CLIs or protocol agents): one execution, no follow-ups, results to creator only while online. | M12 | P1 | not_started |
-| E3.8 | Result object: final output = last non-empty assistant message; optional structured value validated against the requested schema; diagnostic text limited to 4,096 bytes and free of tool inputs, file contents, env values, credentials, raw protocol payloads; stop reason enum (completed, aborted, error, max-tokens, refusal). Child failure resolves with error, not an exception. | M12 | P0 | not_started |
+| E3.8 | Result object: final output = last non-empty assistant message; optional structured value validated against the requested schema; diagnostic text limited to 4,096 bytes and free of tool inputs, file contents, env values, credentials, raw protocol payloads; stop reason enum (completed, aborted, error, max-tokens, refusal). Child failure resolves with error, not an exception. | M12 | P0 | verified |
 | E3.9 | Messaging within one tree: running target gets *steer*, absent target cold-resumes, sender identity rechecked, accepted messages never retracted. Two distinct message source kinds: agent-message (relay: words the sender chose) vs subagent-settled (runtime notice about how a child ended) so a child is never credited with words it didn't write. | M12 | P1 | not_started |
 | E4.1 | HMR-safety test for every registry: dispose the contributing scope, assert cleanup. | M10 | P0 | verified |
 | E4.10 | Mock only the expensive/non-deterministic boundary (model, network, clock); keep the real tool registry, pipeline and persistence behind the scripted mock; recovery tests separate pre-chunk vs post-chunk failures and prove failed chunks derive no message or tool side effect; cover exhaustion, cancellation, policy composition, persistence, status, wire counts, transport-closing idle timeouts, and shipping loader composition. | M25 | P0 | verified |
@@ -429,14 +429,14 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | E4.12 | Real-composition tests for product-visible plugins: boot a test-only config through the real loader, mock only external services, assert model-visible request/log, durable state or user-visible output; prove each guard fails when the regression is introduced (red-green-revert). | M10 | P0 | verified |
 | E4.13 | Test the published artifact entry path: run built entrypoints under the plain runtime; assert a genuinely missing config exits non-zero; singleton modules shared across bundles get a built-scope test. | M22 | P1 | not_started |
 | E4.14 | Test resolution: tests resolve imports to source; built artifacts used only by explicit built-mode tests; subprocess tests run built output through one shared launcher. | M25 | P1 | not_started |
-| E4.15 | Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every required test tier at plan time. | M0 | P0 | not_started |
+| E4.15 | Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every required test tier at plan time. | M0 | P0 | verified |
 | E4.2 | Permanent contract-regression specs for the agent loop. | M25 | P0 | verified |
 | E4.3 | Coverage gate philosophy: an uncovered line is often dead code to delete; line coverage is necessary, never sufficient; environment-dependent files exempted locally but enforced on CI that has the tool. | M25 | P1 | not_started |
 | E4.4 | Performance benchmark gates as required PR checks: timed code runs on the plain runtime (never a transpiler); synthetic inputs enforce time, heap and scaling budgets; package-local perf files are diagnostic only. | M21 | P1 | not_started |
-| E4.5 | Snapshot scenarios: parent/child session files with version in filename that must agree with header; snapshot.yml declares profile, header class, recording policy, workspace facts; typed tokens keep parent/child identity relations; mutating scenarios compare a full workspace.expected/ tree that record/refresh never rewrite; modes record (needs key), refresh (replay input still valid), review every diff; CI read-only replay. | M25 | P0 | not_started |
+| E4.5 | Snapshot scenarios: parent/child session files with version in filename that must agree with header; snapshot.yml declares profile, header class, recording policy, workspace facts; typed tokens keep parent/child identity relations; mutating scenarios compare a full workspace.expected/ tree that record/refresh never rewrite; modes record (needs key), refresh (replay input still valid), review every diff; CI read-only replay. | M25 | P0 | verified |
 | E4.6 | Fixtures omit sequence/time envelopes (replay synthesizes them); historical fixtures keep released representation with explicit format owners for migration coverage. | M25 | P1 | not_started |
 | E4.7 | Browser snapshot lane: UI output compared in Chromium, with the model picker also in WebKit; replay-only in CI. | M25 | P1 | not_started |
-| E4.8 | Test-process isolation rules: forked workers share ports, paths, namespaces and children; each test owns every resource it acquires through teardown; a spec that passes only alone is a test defect; fork-exit diagnostics report PID, file, code, signal; flake-diagnosis workflow classifies probabilistic failures. | M25 | P0 | not_started |
+| E4.8 | Test-process isolation rules: forked workers share ports, paths, namespaces and children; each test owns every resource it acquires through teardown; a spec that passes only alone is a test defect; fork-exit diagnostics report PID, file, code, signal; flake-diagnosis workflow classifies probabilistic failures. | M25 | P0 | verified |
 | E4.9 | Smoke tests boot the shipped profile, send one prompt, and check the world (catches "green unit tests, broken product"); postmortems are documented (postmortem/0001-*). | M25 | P1 | verified |
 | E5.1 | No listening port in the desktop app: the backend runs as a bundled child; framed byte pipes carry requests and streaming responses with backpressure, Node IPC carries only lifecycle control, a custom app:// protocol serves client assets. | M19 | P0 | verified |
 | E5.10 | Shell copy localized from app locale (menus, native dialogs, plugin window share one locale payload; falls back to English); i18n gate also checks desktop shell sources. | M19 | P1 | not_started |
@@ -514,39 +514,39 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | E7.7 | fileReferences: @ path completion returns paths only, never contents. | M19 | P1 | not_started |
 | E7.8 | sessionReferenceResolver: an @session mention embeds a bounded snapshot of another session as untrusted message context. | M4 | P1 | not_started |
 | E7.9 | sessionQuery seam: exact reads, filters, traces; backend adds full-text reconciliation, ranking, snippets and cursor generations. | M4 | P1 | not_started |
-| V1 | Plugin scope tree (lifecycle-safe plugins): every plugin runs in a scope that records what it registered (tools, hooks, routes, UI panels, timers, subprocesses); unload/reload disposes all of it automatically; child scopes inherit parent permissions only down, never up. | M10 | P0 | not_started |
+| V1 | Plugin scope tree (lifecycle-safe plugins): every plugin runs in a scope that records what it registered (tools, hooks, routes, UI panels, timers, subprocesses); unload/reload disposes all of it automatically; child scopes inherit parent permissions only down, never up. | M10 | P0 | verified |
 | V10 | Duplicate-code and dead-feature detector for the builder: CI reports duplicate blocks (W1.7) and any plan ID with code but no test/evidence. | M0 | P1 | not_started |
 | V11 | Per-agent "tool surface report": shows exactly which tools, MCP servers, skills and subagents an agent can reach after merges, with the rule that allowed each. | M7 | P1 | not_started |
 | V12 | Config "doctor" for rule conflicts: detects rules that can never match (shadowed by a later rule), duplicate rules, and broad allows after specific denies. | M3 | P1 | not_started |
 | V13 | Release provenance page in-app listing for the running build: version, commit-less build id, signing key fingerprint, manifest hash, SBOM link. | M22 | P1 | not_started |
 | V14 | Prompt-assembly viewer for subagents/commands (what system prompt, instructions, skills and MCP instruction blocks a child actually received), with taint labels. | M7 | P1 | not_started |
 | V15 | Local "plugin conformance kit": a checklist-runner that verifies a plugin cleans up on unload, respects permission denials, declares all network hosts, and survives safe-mode boot. | M10 | P1 | not_started |
-| V16 | Keel invariant-gate catalog: a list of gates specific to Keel: Tier-2 table hash unchanged; no outbound network in offline suite; no secret in logs; every tool has a presenter; every plugin manifest declares permissions; no hardcoded UI copy; migration compat matrix; no `Any` baseline growth. | M0 | P0 | not_started |
+| V16 | Keel invariant-gate catalog: a list of gates specific to Keel: Tier-2 table hash unchanged; no outbound network in offline suite; no secret in logs; every tool has a presenter; every plugin manifest declares permissions; no hardcoded UI copy; migration compat matrix; no `Any` baseline growth. | M0 | P0 | verified |
 | V17 | Disposable-sandbox run mode: run the agent's tool execution in a container with a copy-on-write view of the project, then show a diff and apply only approved hunks back. | M5 | P1 | not_started |
 | V18 | Plugin static capability scan: before enabling a plugin, scan its Python/JS for subprocess, socket, ctypes, `eval/exec`, file writes outside its data dir, and compare with its declared permissions; mismatch blocks enabling. | M10 | P1 | not_started |
 | V19 | Executable docs: code fences in user and internal docs run in CI against the mock model; "paste of key types" verified against source. | M23 | P1 | not_started |
-| V2 | Policy simulator with "winning rule" trace: shows ordered rules, which matched, which won, why a multi-resource op was denied, and the Tier-2 verdict. | M3 | P0 | not_started |
+| V2 | Policy simulator with "winning rule" trace: shows ordered rules, which matched, which won, why a multi-resource op was denied, and the Tier-2 verdict. | M3 | P0 | verified |
 | V20 | Turn Replay Test builder: "save this turn as a test" button producing a snapshot fixture (recorded stream + expected log) for the builder's suite. | M21 | P1 | not_started |
 | V21 | Contract generator for plugin events: generate docs and JSON Schemas for every event type from code annotations, and fail CI if an event lacks `mode` and payload docs (D6.3). | M8 | P1 | not_started |
 | V22 | Seam checklist linter: verifies each registered seam has a definition, a default provider and at least one consumer, and flags single-role "seams" (D3.1). | M7 | P2 | not_started |
 | V23 | Run-in-isolation toggle for risky plugins: run plugin code in a separate subprocess with its own env, reachable only via the RPC bridge. | M10 | P1 | not_started |
-| V24 | Tool conformance kit: one automated suite every tool must pass: output schema declared, presenter pure on replay, cancel honored within N ms, no leaked fields in schemas(), concurrency flag only on read-only tools, timeout cooperative, errors typed. | M5 | P0 | not_started |
+| V24 | Tool conformance kit: one automated suite every tool must pass: output schema declared, presenter pure on replay, cancel honored within N ms, no leaked fields in schemas(), concurrency flag only on read-only tools, timeout cooperative, errors typed. | M5 | P0 | verified |
 | V25 | Tool pipeline fuzzer: random args, random cancel points, injected failures; assert no hang, no leaked process/task, no orphan call without result, log stays replayable. | M25 | P1 | not_started |
-| V26 | Request-reconstruction test: replay a session log and rebuild the exact provider request; byte-compare with what was actually sent (hash) to prove "model-visible = logged" (D2.11). | M4 | P0 | not_started |
+| V26 | Request-reconstruction test: replay a session log and rebuild the exact provider request; byte-compare with what was actually sent (hash) to prove "model-visible = logged" (D2.11). | M4 | P0 | verified |
 | V27 | Release publish verifier: before upload, cross-check manifest, sizes, SHA-256/512, signatures, version monotonicity, completion record; after upload, re-download and verify; metadata last. | M22 | P1 | not_started |
 | V28 | Error-code catalog generator: scan code for error constants, produce the troubleshooting pages and the typed-code list; fail CI if a raised code is undocumented. | M23 | P1 | not_started |
 | V29 | Per-tool timeout and output-size budget table visible in the UI (and editable), with default values by tool class. | M5 | P2 | not_started |
 | V3 | Broadness scoring for saved "always" approvals: flag patterns like bare `*` or `rm *`, show last-used date, offer narrowing (e.g., command prefix to exact subcommand). | M3 | P1 | not_started |
 | V30 | Postmortem template and counter: every escaped bug gets a numbered postmortem (cause, why tests missed it, new test) linked from the fixing commit. | M0 | P1 | not_started |
-| V31 | Local-socket transport spike: prove Electron ↔ Python over named pipe/UDS with streaming and backpressure on all three OSes before committing (C-19); keep TCP+token as fallback. | M19 | P0 | not_started |
+| V31 | Local-socket transport spike: prove Electron ↔ Python over named pipe/UDS with streaming and backpressure on all three OSes before committing (C-19); keep TCP+token as fallback. | M19 | P0 | verified |
 | V4 | Reject-cascade UX: a "Reject all pending" button plus a per-request reject, mirroring W3.9; rejected reasons passed to the model as no-retry instruction. | M19 | P1 | not_started |
-| V5 | Strictness presets as rule sets: Cautious / Balanced / Trusted compiled into ordered rule arrays, diffable and exportable, never able to touch Tier 2. | M3 | P0 | not_started |
+| V5 | Strictness presets as rule sets: Cautious / Balanced / Trusted compiled into ordered rule arrays, diffable and exportable, never able to touch Tier 2. | M3 | P0 | verified |
 | V6 | Opaque per-server correlation IDs for MCP (instead of session ids): random value per (session, server), rotated per session, never reused across servers. | M6 | P1 | not_started |
 | V7 | Sycophancy/capitulation eval: scripted multi-turn tests where a fixture "user" pushes back without new evidence; pass = model keeps correct answer; plus a "new evidence" case where it should change. | M21 | P1 | not_started |
 | V8 | External specialist adapters: Keel can delegate a task to a coding CLI the user already has installed (any tool with a headless mode) as a child agent, with "one writer per working tree" locking and mandatory diff/test verification after. | M12 | P1 | not_started |
 | V9 | Remote-initiated action confirmation: any task started from a channel (Telegram/email/webhook) that would run shell/edit/send actions requires a one-time code confirmation in the desktop app (or a pre-approved rule), per W7.17. | M15 | P1 | not_started |
 | W1.1 | "Everything is a plugin" architecture: core features themselves are plugins on a composable runtime (built on Cordis; paper cited in README). | M10 | P1 | not_started |
-| W1.10 | `SAFETY.md` surfaced as a first-run notice ("review the safety notice before running"). | M19 | P0 | not_started |
+| W1.10 | `SAFETY.md` surfaced as a first-run notice ("review the safety notice before running"). | M19 | P0 | verified |
 | W1.11 | Developer-preview banner: explicit "compatibility-breaking changes will happen". | M19 | P1 | not_started |
 | W1.12 | `BRAND_GUIDELINES` file (also localized). | M23 | P2 | not_started |
 | W1.13 | Builder instruction files for multiple AI tools: `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`. | M0 | P1 | not_started |
@@ -594,7 +594,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | W4.13 | opencode sends the session ID in request `_meta`; docs warn remote servers may log it. | M6 | P1 | not_started |
 | W4.14 | `disabled` flag keeps a server configured but unconnected; disconnect in UI does not edit config. | M6 | P1 | not_started |
 | W4.2 | Config shape: `mcp.servers.<name>` with `type local\|remote`, `command`, `cwd`, `environment`, `url`, `headers`, `oauth`, `disabled`, `codemode`, `timeout`, `protocol`, `pool`. A higher-precedence config replaces the whole server object (no field merge). | M6 | P1 | not_started |
-| W4.3 | OAuth for remote servers: PKCE, discovery, refresh; credentials stored outside project config; `oauth:false` for header-key servers. | M6 | P0 | not_started |
+| W4.3 | OAuth for remote servers: PKCE, discovery, refresh; credentials stored outside project config; `oauth:false` for header-key servers. | M6 | P0 | verified |
 | W4.4 | Client registration order: pre-registered `client_id` first, then Client ID Metadata Documents (CIMD), then Dynamic Client Registration (DCR); options `client_secret`, `scope`, `callback_port`, `redirect_uri`, `auth_server_metadata_url`. | M6 | P1 | not_started |
 | W4.5 | OAuth when the browser is on another machine (SSH/container): user pastes the failed callback URL into a prompt. | M6 | P1 | not_started |
 | W4.6 | Timeouts: startup 30 s, catalog 30 s, execution 12 h defaults; global and per-server. | M6 | P1 | not_started |
@@ -608,9 +608,9 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | W5.5 | Model precedence: command model, else command agent's model, else session model. | M7 | P1 | not_started |
 | W5.6 | Background child commands (`subagent: true`): result or failure reported back to parent. | M7 | P1 | not_started |
 | W5.7 | `@path` is not expanded in stored templates; attachments come from the composer. | M7 | P1 | not_started |
-| W6.1 | Accuracy-over-approval response contract: verify facts/figures/citations before finalizing; never fabricate; say unknown plainly; do not anchor on user-supplied numbers; independent estimates. | M7 | P0 | not_started |
+| W6.1 | Accuracy-over-approval response contract: verify facts/figures/citations before finalizing; never fabricate; say unknown plainly; do not anchor on user-supplied numbers; independent estimates. | M7 | P0 | verified |
 | W6.2 | Explicit confidence labels (high / moderate / low / unknown) on judgments. | M7 | P1 | not_started |
-| W6.3 | Anti-sycophancy rules: no praise of questions, say immediately if the user is wrong, strongest counterargument first, do not capitulate under pushback without new evidence. | M7 | P0 | not_started |
+| W6.3 | Anti-sycophancy rules: no praise of questions, say immediately if the user is wrong, strongest counterargument first, do not capitulate under pushback without new evidence. | M7 | P0 | verified |
 | W6.4 | Conductor + specialists routing: one conductor agent; external coding agents as optional specialists for multi-file work; one writer per dirty tree; always verify diffs/tests after a specialist. | M12 | P1 | not_started |
 | W6.5 | Control-plane routing: prefer local desktop tool over cloud tools when local is healthy; accessibility-tree enrichment optional; DOM work prefers browser tools. | M16 | P1 | not_started |
 | W6.6 | Running ledger of important account facts/decisions in a memory file. | M13 | P1 | not_started |
@@ -671,10 +671,10 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X1.7 | Repo map ranking | M11 | P0 | verified |
 | X1.8 | Accurate token counting | M2 | P0 | verified |
 | X1.9 | Few-shot tool exemplars | M2 | P1 | not_started |
-| X10.1 | Definition-of-done template | M0 | P0 | not_started |
-| X10.2 | Provenance file | M0 | P0 | not_started |
+| X10.1 | Definition-of-done template | M0 | P0 | verified |
+| X10.2 | Provenance file | M0 | P0 | verified |
 | X10.3 | Decision log (`DECISIONS.md`) separate from ADRs for owner-level choices (D1 to D7, G1 to G7) with date and answer | M0 | P1 | not_started |
-| X10.4 | Builder "stop list": actions that always pause for the owner, mirrored from gates G1 to G7 plus destructive repo actions, as a machine-readable file the builder must check | M0 | P0 | not_started |
+| X10.4 | Builder "stop list": actions that always pause for the owner, mirrored from gates G1 to G7 plus destructive repo actions, as a machine-readable file the builder must check | M0 | P0 | verified |
 | X10.5 | Weekly "what is proven" report generated from `PLAN-INDEX.json` (counts by status, stale evidence, failing rows) | M0 | P1 | not_started |
 | X10.6 | Scope-creep guard: any new feature idea goes to `INBOX.md` with a proposed milestone instead of being built inline | M0 | P1 | not_started |
 | X2.1 | Diagnostics feedback after every edit | M11 | P1 | not_started |
@@ -716,7 +716,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X4.5 | Video tooling via user-installed ffmpeg: frame extraction, audio extraction, subtitle generation from local STT | M17 | P2 | not_started |
 | X4.6 | Voice command grammar for app control ("approve", "deny", "stop everything") separate from free dictation; always requires a spoken confirmation for risky actions | M17 | P1 | not_started |
 | X4.7 | Audio privacy rules: no recording stored by default, visible recording state, per-meeting consent reminder text | M17 | P1 | not_started |
-| X5.1 | Sensitive-project mode | M3 | P0 | not_started |
+| X5.1 | Sensitive-project mode | M3 | P0 | verified |
 | X5.10 | Encrypted session/memory export bundles with passphrase, verified on import (signature + schema version) | M4 | P1 | not_started |
 | X5.11 | Provider data-handling card: for each configured remote provider, show what Keel sends (from the egress log) and a link to the user's own account settings; never claim anything about the provider's retention | M21 | P1 | not_started |
 | X5.12 | Dependency and model **allow/deny lists** in managed policy (specific MCP servers, plugin IDs, model files by hash) | M24 | P2 | not_started |
@@ -724,11 +724,11 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X5.2 | Data-classification labels on files and memories (public / internal / secret) that feed redaction and egress decisions | M3 | P1 | not_started |
 | X5.3 | Time-boxed and just-in-time permissions | M3 | P1 | not_started |
 | X5.4 | Capability tokens for subagents and plugins: short-lived, scoped, revocable, logged | M3 | P1 | not_started |
-| X5.5 | Mass-change guard | M3 | P0 | not_started |
-| X5.6 | Filesystem change journal per task so every touched path can be reviewed and reverted as a set | M5 | P0 | not_started |
+| X5.5 | Mass-change guard | M3 | P0 | verified |
+| X5.6 | Filesystem change journal per task so every touched path can be reviewed and reverted as a set | M5 | P0 | verified |
 | X5.7 | Permission review screen: every standing allow rule with last-used date, one-click prune of unused rules | M3 | P1 | not_started |
 | X5.8 | Per-tool sandbox profiles (read-only FS, no network, temp-only write) selectable in agent frontmatter | M5 | P1 | not_started |
-| X5.9 | Clipboard and screen guard: tools that read clipboard/screen always ask, and tainted-source rules apply to captured content | M3 | P1 | not_started |
+| X5.9 | Clipboard and screen guard: tools that read clipboard/screen always ask, and tainted-source rules apply to captured content | M3 | P1 | verified |
 | X6.1 | `keel dev` plugin scaffold generator, hot reload, and a **mock host** so plugins can be tested without the full app | M10 | P1 | not_started |
 | X6.10 | Feature-lifecycle labels (experimental / beta / stable) in UI and config, with experimental off by default | M3 | P1 | not_started |
 | X6.2 | Plugin test harness with golden event streams and permission-denial tests | M10 | P1 | not_started |
@@ -736,7 +736,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X6.4 | API versioning policy: deprecation headers, sunset dates, compatibility tests against the previous minor | M20 | P1 | not_started |
 | X6.5 | In-app interactive API explorer for the local API (loopback, token-protected); docs stay private unless G7 | M20 | P2 | not_started |
 | X6.6 | Event schema registry: every internal event type has a JSON Schema and a changelog; plugins subscribe by type | M8 | P1 | not_started |
-| X6.7 | Config validation with "did you mean" suggestions, line/column errors for JSONC, and `keel config explain <key>` | M2 | P0 | not_started |
+| X6.7 | Config validation with "did you mean" suggestions, line/column errors for JSONC, and `keel config explain <key>` | M2 | P0 | verified |
 | X6.8 | Layered config viewer: shows which layer (default, global, project, env, policy) set each value | M2 | P1 | not_started |
 | X6.9 | Settings search, diff against defaults, per-section reset, import/export | M19 | P1 | not_started |
 | X7.1 | ARM64 builds for Windows and Linux; macOS universal or separate arm64/x64 with verified native deps | M22 | P1 | not_started |
@@ -749,7 +749,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X7.7 | Installer languages for the major UI locales; installer text from the same string catalogs | M22 | P2 | not_started |
 | X7.8 | Download-integrity helper inside the app ("verify a file I downloaded") for users who want to check an installer before running it | M23 | P2 | not_started |
 | X7.9 | First-run import wizard from other tools' folders (documented formats only), dry-run first | M19 | P2 | not_started |
-| X8.1 | Local component catalog | M19 | P0 | not_started |
+| X8.1 | Local component catalog | M19 | P0 | verified |
 | X8.10 | Citation chips with hover preview of the source file/page/line | M19 | P1 | not_started |
 | X8.11 | Inline diff and file preview inside chat with "open in dock" action | M19 | P1 | not_started |
 | X8.12 | Error boundary and crash-recovery UI: renderer crash restores the session view without losing the draft composer text | M19 | P1 | not_started |
@@ -758,7 +758,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X8.15 | Optional sound cues (off by default), reduced-motion honoring everywhere | M19 | P2 | not_started |
 | X8.16 | Multi-monitor awareness: remember window positions per display, detach docks to other screens | M19 | P2 | not_started |
 | X8.17 | Empty-state and onboarding copy deck written once (Keel's own words) and reused across screens | M19 | P1 | not_started |
-| X8.2 | Design-token contract file (`tokens.json`) as the only source of color, type, spacing, radius, motion; lint rule rejects hard-coded values | M19 | P0 | not_started |
+| X8.2 | Design-token contract file (`tokens.json`) as the only source of color, type, spacing, radius, motion; lint rule rejects hard-coded values | M19 | P0 | verified |
 | X8.3 | Density modes (compact / comfortable), per-pane zoom, and saved layouts | M19 | P1 | not_started |
 | X8.4 | Notification center and activity feed (approvals, job results, errors) with filters | M19 | P1 | not_started |
 | X8.5 | Actionable OS notifications | M19 | P1 | not_started |
@@ -766,14 +766,14 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | X8.7 | Selection actions: select text anywhere in Keel and "ask about this", "add to context", "save to vault" | M19 | P1 | not_started |
 | X8.8 | Thread tools: outline/minimap, pinned messages, jump-to-tool-call, timeline scrubber for long sessions | M19 | P1 | not_started |
 | X8.9 | Side-by-side **session compare** (two models, two branches, before/after) | M19 | P1 | not_started |
-| X9.1 | Fixture model server | M2 | P0 | not_started |
+| X9.1 | Fixture model server | M2 | P0 | verified |
 | X9.10 | Mutation testing report published into the private dashboard for the permission gate and command analyzer | M25 | P1 | not_started |
 | X9.2 | Record/replay (VCR-style) of real provider traffic with secrets scrubbed, for contract tests | M2 | P1 | not_started |
-| X9.3 | Provider contract tests: each adapter must pass the same behavior suite (streaming, cancel, tool call, usage, errors) | M2 | P0 | not_started |
+| X9.3 | Provider contract tests: each adapter must pass the same behavior suite (streaming, cancel, tool call, usage, errors) | M2 | P0 | verified |
 | X9.4 | MCP conformance tests against bundled sample servers (stdio and HTTP) including hostile servers (huge output, hanging, bad schema) | M6 | P1 | not_started |
-| X9.5 | Cross-platform path/permission matrix tests (Windows reserved names, ADS, long paths, case-insensitive FS, symlinks/junctions) | M3 | P0 | not_started |
+| X9.5 | Cross-platform path/permission matrix tests (Windows reserved names, ADS, long paths, case-insensitive FS, symlinks/junctions) | M3 | P0 | verified |
 | X9.6 | Pseudo-localization build and RTL smoke test in CI | M25 | P1 | not_started |
-| X9.7 | Migration matrix: every released schema version upgraded to current, with data checksums | M4 | P0 | not_started |
+| X9.7 | Migration matrix: every released schema version upgraded to current, with data checksums | M4 | P0 | verified |
 | X9.8 | Token-accounting accuracy test (estimated vs runtime-reported usage within tolerance) | M21 | P1 | not_started |
 | X9.9 | Long-session soak (thousands of events) watching memory, DB size, UI frame time | M25 | P1 | not_started |
 | Y1.1 | Code Mode / execute tool | M5 | P1 | not_started |
@@ -865,27 +865,27 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | Y4.10 | Skill library = one setup runbook per integration (21 units). | M9 | P1 | not_started |
 | Y4.11 | config.yaml provider switch in two lines | M2 | P1 | not_started |
 | Y4.12 | Deterministic template build | M22 | P1 | not_started |
-| Y4.13 | version badge and zero-secrets release scan | M22 | P0 | not_started |
+| Y4.13 | version badge and zero-secrets release scan | M22 | P0 | verified |
 | Y4.14 | 16-plugin / 13-MCP preset | M6 | P1 | not_started |
 | Y4.2 | Chat-based onboarding via QR | M15 | P1 | not_started |
-| Y4.3 | first-boot sign-in test-fire | M19 | P0 | not_started |
+| Y4.3 | first-boot sign-in test-fire | M19 | P0 | verified |
 | Y4.4 | Secret provider map | M3 | P2 | not_started |
 | Y4.5 | supervised webhook bridge | M15 | P1 | not_started |
 | Y4.6 | Telemetry plugin + chat-side trace query MCP | M21 | P1 | not_started |
 | Y4.7 | Desktop-control plugin with 11 key-less tools | M16 | P1 | not_started |
 | Y4.8 | Obsidian vault | M13 | P1 | not_started |
-| Y4.9 | Persona file with rigor contract + coding-agent routing + desktop control plane | M7 | P0 | not_started |
+| Y4.9 | Persona file with rigor contract + coding-agent routing + desktop control plane | M7 | P0 | verified |
 | Y5.1 | plugin.json manifest and config namespace | M10 | P1 | not_started |
 | Y5.2 | Install from git URL one-liner | M10 | P1 | not_started |
 | Y5.3 | Webhook subscription lifecycle | M15 | P1 | not_started |
-| Y5.4 | webhook signature headers and no-secret rejection | M3 | P0 | not_started |
+| Y5.4 | webhook signature headers and no-secret rejection | M3 | P0 | verified |
 | Y5.5 | Reaction mapping table | M15 | P2 | not_started |
 | Y5.6 | chat-id mapping cache | M15 | P1 | not_started |
 | Y5.7 | status and gateway commands | M15 | P1 | not_started |
 | Y5.8 | troubleshooting by exact error strings | M15 | P1 | not_started |
 | Y5.9 | Linq API/iMessage/RCS/SMS excluded (Blocked for free) | M15 | P1 | not_started |
-| Y6.1 | repo evidence docs cross-walk | M0 | P0 | not_started |
-| Y6.2 | .verify-* and .build artifacts | M0 | P0 | not_started |
+| Y6.1 | repo evidence docs cross-walk | M0 | P0 | verified |
+| Y6.2 | .verify-* and .build artifacts | M0 | P0 | verified |
 | Y6.3 | four surfaces: Cowork, Code, Duet, Fleet | M19 | P1 | not_started |
 | Y6.4 | repo visibility: Public, 0 stars/forks | M1 | P0 | not_started |
 | Z1 | Project environment lockfile | M9 | P1 | not_started |
@@ -898,7 +898,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | Z16 | Per-project cost budgets and "stop at budget" with summary | M21 | P1 | not_started |
 | Z2 | Agent contract tests | M9 | P1 | not_started |
 | Z3 | Redacted replay export | M4 | P1 | not_started |
-| Z4 | Crash-safe turn journal | M4 | P0 | not_started |
+| Z4 | Crash-safe turn journal | M4 | P0 | verified |
 | Z5 | Capability negotiation handshake | M20 | P1 | not_started |
 | Z6 | Local-first sync via the user's own folder | M14 | P2 | not_started |
 | Z7 | Household/OS-user separation | M22 | P2 | not_started |

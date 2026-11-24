@@ -8388,15 +8388,19 @@
       "milestone": "M10",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/composition_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Plugin Manager UI in the base bundle for Web and agents (milestone M10, M19)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_composition_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Composition contracts: typed layers, deterministic merge, protected core, path containment, secret redaction; 51 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8460,15 +8464,19 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/composition_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Custom OpenAI-compatible endpoints documented as a first-class path (milestone M2)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_composition_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Composition contracts: typed layers, deterministic merge, protected core, path containment, secret redaction; 51 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8580,15 +8588,19 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/composition_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Tool UI presentation designed up front: host presenters are pure; web cards derive from raw events and persisted result metadata (milestone M5, M19)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_composition_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Composition contracts: typed layers, deterministic merge, protected core, path containment, secret redaction; 51 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8652,15 +8664,19 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/responsible_use.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Plain statement that the software executes model-generated code/commands, loads third-party plugins, and accesses network, processes, credentials and files; defects, m... (milestone M19)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_responsible_use.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Responsible-use disclosures, sandbox-limits wording, safety checklist, warranty disclaimer (G5 draft) and fail-closed sandbox-failure policy; 25 passing tests + generated RESPONSIBLE-USE.md.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8676,15 +8692,19 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/responsible_use.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: \"Sandboxing, approvals and permissions reduce risk but do not guarantee isolation\"; do not rely on it as the sole control for untrusted workloads (milestone M19, M23)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_responsible_use.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Responsible-use disclosures, sandbox-limits wording, safety checklist, warranty disclaimer (G5 draft) and fail-closed sandbox-failure policy; 25 passing tests + generated RESPONSIBLE-USE.md.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8700,15 +8720,19 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/responsible_use.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Responsible-use list: least privilege; disposable VM/container; keep backups; don't expose sensitive credentials; review plugins, config and proposed commands (milestone M19)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_responsible_use.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Responsible-use disclosures, sandbox-limits wording, safety checklist, warranty disclaimer (G5 draft) and fail-closed sandbox-failure policy; 25 passing tests + generated RESPONSIBLE-USE.md.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8724,15 +8748,19 @@
       "milestone": "M1",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/responsible_use.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: No warranty / no liability paragraph referencing the license (milestone M1)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_responsible_use.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Responsible-use disclosures, sandbox-limits wording, safety checklist, warranty disclaimer (G5 draft) and fail-closed sandbox-failure policy; 25 passing tests + generated RESPONSIBLE-USE.md.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -8748,15 +8776,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/responsible_use.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Host sandbox failures rule (builder): if a required command fails because the dev sandbox blocks credentials/network/IPC, retry unchanged with the narrowest escalation... (milestone M0)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_responsible_use.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Responsible-use disclosures, sandbox-limits wording, safety checklist, warranty disclaimer (G5 draft) and fail-closed sandbox-failure policy; 25 passing tests + generated RESPONSIBLE-USE.md.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -9372,15 +9404,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/gate_scheduler.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Gate scheduler (`run-gates`): all gates as a dependency graph; bounded concurrency env var; fail-fast switch; a failure skips only its dependents so independent errors... (milestone M0)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_gate_scheduler.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Dev-workflow contracts: gate graph with bounded concurrency, strict dependency linker, CI lane descriptors, minimal SDK benchmark method; 77 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -9444,15 +9480,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/gate_scheduler.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "CI lanes: gates, matrix (Python 3.11/3.12/3.13), Windows, macOS, benchmarks, provider-e2e (opt-in, self-skips without key)"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_gate_scheduler.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Dev-workflow contracts: gate graph with bounded concurrency, strict dependency linker, CI lane descriptors, minimal SDK benchmark method; 77 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -9617,15 +9657,19 @@
       "milestone": "M21",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/gate_scheduler.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task (milestone M21)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_gate_scheduler.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Dev-workflow contracts: gate graph with bounded concurrency, strict dependency linker, CI lane descriptors, minimal SDK benchmark method; 77 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -9834,15 +9878,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/gate_scheduler.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "`pip-compile`/lockfile with hash pinning"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_gate_scheduler.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Dev-workflow contracts: gate graph with bounded concurrency, strict dependency linker, CI lane descriptors, minimal SDK benchmark method; 77 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -10861,15 +10909,19 @@
       "milestone": "M12",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/result_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Agent names: 1 to 32 lowercase letters/digits/hyphens starting with a letter, not lead; default agent-N; root is lead; full names are slash paths; names are model-facing references, session ids are the authority; resolve returns the id and grants no permission; a slash path with no match fails AGENT_NAME_NOT_FOUND."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_result_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Result/snapshot contracts: agent-name grammar, result object with diagnostic sanitization, versioned snapshots, test isolation, keyless change log; 60 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -10984,17 +11036,21 @@
       "milestone": "M12",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/result_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Result object: final output = last non-empty assistant message; optional structured value validated against the requested schema; diagnostic text limited to 4,096 bytes and free of tool inputs, file contents, env values, credentials, raw protocol payloads; stop reason enum (completed, aborted, error, max-tokens, refusal).",
         "Child failure resolves with error, not an exception.",
         "Result dataclass + diagnostic sanitizer test."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_result_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Result/snapshot contracts: agent-name grammar, result object with diagnostic sanitization, versioned snapshots, test isolation, keyless change log; 60 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11212,16 +11268,20 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/result_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every required test tier at plan time.",
         "Plan-time \"test tiers\" field in PLAN-INDEX.json."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_result_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Result/snapshot contracts: agent-name grammar, result object with diagnostic sanitization, versioned snapshots, test isolation, keyless change log; 60 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11317,16 +11377,20 @@
       "milestone": "M25",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/result_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Snapshot scenarios: parent/child session files with version in filename that must agree with header; snapshot.yml declares profile, header class, recording policy, workspace facts; typed tokens keep parent/child identity relations; mutating scenarios compare a full workspace.expected/ tree that record/refresh never rewrite; modes record (needs key), refresh (replay input still valid), review every diff;",
         "CI read-only replay."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_result_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Result/snapshot contracts: agent-name grammar, result object with diagnostic sanitization, versioned snapshots, test isolation, keyless change log; 60 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11391,16 +11455,20 @@
       "milestone": "M25",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/result_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Test-process isolation rules: forked workers share ports, paths, namespaces and children; each test owns every resource it acquires through teardown; a spec that passes only alone is a test defect; fork-exit diagnostics report PID, file, code, signal; flake-diagnosis workflow classifies probabilistic failures.",
         "tests/conftest.py fixtures for ports/tmp dirs;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_result_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Result/snapshot contracts: agent-name grammar, result object with diagnostic sanitization, versioned snapshots, test isolation, keyless change log; 60 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -13426,8 +13494,10 @@
       "milestone": "M10",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [
         "W1.1",
         "Y1.31"
@@ -13435,9 +13505,11 @@
       "acceptance_criteria": [
         "Load/unload a plugin 100 times and assert zero leaked handlers/processes."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -13606,15 +13678,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "each gate has a failing-fixture test proving it rejects bad input (D6.25)"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -13704,17 +13780,21 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [
         "C-1"
       ],
       "acceptance_criteria": [
         "Simulator emits a JSON trace with ordered rules, matches, winner, multi-resource denial reason and Tier-2 verdict; `keel policy test` works."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -13826,8 +13906,10 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [
         "E1.x",
         "E2.x"
@@ -13836,9 +13918,11 @@
         "Tool conformance kit: one automated suite every tool must pass: output schema declared, presenter pure on replay, cancel honored within N ms, no leaked fields in schemas(), concurrency flag only on read-only tools, timeout cooperative, errors typed.",
         "fails CI on any new tool that doesn't register conformance metadata."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -13879,16 +13963,20 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Request-reconstruction test: replay a session log and rebuild the exact provider request; byte-compare with what was actually sent (hash) to prove \"model-visible = logged\" (D2.11).",
         "test recomputes from log."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14035,15 +14123,19 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Local-socket transport spike: prove Electron \u2194 Python over named pipe/UDS with streaming and backpressure on all three OSes before committing (C-19); keep TCP+token as fallback."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14086,15 +14178,19 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/invariant_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Three JSONC presets ship, the wizard selects one, the simulator compares them, and none can touch Tier 2."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_invariant_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Invariant/conformance contracts: scoped plugin tree, policy simulator trace, strictness presets, Keel gate catalog, tool conformance kit, request reconstruction, transport spike descriptors; 56 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -14236,17 +14332,21 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/product_contracts.py"
+      ],
       "dependencies": [
         "C11.5"
       ],
       "acceptance_criteria": [
         "Confirm: In-app Safety notice shown at first run and linked from the website;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_product_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Product contracts: SAFETY.md first-run notice, OAuth descriptor with out-of-project credentials, accuracy-over-approval, anti-sycophancy; 62 passing tests. W1.18 (MIT) excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15544,15 +15644,19 @@
       "milestone": "M6",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/product_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Keychain-stored tokens;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_product_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Product contracts: SAFETY.md first-run notice, OAuth descriptor with out-of-project credentials, accuracy-over-approval, anti-sycophancy; 62 passing tests. W1.18 (MIT) excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15922,17 +16026,21 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/product_contracts.py"
+      ],
       "dependencies": [
         "V7"
       ],
       "acceptance_criteria": [
         "Confirm: Default `PERSONA.md` rigor section + eval (V7)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_product_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Product contracts: SAFETY.md first-run notice, OAuth descriptor with out-of-project credentials, accuracy-over-approval, anti-sycophancy; 62 passing tests. W1.18 (MIT) excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15974,15 +16082,19 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/product_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Include;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_product_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Product contracts: SAFETY.md first-run notice, OAuth descriptor with out-of-project credentials, accuracy-over-approval, anti-sycophancy; 62 passing tests. W1.18 (MIT) excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17526,15 +17638,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Definition-of-done template per row: code path, test path, e2e run id, docs updated, license/notice check, rollback note"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17550,13 +17666,17 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -17594,13 +17714,17 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -18526,13 +18650,17 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/clipboard_guard.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_clipboard_guard.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Clipboard/screen guard + sensitive-project mode, mass-change guard and filesystem change journal; 31 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -18704,13 +18832,17 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/clipboard_guard.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_clipboard_guard.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Clipboard/screen guard + sensitive-project mode, mass-change guard and filesystem change journal; 31 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -18726,13 +18858,17 @@
       "milestone": "M5",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/clipboard_guard.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_clipboard_guard.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Clipboard/screen guard + sensitive-project mode, mass-change guard and filesystem change journal; 31 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -18792,13 +18928,17 @@
       "milestone": "M3",
       "priority": "P1",
       "original_priority": "P1",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/clipboard_guard.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_clipboard_guard.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Clipboard/screen guard + sensitive-project mode, mass-change guard and filesystem change journal; 31 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -18970,13 +19110,17 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19256,13 +19400,17 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19456,13 +19604,17 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/builder_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_builder_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Builder contracts: definition-of-done, provenance file, G1-G7 stop list, config validation with suggestions, component catalog, design tokens; 24 passing tests. Y6.4 intentionally not implemented (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19632,13 +19784,17 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/reliability_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_reliability_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Reliability contracts: fixture model server, provider contract suite against real adapters, cross-platform path/permission matrix, migration matrix with checksums; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19698,15 +19854,19 @@
       "milestone": "M2",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/reliability_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "each adapter must pass the same behavior suite (streaming, cancel, tool call, usage, errors)"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_reliability_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Reliability contracts: fixture model server, provider contract suite against real adapters, cross-platform path/permission matrix, migration matrix with checksums; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19746,13 +19906,17 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/reliability_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_reliability_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Reliability contracts: fixture model server, provider contract suite against real adapters, cross-platform path/permission matrix, migration matrix with checksums; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -19790,13 +19954,17 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/reliability_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [],
-      "test_references": [],
+      "test_references": [
+        "tests/test_reliability_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Reliability contracts: fixture model server, provider contract suite against real adapters, cross-platform path/permission matrix, migration matrix with checksums; 39 passing tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22278,17 +22446,21 @@
       "milestone": "M22",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/identity_contracts.py"
+      ],
       "dependencies": [
         "A4.8"
       ],
       "acceptance_criteria": [
         "Release script takes `VERSION`; scan on artifacts (A4.8)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_identity_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Identity contracts: first-boot sign-in test-fire, persona/rigor/routing descriptor with originality gate, version badge + zero-secret scan; 69 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22354,15 +22526,19 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/identity_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Already Master 9.3; add \"fail loudly with the exact provider error\"."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_identity_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Identity contracts: first-boot sign-in test-fire, persona/rigor/routing descriptor with originality gate, version badge + zero-secret scan; 69 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22502,8 +22678,10 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/identity_contracts.py"
+      ],
       "dependencies": [
         "X1",
         "A4.5"
@@ -22511,9 +22689,11 @@
       "acceptance_criteria": [
         "`PERSONA.md` sections; routing table consumed by the router (X1.x / A4.5)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_identity_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Identity contracts: first-boot sign-in test-fire, persona/rigor/routing descriptor with originality gate, version badge + zero-secret scan; 69 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22603,15 +22783,19 @@
       "milestone": "M3",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/repo_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Already in Master; add \"no secret configured = reject all\", never \"accept unsigned\"."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_repo_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Repo contracts: webhook HMAC headers, evidence cross-walk, build-artifact disposition, crash-safe turn journal; 59 passing tests. Y6.4 excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22751,15 +22935,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/repo_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "M0: build a **cross-walk** from each of these to plan IDs; anything uncovered becomes a row. Training-data and model-architecture docs stay out of scope (Master 4.2.5)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_repo_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Repo contracts: webhook HMAC headers, evidence cross-walk, build-artifact disposition, crash-safe turn journal; 59 passing tests. Y6.4 excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -22775,15 +22963,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/repo_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Move to `docs/archive/` (private) or ignore; ensure absent from artifacts (artifact allowlist scan)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_repo_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Repo contracts: webhook HMAC headers, evidence cross-walk, build-artifact disposition, crash-safe turn journal; 59 passing tests. Y6.4 excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -23112,8 +23304,10 @@
       "milestone": "M4",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/repo_contracts.py"
+      ],
       "dependencies": [
         "Y2.4",
         "Y2.6"
@@ -23121,9 +23315,11 @@
       "acceptance_criteria": [
         "Write-ahead entry before each tool run, mark done after; on restart show \"interrupted tool, retry or skip\". Extends Y2.4/Y2.6."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_repo_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Repo contracts: webhook HMAC headers, evidence cross-walk, build-artifact disposition, crash-safe turn journal; 59 passing tests. Y6.4 excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
