@@ -29,12 +29,14 @@ Integration seams are documented at the bottom of the companion evidence file.
 from __future__ import annotations
 
 import fnmatch
+import ipaddress
 import os
 import random
 import re
 from dataclasses import dataclass, field, replace
 from pathlib import Path, PurePath
 from typing import Any, Callable, Mapping, Sequence
+from urllib.parse import urlsplit
 
 # ---------------------------------------------------------------------------
 # Public constants (values taken verbatim from the registry text)
@@ -126,6 +128,18 @@ class PluginDSLError(ContractError):
     def __init__(self, code: str, token: str = "") -> None:
         self.token = token
         super().__init__(code, f"unsafe token {token!r}" if token else code)
+
+
+class McpCompatibilityError(ContractError):
+    """The advertised MCP protocol version is unknown or disallowed."""
+
+
+class McpUrlError(ContractError):
+    """An MCP server URL is unsafe (non-HTTP, credentialed or private)."""
+
+
+class CapabilityError(ContractError):
+    """A discovered capability cannot be registered safely."""
 
 
 # ---------------------------------------------------------------------------
@@ -899,6 +913,11 @@ class PermissionRule:
             raise PermissionRuleError("bad_resource")
         if self.effect not in ("allow", "ask", "deny"):
             raise PermissionRuleError("bad_effect")
+        if self.timeout_seconds is not None:
+            if isinstance(self.timeout_seconds, bool) \
+                    or not isinstance(self.timeout_seconds, int) \
+                    or self.timeout_seconds <= 0:
+                raise PermissionRuleError("bad_timeout")
 
     def matches(self, action: str, resource: str) -> bool:
         return (fnmatch.fnmatchcase(str(action), self.action)
@@ -931,11 +950,22 @@ def _as_rule(rule: Any) -> PermissionRule:
     if isinstance(rule, PermissionRule):
         return rule
     if isinstance(rule, Mapping):
-        return PermissionRule(
-            rule["action"], rule["resource"], rule["effect"],
-            rule.get("timeout_seconds"),
-        )
+        try:
+            return PermissionRule(
+                rule["action"], rule["resource"], rule["effect"],
+                rule.get("timeout_seconds"),
+            )
+        except (KeyError, TypeError):
+            # Error isolation: a malformed rule must fail as a typed contract
+            # error, never as a raw KeyError/TypeError in the session loop.
+            raise PermissionRuleError("bad_rule") from None
     raise PermissionRuleError("bad_rule")
+
+
+def _matching_rules(rules: Sequence[Any], action: str, resource: str) -> list[PermissionRule]:
+    """Normalise and filter an ordered rule list without leaking raw errors."""
+    return [rule for rule in (_as_rule(raw) for raw in rules or ())
+            if rule.matches(action, resource)]
 
 
 def evaluate_rules(
@@ -1007,15 +1037,25 @@ def evaluate_permissions(
 ) -> str:
     """Combine normal config rules with the higher-priority policies layer.
 
-    A policy deny (including extension blocks) outranks everything; a config
-    deny still wins over a policy allow, so "explicit deny wins" is preserved.
+    Only an *explicit* policy rule has an opinion.  In particular, an empty
+    policy layer must not be treated as an implicit ``allow``: doing so used
+    to widen a config ``ask`` into ``allow`` (a real permission escalation for
+    discovered MCP capabilities).  Precedence, highest first:
+
+    1. explicit policy deny (including extension blocks);
+    2. explicit config deny;
+    3. explicit policy ask (consent is never downgraded);
+    4. explicit policy allow;
+    5. the config decision, then ``default`` (deny) when nothing matched.
     """
     for raw in policy_rules or ():
         rule = _as_rule(raw)
         if rule.effect == "deny" and rule.action.endswith(".block") \
                 and _block_matches(rule, action, resource):
             return "deny"
-    policy_effect = evaluate_rules(policy_rules, action, resource, default="allow")
+    policy_matches = _matching_rules(policy_rules, action, resource)
+    policy_effect = (evaluate_rules(policy_matches, action, resource, default="deny")
+                     if policy_matches else None)
     if policy_effect == "deny":
         return "deny"
     config_effect = evaluate_rules(config_rules, action, resource, default=default)
@@ -1026,6 +1066,194 @@ def evaluate_permissions(
     if policy_effect == "allow":
         return "allow"
     return config_effect
+
+
+# ===========================================================================
+# Production hardening - compatibility, server URL and capability discovery
+# ===========================================================================
+
+# Versions the client knows how to negotiate.  A server proposing anything
+# else is rejected before a session is created (no implicit downgrade).
+SUPPORTED_MCP_PROTOCOL_VERSIONS: tuple[str, ...] = (
+    "2024-11-05", "2025-03-26", "2025-06-18",
+)
+_VERSION_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def check_protocol_compatibility(
+    version: Any,
+    *,
+    supported: Sequence[str] = SUPPORTED_MCP_PROTOCOL_VERSIONS,
+    policy: Callable[[str, str], bool] | None = None,
+) -> str:
+    """Validate the MCP ``protocolVersion`` before accepting a connection.
+
+    No network is used: this is a pure allowlist check with a caller policy
+    seam.  The host must call it on the value returned by ``initialize``.
+    """
+    if not isinstance(version, str) or not _VERSION_RE.fullmatch(version.strip()):
+        raise McpCompatibilityError("bad_version")
+    normalised = version.strip()
+    if normalised not in tuple(supported):
+        raise McpCompatibilityError("unsupported_version")
+    if policy is not None and policy(normalised, "mcp_protocol") is False:
+        raise McpCompatibilityError("policy_denied")
+    return normalised
+
+
+@dataclass(frozen=True)
+class McpServerUrl:
+    """Normalised, validated HTTP MCP endpoint (no connection is opened)."""
+
+    url: str
+    scheme: str
+    host: str
+    port: int | None
+    is_literal_ip: bool
+    private: bool
+
+
+def validate_mcp_server_url(
+    url: Any,
+    *,
+    allowed_hosts: Sequence[str] | None = None,
+    allow_private: bool = False,
+    policy: Callable[[str, str], bool] | None = None,
+) -> McpServerUrl:
+    """Reject SSRF-shaped MCP server URLs without resolving DNS.
+
+    Blocks non-HTTP(S) schemes, embedded credentials, fragments and literal
+    loopback/private/link-local/reserved addresses.  ``allowed_hosts`` is an
+    optional explicit allowlist.  Literal IPs are checked exactly; hostnames
+    are *not* resolved here (this module performs no network I/O), so the
+    integration layer must resolve and re-check before opening a socket.
+    """
+    if not isinstance(url, str) or not url.strip():
+        raise McpUrlError("bad_url")
+    text = url.strip()
+    if any(ord(char) < 0x20 or ord(char) == 0x7F for char in text):
+        raise McpUrlError("control_character")
+    try:
+        parts = urlsplit(text)
+    except ValueError:
+        raise McpUrlError("bad_url") from None
+    if parts.scheme.lower() not in ("http", "https"):
+        raise McpUrlError("bad_scheme")
+    if parts.username or parts.password:
+        raise McpUrlError("credentials_in_url")
+    if parts.fragment:
+        raise McpUrlError("fragment_in_url")
+    host = parts.hostname
+    if not host:
+        raise McpUrlError("missing_host")
+    host = host.rstrip(".").lower()
+    try:
+        port = parts.port
+    except ValueError:
+        raise McpUrlError("bad_port") from None
+    is_ip = False
+    private = False
+    try:
+        address = ipaddress.ip_address(host)
+        is_ip = True
+        private = bool(
+            address.is_private or address.is_loopback or address.is_link_local
+            or address.is_multicast or address.is_unspecified or address.is_reserved
+        )
+    except ValueError:
+        pass  # a hostname; DNS resolution is deliberately out of scope
+    if is_ip and private and not allow_private:
+        raise McpUrlError("private_target")
+    if allowed_hosts is not None:
+        allowed = {str(item).rstrip(".").lower() for item in allowed_hosts}
+        if host not in allowed:
+            raise McpUrlError("host_not_allowed")
+    if policy is not None and policy(text, "mcp_server_url") is False:
+        raise McpUrlError("policy_denied")
+    return McpServerUrl(
+        url=text, scheme=parts.scheme.lower(), host=host, port=port,
+        is_literal_ip=is_ip, private=private,
+    )
+
+
+@dataclass(frozen=True)
+class DiscoveredCapability:
+    """One capability advertised by ``tools/list`` after the gate ran."""
+
+    server: str
+    tool: str
+    action: str
+    decision: str
+    exposed: bool
+
+
+def assert_unique_mcp_permissions(
+    pairs: Sequence[tuple[str, str]],
+) -> tuple[str, ...]:
+    """Reject two advertised identities that sanitise to one permission name.
+
+    ``canonical_mcp_permission`` deliberately keeps the historical ``_``
+    substitution for compatibility, which is not injective.  Registration
+    must therefore detect collisions explicitly or one rule would cover two
+    unrelated capabilities.
+    """
+    seen: dict[str, tuple[str, str]] = {}
+    actions: list[str] = []
+    for server, tool in pairs:
+        action = canonical_mcp_permission(server, tool)
+        previous = seen.get(action)
+        if previous is not None and previous != (server, tool):
+            raise PermissionRuleError("permission_name_collision")
+        seen[action] = (server, tool)
+        actions.append(action)
+    return tuple(actions)
+
+
+def register_discovered_capabilities(
+    server: str,
+    tools: Sequence[Any],
+    *,
+    config_rules: Sequence[Any] = (),
+    policy_rules: Sequence[Any] = (),
+    forbidden: Sequence[str] = (),
+    default: str = "deny",
+) -> tuple[DiscoveredCapability, ...]:
+    """Gate every server-advertised tool through the shared permission system.
+
+    A server cannot grant itself a capability: with no matching allow rule the
+    decision is ``deny`` (``ask`` is recorded but not exposed until approved).
+    Malformed discovery entries are skipped instead of aborting the session,
+    and forbidden capabilities are denied regardless of any rule.
+    """
+    if not isinstance(server, str) or not server.strip():
+        raise PermissionRuleError("empty_server")
+    if isinstance(tools, (str, bytes)) or not isinstance(tools, Sequence):
+        raise CapabilityError("bad_tools")
+    forbidden_names = {str(item).strip().lower() for item in forbidden or ()}
+    entries: list[tuple[str, str]] = []
+    for item in tools:
+        if not isinstance(item, Mapping):
+            continue
+        name = item.get("name")
+        if not isinstance(name, str) or not name.strip():
+            continue
+        tool = name.strip()
+        entries.append((tool, canonical_mcp_permission(server, tool)))
+    assert_unique_mcp_permissions([(server, tool) for tool, _ in entries])
+    capabilities: list[DiscoveredCapability] = []
+    for tool, action in entries:
+        if tool.lower() in forbidden_names:
+            decision = "deny"
+        else:
+            decision = evaluate_permissions(
+                config_rules=config_rules, policy_rules=policy_rules,
+                action=action, resource="*", default=default,
+            )
+        capabilities.append(DiscoveredCapability(
+            server=server, tool=tool, action=action,
+            decision=decision, exposed=decision == "allow",
+        ))
+    return tuple(capabilities)
 
 
 # ===========================================================================
@@ -1430,17 +1658,19 @@ __all__ = [
     "GREP_DEFAULT_LIMIT", "TOOL_DEFAULT_TIMEOUT_SECONDS",
     "SHELL_DEFAULT_TIMEOUT_SECONDS", "WEBFETCH_MAX_SECONDS",
     "MCP_DEFAULT_TIMEOUT_SECONDS", "FREE_WEBSEARCH_PROVIDERS", "SCOPE_PRIORITY",
-    "PATCH_FAMILIES", "EDIT_TOOLS",
+    "PATCH_FAMILIES", "EDIT_TOOLS", "SUPPORTED_MCP_PROTOCOL_VERSIONS",
     # errors
     "ContractError", "ToolExposureError", "PatchParseError", "PagingError",
     "EditMatchError", "FormatterConfigError", "ShellDescriptorError",
     "ProviderPolicyError", "QuestionDescriptorError", "PermissionRuleError",
     "ConfigSubstitutionError", "CompactionConfigError", "PluginDSLError",
+    "McpCompatibilityError", "McpUrlError", "CapabilityError",
     # records
     "ToolProfile", "PatchHunk", "FilePatch", "PatchDescriptor", "PageResult",
     "MatchValidation", "FormatterSpec", "ShellDescriptor", "QuestionDescriptor",
     "PermissionRule", "EffectiveConfig", "SubstitutionWarning",
     "SubstitutionResult", "CompactionConfig", "PluginSelection",
+    "McpServerUrl", "DiscoveredCapability",
     # functions
     "model_family", "tools_for_model", "parse_patch", "page", "glob_defaults",
     "grep_defaults", "resolve_search_options", "grep_permission_resource",
@@ -1450,5 +1680,6 @@ __all__ = [
     "mcp_permission_rule", "evaluate_rules", "tool_use_rule", "block_extension",
     "evaluate_permissions", "merge_config_layers", "effective_config",
     "config_search_order", "substitute_config", "validate_compaction_config",
-    "parse_plugin_dsl",
+    "parse_plugin_dsl", "check_protocol_compatibility", "validate_mcp_server_url",
+    "assert_unique_mcp_permissions", "register_discovered_capabilities",
 ]

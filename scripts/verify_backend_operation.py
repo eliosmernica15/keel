@@ -8,7 +8,7 @@ Hard checks (fail the script):
   - all 20 backend modules exist and integrate through backend_hub/capabilities
   - provenance of all review/remediation commits is present
 
-Evidence-based gate (REPORTED, never auto-enforced):
+Evidence-based gate (REPORTED by default; ENFORCED with --strict):
   For every attributed ID, the registry claim is audited against real
   artifacts rather than path existence alone:
     * module: file parses and contains an AST code construct for the ID
@@ -466,7 +466,7 @@ print("NOTE: " + ("ENFORCED: failures cause a non-zero exit." if strict else
 
 if strict and gate_failures:
     errors.append(f"{len(gate_failures)} attributed IDs fail the evidence gate "
-                  "(run without --strict to list them)")
+                  "(see per-ID failures above)")
 if errors:
     print("\nBACKEND OPERATION VERIFICATION FAILED:")
     for e in errors:

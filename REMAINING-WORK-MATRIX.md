@@ -138,7 +138,7 @@ A later remediation batch (`agent/final-trace`, merged and pushed) added AST-vis
 `python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
 and `--strict` enforces the gate with a non-zero exit on any failure.
 
-All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+All earlier figures of ****HISTORICAL** 361 / 421 (superseded: 421/421) traceable** and ****HISTORICAL** 60 failing (superseded: 421/421) IDs** in this document
 are **historical** — they describe the state before that batch and are retained only
 for provenance. Current authoritative certification:
 

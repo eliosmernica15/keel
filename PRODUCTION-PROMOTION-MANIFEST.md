@@ -64,7 +64,7 @@ frontend-only evidence are explicitly excluded.
 | `backend-module-id-coverage.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/README.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/desktop-app/main.js` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `keel/desktop/src-tauri/Cargo.toml` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
+| `keel/desktop/src-tauri/Cargo.toml` | REQUIRED_BACKEND_DEPENDENCY | Single version-string constant required by backend `test_signing_gate.py` / `validate_version()`; see explicit exception below | checkout from source SHA | full backend suite + strict gate |
 | `keel/desktop/sw.js` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
 | `keel/docs/CHECKLIST.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/docs/FINAL-RELEASE-OPERATIONS.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |

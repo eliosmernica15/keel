@@ -39,11 +39,12 @@ import inspect
 import json
 import threading
 import time
+import uuid
 from concurrent.futures import Future, ThreadPoolExecutor, wait
 from dataclasses import dataclass, field, fields
 from enum import Enum
 from types import MappingProxyType
-from typing import Any, Callable, Iterable, Optional
+from typing import Any, Callable, Iterable, Mapping, Optional
 
 # ---------------------------------------------------------------------------
 # 13. Stable error codes + typed failures (C10.2 / E1.14 / E1.15)
@@ -76,6 +77,12 @@ class ToolErrorCode(str, Enum):
     MODEL_DIRECT_CALL_DENIED = "MODEL_DIRECT_CALL_DENIED"
     RESERVED_TOOL_NAME = "RESERVED_TOOL_NAME"
     INJECTION_REJECTED = "INJECTION_REJECTED"
+    # Production-hardening codes (tool lifecycle + bounded delegation).
+    PERMISSION_DENIED = "PERMISSION_DENIED"
+    APPROVAL_REPLAY_REJECTED = "APPROVAL_REPLAY_REJECTED"
+    ARGS_RESOURCE_LIMIT = "ARGS_RESOURCE_LIMIT"
+    DELEGATION_DEPTH_EXCEEDED = "DELEGATION_DEPTH_EXCEEDED"
+    DELEGATION_LIMIT_EXCEEDED = "DELEGATION_LIMIT_EXCEEDED"
 
 
 MANDATORY_ERROR_CODES = frozenset({
@@ -278,23 +285,58 @@ def _check_jsonable(value: Any, path: str) -> None:
     raise SchemaError(f"{path}: value is not lossless JSON: {type(value).__name__}")
 
 
+# Resource bounds for *untrusted* values (tool arguments and DLP replacements).
+# An unbounded deep-copy is a denial-of-service vector: a caller can hand us
+# 10k nested containers and escape the typed failure path with RecursionError.
+MAX_VALUE_DEPTH = 32
+MAX_VALUE_NODES = 10_000
+MAX_STRING_CHARS = 100_000
+
+
+def _resource_error(path: str, detail: str) -> ToolError:
+    return ToolError(ToolErrorCode.ARGS_RESOURCE_LIMIT, path, detail)
+
+
 def to_jsonable(value: Any, *, path: str = "$",
-                code: ToolErrorCode = ToolErrorCode.INVALID_ARGS) -> Any:
-    """Deep-copy *value* into a lossless plain-JSON structure."""
+                code: ToolErrorCode = ToolErrorCode.INVALID_ARGS,
+                _depth: int = 0, _budget: Optional[list[int]] = None) -> Any:
+    """Deep-copy *value* into a bounded, lossless plain-JSON structure.
+
+    Bounds are enforced before recursion, so hostile arguments settle as a
+    typed ``ARGS_RESOURCE_LIMIT`` failure instead of raising RecursionError
+    or exhausting memory outside the pipeline.
+    """
+    if _budget is None:
+        _budget = [0]
+    if _depth > MAX_VALUE_DEPTH:
+        raise _resource_error(path, f"value nesting exceeds {MAX_VALUE_DEPTH}")
+    _budget[0] += 1
+    if _budget[0] > MAX_VALUE_NODES:
+        raise _resource_error(path, f"value exceeds {MAX_VALUE_NODES} nodes")
     if value is None or isinstance(value, (str, bool, int, float)):
+        if isinstance(value, str) and len(value) > MAX_STRING_CHARS:
+            raise _resource_error(
+                path, f"string exceeds {MAX_STRING_CHARS} characters")
         return value
     if isinstance(value, (list, tuple)):
-        return [to_jsonable(v, path=f"{path}[{i}]", code=code)
+        return [to_jsonable(v, path=f"{path}[{i}]", code=code,
+                            _depth=_depth + 1, _budget=_budget)
                 for i, v in enumerate(value)]
     if isinstance(value, dict):
         out: dict[str, Any] = {}
         for k, v in value.items():
             if not isinstance(k, str):
-                raise ToolError(code, path, f"object keys must be strings")
-            out[k] = to_jsonable(v, path=f"{path}.{k}", code=code)
+                raise ToolError(code, path, "object keys must be strings")
+            out[k] = to_jsonable(v, path=f"{path}.{k}", code=code,
+                                 _depth=_depth + 1, _budget=_budget)
         return out
     raise ToolError(code, path,
                     f"value is not lossless JSON: {type(value).__name__}")
+
+
+def _json_equal(left: Any, right: Any) -> bool:
+    """Equality with JSON type identity (Python booleans are not integers)."""
+    return _json_type(left) == _json_type(right) and left == right
 
 
 def validate_value(schema: dict, value: Any, path: str = "$") -> list[str]:
@@ -317,9 +359,13 @@ def validate_value(schema: dict, value: Any, path: str = "$") -> list[str]:
                           f"(matched {matches})")
         return errors
 
-    if "const" in schema and value != schema["const"]:
+    # ``True == 1`` in Python but JSON has distinct boolean/integer types;
+    # comparing with bare ``==`` lets a boolean satisfy ``const: 1`` or
+    # ``enum: [1]``.  Type identity is mandatory for const/enum membership.
+    if "const" in schema and not _json_equal(value, schema["const"]):
         errors.append(f"{path}: value must equal const {schema['const']!r}")
-    if "enum" in schema and value not in schema["enum"]:
+    if ("enum" in schema
+            and not any(_json_equal(value, item) for item in schema["enum"])):
         errors.append(f"{path}: value must be one of {schema['enum']!r}")
     if errors:
         return errors
@@ -489,10 +535,73 @@ class Decision:
                    display_reason=display_reason)
 
 
+@dataclass(frozen=True)
+class ApprovalGrant:
+    """A single-use approval ticket bound to one call.
+
+    A bare ``Decision.allow()`` from a responder is also consumed through an
+    ``ApprovalLedger``; an ``ApprovalGrant`` is the explicit form that can be
+    issued once and carried across transports.  Either way an approval cannot
+    be replayed for the same tool/args/agent.
+    """
+
+    name: str
+    args_canonical: str
+    agent_id: Optional[str]
+    nonce: str = field(default_factory=lambda: uuid.uuid4().hex)
+    _state: list[bool] = field(default_factory=lambda: [False],
+                              compare=False, repr=False)
+
+    @classmethod
+    def issue(cls, name: str, args: Any,
+              agent_id: Optional[str]) -> "ApprovalGrant":
+        snapshot = args if isinstance(args, ArgsSnapshot) else snapshot_args(
+            args, name=name)
+        return cls(name=name, args_canonical=snapshot.canonical,
+                   agent_id=agent_id)
+
+    @property
+    def consumed(self) -> bool:
+        return self._state[0]
+
+    def matches(self, name: str, args: ArgsSnapshot,
+                agent_id: Optional[str]) -> bool:
+        return (self.name == name and self.args_canonical == args.canonical
+                and self.agent_id == agent_id)
+
+    def consume(self) -> bool:
+        """Atomically claim the ticket; False means it was already used."""
+        if self._state[0]:
+            return False
+        self._state[0] = True
+        return True
+
+
+class ApprovalLedger:
+    """Tracks consumed allow-once approvals (per registry scope)."""
+
+    def __init__(self) -> None:
+        self._used: set[tuple[str, str, Optional[str], str]] = set()
+        self._lock = threading.Lock()
+
+    def consume(self, name: str, args: ArgsSnapshot,
+                agent_id: Optional[str], reason: str) -> bool:
+        key = (name, args.canonical, agent_id, reason)
+        with self._lock:
+            if key in self._used:
+                return False
+            self._used.add(key)
+            return True
+
+    def clear(self) -> None:
+        with self._lock:
+            self._used.clear()
+
+
 PreHook = Callable[[str, ArgsSnapshot], Decision]
 Guard = Callable[[str, ArgsSnapshot, Decision], Decision]
 PostHook = Callable[[str, ArgsSnapshot, "ToolResult"], "PostDecision"]
-ApprovalResponder = Callable[[str, ArgsSnapshot, Decision], Decision]
+ApprovalResponder = Callable[..., Decision | ApprovalGrant]
 
 
 def combine_decisions(a: Decision, b: Decision) -> Decision:
@@ -532,7 +641,9 @@ def resolve_pre_decision(name: str, args: ArgsSnapshot, *,
                          base: Decision, pre_hooks: Iterable[PreHook],
                          guards: Iterable[Guard],
                          approval_responder: Optional[ApprovalResponder],
-                         agent_id: Optional[str]) -> tuple[Decision, list[str]]:
+                         agent_id: Optional[str],
+                         approval_ledger: Optional[ApprovalLedger] = None
+                         ) -> tuple[Decision, list[str]]:
     """Run the whole pre-execute gate; return (effective decision, audit log)."""
     audit: list[str] = []
     # Agentless calls fail closed (E1.5).
@@ -562,22 +673,48 @@ def resolve_pre_decision(name: str, args: ArgsSnapshot, *,
             audit.append(denial.reason)
             return denial, audit
         answer = approval_responder(name, args, effective)
-        if not isinstance(answer, Decision):
-            answer = Decision.deny("approval responder returned a non-Decision")
-        if answer.kind == DecisionKind.CANCEL and answer.code is None:
-            effective = Decision.cancel(
-                answer.reason or "approval was cancelled",
-                code=ToolErrorCode.APPROVAL_CANCELLED.value)
-        elif answer.kind in (DecisionKind.DENY, DecisionKind.CANCEL):
-            effective = answer
-        elif answer.kind == DecisionKind.ALLOW and answer.allow_once:
-            # Approval resolves ASK into an allow-once decision.  This is the
-            # only path that upgrades ASK, and it requires an explicit grant.
-            effective = answer
+        if isinstance(answer, ApprovalGrant):
+            # Explicit ticket: verify every binding, then claim it exactly once.
+            if not answer.matches(name, args, agent_id):
+                effective = Decision.deny(
+                    "approval grant does not match this call",
+                    code=ToolErrorCode.APPROVAL_REJECTED.value)
+            elif not answer.consume():
+                effective = Decision.deny(
+                    "approval grant was already consumed",
+                    code=ToolErrorCode.APPROVAL_REPLAY_REJECTED.value)
+            else:
+                effective = Decision.allow("approved by single-use grant")
+            audit.append(f"approval grant: {answer.nonce} "
+                         f"({effective.kind.value})")
         else:
-            effective = Decision.deny(
-                "approval did not grant allow-once permission",
-                code=ToolErrorCode.APPROVAL_REJECTED.value)
+            if not isinstance(answer, Decision):
+                answer = Decision.deny(
+                    "approval responder returned a non-Decision")
+            if answer.kind == DecisionKind.CANCEL and answer.code is None:
+                effective = Decision.cancel(
+                    answer.reason or "approval was cancelled",
+                    code=ToolErrorCode.APPROVAL_CANCELLED.value)
+            elif answer.kind in (DecisionKind.DENY, DecisionKind.CANCEL):
+                effective = answer
+            elif answer.kind == DecisionKind.ALLOW and answer.allow_once:
+                # Approval resolves ASK into an allow-once decision.  A bare
+                # allow is consumed via the scope ledger so the same approval
+                # cannot be replayed for identical args by another transport.
+                key_ok = (
+                    approval_ledger is None
+                    or approval_ledger.consume(
+                        name, args, agent_id, answer.reason))
+                if key_ok:
+                    effective = answer
+                else:
+                    effective = Decision.deny(
+                        "approval was already consumed for this call",
+                        code=ToolErrorCode.APPROVAL_REPLAY_REJECTED.value)
+            else:
+                effective = Decision.deny(
+                    "approval did not grant allow-once permission",
+                    code=ToolErrorCode.APPROVAL_REJECTED.value)
 
     audit.append(f"effective: {effective.kind.value} ({effective.reason})")
     return effective, audit
@@ -704,9 +841,14 @@ def apply_post_hooks(name: str, args: ArgsSnapshot, result: "ToolResult",
                     [copy.deepcopy(decision.context)])
         elif decision.action == PostAction.BLOCK:
             code = decision.code or ToolErrorCode.APPROVAL_REJECTED.value
+            # A block is a durable rejection: keep the audit trail but drop
+            # every surface that was built from the pre-block value.
+            audit = list(current.audit) + ["blocked: " + (decision.reason or "")]
             current = failure_result(
-                name, ToolErrorCode(code), reason=decision.reason)
-            current = replace(current, attached_context=list(current.attached_context))
+                name, ToolErrorCode(code), reason=decision.reason, audit=audit)
+            current = replace(
+                current, attached_context=[], presentation_meta={},
+                child_results=[])
     return current
 
 
@@ -904,6 +1046,46 @@ class ToolRegistry:
         self._guards: list[Guard] = []
         self._post_hooks: list[PostHook] = []
         self._wrappers: list[Callable] = []
+        self._policy: Optional[PermissionPolicy] = None
+        self._approval_ledger = ApprovalLedger()
+        self._audit_log: list[AuditEvent] = []
+
+    # -- centralized authorization / audit --------------------------------
+    def set_policy(self, policy: Optional[PermissionPolicy]) -> None:
+        """Install the single permission authority for this scope."""
+        self._policy = policy
+
+    @property
+    def policy(self) -> Optional[PermissionPolicy]:
+        return self._policy
+
+    @property
+    def approval_ledger(self) -> ApprovalLedger:
+        return self._approval_ledger
+
+    @property
+    def audit_log(self) -> list["AuditEvent"]:
+        return list(self._audit_log)
+
+    def authorize(self, spec: "ToolSpec", agent_id: Optional[str] = "agent",
+                  restriction: Optional[ToolRestriction] = None,
+                  scope: Optional[AgentScope] = None) -> Decision:
+        """THE authorization choke point for discovery and every transport."""
+        if scope is not None:
+            return scope.authorize(spec, restriction)
+        if self._policy is not None:
+            return self._policy.authorize(spec, agent_id, restriction)
+        # Legacy scopes retain the additive Adendum 7 admission behaviour;
+        # production scopes install a PermissionPolicy (fail closed).
+        return admission_decision(spec, restriction)
+
+    def record_audit(self, name: str, result: "ToolResult",
+                     agent_id: Optional[str]) -> None:
+        """Persist one durable audit event per tool outcome."""
+        self._audit_log.append(AuditEvent(
+            name=name, agent_id=agent_id, ok=result.ok, code=result.code,
+            reasons=tuple(result.audit) + (
+                (result.durable_reason,) if result.durable_reason else ())))
 
     # -- registration -----------------------------------------------------
     def register(self, spec: ToolSpec, *, replace: bool = False) -> None:
@@ -937,8 +1119,14 @@ class ToolRegistry:
             raise ValueError("timeout_s must be non-negative")
         if spec.concurrency_safe is not None and not callable(spec.concurrency_safe):
             raise ValueError("concurrency_safe must be callable or None")
-        if spec.name in self._tools and not replace:
-            raise ValueError(f"duplicate tool registration: {spec.name!r}")
+        if spec.name in self._tools:
+            if not replace:
+                raise ValueError(f"duplicate tool registration: {spec.name!r}")
+            previous = self._tools[spec.name]
+            if PERMISSION_RANK[spec.permission] > PERMISSION_RANK[previous.permission]:
+                raise ValueError(
+                    f"replacing {spec.name!r} would widen permission from "
+                    f"{previous.permission!r} to {spec.permission!r}")
         self._tools[spec.name] = spec
 
     # -- lookup -----------------------------------------------------------
@@ -955,17 +1143,20 @@ class ToolRegistry:
         return [self._tools[n] for n in self.names()]
 
     def schemas(self, names: Iterable[str] | None = None, *,
-                restriction: "ToolRestriction | None" = None) -> list[dict[str, Any]]:
+                restriction: "ToolRestriction | None" = None,
+                agent_id: Optional[str] = "agent",
+                scope: Optional[AgentScope] = None) -> list[dict[str, Any]]:
         """E1.2: project ONLY name, description, parameters (input_schema).
 
         Execution callbacks, timeout, renderer, output_schema, concurrency and
-        metadata never leak into a model-facing request.  When a restriction is
-        supplied, the SAME admission decision used by ``execute_tool`` hides
-        non-admitted tools from the declaration.
+        metadata never leak into a model-facing request.  Discovery calls the
+        exact same ``authorize`` choke point as execution, so a hidden tool
+        cannot be invoked through another transport.
         """
         selected = self.names() if names is None else [n for n in names if n in self._tools]
         selected = [n for n in selected
-                    if admission_decision(self._tools[n], restriction).kind
+                    if self.authorize(self._tools[n], agent_id,
+                                      restriction, scope).kind
                     is DecisionKind.ALLOW]
         return [
             {
@@ -1012,11 +1203,25 @@ class ToolRegistry:
         self._guards.clear()
         self._post_hooks.clear()
         self._wrappers.clear()
+        self._approval_ledger.clear()
+        self._audit_log.clear()
+        self._policy = None
 
 
 # ---------------------------------------------------------------------------
 # ToolResult + render helpers
 # ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class AuditEvent:
+    """Durable, model-invisible record of one tool outcome."""
+
+    name: str
+    agent_id: Optional[str]
+    ok: bool
+    code: Optional[str]
+    reasons: tuple[str, ...]
 
 
 @dataclass
@@ -1035,6 +1240,9 @@ class ToolResult:
     conclude_turn: bool = False
     timed_out: bool = False
     renderer: Optional[Renderer] = field(default=None, repr=False, compare=False)
+    # Aggregated bounded-delegation outcomes; never model-facing display.
+    child_results: list["ToolResult"] = field(default_factory=list,
+                                              repr=False, compare=False)
 
     @property
     def error_info(self) -> dict[str, str | None]:
@@ -1056,6 +1264,8 @@ def replace(result: ToolResult, **changes: Any) -> ToolResult:
         new.attached_context = list(result.attached_context)
     if "audit" not in changes:
         new.audit = list(result.audit)
+    if "child_results" not in changes:
+        new.child_results = list(result.child_results)
     return new
 
 
@@ -1152,7 +1362,28 @@ def execute_tool(registry: ToolRegistry, name: str, args: Any, *,
                  extra_pre_hooks: Iterable[PreHook] = (),
                  extra_post_hooks: Iterable[PostHook] = (),
                  extra_guards: Iterable[Guard] = (),
-                 restriction: "ToolRestriction | None" = None) -> ToolResult:
+                 restriction: "ToolRestriction | None" = None,
+                 scope: Optional[AgentScope] = None) -> ToolResult:
+    """Single entry point: run the pipeline, then persist one audit event."""
+    result = _execute_tool_pipeline(
+        registry, name, args, agent_id=agent_id, cancel=cancel,
+        approval_responder=approval_responder, timeout_s=timeout_s,
+        extra_pre_hooks=extra_pre_hooks, extra_post_hooks=extra_post_hooks,
+        extra_guards=extra_guards, restriction=restriction, scope=scope)
+    registry.record_audit(name, result, agent_id)
+    return result
+
+
+def _execute_tool_pipeline(registry: ToolRegistry, name: str, args: Any, *,
+                           agent_id: Optional[str] = "agent",
+                           cancel: Optional[CancelSignal] = None,
+                           approval_responder: Optional[ApprovalResponder] = None,
+                           timeout_s: Optional[float] = ...,
+                           extra_pre_hooks: Iterable[PreHook] = (),
+                           extra_post_hooks: Iterable[PostHook] = (),
+                           extra_guards: Iterable[Guard] = (),
+                           restriction: "ToolRestriction | None" = None,
+                           scope: Optional[AgentScope] = None) -> ToolResult:
     """Run one tool through the full contract pipeline.
 
     Returns a typed ToolResult; internal failures carry stable codes and raw
@@ -1168,28 +1399,35 @@ def execute_tool(registry: ToolRegistry, name: str, args: Any, *,
     try:
         snapshot = snapshot_args(args, name=name)
     except ToolError as exc:
-        return failure_result(name, ToolErrorCode.INVALID_ARGS,
+        return failure_result(name, ToolErrorCode(exc.code),
                               reason=exc.reason, audit=[])
+    except (RecursionError, MemoryError) as exc:
+        return failure_result(name, ToolErrorCode.ARGS_RESOURCE_LIMIT,
+                              reason=type(exc).__name__, audit=[])
 
     errors = validate_value(spec.input_schema, snapshot.json, path=name)
     if errors:
         return failure_result(name, ToolErrorCode.INVALID_ARGS,
                               reason="; ".join(errors))
 
-    # Per-agent admission uses the SAME decision as the declaration (E1.12).
-    admission = admission_decision(spec, restriction)
-    if admission.kind != DecisionKind.ALLOW:
+    # A cancelled call must not even consume an approval ticket.
+    if cancel is not None and cancel.cancelled:
         return failure_result(
-            name, ToolErrorCode(admission.code or "APPROVAL_REJECTED"),
-            reason=admission.reason)
+            name, ToolErrorCode.ABORTED,
+            reason="tool call was cancelled before dispatch")
 
-    # 3. Pre-execute decision (E1.5 / E1.6), shared with declaration.
-    base = Decision.allow(f"permission class: {spec.permission}")
+    # 3. Centralized authorization + pre-execute decision (E1.5 / E1.6).
+    # Every transport reaches this choke point; a denial is monotonic and can
+    # never be upgraded by a hook, guard or approval responder.
+    authorization = registry.authorize(spec, agent_id, restriction, scope)
+    base = combine_decisions(
+        Decision.allow(f"permission class: {spec.permission}"), authorization)
     pre_hooks = list(registry.pre_hooks) + list(extra_pre_hooks)
     guards = list(registry.guards) + list(extra_guards)
     decision, audit = resolve_pre_decision(
         name, snapshot, base=base, pre_hooks=pre_hooks, guards=guards,
-        approval_responder=approval_responder, agent_id=agent_id)
+        approval_responder=approval_responder, agent_id=agent_id,
+        approval_ledger=registry.approval_ledger)
     if decision.kind != DecisionKind.ALLOW or not decision.allow_once:
         err = pre_decision_to_error(decision)
         return failure_result(name, ToolErrorCode(err.code),
@@ -1311,7 +1549,9 @@ def execute_batch(registry: ToolRegistry, calls: Iterable[ToolCall], *,
                   cancel: Optional[CancelSignal] = None,
                   approval_responder: Optional[ApprovalResponder] = None,
                   max_parallel: Optional[int] = None,
-                  default_max_parallel: int = 4) -> list[ToolResult]:
+                  default_max_parallel: int = 4,
+                  restriction: Optional[ToolRestriction] = None,
+                  scope: Optional[AgentScope] = None) -> list[ToolResult]:
     """Deterministic bounded-parallel executor with exclusive barriers (E1.10).
 
     One outcome per input call, in input order.  Exclusive calls form a
@@ -1378,7 +1618,8 @@ def execute_batch(registry: ToolRegistry, calls: Iterable[ToolCall], *,
                 fut = pool.submit(
                     execute_tool, registry, call.name, call.args,
                     agent_id=agent_id, cancel=cancel,
-                    approval_responder=approval_responder)
+                    approval_responder=approval_responder,
+                    restriction=restriction, scope=scope)
                 last_submitted = (index, fut)
                 if safe:
                     pending_safe.append((index, fut))
@@ -1484,6 +1725,269 @@ def admission_decision(spec: "ToolSpec",
         code=ToolErrorCode.APPROVAL_REJECTED.value)
 
 
+# ---------------------------------------------------------------------------
+# Production hardening: centralized authorization + bounded delegation
+# ---------------------------------------------------------------------------
+
+# Least privilege: a replacement may not widen the permission class.
+PERMISSION_RANK = {
+    "read": 0,
+    "write": 1,
+    "execute": 2,
+    "network": 3,
+    "process_control": 4,
+    "destructive": 5,
+}
+
+
+@dataclass(frozen=True)
+class PermissionPolicy:
+    """THE centralized authorization source for a registry scope.
+
+    ``grants`` maps an agent id to the permission classes it may use; an agent
+    with no entry has *no* permissions (fail closed).  ``restrictions`` maps an
+    agent id to its tool allow/deny list.  ``trust_scoped`` must be explicitly
+    enabled before a tool's self-declared ``scoped`` flag can bypass a deny
+    list -- otherwise any registration could exempt itself from policy.
+    """
+
+    grants: Mapping[str, Iterable[str]] = field(default_factory=dict)
+    restrictions: Mapping[str, ToolRestriction] = field(default_factory=dict)
+    trust_scoped: bool = False
+
+    def permissions_for(self, agent_id: Optional[str]) -> frozenset[str]:
+        return frozenset(self.grants.get(agent_id, ()))
+
+    def restriction_for(self, agent_id: Optional[str]) -> Optional[ToolRestriction]:
+        return self.restrictions.get(agent_id)
+
+    def authorize(self, spec: "ToolSpec", agent_id: Optional[str],
+                  extra: Optional[ToolRestriction] = None) -> Decision:
+        if spec.permission not in self.permissions_for(agent_id):
+            return Decision.deny(
+                f"agent has no {spec.permission!r} permission",
+                code=ToolErrorCode.PERMISSION_DENIED.value)
+        restriction = self.restriction_for(agent_id)
+        if extra is not None:
+            restriction = (intersect_restrictions(restriction, extra)
+                           if restriction is not None else extra)
+        if restriction is None:
+            return Decision.allow("permission granted by policy")
+        scoped = bool(spec.scoped) and self.trust_scoped
+        if restriction.admits(spec.name, scoped=scoped):
+            return Decision.allow("admitted by policy")
+        return Decision.deny(
+            "tool is not admitted for this agent",
+            code=ToolErrorCode.APPROVAL_REJECTED.value)
+
+
+@dataclass(frozen=True)
+class DelegationPolicy:
+    """Resource bounds for one delegation tree."""
+
+    max_depth: int = 3
+    max_children: int = 8
+    max_concurrent: int = 4
+
+    def __post_init__(self) -> None:
+        if min(self.max_depth, self.max_children, self.max_concurrent) < 1:
+            raise ValueError("delegation bounds must all be >= 1")
+
+
+@dataclass(frozen=True)
+class AgentScope:
+    """A node in a delegation tree; children can only inherit or lose rights."""
+
+    agent_id: str
+    permissions: frozenset[str]
+    restriction: ToolRestriction = field(default_factory=ToolRestriction)
+    depth: int = 0
+    policy: DelegationPolicy = field(default_factory=DelegationPolicy)
+    lineage: tuple[str, ...] = ()
+
+    def child(self, name: str, *,
+              permissions: Iterable[str] = ()) -> "AgentScope":
+        requested = (frozenset(self.permissions) if not permissions
+                     else frozenset(permissions))
+        if not requested <= self.permissions:
+            raise ToolError(
+                ToolErrorCode.PERMISSION_DENIED, name,
+                reason="child requested permissions the parent does not hold")
+        if "subagent" not in self.permissions:
+            raise ToolError(
+                ToolErrorCode.PERMISSION_DENIED, name,
+                reason="parent is not permitted to delegate")
+        if self.depth >= self.policy.max_depth or name in self.lineage:
+            raise ToolError(
+                ToolErrorCode.DELEGATION_DEPTH_EXCEEDED, name,
+                reason="delegation depth/cycle limit reached")
+        return AgentScope(
+            agent_id=f"{self.agent_id}/{name}", permissions=requested,
+            restriction=self.restriction, depth=self.depth + 1,
+            policy=self.policy, lineage=self.lineage + (self.agent_id,))
+
+    def authorize(self, spec: "ToolSpec",
+                  extra: Optional[ToolRestriction] = None) -> Decision:
+        if spec.permission not in self.permissions:
+            return Decision.deny(
+                f"child agent has no {spec.permission!r} permission",
+                code=ToolErrorCode.PERMISSION_DENIED.value)
+        restriction = self.restriction
+        if extra is not None:
+            restriction = intersect_restrictions(restriction, extra)
+        # A child may never use a tool's self-declared scoped exemption.
+        if restriction.admits(spec.name, scoped=False):
+            return Decision.allow("inherited permission admitted")
+        return Decision.deny(
+            "tool is not admitted for this child agent",
+            code=ToolErrorCode.APPROVAL_REJECTED.value)
+
+
+@dataclass(frozen=True)
+class DelegationTask:
+    """One bounded child: a tool call plus an optional nested delegation."""
+
+    name: str
+    tool: str
+    args: Any = field(default_factory=dict)
+    nested: Optional[Callable[..., Iterable["DelegationTask"]]] = None
+
+
+@dataclass(frozen=True)
+class DelegationReport:
+    """Aggregated, order-stable child outcomes with typed partial failures."""
+
+    results: tuple[ToolResult, ...]
+    failures: tuple[ToolResult, ...]
+    ok: bool
+    checkpoint: str
+
+
+class DelegationManager:
+    """Bounded subagent runner with checkpoints and failure aggregation."""
+
+    def __init__(self, registry: "ToolRegistry", *,
+                 restriction: Optional[ToolRestriction] = None,
+                 cancel: Optional[CancelSignal] = None,
+                 approval_responder: Optional[ApprovalResponder] = None
+                 ) -> None:
+        self.registry = registry
+        self.restriction = restriction
+        self.cancel = cancel
+        self.approval_responder = approval_responder
+        self.checkpoints: dict[str, tuple[ToolResult, ...]] = {}
+        self._lock = threading.Lock()
+
+    @staticmethod
+    def _checkpoint_key(parent: AgentScope,
+                        tasks: list[DelegationTask]) -> str:
+        payload = json.dumps({
+            "parent": parent.agent_id,
+            "tasks": [{"name": t.name, "tool": t.tool,
+                       "args": _normalised_args(t.args)}
+                      for t in tasks],
+        }, sort_keys=True, separators=(",", ":"), default=str)
+        return payload
+
+    def run(self, parent: AgentScope, tasks: Iterable[DelegationTask], *,
+            checkpoint_id: Optional[str] = None,
+            cancel: Optional[CancelSignal] = None,
+            approval_responder: Optional[ApprovalResponder] = None,
+            force: bool = False,
+            resume_failed: bool = False) -> DelegationReport:
+        """Execute children concurrently within ``parent.policy`` bounds.
+
+        A checkpointed batch returns its recorded outcomes verbatim; with
+        ``force`` + ``resume_failed`` only failed children are retried and
+        successful outcomes are reused.  Every task gets exactly one outcome.
+        """
+        task_list = list(tasks)
+        key = checkpoint_id or self._checkpoint_key(parent, task_list)
+        with self._lock:
+            cached = None if force else self.checkpoints.get(key)
+            prior = self.checkpoints.get(key) if resume_failed else None
+        if cached is not None:
+            results = list(cached)
+        else:
+            results = self._execute(
+                parent, task_list,
+                cancel if cancel is not None else self.cancel,
+                (approval_responder if approval_responder is not None
+                 else self.approval_responder),
+                prior)
+            with self._lock:
+                self.checkpoints[key] = tuple(results)
+        failures = tuple(r for r in results if not r.ok)
+        return DelegationReport(tuple(results), failures, not failures, key)
+
+    def _execute(self, parent: AgentScope, task_list: list[DelegationTask],
+                 cancel: Optional[CancelSignal],
+                 approval_responder: Optional[ApprovalResponder],
+                 prior: Optional[tuple[ToolResult, ...]]
+                 ) -> list[ToolResult]:
+        outcomes: list[Optional[ToolResult]] = [None] * len(task_list)
+        limit = parent.policy.max_children
+        workers = max(1, min(parent.policy.max_concurrent, len(task_list) or 1))
+        futures: list[tuple[int, Future]] = []
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            for index, task in enumerate(task_list):
+                if cancel is not None and cancel.cancelled:
+                    outcomes[index] = failure_result(
+                        task.name, ToolErrorCode.ABORTED_BEFORE_DISPATCH,
+                        reason="delegation cancelled before dispatch")
+                    continue
+                if index >= limit:
+                    outcomes[index] = failure_result(
+                        task.name, ToolErrorCode.DELEGATION_LIMIT_EXCEEDED,
+                        reason=f"child cap {limit} exceeded")
+                    continue
+                try:
+                    child = parent.child(task.name)
+                except ToolError as exc:
+                    outcomes[index] = failure_result(
+                        task.name, ToolErrorCode(exc.code), reason=exc.reason)
+                    continue
+                if (prior is not None and index < len(prior)
+                        and prior[index].ok):
+                    outcomes[index] = prior[index]  # checkpointed success
+                    continue
+                futures.append((index, pool.submit(
+                    self._run_child, child, task, cancel,
+                    approval_responder)))
+            for index, future in futures:
+                try:
+                    outcomes[index] = future.result()
+                except BaseException as exc:  # noqa: BLE001 - settle each child
+                    outcomes[index] = failure_result(
+                        task_list[index].name, ToolErrorCode.TOOL_EXECUTION_ERROR,
+                        reason=f"{type(exc).__name__}: {exc}")
+        return [r if r is not None else failure_result(
+            task.name, ToolErrorCode.ABORTED_BEFORE_DISPATCH,
+            reason="child did not settle") for task, r in zip(task_list, outcomes)]
+
+    def _run_child(self, child: AgentScope, task: DelegationTask,
+                   cancel: Optional[CancelSignal],
+                   approval_responder: Optional[ApprovalResponder]
+                   ) -> ToolResult:
+        result = execute_tool(
+            self.registry, task.tool, task.args, agent_id=child.agent_id,
+            scope=child, cancel=cancel,
+            approval_responder=approval_responder,
+            restriction=self.restriction)
+        if task.nested is not None:
+            try:
+                nested = list(task.nested(child, self))
+            except ToolError as exc:
+                child_results = [failure_result(
+                    task.name, ToolErrorCode(exc.code), reason=exc.reason)]
+            else:
+                report = self.run(child, nested, cancel=cancel,
+                                  approval_responder=approval_responder)
+                child_results = list(report.results)
+            result = replace(result, child_results=child_results)
+        return result
+
+
 @dataclass(frozen=True)
 class ToolActivation:
     """A conditional tool whose ``when`` predicate is evaluated once per step."""
@@ -1528,6 +2032,19 @@ class StepAdmission:
             raise ToolError(
                 ToolErrorCode.MODEL_DIRECT_CALL_DENIED, name,
                 reason="tool was not admitted for this step")
+
+    def guard(self, name: str, args: ArgsSnapshot,
+              decision: Decision) -> Decision:
+        """Registry guard form: applies the step gate to every transport."""
+        if not self.enforces(name):
+            return Decision.deny(
+                "tool was not admitted for this step",
+                code=ToolErrorCode.MODEL_DIRECT_CALL_DENIED.value)
+        return decision
+
+    def attach(self, registry: ToolRegistry) -> None:
+        """Centralize step admission: direct, batch and PTC calls all obey it."""
+        registry.add_guard(self.guard)
 
     def dispose(self) -> None:
         """Dispose after the batch; late results cannot restore removed tools."""
@@ -1670,10 +2187,19 @@ class PTCExecutor:
 
     def __init__(self, registry: ToolRegistry, *,
                  selected: bool = True,
-                 agent_id: Optional[str] = "agent") -> None:
+                 agent_id: Optional[str] = "agent",
+                 restriction: Optional[ToolRestriction] = None,
+                 scope: Optional[AgentScope] = None,
+                 cancel: Optional[CancelSignal] = None,
+                 approval_responder: Optional[ApprovalResponder] = None
+                 ) -> None:
         self.registry = registry
         self.selected = selected
         self.agent_id = agent_id
+        self.restriction = restriction
+        self.scope = scope
+        self.cancel = cancel
+        self.approval_responder = approval_responder
         self.tools = _ToolProxy(self)
         self.dispatch_log = PTCDispatchLog()
         self.prompt_sections: list[str] = []
@@ -1694,7 +2220,14 @@ class PTCExecutor:
             return failure_result(
                 name, ToolErrorCode.MODEL_DIRECT_CALL_DENIED,
                 reason="model-direct tool call denied while PTC executor is selected")
-        return execute_tool(self.registry, name, args, agent_id=self.agent_id)
+        return self._dispatch(name, args)
+
+    def _dispatch(self, name: str, args: Any) -> ToolResult:
+        """Every PTC transport funnels through the same authorized pipeline."""
+        return execute_tool(
+            self.registry, name, args, agent_id=self.agent_id,
+            restriction=self.restriction, scope=self.scope, cancel=self.cancel,
+            approval_responder=self.approval_responder)
 
     async def call(self, name: str, args: Any) -> Any:
         """Re-enter the normal pipeline; return canonical value or raise PTCError."""
@@ -1703,8 +2236,7 @@ class PTCExecutor:
         if not self.registry.has(name):
             raise PTCError("UnknownTool", name, f"no tool named {name!r}")
         self.dispatch_log.start(name, args)
-        result = execute_tool(
-            self.registry, name, args, agent_id=self.agent_id)
+        result = self._dispatch(name, args)
         self.dispatch_log.settle(name, args, result)
         if not result.ok:
             raise PTCError("ToolCallFailed", name,
@@ -1982,4 +2514,9 @@ __all__ = [
     "PTCDispatchLog", "CardKind", "IconKind", "Card", "generic_card",
     "present_call", "present_result", "presentation_meta",
     "conformance_check", "request_reconstruction_byte_compare", "fuzz_tool",
+    # Production hardening: authorization, replay-safe approval, delegation.
+    "PERMISSION_RANK", "PermissionPolicy", "ApprovalGrant", "ApprovalLedger",
+    "AuditEvent", "MAX_VALUE_DEPTH", "MAX_VALUE_NODES", "MAX_STRING_CHARS",
+    "DelegationPolicy", "AgentScope", "DelegationTask", "DelegationReport",
+    "DelegationManager",
 ]
