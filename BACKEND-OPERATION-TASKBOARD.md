@@ -19,29 +19,34 @@ P1: 361, P2: 67, P0: 2 (owner-gated conflicts W1.18/Y6.4 — rejected in DECISIO
 ## Wave 1 — dispatched 8 agents (165 features)
 | Prefix | IDs | Agent branch | Status |
 |---|---|---|---|
-| E7 | 36 | agent/b1-e7 | implementing |
-| D6 | 25 | agent/b1-d6 | implementing |
-| Y1 | 25 | agent/b1-y1 | implementing |
-| V | 24 | agent/b1-v | implementing |
-| W1 | 17 | agent/b1-w1 | implementing |
-| D7 | 16 | agent/b1-d7 | implementing |
-| X2 | 16 | agent/b1-x2 | implementing |
-| X3 | 16 | agent/b1-x3 | implementing |
+| E7 | 36 | agent/b1-e7 | **integrated** (79 tests) |
+| D6 | 25 | agent/b1-d6 | **integrated** (35 tests) |
+| Y1 | 25 | agent/b1-y1 | **integrated** (58 tests) |
+| V | 24 | agent/b1-v | **integrated** (84 tests) |
+| W1 | 17 | agent/b1-w1 | **integrated** (33 tests) |
+| D7 | 16 | agent/b1-d7 | **integrated** (79 tests) |
+| X2 | 16 | agent/b1-x2 | **integrated** (23 tests) |
+| X3 | 16 | agent/b1-x3 | **integrated** (21 tests) |
 
 ## Wave 2 — dispatched 8 agents (121 features)
 | Prefix | IDs | Agent branch | Status |
 |---|---|---|---|
-| X8 | 15 | agent/b2-x8 | implementing |
-| Y2 | 15 | agent/b2-y2 | implementing |
-| Z | 15 | agent/b2-z | implementing |
-| Y3 | 14 | agent/b2-y3 | implementing |
-| D3 | 13 | agent/b2-d3 | implementing |
-| E3 | 13 | agent/b2-e3 | implementing |
-| E5 | 13 | agent/b2-e5 | implementing |
-| W4 | 13 | agent/b2-w4 | implementing |
+| X8 | 15 | agent/b2-x8 | **integrated** (33 tests) |
+| Y2 | 15 | agent/b2-y2 | **integrated** (41 tests) |
+| Z | 15 | agent/b2-z | **integrated** (90 tests) |
+| Y3 | 14 | agent/b2-y3 | **integrated** (31 tests) |
+| D3 | 13 | agent/b2-d3 | pending |
+| E3 | 13 | agent/b2-e3 | **integrated** (60 tests) |
+| E5 | 13 | agent/b2-e5 | pending |
+| W4 | 13 | agent/b2-w4 | tests pass (53), evidence pending |
 
-## Not yet dispatched (remaining ~144)
-Y4(11), D4(10), X7(10), E6(9), X5(9), X6(9), W7(8), X1(8), Y5(8), D1(7), X4(7), D2(6), E4(6), W9(6), X9(6), W6(4), W8(4), W2(3), W5(3), X0(3), X10(3), W3(2), Y6(2).
+## Wave 3 — dispatched 4 agents (~144 features)
+| Y4/D4/X7 | 31 | agent/b3-y4 | **integrated** (43 tests) |
+| E6/X5/X6 | 27 | agent/b3-mixed1 | tests pass (65), evidence pending |
+| W7/X1/Y5/D1 | 32 | agent/b3-mixed2 | tests pass (32), evidence pending |
+| small groups | 54 | agent/b3-mixed3 | pending |
+
+All 430 not_started feature groups now dispatched across 3 waves (20 agents).
 
 ## Integration protocol
 1. Review each agent's actual diff (not just its report).
