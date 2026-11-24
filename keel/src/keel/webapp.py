@@ -232,6 +232,17 @@ def rotate_token() -> str:
     return _TOKEN
 
 
+class _KeelThreadingHTTPServer(ThreadingHTTPServer):
+    """Bridge HTTP server with a listen backlog sized for client bursts.
+
+    The stdlib default of 5 drops connections under a 100-client burst;
+    128 keeps them queued without changing any handler behaviour.
+    """
+
+    request_queue_size = 128
+    daemon_threads = True
+
+
 def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
     """Create (but do not start) the bridge server. Port 0 = ephemeral."""
     class Handler(BaseHTTPRequestHandler):
@@ -1308,7 +1319,7 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
         def log_message(self, format, *args):  # keep stderr quiet; keel owns logs
             pass
 
-    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    return _KeelThreadingHTTPServer(("127.0.0.1", port), Handler)
 
 
 def serve(port: int = DEFAULT_PORT, *, start: bool = True) -> None:

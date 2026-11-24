@@ -17,6 +17,7 @@ from __future__ import annotations
 import ast
 import importlib
 import re
+import threading
 from pathlib import Path
 from typing import Any, get_type_hints
 
@@ -339,12 +340,13 @@ DISPATCH: dict[str, tuple[str, ...]] = {
 
 
 def assert_dispatch_targets() -> None:
-    """Fail closed at startup if any advertised DISPATCH entry is unusable.
+    """Fail closed if any advertised DISPATCH entry is unusable.
 
     A stale entry such as the old ``x3_memory_backend._embedding`` (a class
     method, not a module attribute) used to be advertised as callable and only
-    failed at invoke time with AttributeError. Importing the 20 stdlib-only
-    backend modules here is cheap and makes the contract honest at startup.
+    failed at invoke time with AttributeError. It is run lazily, once, before
+    the first real public hub call so startup does not pay for importing the
+    20 backend modules while the check still happens before any invoke.
     """
     broken: list[str] = []
     for module, names in DISPATCH.items():
@@ -363,7 +365,43 @@ def assert_dispatch_targets() -> None:
         raise AssertionError("invalid DISPATCH entries: " + "; ".join(broken))
 
 
-assert_dispatch_targets()
+_INIT_LOCK = threading.Lock()
+_INITIALIZED = False
+
+
+def _publish_schemas() -> None:
+    """Publish derived schemas on the registered backend capabilities.
+
+    Split out of validation so it can run exactly once, lazily, on the first
+    public hub call instead of at import time.
+    """
+    try:
+        from . import capabilities  # noqa: F401  (triggers registration)
+    except Exception:
+        return
+    sync_capability_schemas()
+
+
+def _ensure_initialized() -> None:
+    """Validate DISPATCH and publish schemas once, on first public hub use.
+
+    Importing this module stays cheap: the 20 backend modules are imported by
+    :func:`assert_dispatch_targets` here, not at import time. A broken
+    DISPATCH entry raises before any invoke body can run, so the original
+    fail-closed guarantee is preserved.
+    """
+    global _INITIALIZED
+    if _INITIALIZED:
+        return
+    with _INIT_LOCK:
+        if _INITIALIZED:
+            return
+        # Fail closed before anything else can be dispatched.
+        assert_dispatch_targets()
+        # Set the flag before syncing: sync_capability_schemas() calls
+        # modules(), which re-enters this same function on this thread.
+        _INITIALIZED = True
+        _publish_schemas()
 
 
 # Canonical single-owner attribution: an authoritative mirror of
@@ -823,11 +861,13 @@ class BackendHubError(ValueError):
 
 def modules() -> list[str]:
     """Return the names of all integrated backend modules."""
+    _ensure_initialized()
     return sorted(MODULE_FEATURES)
 
 
 def feature_ids() -> tuple[str, ...]:
     """Return every implemented feature ID, sorted."""
+    _ensure_initialized()
     sync_capability_schemas()
     return tuple(sorted(FEATURE_TO_MODULE))
 
@@ -842,6 +882,7 @@ def function_schemas() -> dict[str, dict]:
     function is executed, no file is read and no network is used. Cached so
     repeated capability calls stay cheap.
     """
+    _ensure_initialized()
     global _FUNCTION_SCHEMAS
     if _FUNCTION_SCHEMAS is None:
         schemas: dict[str, dict] = {}
@@ -872,6 +913,7 @@ def sync_capability_schemas() -> bool:
     idempotent and is called from every public hub entry point, which means a
     real ``backend.describe``/``backend.invoke`` call always refreshes it.
     """
+    _ensure_initialized()
     from . import capabilities
 
     schemas = function_schemas()
@@ -924,6 +966,7 @@ def describe(module: str | None = None) -> dict:
     function now carries a deterministic, signature-derived JSON schema so a
     client can learn the exact ``params`` keys before invoking anything (G4).
     """
+    _ensure_initialized()
     sync_capability_schemas()
     if module is not None:
         if module not in MODULE_FEATURES:
@@ -949,6 +992,7 @@ def describe(module: str | None = None) -> dict:
 
 def dispatchable(module: str) -> tuple[str, ...]:
     """Return the allowlisted deterministic callables for a module."""
+    _ensure_initialized()
     if module not in MODULE_FEATURES:
         raise BackendHubError(f"unknown backend module: {module}")
     sync_capability_schemas()
@@ -1009,6 +1053,8 @@ def invoke(module: str, function: str, params: dict | None = None, *,
     ``normalize_model_id=True`` additionally canonicalises model-id-shaped
     results; it is opt-in so no existing caller's output changes (G3).
     """
+    # Validate the whole dispatch table before executing anything.
+    _ensure_initialized()
     if module not in MODULE_FEATURES:
         raise BackendHubError(f"unknown backend module: {module}")
     if function not in DISPATCH.get(module, ()):
@@ -1101,6 +1147,7 @@ def verify(module: str) -> dict:
     reports every ID as not declared. This is an honest import+declaration
     check, not a claim that acceptance criteria passed here.
     """
+    _ensure_initialized()
     sync_capability_schemas()
     if module not in MODULE_FEATURES:
         raise BackendHubError(f"unknown backend module: {module}")
@@ -1132,19 +1179,5 @@ def verify(module: str) -> dict:
     }
 
 
-def _publish_schemas_on_import() -> None:
-    """Best-effort eager publish; public hub calls also re-sync later.
-
-    When ``capabilities`` imports the hub first, the backend capabilities are
-    registered immediately afterwards; when the hub is imported first, this
-    call finds them already registered. Either way the first real backend
-    capability call refreshes the schemas again.
-    """
-    try:
-        from . import capabilities  # noqa: F401  (triggers registration)
-    except Exception:
-        return
-    sync_capability_schemas()
-
-
-_publish_schemas_on_import()
+# Schema publication is now lazy: _ensure_initialized() calls _publish_schemas()
+# on the first public hub call rather than at import time.
