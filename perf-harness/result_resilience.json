@@ -1,0 +1,134 @@
+{
+  "resource_cap_concurrency": {
+    "threads": 8,
+    "attempts_each": 200,
+    "cap": 4,
+    "granted": 4,
+    "final_used": 4,
+    "cap_respected": true,
+    "elapsed_s": 0.0492
+  },
+  "resource_acquire_latency_ms": {
+    "n": 20000,
+    "min": 0.0009,
+    "p50": 0.002,
+    "p90": 0.0025,
+    "p95": 0.0027,
+    "p99": 0.0066,
+    "max": 2.9227,
+    "mean": 0.0029
+  },
+  "resource_manager_limits": {
+    "threads": 16,
+    "tabs_opened": 8,
+    "status": {
+      "tabs": 8,
+      "tab_limit": 8,
+      "workspace_bytes": 1000000,
+      "workspace_limit": 1048576,
+      "resource_limit": 4194304
+    },
+    "tab_limit_respected": true,
+    "workspace_limit_respected": true,
+    "workspace_denials": 11
+  },
+  "concurrent_sessions_tasks": {
+    "threads": 16,
+    "bots_created": 320,
+    "tasks_created": 320,
+    "expected_bots": 320,
+    "expected_tasks": 320,
+    "errors": 0,
+    "error_samples": [],
+    "elapsed_s": 2.673,
+    "ops_s": 239.4
+  },
+  "bot_name_collision_race": {
+    "threads": 16,
+    "succeeded": 3,
+    "errors": 13,
+    "error_samples": [
+      "IntegrityError: UNIQUE constraint failed: bots.id",
+      "IntegrityError: UNIQUE constraint failed: bots.id",
+      "IntegrityError: UNIQUE constraint failed: bots.id",
+      "IntegrityError: UNIQUE constraint failed: bots.id",
+      "IntegrityError: UNIQUE constraint failed: bots.id"
+    ],
+    "distinct_bot_ids": 3,
+    "ids": [
+      "same",
+      "same-1",
+      "same-2"
+    ]
+  },
+  "chat_for_project_race": {
+    "threads": 8,
+    "succeeded": 2,
+    "errors": 6,
+    "error_samples": [
+      "IntegrityError: UNIQUE constraint failed: bots.id",
+      "IntegrityError: UNIQUE constraint failed: bots.id",
+      "IntegrityError: UNIQUE constraint failed: bots.id",
+      "IntegrityError: UNIQUE constraint failed: bots.id",
+      "IntegrityError: UNIQUE constraint failed: bots.id"
+    ],
+    "bots_for_project": 2,
+    "exactly_one_bot": false
+  },
+  "recovery_after_restart_1": {
+    "pending_items": 1,
+    "recovery_ms": 19.513,
+    "approvals_expired": 1,
+    "asks_interrupted": 0,
+    "asks_still_pending": 1,
+    "runs_failed": 1,
+    "runs_with_restart_error": 1,
+    "routines_released": 1,
+    "tasks_failed": 1
+  },
+  "recovery_after_restart_100": {
+    "pending_items": 100,
+    "recovery_ms": 723.274,
+    "approvals_expired": 100,
+    "asks_interrupted": 0,
+    "asks_still_pending": 100,
+    "runs_failed": 100,
+    "runs_with_restart_error": 100,
+    "routines_released": 100,
+    "tasks_failed": 100
+  },
+  "slow_provider_timeout": {
+    "elapsed_ms": 445.9,
+    "outcome": {
+      "ok": false,
+      "error": "routine timed out after 0s",
+      "terminal_reason": "timeout",
+      "task_id": "t_124116a1bdd0",
+      "run_id": 1
+    },
+    "run_status": "failed",
+    "task_status": "failed",
+    "routine_running": 0
+  },
+  "worker_failure": {
+    "elapsed_ms": 53.5,
+    "outcome": {
+      "ok": false,
+      "assistant_text": "",
+      "terminal_reason": "internal_error",
+      "permission_denials": 0,
+      "approval_denials": [],
+      "error": "provider exploded",
+      "task_id": "t_42e62cf624d4",
+      "run_id": 1
+    },
+    "run_status": "failed",
+    "task_status": "failed",
+    "routine_running": 0
+  },
+  "db_write_blocking_exclusive": {
+    "hold_s": 0.3,
+    "write_latency_ms": 322.0,
+    "blocked_ms_approx": 322.0
+  }
+}
