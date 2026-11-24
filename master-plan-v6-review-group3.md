@@ -33,25 +33,22 @@ state transitions (not merely symbol existence).
 
 ---
 
-## Cross-cutting finding: wiring
+## Cross-cutting finding: wiring (corrected)
 
-The five modules themselves import **no** `keel.*` runtime symbols (verified by grep:
-zero `from keel`/`import keel` matches in all five files). They are stdlib-only and
-additive at the source level, so their own docstrings' "additive, not wired in" language
-is accurate *for the module files*.
+The five modules import **no** `keel.*` runtime symbols (verified by grep: zero
+`from keel`/`import keel` matches in all five files). They are stdlib-only and
+**fully additive**: on the reviewed commit `integration/v6-backend-complete` they are
+**not wired into the live session loop, web app, CLI or capability surface**.
 
-However, on this branch they **are** wired into the live runtime externally:
-
-- `keel/src/keel/backend_hub.py:17,1380` — `importlib.import_module("keel." + module)`;
-  each module is registered in `MODULE_FEATURES` (lines 24, 232, 244, 256, 274) and has a
-  strict allowlist in `DISPATCH` (lines 291, 323, 325, 327, 329).
-- `keel/src/keel/capabilities.py:141-198` — `_register_backend_capabilities()` exposes
-  `backend.modules`, `backend.describe`, `backend.invoke` (permission `core`/`execute`,
-  `mutates=False`) and `backend.verify`, consumed by the web bridge/CLI/TUI/desktop.
-
-So: **not self-wired, but integrated through a permission-aware hub.** Consequences for
-severity below: e.g. `z_backend.render_replay` and `y2_backend.plan_compaction` are live
-dispatchable entry points via `backend.invoke`.
+Note on the shared worktree: a `keel/src/keel/backend_hub.py` (dynamic
+`importlib.import_module("keel." + module)` + `DISPATCH` allowlist) and edits to
+`keel/src/keel/capabilities.py` adding `backend.invoke` were visible in the working tree
+during this review, but `git ls-tree integration/v6-backend-complete -- keel/src/keel/backend_hub.py`
+returns nothing and `git show integration/v6-backend-complete:keel/src/keel/capabilities.py`
+contains no `backend_hub`/`backend.invoke` symbols. Those files are another agent's
+**uncommitted** work in the shared checkout, not part of the reviewed branch. Severity
+ratings below therefore do **not** assume any live runtime reachability; if that hub is
+later merged, several findings (notably the z redaction gap) should be re-rated upward.
 
 ---
 
@@ -101,8 +98,7 @@ is a coverage guard backed by behavioral tests for every feature.
    `CompactionConfig.__post_init__` (1021-1029) explicitly allows `keep_last_user_turns == 0`,
    but in Python `user_turns[-0:] == user_turns[0:]` — **all** user turns are kept verbatim
    instead of none. Reproduced: with `keep_last_user_turns=0`, turns `u1,u2,a1` produced
-   `verbatim_ids == ['u1','u2']` and `summary_text == 'a1'`. `plan_compaction` is dispatchable
-   through `backend_hub.DISPATCH` (line 323), so this is live. Test at 331-347 only uses the
+   `verbatim_ids == ['u1','u2']` and `summary_text == 'a1'`. Test at 331-347 only uses the
    default `keep_last=4`, so it misses this.
 2. **MEDIUM — predictable "secret" token.** `RealtimeSecretIssuer.issue` line 1484 derives
    the token as `new_id("realtime", session_id, current, self._nonce, length=24)` — a plain
@@ -122,8 +118,7 @@ is a coverage guard backed by behavioral tests for every feature.
 No `eval`/`exec`/`os.system`/network/socket usage; no mutable-default bugs found.
 
 ### Q4 — Runtime import
-No `keel.*` imports. Additive source, wired externally via `backend_hub` +
-`capabilities.backend.invoke` (see cross-cutting).
+No `keel.*` imports. Fully additive; not wired into the reviewed runtime (see cross-cutting).
 
 ### Q5 — Verdict + top 3
 **GENUINE_BACKEND.**
@@ -190,8 +185,8 @@ No injection/eval/path-traversal found; `resolve_data_dir` only reads an injecta
 mapping (1123-1127).
 
 ### Q4 — Runtime import
-No `keel.*` imports (test imports `config_contracts` only to guard P0). Additive source,
-wired via hub (`backend_hub.py:244/325`, `capabilities.py`).
+No `keel.*` imports (test imports `config_contracts` only to guard P0). Fully additive;
+not wired into the reviewed runtime (see cross-cutting).
 
 ### Q5 — Verdict + top 3
 **GENUINE_BACKEND.**
@@ -240,8 +235,7 @@ mere `hasattr`.
    `keel://pair?channel=...&token=...&host=...&port=...` without URL-encoding. Reproduced:
    token `"abc&host=evil.example"` yields
    `keel://pair?channel=telegram&token=abc&host=evil.example&host=127.0.0.1&port=8739`
-   — a caller-controlled token overrides the host parameter. The function is dispatchable via
-   `backend_hub.DISPATCH` (line 327).
+   — a caller-controlled token overrides the host parameter.
 2. **LOW — `verify_clean_removal` misses unknown removals.** Line 1247:
    `for key in sorted(rem & expected - reg & expected)`. Because `-` binds tighter than `&`,
    this is `rem & (expected - reg)`; a key that is removed but is neither registered nor in
@@ -261,7 +255,7 @@ containment checks. Typed-error consistency gap: `_require` (144-146),
 raise bare `KeyError` while the rest uses `BackendError`.
 
 ### Q4 — Runtime import
-No `keel.*` imports. Additive source, wired via hub (`backend_hub.py:256/327`, `capabilities.py`).
+No `keel.*` imports. Fully additive; not wired into the reviewed runtime (see cross-cutting).
 
 ### Q5 — Verdict + top 3
 **GENUINE_BACKEND.**
@@ -313,9 +307,8 @@ checks the import allowlist — a real static assertion. Existence-only coverage
    Reproduced: `redact_text("Authorization: Bearer abcdef123456")` returns
    `"[REDACTED:secret] abcdef123456"` — the word "Bearer" is redacted and the real token
    survives. `redact_record` (489-497) also redacts only string *values*, never dict keys
-   (`redact_record({"sk-abcdefghijklmnop": "ok"})` is unchanged). `render_replay` is a
-   dispatchable `backend.invoke` function (`backend_hub.py:329`), so an exported "redacted"
-   replay can still contain secrets — a direct contradiction of the feature's purpose.
+   (`redact_record({"sk-abcdefghijklmnop": "ok"})` is unchanged). An exported "redacted"
+   replay can therefore still contain secrets — a direct contradiction of the feature's purpose.
 2. **LOW/MEDIUM — no locking on append-only ledgers (TOCTOU).** `LocalSync.append`
    (755-767) reads the whole chain via `self.changes()` and then calls `_append_jsonl`
    (132-137, plain `open(..., "a")`); two concurrent appends can compute the same `seq`/`prev`,
@@ -334,12 +327,12 @@ Minor: `assert_no_network_assets` (582-586) scans the head for literal `src=`/`h
 so an escaped title containing those substrings gives a false positive.
 
 ### Q4 — Runtime import
-No `keel.*` imports. Additive source, wired via hub (`backend_hub.py:274/329`, `capabilities.py`).
+No `keel.*` imports. Fully additive; not wired into the reviewed runtime (see cross-cutting).
 
 ### Q5 — Verdict + top 3
 **GENUINE_BACKEND.**
 1. MEDIUM — `z_backend.py:461-463,489-497` redaction misses the secret after "Bearer" and
-   never redacts dict keys; `render_replay` is live via `backend.invoke` (reproduced).
+   never redacts dict keys (reproduced).
 2. LOW/MEDIUM — `z_backend.py:755-767,132-137,1864-1871` unlocked append/TOCTOU in sync
    and budget ledgers.
 3. LOW — `z_backend.py:1198-1199` `_setting_present` treats `False`/`0` as present
@@ -406,7 +399,7 @@ No `eval`/`exec`/subprocess/network/file I/O; no mutable-default bugs. The only 
 
 ### Q4 — Runtime import
 No `keel.*` imports inside the module (the test imports `capability_seams` only for the P0
-reference guard). Additive source, wired via hub (`backend_hub.py:24/291`, `capabilities.py`).
+reference guard). Fully additive; not wired into the reviewed runtime (see cross-cutting).
 
 ### Q5 — Verdict + top 3
 **GENUINE_BACKEND.**
