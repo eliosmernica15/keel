@@ -13,11 +13,19 @@ Evidence-based gate (REPORTED, never auto-enforced):
   artifacts rather than path existence alone:
     * module: file parses and contains an AST code construct for the ID
       (dict key / declared-collection member / function-class-assignment name);
-      comments and plain strings do NOT count.
+      comments and plain strings do NOT count. This is path (a) below.
+    * ALTERNATIVE path (b): the evidence document's per-ID Markdown table row
+      names a concrete symbol AND a concrete test function; both must resolve
+      to real AST definitions (module function/class/method/assignment and
+      test function respectively). This closes a traceability gap: an ID may
+      be implemented and tested but mentioned only in prose in the module.
+      Bare comments/strings alone still never pass path (a).
     * test: file parses and a test function/class/decorator references the ID
-      or a symbol the module maps to the ID.
+      or a symbol the module maps to the ID. A valid (b) cross-check also
+      satisfies this, because it names a real test function.
     * acceptance_criteria is non-empty.
-    * evidence doc exists AND mentions the ID.
+    * evidence doc exists AND mentions the ID (path (b) requires a row for the
+      ID, which necessarily mentions it).
 
 Per the lead's instruction, failures of this gate are printed as a per-ID list
 with counts but do NOT change any status and do NOT fail the script; the lead
@@ -246,6 +254,130 @@ def _test_reference_ok(info: dict, fid: str, symbols: set[str]) -> bool:
     return bool(symbols & (info["names"] | info["strings"]))
 
 
+# --- Path (b): evidence-doc per-ID table cross-check -------------------------
+_TABLE_ID_RE = re.compile(r"^[A-Z]+\d+\.\d+[a-z]?$")
+_TABLE_SEP_RE = re.compile(r"^:?-{3,}:?$")
+_BACKTICK_RE = re.compile(r"`([^`]+)`")
+_IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+
+
+def _table_cells(line: str) -> list[str]:
+    return [c.strip() for c in line.strip().strip("|").split("|")]
+
+
+def _parse_evidence_rows(path: Path) -> dict[str, list[tuple[tuple[str, ...], list[str]]]]:
+    """Parse Markdown tables generically: ID -> [(header, row cells), ...]."""
+    out: dict[str, list[tuple[tuple[str, ...], list[str]]]] = defaultdict(list)
+    if not path.is_file():
+        return out
+    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    header: tuple[str, ...] | None = None
+    for i, line in enumerate(lines):
+        text = line.strip()
+        if not text.startswith("|"):
+            header = None
+            continue
+        cells = _table_cells(text)
+        if cells and all(_TABLE_SEP_RE.fullmatch(c) for c in cells):
+            if i and lines[i - 1].strip().startswith("|"):
+                header = tuple(_table_cells(lines[i - 1]))
+            continue
+        if header and cells and _TABLE_ID_RE.fullmatch(cells[0]):
+            out[cells[0]].append((header, cells))
+    return out
+
+
+def _evidence_columns(header: tuple[str, ...]) -> tuple[list[int], list[int]]:
+    """Locate symbol/test columns by header text; fall back to all data cells."""
+    symbol_cols: list[int] = []
+    test_cols: list[int] = []
+    for i, title in enumerate(header):
+        if i == 0:
+            continue  # ID column
+        low = title.lower()
+        if "test" in low:
+            test_cols.append(i)
+        elif re.search(r"symbol|contract|entr|implement|surface|behavio|backend|code", low):
+            symbol_cols.append(i)
+    return symbol_cols, test_cols
+
+
+def _backtick_identifiers(text: str) -> set[str]:
+    """Backtick-quoted identifiers, e.g. `A.f/x` -> {A, f, x}, `test_y1_*` -> {test_y1_}."""
+    out: set[str] = set()
+    for match in _BACKTICK_RE.finditer(text):
+        out.update(_IDENT_RE.findall(match.group(1)))
+    return out
+
+
+def _module_code_symbols(path: Path) -> set[str]:
+    """Real function / class / method / assignment names in the module."""
+    if not path.is_file():
+        return set()
+    tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
+    names: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.add(node.name)
+        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            for target in targets:
+                if isinstance(target, ast.Name):
+                    names.add(target.id)
+                elif isinstance(target, ast.Attribute):
+                    names.add(target.attr)
+    return names
+
+
+def _test_function_names(path: Path) -> set[str]:
+    """Real test function names (including test_* wildcards resolved by prefix)."""
+    if not path.is_file():
+        return set()
+    tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
+    return {n.name for n in ast.walk(tree)
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and n.name.startswith("test")}
+
+
+_evidence_rows_cache: dict[str, dict] = {}
+_module_symbols_cache: dict[str, set[str]] = {}
+_test_functions_cache: dict[str, set[str]] = {}
+
+
+def _evidence_crosscheck_ok(fid: str, ev_path: Path, src: Path, test: Path) -> bool:
+    """True iff a per-ID evidence row names a real symbol AND a real test."""
+    key = str(ev_path)
+    if key not in _evidence_rows_cache:
+        _evidence_rows_cache[key] = _parse_evidence_rows(ev_path)
+    rows = _evidence_rows_cache[key].get(fid, [])
+    if not rows:
+        return False
+    mkey, tkey = str(src), str(test)
+    if mkey not in _module_symbols_cache:
+        _module_symbols_cache[mkey] = _module_code_symbols(src)
+    if tkey not in _test_functions_cache:
+        _test_functions_cache[tkey] = _test_function_names(test)
+    module_symbols = _module_symbols_cache[mkey]
+    test_functions = _test_functions_cache[tkey]
+
+    for header, cells in rows:
+        symbol_cols, test_cols = _evidence_columns(header)
+        symbol_cells = [cells[i] for i in symbol_cols] if symbol_cols else cells[1:]
+        test_cells = [cells[i] for i in test_cols] if test_cols else cells[1:]
+        symbol_tokens = set().union(*[_backtick_identifiers(c) for c in symbol_cells]) \
+            if symbol_cells else set()
+        test_tokens = set().union(*[_backtick_identifiers(c) for c in test_cells]) \
+            if test_cells else set()
+        has_symbol = any(tok in module_symbols for tok in symbol_tokens)
+        has_test = any(
+            tok in test_functions or
+            (tok.startswith("test_") and any(fn.startswith(tok) for fn in test_functions))
+            for tok in test_tokens)
+        if has_symbol and has_test:
+            return True
+    return False
+
+
 gate_failures: dict[str, list[str]] = {}
 for fid, mod in attribution.items():
     row = by_id[fid]
@@ -261,24 +393,28 @@ for fid, mod in attribution.items():
     minfo = _module_cache[mkey]
     tinfo = _test_cache[tkey]
 
+    ev = row.get("verification_evidence") or ""
+    ev_path = ROOT / ev if ev else ROOT
+    # Path (b) cross-check: evidence-doc row -> real symbol + real test.
+    cross_ok = _evidence_crosscheck_ok(fid, ev_path, sp, tp)
+
     if not minfo["exists"]:
         reasons.append("module file missing")
-    elif not _module_construct_ok(minfo, fid):
-        reasons.append("module: no AST construct for ID (ID appears only in "
-                       "comments/docstrings/plain strings)")
+    elif not (_module_construct_ok(minfo, fid) or cross_ok):
+        reasons.append("module: no AST construct for ID and no evidence-doc "
+                       "row mapping the ID to a real symbol + real test")
 
     mapped_symbols = minfo["symbols"].get(fid, set())
     if not tinfo["exists"]:
         reasons.append("test file missing")
-    elif not _test_reference_ok(tinfo, fid, mapped_symbols):
+    elif not (_test_reference_ok(tinfo, fid, mapped_symbols) or cross_ok):
         reasons.append("test: no test function/class/decorator references the "
-                       "ID or a mapped symbol")
+                       "ID or a mapped symbol, and no evidence-doc row names "
+                       "a real test function")
 
     if not row.get("acceptance_criteria"):
         reasons.append("acceptance_criteria empty")
 
-    ev = row.get("verification_evidence") or ""
-    ev_path = ROOT / ev if ev else ROOT
     if not ev or not ev_path.is_file():
         reasons.append("evidence doc missing")
     elif fid not in ev_path.read_text(encoding="utf-8", errors="replace"):
