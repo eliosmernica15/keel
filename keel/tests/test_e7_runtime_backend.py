@@ -686,6 +686,17 @@ class E730_AuthFlows(unittest.TestCase):
         with self.assertRaises(eb.NotFoundError):
             registry.begin("missing")
 
+    def test_assignment_style_credential_value_rejected(self):
+        registry = eb.AuthFlowRegistry()
+        registry.register("k", "p", "d")
+        registry.begin("k")
+        with self.assertRaises(eb.ValidationError):
+            registry.complete("k", "api_key=supersecretvalue")
+        self.assertIsNotNone(registry.active("k"))
+        # An opaque reference is still accepted after the rejection.
+        result = registry.complete("k", "vault://ref/2")
+        self.assertEqual(result.credential_ref, "vault://ref/2")
+
 
 class E731_ActionCards(unittest.TestCase):
     def test_registered_kinds_actions_and_handlers(self):
@@ -894,6 +905,15 @@ class E738_WorkflowEngine(unittest.TestCase):
             eb.WorkflowNode("self", eb.WorkflowOp.TOOL, "self")
         with self.assertRaises(eb.ValidationError):
             eb.LoopUntilDone(self._workflow()).tick(0, {})
+
+    def test_malformed_node_raises_validation_error_not_attribute_error(self):
+        # A non-WorkflowNode entry must be rejected by validation, not by an
+        # AttributeError while reading ``node_id`` off the malformed entry.
+        with self.assertRaises(eb.ValidationError) as ctx:
+            eb.Workflow(("not-a-node",))
+        self.assertIn("WorkflowNode", str(ctx.exception))
+        with self.assertRaises(eb.ValidationError):
+            eb.Workflow((None,))
 
 
 class E739_WebhookRuntime(unittest.TestCase):

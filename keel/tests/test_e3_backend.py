@@ -166,6 +166,30 @@ class TestE31Capabilities(unittest.TestCase):
         with self.assertRaises(E3ValidationError):
             ProviderCapabilities("bad id")
 
+    def test_duplicate_provider_registration_is_rejected(self):
+        m = SubagentManager()
+        original = m.providers["local"]
+        events_before = len(m.events)
+        weak = ProviderCapabilities("local", frozenset(), accepts_images=False)
+        with self.assertRaises(E3ValidationError) as ctx:
+            m.register_provider(weak)
+        self.assertIn("local", str(ctx.exception))
+        # The built-in provider (and its capabilities) must survive intact.
+        self.assertIs(m.providers["local"], original)
+        self.assertEqual(m.providers["local"].capabilities, original.capabilities)
+        self.assertEqual(len(m.events), events_before)
+
+    def test_settle_error_without_error_value_fails_closed(self):
+        m = SubagentManager()
+        aid = m.start(req("child"))
+        with self.assertRaises(E3ValidationError):
+            m.settle(aid, stop_reason=e3.StopReason.ERROR)
+        self.assertIs(m.activations[aid].status, e3.ActivationStatus.LIVE)
+        # An explicit error still settles into a typed failure result.
+        settlement = m.settle(aid, stop_reason=e3.StopReason.ERROR, error="boom")
+        self.assertIs(settlement.result.stop_reason, e3.StopReason.ERROR)
+        self.assertIn("boom", settlement.result.diagnostics)
+
 
 class TestE32Delivery(unittest.TestCase):
     """Parent notification vs caller-only result."""

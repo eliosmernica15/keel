@@ -320,6 +320,36 @@ class TestV8SpecialistAdapters(unittest.TestCase):
         with lock.locked("wt", "agent-b"):
             pass
 
+    def test_wrong_token_cannot_release_another_owners_lock(self):
+        lock = v.WorktreeLock()
+        token_a = lock.acquire("wt", "agent-a")
+        with self.assertRaises(v.ContractValidationError):
+            lock.acquire("wt", "agent-b")
+        # A token belonging to a different owner/worktree must fail closed.
+        other_token = lock.acquire("other", "agent-b")
+        with self.assertRaises(v.ContractValidationError):
+            lock.release("wt", other_token)
+        with self.assertRaises(v.ContractValidationError):
+            lock.release("wt", "totally-wrong-token")
+        self.assertEqual(lock.holders, {"wt": "agent-a", "other": "agent-b"})
+        # A stale token must not free a lock re-acquired by another owner.
+        lock.release("wt", token_a)
+        token_b = lock.acquire("wt", "agent-b")
+        with self.assertRaises(v.ContractValidationError):
+            lock.release("wt", token_a)
+        self.assertEqual(lock.holders, {"wt": "agent-b", "other": "agent-b"})
+        lock.release("wt", token_b)
+        lock.release("other", other_token)
+        self.assertEqual(lock.holders, {})
+
+    def test_multiline_and_mult_word_secret_values_are_fully_redacted(self):
+        text = v.redact_text("token=super secret value here")
+        self.assertNotIn("secret value here", text)
+        self.assertEqual(text, "token=[REDACTED]")
+        self.assertNotIn("hunter2", v.redact_text("password: hunter2 and more"))
+        self.assertEqual(v.redact_text("token=abc\nsafe line"), "token=[REDACTED]\nsafe line")
+        self.assertTrue(v.is_secret_like("token=super secret value here"))
+
     def test_mandatory_diff_and_test_verification(self):
         good = v.verification_gate({"a.py": "old"}, {"a.py": "new"}, True, ["a.py"])
         self.assertTrue(good.passed)

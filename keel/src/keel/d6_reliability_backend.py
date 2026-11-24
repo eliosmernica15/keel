@@ -1239,9 +1239,9 @@ def audit_docstrings(source: str, path: str,
                                        f"word_budget_exceeded:{words}"))
         return doc
 
-    module_doc = check_doc(tree, "module", "<module>")
-    if not module_doc.strip():
-        findings.append(DocFinding(path, 1, "<module>", "module", "missing_docstring"))
+    # ``check_doc`` already reports a missing/blank module docstring; do not
+    # append a second, identical finding here.
+    check_doc(tree, "module", "<module>")
     for node in tree.body:
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             continue
