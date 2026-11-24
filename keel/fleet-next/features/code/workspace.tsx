@@ -102,30 +102,36 @@ export function useProjects(storageKey: string): ProjectsController {
   const [error, setError] = useState<string | null>(null);
   const [bridgeDown, setBridgeDown] = useState(false);
   const [tick, setTick] = useState(0);
+  const requestId = useRef(0);
   const [selectedId, setSelectedIdState] = useState<string | null>(() => {
     try { return localStorage.getItem(storageKey); } catch { return null; }
   });
 
   useEffect(() => {
+    // StrictMode and rapid trust/refresh actions can leave two GETs in flight.
+    // Without a sequence guard a slower, older response can land last and
+    // overwrite the newer trust state (a real parallel-load race).
+    const id = ++requestId.current;
     let alive = true;
+    const current = () => alive && id === requestId.current;
     setLoading(true);
     setError(null);
     setBridgeDown(false);
     bridge.projects()
       .then((res) => {
-        if (!alive) return;
+        if (!current()) return;
         const list = asArray<unknown>(res, ["projects"])
           .map(normalizeProject)
           .filter((p): p is Project => p !== null);
         setProjects(list);
       })
       .catch((err) => {
-        if (!alive) return;
+        if (!current()) return;
         setError(errMessage(err));
         setBridgeDown(isBridgeUnavailable(err));
         setProjects([]);
       })
-      .finally(() => { if (alive) setLoading(false); });
+      .finally(() => { if (current()) setLoading(false); });
     return () => { alive = false; };
   }, [tick]);
 
@@ -276,22 +282,33 @@ export function useTree(projectId: string | null, enabled: boolean) {
   const [error, setError] = useState<string | null>(null);
   const [bridgeDown, setBridgeDown] = useState(false);
   const [tick, setTick] = useState(0);
+  const requestId = useRef(0);
 
   useEffect(() => {
-    if (!projectId || !enabled) { setNodes([]); setError(null); return; }
+    // Invalidate any in-flight read when the pane is disabled or the project
+    // changes, so an older tree can never land after the newer empty state.
+    if (!projectId || !enabled) {
+      requestId.current += 1;
+      setNodes([]); setError(null);
+      return;
+    }
+    // Same stale-response guard as useProjects: a slow older tree read must
+    // never overwrite a newer project's (or newer refresh's) file list.
+    const id = ++requestId.current;
     let alive = true;
+    const current = () => alive && id === requestId.current;
     setLoading(true);
     setError(null);
     setBridgeDown(false);
     bridge.projectTree(projectId)
-      .then((res) => { if (alive) setNodes(buildTree(res)); })
+      .then((res) => { if (current()) setNodes(buildTree(res)); })
       .catch((err) => {
-        if (!alive) return;
+        if (!current()) return;
         setError(errMessage(err));
         setBridgeDown(isBridgeUnavailable(err));
         setNodes([]);
       })
-      .finally(() => { if (alive) setLoading(false); });
+      .finally(() => { if (current()) setLoading(false); });
     return () => { alive = false; };
   }, [projectId, enabled, tick]);
 

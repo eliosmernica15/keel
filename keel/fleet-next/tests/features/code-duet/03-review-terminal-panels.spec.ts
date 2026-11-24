@@ -1,6 +1,8 @@
 import { expect, test } from "./fixtures";
 
 async function trust(page: import("@playwright/test").Page) {
+  await expect(page.getByRole("combobox", { name: "Active project" })).toHaveValue("p1");
+  await expect(page.locator("section[aria-labelledby='trust-title'], [data-tree-row]").first()).toBeVisible();
   const gate = page.locator("section[aria-labelledby='trust-title']");
   if (await gate.count()) await gate.getByRole("button", { name: /Trust this folder/ }).click();
   await expect(gate).toHaveCount(0);

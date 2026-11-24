@@ -107,6 +107,35 @@
 .contextTabs { padding: 6px 8px 0; border-bottom: 1px solid var(--line); }
 .contextBody { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
 
+/* Review pair — identity and review state from real bridge bots/rows. */
+.pair { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; overflow: auto; }
+.pairCards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 12px; }
+.pairCard { padding: 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--card); min-width: 0; }
+.pairCard[data-pair-role="reviewer"] { border-left: 3px solid var(--info); }
+.pairCard[data-pair-state="unconfigured"] { background: var(--panel); }
+.pairCardHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.pairCardHead h4 { margin: 0; font-size: 14px; font-weight: 600; }
+.pairFacts { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr); gap: 5px 10px; margin: 0; font-size: 12px; }
+.factPair { display: contents; }
+.factPair dt { color: var(--muted); }
+.factPair dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.notReported { color: var(--muted); font-style: italic; }
+.pairCardNote { margin: 10px 0 0; padding: 8px 9px; border-left: 2px solid var(--info); background: var(--panel); color: var(--body); font-size: 12px; line-height: 1.55; }
+.pairState { margin: 0 12px 12px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.pairState h4 { margin: 0 0 10px; font-size: 13px; font-weight: 600; }
+.commentList { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.comment { border: 1px solid var(--line); border-radius: 8px; background: var(--code); overflow: hidden; }
+.commentHead { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border-bottom: 1px solid var(--line); }
+.commentBody { margin: 0; padding: 9px; font-size: 12px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.pairFoot { margin: auto 12px 12px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.55; }
+.pairFoot code { font-family: var(--font-mono, "JetBrains Mono", monospace); }
+.centered { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); font-size: 12px; }
+.centered p { margin: 0; }
+
+@media (max-width: 900px) {
+  .pairCards { grid-template-columns: minmax(0, 1fr); }
+}
+
 @media (max-width: 900px) {
   .tabbar { gap: 5px; }
   .tabsStrip { flex-basis: 100%; order: 3; }

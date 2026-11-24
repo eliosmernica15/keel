@@ -14,9 +14,12 @@ import {
   TerminalView, TreeView, useNarrow, useProjects, useTree,
   type TerminalState,
 } from "@/features/code/workspace";
+import ReviewPairView from "./reviewPair";
 import s from "./duet.module.css";
 
-type TabKind = "review" | "terminal" | "openfile" | "browser" | "file";
+// `pair` is opened on demand (button / command), never added to DEFAULT_TABS:
+// the default four tabs and their persisted layout stay exactly as before.
+type TabKind = "review" | "terminal" | "openfile" | "browser" | "file" | "pair";
 interface WorkspaceTab { id: string; kind: TabKind; path?: string }
 type ContextTab = "context" | "environment";
 
@@ -83,6 +86,7 @@ function tabIcon(kind: TabKind): React.ReactNode {
     case "openfile": return <Icon name="search" size={14} />;
     case "browser": return <Icon name="browser" size={14} />;
     case "file": return <Icon name="file" size={14} />;
+    case "pair": return <Icon name="duet" size={14} />;
   }
 }
 
@@ -91,6 +95,7 @@ function tabLabel(tab: WorkspaceTab): string {
   if (tab.kind === "browser") return "Browser";
   if (tab.kind === "openfile") return "Open file";
   if (tab.kind === "terminal") return "Terminal";
+  if (tab.kind === "pair") return "Review pair";
   return "Review";
 }
 
@@ -356,6 +361,7 @@ export default function Duet() {
       { id: "duet.quickOpen", label: "Quick open file", group: "Duet", hint: "Ctrl/Cmd+P", run: () => openKind("openfile") },
       { id: "duet.review", label: "Open Review tab", group: "Duet", run: () => openKind("review") },
       { id: "duet.terminal", label: "Open Terminal tab", group: "Duet", run: () => openKind("terminal") },
+      { id: "duet.pair", label: "Open review pair (builder and reviewer)", group: "Duet", run: () => openKind("pair") },
       { id: "duet.resetLayout", label: "Reset Duet layout", group: "Duet", run: resetLayout },
     ]);
   }, [registerCommands, openKind]);
@@ -481,6 +487,9 @@ export default function Duet() {
               </div>
             )}
           </div>
+          <IconButton label="Open review pair (builder and reviewer)" active={activeTab?.kind === "pair"} onClick={() => openKind("pair")}>
+            <Icon name="duet" size={15} />
+          </IconButton>
           <IconButton label="Reset Duet layout" onClick={resetLayout}><Icon name="refresh" size={15} /></IconButton>
           <IconButton label="Add a local project" onClick={() => { setAddError(null); setAddOpen(true); }}><Icon name="plus" size={15} /></IconButton>
           {narrow && (
@@ -528,7 +537,11 @@ export default function Duet() {
         )}
 
         <main className={s.main} aria-label="Duet active workspace">
-          {gate ?? (
+          {/* Review pair reads bots/rows, not project files, so it is available
+              without trusting a folder. It never edits or executes anything. */}
+          {activeTab?.kind === "pair" ? (
+            <section className={s.pane}><ReviewPairView /></section>
+          ) : gate ?? (
             !project ? <EmptyProject onAdd={() => setAddOpen(true)} /> :
               !activeTab ? (
                 <EmptyState icon={<Icon name="panel" size={28} />} title="No tabs open"

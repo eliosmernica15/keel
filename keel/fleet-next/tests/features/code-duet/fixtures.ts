@@ -19,6 +19,10 @@ export interface BridgeState {
   shellPolls: number;
   shellKilled: boolean;
   shellHandle: string | null;
+  /** Real-shaped bot records and transcript rows for the Duet review pair.
+   *  Defaults are empty so tests must opt in to any "configured" state. */
+  bots: Record<string, unknown>[];
+  botRows: Record<string, Record<string, unknown>[]>;
 }
 
 export interface Harness {
@@ -60,6 +64,8 @@ export const test = base.extend<{ harness: Harness }>({
       shellPolls: 0,
       shellKilled: false,
       shellHandle: null,
+      bots: [],
+      botRows: {},
     };
     const requests: CapturedRequest[] = [];
     const consoleErrors: string[] = [];
@@ -96,6 +102,15 @@ export const test = base.extend<{ harness: Harness }>({
         { id: "p1", name: "Alpha", path: "C:\\work\\alpha", trusted: state.trusted.p1 === true },
         { id: "p2", name: "Beta", path: "C:\\work\\beta", trusted: state.trusted.p2 === true },
       ];
+
+      // Bots and their rows are real bridge envelopes (UI-BACKEND-CONTRACT
+      // §3.1). Tests set `harness.state.bots` / `.botRows` explicitly; an
+      // empty default keeps every existing test honest about unconfigured
+      // reviewer state.
+      if (method === "GET" && path === "bots") return json({ bots: state.bots });
+      if (segments[0] === "bots" && segments[2] === "rows" && method === "GET") {
+        return json({ bot_id: segments[1], rows: state.botRows?.[segments[1]] ?? [] });
+      }
 
       if (method === "GET" && path === "providers") {
         return json({ providers: [{ name: "fixture-provider", configured: true }], session_keys: [] });

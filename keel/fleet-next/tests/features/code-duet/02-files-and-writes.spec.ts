@@ -1,8 +1,16 @@
 import { expect, test } from "./fixtures";
 
 async function trustAndOpen(page: import("@playwright/test").Page, path: string) {
+  // Wait for hydration before deciding whether a trust gate exists. Under
+  // parallel load the tabpanel can be visible before the project list lands;
+  // checking too early used to skip trust and then time out on the tree.
+  await expect(page.getByRole("combobox", { name: "Active project" })).toHaveValue("p1");
+  await expect(page.locator("section[aria-labelledby='trust-title'], [data-tree-row]").first()).toBeVisible();
   const gate = page.locator("section[aria-labelledby='trust-title']");
-  if (await gate.count()) await gate.getByRole("button", { name: /Trust this folder/ }).click();
+  if (await gate.count()) {
+    await gate.getByRole("button", { name: /Trust this folder/ }).click();
+    await expect(gate).toHaveCount(0);
+  }
   await page.locator(`[data-tree-row="${path}"]`).click();
   await expect(page.getByRole("tab", { name: new RegExp(path.split("/").pop()!.replace(".", "\\.")) })).toBeVisible();
 }

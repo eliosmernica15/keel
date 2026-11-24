@@ -15,8 +15,10 @@ export default defineConfig({
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
-  timeout: 90_000,
-  expect: { timeout: 12_000 },
+  // Headroom for shared CI/dev machines where several feature suites and
+  // their Next dev servers compile concurrently.
+  timeout: 150_000,
+  expect: { timeout: 15_000 },
   reporter: [["list"]],
   outputDir: path.join(__dirname, "test-results"),
   use: {
