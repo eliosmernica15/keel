@@ -23,8 +23,9 @@ Date: 2026-11-24.
 ## Verification
 - Registry consistency, dependency-graph freshness, license gate: all green.
 - Offline CI lane + 4 offline runtime tests pass.
-- Per-batch targeted tests: all passing (hundreds of tests).
-- Final full suite: see `master-plan-v6-test-evidence.md` (authoritative final run to be recorded at completion).
+- Per-batch targeted tests: all passing across 42 specialist branches.
+- **Final full suite: 2963 passed, 48 skipped, 2502 subtests, 0 failed** (`python -m pytest -q -o faulthandler_timeout=120`, 461s, commit `38ae621`). See `master-plan-v6-test-evidence.md`.
+- Fixed a genuine test-pollution defect: the offline import test evicted all `keel.*` modules from `sys.modules` without restoring them, invalidating class identities captured by other tests; it now snapshots/restores them. No test was deleted or weakened.
 
 ## Remaining
 - **All locally achievable P0 features are complete.** Registry: 433 verified / 430 not_started (all P1/P2) / 2 blocked.
