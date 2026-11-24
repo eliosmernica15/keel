@@ -696,7 +696,18 @@ def _approval_key_file(state_root: Path) -> bytes:
         try:
             descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         except FileExistsError:
-            existing = path.read_bytes().strip()
+            existing = b""
+            # O_EXCL creates the file before the writer fills it. A reader
+            # that observes an empty file must retry briefly rather than
+            # quarantine a valid key that is still being initialised.
+            for _read_attempt in range(20):
+                try:
+                    existing = path.read_bytes().strip()
+                except OSError:
+                    existing = b""
+                if existing:
+                    break
+                time.sleep(0.005)
             if len(existing) == 64:
                 try:
                     return bytes.fromhex(existing.decode("ascii"))

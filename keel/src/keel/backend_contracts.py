@@ -564,7 +564,9 @@ def annotation_schema(annotation: Any) -> dict[str, Any]:
     origin = get_origin(resolved)
     args = get_args(resolved)
     if origin is Literal:
-        return {"type": "string", "enum": [_default_json(v) for v in args]}
+        # Enum members carry their own JSON type (e.g. int, bool, None);
+        # declaring them all as strings would be an inaccurate contract.
+        return {"enum": [_default_json(v) for v in args]}
     if origin is typing.Union or isinstance(resolved, types.UnionType):
         return {"anyOf": [annotation_schema(arg) for arg in args]}
     if origin in (list, tuple, set, frozenset, collections.abc.Sequence,
