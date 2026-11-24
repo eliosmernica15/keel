@@ -13,6 +13,7 @@ rows as typed configuration/data:
   D1.10 desktop shell descriptor (signed production runtime in resources,
         the shell owns the UI); descriptor only, no packaging ................ DesktopShellDescriptor, assert_descriptor_complete
   D1.12 core package map: six context service keys with responsibilities .... CoreService, CORE_PACKAGE_MAP, assert_core_map_complete
+   hardening: extension manifest trust, forbidden capabilities, dependency graph .. validate_extension_manifest, PluginRegistry.validate_dependencies
 
 No plugin is ever imported, instantiated or executed here: ``implementation``
 fields are inert ``module:qualname`` strings.  There is no I/O, no subprocess,
@@ -27,7 +28,7 @@ import json
 import re
 from dataclasses import dataclass, field, fields, replace
 from enum import Enum
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Callable, Iterable, Mapping, Sequence
 
 
 # ---------------------------------------------------------------------------
@@ -92,6 +93,26 @@ class DescriptorError(PluginContractError):
 
 class SecretLeakError(PluginContractError):
     """A rendered config contains a secret value."""
+
+
+class _CodedPluginError(PluginContractError):
+    """Typed error carrying a machine-readable ``code`` (no secret values)."""
+
+    def __init__(self, code: str, message: str = "") -> None:
+        self.code = code
+        super().__init__(f"[{code}] {message or code}")
+
+
+class ManifestError(_CodedPluginError):
+    """An extension manifest is malformed or requests a forbidden capability."""
+
+
+class ExtensionTrustError(_CodedPluginError):
+    """An extension is untrusted, unsigned or from an untrusted publisher."""
+
+
+class DependencyError(_CodedPluginError):
+    """A part dependency is missing, self-referential or cyclic."""
 
 
 # ---------------------------------------------------------------------------
@@ -187,17 +208,31 @@ class PluginPart:
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "PluginPart":
+        if not isinstance(data, Mapping):
+            raise PartDescriptorError("descriptor must be a mapping")
         d = dict(data)
+        raw_config = d.get("config")
+        if raw_config is not None and not isinstance(raw_config, Mapping):
+            raise PartDescriptorError("descriptor config must be a mapping")
+        try:
+            kind = PartKind(d.get("kind", PartKind.MODEL_ADAPTER.value))
+            tier = ServiceTier(d.get("tier", ServiceTier.CORE.value))
+            config = dict(raw_config or {})
+            dependencies = tuple(d.get("dependencies") or ())
+        except (ValueError, TypeError) as exc:
+            # Error isolation: never leak a raw ValueError/TypeError from a
+            # descriptor loaded from an untrusted config file.
+            raise PartDescriptorError(f"malformed descriptor: {exc}") from None
         return cls(
             id=str(d.get("id") or ""),
-            kind=PartKind(d.get("kind", PartKind.MODEL_ADAPTER.value)),
+            kind=kind,
             implementation=str(d.get("implementation") or "unknown:unknown"),
-            tier=ServiceTier(d.get("tier", ServiceTier.CORE.value)),
+            tier=tier,
             replaceable=bool(d.get("replaceable", True)),
             protected=bool(d.get("protected", False)),
-            config=dict(d.get("config") or {}),
+            config=config,
             responsibility=str(d.get("responsibility") or ""),
-            dependencies=tuple(d.get("dependencies") or ()),
+            dependencies=dependencies,
         )
 
 
@@ -289,6 +324,41 @@ class PluginRegistry:
             raise ProtectedCoreOverride(
                 f"protected part {part_id!r} cannot be replaced or disabled")
         return part
+
+    def validate_dependencies(self) -> tuple[str, ...]:
+        """Prove every dependency resolves and the graph is acyclic.
+
+        Registration deliberately stays permissive (a layer may register a
+        part before its dependency arrives).  Boot must call this method:
+        missing, self-referential or cyclic dependencies are a hard, typed
+        failure instead of a partial composition.  Returns a stable
+        topological order of part ids.
+        """
+        ids = set(self._parts)
+        for part in self._parts.values():
+            for dependency in part.dependencies:
+                if dependency == part.id:
+                    raise DependencyError("self_dependency", part.id)
+                if dependency not in ids:
+                    raise DependencyError("unknown_dependency", dependency)
+        order: list[str] = []
+        state: dict[str, int] = {}
+
+        def visit(part_id: str, stack: tuple[str, ...]) -> None:
+            mark = state.get(part_id, 0)
+            if mark == 2:
+                return
+            if mark == 1 or part_id in stack:
+                raise DependencyError("cyclic_dependency", part_id)
+            state[part_id] = 1
+            for dependency in self._parts[part_id].dependencies:
+                visit(dependency, stack + (part_id,))
+            state[part_id] = 2
+            order.append(part_id)
+
+        for part_id in self.ids():
+            visit(part_id, ())
+        return tuple(order)
 
     def to_dict(self) -> dict:
         return {"parts": [p.to_dict() for p in self.parts],
@@ -965,3 +1035,144 @@ def assert_core_map_complete(registry: PluginRegistry | None = None) -> None:
                 f"service key {key!r} references unknown part {service.part_id!r}")
     if not CORE_PACKAGE_MAP["tools"].guarded:
         raise PluginContractError("the tool registry must expose a guarded pipeline")
+
+
+# ---------------------------------------------------------------------------
+# Production hardening -- extension manifests, trust and capability limits
+# ---------------------------------------------------------------------------
+
+# Conservatively refused even if a manifest asks for them: these let an
+# extension act on the host's behalf rather than merely expose data/tools.
+FORBIDDEN_EXTENSION_CAPABILITIES: frozenset[str] = frozenset({
+    "sampling", "elicitation", "roots", "exec", "execute", "shell",
+    "spawn", "process_control", "write", "patch", "network", "irreversible",
+})
+_MANIFEST_KINDS: frozenset[str] = frozenset({"mcp", "skill", "plugin", "tool"})
+_TRUST_LEVELS: frozenset[str] = frozenset({"signed", "verified", "untrusted"})
+_SAFE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+_SAFE_VERSION_RE = re.compile(
+    r"^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$")
+_SAFE_COMMAND_RE = re.compile(
+    r"^[A-Za-z0-9_./\\][A-Za-z0-9_./\\ :=@,+-]{0,255}$")
+_SAFE_ARG_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_./\\:=@,+-]{0,255}$")
+
+
+@dataclass(frozen=True)
+class ExtensionManifest:
+    """A validated, inert manifest.  No code is imported or executed."""
+
+    id: str
+    version: str
+    kind: str
+    trust: str
+    publisher: str
+    signature: str
+    capabilities: tuple[str, ...]
+    dependencies: tuple[str, ...]
+    command: str = ""
+    args: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict:
+        # Signature is deliberately omitted: dumps must not carry credentials.
+        return {
+            "id": self.id, "version": self.version, "kind": self.kind,
+            "trust": self.trust, "publisher": self.publisher,
+            "capabilities": list(self.capabilities),
+            "dependencies": list(self.dependencies),
+            "command": self.command, "args": list(self.args),
+        }
+
+
+def validate_extension_manifest(
+    data: Any,
+    *,
+    require_signature: bool = True,
+    trusted_publishers: Sequence[str] = (),
+    forbidden: frozenset[str] | Sequence[str] = FORBIDDEN_EXTENSION_CAPABILITIES,
+    policy: Callable[[ExtensionManifest, str], bool] | None = None,
+) -> ExtensionManifest:
+    """Validate an untrusted manifest before it can register anything.
+
+    Rejects unsafe identifiers/commands, unknown versions, forbidden
+    capabilities, unsigned or explicitly untrusted extensions and publishers
+    outside the caller's allowlist.  This is *structural* trust validation:
+    cryptographic signature verification and package integrity are the
+    installer's job and are not performed here.
+    """
+    if not isinstance(data, Mapping):
+        raise ManifestError("bad_manifest")
+    identifier = data.get("id")
+    if not isinstance(identifier, str) or not _SAFE_ID_RE.fullmatch(identifier) \
+            or ".." in identifier:
+        raise ManifestError("bad_id")
+    version = data.get("version")
+    if not isinstance(version, str) or not _SAFE_VERSION_RE.fullmatch(version):
+        raise ManifestError("bad_version")
+    kind = data.get("kind")
+    if not isinstance(kind, str) or kind.strip().lower() not in _MANIFEST_KINDS:
+        raise ManifestError("bad_kind")
+    trust = data.get("trust")
+    if not isinstance(trust, str) or trust.strip().lower() not in _TRUST_LEVELS:
+        raise ExtensionTrustError("bad_trust")
+    trust = trust.strip().lower()
+    if trust == "untrusted":
+        raise ExtensionTrustError("untrusted_extension")
+    publisher = data.get("publisher", "")
+    if not isinstance(publisher, str) or not publisher or not _SAFE_ID_RE.fullmatch(publisher):
+        raise ExtensionTrustError("bad_publisher")
+    if trusted_publishers and publisher not in set(trusted_publishers):
+        raise ExtensionTrustError("untrusted_publisher")
+    signature = data.get("signature")
+    if require_signature and (not isinstance(signature, str) or not signature.strip()):
+        raise ExtensionTrustError("missing_signature")
+
+    raw_capabilities = data.get("capabilities", ())
+    if isinstance(raw_capabilities, (str, bytes)) or not isinstance(
+            raw_capabilities, (list, tuple)):
+        raise ManifestError("bad_capability")
+    capabilities: list[str] = []
+    forbidden_names = {str(item).strip().lower() for item in forbidden or ()}
+    for capability in raw_capabilities:
+        if not isinstance(capability, str) or not capability.strip() \
+                or len(capability) > 64:
+            raise ManifestError("bad_capability")
+        if capability.strip().lower() in forbidden_names:
+            raise ManifestError("forbidden_capability")
+        capabilities.append(capability.strip())
+
+    raw_dependencies = data.get("dependencies", ())
+    if isinstance(raw_dependencies, (str, bytes)) or not isinstance(
+            raw_dependencies, (list, tuple)):
+        raise ManifestError("bad_dependency")
+    dependencies: list[str] = []
+    for dependency in raw_dependencies:
+        if not isinstance(dependency, str) or not _SAFE_ID_RE.fullmatch(dependency):
+            raise ManifestError("bad_dependency")
+        if dependency == identifier:
+            raise ManifestError("self_dependency")
+        dependencies.append(dependency)
+
+    command = data.get("command", "")
+    if command is None:
+        command = ""
+    if not isinstance(command, str) or (command and not _SAFE_COMMAND_RE.fullmatch(command)):
+        raise ManifestError("unsafe_command")
+    raw_args = data.get("args", ())
+    if isinstance(raw_args, (str, bytes)) or not isinstance(raw_args, (list, tuple)):
+        raise ManifestError("unsafe_command")
+    args: list[str] = []
+    for arg in raw_args:
+        if not isinstance(arg, str) or not _SAFE_ARG_RE.fullmatch(arg):
+            raise ManifestError("unsafe_command")
+        args.append(arg)
+
+    manifest = ExtensionManifest(
+        id=identifier, version=version, kind=kind.strip().lower(),
+        trust=trust, publisher=publisher,
+        signature=signature if isinstance(signature, str) else "",
+        capabilities=tuple(capabilities), dependencies=tuple(dependencies),
+        command=command, args=tuple(args),
+    )
+    if policy is not None and policy(manifest, "extension") is False:
+        raise ExtensionTrustError("policy_denied")
+    return manifest
