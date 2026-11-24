@@ -7,7 +7,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon, IconButton } from "@/components/icons";
 import { Button } from "@/components/ui";
-import { bridge, errMessage, SLASH_COMMANDS } from "@/lib/api";
+import { errMessage, SLASH_COMMANDS } from "@/lib/api";
 import type { Notice } from "@/lib/types";
 import { textOf } from "./shared";
 import s from "./cowork.module.css";
@@ -32,6 +32,8 @@ interface Chip {
   libraryId?: string;
   libraryName?: string;
   error?: string;
+  /** Percent of bytes actually sent, reported by XMLHttpRequest. */
+  progress?: number;
 }
 
 const STATUS_LABEL: Record<ChipStatus, string> = {
@@ -52,6 +54,34 @@ function readDataUrl(file: File): Promise<string> {
     reader.onload = () => resolve(String(reader.result ?? ""));
     reader.onerror = () => reject(new Error(`Could not read ${file.name}`));
     reader.readAsDataURL(file);
+  });
+}
+
+/** POST the real library body with XHR so upload progress is measured from
+ *  bytes actually sent. A percentage is only shown when the browser reports a
+ *  computable total; server confirmation still decides the final state. */
+function postLibrary(payload: Record<string, string>, onProgress: (percent: number) => void): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/bridge/library");
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && event.total > 0) {
+        onProgress(Math.max(0, Math.min(99, Math.round((event.loaded / event.total) * 100))));
+      }
+    };
+    xhr.onload = () => {
+      let body: unknown = null;
+      try { body = JSON.parse(xhr.responseText); } catch { /* non-JSON error body */ }
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(new Error(errMessage(body) !== "Request failed" ? errMessage(body) : `Upload failed (HTTP ${xhr.status}).`));
+        return;
+      }
+      resolve(body);
+    };
+    xhr.onerror = () => reject(new Error("Upload failed — the local bridge could not be reached."));
+    xhr.onabort = () => reject(new Error("Upload was cancelled."));
+    xhr.send(JSON.stringify(payload));
   });
 }
 
@@ -83,6 +113,10 @@ export interface ComposerProps {
   onModeChange: (m: ComposerMode) => void;
   modelLabel?: string;
   providerLabel?: string;
+  /** Offline model ids reported by the bridge's provider catalog. */
+  models?: string[];
+  modelSaving?: boolean;
+  onModelChange?: (model: string) => void;
   error?: string | null;
   onRetry?: () => void;
   seed?: { text: string; nonce: number };
@@ -94,11 +128,19 @@ export interface ComposerProps {
 
 const draftKey = (id: string | null) => `keel-draft:${id ?? "home"}`;
 
+function readDraft(id: string | null): string {
+  try { return localStorage.getItem(draftKey(id)) ?? ""; } catch { return ""; }
+}
+
 export default function Composer({
   botId, busy, onSend, ensureBot, onStop, mode, onModeChange, modelLabel, providerLabel,
+  models, modelSaving, onModelChange,
   error, onRetry, seed, focusSignal, large, placeholder, notify,
 }: ComposerProps) {
-  const [text, setText] = useState("");
+  // Initialise from storage during render (the Cowork parent keys this
+  // component by session). An effect-based hydration raced the persist effect
+  // under React StrictMode and silently erased the draft on remount.
+  const [text, setText] = useState(() => readDraft(botId));
   const [chips, setChips] = useState<Chip[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [slashDismissed, setSlashDismissed] = useState(false);
@@ -118,15 +160,6 @@ export default function Composer({
   const patchChip = useCallback((id: number, patch: Partial<Chip>) => {
     setChipsList(chipsRef.current.map((c) => c.id === id ? { ...c, ...patch } : c));
   }, [setChipsList]);
-
-  // hydrate the draft for the selected bot; never share drafts across bots
-  useEffect(() => {
-    let stored = "";
-    try { stored = localStorage.getItem(draftKey(botId)) ?? ""; } catch { /* storage disabled */ }
-    setText(stored);
-    if (!sendingRef.current) setChipsList([]);
-    setSlashDismissed(false);
-  }, [botId, setChipsList]);
 
   useEffect(() => {
     try {
@@ -186,18 +219,18 @@ export default function Composer({
 
   /** Upload one real file. State changes only after the bridge responds. */
   const uploadOne = useCallback(async (chip: Chip, targetBotId: string): Promise<UploadedFile | null> => {
-    patchChip(chip.id, { status: "uploading", error: undefined });
+    patchChip(chip.id, { status: "uploading", error: undefined, progress: undefined });
     try {
       const payload = await buildUploadPayload(chip.file, targetBotId);
-      const response = await bridge.uploadLibrary(payload) as { file?: Record<string, unknown> } | null;
-      const record = (response && typeof response === "object" ? (response.file ?? response) : null) as Record<string, unknown> | null;
+      const response = await postLibrary(payload, (percent) => patchChip(chip.id, { progress: percent }));
+      const record = (response && typeof response === "object" ? ((response as Record<string, unknown>).file ?? response) : null) as Record<string, unknown> | null;
       const id = textOf(record?.id);
       if (!id) throw new Error("The bridge did not return a library file id.");
       const name = textOf(record?.name) || chip.file.name;
-      patchChip(chip.id, { status: "done", libraryId: id, libraryName: name });
+      patchChip(chip.id, { status: "done", libraryId: id, libraryName: name, progress: 100 });
       return { id, name };
     } catch (err) {
-      patchChip(chip.id, { status: "failed", error: errMessage(err) });
+      patchChip(chip.id, { status: "failed", error: errMessage(err), progress: undefined });
       return null;
     }
   }, [patchChip]);
@@ -302,7 +335,15 @@ export default function Composer({
                     size={14}
                   />
                   <span className={s.uploadName} title={chip.file.name}>{chip.file.name}</span>
-                  <span className={`${s.uploadStatus} ${STATUS_CLASS[chip.status]}`}>{STATUS_LABEL[chip.status]}</span>
+                  <span className={`${s.uploadStatus} ${STATUS_CLASS[chip.status]}`}>
+                    {STATUS_LABEL[chip.status]}{chip.status === "uploading" && typeof chip.progress === "number" ? ` ${chip.progress}%` : ""}
+                  </span>
+                  {chip.status === "uploading" && (
+                    <span className={s.uploadMeter} role="progressbar" aria-label={`Uploading ${chip.file.name}`}
+                      aria-valuemin={0} aria-valuemax={100} aria-valuenow={chip.progress ?? 0}>
+                      <span style={{ width: `${chip.progress ?? 0}%` }} />
+                    </span>
+                  )}
                   {chip.status === "failed" && (
                     <button type="button" className={s.uploadRetry} onClick={() => void retryChip(chip)}>Retry</button>
                   )}
@@ -355,12 +396,22 @@ export default function Composer({
           >
             {MODES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select>
-          {(modelLabel || providerLabel) && (
-            <span className={s.infoChip} title="Active model reported by the bridge">
+          {models && models.length > 0 && onModelChange ? (
+            <label className={s.modelSelect} title="Model saved on this task by the bridge">
+              <Icon name="spark" size={13} />
+              <select className={s.select} value={modelLabel || models[0]}
+                disabled={modelSaving} aria-label="Model for this task"
+                onChange={(e) => onModelChange(e.target.value)}>
+                {modelLabel && !models.includes(modelLabel) && <option value={modelLabel}>{modelLabel} (current)</option>}
+                {models.map((m) => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </label>
+          ) : (modelLabel || providerLabel) ? (
+            <span className={s.infoChip} title="No model catalog was reported by the bridge; change the model in settings">
               <Icon name="spark" size={13} />
               <span className={s.infoText}>{[providerLabel, modelLabel].filter(Boolean).join(" · ")}</span>
             </span>
-          )}
+          ) : null}
           <span className={s.spacer} />
           {working ? (
             busy ? (

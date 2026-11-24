@@ -71,6 +71,10 @@ export default function Cowork() {
   const [sendError, setSendError] = useState<string | null>(null);
 
   const [mode, setMode] = useState<ComposerMode>("build");
+  const [offline, setOffline] = useState(false);
+  const [answeredAsks, setAnsweredAsks] = useState<Set<string>>(new Set());
+  const [models, setModels] = useState<string[]>([]);
+  const [modelSaving, setModelSaving] = useState(false);
 
   // Permission mode is a user preference shared with Settings and Onboarding.
   // Read it after mount (localStorage is unavailable during prerender) and
@@ -113,6 +117,20 @@ export default function Cowork() {
       const stored = localStorage.getItem("keel-cowork-bot");
       if (stored) setBotId(stored);
     } catch { /* storage disabled */ }
+  }, []);
+
+  // Honest offline state: reflect the browser's own connectivity signal and
+  // re-check the bridge when connectivity returns. Never claim "connected"
+  // from this alone — the bridge probe remains the source of truth.
+  useEffect(() => {
+    const sync = () => setOffline(!navigator.onLine);
+    sync();
+    window.addEventListener("offline", sync);
+    window.addEventListener("online", sync);
+    return () => {
+      window.removeEventListener("offline", sync);
+      window.removeEventListener("online", sync);
+    };
   }, []);
 
   const selectBot = useCallback((id: string | null) => {
@@ -179,9 +197,14 @@ export default function Cowork() {
   useEffect(() => { void loadBots(); void loadMeta(); void loadUsage(); }, [loadBots, loadMeta, loadUsage]);
 
   useEffect(() => {
-    if (!botId) { setRows([]); setBusy(false); setStreamText(""); return; }
+    if (!botId) { setRows([]); setBusy(false); setStreamText(""); setAnsweredAsks(new Set()); setModels([]); return; }
     void loadRows(botId);
     setWorkLogOpen(true);
+    try {
+      const raw = localStorage.getItem(`keel-ask-answered:${botId}`);
+      const ids = raw ? JSON.parse(raw) : [];
+      setAnsweredAsks(new Set(Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string") : []));
+    } catch { setAnsweredAsks(new Set()); }
   }, [botId, loadRows]);
 
   /* --------------------------- live event stream ------------------------ */
@@ -248,8 +271,10 @@ export default function Cowork() {
       },
       () => {
         if (disposed) return;
+        // A dropped SSE connection does not mean the agent's turn ended. Keep
+        // the last known stream visible and offer an explicit reconnect; only
+        // a real turn_end or backend error event clears the live state.
         setStreamError("The event stream was interrupted. Reconnect to resume live updates.");
-        setStreaming(false);
       },
     );
     return () => {
@@ -384,6 +409,14 @@ export default function Cowork() {
     if (!id || !askId) { notify("No question id was reported by the bridge.", "error"); return false; }
     try {
       await bridge.answerAsk(id, askId, value);
+      // The bridge does not rewrite the ask row on answer. Remember only the
+      // confirmed id (never the answer text) so a reload cannot show a stale
+      // "waiting for you" card.
+      setAnsweredAsks((prev) => {
+        const next = new Set(prev).add(askId);
+        try { localStorage.setItem(`keel-ask-answered:${id}`, JSON.stringify([...next])); } catch { /* ignore */ }
+        return next;
+      });
       await loadRows(id);
       notify("Answer sent.", "success");
       return true;
@@ -392,6 +425,19 @@ export default function Cowork() {
       return false;
     }
   }, [loadRows, notify]);
+
+  const changeModel = useCallback(async (model: string) => {
+    const id = botIdRef.current;
+    if (!id) return;
+    setModelSaving(true);
+    try {
+      const updated = unwrapBot(await bridge.updateBot(id, { model }));
+      setBots((prev) => prev.map((b) => b.id === id ? ((updated ?? { ...b, model }) as Bot) : b));
+      notify(`Model saved on this task: ${model}.`, "success");
+    } catch (err) {
+      notify(`Could not save the model: ${errMessage(err)}`, "error");
+    } finally { setModelSaving(false); }
+  }, [notify]);
 
   const copy = useCallback((row: RowView) => {
     void (async () => {
@@ -435,13 +481,32 @@ export default function Cowork() {
   /* --------------------------- derived view ----------------------------- */
 
   const bot = useMemo(() => bots.find((b) => b.id === botId) ?? null, [bots, botId]);
-  const status = deriveStatus(bot, rows, busy || streaming);
+
+  // Offline model catalogue for the active task. Only real bridge models are
+  // offered; if the catalog fails, the composer shows a read-only model label.
+  useEffect(() => {
+    let disposed = false;
+    setModels([]);
+    const provider = bot?.provider;
+    if (!botId || !provider) return () => { disposed = true; };
+    void (async () => {
+      try {
+        const result = await bridge.catalog({ name: provider, source: "offline" }) as { models?: unknown };
+        const list = Array.isArray(result?.models) ? result.models.filter((m): m is string => typeof m === "string") : [];
+        if (!disposed) setModels(list);
+      } catch { if (!disposed) setModels([]); }
+    })();
+    return () => { disposed = true; };
+  }, [botId, bot?.provider]);
+
+  const status = deriveStatus(bot, rows, busy || streaming, answeredAsks);
   const providerReady = providers.length === 0 ? null : providers.some((p) => p.configured || p.connected);
   const workspace = projects[0];
   const activeSince = status.state === "running" ? runStart : null;
 
   const composer = (
     <Composer
+      key={botId ?? "home"}
       botId={botId}
       busy={busy || streaming}
       onSend={send}
@@ -451,6 +516,9 @@ export default function Cowork() {
       onModeChange={changeMode}
       modelLabel={bot?.model}
       providerLabel={bot?.provider}
+      models={models}
+      modelSaving={modelSaving}
+      onModelChange={(m) => { void changeModel(m); }}
       error={sendError}
       onRetry={() => {
         const attempt = lastAttempt.current;
@@ -520,6 +588,12 @@ export default function Cowork() {
                 <button type="button" onClick={() => void loadMeta()}>Recheck</button>
               </div>
             )}
+            {offline && (
+              <div className={s.warnBanner} role="status">
+                <Icon name="warning" size={15} /> <span>You appear to be offline. Bridge status and live updates are unavailable until connectivity returns.</span>
+                <button type="button" onClick={() => { void loadBots(); void loadMeta(); }}>Recheck</button>
+              </div>
+            )}
           </div>
         </div>
       ) : (
@@ -547,13 +621,14 @@ export default function Cowork() {
             </a>
           </header>
 
-          {(botsError || rowsError || streamError || metaError || providerReady === false) && (
+          {(botsError || rowsError || streamError || metaError || providerReady === false || offline) && (
             <div className={s.banners}>
               {botsError && <div className={s.errorBanner} role="alert"><Icon name="error" size={15} /><span>{botsError}</span><button type="button" onClick={() => void loadBots()}>Retry</button></div>}
               {rowsError && <div className={s.errorBanner} role="alert"><Icon name="error" size={15} /><span>{rowsError}</span><button type="button" onClick={() => void loadRows(botId)}>Retry</button></div>}
               {streamError && <div className={s.errorBanner} role="alert"><Icon name="warning" size={15} /><span>{streamError}</span><button type="button" onClick={() => { setStreamError(null); setStreamKey((k) => k + 1); void loadRows(botId); }}>Reconnect</button></div>}
               {metaError && <div className={s.errorBanner} role="alert"><Icon name="error" size={15} /><span>{metaError}</span><button type="button" onClick={() => void loadMeta()}>Recheck</button></div>}
               {providerReady === false && <div className={s.warnBanner} role="status"><Icon name="warning" size={15} /> No configured provider was reported — messages may be rejected until a provider key is added.</div>}
+              {offline && <div className={s.warnBanner} role="status"><Icon name="warning" size={15} /><span>You appear to be offline. Live updates and bridge data may be stale.</span><button type="button" onClick={() => { void loadRows(botId); void loadBots(); }}>Recheck</button></div>}
             </div>
           )}
 
@@ -592,6 +667,7 @@ export default function Cowork() {
                 status={status}
                 library={library}
                 usage={usage}
+                answeredAskIds={answeredAsks}
                 onCopy={copy}
                 onFork={fork}
                 onRewind={rewind}

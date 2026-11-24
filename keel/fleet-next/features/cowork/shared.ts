@@ -181,26 +181,107 @@ export function changedFiles(rows: RowView[]): string[] {
   return files;
 }
 
+const RESOLVED_STATUSES = new Set([
+  "answered", "resolved", "approved", "denied", "never", "refused", "rejected",
+  "decided", "expired", "timeout", "timed_out", "cancelled", "canceled",
+]);
+
+/** A request whose advertised deadline has passed is stale, not pending.
+ *  The bridge rejects decisions on expired approvals; the UI must not keep
+ *  presenting them as actionable. */
+export function isExpired(row: RowView): boolean {
+  if (textOf(row.body.status).toLowerCase() === "expired") return true;
+  const raw = textOf(row.body.expires_at);
+  if (!raw) return false;
+  const ms = Date.parse(raw);
+  return Number.isFinite(ms) && Date.now() > ms;
+}
+
 export function isUnanswered(row: RowView): boolean {
+  if (row.kind !== "ask" && row.kind !== "approval") return false;
+  if (isExpired(row)) return false;
   const status = textOf(row.body.status ?? row.body.decision).toLowerCase();
-  if (row.kind === "ask") return !["answered", "resolved"].includes(status);
-  if (row.kind === "approval") {
-    return !["approved", "denied", "never", "refused", "rejected", "resolved", "decided"].includes(status);
+  return !RESOLVED_STATUSES.has(status);
+}
+
+const requestId = (row: RowView): string =>
+  textOf(row.body.approval_id ?? row.body.ask_id ?? row.body.id);
+
+/** The bridge appends a *second* approval row with the decision. Previous
+ *  pending rows must not keep the session in "waiting for you" forever, and
+ *  an answered ask (whose row is not rewritten by the bridge) is handled by
+ *  caller-supplied answered ids. */
+export function outstandingRequest(rows: RowView[], answeredAskIds: Set<string> = new Set()): RowView | null {
+  const latest = new Map<string, RowView>();
+  for (const row of rows) {
+    if (row.kind !== "ask" && row.kind !== "approval") continue;
+    const id = requestId(row);
+    if (!id || (row.kind === "ask" && answeredAskIds.has(id))) continue;
+    latest.set(id, row);
   }
-  return false;
+  let found: RowView | null = null;
+  for (const row of latest.values()) if (isUnanswered(row)) found = row;
+  return found;
+}
+
+export interface StepProgress { done: number; failed: number; running: number; total: number; }
+
+/** Progress comes only from step rows with a real status. The bridge emits a
+ *  `running` row and later a `done` row for the same tool; count the newest
+ *  state per tool so progress never double-counts or invents steps. */
+export function stepProgress(rows: RowView[]): StepProgress | null {
+  const latest = new Map<string, string>();
+  let reported = false;
+  for (const row of rows) {
+    if (row.kind !== "step") continue;
+    const status = textOf(row.body.status).toLowerCase();
+    if (!status) continue;
+    reported = true;
+    const id = textOf(row.body.id ?? row.body.tool_use_id)
+      || `${textOf(row.body.name ?? row.body.tool)}|${textOf(row.body.detail ?? row.body.path ?? row.body.command ?? "")}`;
+    latest.set(id, status);
+  }
+  if (!reported || latest.size === 0) return null;
+  const result: StepProgress = { done: 0, failed: 0, running: 0, total: latest.size };
+  for (const status of latest.values()) {
+    if (/done|complete|success|ok/.test(status)) result.done++;
+    else if (/fail|error|denied|cancel/.test(status)) result.failed++;
+    else if (/running|progress|active/.test(status)) result.running++;
+  }
+  return result;
+}
+
+/** Token/cost facts from the real turn_end body (not from global metadata). */
+export function turnUsageFacts(row: RowView): string[] {
+  const usage = (row.body.usage && typeof row.body.usage === "object" ? row.body.usage : {}) as Record<string, unknown>;
+  const out: string[] = [];
+  const inTokens = usage.input_tokens;
+  const outTokens = usage.output_tokens;
+  if (typeof inTokens === "number" || typeof outTokens === "number") {
+    const ins = typeof inTokens === "number" ? inTokens.toLocaleString() : "?";
+    const outs = typeof outTokens === "number" ? outTokens.toLocaleString() : "?";
+    out.push(`${ins} in · ${outs} out tokens`);
+  }
+  if (typeof usage.cost === "number") out.push(`$${usage.cost.toFixed(4)}`);
+  return out;
 }
 
 export interface StatusInfo { state: WorkState; label: string; reason?: string; }
 
 /** Every state below is derived from real bot fields, rows or turn metadata. */
-export function deriveStatus(bot: Bot | null, rows: RowView[], busy: boolean): StatusInfo {
+export function deriveStatus(bot: Bot | null, rows: RowView[], busy: boolean, answeredAskIds: Set<string> = new Set()): StatusInfo {
   const raw = `${textOf(bot?.state)} ${textOf(bot?.status)}`.trim().toLowerCase();
-  const waiting = rows.find(isUnanswered);
+  const waiting = outstandingRequest(rows, answeredAskIds);
   if (waiting) {
     const reason = textOf(waiting.body.question ?? waiting.body.description ?? waiting.body.operation ?? waiting.body.tool_name);
     return { state: "waiting-for-user", label: "Waiting for you", reason: reason || undefined };
   }
-  if (busy || rows.some((r) => r.kind === "step" && textOf(r.body.status).toLowerCase() === "running")) {
+  // A persisted `running` step from an already-ended turn is not live work.
+  const lastEndSeq = [...rows].reverse().find((r) => r.kind === "turn_end")?.seq;
+  const liveStep = rows.some((r) => r.kind === "step"
+    && textOf(r.body.status).toLowerCase() === "running"
+    && (lastEndSeq == null || (typeof r.seq === "number" && typeof lastEndSeq === "number" && r.seq > lastEndSeq)));
+  if (busy || liveStep) {
     return { state: "running", label: "Running" };
   }
   if (/fail|error/.test(raw)) return { state: "failed", label: "Failed", reason: textOf(bot?.state ?? bot?.status) || undefined };

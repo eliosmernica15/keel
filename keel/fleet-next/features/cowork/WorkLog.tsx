@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/icons";
 import { Badge, StatusDot } from "@/components/ui";
 import {
-  formatDuration, formatTime, humanSummary, safeJson, textOf, toolVerb,
+  formatDuration, formatTime, humanSummary, safeJson, stepProgress, textOf, toolVerb,
   type RowView, type StatusInfo, type WorkState,
 } from "./shared";
 import s from "./cowork.module.css";
@@ -27,6 +27,17 @@ type Group =
 const TONE: Record<WorkState, "success" | "warning" | "danger" | "info" | "neutral"> = {
   running: "info", queued: "warning", paused: "warning", "waiting-for-user": "warning",
   failed: "danger", cancelled: "danger", completed: "success", idle: "neutral",
+};
+
+const ACTIVE_TEXT: Record<WorkState, string> = {
+  running: "Agent is working",
+  queued: "Queued — waiting for the current turn to finish",
+  paused: "Paused",
+  "waiting-for-user": "Waiting for your decision",
+  failed: "Turn failed",
+  cancelled: "Turn cancelled",
+  completed: "Turn completed",
+  idle: "Ready",
 };
 
 function groupsOf(rows: RowView[]): Group[] {
@@ -58,28 +69,48 @@ export default function WorkLog({ rows, status, activeSince, expanded, onToggle 
   }, [activeSince]);
 
   const groups = useMemo(() => groupsOf(rows), [rows]);
+  const progress = useMemo(() => stepProgress(rows), [rows]);
   const elapsed = activeSince == null ? null : formatDuration(now - activeSince);
   const stepCount = rows.filter((r) => r.kind === "step").length;
+  const active = status.state !== "idle" && status.state !== "completed";
+  const finishedSteps = progress ? progress.done + progress.failed : 0;
+  const percent = progress && progress.total > 0 ? Math.round((finishedSteps / progress.total) * 100) : 0;
 
   return (
     <section className={s.worklog} aria-label="Work log">
       <button type="button" className={s.worklogHead} onClick={onToggle} aria-expanded={expanded}>
         <Icon name="chevron" size={14} className={`${s.chev} ${expanded ? s.chevOpen : ""}`} />
         <span className={s.worklogTitle}>Work log</span>
-        <span className={s.worklogSummary}>{stepCount ? `${stepCount} tool step${stepCount === 1 ? "" : "s"}` : "No tool steps yet"}</span>
+        <span className={s.worklogSummary}>
+          {progress ? `${finishedSteps}/${progress.total} steps reported` : stepCount ? `${stepCount} tool step${stepCount === 1 ? "" : "s"}` : "No tool steps yet"}
+        </span>
         <Badge tone={TONE[status.state]} dot>{status.label}</Badge>
       </button>
 
       {expanded && (
         <div className={s.worklogBody}>
-          {(status.state === "running" || status.state === "waiting-for-user") && (
+          {active && (
             <div className={`${s.activeRow} ${status.state === "waiting-for-user" ? s.activeWaiting : ""}`} role="status" aria-live="polite">
               <StatusDot tone={TONE[status.state]} label={status.label} />
               <span className={s.activeText}>
-                {status.state === "waiting-for-user" ? "Waiting for your decision" : "Agent is working"}
+                {ACTIVE_TEXT[status.state]}
                 {status.reason ? ` · ${status.reason}` : ""}
               </span>
               {elapsed && <span className={s.elapsed}>{elapsed}</span>}
+            </div>
+          )}
+
+          {progress && (
+            <div className={s.progressRow}>
+              <span role="progressbar" aria-label="Reported tool steps completed"
+                aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={finishedSteps}
+                aria-valuetext={`${finishedSteps} of ${progress.total} steps reported`}
+                className={s.progressTrack}>
+                <span className={s.progressFill} style={{ width: `${percent}%` }} />
+              </span>
+              <span className={s.progressText}>
+                {progress.done} done{progress.failed ? ` · ${progress.failed} failed` : ""}{progress.running ? ` · ${progress.running} running` : ""} of {progress.total}
+              </span>
             </div>
           )}
 
@@ -87,8 +118,9 @@ export default function WorkLog({ rows, status, activeSince, expanded, onToggle 
             <p className={s.worklogEmpty}>Tool activity will appear here as the agent works. Nothing is shown until the bridge reports a real step.</p>
           )}
 
+          <ol className={s.timelineList} aria-label="Execution timeline">
           {groups.map((g) => g.type === "steps" ? (
-            <div className={s.logGroup} key={g.key}>
+            <li className={s.logGroup} key={g.key}>
               <div className={s.logLine}>
                 <Icon name="terminal" size={14} />
                 <span className={s.logText}>{humanSummary(g.rows)}</span>
@@ -112,9 +144,9 @@ export default function WorkLog({ rows, status, activeSince, expanded, onToggle 
                   ))}
                 </ul>
               </details>
-            </div>
+            </li>
           ) : (
-            <div className={`${s.logLine} ${s.logEvent}`} key={g.key}>
+            <li className={`${s.logLine} ${s.logEvent}`} key={g.key}>
               <Icon name={g.row.kind === "approval" ? "shield" : g.row.kind === "turn_end" ? "check" : g.row.kind === "ask" ? "info" : "info"} size={14} />
               <span className={s.logText}>
                 {g.row.kind === "approval" && `Approval requested · ${textOf(g.row.body.tool_name ?? g.row.body.operation ?? "tool")}`}
@@ -123,8 +155,9 @@ export default function WorkLog({ rows, status, activeSince, expanded, onToggle 
                 {g.row.kind === "notice" && textOf(g.row.body.text)}
               </span>
               {g.row.ts != null && <span className={s.logTime}>{formatTime(g.row.ts)}</span>}
-            </div>
+            </li>
           ))}
+          </ol>
         </div>
       )}
     </section>

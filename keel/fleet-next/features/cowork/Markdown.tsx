@@ -69,6 +69,37 @@ export function Markdown({ text }: { text: string }) {
   return <div className={s.markdown}>{segments}</div>;
 }
 
+function cells(line: string): string[] {
+  const parts = line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|");
+  return parts.map((p) => p.trim());
+}
+
+const SEPARATOR = /^\s*:?-{3,}:?\s*$/;
+
+function isTable(lines: string[]): boolean {
+  if (lines.length < 2 || !lines[0].includes("|")) return false;
+  const divider = cells(lines[1]);
+  return divider.length > 0 && divider.every((c) => SEPARATOR.test(c));
+}
+
+function tableBlock(lines: string[], key: string): React.ReactNode {
+  const head = cells(lines[0]);
+  const aligns = cells(lines[1]).map((c) => c.startsWith(":") && c.endsWith(":") ? "center" : c.endsWith(":") ? "right" : c.startsWith(":") ? "left" : undefined);
+  const rows = lines.slice(2).map(cells);
+  return (
+    <div className={s.tableWrap} key={key}>
+      <table className={s.mdTable}>
+        <thead><tr>{head.map((cell, i) => <th key={i} style={aligns[i] ? { textAlign: aligns[i] } : undefined}>{inline(cell, `${key}h${i}`)}</th>)}</tr></thead>
+        <tbody>
+          {rows.map((row, ri) => (
+            <tr key={ri}>{head.map((_, ci) => <td key={ci} style={aligns[ci] ? { textAlign: aligns[ci] } : undefined}>{inline(row[ci] ?? "", `${key}r${ri}c${ci}`)}</td>)}</tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function Prose({ text }: { text: string }) {
   if (!text.trim()) return null;
   const blocks = text.split(/\n{2,}/);
@@ -76,21 +107,37 @@ function Prose({ text }: { text: string }) {
     <>
       {blocks.map((block, bi) => {
         const lines = block.split("\n");
+        const key = `b${bi}`;
+        if (isTable(lines)) return tableBlock(lines, key);
         if (lines.every((l) => /^\s*[-*]\s+/.test(l))) {
           return (
-            <ul key={bi} className={s.list}>
-              {lines.map((l, li) => <li key={li}>{inline(l.replace(/^\s*[-*]\s+/, ""), `b${bi}l${li}`)}</li>)}
+            <ul key={key} className={s.list}>
+              {lines.map((l, li) => <li key={li}>{inline(l.replace(/^\s*[-*]\s+/, ""), `${key}l${li}`)}</li>)}
             </ul>
+          );
+        }
+        if (lines.every((l) => /^\s*\d+[.)]\s+/.test(l))) {
+          return (
+            <ol key={key} className={s.list}>
+              {lines.map((l, li) => <li key={li}>{inline(l.replace(/^\s*\d+[.)]\s+/, ""), `${key}l${li}`)}</li>)}
+            </ol>
+          );
+        }
+        if (lines.every((l) => /^\s*>\s?/.test(l))) {
+          return (
+            <blockquote key={key} className={s.quote}>
+              {lines.map((l, li) => <React.Fragment key={li}>{li > 0 && <br />}{inline(l.replace(/^\s*>\s?/, ""), `${key}l${li}`)}</React.Fragment>)}
+            </blockquote>
           );
         }
         const heading = /^\s*(#{1,4})\s+(.*)$/.exec(lines[0]);
         if (heading && lines.length === 1) {
-          return <h4 key={bi} className={s.mdHeading}>{inline(heading[2], `b${bi}`)}</h4>;
+          return <h4 key={key} className={s.mdHeading}>{inline(heading[2], key)}</h4>;
         }
         return (
-          <p key={bi} className={s.para}>
+          <p key={key} className={s.para}>
             {lines.map((l, li) => (
-              <React.Fragment key={li}>{li > 0 && <br />}{inline(l, `b${bi}l${li}`)}</React.Fragment>
+              <React.Fragment key={li}>{li > 0 && <br />}{inline(l, `${key}l${li}`)}</React.Fragment>
             ))}
           </p>
         );

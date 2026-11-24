@@ -364,6 +364,21 @@
 .logText { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .logTime { flex: none; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
 .logEvent .logText { color: var(--text); }
+.timelineList { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.timelineList > li { min-width: 0; }
+
+.progressRow { display: flex; align-items: center; gap: 9px; padding: 2px 0 6px; }
+.progressTrack {
+  display: block;
+  flex: 1 1 auto;
+  height: 5px;
+  min-width: 40px;
+  border-radius: 99px;
+  background: var(--pill);
+  overflow: hidden;
+}
+.progressFill { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .25s var(--ease-out); }
+.progressText { flex: none; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
 
 .rawDetails { font-size: 11px; color: var(--muted); margin: 0 0 6px; }
 .rawDetails summary { cursor: pointer; width: fit-content; }
@@ -407,6 +422,18 @@
 
 .bubbleUser { align-self: flex-end; background: var(--user-bg); border-bottom-right-radius: 5px; }
 .bubbleAssistant { align-self: flex-start; background: var(--agent-bg); border: 1px solid var(--line); border-bottom-left-radius: 5px; }
+.messageGroup { display: flex; flex-direction: column; gap: 6px; max-width: min(760px, 88%); min-width: 0; }
+.groupUser { align-self: flex-end; align-items: flex-end; }
+.groupAssistant { align-self: flex-start; align-items: flex-start; }
+.messageGroup .bubble { max-width: 100%; }
+.groupHead {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 0 4px;
+}
 .bubbleHead {
   display: flex;
   align-items: center;
@@ -541,6 +568,7 @@
 .answerForm button:disabled { opacity: .45; cursor: not-allowed; }
 
 .approvalCard { border-color: color-mix(in srgb, var(--warn) 45%, transparent); background: color-mix(in srgb, var(--warn) 6%, var(--card)); }
+.expiredCard { border-color: color-mix(in srgb, var(--muted) 40%, transparent); opacity: .85; }
 .approvalOp { font-size: 14px; font-weight: 600; color: var(--warn); overflow-wrap: anywhere; }
 .approvalScope { font-size: 12px; color: var(--muted); margin-top: 3px; overflow-wrap: anywhere; }
 .approvalScope span { text-transform: uppercase; letter-spacing: .1em; font-size: 10px; font-weight: 700; }
@@ -578,6 +606,7 @@
 .planStep svg { flex: none; }
 .planDone { color: var(--ok); }
 .planActive { color: var(--accent); }
+.planStopped { color: var(--danger); }
 .planState { font-family: 'JetBrains Mono', monospace; font-size: 10px; }
 
 .fileList { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 5px; }
@@ -595,6 +624,16 @@
 }
 .downloadLink:hover { text-decoration: underline; }
 .fileSize { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 10px; flex: none; }
+.deliverableImage {
+  display: block;
+  max-width: 100%;
+  max-height: 260px;
+  margin-top: 7px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  object-fit: contain;
+  background: var(--code);
+}
 
 .streamBubble { border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
 .streamingLabel { color: var(--accent); font-size: 10px; }
@@ -642,6 +681,12 @@
 .para:last-child { margin-bottom: 0; }
 .list { margin: 0 0 8px; padding-left: 20px; }
 .list li { margin: 2px 0; }
+.quote { margin: 0 0 8px; padding: 4px 0 4px 11px; border-left: 2px solid var(--line-strong); color: var(--muted); font-size: 12.5px; }
+.tableWrap { max-width: 100%; overflow-x: auto; margin: 8px 0; border: 1px solid var(--line); border-radius: 9px; }
+.mdTable { border-collapse: collapse; width: 100%; font-size: 12px; }
+.mdTable th, .mdTable td { padding: 6px 9px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.mdTable th { background: var(--pill); font-weight: 700; color: var(--text); }
+.mdTable tr:last-child td { border-bottom: 0; }
 .mdHeading { font-size: 13px; font-weight: 700; margin: 6px 0; }
 .inlineCode {
   font-family: 'JetBrains Mono', monospace;
@@ -771,6 +816,16 @@
   text-underline-offset: 2px;
 }
 .uploadRetry:hover { filter: brightness(1.1); }
+.uploadMeter {
+  display: block;
+  flex: 1 1 70px;
+  min-width: 40px;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--pill);
+  overflow: hidden;
+}
+.uploadMeter > span { display: block; height: 100%; background: var(--info); transition: width .2s var(--ease-out); }
 .uploadingPill {
   display: inline-flex;
   align-items: center;
@@ -824,6 +879,8 @@
 }
 .infoChip svg { color: var(--accent); flex: none; }
 .infoText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.modelSelect { display: inline-flex; align-items: center; gap: 5px; min-width: 0; color: var(--accent); }
+.modelSelect .select { max-width: 170px; }
 .spacer { flex: 1 1 auto; }
 .send {
   width: 34px;
@@ -919,7 +976,7 @@
   .statusReason { display: none; }
   .exportLink span { display: none; }
   .scroll { padding: 10px 10px 4px; }
-  .bubble { max-width: 100%; }
+  .bubble, .messageGroup { max-width: 100%; }
   .stepGroup { max-width: 100%; }
   .card { max-width: 100%; }
   .homeTitle { font-size: 30px; }
