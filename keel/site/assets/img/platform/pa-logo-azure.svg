@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" role="img" aria-labelledby="pa-logo-azure-title">
+  <title id="pa-logo-azure-title">Microsoft Azure</title>
+  <path d="M14 3 L28 31 H9 L19 13 Z" fill="#191919"/>
+  <path d="M9 13 L18 31 H0 Z" fill="#555" opacity=".85"/>
+  <text x="36" y="25" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" letter-spacing=".2" fill="#191919">Azure</text>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" role="img" aria-labelledby="pa-logo-github-title">
+  <title id="pa-logo-github-title">GitHub</title>
+  <circle cx="16" cy="18" r="12" fill="none" stroke="#191919" stroke-width="2"/>
+  <g fill="none" stroke="#191919" stroke-width="1.6" stroke-linecap="round">
+    <path d="M11 10c0 5 1 8 5 8s5-3 5-8"/>
+    <path d="M9 14c-2 6 0 11 7 11s9-5 7-11"/>
+    <circle cx="13" cy="19" r="1"/><circle cx="19" cy="19" r="1"/>
+  </g>
+  <text x="36" y="25" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" letter-spacing=".3" fill="#191919">GitHub</text>
+</svg>

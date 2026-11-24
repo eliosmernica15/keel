@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" role="img" aria-labelledby="pa-logo-aws-title">
+  <title id="pa-logo-aws-title">Amazon Web Services</title>
+  <text x="2" y="24" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-.6" fill="#191919">aws</text>
+  <g fill="none" stroke="#d97757" stroke-width="1.8" stroke-linecap="round">
+    <path d="M4 28c8 5 19 5 27 0"/>
+    <path d="M24 26l8 1-3 6"/>
+  </g>
+  <text x="40" y="24" font-family="Inter, Arial, sans-serif" font-size="10.5" font-weight="600" letter-spacing=".2" fill="#555">Web Services</text>
+</svg>

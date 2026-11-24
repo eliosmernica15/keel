@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KEEL Platform — Build frontier models</title>
+  <meta name="description" content="Build frontier models on the KEEL Platform. Frontier models, training and inference infrastructure designed to work together, with tools for agents, enterprise scale and full cost control." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/platform/api" />
+  <link rel="icon" type="image/svg+xml" href="/assets/img/platform/pa-mark.svg" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f7f6f2" />
+  <link rel="stylesheet" href="/ui/platform-api.css" />
+  <script src="/ui/platform-api.js" defer></script>
+</head>
+<body class="pa-body">
+
+  <a class="pa-skip" href="#pa-main">Skip to content</a>
+  <div class="pa-progress" id="pa-progress"><span class="pa-progress-fill" id="pa-progress-fill"></span></div>
+
+  <!-- ==================== header ==================== -->
+  <header class="pa-header" id="pa-header">
+    <div class="pa-nav-inner">
+      <a class="pa-brand" href="/" aria-label="KEEL home">
+        <img class="pa-brand-mark" src="/assets/img/platform/pa-mark.svg" alt="" />
+        <span class="pa-brand-name">KEEL</span>
+      </a>
+
+      <nav class="pa-nav" aria-label="Primary">
+        <div class="pa-nav-item" data-pa-nav="product">
+          <button class="pa-nav-trigger" type="button" aria-expanded="false" aria-controls="pa-menu-product">Product <span class="pa-chevron" aria-hidden="true"></span></button>
+          <div class="pa-mega" id="pa-menu-product" hidden>
+            <div class="pa-mega-grid">
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Products</p>
+                <a class="pa-mega-link" href="/product/overview">KEEL</a>
+                <a class="pa-mega-link" href="/product/cowork">KEEL Cowork</a>
+                <a class="pa-mega-link" href="/product/keel-code">KEEL Code</a>
+                <a class="pa-mega-link" href="/product/keel-duet">KEEL Duet</a>
+                <a class="pa-mega-link" href="/platform/api">KEEL Platform</a>
+                <a class="pa-mega-link" href="/pricing">Plans &amp; pricing</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Capabilities</p>
+                <a class="pa-mega-link" href="#pa-design">Artifacts</a>
+                <a class="pa-mega-link" href="#pa-design">Design</a>
+                <a class="pa-mega-link" href="#pa-agents">Connectors</a>
+                <a class="pa-mega-link" href="#pa-agents">Plugins</a>
+                <a class="pa-mega-link" href="#pa-console">Skills</a>
+                <p class="pa-mega-subhead">Specialized</p>
+                <a class="pa-mega-link" href="#pa-enterprise">KEEL Security</a>
+                <a class="pa-mega-link" href="/resources/articles/introducing-keel-code">KEEL Code</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Apps &amp; extensions</p>
+                <a class="pa-mega-link" href="/download">KEEL for desktop</a>
+                <a class="pa-mega-link" href="/download">KEEL for Google Workspace</a>
+                <a class="pa-mega-link" href="/download">KEEL for Microsoft 365</a>
+                <a class="pa-mega-link" href="/product/keel-code">KEEL in your editor</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Models</p>
+                <a class="pa-mega-link" href="#pa-models">Fable 5 <span aria-hidden="true">↗</span></a>
+                <a class="pa-mega-link" href="#pa-models">Opus 4.6 <span aria-hidden="true">↗</span></a>
+                <a class="pa-mega-link" href="#pa-models">Sonnet 4.5 <span aria-hidden="true">↗</span></a>
+                <a class="pa-mega-link" href="#pa-models">Haiku 4.5 <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+            <div class="pa-mega-footer">
+              <a class="pa-mega-link" href="/app">Open KEEL <span aria-hidden="true">↗</span></a>
+              <a class="pa-mega-link" href="/download">Download apps <span aria-hidden="true">↓</span></a>
+              <a class="pa-mega-link" href="/app">Login <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="pa-nav-item" data-pa-nav="developers">
+          <button class="pa-nav-trigger" type="button" aria-expanded="false" aria-controls="pa-menu-developers">Developers <span class="pa-chevron" aria-hidden="true"></span></button>
+          <div class="pa-mega" id="pa-menu-developers" hidden>
+            <div class="pa-mega-grid">
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Build with</p>
+                <a class="pa-mega-link" href="/product/keel-code">KEEL Code</a>
+                <a class="pa-mega-link" href="/platform/api">KEEL Platform API</a>
+                <a class="pa-mega-link" href="#pa-agents">KEEL Agent SDK</a>
+                <a class="pa-mega-link" href="/roadmap">KEEL Ship</a>
+                <a class="pa-mega-link" href="#pa-console">Managed Agents</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">For developers</p>
+                <a class="pa-mega-link" href="/app">Console <span aria-hidden="true">↗</span></a>
+                <a class="pa-mega-link" href="mailto:developers@keel.dev">Community</a>
+                <a class="pa-mega-link" href="/resources/articles/introducing-keel-code">Developer blog <span aria-hidden="true">↗</span></a>
+                <p class="pa-mega-subhead">Get started</p>
+                <a class="pa-mega-link" href="#" data-pa-modal="docs">Documentation</a>
+                <a class="pa-mega-link" href="/requirements">System requirements</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Explore the API</p>
+                <a class="pa-mega-link" href="#pa-models">Models &amp; pricing</a>
+                <a class="pa-mega-link" href="#pa-cost">Batch processing</a>
+                <a class="pa-mega-link" href="#pa-cost">Prompt caching</a>
+                <a class="pa-mega-link" href="#pa-console">Observability</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Learn</p>
+                <a class="pa-mega-link" href="/resources/articles/introducing-keel-code">Introducing KEEL Code</a>
+                <a class="pa-mega-link" href="/resources/articles/introducing-keel-ship">Introducing KEEL Ship</a>
+                <a class="pa-mega-link" href="/roadmap">Roadmap</a>
+              </div>
+            </div>
+            <div class="pa-mega-footer">
+              <a class="pa-mega-link" href="#" data-pa-modal="signup">Create an API key <span aria-hidden="true">↗</span></a>
+              <a class="pa-mega-link" href="/app">Open the console</a>
+              <a class="pa-mega-link" href="/app">Login <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="pa-nav-item" data-pa-nav="enterprise">
+          <button class="pa-nav-trigger" type="button" aria-expanded="false" aria-controls="pa-menu-enterprise">Enterprise <span class="pa-chevron" aria-hidden="true"></span></button>
+          <div class="pa-mega" id="pa-menu-enterprise" hidden>
+            <div class="pa-mega-grid">
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Enterprise</p>
+                <a class="pa-mega-link" href="#pa-enterprise">Overview</a>
+                <a class="pa-mega-link" href="/product/overview">KEEL for Enterprise</a>
+                <a class="pa-mega-link" href="/product/keel-code">KEEL Code for Enterprise</a>
+                <a class="pa-mega-link" href="/platform/api">KEEL Platform</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Use cases</p>
+                <a class="pa-mega-link" href="#pa-agents">AI agents</a>
+                <a class="pa-mega-link" href="/product/keel-code">Coding</a>
+                <a class="pa-mega-link" href="#pa-customers">Customer support</a>
+                <p class="pa-mega-subhead">Departments</p>
+                <a class="pa-mega-link" href="/product/cowork">Productivity</a>
+                <a class="pa-mega-link" href="/product/keel-duet">Design</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Trust</p>
+                <a class="pa-mega-link" href="#pa-enterprise">Security &amp; data governance</a>
+                <a class="pa-mega-link" href="/privacy">Privacy</a>
+                <a class="pa-mega-link" href="/terms">Terms of service</a>
+                <a class="pa-mega-link" href="/eula">Enterprise agreement</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Get in touch</p>
+                <a class="pa-mega-link" href="#" data-pa-modal="contact">Talk to sales <span aria-hidden="true">↗</span></a>
+                <a class="pa-mega-link" href="mailto:sales@keel.dev">Email our team</a>
+                <a class="pa-mega-link" href="#pa-customers">Customer stories</a>
+              </div>
+            </div>
+            <div class="pa-mega-footer">
+              <a class="pa-mega-link" href="#" data-pa-modal="contact">Contact sales <span aria-hidden="true">↗</span></a>
+              <a class="pa-mega-link" href="/privacy">KEEL commitment</a>
+              <a class="pa-mega-link" href="/app">Login <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="pa-nav-item" data-pa-nav="resources">
+          <button class="pa-nav-trigger" type="button" aria-expanded="false" aria-controls="pa-menu-resources">Resources <span class="pa-chevron" aria-hidden="true"></span></button>
+          <div class="pa-mega" id="pa-menu-resources" hidden>
+            <div class="pa-mega-grid">
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Learn</p>
+                <a class="pa-mega-link" href="#" data-pa-modal="docs">Documentation</a>
+                <a class="pa-mega-link" href="/resources/articles/introducing-keel-code">KEEL Code guide</a>
+                <a class="pa-mega-link" href="/resources/articles/introducing-keel-ship">KEEL Ship guide</a>
+                <a class="pa-mega-link" href="/requirements">Requirements</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Stories</p>
+                <a class="pa-mega-link" href="#pa-customers">Customer stories</a>
+                <a class="pa-mega-link" href="#pa-cost">Engineering notes</a>
+                <a class="pa-mega-link" href="/notices">News &amp; notices</a>
+                <p class="pa-mega-subhead">Updates</p>
+                <a class="pa-mega-link" href="/roadmap">Product roadmap</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Explore</p>
+                <a class="pa-mega-link" href="#pa-models">Model comparison</a>
+                <a class="pa-mega-link" href="#pa-design">Platform capabilities</a>
+                <a class="pa-mega-link" href="#pa-console">Console overview</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Help</p>
+                <a class="pa-mega-link" href="mailto:support@keel.dev">Contact support</a>
+                <a class="pa-mega-link" href="/privacy">Privacy center</a>
+                <a class="pa-mega-link" href="/terms">Terms &amp; policies</a>
+              </div>
+            </div>
+            <div class="pa-mega-footer">
+              <a class="pa-mega-link" href="/app">Get started <span aria-hidden="true">↗</span></a>
+              <a class="pa-mega-link" href="#pa-top">Back to top <span aria-hidden="true">↑</span></a>
+              <a class="pa-mega-link" href="/app">Login <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="pa-nav-item" data-pa-nav="pricing">
+          <button class="pa-nav-trigger" type="button" aria-expanded="false" aria-controls="pa-menu-pricing">Pricing <span class="pa-chevron" aria-hidden="true"></span></button>
+          <div class="pa-mega" id="pa-menu-pricing" hidden>
+            <div class="pa-mega-grid">
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Plans</p>
+                <a class="pa-mega-link" href="/pricing">Free</a>
+                <a class="pa-mega-link" href="/pricing">Pro</a>
+                <a class="pa-mega-link" href="/pricing">Team</a>
+                <a class="pa-mega-link" href="#" data-pa-modal="contact">Enterprise</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">API pricing</p>
+                <a class="pa-mega-link" href="#pa-models">Model pricing</a>
+                <a class="pa-mega-link" href="#pa-cost">Batch processing · save 50%</a>
+                <a class="pa-mega-link" href="#pa-cost">Prompt caching</a>
+                <a class="pa-mega-link" href="#pa-cost">Fast mode</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Compare</p>
+                <a class="pa-mega-link" href="/pricing">Plans comparison</a>
+                <a class="pa-mega-link" href="#pa-models">Fable 5 vs Opus 4.6</a>
+                <a class="pa-mega-link" href="#pa-models">Sonnet 4.5 vs Haiku 4.5</a>
+              </div>
+              <div class="pa-mega-col">
+                <p class="pa-mega-heading">Questions?</p>
+                <a class="pa-mega-link" href="#" data-pa-modal="contact">Talk to sales</a>
+                <a class="pa-mega-link" href="mailto:sales@keel.dev">Email billing</a>
+              </div>
+            </div>
+            <div class="pa-mega-footer">
+              <a class="pa-mega-link" href="/pricing">See all pricing <span aria-hidden="true">↗</span></a>
+              <a class="pa-mega-link" href="#" data-pa-modal="signup">Start building</a>
+              <a class="pa-mega-link" href="/app">Login <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </div>
+
+        <a class="pa-nav-plain" href="/app">Login</a>
+      </nav>
+
+      <div class="pa-nav-actions">
+        <a class="pa-btn pa-btn-outline" href="#" data-pa-modal="contact">Contact sales</a>
+        <a class="pa-btn pa-btn-dark" href="#" data-pa-modal="signup">Try KEEL</a>
+        <button class="pa-hamburger" id="pa-hamburger" type="button" aria-expanded="false" aria-controls="pa-mobile-menu" aria-label="Open menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+
+    <div class="pa-mobile-menu" id="pa-mobile-menu" hidden>
+      <a class="pa-mobile-link" href="/product/overview">Product</a>
+      <a class="pa-mobile-link" href="/platform/api">Developers</a>
+      <a class="pa-mobile-link" href="#pa-enterprise">Enterprise</a>
+      <a class="pa-mobile-link" href="#pa-customers">Resources</a>
+      <a class="pa-mobile-link" href="/pricing">Pricing</a>
+      <a class="pa-mobile-link" href="/app">Login</a>
+      <div class="pa-mobile-cta">
+        <a class="pa-btn pa-btn-outline" href="#" data-pa-modal="contact">Contact sales</a>
+        <a class="pa-btn pa-btn-dark" href="#" data-pa-modal="signup">Try KEEL</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== explore rail ==================== -->
+  <aside class="pa-explore" id="pa-explore" aria-label="On this page">
+    <button class="pa-explore-toggle" id="pa-explore-toggle" type="button" aria-expanded="true" aria-controls="pa-explore-list">Explore here <span class="pa-explore-icon" aria-hidden="true">—</span></button>
+    <nav class="pa-explore-list" id="pa-explore-list">
+      <a class="pa-explore-link" href="#pa-models">Models</a>
+      <a class="pa-explore-link" href="#pa-design">AI-first design</a>
+      <a class="pa-explore-link" href="#pa-agents">Agent SDK</a>
+      <a class="pa-explore-link" href="#pa-enterprise">Enterprise</a>
+      <a class="pa-explore-link" href="#pa-cost">Cost &amp; performance</a>
+      <a class="pa-explore-link" href="#pa-console">Console</a>
+      <a class="pa-explore-link" href="#pa-customers">Customers</a>
+    </nav>
+  </aside>
+
+  <main id="pa-main">
+
+    <!-- ==================== 1 · hero ==================== -->
+    <section class="pa-hero pa-section" id="pa-top">
+      <div class="pa-container pa-hero-grid">
+        <div class="pa-hero-copy">
+          <p class="pa-eyebrow">KEEL Platform</p>
+          <h1 class="pa-hero-title">Build frontier models on the KEEL Platform</h1>
+          <p class="pa-hero-sub">Frontier models, training and inference infrastructure designed to work together.</p>
+          <div class="pa-hero-actions">
+            <a class="pa-btn pa-btn-dark pa-btn-lg" href="#" data-pa-modal="signup">Start building <span aria-hidden="true">↗</span></a>
+            <a class="pa-btn pa-btn-outline pa-btn-lg" href="#" data-pa-modal="contact">Contact sales</a>
+          </div>
+        </div>
+        <div class="pa-hero-art">
+          <img src="/assets/img/platform/pa-hero-blocks.svg" alt="Illustration of a hand placing a block into a stack of model blocks" class="pa-hero-img" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2 · customer logo strip ==================== -->
+    <section class="pa-logos pa-section" aria-label="Teams building on KEEL">
+      <div class="pa-container pa-logo-row">
+        <img class="pa-logo" src="/assets/img/platform/pa-logo-lovable.svg" alt="Lovable" />
+        <img class="pa-logo" src="/assets/img/platform/pa-logo-gitlab.svg" alt="GitLab" />
+        <img class="pa-logo" src="/assets/img/platform/pa-logo-notion.svg" alt="Notion" />
+        <img class="pa-logo" src="/assets/img/platform/pa-logo-rakuten.svg" alt="Rakuten" />
+        <img class="pa-logo" src="/assets/img/platform/pa-logo-thomson-reuters.svg" alt="Thomson Reuters" />
+        <img class="pa-logo" src="/assets/img/platform/pa-logo-brex.svg" alt="Brex" />
+        <img class="pa-logo" src="/assets/img/platform/pa-logo-cognition.svg" alt="Cognition" />
+        <img class="pa-logo" src="/assets/img/platform/pa-logo-zoom.svg" alt="Zoom" />
+      </div>
+    </section>
+
+    <!-- ==================== 3 · models ==================== -->
+    <section class="pa-models pa-section" id="pa-models">
+      <div class="pa-container">
+        <h2 class="pa-h2">KEEL models for every job</h2>
+        <p class="pa-note pa-models-note">Save 50% with batch processing. <a href="#pa-cost">Learn more ↗</a></p>
+
+        <div class="pa-model-grid">
+          <article class="pa-model-card" data-pa-model="fable">
+            <p class="pa-model-name">Fable 5</p>
+            <p class="pa-model-tag">Next generation intelligence for long-running agents</p>
+            <ul class="pa-model-uses">
+              <li>Multi-day autonomous projects</li>
+              <li>Expert-level work for frontier research</li>
+            </ul>
+            <div class="pa-price-block">
+              <p class="pa-price-head">Prompt caching</p>
+              <p class="pa-price-row"><span>Read</span><span>$0.20 / MTok</span></p>
+              <p class="pa-price-row"><span>Write</span><span>$10 / MTok</span></p>
+              <p class="pa-price-row"><span>Input</span><span>$8 / MTok</span></p>
+              <p class="pa-price-row"><span>Output</span><span>$40 / MTok</span></p>
+            </div>
+            <button class="pa-link-btn" type="button" data-pa-model-detail="Fable 5">Explore Fable <span aria-hidden="true">↗</span></button>
+          </article>
+
+          <article class="pa-model-card" data-pa-model="opus">
+            <p class="pa-model-name">Opus 4.6</p>
+            <p class="pa-model-tag">Powerful, efficient model for everyday complex work</p>
+            <ul class="pa-model-uses">
+              <li>Production agents and coding workflows</li>
+              <li>Deep analysis across large documents</li>
+            </ul>
+            <div class="pa-price-block">
+              <p class="pa-price-head">Prompt caching</p>
+              <p class="pa-price-row"><span>Read</span><span>$0.50 / MTok</span></p>
+              <p class="pa-price-row"><span>Write</span><span>$6.25 / MTok</span></p>
+              <p class="pa-price-row"><span>Input</span><span>$5 / MTok</span></p>
+              <p class="pa-price-row"><span>Output</span><span>$25 / MTok</span></p>
+            </div>
+            <button class="pa-link-btn" type="button" data-pa-model-detail="Opus 4.6">Explore Opus <span aria-hidden="true">↗</span></button>
+          </article>
+
+          <article class="pa-model-card" data-pa-model="sonnet">
+            <p class="pa-model-name">Sonnet 4.5</p>
+            <p class="pa-model-tag">The best blend of speed, intelligence and cost</p>
+            <ul class="pa-model-uses">
+              <li>High-volume customer-facing applications</li>
+              <li>Agents that need fast, reliable tool use</li>
+            </ul>
+            <div class="pa-price-block">
+              <p class="pa-price-head">Prompt caching</p>
+              <p class="pa-price-row"><span>Read</span><span>$0.30 / MTok</span></p>
+              <p class="pa-price-row"><span>Write</span><span>$3.75 / MTok</span></p>
+              <p class="pa-price-row"><span>Input</span><span>$3 / MTok</span></p>
+              <p class="pa-price-row"><span>Output</span><span>$15 / MTok</span></p>
+            </div>
+            <button class="pa-link-btn" type="button" data-pa-model-detail="Sonnet 4.5">Explore Sonnet <span aria-hidden="true">↗</span></button>
+          </article>
+
+          <article class="pa-model-card" data-pa-model="haiku">
+            <p class="pa-model-name">Haiku 4.5</p>
+            <p class="pa-model-tag">Fastest model for latency-sensitive tasks</p>
+            <ul class="pa-model-uses">
+              <li>Real-time assistants and classification</li>
+              <li>Lightweight subagents running in parallel</li>
+            </ul>
+            <div class="pa-price-block">
+              <p class="pa-price-head">Prompt caching · ≤100K tokens</p>
+              <p class="pa-price-row"><span>Read</span><span>$0.10 / MTok</span></p>
+              <p class="pa-price-row"><span>Write</span><span>$1.25 / MTok</span></p>
+              <p class="pa-price-row"><span>Input</span><span>$1 / MTok</span></p>
+              <p class="pa-price-row"><span>Output</span><span>$5 / MTok</span></p>
+            </div>
+            <div class="pa-price-block">
+              <p class="pa-price-head">Prompt caching · &gt;100K tokens</p>
+              <p class="pa-price-row"><span>Read</span><span>$0.15 / MTok</span></p>
+              <p class="pa-price-row"><span>Write</span><span>$1.50 / MTok</span></p>
+            </div>
+            <button class="pa-link-btn" type="button" data-pa-model-detail="Haiku 4.5">Explore Haiku <span aria-hidden="true">↗</span></button>
+          </article>
+        </div>
+
+        <p class="pa-fineprint">For workloads that need to run in the US, US-only inference is available at 1.1x pricing for input and output tokens. <a href="#pa-enterprise">Learn more</a></p>
+        <p class="pa-fineprint">Get up to 2.5x faster speeds with fast mode for Opus 4.6 and Fable 5 at 2x standard pricing. <a href="#pa-cost">Learn more</a></p>
+        <p class="pa-fineprint">Prompt caching pricing reflects 5-minute TTL. <a href="#pa-cost">Learn about extended prompt caching</a></p>
+      </div>
+    </section>
+
+    <!-- ==================== 4 · AI-first design ==================== -->
+    <section class="pa-design pa-section" id="pa-design">
+      <div class="pa-container">
+        <h2 class="pa-h2 pa-center">AI-first design for KEEL</h2>
+        <p class="pa-section-sub pa-center">Every layer of the platform is built around how models think.</p>
+
+        <div class="pa-hub-wrap">
+          <div class="pa-hub" id="pa-hub">
+            <button class="pa-hub-node pa-hub-center" type="button" data-pa-hub-detail="KEEL models coordinate every step of an agent workflow, from planning and tool use to verification.">KEEL</button>
+            <button class="pa-hub-node" style="--x:10%;--y:12%" type="button" data-pa-hub-detail="Code execution lets KEEL run Python and JavaScript in an isolated sandbox to test ideas and produce exact answers.">Code execution</button>
+            <button class="pa-hub-node" style="--x:44%;--y:4%" type="button" data-pa-hub-detail="Structured outputs return validated JSON that matches your schema, ready to drop into production systems.">Structured outputs</button>
+            <button class="pa-hub-node" style="--x:78%;--y:12%" type="button" data-pa-hub-detail="Tool use gives models access to your functions and APIs, with precise control over when each tool is called.">Tool use</button>
+            <button class="pa-hub-node" style="--x:92%;--y:42%" type="button" data-pa-hub-detail="Computer use lets KEEL navigate interfaces, click, type and read screens to complete tasks in real applications.">Computer use</button>
+            <button class="pa-hub-node" style="--x:80%;--y:74%" type="button" data-pa-hub-detail="Citations attach verifiable source spans to generated claims so teams can check every answer.">Citations</button>
+            <button class="pa-hub-node" style="--x:45%;--y:92%" type="button" data-pa-hub-detail="Files let agents read, write and reason over documents, spreadsheets and code repositories in one session.">Files</button>
+            <button class="pa-hub-node" style="--x:10%;--y:76%" type="button" data-pa-hub-detail="A 1M-token context window holds entire codebases and document sets in view at once.">Context window</button>
+            <button class="pa-hub-node" style="--x:3%;--y:42%" type="button" data-pa-hub-detail="Compaction summarizes older turns transparently so long-running agents stay coherent without losing key facts.">Compaction</button>
+            <button class="pa-hub-node" style="--x:24%;--y:52%" type="button" data-pa-hub-detail="Web search and fetch bring current information into the model's context with citations and fresh sources.">Web search and fetch</button>
+            <button class="pa-hub-node" style="--x:66%;--y:54%" type="button" data-pa-hub-detail="Memory persists facts across sessions, letting agents learn project conventions and user preferences over time.">Memory</button>
+          </div>
+        </div>
+
+        <div class="pa-hub-detail" id="pa-hub-detail" role="status" aria-live="polite">Select a capability to see how KEEL uses it.</div>
+        <div class="pa-hub-logos">
+          <img src="/assets/img/platform/pa-logo-lovable.svg" alt="Lovable" />
+          <img src="/assets/img/platform/pa-mark.svg" alt="KEEL" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5 · agent SDK ==================== -->
+    <section class="pa-agents pa-section" id="pa-agents">
+      <div class="pa-container">
+        <h2 class="pa-h2 pa-center">Power your most ambitious workflows with KEEL Agent SDK</h2>
+        <div class="pa-agent-visual">
+          <div class="pa-code-window">
+            <div class="pa-window-bar">
+              <span class="pa-dots"><i></i><i></i><i></i></span>
+              <span>agent.ts</span>
+              <button class="pa-copy" type="button" data-pa-copy="pa-code-agent" aria-label="Copy code">Copy</button>
+            </div>
+            <pre id="pa-code-agent"><code>import { query } from "@keel/agent-sdk";
+
+const agent = query({
+  prompt: "Review Q3 support tickets and draft a response queue.",
+  options: {
+    model: "fable-5",
+    allowedTools: ["Read", "Write", "Bash"],
+    mcpServers: {
+      metrics: { command: "node", args: ["./mcp/metrics.js"] }
+    },
+    permissionMode: "acceptEdits",
+    maxTurns: 24
+  }
+});
+
+for await (const message of agent) {
+  if (message.type === "result") {
+    console.log(message.result);
+  }
+}</code></pre>
+          </div>
+
+          <div class="pa-flow-row">
+            <div class="pa-flow-node" data-pa-flow="mcp" data-pa-flow-detail="MCP tools connect KEEL agents to any external system through an open standard — databases, metrics and internal APIs all become callable tools.">
+              <img src="/assets/img/platform/pa-icon-mcp.svg" alt="" /><span>MCP tools</span>
+            </div>
+            <div class="pa-flow-node" data-pa-flow="memory" data-pa-flow-detail="Memory keeps project context between sessions, so agents remember conventions, decisions and prior work without re-reading everything.">
+              <img src="/assets/img/platform/pa-icon-memory.svg" alt="" /><span>Memory</span>
+            </div>
+            <div class="pa-flow-node" data-pa-flow="sandbox" data-pa-flow-detail="A sandboxed environment gives agents a safe place to run code, inspect files and verify their own work before returning results.">
+              <img src="/assets/img/platform/pa-icon-sandbox.svg" alt="" /><span>Sandbox</span>
+            </div>
+            <div class="pa-flow-node" data-pa-flow="skills" data-pa-flow-detail="Skills package instructions and scripts into reusable capabilities that any KEEL agent can load on demand.">
+              <img src="/assets/img/platform/pa-icon-skills.svg" alt="" /><span>Skills</span>
+            </div>
+          </div>
+
+          <div class="pa-terminal-window">
+            <div class="pa-window-bar">
+              <span class="pa-dots"><i></i><i></i><i></i></span>
+              <span>console</span>
+              <button class="pa-copy" type="button" data-pa-copy="pa-code-terminal" aria-label="Copy output">Copy</button>
+            </div>
+            <pre id="pa-code-terminal"><code>$ keel agents run ./support-triage.ts
+✓ Connected to MCP server: metrics
+✓ Loaded skill: support-triage
+→ turn 01  read    148 tickets                ok
+→ turn 02  group   by urgency and topic      ok
+→ turn 03  write   drafts/queue.json          ok
+✓ Completed in 42s · 18,204 tokens · $0.36</code></pre>
+          </div>
+        </div>
+        <div class="pa-flow-detail" id="pa-flow-detail" role="status" aria-live="polite">Select a building block to learn more.</div>
+      </div>
+    </section>
+
+    <!-- ==================== 6 · enterprise ==================== -->
+    <section class="pa-enterprise pa-section" id="pa-enterprise">
+      <div class="pa-container">
+        <h2 class="pa-h2 pa-center">Built for enterprise workflows</h2>
+        <div class="pa-enterprise-grid">
+          <article class="pa-enterprise-card" data-pa-enterprise="security">
+            <div class="pa-enterprise-icon" aria-hidden="true">◇</div>
+            <h3>Security and data governance</h3>
+            <p>Your prompts and outputs are never used to train KEEL models by default. Fine-grained access controls, audit logs and data residency give security teams the guardrails they expect.</p>
+          </article>
+          <article class="pa-enterprise-card" data-pa-enterprise="scale">
+            <div class="pa-enterprise-icon" aria-hidden="true">◎</div>
+            <h3>Scalable infrastructure</h3>
+            <p>Go from a prototype to millions of requests with managed capacity, high-throughput batch APIs and rate limits that grow with your workloads. Reliability is built into every layer.</p>
+          </article>
+          <article class="pa-enterprise-card" data-pa-enterprise="deploy">
+            <div class="pa-enterprise-icon" aria-hidden="true">⬡</div>
+            <h3>Flexible deployment</h3>
+            <p>Deploy through Amazon Bedrock, Google Cloud Vertex AI or Microsoft Foundry, and choose US-only inference where compliance requires it. The same models, wherever you build.</p>
+          </article>
+        </div>
+        <div class="pa-cloud-logos">
+          <img src="/assets/img/platform/pa-logo-aws.svg" alt="Amazon Web Services" />
+          <img src="/assets/img/platform/pa-logo-gcp.svg" alt="Google Cloud" />
+          <img src="/assets/img/platform/pa-logo-azure.svg" alt="Microsoft Foundry" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 7 · cost / performance ==================== -->
+    <section class="pa-cost pa-section" id="pa-cost">
+      <div class="pa-container">
+        <h2 class="pa-h2 pa-center">Control cost and performance</h2>
+        <div class="pa-cost-grid">
+          <div class="pa-cost-features" role="tablist" aria-label="Optimization features">
+            <button class="pa-cost-tab is-active" type="button" role="tab" aria-selected="true" data-pa-cost="batch">Batch processing <span>Process large volumes asynchronously at reduced cost.</span></button>
+            <button class="pa-cost-tab" type="button" role="tab" aria-selected="false" data-pa-cost="cache">Prompt caching <span>Reuse context to cut cost and latency.</span></button>
+            <button class="pa-cost-tab" type="button" role="tab" aria-selected="false" data-pa-cost="effort">Effort <span>Choose how hard KEEL works on a task.</span></button>
+            <button class="pa-cost-tab" type="button" role="tab" aria-selected="false" data-pa-cost="advisor">Advisor strategy <span class="pa-beta">BETA</span> <span>Smaller models call larger ones to improve plans.</span></button>
+          </div>
+
+          <div class="pa-cost-panels">
+            <div class="pa-cost-panel is-active" data-pa-cost-panel="batch">
+              <div class="pa-batch-visual" aria-hidden="true">
+                <span class="pa-batch-bar" style="--h:38%"></span>
+                <span class="pa-batch-bar" style="--h:54%"></span>
+                <span class="pa-batch-bar" style="--h:46%"></span>
+                <span class="pa-batch-bar" style="--h:72%"></span>
+                <span class="pa-batch-bar" style="--h:61%"></span>
+                <span class="pa-batch-bar" style="--h:85%"></span>
+                <span class="pa-batch-bar" style="--h:68%"></span>
+                <span class="pa-batch-bar" style="--h:94%"></span>
+              </div>
+              <p>Send thousands of requests in a single batch and pay half the standard token price. Results arrive asynchronously, with the same reliability you expect from the API.</p>
+              <button class="pa-link-btn" type="button" data-pa-modal="docs">Read documentation ↗</button>
+            </div>
+
+            <div class="pa-cost-panel" data-pa-cost-panel="cache" hidden>
+              <div class="pa-cache-chart">
+                <svg viewBox="0 0 420 160" role="img" aria-labelledby="pa-cache-chart-title">
+                  <title id="pa-cache-chart-title">Cumulative cost with and without prompt caching over eight hours</title>
+                  <line x1="40" y1="12" x2="40" y2="132" stroke="#dedcd6" stroke-width="1" />
+                  <line x1="40" y1="132" x2="408" y2="132" stroke="#dedcd6" stroke-width="1" />
+                  <line x1="40" y1="92" x2="408" y2="92" stroke="#ebe9e3" stroke-width="1" stroke-dasharray="4 4" />
+                  <line x1="40" y1="52" x2="408" y2="52" stroke="#ebe9e3" stroke-width="1" stroke-dasharray="4 4" />
+                  <polyline points="40,128 92,110 144,94 196,76 248,58 300,40 352,24 404,10" fill="none" stroke="#6b6a66" stroke-width="2" />
+                  <polyline points="40,128 92,122 144,118 196,114 248,110 300,106 352,102 404,98" fill="none" stroke="#d97757" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  <circle cx="404" cy="10" r="3" fill="#6b6a66" />
+                  <circle cx="404" cy="98" r="3.5" fill="#d97757" />
+                  <text x="44" y="150" fill="#6b6a66" font-size="10" font-family="Inter, sans-serif">0h</text>
+                  <text x="216" y="150" fill="#6b6a66" font-size="10" font-family="Inter, sans-serif">4h</text>
+                  <text x="386" y="150" fill="#6b6a66" font-size="10" font-family="Inter, sans-serif">8h</text>
+                  <text x="48" y="26" fill="#6b6a66" font-size="10" font-family="Inter, sans-serif">No cache</text>
+                  <text x="48" y="112" fill="#a94e32" font-size="10" font-family="Inter, sans-serif">Cached</text>
+                </svg>
+              </div>
+              <p>Store repeated context once and read it back for a fraction of the price. Teams see up to a 97% cost reduction and around 60% lower latency on long prompts.</p>
+            </div>
+
+            <div class="pa-cost-panel" data-pa-cost-panel="effort" hidden>
+              <div class="pa-effort-visual" aria-hidden="true">
+                <span class="pa-effort-level"><strong>low</strong><i style="--w:24%"></i></span>
+                <span class="pa-effort-level"><strong>medium</strong><i style="--w:58%"></i></span>
+                <span class="pa-effort-level"><strong>high</strong><i style="--w:88%"></i></span>
+              </div>
+              <p>Set a thinking effort per request. Quick classification tasks stay cheap and instant, while hard reasoning problems get the time they need — without changing models.</p>
+            </div>
+
+            <div class="pa-cost-panel" data-pa-cost-panel="advisor" hidden>
+              <div class="pa-advisor-visual" aria-hidden="true">
+                <span class="pa-advisor-step">Haiku 4.5 · plan</span>
+                <span class="pa-advisor-arrow">→</span>
+                <span class="pa-advisor-step">Fable 5 · solve</span>
+                <span class="pa-advisor-arrow">→</span>
+                <span class="pa-advisor-step">Verified answer</span>
+              </div>
+              <p>A smaller model drafts the strategy and a larger model executes it. Advisor strategy improves planning quality on complex agent runs while keeping spend predictable.</p>
+            </div>
+          </div>
+        </div>
+
+        <blockquote class="pa-quote-card">
+          <img src="/assets/img/platform/pa-logo-quora.svg" alt="Quora" />
+          <p>“For Quora, batch processing provides cost savings while also reducing the complexity of running a large number of queries that don’t need to be processed in real time.”</p>
+          <cite>Quora · <a href="#pa-customers">Read more ↗</a></cite>
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- ==================== 8 · console ==================== -->
+    <section class="pa-console pa-section" id="pa-console">
+      <div class="pa-container">
+        <h2 class="pa-h2 pa-center">Observe and mitigate your agents with the KEEL Console</h2>
+        <div class="pa-console-grid">
+          <div class="pa-console-pane pa-console-prompt">
+            <div class="pa-pane-head"><span>Build your request</span><button class="pa-copy" type="button" data-pa-copy="pa-console-prompt-text">Copy</button></div>
+            <pre id="pa-console-prompt-text">Classify all customer support tickets from Q3.
+Group by urgency, flag refund requests, and draft
+a response for each group. Cite the policy used.</pre>
+            <div class="pa-pane-actions"><button class="pa-btn pa-btn-dark pa-run" type="button" id="pa-run">Run request <span aria-hidden="true">→</span></button></div>
+          </div>
+          <div class="pa-console-pane pa-console-output">
+            <div class="pa-pane-head"><span>Session trace · live</span><span class="pa-live"><i></i> live</span></div>
+            <pre id="pa-console-output"><code>[12:04:31] session started · agent=triage-v4
+[12:04:32] tool call  read   tickets/q3.csv        ok  34ms
+[12:04:33] tool call  search policy/refunds.md     ok  12ms
+[12:04:35] model     fable-5 · 2,418 tokens in     running
+[12:04:38] guardrail PII redaction applied         pass
+[12:04:41] tool call  write  drafts/queue.json     ok  21ms
+[12:04:42] session complete · 4 steps · $0.61</code></pre>
+          </div>
+        </div>
+
+        <div class="pa-console-tabs" role="tablist" aria-label="Console capabilities">
+          <button class="pa-console-tab is-active" type="button" role="tab" aria-selected="true" data-pa-console="build">Build</button>
+          <button class="pa-console-tab" type="button" role="tab" aria-selected="false" data-pa-console="deploy">Deploy</button>
+          <button class="pa-console-tab" type="button" role="tab" aria-selected="false" data-pa-console="monitor">Monitor</button>
+          <button class="pa-console-tab" type="button" role="tab" aria-selected="false" data-pa-console="manage">Manage</button>
+        </div>
+        <p class="pa-console-detail" id="pa-console-detail" role="status" aria-live="polite">Prototype prompts, upload skills and files, configure your agents.</p>
+
+        <div class="pa-stat-row">
+          <img src="/assets/img/platform/pa-logo-datadog.svg" alt="Datadog" />
+          <div class="pa-stat"><strong>5 million</strong><span>AI agents running in customer workflows each month</span></div>
+          <div class="pa-stat"><strong>10x</strong><span>faster to build production agents</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 9 · customers / testimonials ==================== -->
+    <section class="pa-customers pa-section" id="pa-customers">
+      <div class="pa-container">
+        <h2 class="pa-h2 pa-center">So why builders build on the KEEL Platform</h2>
+        <div class="pa-quotes" id="pa-quotes">
+          <article class="pa-quote-slide is-active" data-pa-slide="0">
+            <img src="/assets/img/platform/pa-logo-notion.svg" alt="Notion" />
+            <blockquote>“We moved from a rough prompt to a production assistant in weeks. KEEL gives our team the control to keep quality high while shipping fast.”</blockquote>
+            <cite>Notion · Product engineering</cite>
+          </article>
+          <article class="pa-quote-slide" data-pa-slide="1" hidden>
+            <img src="/assets/img/platform/pa-logo-github.svg" alt="GitHub" />
+            <blockquote>“Agent SDK fits the way our developers already work. Tool use, sandboxes and MCP mean we can wire KEEL into our existing stack without reinventing it.”</blockquote>
+            <cite>GitHub · Developer platform team</cite>
+          </article>
+          <article class="pa-quote-slide" data-pa-slide="2" hidden>
+            <img src="/assets/img/platform/pa-logo-quora.svg" alt="Quora" />
+            <blockquote>“Batch processing lets us run enormous volumes of non-real-time queries for a fraction of the cost, with the same answer quality we expect from the API.”</blockquote>
+            <cite>Quora · Infrastructure</cite>
+          </article>
+          <article class="pa-quote-slide" data-pa-slide="3" hidden>
+            <img src="/assets/img/platform/pa-logo-datadog.svg" alt="Datadog" />
+            <blockquote>“The Console shows exactly what each agent did and why. That visibility turned agent debugging from guesswork into a normal engineering workflow.”</blockquote>
+            <cite>Datadog · AI platform</cite>
+          </article>
+          <article class="pa-quote-slide" data-pa-slide="4" hidden>
+            <img src="/assets/img/platform/pa-logo-spotify.svg" alt="Spotify" />
+            <blockquote>“Prompt caching made long, context-heavy assistants practical. Latency dropped sharply and our token bill followed it down.”</blockquote>
+            <cite>Spotify · Applied AI</cite>
+          </article>
+          <article class="pa-quote-slide" data-pa-slide="5" hidden>
+            <img src="/assets/img/platform/pa-logo-vercel.svg" alt="Vercel" />
+            <blockquote>“We prototype in the Console, deploy through the API and scale with batch. It's one coherent platform from first idea to millions of requests.”</blockquote>
+            <cite>Vercel · Platform engineering</cite>
+          </article>
+        </div>
+        <div class="pa-quote-nav">
+          <button class="pa-quote-arrow" id="pa-quote-prev" type="button" aria-label="Previous testimonial">←</button>
+          <span class="pa-quote-count" id="pa-quote-count">1 / 6</span>
+          <button class="pa-quote-arrow" id="pa-quote-next" type="button" aria-label="Next testimonial">→</button>
+        </div>
+        <div class="pa-quote-dots" id="pa-quote-dots" aria-label="Testimonial navigation">
+          <button class="pa-quote-dot is-active" type="button" data-pa-quote-dot="0" aria-label="Go to testimonial 1"></button>
+          <button class="pa-quote-dot" type="button" data-pa-quote-dot="1" aria-label="Go to testimonial 2"></button>
+          <button class="pa-quote-dot" type="button" data-pa-quote-dot="2" aria-label="Go to testimonial 3"></button>
+          <button class="pa-quote-dot" type="button" data-pa-quote-dot="3" aria-label="Go to testimonial 4"></button>
+          <button class="pa-quote-dot" type="button" data-pa-quote-dot="4" aria-label="Go to testimonial 5"></button>
+          <button class="pa-quote-dot" type="button" data-pa-quote-dot="5" aria-label="Go to testimonial 6"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 10 · CTA band ==================== -->
+    <section class="pa-cta pa-section dark-scope" id="pa-cta">
+      <div class="pa-container pa-cta-grid">
+        <div>
+          <h2 class="pa-cta-title">Build on the KEEL Platform</h2>
+          <a class="pa-btn pa-btn-light" href="#" data-pa-modal="signup">Get started <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="pa-terminal-card">
+          <div class="pa-terminal-head"><span>Quick start</span><button class="pa-copy" type="button" data-pa-copy="pa-install-cmd">Copy</button></div>
+          <pre id="pa-install-cmd"><code>npm install @keel/sdk</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== 11 · footer ==================== -->
+  <footer class="pa-footer dark-scope">
+    <div class="pa-container">
+      <div class="pa-footer-top">
+        <a class="pa-brand" href="/" aria-label="KEEL home"><img src="/assets/img/platform/pa-mark.svg" alt="" /><span>KEEL</span></a>
+        <form class="pa-footer-search" id="pa-footer-search">
+          <label class="pa-sr-only" for="pa-footer-q">How can we help today?</label>
+          <input id="pa-footer-q" type="search" placeholder="How can we help today?" autocomplete="off" />
+          <button type="submit" aria-label="Search">→</button>
+        </form>
+        <div class="pa-search-results" id="pa-search-results" hidden></div>
+      </div>
+
+      <div class="pa-footer-cols">
+        <div class="pa-footer-col">
+          <h3>Products</h3>
+          <a href="/product/overview">KEEL</a>
+          <a href="/product/cowork">KEEL Cowork</a>
+          <a href="/product/keel-code">KEEL Code</a>
+          <a href="/product/keel-duet">KEEL Duet</a>
+          <a href="/platform/api">KEEL Platform</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/download">Download apps</a>
+        </div>
+        <div class="pa-footer-col">
+          <h3>Enterprise</h3>
+          <a href="#pa-enterprise">Enterprise overview</a>
+          <a href="#pa-agents">AI agents</a>
+          <a href="#pa-customers">Customer stories</a>
+          <a href="/product/keel-code">KEEL Code for Enterprise</a>
+          <a href="#" data-pa-modal="contact">Contact sales</a>
+          <a href="mailto:sales@keel.dev">Sales email</a>
+        </div>
+        <div class="pa-footer-col">
+          <h3>Developers</h3>
+          <a href="#" data-pa-modal="docs">Documentation</a>
+          <a href="/platform/api">Platform API</a>
+          <a href="#pa-agents">Agent SDK</a>
+          <a href="#pa-console">Console</a>
+          <a href="#pa-cost">Batch processing</a>
+          <a href="/roadmap">Roadmap</a>
+          <a href="/requirements">Requirements</a>
+        </div>
+        <div class="pa-footer-col">
+          <h3>Company</h3>
+          <a href="/">About KEEL</a>
+          <a href="/resources/articles/introducing-keel-code">News</a>
+          <a href="/resources/articles/introducing-keel-ship">Engineering</a>
+          <a href="/notices">Notices</a>
+          <a href="mailto:careers@keel.dev">Careers</a>
+          <a href="mailto:hello@keel.dev">Contact us</a>
+        </div>
+        <div class="pa-footer-col">
+          <h3>Terms and policies</h3>
+          <a href="/privacy">Privacy policy</a>
+          <a href="/terms">Terms of service</a>
+          <a href="/eula">EULA</a>
+          <a href="/trademark">Trademark policy</a>
+          <a href="/privacy">KEEL commitment</a>
+          <a href="/requirements">System requirements</a>
+        </div>
+      </div>
+
+      <div class="pa-footer-bottom">
+        <span>KEEL 2026 All rights reserved.</span>
+        <div class="pa-socials">
+          <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="KEEL on X">X</a>
+          <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="KEEL on LinkedIn">LinkedIn</a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="KEEL on GitHub">GitHub</a>
+          <a href="mailto:hello@keel.dev" aria-label="Email KEEL">Email</a>
+        </div>
+        <button class="pa-lang" type="button" disabled aria-label="Page language: English">English</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== 12 · modal & toast ==================== -->
+  <div class="pa-modal" id="pa-modal" hidden role="dialog" aria-modal="true" aria-labelledby="pa-modal-title" aria-describedby="pa-modal-desc">
+    <div class="pa-modal-backdrop" data-pa-close></div>
+    <div class="pa-modal-card">
+      <button class="pa-modal-close" type="button" data-pa-close aria-label="Close">×</button>
+      <h2 id="pa-modal-title">Sign in to KEEL</h2>
+      <p id="pa-modal-desc">Demo sign-in — no real account required.</p>
+      <form id="pa-auth-form">
+        <button class="pa-btn pa-btn-outline" type="button" id="pa-google">Continue with Google</button>
+        <div class="pa-divider"><span>or</span></div>
+        <label class="pa-sr-only" for="pa-email">Email</label>
+        <input id="pa-email" type="email" placeholder="you@example.com" required />
+        <button class="pa-btn pa-btn-dark" type="submit">Continue with email</button>
+        <p class="pa-modal-foot">New to KEEL? <a href="/app">Open the console ↗</a></p>
+      </form>
+      <form id="pa-contact-form" hidden>
+        <label class="pa-sr-only" for="pa-name">Name</label>
+        <input id="pa-name" type="text" placeholder="Full name" required />
+        <label class="pa-sr-only" for="pa-work-email">Work email</label>
+        <input id="pa-work-email" type="email" placeholder="Work email" required />
+        <label class="pa-sr-only" for="pa-message">Message</label>
+        <textarea id="pa-message" rows="4" placeholder="How can we help?" required></textarea>
+        <button class="pa-btn pa-btn-dark" type="submit">Send message</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="pa-toast" id="pa-toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

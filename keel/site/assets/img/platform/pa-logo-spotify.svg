@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" role="img" aria-labelledby="pa-logo-spotify-title">
+  <title id="pa-logo-spotify-title">Spotify</title>
+  <circle cx="16" cy="18" r="13.5" fill="none" stroke="#191919" stroke-width="2"/>
+  <g fill="none" stroke="#191919" stroke-width="2" stroke-linecap="round">
+    <path d="M7 13c6-2 12-1 17 2"/>
+    <path d="M8 18c5-1.6 10-1 15 1.8"/>
+    <path d="M9 23c4-1.2 8-.8 12 1.4"/>
+  </g>
+  <text x="37" y="25" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" letter-spacing=".3" fill="#191919">Spotify</text>
+</svg>

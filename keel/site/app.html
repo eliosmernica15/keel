@@ -46,8 +46,13 @@
   <!-- shared sidebar -->
   <aside class="side" id="sidebar">
     <div class="scroll">
+      <div class="side-brand"><svg class="logo" viewBox="0 0 48 48"><use href="#starburst"/></svg><span>Keel</span></div>
       <nav class="nav">
-        <a id="nav-new" tabindex="0"><svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>New session</a>
+        <a id="nav-new" tabindex="0"><svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>New</a>
+        <a id="nav-search" tabindex="0"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>Search</a>
+        <a id="nav-projects" tabindex="0"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg>Projects</a>
+        <a id="nav-artifacts" tabindex="0"><svg viewBox="0 0 16 16"><rect x="3" y="2.5" width="10" height="11" rx="1.5"/><path d="M5.5 6h5M5.5 9h5M5.5 11.5h3"/></svg>Artifacts</a>
+        <a id="nav-plugins" tabindex="0"><svg viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="5" height="5" rx="1"/><rect x="8.5" y="2.5" width="5" height="5" rx="1"/><rect x="2.5" y="8.5" width="5" height="5" rx="1"/><path d="M11 8.5v5M8.5 11h5"/></svg>Plugins</a>
         <a id="nav-customize" tabindex="0"><svg viewBox="0 0 16 16"><rect x="2" y="5.5" width="12" height="7.5" rx="1.3"/><path d="M5.8 5.5V4a1 1 0 0 1 1-1h2.4a1 1 0 0 1 1 1v1.5M2 8.8h12"/></svg>Customize Keel</a>
         <a id="nav-tutorial" tabindex="0"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.6.3-.8.7-.8 1.4M8 12h.01"/></svg>Take the tour</a>
       </nav>
@@ -56,6 +61,7 @@
       <div id="pinned-list" class="recents"></div>
       <div id="recents-groups"></div>
       <div class="lbl"><span>Recents</span><span class="lbl-actions">
+        <button class="lbl-view" id="btn-recents-view-all" title="Show all recents">View all</button>
         <button class="archived-toggle" id="btn-show-archived" hidden title="Show archived">Archived (0)</button>
         <button id="btn-search-recents" aria-label="Filter recents"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg></button>
         <button id="btn-clear-recents" aria-label="Clear recents"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6.2 4.5V3a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.5M5.2 4.5l.7 8.5a1 1 0 0 0 1 .9h2.2a1 1 0 0 0 1-.9l.7-8.5"/></svg></button>
@@ -103,8 +109,8 @@
 
     <div class="acct">
       <svg class="logo" viewBox="0 0 48 48"><use href="#starburst"/></svg>
-      <b>You</b><small>local</small>
-      <svg viewBox="0 0 16 16"><path d="M4 6.5l4 4 4-4"/></svg>
+      <b id="acct-name">You</b><small id="acct-plan">local</small>
+      <button id="acct-upgrade" class="acct-upgrade" data-upgrade>Upgrade</button>
     </div>
   </aside>
 
@@ -118,6 +124,7 @@
       <button id="btn-quick" class="btn-stop" aria-label="Quick Ask (Ctrl+Shift+K)">Quick Ask</button>
       <button id="btn-caps" class="btn-stop" aria-label="Capabilities browser">Modules</button>
       <button id="btn-tutorial" class="btn-stop" aria-label="Guided tour (Ctrl+Shift+T)" title="Guided tour (Ctrl+Shift+T)">Tour</button>
+      <button id="plan-pill" class="plan-pill" data-upgrade title="See Keel plans">Free plan · Upgrade</button>
       <button id="btn-term" aria-label="Terminal"><svg viewBox="0 0 16 16"><path d="M2.5 4.5l4 3.5-4 3.5M8 12h5.5"/></svg></button>
       <button id="btn-files" aria-label="Files"><svg viewBox="0 0 16 16"><path d="M2 4.2a1 1 0 0 1 1-1h3.2l1.5 1.6H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg></button>
       <span class="gap"></span>
@@ -134,7 +141,7 @@
     <!-- ======================= SURFACE A — KEEL DESKTOP (desktop web chat) -->
     <section id="view-chat" class="view" role="tabpanel" aria-label="Keel Desktop">
       <div class="hero" id="hero-chat">
-        <h1 class="wordmark"><svg class="starburst big" viewBox="0 0 48 48"><use href="#starburst"/></svg><span>You’re here.</span></h1>
+        <h1 class="wordmark"><svg class="starburst big" viewBox="0 0 48 48"><use href="#starburst"/></svg><span>You're here!</span></h1>
         <p class="subtitle">Keel mirror · the shape of the local app, in your browser</p>
         <p class="tag"><i></i>PUBLIC MIRROR · NO BACKEND</p>
         <div class="ideas">
@@ -149,17 +156,40 @@
       <div class="thread" id="thread-chat" aria-live="polite"></div>
 
       <form class="composer" id="form-chat">
-        <textarea id="prompt-chat" rows="2" placeholder="How can I help you today?" aria-label="Message Keel" autocomplete="off" spellcheck="true"></textarea>
+        <textarea id="prompt-chat" rows="2" placeholder="/ for skills" aria-label="Message Keel" autocomplete="off" spellcheck="true"></textarea>
         <div class="attachments" id="attachments-chat" hidden></div>
         <div class="row">
           <button type="button" class="add" id="attach-chat" aria-label="Add" title="Attach files or pick a folder (Ctrl+U)"><svg viewBox="0 0 16 16"><path d="M8 2.5v11M2.5 8h11"/></svg></button>
           <button type="button" class="mic" id="mic-chat" aria-label="Hold to dictate" title="Hold to dictate (Shift+hold to send when done)"><svg viewBox="0 0 16 16"><rect x="5.5" y="2" width="5" height="8" rx="2.5"/><path d="M3 7.5a5 5 0 0 0 10 0M8 12.5v2"/></svg></button>
           <span class="voice-status" id="voice-status-chat" hidden></span>
+          <button type="button" class="voice-wave" id="voice-chat" aria-label="Voice mode" title="Voice mode"><svg viewBox="0 0 16 16"><path d="M2 6v4M4.5 3.5v9M7 1.5v13M9.5 4v8M12 2.5v11M14.5 6v4"/></svg></button>
           <button type="button" class="workdir" id="workdir-pill-chat" hidden title="Working folder — agent tools run here"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg><span></span></button>
           <button type="button" class="model" id="model-pill-chat">Keel · local</button>
           <button type="submit" class="send" id="btn-send-chat" aria-label="Send"><svg viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5"/></svg></button>
         </div>
       </form>
+
+      <div class="home-chips" id="home-chips">
+        <button type="button" class="home-chip" id="home-project"><svg viewBox="0 0 16 16"><path d="M2.5 6.5h11v6a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1zM4 4.5h8M5 2.5h6"/></svg>Project</button>
+        <button type="button" class="home-chip" id="home-model">Sonnet 5.5 Medium</button>
+        <button type="button" class="home-chip" id="home-auto">Auto</button>
+      </div>
+
+      <section class="artifacts" id="recent-artifacts" aria-label="Recent artifacts">
+        <div class="artifacts-head"><h3>Recent artifacts</h3><button type="button" id="btn-artifacts-view-all">View all</button></div>
+        <div class="artifacts-grid">
+          <button type="button" class="artifact-card" id="artifact-card" data-prompt="Open my Keel launch brief artifact and summarize the key decisions for me.">
+            <span class="artifact-ic"><svg viewBox="0 0 16 16"><rect x="3" y="2.5" width="10" height="11" rx="1.5"/><path d="M5.5 6h5M5.5 9h5M5.5 11.5h3"/></svg></span>
+            <span class="artifact-title">Launch brief — Keel</span>
+            <span class="artifact-meta">Artifact · just now</span>
+          </button>
+          <button type="button" class="artifact-card" id="artifact-card-more" hidden data-prompt="Show me the draft artifact from my last Keel session.">
+            <span class="artifact-ic"><svg viewBox="0 0 16 16"><rect x="3" y="2.5" width="10" height="11" rx="1.5"/><path d="M5.5 6h5M5.5 9h3"/></svg></span>
+            <span class="artifact-title">Session notes — draft</span>
+            <span class="artifact-meta">Artifact · earlier</span>
+          </button>
+        </div>
+      </section>
     </section>
 
     <!-- ==================================== SURFACE B — KEEL CODE (coding) -->
@@ -692,6 +722,30 @@
     <input id="quick-input" type="text" placeholder="Ask Keel anything…" aria-label="Quick question" autocomplete="off" />
     <pre id="quick-result" class="quick-result" hidden></pre>
     <div id="quick-status" class="quick-status"></div>
+  </div>
+</div>
+
+<!-- Keel plans — informational dialog; the full plan table lives on the landing page. -->
+<div id="plans-overlay" class="plans-overlay" hidden role="dialog" aria-modal="true" aria-label="Keel plans">
+  <div class="plans-backdrop" data-close-plans></div>
+  <div class="plans-card">
+    <div class="plans-head">
+      <span class="tour-kicker">KEEL PLANS</span>
+      <button id="plans-close" class="icon-btn" aria-label="Close plans"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+    <h3>You're on the Free plan</h3>
+    <p class="lead">Keel is local and private. This browser mirror chats through the provider key you save in Settings → Providers — the key stays in this browser and goes nowhere except your provider.</p>
+    <ul class="fact-list">
+      <li>Limited usage every 5 hours, plus a weekly limit.</li>
+      <li>Chat on web, desktop and mobile; search the web, create files and run code.</li>
+      <li>Memory across conversations, connected apps and tools.</li>
+      <li>Create Artifacts, Slides and Docs.</li>
+    </ul>
+    <div class="plans-actions">
+      <a class="btn-primary" href="/#plans">See all plans</a>
+      <button type="button" class="btn-ghost" data-close-plans>Close</button>
+    </div>
+    <p class="fine">No payment is taken in this browser. Plans are managed on the Keel website.</p>
   </div>
 </div>
 

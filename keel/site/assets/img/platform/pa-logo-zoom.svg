@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" role="img" aria-labelledby="pa-logo-zoom-title">
+  <title id="pa-logo-zoom-title">Zoom</title>
+  <rect x="2" y="9" width="26" height="18" rx="5" fill="none" stroke="#191919" stroke-width="2"/>
+  <circle cx="15" cy="18" r="5" fill="none" stroke="#191919" stroke-width="1.8"/>
+  <path d="M28 14l6-3v14l-6-3" fill="none" stroke="#191919" stroke-width="2" stroke-linejoin="round"/>
+  <text x="41" y="25" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="600" letter-spacing=".4" fill="#191919">zoom</text>
+</svg>

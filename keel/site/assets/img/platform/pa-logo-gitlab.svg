@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" role="img" aria-labelledby="pa-logo-gitlab-title">
+  <title id="pa-logo-gitlab-title">GitLab</title>
+  <g fill="none" stroke="#191919" stroke-width="1.8" stroke-linejoin="round">
+    <path d="M14 3 L26 25 H2 Z"/>
+    <path d="M14 3 L9 25 L2 25 Z" opacity=".65"/>
+    <path d="M14 3 L19 25 L26 25 Z" opacity=".65"/>
+  </g>
+  <text x="35" y="25" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="600" letter-spacing=".4" fill="#191919">GitLab</text>
+</svg>

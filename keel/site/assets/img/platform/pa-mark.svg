@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="pa-mark-title">
+  <title id="pa-mark-title">KEEL</title>
+  <g fill="none" stroke="#191919" stroke-width="3.2" stroke-linecap="round">
+    <path d="M24 4.5v11.5M24 32v11.5M4.5 24H16M32 24h11.5"/>
+    <path d="M10.2 10.2l8.1 8.1M29.7 29.7l8.1 8.1M37.8 10.2l-8.1 8.1M18.3 29.7l-8.1 8.1"/>
+  </g>
+  <circle cx="24" cy="24" r="5.6" fill="#191919"/>
+</svg>
