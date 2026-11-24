@@ -233,6 +233,18 @@ class Y4_12DeterministicBuildTests(unittest.TestCase):
         with self.assertRaises(m.BackendError):
             m.check_artifact_budget(1, "unknown")
 
+    def test_tarball_rejects_path_traversal_members(self):
+        """Members must never escape the archive root on extraction."""
+        for bad in ("../escape", "a/../../escape", "/etc/passwd", "C:\\evil", ".."):
+            with self.subTest(bad=bad), self.assertRaises(m.BackendError):
+                m.deterministic_tarball({bad: b"x"})
+        # A normal nested path is still accepted and normalized with "/".
+        blob, _ = m.deterministic_tarball({"a/../b.txt": b"x"})
+        import io as _io
+        import tarfile as _tarfile
+        names = [ti.name for ti in _tarfile.open(fileobj=_io.BytesIO(blob)).getmembers()]
+        self.assertEqual(names, ["b.txt"])
+
 
 class Y4_14PresetTests(unittest.TestCase):
     def test_16_plugins_and_13_free_mcp(self):

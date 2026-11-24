@@ -395,6 +395,19 @@ def test_x2_7_malformed_unknown_and_truncated():
     assert len(huge.to_dict()["failures"]) <= 50
 
 
+def test_x2_7_no_evidence_is_never_fake_success():
+    """summarize(None) and parse_unified_diff(123) must not report success."""
+    for bad in (None, 123, {"out": "x"}):
+        with must_raise(BackendError):
+            summarize(bad)
+    empty = summarize("")
+    assert empty.ok is False and empty.guessed is True
+    assert "no test output" in empty.note
+    with must_raise(BackendError):
+        parse_unified_diff(123)
+    assert parse_unified_diff("") == {}
+
+
 # ---------------------------------------------------------------------------
 # X2.8 -- Coverage hints
 # ---------------------------------------------------------------------------

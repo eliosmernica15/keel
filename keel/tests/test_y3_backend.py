@@ -277,6 +277,17 @@ def test_y3_7_tick_requires_now():
         y3.tick(_work(), now="")
 
 
+def test_y3_7_tick_rejects_non_timestamp_now():
+    """An opaque label or wrong type must not be accepted as a tick time."""
+    for bad in ("not-a-timestamp", "2026-01-01", "12345", 12345, None,
+                "2026-13-99T99:99:99Z"):
+        with pytest.raises(y3.SchedulerError):
+            y3.tick(_work(), now=bad)
+    # Valid stamps (Z, explicit offset, space separator) still work.
+    assert y3.tick(_work(), now="2026-01-01T00:00:00+00:00").outcomes
+    assert y3.tick(_work(), now="2026-01-01 00:00:00").outcomes
+
+
 # ---------------------------------------------------------------------------
 # Y3.8 -- device-approval pairing flow
 # ---------------------------------------------------------------------------
