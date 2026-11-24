@@ -2,11 +2,27 @@
 
 from __future__ import annotations
 
+import pytest
+
+from keel import commercial_seams
 from keel.commercial_seams import (compliance_pack, compliance_pack_status,
                                    data_flow_svg, edition_field,
                                    enterprise_templates, license_token_format,
                                    sbom_export, silent_install_flags,
                                    silent_install_matrix)
+
+
+@pytest.fixture(autouse=True)
+def _generated_inventory(tmp_path, monkeypatch):
+    """Use a real, freshly generated inventory instead of a build artifact.
+
+    The license data comes from the repo manifests and installed package
+    metadata via ``write_inventory``; nothing is fabricated or committed.
+    """
+    from keel.release.licenses import write_inventory
+
+    path = write_inventory(tmp_path / "DEPENDENCY-LICENSES.json")
+    monkeypatch.setattr(commercial_seams, "LICENSE_INVENTORY", path)
 
 
 def test_edition_remains_standard_and_inactive():

@@ -82,6 +82,25 @@ def find(name: str, project_root: Path | None = None) -> Workflow | None:
     return None
 
 
+def _reported_ok(result: Any) -> bool:
+    """Honor an executor's explicit outcome instead of assuming success.
+
+    Executors commonly return ``(text, payload)`` where ``payload`` carries an
+    ``ok``/``error`` signal.  Treating every non-exception return as success is
+    a fake success: a denied or failed tool looks identical to a working one.
+    """
+    if isinstance(result, dict):
+        if "ok" in result:
+            return bool(result["ok"])
+        if result.get("error"):
+            return False
+        return True
+    if (isinstance(result, tuple) and len(result) == 2
+            and isinstance(result[1], dict)):
+        return _reported_ok(result[1])
+    return True
+
+
 def _bind(value: Any, item: Any) -> Any:
     """Recursively bind ``{{item}}``/``{{index}}`` placeholders in inputs."""
     if isinstance(value, str):
@@ -105,7 +124,7 @@ def execute_workflow(workflow: Workflow, *, tool_executor: Callable[[str, dict],
                     raise RuntimeError("no tool executor provided")
                 result = tool_executor(step.name, step.input)
                 entry["result"] = result
-                entry["ok"] = True
+                entry["ok"] = _reported_ok(result)
             elif step.kind == "command":
                 cmd = find_command(step.command, Path(project_root) if project_root else Path.cwd()) if step.command else None
                 if cmd is None:
@@ -115,7 +134,7 @@ def execute_workflow(workflow: Workflow, *, tool_executor: Callable[[str, dict],
                 else:
                     out = render_custom(cmd, step.args)
                 entry["result"] = out
-                entry["ok"] = True
+                entry["ok"] = _reported_ok(out)
             elif step.kind == "shell":
                 # Route through the secured tool execution path (tier-2 safety).
                 # Do not use subprocess.run(shell=True) directly.
@@ -123,7 +142,7 @@ def execute_workflow(workflow: Workflow, *, tool_executor: Callable[[str, dict],
                     raise RuntimeError("no tool executor provided for shell step")
                 result = tool_executor("run_shell", {"command": step.command, "shell": "posix"})
                 entry["result"] = result
-                entry["ok"] = True
+                entry["ok"] = _reported_ok(result)
             elif step.kind == "map":
                 # Deterministic: run sub-steps once per item with {{item}} bound.
                 mapped = []
@@ -140,7 +159,7 @@ def execute_workflow(workflow: Workflow, *, tool_executor: Callable[[str, dict],
                         sub, tool_executor=tool_executor,
                         project_root=project_root, cwd=cwd))
                 entry["result"] = mapped
-                entry["ok"] = True
+                entry["ok"] = all(child["ok"] for sub in mapped for child in sub)
             elif step.kind == "loop":
                 loop_results = []
                 for n in range(step.times):
@@ -156,21 +175,27 @@ def execute_workflow(workflow: Workflow, *, tool_executor: Callable[[str, dict],
                         sub, tool_executor=tool_executor,
                         project_root=project_root, cwd=cwd))
                 entry["result"] = loop_results
-                entry["ok"] = True
+                entry["ok"] = all(child["ok"] for sub in loop_results for child in sub)
             elif step.kind == "human":
                 # A human-task node: consult a callback (approval/answer),
                 # with a bounded timeout and a default when no one answers.
                 responder = (tool_executor if callable(tool_executor) else None)
                 if responder is None:
-                    entry["result"] = step.default
-                    entry["ok"] = True
-                    entry["defaulted"] = True
+                    answer = None
                 else:
                     answer = responder("ask_user", {
                         "question": step.name or "Approve this step?",
                         "options": step.input.get("options", []),
                         "timeout": step.timeout_s,
                     })
+                if answer is None:
+                    # No responder, or the responder timed out / declined to
+                    # answer.  Substituting the default is not an approval:
+                    # report it honestly instead of claiming success.
+                    entry["result"] = step.default
+                    entry["ok"] = False
+                    entry["defaulted"] = True
+                else:
                     entry["result"] = answer
                     entry["ok"] = True
             else:

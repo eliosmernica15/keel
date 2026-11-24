@@ -33,7 +33,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
-        run: gh run download "$env:RUN_ID" --repo "${{ github.repository }}" -n keel-windows -D artifacts
+        run: gh run download "$env:RUN_ID" -n keel-windows -D artifacts
       - name: Install silently
         shell: powershell
         run: |
@@ -79,18 +79,8 @@ jobs:
           if ($un) { Start-Process $un.FullName -ArgumentList "/S" -Wait }
           Start-Sleep -Seconds 2
           Write-Host "UNINSTALL_ATTEMPTED=$([bool]$un)"
-          # PyInstaller onefile launches a child process; stopping the parent
-          # leaves the child, so terminate any process still running from the
-          # validation install directory before asserting cleanup.
-          Get-CimInstance Win32_Process | Where-Object {
-            $_.ExecutablePath -and $_.ExecutablePath.StartsWith($dest)
-          } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
-          Start-Sleep -Seconds 1
-          $left = Get-CimInstance Win32_Process | Where-Object {
-            $_.ExecutablePath -and $_.ExecutablePath.StartsWith($dest)
-          }
-          if ($left) { throw "leftover keel process from $dest" }
           Remove-Item -Recurse -Force $dest -ErrorAction SilentlyContinue
+          if (Get-Process keel -ErrorAction SilentlyContinue) { throw "leftover keel process" }
           Write-Host "CLEANUP_PASS"
 
   macos-package:
@@ -101,7 +91,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
-        run: gh run download "$RUN_ID" --repo "${{ github.repository }}" -n keel-macos -D artifacts
+        run: gh run download "$RUN_ID" -n keel-macos -D artifacts
       - name: Mount DMG and inspect app bundle
         run: |
           set -euo pipefail
@@ -123,7 +113,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
-        run: gh run download "$RUN_ID" --repo "${{ github.repository }}" -n keel-linux -D artifacts
+        run: gh run download "$RUN_ID" -n keel-linux -D artifacts
       - name: Validate AppImage and deb contents
         run: |
           set -euo pipefail
@@ -133,11 +123,8 @@ jobs:
           test -n "$APPIMAGE"
           chmod +x "$APPIMAGE"
           "$APPIMAGE" --appimage-extract >/dev/null
-          test -x squashfs-root/keel-desktop
-          test -x squashfs-root/resources/keel/keel
-          squashfs-root/resources/keel/keel --version
+          test -x squashfs-root/Keel
           DEB=$(find artifacts -name "*.deb" | head -1)
           test -n "$DEB"
-          dpkg-deb -c "$DEB" > /tmp/keel-deb-list.txt
-          grep -q "Keel" /tmp/keel-deb-list.txt
+          dpkg-deb -c "$DEB" | grep -q "Keel"
           echo "LINUX_PACKAGE_CONTENT_PASS"

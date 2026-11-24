@@ -1,0 +1,430 @@
+D1.11	P1	M10	Shell-owned UI runs plugin install/update transactions with the bundled package manager under normal user/profile config
+D1.2	P1	M10	Registrations are reversible effects that unwind when their plugin unloads.
+D1.3	P1	unassigned	Profiles and bundles: a *profile* is a named composition (list of bundles, out-of-tree plugins, a user patch file); ship
+D1.6	P1	M10	Config-only HMR plugin toggled per profile (on for web, off for headless/sdk/acp).
+D1.7	P1	M0	All supported apps launch only through named profiles; package bins, demos and SDK argv escapes are forbidden, and a gat
+D1.8	P1	M20	SDK runtime wheel per platform bundles the normal CLI; the client launches `--profile sdk` with an explicit home dir; mi
+D1.9	P2	M10	Plugin management command reserved as `plugin` (not a profile name unless `--profile plugin`).
+D2.12	P1	M4	Session projection seam: registered units fold committed events; clients read selected views via `snapshot()`; domain se
+D2.14	P1	M4	Persistence-provider interface (`create`/`open`/`stat`/`list`/`export`) so session storage backends are swappable.
+D2.17	P1	M7	Session title provider (single registered provider) and goals service (same-session objective continued through agent ev
+D2.2	P1	M8	Waterfall vs serial listeners: waterfall listeners must call `next()` to delegate (returning without it short-circuits);
+D2.4	P1	M7	Rejected or empty first claim closes the turn without a step.
+D2.6	P1	M4	Request series (`request/header`, `request/context`): the log marks when a new series of requests starts (surface replac
+D3.10	P1	unassigned	Filesystem policy through `fs/*` events on top of providers.
+D3.12	P1	M7	`deliverables`: each turn can attach named deliverables (files, summaries) shown as a result card.
+D3.15	P1	M9	`extensions` (runtime self-modification) group.
+D3.16	P1	M19	`feedback` (human feedback) group.
+D3.17	P1	M3	`identity` (anonymous identity) group.
+D3.19	P1	M7	`plan` (logged planning) and `schedule` (scheduled follow-ups).
+D3.20	P1	M0	`experimental/` quarantine: capabilities under evaluation with no product-support commitment, independent of optional de
+D3.21	P1	M2	`llm-pi-ai` generated provider metadata with a check that rejects stale generated data without rewriting files.
+D3.22	P1	M21	Inspector (DevTools-style frontend) compiled locally from a pinned source package; no network or browser download at bui
+D3.23	P2	M20	Live Share (experimental): viewer carrier in the browser + node wire codecs.
+D3.3	P1	M12	Subagent providers behind one interface: from a fresh child agent to a delegated turn in another product.
+D3.4	P1	M12	Agent Teams: when enabled for a root session, adds task policy and a shared task board; subagent controls own identity, 
+D3.5	P1	M7	Agent presets compose a different capability set for one session; a service row inside a preset needs an `isolate` realm
+D4.1	P1	M19	Model setup in Settings → Models: enter key, save, route usable immediately without restarting.
+D4.10	P1	M0	UI design/review entry point as a reusable skill file (design principles + references loaded on demand).
+D4.12	P1	M19	Desktop window loads packaged assets immediately and activates client plugins after readiness.
+D4.13	P1	M20	Port selection: web UI default fixed port, desktop OS-assigned, overridable by profile config.
+D4.3	P1	M19	Workspace required: "Choose workspace" flow; composer is unavailable until a workspace is selected; fresh UI has none se
+D4.4	P1	M19	In-page directory picker vs native picker; an overlay config pins the in-page picker for automated browser tests/GIF rec
+D4.5	P1	M19	Web client Chat nodes: extensible `ConversationNodeDefinition` + keyed renderer so plugins add new message/node types.
+D4.6	P1	M10	Settings cards contributed by plugins (cookbook "adding a settings card").
+D4.8	P1	M19	Client UI copy is locale-owned: product text only through typed dictionaries/`t()`; a gate rejects hardcoded copy; Engli
+D4.9	P2	M19	Official plugin artwork policy: bundled plugins use a consistent icon set; new glyphs need designer approval.
+D6.1	P1	M0	Pre-stable APIs: update every consumer when a public API changes; record each externally perceptible breaking change imm
+D6.10	P1	M0	Source plane vs artifact plane never mixed: tests/gates resolve imports to source and pass on a clean tree; gates that n
+D6.11	P1	M0	Structured, typed errors (`KeelError` with code); stop dependent work and visibly report untrusted state or unknown outc
+D6.12	P1	M0	Comments: local and non-restating; document behavior, failure, timing, ownership, safe use; every public export has a do
+D6.13	P1	M0	Docs accompany code: update README/docstrings in the same change.
+D6.14	P1	M0	Tests describe behavior, not "correctness"; change obsolete behavior together with its tests and explain why.
+D6.15	P1	M25	Every non-trivial model- or user-visible change updates a keyless recorded-session snapshot; fixtures replay on macOS an
+D6.16	P1	M20	Both SDKs project the loop: loop/session-lifecycle/event-map changes update the Python and TypeScript SDK expected outpu
+D6.17	P1	M0	Agent Notes (ADR-like) only for durable decision rationale; archived notes frozen, never edited or treated as current au
+D6.18	P1	M0	Prefer maintained dependencies over hand-rolling when they delete owned code and tests.
+D6.19	P1	M0	Vendoring policy: vendored packages are pinned source copies with a manifest of upstream SHAs; changes require a manifes
+D6.2	P1	M0	Plugins, not loop changes: new behavior attaches to documented extension points; changing the loop requires updating the
+D6.20	P1	M0	Run only relevant checks locally: match evidence to the change (focused tests, snapshots, doc-sync, built smokes, real-p
+D6.21	P1	M0	PR hygiene: one `kind/*` and all material `area/*` labels; rewrites use force-with-lease only; PR description template.
+D6.22	P1	M22	TODO markers by urgency: `FIXME` (blocks release), `TODO` (soon), `XXX` (someday).
+D6.23	P1	M0	Defensive-patterns doc read before touching package surfaces, remote services, client state, conversation/session behavi
+D6.24	P1	M0	Strict typing everywhere; any remaining dynamic type explains why.
+D6.25	P1	M0	Machine-checkable invariants wired into an executed top-level gate and each gate proven to reject an invalid case; narro
+D6.3	P1	M8	Typed events with documented mode and payload fields; closed unions end in an exhaustive check (`assert_never`); extensi
+D6.4	P1	M0	Explicit over implicit at package boundaries: defaults are applied in an explicit `resolve(request) -> Spec` step, never
+D6.5	P1	M2	No hardcoded tunables in plugins: deployment-varying choices are validated config fields; constants stay for protocol, e
+D6.6	P1	M2	Misconfiguration fails loud at load (or earliest resolvable point); never silently skip a missing referent.
+D6.7	P1	M0	Opaque cross-boundary ids are branded types (`NewType`), never bare `str`.
+D6.8	P1	M0	Trust types inside the process; validate at boundaries (parser/config, queued messages, model/tool JSON, durable files, 
+D6.9	P1	M0	No new casts to `Any`/`object` beyond the recorded baseline; replace with typed values or validation.
+D7.10	P1	M0	Hooks: worktree-local git hooks installed by a script; pre-commit = staged lint profile with fix + bounded retry, whites
+D7.11	P1	M0	Doc gates: doc-sync aggregate, doc typecheck (compiles code fences), type-equiv (documented type declarations pasted int
+D7.13	P1	M25	Per-file 100% coverage gate on package sources in CI (separate from the normal test command).
+D7.14	P1	M25	Test taxonomy rules: real-API e2e self-skip without key; "expected" tests are owner-local process expectations; snapshot
+D7.15	P1	M22	Release rehearsals: dependency-layout rehearsal and pack rehearsals (build packages exactly as release does) run credent
+D7.16	P1	M22	Package hygiene checks: `publint`-style entrypoint validation and a clean "consumer" import check against built declarat
+D7.17	P2	M22	Windows signing docs as required reading for packaging; desktop packaging profile per signing mode.
+D7.18	P1	M22	Update-time breaking-change notice: release carries the upgrade guide entries since the installed version.
+D7.2	P2	M0	Worker budgets differ locally vs CI (local capped because container CPU counts mislead).
+D7.20	P2	M0	Labels taxonomy and stacked PRs (native stacks, merge-forward vs rebase).
+D7.3	P1	M0	Separate type-check programs for two faces (host and client) because both declare the same keys with different services 
+D7.4	P1	M20	Typed remote-call contract generation: services declare callable methods with a decorator; the build generates client-si
+D7.5	P1	M22	Build order: native addon → contract generation → compile host → bundle → compile client → bundle client → web; `build:c
+D7.6	P1	M22	Embedded build identity: version + short commit + dirty marker; `official` build omits the dirty marker; a gitignored bu
+D7.7	P1	unassigned	Local vs official build profiles (`--profile local` keeps version/commit/dirty, discards inherited branding overrides).
+D7.8	P1	M0	Windows and WSL guidance: keep checkout and toolchain in the same OS environment; install deps separately per environmen
+E3.1	P1	M12	One activation API for local children and external executions; provider capability flags (agent_options, agent_preset, o
+E3.10	P1	M12	Interrupt authority: only the user or an exact live ancestor; fire-and-return; preserves unclaimed inbox, the activation
+E3.11	P1	M12	Whole-tree drain and wait-for-tree-work (idle members with parked input stay resident without delaying host completion).
+E3.12	P1	M12	Parent-owned subagent catalog projection (membership at creation, no execution status); recursive list_descendants with 
+E3.13	P1	M12	Subagent model-route setting: default-off allowlist of provider/model routes the agent may choose for children; reads li
+E3.14	P1	M12	User-authored message to a child from the UI with attachments (image parts admitted via attachment store; model must acc
+E3.15	P1	M8	Lifecycle events subagent/start, subagent/end (scoped to tree root), provider added/removed.
+E3.2	P1	M12	Result delivery policy: parent (notifies the model) vs caller (only returns result, e.g., workflows/code mode).
+E3.4	P1	M12	Child working directory chosen at admission (relative resolves against the parent's current dir); local child keeps the 
+E3.5	P1	M12	Local child = durable session with at most one live activation; manager owns identity/capacity reservation, input admiss
+E3.6	P1	M12	Spawn vs Fork: fork seeds the child with the parent's completed-turn prefix (contiguous, lossless, balanced steps), spaw
+E3.7	P1	M12	External backends as providers (separate coding CLIs or protocol agents): one execution, no follow-ups, results to creat
+E3.9	P1	M12	Messaging within one tree: running target gets *steer*, absent target cold-resumes, sender identity rechecked, accepted 
+E4.13	P1	M22	Test the published artifact entry path: run built entrypoints under the plain runtime; assert a genuinely missing config
+E4.14	P1	M25	Test resolution: tests resolve imports to source; built artifacts used only by explicit built-mode tests; subprocess tes
+E4.3	P1	M25	Coverage gate philosophy: an uncovered line is often dead code to delete; line coverage is necessary, never sufficient; 
+E4.4	P1	M21	Performance benchmark gates as required PR checks: timed code runs on the plain runtime (never a transpiler); synthetic 
+E4.6	P1	M25	Fixtures omit sequence/time envelopes (replay synthesizes them); historical fixtures keep released representation with e
+E4.7	P1	M25	Browser snapshot lane: UI output compared in Chromium, with the model picker also in WebKit; replay-only in CI.
+E5.10	P1	M19	Shell copy localized from app locale (menus, native dialogs, plugin window share one locale payload; falls back to Engli
+E5.11	P1	M19	Isolated development home (data, project and browser data under a disposable folder); debug ports configurable by env; D
+E5.13	P1	M22	Release prerequisite env validation (app id format; reject malformed identity values; incomplete credential sets).
+E5.16	P1	M22	Test vs production update environments with distinct origins.
+E5.17	P2	M22	Signing/notarization steps: hardened runtime + timestamp on every embedded executable; deep strict signature check rejec
+E5.18	P1	M22	Linux is not a supported desktop release target in dsh; Keel supports it (AppImage/DEB/RPM).
+E5.19	P1	M26	Known-limitations section in the desktop README (features disabled in desktop because they need a server; shared vs sepa
+E5.2	P1	M22	Release identity: shell and backend always carry the same exact version; a backend upgrade is a desktop release; no inde
+E5.3	P1	M22	Bundled runtime, never system runtime or package-manager state (and never the shell's own runtime for the backend).
+E5.5	P1	M10	Transactional activation: install in staging → boot a full backend health check → replace the active profile only after 
+E5.6	P1	M22	Seed store packaging: offline seed archive of dependencies in 16 deterministic uncompressed shards so the outer installe
+E5.7	P1	M22	Update unit: shell + matching backend seed + runtime form one signed update unit; update check 10 seconds after the main
+E5.8	P1	M10	Plugin management window is a separate renderer receiving only structured list/install/remove/update operations: no file
+E6.11	P1	M23	Troubleshooting keyed by error code/symptom (missing credential, unknown model, 401 on discovery, gateway refuses every 
+E6.12	P1	M2	"Open configuration file" button next to settings for advanced fields, adapters re-read config on the next request (no r
+E6.13	P2	M2	Client-upgrade-required error naming the version to install when a model needs a newer app.
+E6.14	P1	M23	Config generated reference (config-catalog.md) derived from source so it can't drift; links from the UI to field docs.
+E6.2	P1	M19	Saved key edit rules: no reveal/copy/partial edit; typing replaces the whole key; Backspace/Delete stages whole-key remo
+E6.3	P1	M19	Environment-credential hints: green = env var detected, yellow = none detected, "unconfirmed" = status read failed; dete
+E6.4	P1	M2	Model list follows the provider's published list (loads on first need, refreshes in the background about every 10 minute
+E6.6	P1	M2	Model discovery: GET /models with a searchable picker (existing models pre-ticked; tick to add, untick to remove; "Updat
+E6.7	P1	M19	Model picker behavior: selecting also sets the default for new sessions; a session keeps the model recorded in its own l
+E7.1	P1	M4	tokenMeter: isolated per-session replay folds; pressure consumers share immutable revisioned measurements.
+E7.10	P2	M4	sessionTitle seam: deterministic fallback title, latest-title fold, one optional async provider (first-prompt vs all-pro
+E7.11	P1	M7	planMode: plan/mode state folded from the log; user selections flushed at turn boundaries; guidance rendering; /plan; st
+E7.12	P1	M7	agentPresets with revisions: YAML-declared preset revisions; retired revisions kept until their last user releases them.
+E7.13	P1	M4	sessionProjectionCache: durable checkpoints of projection state (throttled, mandatory at turn end/detach) to accelerate 
+E7.14	P1	M6	mcpManager: reconciles MCP client instances against settings, aggregates statuses, serves restart/probe to management su
+E7.15	P1	M14	schedule independent of session activation: tasks stored separately; due messages queued into the target session.
+E7.16	P1	M20	ssh seam: one authenticated OpenSSH connection, installed helper identity, independent program streams, disconnect clean
+E7.17	P1	M5	shellEnv: plugins declare effect-scoped KEEL_* environment facts; each shell tool collects one trusted snapshot per exec
+E7.22	P1	M11	lsp seam with exactly four normalized operations and no protocol escape hatch.
+E7.24	P1	M17	speechToText seam with local recognizers; browser uses an authenticated remote; transcripts stay in the draft until subm
+E7.25	P1	M17	officeKit: render Office files to PDF/images, convert, recalculate on the host using a native engine or a WASM fallback;
+E7.26	P1	M4	fileUploads: streaming intake, durable storage, staged receipts bound to accepted submissions.
+E7.27	P2	M11	Forge seam (code-host change requests): providers map remote URLs to change requests, look up by head branch, read statu
+E7.28	P1	M20	remoteAccess role policies: non-owner peers get role-based access to specific methods; list results filtered; each peer'
+E7.29	P1	M20	Connection authentication as a registry of credential verifiers tried in registration order; first live peer wins; sourc
+E7.3	P1	M4	Compaction via pressure events: compaction reacts to post-step pressure and request-error recovery; no model-facing "com
+E7.30	P1	M2	authorization flow registry: a plugin that knows how to obtain a credential registers a flow keyed by the record it writ
+E7.31	P2	M19	Action cards: optional cards with user actions and status notices; card kinds register their actions and handlers.
+E7.32	P2	M10	Plugin recommendations on explicit need only; enabling goes through the plugin manager after a click.
+E7.33	P2	M22	Plugin registry probe: race several registry mirrors and pick the fastest valid one.
+E7.34	P1	M10	Plugin market reader for user-configured index sources, validated; install through the manager.
+E7.35	P1	M4	Message feedback in the canonical log with per-item compare-and-set; session-level /feedback as a log-only event.
+E7.36	P2	M8	Hooks bridges: the reference ships adapters that run hooks defined in other agent tools' formats.
+E7.37	P2	M10	Agent-authored plugins: a tool lets the agent define plugin code whose host half runs in a sandboxed VM and whose client
+E7.38	P1	M8	Workflow engine (script engine) plus a fixed loop-until-done workflow consumer that fans out subagents.
+E7.39	P2	M15	Webhook runtime where trusted rules turn authenticated deliveries into ordinary sessions; provider adapters (e.g., code 
+E7.4	P1	M4	sessionStatus: reading acknowledgements and manual unread marks stored outside session history.
+E7.40	P1	M21	Inspector service: worker-hosted debug target + query API over the live plugin tree.
+E7.41	P2	M4	Storage seam with multiple backends (json, sqlite) and a typed "domain" form for non-session state.
+E7.42	P2	M6	mcpResources seam (connection-owned providers serve shared resource tools).
+E7.43	P1	M16	Browser-use and computer-use as provider seams (several interchangeable providers; each provider owns its tools and per-
+E7.5	P1	M11	workspaceChanges: per-turn changed-file summaries with turn-start vs turn-end comparison, served by session and event se
+E7.7	P1	M19	fileReferences: @ path completion returns paths only, never contents.
+E7.8	P1	M4	sessionReferenceResolver: an @session mention embeds a bounded snapshot of another session as untrusted message context.
+E7.9	P1	M4	sessionQuery seam: exact reads, filters, traces; backend adds full-text reconciliation, ranking, snippets and cursor gen
+V10	P1	M0	Duplicate-code and dead-feature detector for the builder: CI reports duplicate blocks (W1.7) and any plan ID with code b
+V11	P1	M7	Per-agent "tool surface report": shows exactly which tools, MCP servers, skills and subagents an agent can reach after m
+V12	P1	M3	Config "doctor" for rule conflicts: detects rules that can never match (shadowed by a later rule), duplicate rules, and 
+V13	P1	M22	Release provenance page in-app listing for the running build: version, commit-less build id, signing key fingerprint, ma
+V14	P1	M7	Prompt-assembly viewer for subagents/commands (what system prompt, instructions, skills and MCP instruction blocks a chi
+V15	P1	M10	Local "plugin conformance kit": a checklist-runner that verifies a plugin cleans up on unload, respects permission denia
+V17	P1	M5	Disposable-sandbox run mode: run the agent's tool execution in a container with a copy-on-write view of the project, the
+V18	P1	M10	Plugin static capability scan: before enabling a plugin, scan its Python/JS for subprocess, socket, ctypes, `eval/exec`,
+V19	P1	M23	Executable docs: code fences in user and internal docs run in CI against the mock model; "paste of key types" verified a
+V20	P1	M21	Turn Replay Test builder: "save this turn as a test" button producing a snapshot fixture (recorded stream + expected log
+V21	P1	M8	Contract generator for plugin events: generate docs and JSON Schemas for every event type from code annotations, and fai
+V22	P2	M7	Seam checklist linter: verifies each registered seam has a definition, a default provider and at least one consumer, and
+V23	P1	M10	Run-in-isolation toggle for risky plugins: run plugin code in a separate subprocess with its own env, reachable only via
+V25	P1	M25	Tool pipeline fuzzer: random args, random cancel points, injected failures; assert no hang, no leaked process/task, no o
+V27	P1	M22	Release publish verifier: before upload, cross-check manifest, sizes, SHA-256/512, signatures, version monotonicity, com
+V28	P1	M23	Error-code catalog generator: scan code for error constants, produce the troubleshooting pages and the typed-code list; 
+V29	P2	M5	Per-tool timeout and output-size budget table visible in the UI (and editable), with default values by tool class.
+V3	P1	M3	Broadness scoring for saved "always" approvals: flag patterns like bare `*` or `rm *`, show last-used date, offer narrow
+V30	P1	M0	Postmortem template and counter: every escaped bug gets a numbered postmortem (cause, why tests missed it, new test) lin
+V4	P1	M19	Reject-cascade UX: a "Reject all pending" button plus a per-request reject, mirroring W3.9; rejected reasons passed to t
+V6	P1	M6	Opaque per-server correlation IDs for MCP (instead of session ids): random value per (session, server), rotated per sess
+V7	P1	M21	Sycophancy/capitulation eval: scripted multi-turn tests where a fixture "user" pushes back without new evidence; pass = 
+V8	P1	M12	External specialist adapters: Keel can delegate a task to a coding CLI the user already has installed (any tool with a h
+V9	P1	M15	Remote-initiated action confirmation: any task started from a channel (Telegram/email/webhook) that would run shell/edit
+W1.1	P1	M10	"Everything is a plugin" architecture: core features themselves are plugins on a composable runtime (built on Cordis; pa
+W1.11	P1	M19	Developer-preview banner: explicit "compatibility-breaking changes will happen".
+W1.12	P2	M23	`BRAND_GUIDELINES` file (also localized).
+W1.13	P1	M0	Builder instruction files for multiple AI tools: `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`.
+W1.14	P2	M10	Plugin discoverability via a repository topic (`dsh-plugin`).
+W1.15	P1	M20	`python/` package in a TS monorepo (language bindings or SDK).
+W1.16	P1	M0	`patches/` and `vendor/` folders for patched/vendored dependencies.
+W1.17	P2	M23	Discussions-only feedback (no Issues tab visible), Discord, citation block, docs site, website folder in repo.
+W1.18	P0	M0	MIT license + `THIRD_PARTY_NOTICES.md`.
+W1.2	P1	M20	Single command web launch (`npx @deepseek-ai/dsh web`) serving a Web UI at `127.0.0.1:3080`, auto-opening the browser lo
+W1.3	P1	M20	SSH-aware launch: over SSH only print the host URL (client or editor owns the forwarded address).
+W1.4	P1	M19	`--no-open` flag; Web and Desktop targets from one codebase (`apps/`, `native/`, Makefile targets for both).
+W1.5	P1	M25	Test suite taxonomy by config: unit, bench, e2e, expected (golden expected outputs), snapshot, web, web-stress, web-perf
+W1.6	P1	M21	`benchmarks/` + `BENCHMARK.md` at repo root, and `snapshots/` folder.
+W1.7	P1	M0	Staged-only lint config (`.oxlintrc.staged.json`), `lefthook.yml` git hooks, `.jscpd.json` duplicate-code detector, `.rg
+W1.8	P1	M1	Dual CI config (`.github` and `.gitlab-ci.yml`) in one repo.
+W1.9	P1	M25	`i18n.yaml` single-source docs: `README.i18n.yaml`, `CONTRIBUTING.i18n.yaml`, `SAFETY.i18n.yaml`, `BRAND_GUIDELINES.i18n
+W2.10	P1	M2	Model reference format `provider/model#variant` and an expanded object form.
+W2.5	P1	M7	`hidden`, `color`, `disabled` agent fields; `disabled` removes a built-in at config load.
+W2.7	P1	M7	Default agent resolution chain: configured default, else `build`, else first visible primary-capable; changing default d
+W3.11	P1	M6	Permission actions for MCP resources: `list_mcp_resources` (resource = server) and `read_mcp_resource` (resource = `<ser
+W3.5	P1	M3	`~` / `$HOME` expansion at config load for path actions only; shell resources stay raw text.
+W4.1	P1	M6	CLI: `mcp add` (remote `--url`, local `-- cmd`, `--env`, `--header`, `--global`), `mcp list`, `mcp auth`, `mcp logout`; 
+W4.10	P1	M6	MCP prompts become slash commands named `<server>:<prompt>` with positional args.
+W4.11	P1	M6	Server instructions returned at init are injected into the system prompt in a tagged block; omitted when the agent's per
+W4.12	P1	M6	Elicitation (server asks the user for input mid-call) rendered as a form or a link; dismiss cancels.
+W4.13	P1	M6	opencode sends the session ID in request `_meta`; docs warn remote servers may log it.
+W4.14	P1	M6	`disabled` flag keeps a server configured but unconnected; disconnect in UI does not edit config.
+W4.2	P1	M6	Config shape: `mcp.servers.<name>` with `type local|remote`, `command`, `cwd`, `environment`, `url`, `headers`, `oauth`,
+W4.4	P1	M6	Client registration order: pre-registered `client_id` first, then Client ID Metadata Documents (CIMD), then Dynamic Clie
+W4.5	P1	M6	OAuth when the browser is on another machine (SSH/container): user pastes the failed callback URL into a prompt.
+W4.6	P1	M6	Timeouts: startup 30 s, catalog 30 s, execution 12 h defaults; global and per-server.
+W4.7	P2	M6	Protocol version selection (`legacy`, `auto` probe, pinned newest revision) with probe cost warning.
+W4.8	P2	M6	Pooled shared connections across project directories when everything that changes the connection matches.
+W4.9	P1	M6	Tool naming normalization (`<server>_<tool>`, invalid chars to `_`, collisions need unique short names).
+W5.5	P1	M7	Model precedence: command model, else command agent's model, else session model.
+W5.6	P1	M7	Background child commands (`subagent: true`): result or failure reported back to parent.
+W5.7	P1	M7	`@path` is not expanded in stored templates; attachments come from the composer.
+W6.2	P1	M7	Explicit confidence labels (high / moderate / low / unknown) on judgments.
+W6.4	P1	M12	Conductor + specialists routing: one conductor agent; external coding agents as optional specialists for multi-file work
+W6.5	P1	M16	Control-plane routing: prefer local desktop tool over cloud tools when local is healthy; accessibility-tree enrichment o
+W6.6	P1	M13	Running ledger of important account facts/decisions in a memory file.
+W7.11	P1	M20	Streaming body-size enforcement (not just Content-Length), bounded multipart uploads, capped recordings.
+W7.12	P1	M20	Generic client errors + request id, details only in server log.
+W7.15	P1	M4	Share tokens with 144 bits of randomness; public share pages show redacted text and short tool previews, never owner ide
+W7.18	P1	M21	Spending caps enforced atomically in the database before each vendor call.
+W7.2	P1	M16	Live-view URL given only to the owner with `Cache-Control: no-store`.
+W7.20	P1	M23	Deployment hygiene from orgo-teammates: narrowest-scope keys, never show keys on screen/recordings, set provider spend l
+W7.7	P1	M20	Sign-in bound to the browser that started it by a sealed SameSite=Strict cookie, so a forwarded link can't be completed 
+W7.9	P1	M20	CSRF origin check for cookie-bearing state-changing requests; bearer routes exempt.
+W8.1	P2	M20	orgo-teammates `ALLOWED_EMAILS` supports `@domain` entries → paired-client allowlist should support patterns (e.g., devi
+W8.2	P1	M4	openman: recordings and screenshots capped in the database.
+W8.3	P1	M16	openman: computers named in a request are checked against the user's own listing; changes to the home computer through t
+W8.4	P1	M19	opencode `question` and MCP elicitation share one UI form.
+W9.1	P1	M19	MCP panel (`/mcps`)
+W9.2	P1	M19	Approval card with three actions
+W9.3	P1	M19	Agent picker and agent editor
+W9.4	P1	M19	Command palette entries generated from commands
+W9.5	P1	M19	First-run Safety notice
+W9.6	P1	M20	Web UI served on loopback with SSH hint banner showing the forwarded URL instructions.
+X0.2b	P1	M11	Same for M11, M17, M22
+X0.5	P1	M22	Store distribution conflicts with "no source/no GitHub for users"
+X0.9	P1	M0	No risk register or rollback plan per milestone
+X1.10	P2	M7	Self-consistency voting for hard steps
+X1.11	P1	M2	Streaming partial-JSON tool-argument parser
+X1.12	P1	M5	Parallel tool calls with dependency check
+X1.14	P1	M2	Model switch mid-session
+X1.15	P1	M7	Per-model prompt profiles
+X1.16	P1	M2	Model "health check" on load
+X1.6	P2	M2	Apply-model role
+X1.9	P1	M2	Few-shot tool exemplars
+X10.3	P1	M0	Decision log (`DECISIONS.md`) separate from ADRs for owner-level choices (D1 to D7, G1 to G7) with date and answer
+X10.5	P1	M0	Weekly "what is proven" report generated from `PLAN-INDEX.json` (counts by status, stale evidence, failing rows)
+X10.6	P1	M0	Scope-creep guard: any new feature idea goes to `INBOX.md` with a proposed milestone instead of being built inline
+X2.1	P1	M11	Diagnostics feedback after every edit
+X2.10	P2	M9	Migration assistants (framework/library version upgrades) as bundled skills with verification steps
+X2.11	P2	M5	Notebook-aware editing (`.ipynb` cell diff, run cell, outputs stored outside the notebook diff)
+X2.12	P1	M11	Commit hygiene: conventional-commit suggestions from project history, secret scan on staged diff, hook-aware (respect ex
+X2.13	P1	M11	Monorepo task graph awareness (workspaces, package boundaries) so edits and tests are scoped to affected packages
+X2.14	P2	M11	"Explain this change" and "explain this file" with symbol-level citations
+X2.15	P1	M11	Language packs: bundled guidance + tool wiring for Python, TypeScript, Go, Rust, Java, C/C++, C#, PHP, Ruby, shell. Each
+X2.16	P1	M5	Long-running process supervisor in the terminal: named background jobs, tail/stop/restart, auto-surface crash output to 
+X2.2	P1	M11	Rename/extract/move via LSP code actions instead of text edits when available
+X2.3	P1	M7	TDD mode: write failing test first, confirm red, implement, confirm green, record both runs as evidence
+X2.4	P1	M7	Bug-repro mode: agent must produce a failing reproduction before changing code
+X2.5	P1	M7	Code review mode on any diff or branch (style, bugs, security, test gaps) producing inline comments the user can accept 
+X2.6	P1	M11	Per-task git worktree **merge queue** with conflict preview and "land when green" button
+X2.7	P1	M11	Test-runner adapters (pytest, unittest, jest/vitest, go test, cargo test, JUnit-style output parsing) with failure summa
+X2.8	P2	M11	Coverage-guided hints: show which lines the change leaves untested
+X2.9	P2	M11	Dependency upgrade assistant: read changelogs offline from the package cache, upgrade one at a time, run tests, roll bac
+X3.1	P1	M13	Local **desktop search** across user-approved folders (FTS5 + optional embeddings), exposed as a tool and a palette
+X3.10	P2	M13	Flashcards and spaced repetition generated from notes or documents, stored locally
+X3.11	P2	M9	Study/tutor mode (Socratic, quiz, explain-back) as a bundled persona + skills
+X3.12	P2	M17	Writing coach with local grammar/style checking; check any third-party checker's license before bundling
+X3.13	P2	M13	Personal CRM/contacts notes in the vault with follow-up reminders
+X3.14	P2	M17	Local finance CSV import and categorization (no bank connections)
+X3.15	P2	M19	Clipboard history tool (opt-in, encrypted, auto-expire) the agent can query with consent
+X3.16	P1	M16	Screenshot region capture with OCR and "ask about this" action
+X3.2	P1	M17	Document redaction tool (names, emails, IDs) with preview and verified-redacted PDF output
+X3.3	P2	M17	Receipt/invoice extractor to a local CSV/SQLite table (OCR + field parser) with review UI
+X3.4	P2	M17	Contract/document comparison: clause diff and plain-language summary with page citations
+X3.5	P1	M17	Spreadsheet helper: explain formulas, find errors, build pivots, produce charts; write results to a copy, never in place
+X3.6	P1	M5	File organizer rules engine (by type, date, EXIF, name patterns) with dry-run, preview, undo journal
+X3.7	P2	M5	Duplicate finder (hash + perceptual hash for images) with safe-delete to Keel trash
+X3.8	P2	M13	Web clipper and read-later queue (save page as Markdown into the vault)
+X3.9	P2	M14	RSS/Atom digest agent (user feeds only) with scheduled summary
+X4.1	P1	M17	Barge-in: user speech interrupts TTS immediately; half-duplex fallback on weak hardware
+X4.2	P1	M17	Streaming TTS sentence by sentence while the model is still generating
+X4.3	P2	M17	Optional wake word (verify engine license) with visible mic indicator and hard mute
+X4.4	P1	M16	Local vision-language model tool for screenshots/diagrams (user-installed model, license shown)
+X4.5	P2	M17	Video tooling via user-installed ffmpeg: frame extraction, audio extraction, subtitle generation from local STT
+X4.6	P1	M17	Voice command grammar for app control ("approve", "deny", "stop everything") separate from free dictation; always requir
+X4.7	P1	M17	Audio privacy rules: no recording stored by default, visible recording state, per-meeting consent reminder text
+X5.10	P1	M4	Encrypted session/memory export bundles with passphrase, verified on import (signature + schema version)
+X5.11	P1	M21	Provider data-handling card: for each configured remote provider, show what Keel sends (from the egress log) and a link 
+X5.12	P2	M24	Dependency and model **allow/deny lists** in managed policy (specific MCP servers, plugin IDs, model files by hash)
+X5.13	P1	M3	Safe-paste detector: warns when the user pastes text containing a key/token pattern into chat
+X5.2	P1	M3	Data-classification labels on files and memories (public / internal / secret) that feed redaction and egress decisions
+X5.3	P1	M3	Time-boxed and just-in-time permissions
+X5.4	P1	M3	Capability tokens for subagents and plugins: short-lived, scoped, revocable, logged
+X5.7	P1	M3	Permission review screen: every standing allow rule with last-used date, one-click prune of unused rules
+X5.8	P1	M5	Per-tool sandbox profiles (read-only FS, no network, temp-only write) selectable in agent frontmatter
+X6.1	P1	M10	`keel dev` plugin scaffold generator, hot reload, and a **mock host** so plugins can be tested without the full app
+X6.10	P1	M3	Feature-lifecycle labels (experimental / beta / stable) in UI and config, with experimental off by default
+X6.2	P1	M10	Plugin test harness with golden event streams and permission-denial tests
+X6.3	P1	M20	Typed SDKs generated from the API schema (Python and TypeScript), version-pinned to the daemon
+X6.4	P1	M20	API versioning policy: deprecation headers, sunset dates, compatibility tests against the previous minor
+X6.5	P2	M20	In-app interactive API explorer for the local API (loopback, token-protected); docs stay private unless G7
+X6.6	P1	M8	Event schema registry: every internal event type has a JSON Schema and a changelog; plugins subscribe by type
+X6.8	P1	M2	Layered config viewer: shows which layer (default, global, project, env, policy) set each value
+X6.9	P1	M19	Settings search, diff against defaults, per-section reset, import/export
+X7.1	P1	M22	ARM64 builds for Windows and Linux; macOS universal or separate arm64/x64 with verified native deps
+X7.10	P1	M19	Disk-usage manager: models, caches, sessions, trash, with sizes, safe-clean, and per-category caps
+X7.2	P1	M22	Per-user vs per-machine install option on Windows; no admin rights required for per-user
+X7.3	P1	M22	Uninstall options
+X7.4	P1	M22	File associations and URL protocol registration (`keel://`) with clean removal on uninstall
+X7.5	P1	M22	Linux specifics: Wayland and X11 tests, tray fallback where no tray exists, AppImage desktop integration, sandbox flag g
+X7.6	P1	M22	Antivirus false-positive playbook
+X7.7	P2	M22	Installer languages for the major UI locales; installer text from the same string catalogs
+X7.8	P2	M23	Download-integrity helper inside the app ("verify a file I downloaded") for users who want to check an installer before 
+X7.9	P2	M19	First-run import wizard from other tools' folders (documented formats only), dry-run first
+X8.10	P1	M19	Citation chips with hover preview of the source file/page/line
+X8.11	P1	M19	Inline diff and file preview inside chat with "open in dock" action
+X8.12	P1	M19	Error boundary and crash-recovery UI: renderer crash restores the session view without losing the draft composer text
+X8.13	P1	M19	Undo toast pattern for every destructive UI action (archive, delete, revoke)
+X8.14	P2	M19	Live theme editor (tokens only), contrast checker, import/export theme JSON
+X8.15	P2	M19	Optional sound cues (off by default), reduced-motion honoring everywhere
+X8.16	P2	M19	Multi-monitor awareness: remember window positions per display, detach docks to other screens
+X8.17	P1	M19	Empty-state and onboarding copy deck written once (Keel's own words) and reused across screens
+X8.3	P1	M19	Density modes (compact / comfortable), per-pane zoom, and saved layouts
+X8.4	P1	M19	Notification center and activity feed (approvals, job results, errors) with filters
+X8.5	P1	M19	Actionable OS notifications
+X8.6	P1	M19	Tray / menu-bar mini window: running agents, pending approvals, quick ask, kill switch
+X8.7	P1	M19	Selection actions: select text anywhere in Keel and "ask about this", "add to context", "save to vault"
+X8.8	P1	M19	Thread tools: outline/minimap, pinned messages, jump-to-tool-call, timeline scrubber for long sessions
+X8.9	P1	M19	Side-by-side **session compare** (two models, two branches, before/after)
+X9.10	P1	M25	Mutation testing report published into the private dashboard for the permission gate and command analyzer
+X9.2	P1	M2	Record/replay (VCR-style) of real provider traffic with secrets scrubbed, for contract tests
+X9.4	P1	M6	MCP conformance tests against bundled sample servers (stdio and HTTP) including hostile servers (huge output, hanging, b
+X9.6	P1	M25	Pseudo-localization build and RTL smoke test in CI
+X9.8	P1	M21	Token-accounting accuracy test (estimated vs runtime-reported usage within tolerance)
+X9.9	P1	M25	Long-session soak (thousands of events) watching memory, DB size, UI frame time
+Y1.1	P1	M5	Code Mode / execute tool
+Y1.10	P1	M9	skill loader advertised-list gate
+Y1.11	P1	M12	Subagent semantics
+Y1.12	P2	M4	Session utilities as tools
+Y1.13	P1	M11	Worktree tools
+Y1.14	P1	M16	Browser tool namespace
+Y1.15	P2	M17	experimental_image_generate
+Y1.18	P2	M24	Managed config locations
+Y1.21	P1	M22	update modes (disable / notify / auto)
+Y1.22	P1	M4	snapshots toggle and watcher.ignore
+Y1.23	P1	M5	media.image and tool_output limits
+Y1.25	P1	M2	Cache warming
+Y1.26	P1	M11	References
+Y1.27	P2	M9	skills config directories and URLs
+Y1.28	P1	M7	instructions files, globs and HTTP(S) URLs
+Y1.29	P1	M10	Plugin management CLI
+Y1.31	P1	M10	Three plugin surfaces
+Y1.32	P1	M16	location_idle_timeout
+Y1.33	P2	M5	experimental.todo flag
+Y1.34	P1	M2	model overrides and provider transport
+Y1.35	P1	M2	agent updates config file (config_edit)
+Y1.36	P2	M23	Migrate-from-V1 and Troubleshooting docs
+Y1.37	P1	M22	install script and release channels
+Y1.38	P1	M0	repo hygiene
+Y1.39	P2	M1	'Building on X' non-affiliation notice
+Y2.10	P1	M5	stay_silent and request_app_connection tools
+Y2.11	P1	M12	send_to_bot, hidden subagents and group rooms
+Y2.12	P1	M16	Screen leasing
+Y2.13	P1	M16	Idle suspend knobs
+Y2.15	P1	M16	rate-limit awareness and in-VM executor
+Y2.16	P1	M13	Compaction knobs
+Y2.17	P1	M2	Prompt cache key per agent+generation
+Y2.18	P1	M14	NO_SCHEDULER flag
+Y2.19	P1	M4	Backward-compatible rename path
+Y2.21	P1	M26	Honest "Project status" section
+Y2.22	P1	M17	voice: realtime secrets, hand_off_task, TTS/STT
+Y2.23	P1	M25	E2E script with prepared-audio fixture
+Y2.24	P1	M20	per-user SSE stream
+Y2.25	P1	M14	routines: cron, event triggers, check-ins
+Y2.9	P1	M19	card and event row kinds
+Y3.1	P1	M19	'offer only what works' principle
+Y3.12	P1	M20	Invite gate
+Y3.14	P1	M19	First-run screen offers existing resources first
+Y3.15	P1	M19	settings structure
+Y3.16	P1	M20	public API, webhooks, operator page
+Y3.17	P1	M13	project update proposals need approval
+Y3.18	P1	M4	large task files on compute side; local cache
+Y3.19	P1	M19	brand strings and assets in one place
+Y3.20	P1	M1	docs set incl. security-model
+Y3.21	P1	M19	agent runs as administrator warning
+Y3.3	P1	M19	Versioned, idempotent, resumable provisioning steps
+Y3.5	P1	M4	per-user concurrency limit and queue
+Y3.7	P1	M14	Scheduler tick duties
+Y3.8	P1	M20	Device-approval pairing flow
+Y4.1	P1	M6	/mcp chat command revives dormant servers instantly
+Y4.10	P1	M9	Skill library = one setup runbook per integration (21 units).
+Y4.11	P1	M2	config.yaml provider switch in two lines
+Y4.12	P1	M22	Deterministic template build
+Y4.14	P1	M6	16-plugin / 13-MCP preset
+Y4.2	P1	M15	Chat-based onboarding via QR
+Y4.4	P2	M3	Secret provider map
+Y4.5	P1	M15	supervised webhook bridge
+Y4.6	P1	M21	Telemetry plugin + chat-side trace query MCP
+Y4.7	P1	M16	Desktop-control plugin with 11 key-less tools
+Y4.8	P1	M13	Obsidian vault
+Y5.1	P1	M10	plugin.json manifest and config namespace
+Y5.2	P1	M10	Install from git URL one-liner
+Y5.3	P1	M15	Webhook subscription lifecycle
+Y5.5	P2	M15	Reaction mapping table
+Y5.6	P1	M15	chat-id mapping cache
+Y5.7	P1	M15	status and gateway commands
+Y5.8	P1	M15	troubleshooting by exact error strings
+Y5.9	P1	M15	Linq API/iMessage/RCS/SMS excluded (Blocked for free)
+Y6.3	P1	M19	four surfaces: Cowork, Code, Duet, Fleet
+Y6.4	P0	M1	repo visibility: Public, 0 stars/forks
+Z1	P1	M9	Project environment lockfile
+Z10	P1	M21	Provider/model drift detector
+Z11	P1	M15	Dormant-integration health board
+Z12	P1	M22	Offline signed catalog updates
+Z13	P1	M19	"Why can't I do X?" explainer
+Z14	P2	M22	Pre-flight installer report
+Z15	P1	M3	Prompt-injection regression corpus
+Z16	P1	M21	Per-project cost budgets and "stop at budget" with summary
+Z2	P1	M9	Agent contract tests
+Z3	P1	M4	Redacted replay export
+Z5	P1	M20	Capability negotiation handshake
+Z6	P2	M14	Local-first sync via the user's own folder
+Z7	P2	M22	Household/OS-user separation
+Z8	P2	M21	Energy and cost estimator for local runs
+Z9	P1	M3	Natural-language policy editor

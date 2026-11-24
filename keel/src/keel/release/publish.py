@@ -23,6 +23,12 @@ from .common import (
     write_combined_checksums,
 )
 from .github import GitHubClient, GitHubError, token_from_env
+from .signing import (
+    SigningGateError,
+    load_public_key,
+    require_signed_enabled,
+    verify_signed_release,
+)
 from .verify import verify_manifest, verify_release_manifest, load_manifest
 
 
@@ -38,20 +44,40 @@ def _flatten_artifacts(artifacts_root: Path, out_dir: Path) -> dict[str, Path]:
             shutil.copy2(path, out_dir / path.name)
     for path in artifacts_root.rglob("RELEASE-MANIFEST.json"):
         shutil.copy2(path, out_dir / "RELEASE-MANIFEST.json")
+    # Detached Ed25519 signatures are produced by `build --signing-key`. They
+    # do not match find_artifacts' "Keel-*" pattern, so stage them explicitly.
+    for path in artifacts_root.rglob("*.sig"):
+        shutil.copy2(path, out_dir / path.name)
     return validate_artifacts(out_dir, validate_version())
 
 
-def _release_body(version: str, tag: str) -> str:
+def _release_body(version: str, tag: str, *, signed: bool = False) -> str:
+    signed_note = (
+        "Installers and the release manifest carry Ed25519 signatures verified "
+        "by the release gate before publication."
+        if signed else
+        "Installers are unsigned: SmartScreen (Windows) and Gatekeeper (macOS) "
+        "will warn on first run."
+    )
     return (
         f"Keel {version} installers.\n\n"
         "Every file in this release was built by GitHub Actions and verified by "
         "the Python release manager before the download manifest was published.\n\n"
-        "Installers are unsigned: SmartScreen (Windows) and Gatekeeper (macOS) "
-        "will warn on first run."
+        + signed_note
     )
 
 
 def publish_command(args: argparse.Namespace) -> int:
+    dry_run = bool(getattr(args, "dry_run", False))
+    # A real publish is ALWAYS gated: unsigned artifacts may never be sent as a
+    # production release, regardless of whether --require-signed was passed.
+    # Local dry-runs remain unsigned/backward-compatible unless explicitly
+    # gated by --require-signed or KEEL_REQUIRE_SIGNED=1.
+    enforce_signing = (not dry_run) or require_signed_enabled(
+        bool(getattr(args, "require_signed", False)))
+    public_key = getattr(args, "public_key", None)
+    remote_public_key = None
+
     version = validate_version(None)
     tag = args.tag or f"v{version}"
     validate_version(tag)
@@ -71,12 +97,39 @@ def publish_command(args: argparse.Namespace) -> int:
         write_combined_checksums(artifacts, out_dir)
 
     base_url = f"https://github.com/{repo}/releases/download"
-    release_manifest = build_release_manifest(artifacts, version, tag, base_url)
-    (out_dir / "RELEASE-MANIFEST.json").write_text(
+    fresh_manifest = build_release_manifest(artifacts, version, tag, base_url)
+    manifest_path = out_dir / "RELEASE-MANIFEST.json"
+    incoming_manifest: dict | None = None
+    if manifest_path.is_file():
+        try:
+            loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                incoming_manifest = loaded
+        except (OSError, ValueError):
+            incoming_manifest = None
+
+    # When gated, the signed incoming manifest is authoritative. Regenerating
+    # it here would strip detached signatures and change timestamp fields,
+    # making a legitimately signed release unverifiable.
+    release_manifest = (
+        incoming_manifest if enforce_signing and incoming_manifest is not None
+        else fresh_manifest
+    )
+    manifest_path.write_text(
         json.dumps(release_manifest, indent=2) + "\n", encoding="utf-8"
     )
 
-    dry_run = bool(args.dry_run)
+    if enforce_signing:
+        errors = verify_signed_release(out_dir, public_key)
+        if errors:
+            detail = "\n  - ".join(errors)
+            raise SigningGateError(
+                "RELEASE SIGNING GATE FAILED - refusing to treat this release "
+                "as signed:\n  - " + detail
+            )
+        remote_public_key = load_public_key(Path(public_key))
+        print("Release signing gate: manifest and all artifacts verified")
+
     if dry_run:
         print("DRY RUN - no network writes")
         print(json.dumps(release_manifest, indent=2))
@@ -102,7 +155,9 @@ def publish_command(args: argparse.Namespace) -> int:
     # Find or create the release (draft first).
     release = client.get_release_by_tag(tag)
     if release is None:
-        release = client.create_release(tag, f"Keel {version}", _release_body(version, tag), True)
+        release = client.create_release(
+            tag, f"Keel {version}",
+            _release_body(version, tag, signed=enforce_signing), True)
     release_id = release["id"]
     draft = bool(release.get("draft", False))
 
@@ -114,6 +169,10 @@ def publish_command(args: argparse.Namespace) -> int:
 
     # Upload installers + checksums + release manifest (NOT download.json yet).
     upload_names = sorted(artifacts) + ["RELEASE-SHA256SUMS.txt", "RELEASE-MANIFEST.json"]
+    if enforce_signing:
+        # Signature assets must be uploaded so remote verification can check
+        # each artifact against the owner's public key.
+        upload_names.extend(f"{name}.sig" for name in sorted(artifacts))
     # De-duplicate while preserving order.
     seen: set[str] = set()
     ordered: list[str] = []
@@ -141,7 +200,9 @@ def publish_command(args: argparse.Namespace) -> int:
         draft = False
 
     # Verify public installer URLs before publishing the manifest.
-    errors = verify_release_manifest(release_manifest, allow_http=False, retries=5, retry_delay=10, timeout=600)
+    errors = verify_release_manifest(
+        release_manifest, allow_http=False, retries=5, retry_delay=10,
+        timeout=600, public_key=remote_public_key)
     if errors:
         raise RuntimeError("installer verification failed before manifest publish:\n" + "\n".join(errors))
 

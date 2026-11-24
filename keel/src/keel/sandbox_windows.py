@@ -31,15 +31,28 @@ Mechanisms actually applied to the child process (all kernel-enforced):
 * **Scrubbed environment** — secret-looking variables are removed and a minimal
   environment is built as a Unicode environment block.
 
+Network boundary (non-elevated, kernel-enforced):
+
+* **AppContainer with zero capabilities.**  ``allow_network=False`` creates a
+  per-user AppContainer profile via ``userenv!CreateAppContainerProfile`` and
+  starts the child with ``PROC_THREAD_ATTRIBUTE_SECURITY_CAPABILITIES`` and an
+  empty capability set.  No ``SeImpersonatePrivilege`` /
+  ``SeAssignPrimaryTokenPrivilege`` is needed: ``CreateProcessW`` succeeds for
+  a normal user (HRESULT 0 / ERROR_SUCCESS).  ALE/WFP then denies outbound
+  connects, DNS resolution and loopback traffic for that process and every
+  descendant that inherits its token.  ``socket()`` itself still succeeds —
+  AppContainer blocks traffic, not the Winsock API — which is stated in the
+  returned ``limitations``.  The workspace DACL additionally grants the
+  AppContainer SID, preserving the filesystem boundary.  If the AppContainer
+  path cannot be established, ``run_confined`` **fails closed**.
+
 What is NOT enforced, reported honestly (never claimed):
 
-* **Network.**  A restricted token does not deny Winsock.  AppContainer is the
-  Windows mechanism that denies network, but promoting a token to an
-  AppContainer token requires ``SeImpersonatePrivilege`` /
-  ``SeAssignPrimaryTokenPrivilege`` (or an undocumented kernelbase API) and
-  fails with ``ERROR_INVALID_PARAMETER`` (87) from a non-elevated token.
-  Therefore ``capabilities()['network_enforcement']`` is **False** and
-  ``run_confined`` **fails closed** when ``allow_network`` is False.  Job
+* **Per-process WFP filter rules.**  ``FwpmEngineOpen0`` succeeds for Everyone,
+  but ``FwpmFilterAdd0`` returns ``ERROR_ACCESS_DENIED`` (5) from a
+  non-elevated token even in a dynamic session, because the default BFE DACL
+  grants ``FWPM_ACTRL_ADD`` only to Administrators / network configuration
+  operators.  The network boundary therefore uses AppContainer instead.  Job
   Objects enforce neither filesystem nor network; they are resource/process
   boundaries only.
 * **Executable dependencies.**  The target executable and every DLL it loads
@@ -77,6 +90,7 @@ except ImportError:  # pragma: no cover - ctypes.wintypes is Windows-only on som
     wintypes = _WintypesShim()  # type: ignore[assignment]
 from pathlib import Path
 
+from keel import win_network
 from keel.os_sandbox import ConfinementResult, SandboxUnavailable
 
 IS_WINDOWS = os.name == "nt"
@@ -117,20 +131,25 @@ EVERYONE_SID = "S-1-1-0"
 ADMINISTRATORS_SID = "S-1-5-32-544"
 
 MECHANISM = "windows-restricted-token+workspace-acl+job-object"
+MECHANISM_NETWORK = "windows-appcontainer+workspace-acl+job-object"
 
 
 def _network_limitation() -> str:
+    """Fallback text used only when the AppContainer boundary is unavailable."""
     return (
-        "BLOCKED: Windows network denial is NOT enforced — the AppContainer "
-        "token path requires SeImpersonatePrivilege/SeAssignPrimaryTokenPrivilege "
-        "(absent on non-elevated tokens), and no administrator-configured "
-        "firewall rule is applied. Job Objects do not filter network traffic."
+        "BLOCKED: Windows network denial is NOT enforced on this host — the "
+        "AppContainer profile/process path could not be established, and WFP "
+        "per-process filter addition returns ERROR_ACCESS_DENIED (5) without "
+        "elevation (no administrator firewall rule is applied). Job Objects "
+        "do not filter network traffic."
     )
 
 
 def _base_limitations() -> list[str]:
     return [
-        _network_limitation(),
+        "WFP per-process rules are BLOCKED without elevation: FwpmFilterAdd0 "
+        "returns ERROR_ACCESS_DENIED (5); no administrator-configured firewall "
+        "rule is applied. Job Objects do not filter network traffic.",
         "Filesystem denial relies on DACLs: paths that explicitly grant the "
         "restricted SID (Everyone) remain readable; this is a process-level "
         "boundary, not a VM.",
@@ -152,6 +171,12 @@ def _load_api():
         a32 = ctypes.WinDLL("advapi32", use_last_error=True)
 
         k32.GetCurrentProcess.restype = wintypes.HANDLE
+        k32.GetCurrentProcess.argtypes = []
+        k32.CreateProcessW.argtypes = [
+            ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_void_p, ctypes.c_void_p,
+            wintypes.BOOL, wintypes.DWORD, ctypes.c_void_p, ctypes.c_wchar_p,
+            ctypes.POINTER(_StartupInfoExW), ctypes.POINTER(_ProcessInformation)]
+        k32.CreateProcessW.restype = wintypes.BOOL
         k32.CloseHandle.argtypes = [wintypes.HANDLE]
         k32.CloseHandle.restype = wintypes.BOOL
         k32.LocalFree.argtypes = [ctypes.c_void_p]
@@ -215,6 +240,8 @@ def _load_api():
             wintypes.DWORD, ctypes.c_void_p, ctypes.c_void_p,
             ctypes.POINTER(ctypes.c_void_p)]
         a32.SetEntriesInAclW.restype = wintypes.DWORD
+        a32.FreeSid.argtypes = [ctypes.c_void_p]
+        a32.FreeSid.restype = ctypes.c_void_p
         return k32, a32
     except Exception as exc:  # pragma: no cover - diagnostic only
         if os.environ.get("KEEL_WIN_DEBUG"):
@@ -456,14 +483,99 @@ def _env_block(env: dict[str, str]):
     return ctypes.create_unicode_buffer(text)
 
 
-def _make_handle_list(k32, handles: list[int]):
-    """Build an attribute list restricting inheritance to exactly *handles*."""
+def _scrub_env_for_appcontainer(env: dict[str, str] | None,
+                                overrides: dict[str, str] | None = None
+                                ) -> dict[str, str]:
+    """Full environment minus secret-looking keys.
+
+    AppContainer process creation fails with ERROR_ENVVAR_NOT_FOUND (203) when
+    given the deliberately minimal ``_scrub_env`` allowlist; it needs the
+    ordinary environment variables (USERPROFILE, APPDATA, ComSpec, ...).  Keep
+    every variable except secret-looking ones, then apply workspace-scoped
+    overrides.
+    """
+    source = dict(os.environ) if env is None else dict(env)
+    out = {
+        key: value for key, value in source.items()
+        if not any(hint in key.upper() for hint in _SECRET_HINTS)
+    }
+    if overrides:
+        out.update(overrides)
+    out.setdefault("SystemRoot", os.environ.get("SystemRoot", r"C:\Windows"))
+    return out
+
+
+_APPCONTAINER_PROBE: bool | None = None
+_WFP_STATUS: tuple[int, int] | None = None
+
+
+def _probe_appcontainer() -> bool:
+    """Launch a throwaway AppContainer child and check it really ran."""
+    global _APPCONTAINER_PROBE
+    if _APPCONTAINER_PROBE is not None:
+        return _APPCONTAINER_PROBE
+    result = False
+    k32, a32 = _load_api()
+    if k32 and a32:
+        sid = None
+        try:
+            sid = win_network.appcontainer_sid()
+            sc = win_network.security_capabilities(sid)
+            size = ctypes.c_size_t(0)
+            k32.InitializeProcThreadAttributeList(None, 1, 0, ctypes.byref(size))
+            buffer = ctypes.create_string_buffer(size.value)
+            if k32.InitializeProcThreadAttributeList(buffer, 1, 0,
+                                                     ctypes.byref(size)):
+                k32.UpdateProcThreadAttribute(
+                    buffer, 0,
+                    win_network.PROC_THREAD_ATTRIBUTE_SECURITY_CAPABILITIES,
+                    ctypes.byref(sc), ctypes.sizeof(sc), None, None)
+                si = _StartupInfoExW()
+                si.StartupInfo.cb = ctypes.sizeof(_StartupInfoExW)
+                si.lpAttributeList = ctypes.cast(buffer, ctypes.c_void_p)
+                pi = _ProcessInformation()
+                comspec = os.environ.get("COMSPEC",
+                                         r"C:\Windows\System32\cmd.exe")
+                ok = k32.CreateProcessW(
+                    comspec,
+                    ctypes.create_unicode_buffer(
+                        f'"{comspec}" /c exit 0'),
+                    None, None, False, 0x00080000, None, None,
+                    ctypes.byref(si), ctypes.byref(pi))
+                if ok:
+                    k32.WaitForSingleObject(pi.hProcess, 5000)
+                    code = wintypes.DWORD()
+                    result = bool(
+                        k32.GetExitCodeProcess(pi.hProcess, ctypes.byref(code))
+                        and code.value == 0)
+                    k32.CloseHandle(pi.hThread)
+                    k32.CloseHandle(pi.hProcess)
+                k32.DeleteProcThreadAttributeList(buffer)
+        except Exception:
+            result = False
+        finally:
+            if sid:
+                win_network.free_sid(sid)
+    _APPCONTAINER_PROBE = result
+    return result
+
+
+def _make_handle_list(k32, handles: list[int],
+                      extra_attributes: tuple[tuple[int, ctypes.c_void_p, int], ...] = ()
+                      ):
+    """Build an attribute list restricting inheritance to exactly *handles*.
+
+    ``extra_attributes`` are ``(attribute_id, pointer, size)`` triples (used
+    for the AppContainer SECURITY_CAPABILITIES attribute); the pointed-to
+    objects must stay alive until CreateProcess returns.
+    """
+    count = 1 + len(extra_attributes)
     size = ctypes.c_size_t(0)
-    k32.InitializeProcThreadAttributeList(None, 1, 0, ctypes.byref(size))
+    k32.InitializeProcThreadAttributeList(None, count, 0, ctypes.byref(size))
     if size.value == 0:
         raise SandboxUnavailable("InitializeProcThreadAttributeList(size) failed")
     buf = ctypes.create_string_buffer(size.value)
-    if not k32.InitializeProcThreadAttributeList(buf, 1, 0, ctypes.byref(size)):
+    if not k32.InitializeProcThreadAttributeList(buf, count, 0, ctypes.byref(size)):
         raise SandboxUnavailable("InitializeProcThreadAttributeList failed")
     arr = (wintypes.HANDLE * len(handles))(*handles)
     if not k32.UpdateProcThreadAttribute(
@@ -472,8 +584,15 @@ def _make_handle_list(k32, handles: list[int]):
         k32.DeleteProcThreadAttributeList(buf)
         raise SandboxUnavailable(f"UpdateProcThreadAttribute failed: "
                                  f"{ctypes.get_last_error()}")
-    # The attribute list stores a raw pointer to `arr`; keep it alive for as
-    # long as the list is in use or CreateProcessAsUserW fails with ERROR_INVALID_PARAMETER.
+    for attribute_id, pointer, byte_size in extra_attributes:
+        if not k32.UpdateProcThreadAttribute(
+                buf, 0, attribute_id, pointer, byte_size, None, None):
+            k32.DeleteProcThreadAttributeList(buf)
+            raise SandboxUnavailable(
+                f"UpdateProcThreadAttribute(0x{attribute_id:x}) failed: "
+                f"{ctypes.get_last_error()}")
+    # The attribute list stores raw pointers; keep them alive for as long as
+    # the list is in use or process creation fails with ERROR_INVALID_PARAMETER.
     return buf, arr
 
 
@@ -481,9 +600,8 @@ def _make_handle_list(k32, handles: list[int]):
 def capabilities() -> dict:
     """Report which Windows boundaries are genuinely available.
 
-    Never claims network enforcement: on Windows that requires AppContainer or
-    an administrator-configured firewall rule, neither of which this module
-    can apply from a non-elevated token.
+    ``network_enforcement`` is True only after a real AppContainer child has
+    been launched successfully; it is never inferred from configuration.
     """
     k32, a32 = _load_api()
     token_ok = False
@@ -515,7 +633,12 @@ def capabilities() -> dict:
                 shutil.rmtree(probe, ignore_errors=True)
             except Exception:
                 pass
-    fs = bool(token_ok and job_ok and acl_ok)
+    global _WFP_STATUS
+    app_ok = _probe_appcontainer() if (k32 and a32) else False
+    if _WFP_STATUS is None:
+        _WFP_STATUS = win_network.wfp_filter_add_status()
+    wfp_add_error = _WFP_STATUS[1]
+    fs = bool((token_ok or app_ok) and job_ok and acl_ok)
     limitations = _base_limitations()
     if not token_ok:
         limitations.append("BLOCKED: restricted primary token unavailable")
@@ -523,18 +646,28 @@ def capabilities() -> dict:
         limitations.append("BLOCKED: Job Object unavailable")
     if not acl_ok:
         limitations.append("BLOCKED: filesystem ACL manipulation unavailable")
-    limitations.append("AppContainer is not used (token promotion requires "
-                       "privileges unavailable to non-elevated callers)")
+    if app_ok:
+        limitations.append(
+            "AppContainer (zero capabilities) denies outbound connects, DNS "
+            "and loopback traffic for the child and its descendants. "
+            "socket() creation itself is still allowed; AppContainer blocks "
+            "network traffic, not the Winsock API.")
+    else:
+        limitations.append("BLOCKED: AppContainer network boundary unavailable; "
+                           + _network_limitation())
     return {
         "os": sys.platform,
         "windows_restricted_token": token_ok,
         "windows_job_object": job_ok,
         "windows_workspace_acl": acl_ok,
-        "windows_appcontainer": False,
+        "windows_appcontainer": app_ok,
         "windows_restricted_handle_inheritance": bool(k32 and a32),
         "filesystem_enforcement": fs,
-        "network_enforcement": False,
-        "mechanism": MECHANISM if fs else "unavailable",
+        "network_enforcement": bool(app_ok),
+        "wfp_filter_add_error": wfp_add_error,  # live probe, see evidence
+        "appcontainer_profile": win_network.APP_CONTAINER_PROFILE_NAME,
+        "mechanism": MECHANISM_NETWORK if (app_ok and fs) else (
+            MECHANISM if fs else "unavailable"),
         "limitations": limitations,
     }
 
@@ -545,11 +678,13 @@ def run_confined(argv: list[str], *, workspace: str | Path | None = None,
                  allow_network: bool = False) -> ConfinementResult:
     """Run *argv* under genuine Windows OS restrictions, or fail closed.
 
-    ``allow_network`` defaults to False, but Windows network denial is not
-    available to this backend, so the default call raises ``SandboxUnavailable``
-    (BLOCKED).  Callers that explicitly opt into ``allow_network=True`` receive
-    filesystem/job/token enforcement with the network left open; the returned
-    ``limitations`` always state this.
+    With the default ``allow_network=False`` the child is an AppContainer with
+    no capabilities: outbound connects, DNS and loopback are denied by the
+    kernel and inherited by descendants.  With ``allow_network=True`` the
+    original restricted-token backend runs and the network is deliberately
+    left open (stated in ``limitations``).  If either boundary cannot be
+    established this raises ``SandboxUnavailable``; it never falls back to an
+    unrestricted launch.
     """
     k32, a32 = _load_api()
     if not (k32 and a32):
@@ -558,27 +693,31 @@ def run_confined(argv: list[str], *, workspace: str | Path | None = None,
         raise SandboxUnavailable("argv must be a non-empty list")
     argv = [str(a) for a in argv]
 
-    if not allow_network:
-        raise SandboxUnavailable(
-            "BLOCKED: " + _network_limitation()
-            + " Pass allow_network=True to run with filesystem/Job Object "
-              "enforcement but no network boundary.")
-
     caps = capabilities()
     if not caps["filesystem_enforcement"]:
         raise SandboxUnavailable("Required Windows boundaries unavailable: "
                                  + "; ".join(caps["limitations"]))
+    app_mode = not allow_network
+    if app_mode and not caps["network_enforcement"]:
+        raise SandboxUnavailable(
+            "BLOCKED: " + _network_limitation()
+            + " Network denial could not be applied; refusing to run.")
 
     ws = Path(workspace or tempfile.mkdtemp(prefix="keel-sandbox-")).resolve()
     ws.mkdir(parents=True, exist_ok=True)
     started = time.monotonic()
     limitations = list(caps["limitations"])
-    limitations.append(
-        "Network was explicitly enabled by the caller (allow_network=True); "
-        "no network boundary was applied.")
+    if app_mode:
+        limitations.append(
+            "Network denied by AppContainer with zero capabilities; "
+            "socket() creation remains permissible but all traffic is blocked.")
+    else:
+        limitations.append(
+            "Network was explicitly enabled by the caller (allow_network=True); "
+            "no network boundary was applied.")
 
     token = job = attr_list = attr_handles = None
-    old_dacl = secdesc = None
+    old_dacl = secdesc = ac_sid = sc = sc_ref = None
     io_dir = None
     out_fd = err_fd = -1
     pi = _ProcessInformation()
@@ -589,9 +728,16 @@ def run_confined(argv: list[str], *, workspace: str | Path | None = None,
     err_data = b""
 
     try:
-        restricted_sid = _sid(a32, EVERYONE_SID)
+        if app_mode:
+            ac_sid = win_network.appcontainer_sid()
+            restricted_sid = ac_sid
+            sc = win_network.security_capabilities(ac_sid)
+            sc_ref = ctypes.byref(sc)
+        else:
+            restricted_sid = _sid(a32, EVERYONE_SID)
         old_dacl, secdesc = _grant_sid_on_directory(a32, ws, restricted_sid)
-        token = _make_restricted_token(k32, a32)
+        if not app_mode:
+            token = _make_restricted_token(k32, a32)
 
         job = k32.CreateJobObjectW(None, None)
         if not job:
@@ -616,7 +762,12 @@ def run_confined(argv: list[str], *, workspace: str | Path | None = None,
                 raise SandboxUnavailable("SetHandleInformation failed: "
                                          f"{ctypes.get_last_error()}")
 
-        attr_list, attr_handles = _make_handle_list(k32, [h_out, h_err])
+        extra = ()
+        if app_mode:
+            extra = ((win_network.PROC_THREAD_ATTRIBUTE_SECURITY_CAPABILITIES,
+                      sc_ref, ctypes.sizeof(sc)),)
+        attr_list, attr_handles = _make_handle_list(
+            k32, [h_out, h_err], extra_attributes=extra)
         si = _StartupInfoExW()
         si.StartupInfo.cb = ctypes.sizeof(_StartupInfoExW)
         si.StartupInfo.dwFlags = STARTF_USESTDHANDLES
@@ -624,16 +775,31 @@ def run_confined(argv: list[str], *, workspace: str | Path | None = None,
         si.StartupInfo.hStdError = h_err
         si.lpAttributeList = ctypes.cast(attr_list, ctypes.c_void_p)
 
-        env_block = _env_block(_scrub_env(env))
+        if app_mode:
+            # Full (scrubbed) environment: the minimal allowlist makes
+            # AppContainer CreateProcessW fail with ERROR_ENVVAR_NOT_FOUND (203).
+            env_block = _env_block(_scrub_env_for_appcontainer(
+                env, {"TEMP": str(ws), "TMP": str(ws)}))
+        else:
+            env_block = _env_block(_scrub_env(env))
         cmdline = " ".join(_quote(a) for a in argv)
         flags = (CREATE_UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT
                  | CREATE_SUSPENDED)
-        if not a32.CreateProcessAsUserW(
-                token, None, ctypes.create_unicode_buffer(cmdline),
+        if app_mode:
+            launched = k32.CreateProcessW(
+                None, ctypes.create_unicode_buffer(cmdline),
                 None, None, True, flags, env_block, str(ws),
-                ctypes.byref(si), ctypes.byref(pi)):
-            raise SandboxUnavailable("CreateProcessAsUserW failed: "
-                                     f"{ctypes.get_last_error()}")
+                ctypes.byref(si), ctypes.byref(pi))
+            if not launched:
+                raise SandboxUnavailable("CreateProcessW(AppContainer) failed: "
+                                         f"{ctypes.get_last_error()}")
+        else:
+            if not a32.CreateProcessAsUserW(
+                    token, None, ctypes.create_unicode_buffer(cmdline),
+                    None, None, True, flags, env_block, str(ws),
+                    ctypes.byref(si), ctypes.byref(pi)):
+                raise SandboxUnavailable("CreateProcessAsUserW failed: "
+                                         f"{ctypes.get_last_error()}")
         child_started = True
 
         if not k32.AssignProcessToJobObject(job, pi.hProcess):
@@ -669,6 +835,8 @@ def run_confined(argv: list[str], *, workspace: str | Path | None = None,
             k32.DeleteProcThreadAttributeList(attr_list)
         if token:
             k32.CloseHandle(token)
+        if ac_sid:
+            win_network.free_sid(ac_sid)
         if job:
             k32.CloseHandle(job)
         if out_fd >= 0:
@@ -688,7 +856,7 @@ def run_confined(argv: list[str], *, workspace: str | Path | None = None,
         exit_code=exit_code,
         timed_out=timed_out,
         elapsed_s=round(time.monotonic() - started, 3),
-        mechanism=MECHANISM,
+        mechanism=MECHANISM_NETWORK if app_mode else MECHANISM,
         stdout=out_data.decode("utf-8", errors="replace"),
         stderr=err_data.decode("utf-8", errors="replace"),
         limitations=limitations,

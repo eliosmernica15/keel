@@ -8,9 +8,15 @@ static guidance surfaced when a channel fails.
 from __future__ import annotations
 
 import json
+import os
 import secrets
+import threading
 from dataclasses import dataclass
 from pathlib import Path
+
+# Serializes JSONL appends so concurrent deliveries can never interleave bytes
+# and leave a corrupt line in the outbox.
+_OUTBOX_LOCK = threading.Lock()
 
 
 @dataclass
@@ -24,7 +30,8 @@ def deliver_with_fallback(chain: list[str], send: object,
                           *, max_attempts: int | None = None) -> list[DeliveryAttempt]:
     """Try each channel in order until one succeeds."""
     attempts = []
-    for channel in chain[:max_attempts or len(chain)]:
+    selected = chain if max_attempts is None else chain[:max(0, max_attempts)]
+    for channel in selected:
         try:
             result = send(channel)
             ok = bool(result) if not isinstance(result, tuple) else bool(result[0])
@@ -41,6 +48,19 @@ def outbox_path(state_root: str | Path) -> Path:
     return Path(state_root) / "outbox.jsonl"
 
 
+def _append_jsonl(target: Path, record: dict) -> None:
+    """Append one JSON record atomically (single write) and fsync it."""
+    data = (json.dumps(record, ensure_ascii=False) + "\n").encode("utf-8")
+    with _OUTBOX_LOCK:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+        try:
+            os.write(fd, data)
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
+
 def deliver_to_outbox(state_root: str | Path, channel: str, message: str,
                       *, destination: str = "") -> DeliveryAttempt:
     """Really persist a message to the local outbox — no fake success.
@@ -54,14 +74,12 @@ def deliver_to_outbox(state_root: str | Path, channel: str, message: str,
 
     target = outbox_path(state_root)
     try:
-        target.parent.mkdir(parents=True, exist_ok=True)
         record = {
             "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "channel": channel, "destination": destination,
             "message": str(message)[:10000], "status": "queued_local",
         }
-        with open(target, "a", encoding="utf-8") as handle:
-            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+        _append_jsonl(target, record)
         return DeliveryAttempt(channel, True, f"written to {target}")
     except OSError as exc:
         return DeliveryAttempt(channel, False, f"outbox write failed: {exc}")
@@ -90,8 +108,15 @@ class SubscriptionStore:
         return doc if isinstance(doc, dict) else {}
 
     def _save(self, doc: dict) -> None:
+        # Write to a sibling temp file then rename: a crash or concurrent
+        # reader can never observe a half-written subscription document.
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+        tmp = self.path.with_name(self.path.name + ".tmp")
+        with open(tmp, "w", encoding="utf-8") as handle:
+            handle.write(json.dumps(doc, indent=2) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp, self.path)
 
     def register(self, name: str, url: str, events: list[str]) -> dict:
         entry = {"name": name, "url": url, "events": list(events),

@@ -1,0 +1,147 @@
+{
+  "sequential_/api/health": {
+    "n": 200,
+    "min": 5.0695,
+    "p50": 26.8475,
+    "p90": 80.1775,
+    "p95": 108.7727,
+    "p99": 204.7221,
+    "max": 291.4867,
+    "mean": 37.5601
+  },
+  "sequential_/api/providers": {
+    "n": 200,
+    "min": 11.5527,
+    "p50": 30.4705,
+    "p90": 116.0792,
+    "p95": 197.0164,
+    "p99": 287.9836,
+    "max": 556.2022,
+    "mean": 55.566
+  },
+  "sequential_/api/fleet/bots": {
+    "n": 200,
+    "min": 4.913,
+    "p50": 14.6365,
+    "p90": 84.1199,
+    "p95": 120.8748,
+    "p99": 204.3639,
+    "max": 258.365,
+    "mean": 31.5546
+  },
+  "sequential_/api/fleet/tasks": {
+    "n": 200,
+    "min": 5.1351,
+    "p50": 19.7249,
+    "p90": 65.7771,
+    "p95": 85.3435,
+    "p99": 118.3301,
+    "max": 183.4523,
+    "mean": 30.0899
+  },
+  "normal_8x100": {
+    "threads": 8,
+    "requests": 800,
+    "elapsed_s": 20.112,
+    "throughput_req_s": 39.8,
+    "ok": 799,
+    "errors": 1,
+    "latency_ms": {
+      "n": 800,
+      "min": 5.1269,
+      "p50": 107.4301,
+      "p90": 433.6197,
+      "p95": 695.2844,
+      "p99": 1247.2335,
+      "max": 2275.9874,
+      "mean": 192.6041
+    },
+    "error_samples": [
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it"
+    ]
+  },
+  "increased_32x100": {
+    "threads": 32,
+    "requests": 3200,
+    "elapsed_s": 52.411,
+    "throughput_req_s": 61.1,
+    "ok": 2997,
+    "errors": 203,
+    "latency_ms": {
+      "n": 3200,
+      "min": 5.218,
+      "p50": 129.9629,
+      "p90": 1680.4604,
+      "p95": 2036.8438,
+      "p99": 2186.1097,
+      "max": 2507.5721,
+      "mean": 490.2103
+    },
+    "error_samples": [
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it",
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it",
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it",
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it",
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it"
+    ]
+  },
+  "burst_100x20": {
+    "threads": 100,
+    "requests": 2000,
+    "elapsed_s": 27.15,
+    "throughput_req_s": 73.7,
+    "ok": 1355,
+    "errors": 645,
+    "latency_ms": {
+      "n": 2000,
+      "min": 6.2509,
+      "p50": 1262.2377,
+      "p90": 2046.9103,
+      "p95": 2104.391,
+      "p99": 2295.7763,
+      "max": 2728.9331,
+      "mean": 1187.8095
+    },
+    "error_samples": [
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it",
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it",
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it",
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it",
+      "ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it"
+    ]
+  },
+  "unauthorized_health": {
+    "latency_ms": {
+      "n": 100,
+      "min": 4.0093,
+      "p50": 6.8881,
+      "p90": 13.4837,
+      "p95": 15.8095,
+      "p99": 23.2379,
+      "max": 25.8301,
+      "mean": 8.138
+    },
+    "statuses": [
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403,
+      403
+    ]
+  }
+}

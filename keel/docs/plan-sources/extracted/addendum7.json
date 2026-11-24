@@ -1,0 +1,3433 @@
+{
+  "features": [
+    {
+      "id": "E1.1",
+      "feature": "Every tool declares a mandatory canonical output (JSON schema), returns one lossless JSON value, and a pure render(args, value) produces the model-facing content. Callers never parse prose for ids.",
+      "detail": "Tool = name, description, params schema, output_schema, execute(), render(). Body returns data only; renderer builds text. Gate: tool without output schema fails registration.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS, DS-COOK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-COOK",
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Every tool declares a mandatory canonical output (JSON schema), returns one lossless JSON value, and a pure render(args, value) produces the model-facing content.",
+        "Callers never parse prose for ids.",
+        "Body returns data only;",
+        "Gate: tool without output schema fails registration."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.2",
+      "feature": "Model-facing schema built by explicit allowlist (name, description, parameters only); execution, timeout, presenters, concurrency flags never leak into a request.",
+      "detail": "schemas() projects allowlisted fields; test that no callback/field leaks.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Model-facing schema built by explicit allowlist (name, description, parameters only); execution, timeout, presenters, concurrency flags never leak into a request.",
+        "test that no callback/field leaks."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.3",
+      "feature": "One schema vocabulary for params and outputs (scalars, arrays, objects with explicit additionalProperties, exact-one oneOf, enum/const), with inferred types; mismatch → INVALID_ARGS; invalid output → INVALID_TOOL_OUTPUT. Unsupported JSON Schema keywords are rejected, never silently ignored.",
+      "detail": "pydantic or a small schema compiler; reject unknown keywords at registration; same errors.",
+      "milestone": "M5, M6",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "One schema vocabulary for params and outputs (scalars, arrays, objects with explicit additionalProperties, exact-one oneOf, enum/const), with inferred types; mismatch → INVALID_ARGS; invalid output → INVALID_TOOL_OUTPUT.",
+        "Unsupported JSON Schema keywords are rejected, never silently ignored.",
+        "reject unknown keywords at registration;"
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.4",
+      "feature": "Args are deep-frozen and snapshotted as lossless JSON before policy runs; args cannot be rewritten later because history, audit, UI and execution must agree.",
+      "detail": "Immutable arg object; policy hooks return decisions, never modified args.",
+      "milestone": "M5, M3",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Args are deep-frozen and snapshotted as lossless JSON before policy runs; args cannot be rewritten later because history, audit, UI and execution must agree.",
+        "policy hooks return decisions, never modified args."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.5",
+      "feature": "Pre-execute decisions: allow, deny (reason + optional structured error id), cancel, ask (audited reason + optional localized display reason); only allowed-once proceeds; missing approval channel or agentless call = denial.",
+      "detail": "Decision type in the permission gate (extends W3.x); display reason localized (M25).",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS",
+        "W3.x"
+      ],
+      "dependencies": [
+        "W3.x"
+      ],
+      "acceptance_criteria": [
+        "Pre-execute decisions: allow, deny (reason + optional structured error id), cancel, ask (audited reason + optional localized display reason); only allowed-once proceeds; missing approval channel or agentless call = denial.",
+        "Decision type in the permission gate (extends W3.x);"
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.6",
+      "feature": "Guards are monotonic: a final guard can only deny, never allow, so listener order cannot turn a denial into permission.",
+      "detail": "guard() registry evaluated after all hooks; Tier 2 is implemented as guards.",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Guards are monotonic: a final guard can only deny, never allow, so listener order cannot turn a denial into permission."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.7",
+      "feature": "Post-execute decisions: accept, replace *content* or replace *value* (never both), attach context for the next request, or block with corrective feedback. Content replacement is presentation, not confidentiality; confidentiality needs block/replace-value.",
+      "detail": "Post hook API with the same rules; DLP (B3.8) uses block/replace-value.",
+      "milestone": "M3, M5",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "B3.8",
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Post-execute decisions: accept, replace *content* or replace *value* (never both), attach context for the next request, or block with corrective feedback.",
+        "Content replacement is presentation, not confidentiality; confidentiality needs block/replace-value."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.8",
+      "feature": "Around-dispatch wrapper for timeout/retry/metrics may replace but not remove the cancellation signal; the registry re-fuses the caller's signal.",
+      "detail": "with_signal wrapper pattern; test that caller cancel always propagates.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Around-dispatch wrapper for timeout/retry/metrics may replace but not remove the cancellation signal; the registry re-fuses the caller's signal.",
+        "test that caller cancel always propagates."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.9",
+      "feature": "Cooperative per-tool timeout (timeoutMs): declaring it asserts the tool forwards the cancel signal and reaches quiescence; never sent to the model; result error code TOOL_TIMEOUT.",
+      "detail": "Tool metadata timeout_s; enforcement plugin; conformance test (V24).",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS",
+        "V24"
+      ],
+      "dependencies": [
+        "V24"
+      ],
+      "acceptance_criteria": [
+        "Cooperative per-tool timeout (timeoutMs): declaring it asserts the tool forwards the cancel signal and reaches quiescence; never sent to the model; result error code TOOL_TIMEOUT.",
+        "conformance test (V24)."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.10",
+      "feature": "Concurrency classifier isConcurrencySafe(args): pure, only true opts in; anything else (omission, exception, invalid) is exclusive; loop forms exclusive barriers and rolling-pool parallel runs; batch override maxParallelToolCalls.",
+      "detail": "Scheduler with barriers and a bounded pool; default exclusive.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Concurrency classifier isConcurrencySafe(args): pure, only true opts in; anything else (omission, exception, invalid) is exclusive; loop forms exclusive barriers and rolling-pool parallel runs; batch override maxParallelToolCalls."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.11",
+      "feature": "Executor contract: one outcome per input call in input order (skipped calls on abort included); never settles while started work still runs; internal failure drains then rejects with a typed batch error preserving committed outcomes.",
+      "detail": "ToolBatchExecutionError; test with injected failures.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Executor contract: one outcome per input call in input order (skipped calls on abort included); never settles while started work still runs; internal failure drains then rejects with a typed batch error preserving committed outcomes.",
+        "test with injected failures."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.12",
+      "feature": "Per-scope tool restriction (allow / deny lists) that intersect; scoped registrations stay exempt; deny-only admits later tools, allow-list excludes them.",
+      "detail": "Agent frontmatter tools.allow/deny semantics exactly so (extends A1.12).",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "A1.12",
+        "DS-TOOLS"
+      ],
+      "dependencies": [
+        "A1.12"
+      ],
+      "acceptance_criteria": [
+        "Per-scope tool restriction (allow / deny lists) that intersect; scoped registrations stay exempt; deny-only admits later tools, allow-list excludes them."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.13",
+      "feature": "Conditional tool activation (when) evaluated once per step with the captured model selection; the resulting admitted set governs declarations *and* every call in that step; disposed after the batch; late results cannot restore removed tools.",
+      "detail": "Per-step tool admission (e.g., vision tool only when the model supports images).",
+      "milestone": "M5, M7",
+      "priority": "P1",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Conditional tool activation (when) evaluated once per step with the captured model selection; the resulting admitted set governs declarations *and* every call in that step; disposed after the batch; late results cannot restore removed tools.",
+        "Per-step tool admission (e.g., vision tool only when the model supports images)."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.14",
+      "feature": "Stable error vocabulary: INVALID_ARGS, INVALID_TOOL_OUTPUT, UNKNOWN_TOOL, ABORTED, ABORTED_BEFORE_DISPATCH, TOOL_TIMEOUT, APPROVAL_REJECTED/CANCELLED/UNAVAILABLE, TOOL_CONTEXT_UNAVAILABLE; error info = name + code + optional raw reason that is kept durably but never in model-facing content.",
+      "detail": "Error catalog (C10.2) with these codes; reason stored in log only.",
+      "milestone": "M5, M23",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "C10.2",
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Stable error vocabulary: INVALID_ARGS, INVALID_TOOL_OUTPUT, UNKNOWN_TOOL, ABORTED, ABORTED_BEFORE_DISPATCH, TOOL_TIMEOUT, APPROVAL_REJECTED/CANCELLED/UNAVAILABLE, TOOL_CONTEXT_UNAVAILABLE; error info = name + code + optional raw reason that is kept durably but never in model-facing content.",
+        "reason stored in log only."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.15",
+      "feature": "Expected failures are typed errors with stable codes; successful domain outcomes (e.g., non-zero exit) are values, not exceptions.",
+      "detail": "Rule in tool authoring guide; tests per tool.",
+      "milestone": "M5",
+      "priority": "P1",
+      "tag/source": "T:DS-COOK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-COOK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Expected failures are typed errors with stable codes; successful domain outcomes (e.g., non-zero exit) are values, not exceptions.",
+        "tests per tool."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.16",
+      "feature": "conclude_turn() marker lets a successful tool end the turn; composites forward it only from authoritative nested success. defer_context() attaches context to a result that the loop appends only after the result.",
+      "detail": "Both on the tool run context.",
+      "milestone": "M5, M7",
+      "priority": "P1",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "conclude_turn() marker lets a successful tool end the turn; composites forward it only from authoritative nested success. defer_context() attaches context to a result that the loop appends only after the result."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.17",
+      "feature": "agent.inject() messages carry a typed source kind; old untyped wrappers rejected at admission.",
+      "detail": "Source enum for injected context (supports taint).",
+      "milestone": "M7",
+      "priority": "P1",
+      "tag/source": "T:DS-COOK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-COOK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "agent.inject() messages carry a typed source kind; old untyped wrappers rejected at admission."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.18",
+      "feature": "Long-running work: background start returns a typed handle ({kind:'background', job_id}); job spec has synchronous cancel, non-rejecting done that settles after cleanup, and output source; after publishing the id, use a task-owned cancel signal, not the call's; cancellation of the call stops waiting but does not kill published work; job_kill/owner disposal/teardown own that lifetime.",
+      "detail": "Matches Y1.7 + D3.7; make this the written lifecycle rule.",
+      "milestone": "M5, M14",
+      "priority": "P0",
+      "tag/source": "T:DS-COOK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D3.7",
+        "DS-COOK",
+        "Y1.7"
+      ],
+      "dependencies": [
+        "Y1.7"
+      ],
+      "acceptance_criteria": [
+        "Long-running work: background start returns a typed handle ({kind:'background', job_id}); job spec has synchronous cancel, non-rejecting done that settles after cleanup, and output source; after publishing the id, use a task-owned cancel signal, not the call's; cancellation of the call stops waiting but does not kill published work; job_kill/owner disposal/teardown own that lifetime."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.19",
+      "feature": "Programmatic tool-call (PTC) mode: every visible tool callable as await tools.name(args); generated arg/output type maps; calls re-enter the normal pipeline; success returns the canonical value after policy; failure rejects with a limited error (name, tool name, message only). Intermediate values are execution-local, not persisted; only the outer run_code call crosses the output cap and spill pipeline; model-direct calls to native names are denied while PTC executor is selected; run_code is a reserved name.",
+      "detail": "Keel's Code Mode (Y1.1) follows these rules; design output_schema as a useful programmatic API.",
+      "milestone": "M5, M6",
+      "priority": "P1",
+      "tag/source": "T:DS-COOK, DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-COOK",
+        "DS-TOOLS",
+        "Y1.1"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Programmatic tool-call (PTC) mode: every visible tool callable as await tools.name(args); generated arg/output type maps; calls re-enter the normal pipeline; success returns the canonical value after policy; failure rejects with a limited error (name, tool name, message only).",
+        "Intermediate values are execution-local, not persisted; only the outer run_code call crosses the output cap and spill pipeline; model-direct calls to native names are denied while PTC executor is selected; run_code is a reserved name."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.20",
+      "feature": "ptc-dispatch-log hook lets spill policy shorten only the durable log copy of a sub-call result (program already got the full value). Sub-call start/settle events store only ids, name, normalized args.",
+      "detail": "Log-copy hook; never persist schemas/descriptions per sub-call.",
+      "milestone": "M5, M4",
+      "priority": "P2",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "ptc-dispatch-log hook lets spill policy shorten only the durable log copy of a sub-call result (program already got the full value).",
+        "Sub-call start/settle events store only ids, name, normalized args.",
+        "never persist schemas/descriptions per sub-call."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E1.21",
+      "feature": "Executor-owned prompt sections: guidance registered and disposed with the executor.",
+      "detail": "Tool/executor can add prompt sections (also the MCP instruction blocks, W4.11).",
+      "milestone": "M7",
+      "priority": "P1",
+      "tag/source": "T:DS-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TOOLS",
+        "W4.11"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Executor-owned prompt sections: guidance registered and disposed with the executor."
+      ],
+      "section": "2. Tool pipeline contract (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E2.1",
+      "feature": "Presenters are pure (present_call(args), present_result(args, result)), run on live stream and log replay, no I/O/clock/session state; malformed or old args fall back to a generic card and display must never crash a replay.",
+      "detail": "Presenter contract + replay fuzz test.",
+      "milestone": "M5, M19",
+      "priority": "P0",
+      "tag/source": "T:DS-COOK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-COOK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Presenters are pure (present_call(args), present_result(args, result)), run on live stream and log replay, no I/O/clock/session state; malformed or old args fall back to a generic card and display must never crash a replay.",
+        "Presenter contract + replay fuzz test."
+      ],
+      "section": "3. Tool UI presentation (cards) (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E2.2",
+      "feature": "Card kinds: generic (title, icon kind: read/edit/delete/move/search/execute/fetch/other, file locations), terminal (command; result adds raw output, exit code, signal), diff (path, old text or null for new file, new text), search (matches grouped by file or flat paths, with truncated/total so partial results are never shown as complete), read (path, 1-based offset, numbered lines, total lines, language hint), web (search sources/answer/truncated; fetch url/status/truncated). Completed view replaces pending; search/read/web have no call-time card.",
+      "detail": "Renderer card components (Master 9.2); one component per kind with states.",
+      "milestone": "M19",
+      "priority": "P0",
+      "tag/source": "T:DS-TOOLS, DS-COOK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-COOK",
+        "DS-TOOLS"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Card kinds: generic (title, icon kind: read/edit/delete/move/search/execute/fetch/other, file locations), terminal (command; result adds raw output, exit code, signal), diff (path, old text or null for new file, new text), search (matches grouped by file or flat paths, with truncated/total so partial results are never shown as complete), read (path, 1-based offset, numbered lines, total lines, language hint), web (search sources/answer/truncated; fetch url/status/truncated).",
+        "Completed view replaces pending; search/read/web have no call-time card."
+      ],
+      "section": "3. Tool UI presentation (cards) (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E2.3",
+      "feature": "Durable presentation metadata (presentation_meta(args, value)) stored on the result so replay shows hunks/search facts without persisting the canonical value; skipped for nested code-mode calls.",
+      "detail": "meta field on tool result events.",
+      "milestone": "M4, M5",
+      "priority": "P0",
+      "tag/source": "T:DS-COOK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-COOK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Durable presentation metadata (presentation_meta(args, value)) stored on the result so replay shows hunks/search facts without persisting the canonical value; skipped for nested code-mode calls."
+      ],
+      "section": "3. Tool UI presentation (cards) (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E2.4",
+      "feature": "UI-only formatting stays out of model-visible output (fenced console blocks, relativized paths, diffs).",
+      "detail": "Rule + review checklist.",
+      "milestone": "M5",
+      "priority": "P1",
+      "tag/source": "T:DS-COOK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-COOK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "UI-only formatting stays out of model-visible output (fenced console blocks, relativized paths, diffs)."
+      ],
+      "section": "3. Tool UI presentation (cards) (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E2.5",
+      "feature": "Web client derives tool cards from raw events via a keyed slot per tool name, validates wire values locally and falls back to the generic row; no separate presenter registry; no host code imported into the browser bundle.",
+      "detail": "Renderer tool_view registry keyed by tool name; Python presenters only for CLI/TUI.",
+      "milestone": "M19, M20",
+      "priority": "P1",
+      "tag/source": "T:DS-COOK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-COOK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Web client derives tool cards from raw events via a keyed slot per tool name, validates wire values locally and falls back to the generic row; no separate presenter registry; no host code imported into the browser bundle.",
+        "Python presenters only for CLI/TUI."
+      ],
+      "section": "3. Tool UI presentation (cards) (DS-TOOLS, DS-COOK)"
+    },
+    {
+      "id": "E3.1",
+      "feature": "One activation API for local children and external executions; provider capability flags (agent_options, agent_preset, output_schema, depth_limit) validate start options before anything starts.",
+      "detail": "SubagentProvider.capabilities; reject unsupported options with a clear error.",
+      "milestone": "M12",
+      "priority": "P0",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "One activation API for local children and external executions; provider capability flags (agent_options, agent_preset, output_schema, depth_limit) validate start options before anything starts.",
+        "reject unsupported options with a clear error."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.2",
+      "feature": "Result delivery policy: parent (notifies the model) vs caller (only returns result, e.g., workflows/code mode).",
+      "detail": "Delivery enum on start.",
+      "milestone": "M12, M8",
+      "priority": "P1",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Result delivery policy: parent (notifies the model) vs caller (only returns result, e.g., workflows/code mode)."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.3",
+      "feature": "Agent names: 1 to 32 lowercase letters/digits/hyphens starting with a letter, not lead; default agent-N; root is lead; full names are slash paths; names are model-facing references, session ids are the authority; resolve returns the id and grants no permission; a slash path with no match fails AGENT_NAME_NOT_FOUND.",
+      "detail": "Name rules + resolve_name(); authorization separate.",
+      "milestone": "M12",
+      "priority": "P0",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Agent names: 1 to 32 lowercase letters/digits/hyphens starting with a letter, not lead; default agent-N; root is lead; full names are slash paths; names are model-facing references, session ids are the authority; resolve returns the id and grants no permission; a slash path with no match fails AGENT_NAME_NOT_FOUND."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.4",
+      "feature": "Child working directory chosen at admission (relative resolves against the parent's current dir); local child keeps the parent's original project; resumed child retains logged directory state.",
+      "detail": "cwd field on start; log it.",
+      "milestone": "M12, M5",
+      "priority": "P1",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Child working directory chosen at admission (relative resolves against the parent's current dir); local child keeps the parent's original project; resumed child retains logged directory state."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.5",
+      "feature": "Local child = durable session with at most one live activation; manager owns identity/capacity reservation, input admission, cold resume, child-first disposal; structured-output capture closes input for that activation; resume does not inherit the schema.",
+      "detail": "Child manager with these invariants + tests.",
+      "milestone": "M12",
+      "priority": "P0",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Local child = durable session with at most one live activation; manager owns identity/capacity reservation, input admission, cold resume, child-first disposal; structured-output capture closes input for that activation; resume does not inherit the schema.",
+        "Child manager with these invariants + tests."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.6",
+      "feature": "Spawn vs Fork: fork seeds the child with the parent's completed-turn prefix (contiguous, lossless, balanced steps), spawn starts fresh; inherits_parent_context is descriptive for wording only.",
+      "detail": "Two local providers; fork cut = prefix length.",
+      "milestone": "M12",
+      "priority": "P1",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Spawn vs Fork: fork seeds the child with the parent's completed-turn prefix (contiguous, lossless, balanced steps), spawn starts fresh; inherits_parent_context is descriptive for wording only."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.7",
+      "feature": "External backends as providers (separate coding CLIs or protocol agents): one execution, no follow-ups, results to creator only while online.",
+      "detail": "Basis for V8 adapters; same activation lifecycle.",
+      "milestone": "M12",
+      "priority": "P1",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB",
+        "V8"
+      ],
+      "dependencies": [
+        "V8"
+      ],
+      "acceptance_criteria": [
+        "External backends as providers (separate coding CLIs or protocol agents): one execution, no follow-ups, results to creator only while online."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.8",
+      "feature": "Result object: final output = last non-empty assistant message; optional structured value validated against the requested schema; diagnostic text limited to 4,096 bytes and free of tool inputs, file contents, env values, credentials, raw protocol payloads; stop reason enum (completed, aborted, error, max-tokens, refusal). Child failure resolves with error, not an exception.",
+      "detail": "Result dataclass + diagnostic sanitizer test.",
+      "milestone": "M12",
+      "priority": "P0",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Result object: final output = last non-empty assistant message; optional structured value validated against the requested schema; diagnostic text limited to 4,096 bytes and free of tool inputs, file contents, env values, credentials, raw protocol payloads; stop reason enum (completed, aborted, error, max-tokens, refusal).",
+        "Child failure resolves with error, not an exception.",
+        "Result dataclass + diagnostic sanitizer test."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.9",
+      "feature": "Messaging within one tree: running target gets *steer*, absent target cold-resumes, sender identity rechecked, accepted messages never retracted. Two distinct message source kinds: agent-message (relay: words the sender chose) vs subagent-settled (runtime notice about how a child ended) so a child is never credited with words it didn't write.",
+      "detail": "Source kinds in the log + UI labels.",
+      "milestone": "M12, M4",
+      "priority": "P0",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Messaging within one tree: running target gets *steer*, absent target cold-resumes, sender identity rechecked, accepted messages never retracted.",
+        "Two distinct message source kinds: agent-message (relay: words the sender chose) vs subagent-settled (runtime notice about how a child ended) so a child is never credited with words it didn't write."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.10",
+      "feature": "Interrupt authority: only the user or an exact live ancestor; fire-and-return; preserves unclaimed inbox, the activation and descendants; claimed work not requeued; absent target is a no-op.",
+      "detail": "interrupt() semantics + tests.",
+      "milestone": "M12, M3",
+      "priority": "P0",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Interrupt authority: only the user or an exact live ancestor; fire-and-return; preserves unclaimed inbox, the activation and descendants; claimed work not requeued; absent target is a no-op.",
+        "interrupt() semantics + tests."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.11",
+      "feature": "Whole-tree drain and wait-for-tree-work (idle members with parked input stay resident without delaying host completion).",
+      "detail": "Shutdown/idle logic for fleets.",
+      "milestone": "M12",
+      "priority": "P1",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Whole-tree drain and wait-for-tree-work (idle members with parked input stay resident without delaying host completion)."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.12",
+      "feature": "Parent-owned subagent catalog projection (membership at creation, no execution status); recursive list_descendants with parent id, depth, path and per-branch diagnostics (unsupported, corrupt, unavailable); cycles/repeats skipped; unreadable branch stops only that branch; historical children with unavailable descriptors listed as unknown mode with no continuation rights.",
+      "detail": "Catalog projection + tree viewer; no loading of child logs to list.",
+      "milestone": "M12, M19",
+      "priority": "P1",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Parent-owned subagent catalog projection (membership at creation, no execution status); recursive list_descendants with parent id, depth, path and per-branch diagnostics (unsupported, corrupt, unavailable); cycles/repeats skipped; unreadable branch stops only that branch; historical children with unavailable descriptors listed as unknown mode with no continuation rights."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.13",
+      "feature": "Subagent model-route setting: default-off allowlist of provider/model routes the agent may choose for children; reads live on each delegation; malformed/duplicate routes error.",
+      "detail": "Setting subagent_model_routes; applies to all sessions.",
+      "milestone": "M12, M2",
+      "priority": "P1",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Subagent model-route setting: default-off allowlist of provider/model routes the agent may choose for children; reads live on each delegation; malformed/duplicate routes error."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.14",
+      "feature": "User-authored message to a child from the UI with attachments (image parts admitted via attachment store; model must accept images) and client time zone; cold resume at capacity rejects with a typed delivery-unavailable.",
+      "detail": "\"Message this agent\" box in Fleet view.",
+      "milestone": "M12, M19",
+      "priority": "P1",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "User-authored message to a child from the UI with attachments (image parts admitted via attachment store; model must accept images) and client time zone; cold resume at capacity rejects with a typed delivery-unavailable."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E3.15",
+      "feature": "Lifecycle events subagent/start, subagent/end (scoped to tree root), provider added/removed.",
+      "detail": "Event kinds in the bus.",
+      "milestone": "M8, M12",
+      "priority": "P1",
+      "tag/source": "T:DS-SUB",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-SUB"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Lifecycle events subagent/start, subagent/end (scoped to tree root), provider added/removed."
+      ],
+      "section": "4. Subagents (DS-SUB)"
+    },
+    {
+      "id": "E4.1",
+      "feature": "HMR-safety test for every registry: dispose the contributing scope, assert cleanup.",
+      "detail": "Per-registry unload test (V1/D1.2).",
+      "milestone": "M10, M25",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D1.2",
+        "DS-TEST",
+        "V1"
+      ],
+      "dependencies": [
+        "V1"
+      ],
+      "acceptance_criteria": [
+        "HMR-safety test for every registry: dispose the contributing scope, assert cleanup.",
+        "Per-registry unload test (V1/D1.2)."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.2",
+      "feature": "Permanent contract-regression specs for the agent loop.",
+      "detail": "tests/contract_regressions/ never deleted without owner note.",
+      "milestone": "M25",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TEST"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Permanent contract-regression specs for the agent loop.",
+        "tests/contract_regressions/ never deleted without owner note."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.3",
+      "feature": "Coverage gate philosophy: an uncovered line is often dead code to delete; line coverage is necessary, never sufficient; environment-dependent files exempted locally but enforced on CI that has the tool.",
+      "detail": "Applies to D7.13; PowerShell executor coverage only on runners with pwsh.",
+      "milestone": "M25",
+      "priority": "P1",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D7.13",
+        "DS-TEST"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Coverage gate philosophy: an uncovered line is often dead code to delete; line coverage is necessary, never sufficient; environment-dependent files exempted locally but enforced on CI that has the tool.",
+        "PowerShell executor coverage only on runners with pwsh."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.4",
+      "feature": "Performance benchmark gates as required PR checks: timed code runs on the plain runtime (never a transpiler); synthetic inputs enforce time, heap and scaling budgets; package-local perf files are diagnostic only.",
+      "detail": "benchmarks/ with budgets (session open time, memory growth, scaling with event count).",
+      "milestone": "M21, M25",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TEST"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Performance benchmark gates as required PR checks: timed code runs on the plain runtime (never a transpiler); synthetic inputs enforce time, heap and scaling budgets; package-local perf files are diagnostic only."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.5",
+      "feature": "Snapshot scenarios: parent/child session files with version in filename that must agree with header; snapshot.yml declares profile, header class, recording policy, workspace facts; typed tokens keep parent/child identity relations; mutating scenarios compare a full workspace.expected/ tree that record/refresh never rewrite; modes record (needs key), refresh (replay input still valid), review every diff; CI read-only replay.",
+      "detail": "Keel snapshot harness (X9.2) with these rules.",
+      "milestone": "M25",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TEST",
+        "X9.2"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Snapshot scenarios: parent/child session files with version in filename that must agree with header; snapshot.yml declares profile, header class, recording policy, workspace facts; typed tokens keep parent/child identity relations; mutating scenarios compare a full workspace.expected/ tree that record/refresh never rewrite; modes record (needs key), refresh (replay input still valid), review every diff;",
+        "CI read-only replay."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.6",
+      "feature": "Fixtures omit sequence/time envelopes (replay synthesizes them); historical fixtures keep released representation with explicit format owners for migration coverage.",
+      "detail": "Fixture format rules for session export versions.",
+      "milestone": "M25",
+      "priority": "P1",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TEST"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Fixtures omit sequence/time envelopes (replay synthesizes them); historical fixtures keep released representation with explicit format owners for migration coverage."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.7",
+      "feature": "Browser snapshot lane: UI output compared in Chromium, with the model picker also in WebKit; replay-only in CI.",
+      "detail": "Playwright visual lane (X8.1) incl. a second engine for key widgets (note: Electron is Chromium; WebKit only for keel web).",
+      "milestone": "M25",
+      "priority": "P1",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TEST",
+        "X8.1"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Browser snapshot lane: UI output compared in Chromium, with the model picker also in WebKit; replay-only in CI.",
+        "WebKit only for keel web)."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.8",
+      "feature": "Test-process isolation rules: forked workers share ports, paths, namespaces and children; each test owns every resource it acquires through teardown; a spec that passes only alone is a test defect; fork-exit diagnostics report PID, file, code, signal; flake-diagnosis workflow classifies probabilistic failures.",
+      "detail": "tests/conftest.py fixtures for ports/tmp dirs; xdist-style parallel run; flake report.",
+      "milestone": "M25",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TEST"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Test-process isolation rules: forked workers share ports, paths, namespaces and children; each test owns every resource it acquires through teardown; a spec that passes only alone is a test defect; fork-exit diagnostics report PID, file, code, signal; flake-diagnosis workflow classifies probabilistic failures.",
+        "tests/conftest.py fixtures for ports/tmp dirs;"
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.9",
+      "feature": "Smoke tests boot the shipped profile, send one prompt, and check the world (catches \"green unit tests, broken product\"); postmortems are documented (postmortem/0001-*).",
+      "detail": "Release smoke (C13.4) + docs/postmortem/ folder for every escaped bug.",
+      "milestone": "M25, M22",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "C13.4",
+        "DS-TEST"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Smoke tests boot the shipped profile, send one prompt, and check the world (catches \"green unit tests, broken product\"); postmortems are documented (postmortem/0001-*)."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.10",
+      "feature": "Mock only the expensive/non-deterministic boundary (model, network, clock); keep the real tool registry, pipeline and persistence behind the scripted mock; recovery tests separate pre-chunk vs post-chunk failures and prove failed chunks derive no message or tool side effect; cover exhaustion, cancellation, policy composition, persistence, status, wire counts, transport-closing idle timeouts, and shipping loader composition.",
+      "detail": "Test harness make_bridge_harness() analog on the fixture model server (X9.1).",
+      "milestone": "M25",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TEST",
+        "X9.1"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Mock only the expensive/non-deterministic boundary (model, network, clock); keep the real tool registry, pipeline and persistence behind the scripted mock; recovery tests separate pre-chunk vs post-chunk failures and prove failed chunks derive no message or tool side effect; cover exhaustion, cancellation, policy composition, persistence, status, wire counts, transport-closing idle timeouts, and shipping loader composition.",
+        "Test harness make_bridge_harness() analog on the fixture model server (X9.1)."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.11",
+      "feature": "Verify the world, not the agent's self-report: re-run the command or re-read files externally; assert untouched files are byte-identical; e2e tests create and dispose their own resources even on failure; shared fixtures live in plain helper modules, never in another test file.",
+      "detail": "Eval/e2e rules for Keel's SWE-task benchmark (C13.1).",
+      "milestone": "M21, M25",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "C13.1",
+        "DS-TEST"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Verify the world, not the agent's self-report: re-run the command or re-read files externally; assert untouched files are byte-identical; e2e tests create and dispose their own resources even on failure; shared fixtures live in plain helper modules, never in another test file."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.12",
+      "feature": "Real-composition tests for product-visible plugins: boot a test-only config through the real loader, mock only external services, assert model-visible request/log, durable state or user-visible output; prove each guard fails when the regression is introduced (red-green-revert).",
+      "detail": "Plugin test kit (V15) requires one composition test per plugin.",
+      "milestone": "M10, M25",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TEST",
+        "V15"
+      ],
+      "dependencies": [
+        "V15"
+      ],
+      "acceptance_criteria": [
+        "Real-composition tests for product-visible plugins: boot a test-only config through the real loader, mock only external services, assert model-visible request/log, durable state or user-visible output; prove each guard fails when the regression is introduced (red-green-revert).",
+        "Plugin test kit (V15) requires one composition test per plugin."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.13",
+      "feature": "Test the published artifact entry path: run built entrypoints under the plain runtime; assert a genuinely missing config exits non-zero; singleton modules shared across bundles get a built-scope test.",
+      "detail": "Built-wheel / PyInstaller smoke; non-zero exit test.",
+      "milestone": "M22, M25",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TEST"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Test the published artifact entry path: run built entrypoints under the plain runtime; assert a genuinely missing config exits non-zero; singleton modules shared across bundles get a built-scope test.",
+        "non-zero exit test."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.14",
+      "feature": "Test resolution: tests resolve imports to source; built artifacts used only by explicit built-mode tests; subprocess tests run built output through one shared launcher.",
+      "detail": "Source vs built test marks (D6.10).",
+      "milestone": "M25",
+      "priority": "P1",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D6.10",
+        "DS-TEST"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Test resolution: tests resolve imports to source; built artifacts used only by explicit built-mode tests; subprocess tests run built output through one shared launcher.",
+        "Source vs built test marks (D6.10)."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E4.15",
+      "feature": "Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every required test tier at plan time.",
+      "detail": "Plan-time \"test tiers\" field in PLAN-INDEX.json.",
+      "milestone": "M0, M25",
+      "priority": "P0",
+      "tag/source": "T:DS-TEST",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-TEST"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every required test tier at plan time.",
+        "Plan-time \"test tiers\" field in PLAN-INDEX.json."
+      ],
+      "section": "5. Testing policy (DS-TEST)"
+    },
+    {
+      "id": "E5.1",
+      "feature": "No listening port in the desktop app: the backend runs as a bundled child; framed byte pipes carry requests and streaming responses with backpressure, Node IPC carries only lifecycle control, a custom app:// protocol serves client assets.",
+      "detail": "Option for Electron: talk to the Python daemon over a Unix domain socket / Windows named pipe (or stdio frames) with a custom protocol for assets, removing loopback TCP exposure entirely; keel web/CLI keep loopback + token. Decision C-19.",
+      "milestone": "M19, M20",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "No listening port in the desktop app: the backend runs as a bundled child; framed byte pipes carry requests and streaming responses with backpressure, Node IPC carries only lifecycle control, a custom app:// protocol serves client assets."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.2",
+      "feature": "Release identity: shell and backend always carry the same exact version; a backend upgrade is a desktop release; no independent versions.",
+      "detail": "Single version for Electron + daemon; updater never updates one side alone.",
+      "milestone": "M22",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Release identity: shell and backend always carry the same exact version; a backend upgrade is a desktop release; no independent versions.",
+        "updater never updates one side alone."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.3",
+      "feature": "Bundled runtime, never system runtime or package-manager state (and never the shell's own runtime for the backend).",
+      "detail": "Keel ships its own Python (embedded) and never reads system Python site-packages.",
+      "milestone": "M22",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Bundled runtime, never system runtime or package-manager state (and never the shell's own runtime for the backend).",
+        "Keel ships its own Python (embedded) and never reads system Python site-packages."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.4",
+      "feature": "Process-lifetime single-instance lock acquired before any profile access; the desktop app exclusively owns its profile directory; CLI and desktop share product data (sessions, settings, credentials, workspaces) but never executable packages, plugin activation, lockfiles or site-packages.",
+      "detail": "Single-instance lock + two plugin environments (desktop vs CLI).",
+      "milestone": "M19, M22",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Process-lifetime single-instance lock acquired before any profile access; the desktop app exclusively owns its profile directory;",
+        "CLI and desktop share product data (sessions, settings, credentials, workspaces) but never executable packages, plugin activation, lockfiles or site-packages.",
+        "Single-instance lock + two plugin environments (desktop vs CLI)."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.5",
+      "feature": "Transactional activation: install in staging → boot a full backend health check → replace the active profile only after success; journal + one rollback profile; recovery combines the journal with the actual directories; a transaction lock records the current owner (including an orphaned worker) so a live worker isn't treated as stale.",
+      "detail": "Used for app upgrades and plugin installs (extends D1.11, Master 0.4 rollback).",
+      "milestone": "M10, M22",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D1.11",
+        "DS-DESK"
+      ],
+      "dependencies": [
+        "D1.11"
+      ],
+      "acceptance_criteria": [
+        "Transactional activation: install in staging → boot a full backend health check → replace the active profile only after success; journal + one rollback profile; recovery combines the journal with the actual directories; a transaction lock records the current owner (including an orphaned worker) so a live worker isn't treated as stale."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.6",
+      "feature": "Seed store packaging: offline seed archive of dependencies in 16 deterministic uncompressed shards so the outer installer compresses them and differential updates reuse unchanged shards; verified by an offline install before shipping; seed extraction on first run (measure disk use separately from installer download size).",
+      "detail": "Wheelhouse seed for plugins/models-free deps; shard + hash inventory; measure both sizes (B7.4).",
+      "milestone": "M22",
+      "priority": "P1",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "B7.4",
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Seed store packaging: offline seed archive of dependencies in 16 deterministic uncompressed shards so the outer installer compresses them and differential updates reuse unchanged shards; verified by an offline install before shipping; seed extraction on first run (measure disk use separately from installer download size)."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.7",
+      "feature": "Update unit: shell + matching backend seed + runtime form one signed update unit; update check 10 seconds after the main window opens plus a manual \"Check for updates…\" menu item; native confirmation dialog; waits for an in-flight check; verifies, stops backend, installs; next launch reconciles.",
+      "detail": "Updater flow (Y1.21): delay, menu item, confirm, verify with Ed25519 manifest (free) instead of paid OS signing.",
+      "milestone": "M22, M19",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK",
+        "Y1.21"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Update unit: shell + matching backend seed + runtime form one signed update unit; update check 10 seconds after the main window opens plus a manual \"Check for updates…\" menu item; native confirmation dialog; waits for an in-flight check; verifies, stops backend, installs; next launch reconciles.",
+        "Updater flow (Y1.21): delay, menu item, confirm, verify with Ed25519 manifest (free) instead of paid OS signing."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.8",
+      "feature": "Plugin management window is a separate renderer receiving only structured list/install/remove/update operations: no filesystem, raw IPC, shell, or arbitrary package-manager arguments.",
+      "detail": "Extensions window with a narrow typed IPC surface (Master 11 Electron hardening).",
+      "milestone": "M10, M19",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Plugin management window is a separate renderer receiving only structured list/install/remove/update operations: no filesystem, raw IPC, shell, or arbitrary package-manager arguments.",
+        "Extensions window with a narrow typed IPC surface (Master 11 Electron hardening)."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.9",
+      "feature": "Plugins with install-time lifecycle scripts are rejected unless in a reviewed allowlist.",
+      "detail": "Python: refuse sdist builds/post-install hooks unless allowlisted; prefer wheels only.",
+      "milestone": "M10",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Plugins with install-time lifecycle scripts are rejected unless in a reviewed allowlist.",
+        "prefer wheels only."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.10",
+      "feature": "Shell copy localized from app locale (menus, native dialogs, plugin window share one locale payload; falls back to English); i18n gate also checks desktop shell sources.",
+      "detail": "Main-process string catalog (X8/W… D4.8).",
+      "milestone": "M19, M25",
+      "priority": "P1",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D4.8",
+        "DS-DESK",
+        "X8"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Shell copy localized from app locale (menus, native dialogs, plugin window share one locale payload; falls back to English); i18n gate also checks desktop shell sources."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.11",
+      "feature": "Isolated development home (data, project and browser data under a disposable folder); debug ports configurable by env; DevTools auto-open toggle; dev overrides ignored by the packaged app.",
+      "detail": "keel dev:desktop with disposable home; env overrides only in dev builds.",
+      "milestone": "M19, M25",
+      "priority": "P1",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Isolated development home (data, project and browser data under a disposable folder); debug ports configurable by env;",
+        "DevTools auto-open toggle; dev overrides ignored by the packaged app.",
+        "env overrides only in dev builds."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.12",
+      "feature": "Per-target build isolation: each target owns its inputs, prepared runtime, seed and artifacts under targets/<target>/; shared download cache verified by name+hash; a target never consumes another's mutable state.",
+      "detail": "Release build dirs per OS/arch.",
+      "milestone": "M22",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Per-target build isolation: each target owns its inputs, prepared runtime, seed and artifacts under targets/<target>/; shared download cache verified by name+hash; a target never consumes another's mutable state."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.13",
+      "feature": "Release prerequisite env validation (app id format; reject malformed identity values; incomplete credential sets).",
+      "detail": "release --dry-run validates all release inputs before building.",
+      "milestone": "M22",
+      "priority": "P1",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Release prerequisite env validation (app id format; reject malformed identity values; incomplete credential sets)."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.14",
+      "feature": "Packaging never receives upload credentials (stripped from subprocesses); a target completion record is written only after every build/sign step succeeds.",
+      "detail": "Release job separation: build job has no deploy secrets; completion record.",
+      "milestone": "M22",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Packaging never receives upload credentials (stripped from subprocesses); a target completion record is written only after every build/sign step succeeds."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.15",
+      "feature": "Upload guard: uploader requires the completion record to match environment, target, public URL and version, and checks artifact names, sizes, SHA-512 before it reads credentials; uploads immutable versioned artifacts first, channel metadata last with no-cache; never deletes historical objects. Stable vs prerelease channel files.",
+      "detail": "Keel release publish: same order and checks against keel-releases (D5); manifest last; keep old versions for rollback.",
+      "milestone": "M22",
+      "priority": "P0",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D5",
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Upload guard: uploader requires the completion record to match environment, target, public URL and version, and checks artifact names, sizes, SHA-512 before it reads credentials; uploads immutable versioned artifacts first, channel metadata last with no-cache; never deletes historical objects.",
+        "Stable vs prerelease channel files."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.16",
+      "feature": "Test vs production update environments with distinct origins.",
+      "detail": "beta feed origin vs stable (B4.14).",
+      "milestone": "M22",
+      "priority": "P1",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "B4.14",
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Test vs production update environments with distinct origins."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.17",
+      "feature": "Signing/notarization steps: hardened runtime + timestamp on every embedded executable; deep strict signature check rejecting unexpected authorities; DMG notarized and stapled by an artifact hook; Windows hardware-token EV signing with PIN never persisted and diagnostics redacted.",
+      "detail": "Excluded as paid (D3 in Master). Keep the *verification script pattern* ready for the day a certificate exists; for now Ed25519 + checksums.",
+      "milestone": "M22",
+      "priority": "P2",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D3",
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Signing/notarization steps: hardened runtime + timestamp on every embedded executable; deep strict signature check rejecting unexpected authorities;",
+        "DMG notarized and stapled by an artifact hook;",
+        "Windows hardware-token EV signing with PIN never persisted and diagnostics redacted."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.18",
+      "feature": "Linux is not a supported desktop release target in dsh; Keel supports it (AppImage/DEB/RPM).",
+      "detail": "Keel keeps Linux (owner requirement); note effort.",
+      "milestone": "M22",
+      "priority": "n/a",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Linux is not a supported desktop release target in dsh;",
+        "Keel supports it (AppImage/DEB/RPM)."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E5.19",
+      "feature": "Known-limitations section in the desktop README (features disabled in desktop because they need a server; shared vs separate state; release qualification needs production environment).",
+      "detail": "Same section in Keel's About > Known limits.",
+      "milestone": "M26",
+      "priority": "P1",
+      "tag/source": "T:DS-DESK",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-DESK"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Known-limitations section in the desktop README (features disabled in desktop because they need a server; shared vs separate state; release qualification needs production environment)."
+      ],
+      "section": "6. Desktop shell, packaging and updates (DS-DESK)"
+    },
+    {
+      "id": "E6.1",
+      "feature": "Keys are write-only: the UI receives a redacted descriptor, never the secret; settings store only a credential reference; masked preview rule (identifier prefix, 5 leading and 4 trailing characters only when at least 8 middle characters remain hidden, else all dots; Unicode code points).",
+      "detail": "Same behavior in the provider form.",
+      "milestone": "M3, M19",
+      "priority": "P0",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Keys are write-only: the UI receives a redacted descriptor, never the secret; settings store only a credential reference; masked preview rule (identifier prefix, 5 leading and 4 trailing characters only when at least 8 middle characters remain hidden, else all dots;",
+        "Unicode code points)."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.2",
+      "feature": "Saved key edit rules: no reveal/copy/partial edit; typing replaces the whole key; Backspace/Delete stages whole-key removal, applied only on Apply; Cancel preserves; if deletion succeeds but settings fail, show a warning that deletion cannot be undone and offer retry; clearing a shared credential warns that it affects every feature using the reference.",
+      "detail": "Same UX rules + tests.",
+      "milestone": "M19",
+      "priority": "P1",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Saved key edit rules: no reveal/copy/partial edit; typing replaces the whole key;",
+        "Backspace/Delete stages whole-key removal, applied only on Apply;",
+        "Cancel preserves; if deletion succeeds but settings fail, show a warning that deletion cannot be undone and offer retry; clearing a shared credential warns that it affects every feature using the reference.",
+        "Same UX rules + tests."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.3",
+      "feature": "Environment-credential hints: green = env var detected, yellow = none detected, \"unconfirmed\" = status read failed; detection never validates the credential; provider-managed credential files are outside the check.",
+      "detail": "Hint component; \"Test connection\" separate (Master 9.3).",
+      "milestone": "M19",
+      "priority": "P1",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Environment-credential hints: green = env var detected, yellow = none detected, \"unconfirmed\" = status read failed; detection never validates the credential; provider-managed credential files are outside the check.",
+        "\"Test connection\" separate (Master 9.3)."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.4",
+      "feature": "Model list follows the provider's published list (loads on first need, refreshes in the background about every 10 minutes while in use, falls back to built-in); editing the list switches to a pinned custom list; \"Restore defaults\" re-follows.",
+      "detail": "Offline catalog default + optional live refresh for providers the user configured (never required).",
+      "milestone": "M2",
+      "priority": "P1",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Model list follows the provider's published list (loads on first need, refreshes in the background about every 10 minutes while in use, falls back to built-in); editing the list switches to a pinned custom list; \"Restore defaults\" re-follows.",
+        "Offline catalog default + optional live refresh for providers the user configured (never required)."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.5",
+      "feature": "Third-party provider picker from an installed catalog (endpoint, protocol, models) vs Custom model API form: permanent lowercase provider ID, base URL, protocol, credential, models; four protocols (OpenAI Chat Completions, OpenAI Responses, Anthropic Messages, Gemini API); one protocol per provider (a gateway that serves two needs two providers); renaming = add new + delete old.",
+      "detail": "Provider form (Master 9.3) with protocol selector and ID immutability.",
+      "milestone": "M2, M19",
+      "priority": "P0",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Third-party provider picker from an installed catalog (endpoint, protocol, models) vs Custom model API form: permanent lowercase provider ID, base URL, protocol, credential, models; four protocols (OpenAI Chat Completions, OpenAI Responses, Anthropic Messages, Gemini API); one protocol per provider (a gateway that serves two needs two providers); renaming = add new + delete old."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.6",
+      "feature": "Model discovery: GET /models with a searchable picker (existing models pre-ticked; tick to add, untick to remove; \"Update list\"); configured models the endpoint doesn't list stay; nothing saved until Save; failures fall back to manual entry; built-in provider always answered from the catalog.",
+      "detail": "Discovery dialog + tolerant parser (two list formats) with clear failure messages.",
+      "milestone": "M2, M19",
+      "priority": "P1",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Model discovery: GET /models with a searchable picker (existing models pre-ticked; tick to add, untick to remove; \"Update list\"); configured models the endpoint doesn't list stay; nothing saved until Save; failures fall back to manual entry; built-in provider always answered from the catalog."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.7",
+      "feature": "Model picker behavior: selecting also sets the default for new sessions; a session keeps the model recorded in its own log; drag-to-reorder with keyboard up/down alternative; deleted default provider → composer shows \"Select model\" and blocks input.",
+      "detail": "Same rules; a11y for reordering.",
+      "milestone": "M19",
+      "priority": "P0",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Model picker behavior: selecting also sets the default for new sessions; a session keeps the model recorded in its own log; drag-to-reorder with keyboard up/down alternative; deleted default provider → composer shows \"Select model\" and blocks input."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.8",
+      "feature": "Per-model capability fields: input types (text, image), context window, max output tokens; route-level defaultInput fallback (never removes images the catalog knows), per-model override; \"claims about your endpoint are not verified\" warning; image-capable list clears image limits when image is removed.",
+      "detail": "Capability editor + image-refusal-before-send behavior with clear message.",
+      "milestone": "M2, M19",
+      "priority": "P0",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Per-model capability fields: input types (text, image), context window, max output tokens; route-level defaultInput fallback (never removes images the catalog knows), per-model override; \"claims about your endpoint are not verified\" warning; image-capable list clears image limits when image is removed."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.9",
+      "feature": "Reasoning-effort declarations per model: levels with the API value sent for each (off may be empty = send nothing), route default, picker choice saved with model as default; thinking-format switch for models that think unless told not to; models can drop levels; unsupported effort refused as UNSUPPORTED_REASONING_EFFORT; Effort menu hidden when no levels declared.",
+      "detail": "Effort UI + config; local reasoning models integrate with X1.3.",
+      "milestone": "M2, M19",
+      "priority": "P0",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV",
+        "X1.3"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Reasoning-effort declarations per model: levels with the API value sent for each (off may be empty = send nothing), route default, picker choice saved with model as default; thinking-format switch for models that think unless told not to; models can drop levels; unsupported effort refused as UNSUPPORTED_REASONING_EFFORT;",
+        "Effort menu hidden when no levels declared."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.10",
+      "feature": "Request-compatibility switches (supports_developer_role, max_tokens_field, thinking_format, ...) at route level with per-model field-by-field override; empty value refused, unknown name refused with the list of valid names; each switch valid only for protocols that declare it.",
+      "detail": "Compat profile object in provider config + validation messages.",
+      "milestone": "M2",
+      "priority": "P0",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Request-compatibility switches (supports_developer_role, max_tokens_field, thinking_format, ...) at route level with per-model field-by-field override; empty value refused, unknown name refused with the list of valid names; each switch valid only for protocols that declare it."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.11",
+      "feature": "Troubleshooting keyed by error code/symptom (missing credential, unknown model, 401 on discovery, gateway refuses every request, only reasoning models fail, Effort menu absent, off doesn't stop thinking, image refused vs provider rejects image, stale image stays in session log until a new session).",
+      "detail": "In-app troubleshooting page generated from the error catalog (C10.2).",
+      "milestone": "M23",
+      "priority": "P1",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "C10.2",
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Troubleshooting keyed by error code/symptom (missing credential, unknown model, 401 on discovery, gateway refuses every request, only reasoning models fail, Effort menu absent, off doesn't stop thinking, image refused vs provider rejects image, stale image stays in session log until a new session)."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.12",
+      "feature": "\"Open configuration file\" button next to settings for advanced fields, adapters re-read config on the next request (no restart).",
+      "detail": "Hot re-read per request; button opens the config in $EDITOR (only when UI runs on the same machine).",
+      "milestone": "M2, M19",
+      "priority": "P1",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "\"Open configuration file\" button next to settings for advanced fields, adapters re-read config on the next request (no restart).",
+        "button opens the config in $EDITOR (only when UI runs on the same machine)."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.13",
+      "feature": "Client-upgrade-required error naming the version to install when a model needs a newer app.",
+      "detail": "Typed error + update prompt.",
+      "milestone": "M2, M22",
+      "priority": "P2",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Client-upgrade-required error naming the version to install when a model needs a newer app.",
+        "Typed error + update prompt."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E6.14",
+      "feature": "Config generated reference (config-catalog.md) derived from source so it can't drift; links from the UI to field docs.",
+      "detail": "Generated config reference (A2.7) linked from forms.",
+      "milestone": "M23",
+      "priority": "P1",
+      "tag/source": "T:DS-PROV",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "A2.7",
+        "DS-PROV"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Config generated reference (config-catalog.md) derived from source so it can't drift; links from the UI to field docs."
+      ],
+      "section": "7. Providers, credentials and model UX (DS-PROV)"
+    },
+    {
+      "id": "E7.1",
+      "feature": "tokenMeter: isolated per-session replay folds; pressure consumers share immutable revisioned measurements.",
+      "detail": "Token accounting service with revision ids (X1.8).",
+      "milestone": "M4",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "X1.8"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "tokenMeter: isolated per-session replay folds; pressure consumers share immutable revisioned measurements."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.2",
+      "feature": "toolResultPruner: model-free pruning of oversized *current* tool results through replayable surface replacements before summary compaction.",
+      "detail": "Compaction ladder step 1 = prune (no model call), step 2 = summarize (Master rule 7).",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "toolResultPruner: model-free pruning of oversized *current* tool results through replayable surface replacements before summary compaction."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.3",
+      "feature": "Compaction via pressure events: compaction reacts to post-step pressure and request-error recovery; no model-facing \"compact\" tool.",
+      "detail": "Compaction triggered by loop events only.",
+      "milestone": "M4",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Compaction via pressure events: compaction reacts to post-step pressure and request-error recovery; no model-facing \"compact\" tool.",
+        "Compaction triggered by loop events only."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.4",
+      "feature": "sessionStatus: reading acknowledgements and manual unread marks stored outside session history.",
+      "detail": "Unread dots/marks in the session list (Master 9.1) in a separate table.",
+      "milestone": "M4, M19",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "sessionStatus: reading acknowledgements and manual unread marks stored outside session history."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.5",
+      "feature": "workspaceChanges: per-turn changed-file summaries with turn-start vs turn-end comparison, served by session and event sequence; the log carries only the turn.",
+      "detail": "\"Changes this turn\" panel (extends D3.12 deliverables).",
+      "milestone": "M11, M19",
+      "priority": "P0",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D3.12"
+      ],
+      "dependencies": [
+        "D3.12"
+      ],
+      "acceptance_criteria": [
+        "workspaceChanges: per-turn changed-file summaries with turn-start vs turn-end comparison, served by session and event sequence; the log carries only the turn."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.6",
+      "feature": "workspaceFiles: stat, paged text, byte windows, directory listings and a change feed confined by lstat, containment and a stat re-check.",
+      "detail": "File API for the renderer's file tree/viewer with TOCTOU re-check.",
+      "milestone": "M5, M19",
+      "priority": "P0",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "workspaceFiles: stat, paged text, byte windows, directory listings and a change feed confined by lstat, containment and a stat re-check."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.7",
+      "feature": "fileReferences: @ path completion returns paths only, never contents.",
+      "detail": "Composer @file completion (A1.9) contract.",
+      "milestone": "M19",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "A1.9"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "fileReferences: @ path completion returns paths only, never contents."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.8",
+      "feature": "sessionReferenceResolver: an @session mention embeds a bounded snapshot of another session as untrusted message context.",
+      "detail": "Cross-session references with taint.",
+      "milestone": "M4, M13",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "sessionReferenceResolver: an @session mention embeds a bounded snapshot of another session as untrusted message context."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.9",
+      "feature": "sessionQuery seam: exact reads, filters, traces; backend adds full-text reconciliation, ranking, snippets and cursor generations.",
+      "detail": "Session search service (FTS5) with stable cursors.",
+      "milestone": "M4",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "FTS5"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "sessionQuery seam: exact reads, filters, traces; backend adds full-text reconciliation, ranking, snippets and cursor generations."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.10",
+      "feature": "sessionTitle seam: deterministic fallback title, latest-title fold, one optional async provider (first-prompt vs all-prompts variants).",
+      "detail": "Title service with fallback so titles never block.",
+      "milestone": "M4",
+      "priority": "P2",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "sessionTitle seam: deterministic fallback title, latest-title fold, one optional async provider (first-prompt vs all-prompts variants).",
+        "Title service with fallback so titles never block."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.11",
+      "feature": "planMode: plan/mode state folded from the log; user selections flushed at turn boundaries; guidance rendering; /plan; stable plan-exit schema.",
+      "detail": "Plan agent state machine (W2.11).",
+      "milestone": "M7",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "W2.11"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "planMode: plan/mode state folded from the log; user selections flushed at turn boundaries; guidance rendering; /plan; stable plan-exit schema."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.12",
+      "feature": "agentPresets with revisions: YAML-declared preset revisions; retired revisions kept until their last user releases them.",
+      "detail": "Preset versions so running sessions keep their composition.",
+      "milestone": "M7, M12",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "agentPresets with revisions: YAML-declared preset revisions; retired revisions kept until their last user releases them."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.13",
+      "feature": "sessionProjectionCache: durable checkpoints of projection state (throttled, mandatory at turn end/detach) to accelerate hydration.",
+      "detail": "Projection checkpoints for fast session open (E4.4 budget).",
+      "milestone": "M4",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "E4.4"
+      ],
+      "dependencies": [
+        "E4.4"
+      ],
+      "acceptance_criteria": [
+        "sessionProjectionCache: durable checkpoints of projection state (throttled, mandatory at turn end/detach) to accelerate hydration."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.14",
+      "feature": "mcpManager: reconciles MCP client instances against settings, aggregates statuses, serves restart/probe to management surfaces.",
+      "detail": "MCP fleet manager (Master M6).",
+      "milestone": "M6",
+      "priority": "P0",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "mcpManager: reconciles MCP client instances against settings, aggregates statuses, serves restart/probe to management surfaces."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.15",
+      "feature": "schedule independent of session activation: tasks stored separately; due messages queued into the target session.",
+      "detail": "Scheduler (M14) injecting into sessions that may be cold.",
+      "milestone": "M14",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "schedule independent of session activation: tasks stored separately; due messages queued into the target session."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.16",
+      "feature": "ssh seam: one authenticated OpenSSH connection, installed helper identity, independent program streams, disconnect cleanup; paired fs/subprocess/sandbox providers for the remote world.",
+      "detail": "C4.10 implemented as one provider set.",
+      "milestone": "M20",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "C4.10"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "ssh seam: one authenticated OpenSSH connection, installed helper identity, independent program streams, disconnect cleanup; paired fs/subprocess/sandbox providers for the remote world."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.17",
+      "feature": "shellEnv: plugins declare effect-scoped KEEL_* environment facts; each shell tool collects one trusted snapshot per execution.",
+      "detail": "Env facts registry (project root, session id) injected into shells.",
+      "milestone": "M5",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "shellEnv: plugins declare effect-scoped KEEL_* environment facts; each shell tool collects one trusted snapshot per execution."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.18",
+      "feature": "sandboxPolicy: the single home for default sandbox mode and workspace root so bash and fs can't confine to different roots; consumers hand over the exact argv; backend reports enforcement.",
+      "detail": "One policy service used by shell, fs and terminals.",
+      "milestone": "M3, M5",
+      "priority": "P0",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "sandboxPolicy: the single home for default sandbox mode and workspace root so bash and fs can't confine to different roots; consumers hand over the exact argv; backend reports enforcement."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.19",
+      "feature": "approval seam fails closed: absence of an answerer yields unavailable.",
+      "detail": "Already W3.12; add test.",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "W3.12"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "approval seam fails closed: absence of an answerer yields unavailable.",
+        "add test."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.20",
+      "feature": "permissionPresets: user-facing presets bundling sandbox mode + approval policy; switching writes one logged permission/preset event that updates both knobs.",
+      "detail": "Cautious/Balanced/Trusted presets (V5) as one logged event.",
+      "milestone": "M3, M4",
+      "priority": "P0",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "V5"
+      ],
+      "dependencies": [
+        "V5"
+      ],
+      "acceptance_criteria": [
+        "permissionPresets: user-facing presets bundling sandbox mode + approval policy; switching writes one logged permission/preset event that updates both knobs."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.21",
+      "feature": "fs-observation-policy: observed-state checks (read-before-edit, stale-file detection) contributed through the fs/* event gate.",
+      "detail": "Master rule 13 implemented as a hook.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "fs-observation-policy: observed-state checks (read-before-edit, stale-file detection) contributed through the fs/* event gate."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.22",
+      "feature": "lsp seam with exactly four normalized operations and no protocol escape hatch.",
+      "detail": "Keep Keel's LSP tool to a small normalized set (diagnostics, definition, references, symbols); backend translates.",
+      "milestone": "M11",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "lsp seam with exactly four normalized operations and no protocol escape hatch."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.23",
+      "feature": "web seam: search and fetch providers register into one service; tool names stay stable.",
+      "detail": "Providers for SearXNG, plain HTTP fetch (A1.11).",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "A1.11"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "web seam: search and fetch providers register into one service; tool names stay stable."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.24",
+      "feature": "speechToText seam with local recognizers; browser uses an authenticated remote; transcripts stay in the draft until submission.",
+      "detail": "Dictation puts text in the composer, never auto-sends (A2.2).",
+      "milestone": "M17",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "A2.2"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "speechToText seam with local recognizers; browser uses an authenticated remote; transcripts stay in the draft until submission.",
+        "Dictation puts text in the composer, never auto-sends (A2.2)."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.25",
+      "feature": "officeKit: render Office files to PDF/images, convert, recalculate on the host using a native engine or a WASM fallback; document preview sidebar.",
+      "detail": "Office preview/convert with optional LibreOffice; WASM fallback; no cloud.",
+      "milestone": "M17, M19",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "officeKit: render Office files to PDF/images, convert, recalculate on the host using a native engine or a WASM fallback; document preview sidebar."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.26",
+      "feature": "fileUploads: streaming intake, durable storage, staged receipts bound to accepted submissions.",
+      "detail": "Attachment pipeline with staged → committed states.",
+      "milestone": "M4, M19",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "fileUploads: streaming intake, durable storage, staged receipts bound to accepted submissions."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.27",
+      "feature": "Forge seam (code-host change requests): providers map remote URLs to change requests, look up by head branch, read status in batches; watchers share one polling loop; session projection binds change requests found in shell push output; a panel shows Git inspection and status.",
+      "detail": "PR/MR integration for GitHub/GitLab/Forgejo using the user's own token; polling shared.",
+      "milestone": "M11, M15",
+      "priority": "P2",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Forge seam (code-host change requests): providers map remote URLs to change requests, look up by head branch, read status in batches; watchers share one polling loop; session projection binds change requests found in shell push output; a panel shows Git inspection and status."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.28",
+      "feature": "remoteAccess role policies: non-owner peers get role-based access to specific methods; list results filtered; each peer's access snapshot streamed.",
+      "detail": "Paired-client roles (owner, approver, viewer) for phone/LAN clients (B4.8, C1.12).",
+      "milestone": "M20, M3",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "B4.8",
+        "C1.12"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "remoteAccess role policies: non-owner peers get role-based access to specific methods; list results filtered; each peer's access snapshot streamed."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.29",
+      "feature": "Connection authentication as a registry of credential verifiers tried in registration order; first live peer wins; source policy and business authorization stay separate.",
+      "detail": "Auth providers: token, pairing, desktop-local.",
+      "milestone": "M20",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Connection authentication as a registry of credential verifiers tried in registration order; first live peer wins; source policy and business authorization stay separate."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.30",
+      "feature": "authorization flow registry: a plugin that knows how to obtain a credential registers a flow keyed by the record it writes; one attempt per key at a time.",
+      "detail": "Device-code/OAuth flows for providers/connectors.",
+      "milestone": "M2, M15",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "authorization flow registry: a plugin that knows how to obtain a credential registers a flow keyed by the record it writes; one attempt per key at a time."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.31",
+      "feature": "Action cards: optional cards with user actions and status notices; card kinds register their actions and handlers.",
+      "detail": "Generic \"action card\" row kind (Y2.9) for plugin-proposed actions (e.g., recommend a plugin).",
+      "milestone": "M19, M10",
+      "priority": "P2",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "Y2.9"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Action cards: optional cards with user actions and status notices; card kinds register their actions and handlers."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.32",
+      "feature": "Plugin recommendations on explicit need only; enabling goes through the plugin manager after a click.",
+      "detail": "Never auto-suggest installs without a stated need.",
+      "milestone": "M10",
+      "priority": "P2",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Plugin recommendations on explicit need only; enabling goes through the plugin manager after a click.",
+        "Never auto-suggest installs without a stated need."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.33",
+      "feature": "Plugin registry probe: race several registry mirrors and pick the fastest valid one.",
+      "detail": "Mirror selection for the update/plugin index (C12.4).",
+      "milestone": "M22",
+      "priority": "P2",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "C12.4"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Plugin registry probe: race several registry mirrors and pick the fastest valid one."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.34",
+      "feature": "Plugin market reader for user-configured index sources, validated; install through the manager.",
+      "detail": "Private plugin index file/URL list (G7 respected).",
+      "milestone": "M10",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "G7"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Plugin market reader for user-configured index sources, validated; install through the manager."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.35",
+      "feature": "Message feedback in the canonical log with per-item compare-and-set; session-level /feedback as a log-only event.",
+      "detail": "Thumbs + note (D3.16) implemented as log events.",
+      "milestone": "M4, M19",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D3.16"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Message feedback in the canonical log with per-item compare-and-set; session-level /feedback as a log-only event."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.36",
+      "feature": "Hooks bridges: the reference ships adapters that run hooks defined in other agent tools' formats.",
+      "detail": "Optional importers/runners for documented hook formats (C7.x); verify formats first.",
+      "milestone": "M8, M20",
+      "priority": "P2",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "C7.x"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Hooks bridges: the reference ships adapters that run hooks defined in other agent tools' formats.",
+        "verify formats first."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.37",
+      "feature": "Agent-authored plugins: a tool lets the agent define plugin code whose host half runs in a sandboxed VM and whose client half is served to the page.",
+      "detail": "P2, off by default: agent proposes a plugin as a diff; user reviews; runs in the V23 isolated subprocess; never auto-enabled.",
+      "milestone": "M10",
+      "priority": "P2",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "V23"
+      ],
+      "dependencies": [
+        "V23"
+      ],
+      "acceptance_criteria": [
+        "Agent-authored plugins: a tool lets the agent define plugin code whose host half runs in a sandboxed VM and whose client half is served to the page.",
+        "never auto-enabled."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.38",
+      "feature": "Workflow engine (script engine) plus a fixed loop-until-done workflow consumer that fans out subagents.",
+      "detail": "Workflow nodes (C5.1) + a built-in \"iterate until checks pass\" workflow template.",
+      "milestone": "M8",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "C5.1"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Workflow engine (script engine) plus a fixed loop-until-done workflow consumer that fans out subagents."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.39",
+      "feature": "Webhook runtime where trusted rules turn authenticated deliveries into ordinary sessions; provider adapters (e.g., code host events).",
+      "detail": "Extends D3.8; adapter for repo events via user's own webhook.",
+      "milestone": "M15",
+      "priority": "P2",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D3.8"
+      ],
+      "dependencies": [
+        "D3.8"
+      ],
+      "acceptance_criteria": [
+        "Webhook runtime where trusted rules turn authenticated deliveries into ordinary sessions; provider adapters (e.g., code host events)."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.40",
+      "feature": "Inspector service: worker-hosted debug target + query API over the live plugin tree.",
+      "detail": "Keel Inspector dock (D3.22) backed by an introspection API.",
+      "milestone": "M21",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D3.22"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Inspector service: worker-hosted debug target + query API over the live plugin tree."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.41",
+      "feature": "Storage seam with multiple backends (json, sqlite) and a typed \"domain\" form for non-session state.",
+      "detail": "Keep SQLite only, but isolate non-session state behind one storage interface for testability.",
+      "milestone": "M4",
+      "priority": "P2",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Storage seam with multiple backends (json, sqlite) and a typed \"domain\" form for non-session state.",
+        "Keep SQLite only, but isolate non-session state behind one storage interface for testability."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.42",
+      "feature": "mcpResources seam (connection-owned providers serve shared resource tools).",
+      "detail": "Already W3.11; add scoping per agent.",
+      "milestone": "M6",
+      "priority": "P2",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "W3.11"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "mcpResources seam (connection-owned providers serve shared resource tools)."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "E7.43",
+      "feature": "Browser-use and computer-use as provider seams (several interchangeable providers; each provider owns its tools and per-session resources; no shared action API; per-application consent with cancellation; retained run-code runtime per agent).",
+      "detail": "M16: providers (Playwright, CDP) behind one registration; per-app consent for desktop control (extends X5.9).",
+      "milestone": "M16",
+      "priority": "P1",
+      "tag/source": "T:DS-SEAMS",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "X5.9"
+      ],
+      "dependencies": [
+        "X5.9"
+      ],
+      "acceptance_criteria": [
+        "Browser-use and computer-use as provider seams (several interchangeable providers; each provider owns its tools and per-session resources; no shared action API; per-application consent with cancellation; retained run-code runtime per agent)."
+      ],
+      "section": "8. Seam map: services DeepSeek has that Keel's plan lacks (DS-SEAMS)"
+    },
+    {
+      "id": "V24",
+      "feature": "Tool conformance kit: one automated suite every tool must pass: output schema declared, presenter pure on replay, cancel honored within N ms, no leaked fields in schemas(), concurrency flag only on read-only tools, timeout cooperative, errors typed.",
+      "detail": "Table-driven pytest over the registry; fails CI on any new tool that doesn't register conformance metadata. Implements E1.x/E2.x checks.",
+      "milestone": "M5, M25",
+      "priority": "P0",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "E1.x",
+        "E2.x"
+      ],
+      "dependencies": [
+        "E1.x",
+        "E2.x"
+      ],
+      "acceptance_criteria": [
+        "Tool conformance kit: one automated suite every tool must pass: output schema declared, presenter pure on replay, cancel honored within N ms, no leaked fields in schemas(), concurrency flag only on read-only tools, timeout cooperative, errors typed.",
+        "fails CI on any new tool that doesn't register conformance metadata."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`"
+    },
+    {
+      "id": "V25",
+      "feature": "Tool pipeline fuzzer: random args, random cancel points, injected failures; assert no hang, no leaked process/task, no orphan call without result, log stays replayable.",
+      "detail": "Hypothesis-style + chaos tests with the fixture model server.",
+      "milestone": "M25",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Tool pipeline fuzzer: random args, random cancel points, injected failures; assert no hang, no leaked process/task, no orphan call without result, log stays replayable.",
+        "Hypothesis-style + chaos tests with the fixture model server."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`"
+    },
+    {
+      "id": "V26",
+      "feature": "Request-reconstruction test: replay a session log and rebuild the exact provider request; byte-compare with what was actually sent (hash) to prove \"model-visible = logged\" (D2.11).",
+      "detail": "Store request hash per step; test recomputes from log.",
+      "milestone": "M4, M25",
+      "priority": "P0",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "D2.11"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Request-reconstruction test: replay a session log and rebuild the exact provider request; byte-compare with what was actually sent (hash) to prove \"model-visible = logged\" (D2.11).",
+        "test recomputes from log."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`"
+    },
+    {
+      "id": "V27",
+      "feature": "Release publish verifier: before upload, cross-check manifest, sizes, SHA-256/512, signatures, version monotonicity, completion record; after upload, re-download and verify; metadata last.",
+      "detail": "keel-release verify command used by CI and by the owner manually (E5.14/E5.15).",
+      "milestone": "M22",
+      "priority": "P0",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "E5.14",
+        "E5.15"
+      ],
+      "dependencies": [
+        "E5.14",
+        "E5.15"
+      ],
+      "acceptance_criteria": [
+        "Release publish verifier: before upload, cross-check manifest, sizes, SHA-256/512, signatures, version monotonicity, completion record; after upload, re-download and verify; metadata last.",
+        "keel-release verify command used by CI and by the owner manually (E5.14/E5.15)."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`"
+    },
+    {
+      "id": "V28",
+      "feature": "Error-code catalog generator: scan code for error constants, produce the troubleshooting pages and the typed-code list; fail CI if a raised code is undocumented.",
+      "detail": "AST scan + template; ties to E1.14/E6.11.",
+      "milestone": "M23, M25",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "E1.14",
+        "E6.11"
+      ],
+      "dependencies": [
+        "E1.14",
+        "E6.11"
+      ],
+      "acceptance_criteria": [
+        "Error-code catalog generator: scan code for error constants, produce the troubleshooting pages and the typed-code list; fail CI if a raised code is undocumented."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`"
+    },
+    {
+      "id": "V29",
+      "feature": "Per-tool timeout and output-size budget table visible in the UI (and editable), with default values by tool class.",
+      "detail": "Config table; show countdown on running tool cards.",
+      "milestone": "M5, M19",
+      "priority": "P2",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Per-tool timeout and output-size budget table visible in the UI (and editable), with default values by tool class."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`"
+    },
+    {
+      "id": "V30",
+      "feature": "Postmortem template and counter: every escaped bug gets a numbered postmortem (cause, why tests missed it, new test) linked from the fixing commit.",
+      "detail": "docs/postmortem/NNNN-*.md + CI check that a fix: commit tagged \"escaped\" references one (E4.9).",
+      "milestone": "M0, M25",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [
+        "E4.9"
+      ],
+      "dependencies": [
+        "E4.9"
+      ],
+      "acceptance_criteria": [
+        "Postmortem template and counter: every escaped bug gets a numbered postmortem (cause, why tests missed it, new test) linked from the fixing commit."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`"
+    },
+    {
+      "id": "V31",
+      "feature": "Local-socket transport spike: prove Electron ↔ Python over named pipe/UDS with streaming and backpressure on all three OSes before committing (C-19); keep TCP+token as fallback.",
+      "detail": "1-week spike with benchmark; decide via DECISIONS.md.",
+      "milestone": "M19, M20",
+      "priority": "P0",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Local-socket transport spike: prove Electron ↔ Python over named pipe/UDS with streaming and backpressure on all three OSes before committing (C-19); keep TCP+token as fallback."
+      ],
+      "section": "9. Builder protocol for own ideas `[S]`"
+    }
+  ],
+  "metadata": {
+    "source_document": "Keel_Plan_v5_Addendum_7_DeepSeek_Deep_Reads.md",
+    "document_title": "Keel Plan v5 Addendum 7: DeepSeek Harness Deep Reads (Tools Pipeline, Subagents, Testing, Desktop Packaging, Providers UX, Seam Map)",
+    "extraction_scope": "Only table rows beginning with '| E...' or '| V...' were extracted as features (140 rows: 132 E, 8 V). E8.1 appears only as prose in Section 11 and is therefore recorded under deep_read_findings, not as a feature row.",
+    "ground_rules": [
+      "Adds only items not already in Master Plan and Addenda 1 to 6.",
+      "Free-only. Milestones follow v5.",
+      "IDs: E* = derived from a source read this session; V* = own ideas (protocol in Section 9). Every row names its source.",
+      "[T:key] = read this session (21 Nov 2026). Reimplement clean-room in Python; never copy code, names, icons, prompts or text (X0.10).",
+      "[S] = my suggestion; follow Section 9 (builder protocol).",
+      "dsh is TypeScript on a framework called Cordis; Keel stays Python + Electron. Only behavior and design rules are taken."
+    ],
+    "source_keys": {
+      "DS-TOOLS": "docs/subsystems/tools.md",
+      "DS-COOK": "docs/cookbook/adding-a-tool.md",
+      "DS-SUB": "docs/subsystems/subagent.md",
+      "DS-TEST": "docs/testing.md",
+      "DS-DESK": "apps/desktop/README.md",
+      "DS-PROV": "docs/user/guide/providers.md",
+      "DS-SEAMS": "docs/capability-seams.md",
+      "DS-DEF": "docs/defensive-patterns/README.md",
+      "Earlier keys (as in Addendum 6)": "DS-ARCH, DS-AGENTS, DS-DEV, DS-SAFETY, DS-GUIDE, DS-BENCH",
+      "repository": "github.com/deepseek-ai/deepseek-harness, MIT"
+    },
+    "read_status": {
+      "read_in_full_this_pass": [
+        "DS-TOOLS",
+        "DS-COOK",
+        "DS-SUB",
+        "DS-TEST",
+        "DS-DESK",
+        "DS-PROV",
+        "DS-SEAMS",
+        "DS-DEF"
+      ],
+      "not_read_yet_M0_list": [
+        "docs/cordis-primer.md",
+        "other docs/subsystems/* (session, scope, core, llm-streaming, system-prompt, conversation, working-directory, agent-team, shell, jobs)",
+        "docs/cookbook/* (adding a package, LLM adapter, settings card, session format version)",
+        "docs/defensive-patterns/* subpages (package-surface, remote-and-api, client-components, conversation-and-session, general)",
+        "docs/postmortem/0001-*",
+        "docs/config-catalog.md",
+        "docs/session-format-status.md",
+        "docs/user/develop/basic/*",
+        "apps/cli/README.md",
+        "apps/web/tests/*",
+        "apps/desktop/packaging/README.md",
+        "benchmarks/AGENTS.md",
+        "snapshots/AGENTS.md",
+        "vendor/README.md",
+        "per-package READMEs (especially packages/core/agent-loop, tools, jobs, spill, compaction, sandbox, skill)",
+        ".agents/skills/* (code-review, error-handling, ci-test-reliability, client-ui-ux, session-projection)",
+        ".agents/notes/implemented/*"
+      ],
+      "access_limits": "The GitHub packages/ and apps/ directory pages remain robots-blocked."
+    },
+    "tool_contracts": {
+      "canonical_output_and_pure_renderer": {
+        "requirement": "Every tool declares a mandatory canonical output as a JSON schema, returns one lossless JSON value, and a pure render(args, value) produces the model-facing content. Callers never parse prose for ids. A tool without an output schema fails registration.",
+        "evidence_rows": [
+          "E1.1"
+        ],
+        "source_keys": [
+          "DS-TOOLS",
+          "DS-COOK"
+        ],
+        "keel_implementation": "Tool = name, description, params schema, output_schema, execute(), render(). Body returns data only; renderer builds text. Gate: tool without output schema fails registration.",
+        "milestones": [
+          "M5"
+        ],
+        "priority": "P0"
+      },
+      "model_facing_schema_field_restrictions": {
+        "requirement": "The model-facing schema is built by an explicit allowlist of name, description and parameters only. Execution callbacks, timeout, presenters and concurrency flags never leak into a request.",
+        "evidence_rows": [
+          "E1.2"
+        ],
+        "source_keys": [
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "schemas() projects allowlisted fields; test that no callback/field leaks.",
+        "milestones": [
+          "M5"
+        ],
+        "priority": "P0"
+      },
+      "single_schema_vocabulary_and_unsupported_keyword_rejection": {
+        "requirement": "One schema vocabulary for params and outputs: scalars, arrays, objects with explicit additionalProperties, exact-one oneOf, enum/const, with inferred types. Argument mismatch yields INVALID_ARGS and invalid output yields INVALID_TOOL_OUTPUT. Unsupported JSON Schema keywords are rejected, never silently ignored.",
+        "evidence_rows": [
+          "E1.3"
+        ],
+        "source_keys": [
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "pydantic or a small schema compiler; reject unknown keywords at registration; same errors.",
+        "milestones": [
+          "M5",
+          "M6"
+        ],
+        "priority": "P0"
+      },
+      "argument_snapshotting_and_immutability": {
+        "requirement": "Args are deep-frozen and snapshotted as lossless JSON before policy runs. Args cannot be rewritten later because history, audit, UI and execution must agree.",
+        "evidence_rows": [
+          "E1.4"
+        ],
+        "source_keys": [
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "Immutable arg object; policy hooks return decisions, never modified args.",
+        "milestones": [
+          "M5",
+          "M3"
+        ],
+        "priority": "P0"
+      },
+      "pre_execute_decision_model": {
+        "requirement": "Pre-execute decisions are allow, deny (reason plus optional structured error id), cancel, and ask (audited reason plus optional localized display reason). Only allowed-once proceeds; a missing approval channel or an agentless call is a denial.",
+        "evidence_rows": [
+          "E1.5",
+          "E7.19"
+        ],
+        "source_keys": [
+          "DS-TOOLS",
+          "DS-SEAMS"
+        ],
+        "keel_implementation": "Decision type in the permission gate (extends W3.x); display reason localized (M25). Approval seam fails closed: absence of an answerer yields unavailable (W3.12, add test).",
+        "milestones": [
+          "M3"
+        ],
+        "priority": "P0"
+      },
+      "monotonic_guards_deny_cannot_become_allow": {
+        "requirement": "Guards are monotonic: a final guard can only deny, never allow, so listener order cannot turn a denial into permission.",
+        "evidence_rows": [
+          "E1.6"
+        ],
+        "source_keys": [
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "guard() registry evaluated after all hooks; Tier 2 is implemented as guards.",
+        "milestones": [
+          "M3"
+        ],
+        "priority": "P0"
+      },
+      "post_execute_decisions_dlp_value_vs_display": {
+        "requirement": "Post-execute decisions are accept, replace content or replace value (never both), attach context for the next request, or block with corrective feedback. Content replacement is presentation, not confidentiality: confidentiality requires block or replace-value.",
+        "evidence_rows": [
+          "E1.7"
+        ],
+        "source_keys": [
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "Post hook API with the same rules; DLP (B3.8) uses block/replace-value. Conflict C-13: DLP tests assert the program/code-mode value is also hidden.",
+        "milestones": [
+          "M3",
+          "M5"
+        ],
+        "priority": "P0"
+      },
+      "around_dispatch_timeout_and_cancellation_propagation": {
+        "requirement": "An around-dispatch wrapper for timeout/retry/metrics may replace but not remove the cancellation signal; the registry re-fuses the caller's signal so caller cancel always propagates.",
+        "evidence_rows": [
+          "E1.8",
+          "E1.9",
+          "E1.18"
+        ],
+        "source_keys": [
+          "DS-TOOLS",
+          "DS-COOK"
+        ],
+        "keel_implementation": "with_signal wrapper pattern; test that caller cancel always propagates. Cooperative per-tool timeout (timeoutMs / metadata timeout_s) asserts the tool forwards the cancel signal and reaches quiescence, is never sent to the model, and surfaces TOOL_TIMEOUT. For published long-running work, use a task-owned cancel signal after publishing the id, not the call's; cancellation of the call stops waiting but does not kill published work.",
+        "milestones": [
+          "M5",
+          "M14"
+        ],
+        "priority": "P0"
+      },
+      "concurrency_classification_barriers_and_bounded_parallel_execution": {
+        "requirement": "Concurrency classifier isConcurrencySafe(args) is pure and only true opts in; omission, exception or invalid result is exclusive. Loop forms exclusive barriers and rolling-pool parallel runs; batch override maxParallelToolCalls.",
+        "evidence_rows": [
+          "E1.10"
+        ],
+        "source_keys": [
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "Scheduler with barriers and a bounded pool; default exclusive.",
+        "milestones": [
+          "M5"
+        ],
+        "priority": "P0"
+      },
+      "deterministic_ordering_and_executor_contract": {
+        "requirement": "One outcome per input call in input order, including skipped calls on abort. The executor never settles while started work still runs; internal failure drains then rejects with a typed batch error preserving committed outcomes.",
+        "evidence_rows": [
+          "E1.11"
+        ],
+        "source_keys": [
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "ToolBatchExecutionError; test with injected failures.",
+        "milestones": [
+          "M5"
+        ],
+        "priority": "P0"
+      },
+      "per_agent_restriction_intersection": {
+        "requirement": "Per-scope tool restriction allow/deny lists intersect; scoped registrations stay exempt. Deny-only admits later tools while an allow-list excludes them.",
+        "evidence_rows": [
+          "E1.12"
+        ],
+        "source_keys": [
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "Agent frontmatter tools.allow/deny semantics exactly so (extends A1.12).",
+        "milestones": [
+          "M7"
+        ],
+        "priority": "P0"
+      },
+      "conditional_tool_activation": {
+        "requirement": "Conditional tool activation (when) is evaluated once per step with the captured model selection; the admitted set governs declarations and every call in that step, is disposed after the batch, and late results cannot restore removed tools.",
+        "evidence_rows": [
+          "E1.13"
+        ],
+        "source_keys": [
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "Per-step tool admission (e.g., vision tool only when the model supports images).",
+        "milestones": [
+          "M5",
+          "M7"
+        ],
+        "priority": "P1"
+      },
+      "stable_error_codes": {
+        "requirement": "Stable error vocabulary: INVALID_ARGS, INVALID_TOOL_OUTPUT, UNKNOWN_TOOL, ABORTED, ABORTED_BEFORE_DISPATCH, TOOL_TIMEOUT, APPROVAL_REJECTED/CANCELLED/UNAVAILABLE, TOOL_CONTEXT_UNAVAILABLE, plus UNSUPPORTED_REASONING_EFFORT. Error info = name + code + optional raw reason kept durably but never in model-facing content.",
+        "evidence_rows": [
+          "E1.14",
+          "E1.8",
+          "E1.9",
+          "E6.9",
+          "V28"
+        ],
+        "source_keys": [
+          "DS-TOOLS",
+          "DS-PROV"
+        ],
+        "keel_implementation": "Error catalog (C10.2) with these codes; reason stored in log only. V28: AST scan generates typed-code list and troubleshooting pages; fail CI if a raised code is undocumented.",
+        "milestones": [
+          "M5",
+          "M23",
+          "M25"
+        ],
+        "priority": "P0"
+      },
+      "typed_expected_failures": {
+        "requirement": "Expected failures are typed errors with stable codes; successful domain outcomes (for example a non-zero exit) are values, not exceptions.",
+        "evidence_rows": [
+          "E1.15"
+        ],
+        "source_keys": [
+          "DS-COOK"
+        ],
+        "keel_implementation": "Rule in tool authoring guide; tests per tool.",
+        "milestones": [
+          "M5"
+        ],
+        "priority": "P1"
+      },
+      "turn_completion_and_deferred_context": {
+        "requirement": "conclude_turn() lets a successful tool end the turn and composites forward it only from authoritative nested success. defer_context() attaches context that the loop appends only after the result.",
+        "evidence_rows": [
+          "E1.16"
+        ],
+        "source_keys": [
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "Both on the tool run context.",
+        "milestones": [
+          "M5",
+          "M7"
+        ],
+        "priority": "P1"
+      },
+      "typed_source_kind_for_injected_context": {
+        "requirement": "agent.inject() messages carry a typed source kind; old untyped wrappers are rejected at admission.",
+        "evidence_rows": [
+          "E1.17"
+        ],
+        "source_keys": [
+          "DS-COOK"
+        ],
+        "keel_implementation": "Source enum for injected context (supports taint).",
+        "milestones": [
+          "M7"
+        ],
+        "priority": "P1"
+      },
+      "long_running_background_lifecycle": {
+        "requirement": "Background start returns a typed handle {kind:'background', job_id}; the job spec has synchronous cancel and a non-rejecting done that settles after cleanup, plus an output source. After publishing the id, use a task-owned cancel signal, not the call's; cancellation of the call stops waiting but does not kill published work. job_kill, owner disposal and teardown own that lifetime.",
+        "evidence_rows": [
+          "E1.18"
+        ],
+        "source_keys": [
+          "DS-COOK"
+        ],
+        "keel_implementation": "Matches Y1.7 + D3.7; make this the written lifecycle rule.",
+        "milestones": [
+          "M5",
+          "M14"
+        ],
+        "priority": "P0"
+      },
+      "programmatic_tool_call_mode": {
+        "requirement": "Every visible tool is callable as await tools.name(args) with generated arg/output type maps. Calls re-enter the normal pipeline; success returns the canonical value after policy, failure rejects with a limited error (name, tool name, message only). Intermediate values are execution-local; only the outer run_code call crosses the output cap and spill pipeline. Model-direct calls to native names are denied while the PTC executor is selected and run_code is a reserved name.",
+        "evidence_rows": [
+          "E1.19",
+          "E1.20",
+          "E1.21"
+        ],
+        "source_keys": [
+          "DS-COOK",
+          "DS-TOOLS"
+        ],
+        "keel_implementation": "Keel's Code Mode (Y1.1) follows these rules; design output_schema as a useful programmatic API. ptc-dispatch-log hook shortens only the durable log copy of a sub-call result; sub-call start/settle events store only ids, name and normalized args, never schemas/descriptions per sub-call. Executor-owned prompt sections registered and disposed with the executor (also MCP instruction blocks W4.11).",
+        "milestones": [
+          "M5",
+          "M6",
+          "M7",
+          "M4"
+        ],
+        "priority": "P1"
+      },
+      "ui_presentation_purity_and_card_contract": {
+        "requirement": "Presenters are pure (present_call(args), present_result(args, result)), run on live stream and log replay, with no I/O, clock or session state. Malformed or old args fall back to a generic card and display must never crash a replay. Card kinds are generic, terminal, diff, search, read and web with defined fields and truncated/total so partial results are never shown as complete. Durable presentation_meta(args, value) is stored on the result; UI-only formatting stays out of model-visible output.",
+        "evidence_rows": [
+          "E2.1",
+          "E2.2",
+          "E2.3",
+          "E2.4",
+          "E2.5"
+        ],
+        "source_keys": [
+          "DS-TOOLS",
+          "DS-COOK"
+        ],
+        "keel_implementation": "Renderer card components (Master 9.2) one per kind with states; meta field on tool result events; rule + review checklist; web client derives tool cards from raw events via a keyed slot per tool name, validates wire values locally, falls back to generic row, and imports no host code into the browser bundle.",
+        "milestones": [
+          "M5",
+          "M19",
+          "M20",
+          "M4"
+        ],
+        "priority": "P0"
+      },
+      "contract_tests_and_verification": {
+        "requirement": "Permanent contract-regression specs for the agent loop; HMR-safety test for every registry (dispose the contributing scope, assert cleanup); table-driven tool conformance kit; fuzzer with random args/cancel points/injected failures; request-reconstruction byte-compare proving model-visible equals logged; smoke tests boot the shipped profile, send one prompt and check the world; guards proven red-green-revert; mock only the expensive/non-deterministic boundary.",
+        "evidence_rows": [
+          "E4.1",
+          "E4.2",
+          "E4.9",
+          "E4.10",
+          "E4.11",
+          "E4.12",
+          "V24",
+          "V25",
+          "V26",
+          "V28"
+        ],
+        "source_keys": [
+          "DS-TEST",
+          "DS-TOOLS",
+          "DS-COOK"
+        ],
+        "keel_implementation": "tests/contract_regressions/ never deleted without owner note; per-registry unload test (V1/D1.2); release smoke (C13.4) + docs/postmortem/; make_bridge_harness() analog on the fixture model server (X9.1); conformance kit fails CI on any tool lacking conformance metadata.",
+        "milestones": [
+          "M5",
+          "M10",
+          "M22",
+          "M25"
+        ],
+        "priority": "P0"
+      }
+    },
+    "deep_read_findings": {
+      "subagents": [
+        {
+          "id": "E3.1",
+          "finding": "One activation API for local children and external executions; provider capability flags (agent_options, agent_preset, output_schema, depth_limit) validate start options before anything starts."
+        },
+        {
+          "id": "E3.2",
+          "finding": "Result delivery policy: parent (notifies the model) vs caller (only returns result, e.g. workflows/code mode)."
+        },
+        {
+          "id": "E3.3",
+          "finding": "Agent names are 1-32 lowercase letters/digits/hyphens starting with a letter, not 'lead'; default agent-N, root lead, slash paths. Names are model-facing references, session ids are the authority; resolve grants no permission; no match fails AGENT_NAME_NOT_FOUND."
+        },
+        {
+          "id": "E3.4",
+          "finding": "Child working directory chosen at admission (relative resolves against parent's current dir); local child keeps parent's original project; resumed child retains logged directory state."
+        },
+        {
+          "id": "E3.5",
+          "finding": "Local child is a durable session with at most one live activation; manager owns identity/capacity reservation, input admission, cold resume, child-first disposal; structured-output capture closes input for that activation and resume does not inherit the schema."
+        },
+        {
+          "id": "E3.6",
+          "finding": "Fork seeds the child with the parent's completed-turn prefix (contiguous, lossless, balanced steps); spawn starts fresh; inherits_parent_context is descriptive wording only."
+        },
+        {
+          "id": "E3.7",
+          "finding": "External backends are providers (separate coding CLIs or protocol agents): one execution, no follow-ups, results to creator only while online."
+        },
+        {
+          "id": "E3.8",
+          "finding": "Result object: final output = last non-empty assistant message; optional structured value validated; diagnostic limited to 4096 bytes and free of tool inputs, file contents, env values, credentials and raw protocol payloads; stop reason enum; child failure resolves with error, not exception."
+        },
+        {
+          "id": "E3.9",
+          "finding": "Messaging within one tree: running target gets steer, absent target cold-resumes, sender identity rechecked, accepted messages never retracted. Two distinct source kinds: agent-message (relay) vs subagent-settled (runtime notice) so a child is never credited with words it did not write."
+        },
+        {
+          "id": "E3.10",
+          "finding": "Interrupt authority: only the user or an exact live ancestor; fire-and-return; preserves unclaimed inbox, activation and descendants; claimed work not requeued; absent target is a no-op."
+        },
+        {
+          "id": "E3.11",
+          "finding": "Whole-tree drain and wait-for-tree-work: idle members with parked input stay resident without delaying host completion."
+        },
+        {
+          "id": "E3.12",
+          "finding": "Parent-owned catalog projection (membership at creation, no execution status); recursive list_descendants with parent id, depth, path and per-branch diagnostics (unsupported/corrupt/unavailable); cycles skipped; unreadable branch stops only that branch; historical children shown as unknown mode with no continuation rights."
+        },
+        {
+          "id": "E3.13",
+          "finding": "Subagent model-route setting: default-off allowlist of provider/model routes, read live on each delegation; malformed/duplicate routes error."
+        },
+        {
+          "id": "E3.14",
+          "finding": "User-authored message to a child from the UI with attachments (image parts via attachment store; model must accept images) and client time zone; cold resume at capacity rejects with typed delivery-unavailable."
+        },
+        {
+          "id": "E3.15",
+          "finding": "Lifecycle events subagent/start, subagent/end (scoped to tree root), provider added/removed."
+        }
+      ],
+      "testing_policy": [
+        {
+          "id": "E4.1",
+          "finding": "HMR-safety test for every registry: dispose contributing scope, assert cleanup."
+        },
+        {
+          "id": "E4.2",
+          "finding": "Permanent contract-regression specs for the agent loop."
+        },
+        {
+          "id": "E4.3",
+          "finding": "Coverage gate philosophy: an uncovered line is often dead code to delete; line coverage necessary but never sufficient; environment-dependent files exempt locally but enforced on CI with the tool."
+        },
+        {
+          "id": "E4.4",
+          "finding": "Performance benchmark gates as required PR checks: timed code on the plain runtime, never a transpiler; synthetic inputs enforce time, heap and scaling budgets; package-local perf files diagnostic only."
+        },
+        {
+          "id": "E4.5",
+          "finding": "Snapshot scenarios: parent/child session files with version in filename agreeing with header; snapshot.yml declares profile/header class/recording policy/workspace facts; typed tokens keep identity relations; mutating scenarios compare full workspace.expected tree that record/refresh never rewrite; modes record/refresh; review every diff; CI read-only replay."
+        },
+        {
+          "id": "E4.6",
+          "finding": "Fixtures omit sequence/time envelopes (replay synthesizes them); historical fixtures keep released representation with explicit format owners for migration coverage."
+        },
+        {
+          "id": "E4.7",
+          "finding": "Browser snapshot lane: UI output compared in Chromium, model picker also in WebKit; replay-only in CI."
+        },
+        {
+          "id": "E4.8",
+          "finding": "Test-process isolation: forked workers share ports/paths/namespaces/children; each test owns every resource through teardown; a spec passing only alone is a test defect; fork-exit diagnostics report PID/file/code/signal; flake-diagnosis workflow classifies probabilistic failures."
+        },
+        {
+          "id": "E4.9",
+          "finding": "Smoke tests boot shipped profile, send one prompt and check the world; postmortems documented (postmortem/0001-*)."
+        },
+        {
+          "id": "E4.10",
+          "finding": "Mock only the expensive/non-deterministic boundary (model, network, clock); keep real tool registry/pipeline/persistence; recovery tests separate pre-chunk vs post-chunk failures; cover exhaustion, cancellation, policy composition, persistence, status, wire counts, idle timeouts, shipping loader composition."
+        },
+        {
+          "id": "E4.11",
+          "finding": "Verify the world, not the agent's self-report: re-run command or re-read files externally; assert untouched files byte-identical; e2e tests create/dispose own resources even on failure; shared fixtures in plain helper modules."
+        },
+        {
+          "id": "E4.12",
+          "finding": "Real-composition tests for product-visible plugins: boot test-only config through real loader, mock only external services, assert model-visible request/log or durable state; prove each guard fails when regression introduced (red-green-revert)."
+        },
+        {
+          "id": "E4.13",
+          "finding": "Test the published artifact entry path: run built entrypoints on plain runtime; assert missing config exits non-zero; singleton modules shared across bundles get a built-scope test."
+        },
+        {
+          "id": "E4.14",
+          "finding": "Test resolution: tests resolve imports to source; built artifacts used only by explicit built-mode tests; subprocess tests use one shared launcher."
+        },
+        {
+          "id": "E4.15",
+          "finding": "Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every required test tier at plan time."
+        }
+      ],
+      "desktop_packaging_and_updates": [
+        {
+          "id": "E5.1",
+          "finding": "No listening port in the desktop app: backend is a bundled child; framed byte pipes carry requests and streaming responses with backpressure; Node IPC only lifecycle control; custom app:// protocol serves assets. Keel decision C-19 / V31: UDS/Windows named pipe for desktop, loopback+token for keel web and CLI."
+        },
+        {
+          "id": "E5.2",
+          "finding": "Release identity: shell and backend always carry the same exact version; updater never updates one side alone."
+        },
+        {
+          "id": "E5.3",
+          "finding": "Bundled runtime, never system runtime or package-manager state, and never the shell's own runtime for the backend."
+        },
+        {
+          "id": "E5.4",
+          "finding": "Process-lifetime single-instance lock acquired before profile access; desktop exclusively owns its profile; CLI and desktop share product data but never executable packages, plugin activation, lockfiles or site-packages."
+        },
+        {
+          "id": "E5.5",
+          "finding": "Transactional activation: staging install, full backend health check, replace active profile only after success; journal + one rollback profile; transaction lock records current owner including orphaned worker."
+        },
+        {
+          "id": "E5.6",
+          "finding": "Seed store packaging: 16 deterministic uncompressed shards so differential updates reuse unchanged shards; offline install verification before shipping; measure disk use separately from installer size."
+        },
+        {
+          "id": "E5.7",
+          "finding": "Update unit: shell + backend seed + runtime form one signed unit; update check 10 seconds after main window opens plus manual menu item; native confirmation; wait for in-flight check; verify, stop backend, install, reconcile next launch."
+        },
+        {
+          "id": "E5.8",
+          "finding": "Plugin management window is a separate renderer receiving only structured operations: no filesystem, raw IPC, shell or arbitrary package-manager arguments."
+        },
+        {
+          "id": "E5.9",
+          "finding": "Plugins with install-time lifecycle scripts rejected unless in a reviewed allowlist; prefer wheels only."
+        },
+        {
+          "id": "E5.10",
+          "finding": "Shell copy localized from app locale, shared across menus, dialogs and plugin window, with English fallback; i18n gate checks desktop shell sources."
+        },
+        {
+          "id": "E5.11",
+          "finding": "Isolated development home with disposable data/project/browser folders; debug ports by env; DevTools toggle; dev overrides ignored by packaged app."
+        },
+        {
+          "id": "E5.12",
+          "finding": "Per-target build isolation under targets/<target>/ with shared download cache verified by name+hash; a target never consumes another's mutable state."
+        },
+        {
+          "id": "E5.13",
+          "finding": "Release prerequisite env validation: app id format, reject malformed identities, incomplete credential sets; release --dry-run."
+        },
+        {
+          "id": "E5.14",
+          "finding": "Packaging never receives upload credentials; target completion record written only after every build/sign step succeeds; build job has no deploy secrets."
+        },
+        {
+          "id": "E5.15",
+          "finding": "Upload guard: require completion record matching environment/target/URL/version and check names, sizes, SHA-512 before reading credentials; immutable versioned artifacts first, channel metadata last with no-cache; never delete historical objects."
+        },
+        {
+          "id": "E5.16",
+          "finding": "Test vs production update environments with distinct origins (beta feed vs stable)."
+        },
+        {
+          "id": "E5.17",
+          "finding": "Signing/notarization: hardened runtime + timestamp, deep strict signature check, DMG notarize/staple, Windows EV token with PIN never persisted. Excluded as paid in Keel; keep verification script pattern; use Ed25519 + checksums."
+        },
+        {
+          "id": "E5.18",
+          "finding": "Linux is not a supported desktop release target in dsh, but Keel supports it (AppImage/DEB/RPM) by owner requirement."
+        },
+        {
+          "id": "E5.19",
+          "finding": "Known-limitations section in desktop README: features disabled in desktop needing a server, shared vs separate state, release qualification needs production environment."
+        }
+      ],
+      "providers_credentials_model_ux": [
+        {
+          "id": "E6.1",
+          "finding": "Keys are write-only: UI receives redacted descriptor; settings store only a credential reference; masked preview uses identifier prefix plus 5 leading and 4 trailing characters only when at least 8 middle characters remain hidden (else all dots), counted in Unicode code points."
+        },
+        {
+          "id": "E6.2",
+          "finding": "Saved key edit rules: no reveal/copy/partial edit; typing replaces whole key; Backspace/Delete stages whole-key removal applied on Apply; Cancel preserves; deletion-success/settings-failure warns deletion cannot be undone and offers retry; clearing a shared credential warns all features using the reference are affected."
+        },
+        {
+          "id": "E6.3",
+          "finding": "Environment-credential hints: green env var detected, yellow none, 'unconfirmed' status read failed; detection never validates the credential; provider-managed credential files outside the check."
+        },
+        {
+          "id": "E6.4",
+          "finding": "Model list follows provider's published list (loads on first need, background refresh about every 10 minutes while in use, built-in fallback); editing switches to pinned custom list; Restore defaults re-follows."
+        },
+        {
+          "id": "E6.5",
+          "finding": "Third-party provider picker from installed catalog vs Custom model API form (permanent lowercase ID, base URL, protocol, credential, models); four protocols (OpenAI Chat Completions, OpenAI Responses, Anthropic Messages, Gemini API); one protocol per provider; renaming = add new + delete old."
+        },
+        {
+          "id": "E6.6",
+          "finding": "Model discovery: GET /models with searchable picker (existing pre-ticked, tick add, untick remove, Update list); configured models not listed stay; nothing saved until Save; failures fall back to manual entry; built-in provider always answered from catalog."
+        },
+        {
+          "id": "E6.7",
+          "finding": "Model picker: selecting sets default for new sessions; a session keeps the model recorded in its own log; drag-to-reorder with keyboard up/down; deleted default provider blocks input with 'Select model'."
+        },
+        {
+          "id": "E6.8",
+          "finding": "Per-model capability fields: input types (text, image), context window, max output tokens; route defaultInput fallback never removes catalog-known images; 'claims about your endpoint are not verified' warning; image-capable list clears image limits when image removed."
+        },
+        {
+          "id": "E6.9",
+          "finding": "Reasoning-effort declarations per model with API value per level (off may send nothing), route default, picker choice saved as model default; thinking-format switch; models can drop levels; unsupported effort refused as UNSUPPORTED_REASONING_EFFORT; Effort menu hidden when no levels."
+        },
+        {
+          "id": "E6.10",
+          "finding": "Request-compatibility switches at route level with per-model field-by-field override; empty value refused, unknown name refused with valid-name list; each switch valid only for protocols declaring it."
+        },
+        {
+          "id": "E6.11",
+          "finding": "Troubleshooting keyed by error code/symptom (missing credential, unknown model, 401 on discovery, gateway refuses all, only reasoning models fail, Effort menu absent, off doesn't stop thinking, image refused vs provider rejects, stale image in session log)."
+        },
+        {
+          "id": "E6.12",
+          "finding": "'Open configuration file' button next to settings for advanced fields; adapters re-read config on next request with no restart."
+        },
+        {
+          "id": "E6.13",
+          "finding": "Client-upgrade-required error naming the version to install when a model needs a newer app."
+        },
+        {
+          "id": "E6.14",
+          "finding": "Config generated reference (config-catalog.md) derived from source so it cannot drift; UI links to field docs."
+        }
+      ],
+      "seam_map": [
+        {
+          "id": "E7.1",
+          "seam": "tokenMeter",
+          "finding": "Isolated per-session replay folds; pressure consumers share immutable revisioned measurements."
+        },
+        {
+          "id": "E7.2",
+          "seam": "toolResultPruner",
+          "finding": "Model-free pruning of oversized current tool results through replayable surface replacements before summary compaction."
+        },
+        {
+          "id": "E7.3",
+          "seam": "compaction pressure events",
+          "finding": "Compaction reacts to post-step pressure and request-error recovery; no model-facing compact tool."
+        },
+        {
+          "id": "E7.4",
+          "seam": "sessionStatus",
+          "finding": "Reading acknowledgements and manual unread marks stored outside session history."
+        },
+        {
+          "id": "E7.5",
+          "seam": "workspaceChanges",
+          "finding": "Per-turn changed-file summaries with turn-start vs turn-end comparison, served by session and event sequence; log carries only the turn."
+        },
+        {
+          "id": "E7.6",
+          "seam": "workspaceFiles",
+          "finding": "Stat, paged text, byte windows, directory listings and change feed confined by lstat, containment and stat re-check (TOCTOU)."
+        },
+        {
+          "id": "E7.7",
+          "seam": "fileReferences",
+          "finding": "@ path completion returns paths only, never contents."
+        },
+        {
+          "id": "E7.8",
+          "seam": "sessionReferenceResolver",
+          "finding": "@session mention embeds a bounded snapshot of another session as untrusted message context."
+        },
+        {
+          "id": "E7.9",
+          "seam": "sessionQuery",
+          "finding": "Exact reads, filters, traces; backend adds full-text reconciliation, ranking, snippets and cursor generations."
+        },
+        {
+          "id": "E7.10",
+          "seam": "sessionTitle",
+          "finding": "Deterministic fallback title, latest-title fold, one optional async provider (first-prompt vs all-prompts variants)."
+        },
+        {
+          "id": "E7.11",
+          "seam": "planMode",
+          "finding": "Plan/mode state folded from the log; user selections flushed at turn boundaries; guidance rendering; /plan; stable plan-exit schema."
+        },
+        {
+          "id": "E7.12",
+          "seam": "agentPresets",
+          "finding": "YAML-declared preset revisions; retired revisions kept until their last user releases them."
+        },
+        {
+          "id": "E7.13",
+          "seam": "sessionProjectionCache",
+          "finding": "Durable checkpoints of projection state (throttled, mandatory at turn end/detach) to accelerate hydration."
+        },
+        {
+          "id": "E7.14",
+          "seam": "mcpManager",
+          "finding": "Reconciles MCP client instances against settings, aggregates statuses, serves restart/probe to management surfaces."
+        },
+        {
+          "id": "E7.15",
+          "seam": "schedule",
+          "finding": "Independent of session activation: tasks stored separately; due messages queued into the target session."
+        },
+        {
+          "id": "E7.16",
+          "seam": "ssh",
+          "finding": "One authenticated OpenSSH connection, installed helper identity, independent program streams, disconnect cleanup; paired fs/subprocess/sandbox providers for the remote world."
+        },
+        {
+          "id": "E7.17",
+          "seam": "shellEnv",
+          "finding": "Plugins declare effect-scoped KEEL_* environment facts; each shell tool collects one trusted snapshot per execution."
+        },
+        {
+          "id": "E7.18",
+          "seam": "sandboxPolicy",
+          "finding": "Single home for default sandbox mode and workspace root so bash and fs cannot confine to different roots; consumers hand over exact argv; backend reports enforcement."
+        },
+        {
+          "id": "E7.19",
+          "seam": "approval",
+          "finding": "Fails closed: absence of an answerer yields unavailable."
+        },
+        {
+          "id": "E7.20",
+          "seam": "permissionPresets",
+          "finding": "User-facing presets bundling sandbox mode + approval policy; switching writes one logged permission/preset event updating both knobs."
+        },
+        {
+          "id": "E7.21",
+          "seam": "fs-observation-policy",
+          "finding": "Observed-state checks (read-before-edit, stale-file detection) contributed through the fs/* event gate."
+        },
+        {
+          "id": "E7.22",
+          "seam": "lsp",
+          "finding": "Exactly four normalized operations and no protocol escape hatch."
+        },
+        {
+          "id": "E7.23",
+          "seam": "web",
+          "finding": "Search and fetch providers register into one service; tool names stay stable."
+        },
+        {
+          "id": "E7.24",
+          "seam": "speechToText",
+          "finding": "Local recognizers; browser uses authenticated remote; transcripts stay in the draft until submission."
+        },
+        {
+          "id": "E7.25",
+          "seam": "officeKit",
+          "finding": "Render Office files to PDF/images, convert, recalculate on host with native engine or WASM fallback; document preview sidebar."
+        },
+        {
+          "id": "E7.26",
+          "seam": "fileUploads",
+          "finding": "Streaming intake, durable storage, staged receipts bound to accepted submissions."
+        },
+        {
+          "id": "E7.27",
+          "seam": "Forge",
+          "finding": "Providers map remote URLs to change requests, look up by head branch, read status in batches; watchers share one polling loop; projection binds change requests found in shell push output."
+        },
+        {
+          "id": "E7.28",
+          "seam": "remoteAccess role policies",
+          "finding": "Non-owner peers get role-based access to specific methods; list results filtered; each peer's access snapshot streamed."
+        },
+        {
+          "id": "E7.29",
+          "seam": "connection authentication registry",
+          "finding": "Credential verifiers tried in registration order; first live peer wins; source policy and business authorization stay separate."
+        },
+        {
+          "id": "E7.30",
+          "seam": "authorization flow registry",
+          "finding": "A plugin obtaining a credential registers a flow keyed by the record it writes; one attempt per key at a time."
+        },
+        {
+          "id": "E7.31",
+          "seam": "Action cards",
+          "finding": "Optional cards with user actions and status notices; card kinds register their actions and handlers."
+        },
+        {
+          "id": "E7.32",
+          "seam": "plugin recommendations",
+          "finding": "On explicit need only; enabling goes through the plugin manager after a click."
+        },
+        {
+          "id": "E7.33",
+          "seam": "plugin registry probe",
+          "finding": "Race several registry mirrors and pick the fastest valid one."
+        },
+        {
+          "id": "E7.34",
+          "seam": "plugin market reader",
+          "finding": "For user-configured index sources, validated; install through the manager."
+        },
+        {
+          "id": "E7.35",
+          "seam": "message feedback",
+          "finding": "In the canonical log with per-item compare-and-set; session-level /feedback as a log-only event."
+        },
+        {
+          "id": "E7.36",
+          "seam": "hooks bridges",
+          "finding": "Adapters that run hooks defined in other agent tools' formats."
+        },
+        {
+          "id": "E7.37",
+          "seam": "agent-authored plugins",
+          "finding": "Tool lets the agent define plugin code with sandboxed host half and served client half; Keel: P2 off by default, propose as diff, user reviews, runs in V23 isolated subprocess, never auto-enabled."
+        },
+        {
+          "id": "E7.38",
+          "seam": "workflow engine",
+          "finding": "Script engine plus fixed loop-until-done workflow consumer that fans out subagents."
+        },
+        {
+          "id": "E7.39",
+          "seam": "webhook runtime",
+          "finding": "Trusted rules turn authenticated deliveries into ordinary sessions; provider adapters for code host events."
+        },
+        {
+          "id": "E7.40",
+          "seam": "Inspector service",
+          "finding": "Worker-hosted debug target + query API over the live plugin tree."
+        },
+        {
+          "id": "E7.41",
+          "seam": "storage",
+          "finding": "Multiple backends (json, sqlite) and a typed domain form for non-session state; Keel keeps SQLite but isolates non-session state behind one interface."
+        },
+        {
+          "id": "E7.42",
+          "seam": "mcpResources",
+          "finding": "Connection-owned providers serve shared resource tools; already W3.11, add scoping per agent."
+        },
+        {
+          "id": "E7.43",
+          "seam": "browser-use / computer-use",
+          "finding": "Interchangeable providers, each owning its tools and per-session resources; no shared action API; per-application consent with cancellation; retained run-code runtime per agent."
+        }
+      ],
+      "defensive_patterns": {
+        "source": "DS-DEF (docs/defensive-patterns/README.md) read this pass; five subpages still on M0 read list.",
+        "five_habits": [
+          "Make correctness explicit (structure over timing compensation).",
+          "One source of truth (one read path, one home per fact, one owner for shared state).",
+          "Extend through the registered seam (new capability registers; stop growing branches in an existing carrier).",
+          "Change face equals review face (a change carries only the lines its behavior needs; migrations move code; perf-sensitive changes carry measurements).",
+          "Require evidence (falsifiable claims, measured before/after or checked by a gate)."
+        ],
+        "rule_page_requirements": "Each rule states what must hold, how a reviewer judges it, its boundary and who approves exceptions, plus a correct and a wrong example.",
+        "prose_item": {
+          "id": "E8.1",
+          "note": "Appears only in Section 11 prose, not as a table row, so excluded from the 140 feature rows.",
+          "requirement": "Create docs/defensive-patterns/ equivalents after reading the five DS pages (all milestones).",
+          "keel_implementation": "code-review agent skill reads these rules when reviewing PRs; also usable inside Keel as a bundled reviewer agent (B2.4).",
+          "tag_source": "T:DS-DEF"
+        }
+      },
+      "ui_ux_tokens": [
+        "Tool cards: generic, terminal (exit pill), diff, search (grouped/paths with 'showing N of M'), read (numbered, highlighted), web (sources/fetch summary) T:DS-TOOLS",
+        "Subagent tree viewer with names/paths, activity badge (running/inactive), message box, interrupt button, unknown-mode rows T:DS-SUB",
+        "Provider forms: masked key field with staged-removal rules, env hints, discovery dialog with search/tick, protocol picker, capability and effort editors, compat switches in Advanced, troubleshooting links T:DS-PROV",
+        "Model picker with Effort submenu, drag/keyboard reorder, 'Select model' blocked state T:DS-PROV",
+        "Changes-this-turn panel, unread marks in session list T:DS-SEAMS",
+        "Update flow: delayed check, menu item, confirmation dialog, progress, 'what changes for you' T:DS-DESK",
+        "Extensions window with narrow IPC and transaction log T:DS-DESK",
+        "Known limits page in About T:DS-DESK, DS-DEF"
+      ]
+    },
+    "conflicts_and_decisions": [
+      {
+        "id": "C-13",
+        "issue": "DS says content replacement is not confidentiality; Keel's DLP must block or replace the value, not just content.",
+        "resolution": "E1.7 enforced; DLP tests assert the program/code-mode value is also hidden."
+      },
+      {
+        "id": "C-14",
+        "issue": "DS: inference is cheap, do not ration real-API tests; Keel must stay free for user and CI.",
+        "resolution": "Provider e2e opt-in with user keys; Keel CI uses local/mock models; no paid dependency."
+      },
+      {
+        "id": "C-15",
+        "issue": "DS excludes Linux desktop releases; Keel requires Linux.",
+        "resolution": "Keep Linux; budget its test lane."
+      },
+      {
+        "id": "C-16",
+        "issue": "DS uses paid Apple/Windows EV signing and hosted object storage for updates.",
+        "resolution": "Excluded (Master D3/D5); copy only verification and publish process."
+      },
+      {
+        "id": "C-17",
+        "issue": "DS has optional OTLP product analytics.",
+        "resolution": "Excluded: no telemetry (Master 6.18)."
+      },
+      {
+        "id": "C-19",
+        "issue": "Master says renderer to daemon over loopback HTTP with bearer token; DS shows no-port option.",
+        "resolution": "Run V31 spike; recommended desktop uses UDS/named pipe, keel web and CLI use loopback+token. Owner confirms."
+      },
+      {
+        "id": "C-20",
+        "issue": "DS requires sandbox/test rigor assuming paid CI scale.",
+        "resolution": "Same tiering as C-8."
+      },
+      {
+        "id": "C-21",
+        "issue": "DS has agent-authored plugins (E7.37).",
+        "resolution": "P2, off by default, never auto-enabled; high risk."
+      }
+    ],
+    "priority_order": [
+      "Core contracts: E1.1 to E1.14, E1.18, E3.3, E3.5, E3.8 to E3.10, E7.2, E7.18, E7.20, E7.21, V24, V26.",
+      "Safety and release process: E5.1 (after V31), E5.2 to E5.5, E5.8, E5.9, E5.14, E5.15, V27.",
+      "Test infrastructure: E4.1 to E4.5, E4.8 to E4.13, E4.15.",
+      "Provider/model UX: E6.1, E6.5, E6.7 to E6.10.",
+      "UI cards and fleet views: E2.1 to E2.3, E3.12, E7.5.",
+      "Everything else at its milestone; P2 after the v1.0 candidate is green. Add every row to PLAN-INDEX.json with its source tag."
+    ],
+    "v_row_protocol": "Section 9: for every V row (and any [S] row): (1) why + 2 comparable products/standards by category; (2) free/license check with date; (3) spec in Keel's words; (4) smallest slice behind an experimental flag; (5) negative tests first if security-relevant; (6) end-to-end evidence incl. offline run; (7) owner review before default-on if it stores personal data, uses network, or changes approvals.",
+    "derivation_notes": "The source tables have no explicit references, dependencies or acceptance_criteria columns. For every row: 'references' = source keys plus cross-plan codes cited anywhere in the row (milestone tokens M<digit>, priority P<digit> and the row's own id removed); 'dependencies' = other E/V feature ids cited in the row plus codes explicitly introduced by extends/implements/matches/follows/reuses/basis-for/ties-to/depends-on; 'acceptance_criteria' = the bolded requirement clauses in the Feature column plus enforcement/test/gate clauses from the Keel implementation column. 'tag/source' is the Source column verbatim for E1-E7, 'T:DS-SEAMS' for E7 (Section 8 heading) and '[S]' for V rows (Section 9)."
+  }
+}

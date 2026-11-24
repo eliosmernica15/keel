@@ -85,6 +85,51 @@ _FS_LIST_CAP = 400
 _UPLOAD_MAX_BYTES = 24 * 1024 * 1024  # 24 MB per file, kept in memory while decoding
 _UPLOAD_SAFE = re.compile(r"[^A-Za-z0-9._-]+")
 
+# JSON bodies are attacker-controlled.  ``json.loads`` accepts NaN/Infinity by
+# default and ``json.dumps`` then writes them back as invalid JSON (strict
+# clients cannot parse the response, and the values can be persisted).  Reject
+# those constants at the boundary instead of trying to clean up downstream.
+def _reject_non_finite(value: str):
+    raise ValueError(f"non-finite JSON constant {value!r} is not allowed")
+
+
+# Status hints for workflow codes that can be raised as typed exceptions
+# *before* a workflow result object exists (e.g. a stale lock file).  The
+# canonical table in api_contracts covers capability error codes; the workflow
+# vocabulary is wider, so keep it here rather than guessing with a 500.
+_WORKFLOW_ERROR_STATUS: dict[str, int] = {
+    "operation_denied": 403, "csrf_denied": 403, "permission_denied": 403,
+    "revoked": 403, "missing_token": 403, "invalid_token": 403,
+    "bad_params": 400, "bad_state_root": 400, "bad_ttl": 400,
+    "bad_manifest": 400, "manifest_invalid": 400, "unknown_action": 400,
+    "path_escape": 400, "bound_exceeded": 400, "replay_denied": 400,
+    "unknown_request": 400, "missing_request_id": 400, "bad_project": 400,
+    "bad_rules": 400, "no_allowed_tools": 400, "lock_timeout": 400,
+    "unknown_workflow": 404, "not_found": 404,
+}
+
+
+def _workflow_http_status(code: str, hinted=None) -> HTTPStatus:
+    """Map a workflow code (and its backend hint) to a real HTTP status."""
+    from .api_contracts import http_status_for_code
+
+    if (isinstance(hinted, int) and not isinstance(hinted, bool)
+            and 400 <= hinted <= 599):
+        return HTTPStatus(hinted)
+    status = _WORKFLOW_ERROR_STATUS.get(str(code))
+    if status is None:
+        status = http_status_for_code(str(code), default=500)
+    return HTTPStatus(status)
+
+
+def _safe_record_audit(state_root: str, entry: dict) -> None:
+    """Best-effort audit append: auditing must never break a completed call."""
+    try:
+        from .capabilities import record_audit
+        record_audit(state_root, entry)
+    except Exception:
+        pass
+
 
 def _safe_upload_name(name: object) -> str:
     """Reduce an attacker/user-supplied filename to a safe basename (never a path)."""
@@ -190,15 +235,18 @@ def _fs_list_payload(raw: str):
     else:
         try:
             target = Path(raw).expanduser()
-        except Exception as exc:
-            return HTTPStatus.BAD_REQUEST, {"error": f"bad path: {exc}"}
+        except (OSError, RuntimeError, ValueError):
+            return HTTPStatus.BAD_REQUEST, {"error": "bad path"}
     try:
         target = target.resolve()
-    except OSError as exc:
-        return HTTPStatus.BAD_REQUEST, {"error": str(exc)}
-    if not target.exists():
+        exists = target.exists()
+        directory = target.is_dir()
+    except (OSError, RuntimeError, ValueError):
+        # e.g. an embedded NUL byte: report a JSON error, never drop the socket
+        return HTTPStatus.BAD_REQUEST, {"error": "bad path"}
+    if not exists:
         return HTTPStatus.NOT_FOUND, {"error": "not found", "path": str(target)}
-    if not target.is_dir():
+    if not directory:
         return HTTPStatus.BAD_REQUEST, {"error": "not a directory", "path": str(target)}
     parent = str(target.parent) if target.parent != target else None
     try:
@@ -207,7 +255,7 @@ def _fs_list_payload(raw: str):
         return HTTPStatus.OK, {"ok": True, "path": str(target), "parent": parent,
                                "roots": _fs_roots(), "dirs": [],
                                "warning": "permission denied"}
-    except OSError as exc:
+    except (OSError, ValueError) as exc:
         return HTTPStatus.OK, {"ok": True, "path": str(target), "parent": parent,
                                "roots": _fs_roots(), "dirs": [],
                                "warning": str(exc)}
@@ -229,6 +277,17 @@ def rotate_token() -> str:
     return _TOKEN
 
 
+class _KeelThreadingHTTPServer(ThreadingHTTPServer):
+    """Bridge HTTP server with a listen backlog sized for client bursts.
+
+    The stdlib default of 5 drops connections under a 100-client burst;
+    128 keeps them queued without changing any handler behaviour.
+    """
+
+    request_queue_size = 128
+    daemon_threads = True
+
+
 def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
     """Create (but do not start) the bridge server. Port 0 = ephemeral."""
     class Handler(BaseHTTPRequestHandler):
@@ -236,7 +295,14 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
 
         # ---------------- helpers
         def _send_json(self, obj, status=HTTPStatus.OK, extra_headers=()):
-            body = json.dumps(obj).encode("utf-8")
+            try:
+                body = json.dumps(obj, allow_nan=False).encode("utf-8")
+            except (TypeError, ValueError, RecursionError):
+                # Never write non-standard JSON (NaN/Infinity) or an empty
+                # socket to a client; fail closed with a small, safe envelope.
+                obj = {"error": "internal_error", "code": "internal_error"}
+                body = b'{"error": "internal_error", "code": "internal_error"}'
+                status = HTTPStatus.INTERNAL_SERVER_ERROR
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
@@ -264,7 +330,16 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     if part.startswith("keel_token="):
                         provided = part[len("keel_token="):]
                         break
-            return bool(provided) and secrets.compare_digest(provided, _TOKEN)
+            if not provided:
+                return False
+            try:
+                # compare_digest(str, str) raises TypeError for non-ASCII input.
+                # Credentials are attacker-controlled: encode to bytes so a
+                # hostile token is refused with the normal 403, never a crash.
+                return secrets.compare_digest(
+                    provided.encode("utf-8"), _TOKEN.encode("utf-8"))
+            except (UnicodeError, TypeError, ValueError):
+                return False
 
         def path_token(self) -> Optional[str]:
             if "?t=" in self.path:
@@ -276,6 +351,50 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
         def _refuse(self):
             self._send_json({"error": "refused", "reason": "bad token or origin"},
                             HTTPStatus.FORBIDDEN)
+
+        def _json_body(self, limit: int, *, too_large: str = "body too large"):
+            """Read a bounded JSON *object* body; None means an error was sent.
+
+            Invalid or negative Content-Length values used to raise ValueError
+            or block forever on rfile.read(-1); a JSON array used to crash the
+            route on ``.get``. All three now produce a normal JSON 4xx.
+            """
+            raw_length = self.headers.get("Content-Length", "0") or "0"
+            try:
+                length = int(raw_length)
+            except (TypeError, ValueError):
+                self._send_json({"error": "invalid Content-Length"},
+                                HTTPStatus.BAD_REQUEST)
+                return None
+            if length < 0:
+                self._send_json({"error": "invalid Content-Length"},
+                                HTTPStatus.BAD_REQUEST)
+                return None
+            if length > limit:
+                self._send_json({"error": too_large},
+                                HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                return None
+            try:
+                raw = self.rfile.read(length) if length else b"{}"
+            except (OSError, ValueError):
+                self._send_json({"error": "cannot read body"},
+                                HTTPStatus.BAD_REQUEST)
+                return None
+            try:
+                request = json.loads(raw or b"{}",
+                                     parse_constant=_reject_non_finite)
+            except (ValueError, RecursionError):
+                # JSONDecodeError/UnicodeDecodeError are ValueError subclasses;
+                # deeply nested input raises RecursionError instead.  Both are
+                # client errors, not a reason to drop the socket.
+                self._send_json({"error": "invalid json"},
+                                HTTPStatus.BAD_REQUEST)
+                return None
+            if not isinstance(request, dict):
+                self._send_json({"error": "body must be an object"},
+                                HTTPStatus.BAD_REQUEST)
+                return None
+            return request
 
         # ---------------- static UI
         def do_GET(self):
@@ -538,42 +657,49 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 return
             path = self.path.split("?", 1)[0]
             if path == "/api/capabilities/invoke":
-                if not self._origin_ok():
-                    self._send_json({"error": "bad origin"},
-                                    HTTPStatus.FORBIDDEN)
-                    return
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 2_000_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(2_000_000)
+                if request is None:
                     return
                 from . import capability_registry  # noqa: F401
-                from .capabilities import CapabilityError, invoke, record_audit
+                from .capabilities import CapabilityError, invoke
 
                 cap_id = str(request.get("id", ""))
                 from .capabilities import get as get_capability
 
+                state_root = os.environ.get(
+                    "KEEL_STATE_DIR", str(Path.home() / ".keel"))
                 cap = get_capability(cap_id)
                 needs_confirm = bool(
                     cap and (cap.permission in ("write", "execute")
                              or cap.mutates))
-                # Mutating capabilities need an explicit confirm.
-                if needs_confirm and not request.get("confirm"):
+                if cap is not None and not needs_confirm:
+                    # A saved `prompt` policy can require consent even for a
+                    # read-tier capability carrying a command or URL.  TUI
+                    # pre-flights this assessment; the HTTP surface must not
+                    # silently execute it without the same confirmation.
+                    try:
+                        from .policy_enforcement import enforce as _enforce
+                        assessment = _enforce(
+                            cap_id, request.get("params", {}),
+                            state_root=state_root, interactive=True,
+                            confirmed=False)
+                        needs_confirm = bool(
+                            assessment is not None and
+                            assessment.decision == "ask")
+                    except (OSError, ValueError):
+                        # Leave the failure to invoke(), which reports a clean
+                        # `policy_error`; a corrupt policy must never run a
+                        # handler, and must not be masked as a confirm prompt.
+                        pass
+                # Mutating capabilities need an explicit, real boolean confirm.
+                # Truthy values such as "false" or 1 must not satisfy the gate.
+                if needs_confirm and request.get("confirm") is not True:
                     self._send_json({
                         "error": "confirmation_required",
                         "capability": cap_id,
                         "permission": cap.permission if cap else None},
                         HTTPStatus.CONFLICT)
                     return
-                state_root = os.environ.get(
-                    "KEEL_STATE_DIR", str(Path.home() / ".keel"))
                 try:
                     result = invoke(
                         cap_id, request.get("params", {}),
@@ -581,28 +707,91 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                  "cwd": _WORKDIR or os.getcwd(),
                                  "confirm": bool(request.get("confirm")),
                                  "interactive": True})
-                    record_audit(state_root, {"capability": cap_id,
-                                              "ok": True, "surface": "web"})
-                    self._send_json(result)
                 except CapabilityError as exc:
-                    record_audit(state_root, {"capability": cap_id,
-                                              "ok": False, "code": exc.code,
-                                              "surface": "web"})
-                    status = (HTTPStatus.NOT_FOUND if exc.code == "not_found"
-                              else HTTPStatus.FORBIDDEN if exc.code ==
-                              "permission_denied" else HTTPStatus.BAD_REQUEST)
+                    _safe_record_audit(state_root, {
+                        "capability": cap_id, "ok": False, "code": exc.code,
+                        "surface": "web"})
+                    # Canonical status mapping: policy/permission denial -> 403,
+                    # not_found -> 404, handler_error -> 500, bad_params -> 400.
+                    from .api_contracts import http_status_for_code
+                    status = http_status_for_code(exc.code)
                     self._send_json(
-                        {"error": str(exc), "code": exc.code}, status)
+                        {"error": str(exc), "code": exc.code},
+                        HTTPStatus(status))
+                    return
+                except (OSError, ValueError) as exc:
+                    # A corrupt saved policy fails before any capability handler
+                    # runs.  The CLI reports this as `policy_error`; the HTTP
+                    # surface must not drop the socket or skip the audit log.
+                    _safe_record_audit(state_root, {
+                        "capability": cap_id, "ok": False,
+                        "code": "policy_error", "surface": "web"})
+                    self._send_json({
+                        "error": f"policy_error: {type(exc).__name__}: {exc}"[:300],
+                        "code": "policy_error"}, HTTPStatus.BAD_REQUEST)
+                    return
+                except Exception as exc:
+                    _safe_record_audit(state_root, {
+                        "capability": cap_id, "ok": False,
+                        "code": "internal_error", "surface": "web"})
+                    self._send_json({
+                        "error": f"internal_error: {type(exc).__name__}"[:300],
+                        "code": "internal_error"},
+                        HTTPStatus.INTERNAL_SERVER_ERROR)
+                    return
+                _safe_record_audit(state_root, {
+                    "capability": cap_id, "ok": True, "surface": "web"})
+                self._send_json(result)
+                return
+            # ---------------- Real backend product workflows
+            # Same token/origin gate as every other POST (checked above) plus
+            # the same strict boolean confirm requirement as capability invoke.
+            if path.startswith("/api/backend-workflows/"):
+                name = path[len("/api/backend-workflows/"):].strip("/")
+                request = self._json_body(256_000, too_large="params too large")
+                if request is None:
+                    return
+                if request.get("confirm") is not True:
+                    self._send_json({"error": "confirmation_required",
+                                     "workflow": name}, HTTPStatus.CONFLICT)
+                    return
+                from . import backend_workflows as _workflows
+                if name not in _workflows.WORKFLOWS:
+                    self._send_json({"error": "unknown_workflow", "workflow": name},
+                                    HTTPStatus.NOT_FOUND)
+                    return
+                try:
+                    result = _workflows.run_workflow(
+                        name, request.get("params", {}))
+                except Exception as exc:
+                    # Typed workflow failures such as `lock_timeout` can be
+                    # raised before a result dict exists (a stale or contended
+                    # on-disk lock).  Convert them to the same structured body
+                    # as an in-result failure; never drop the HTTP connection.
+                    code = getattr(exc, "code", None) or (
+                        f"{type(exc).__name__.lower()}_error")
+                    status = _workflow_http_status(code)
+                    self._send_json({
+                        "workflow": name, "ok": False, "code": str(code),
+                        "error": str(exc)[:300], "result": {}, "steps": [],
+                        "persisted": None, "http_status": int(status),
+                    }, status)
+                    return
+                if result.get("ok"):
+                    status = HTTPStatus.OK
+                else:
+                    # Workflows declare the accurate denial/status (403 for
+                    # policy/permission denials, 400 for bad input) so real
+                    # security failures are not reported as server errors.
+                    status = _workflow_http_status(
+                        str(result.get("code") or ""),
+                        result.get("http_status"))
+                self._send_json(result, status)
                 return
             if path in ("/api/profiles/create", "/api/profiles/activate",
                         "/api/profiles/remove"):
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(2_000_000)
+                if request is None:
                     return
                 from .agent_profiles import AgentProfiles
 
@@ -621,17 +810,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     self._send_json({"ok": manager.remove(name)})
                 return
             if path in ("/api/sessions/import", "/api/sessions/stats"):
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 2_000_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(2_000_000)
+                if request is None:
                     return
                 try:
                     result = self._session_action(path, request)
@@ -642,17 +822,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._send_json(result)
                 return
             if path in ("/api/backups/create", "/api/backups/restore"):
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 64_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(64_000)
+                if request is None:
                     return
                 try:
                     result = self._backup_action(path, request)
@@ -685,17 +856,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             if path.startswith("/api/surfaces/"):
                 name = path[len("/api/surfaces/"):].strip("/")
                 from . import surfaces as surfaces_mod
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 16_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(16_000)
+                if request is None:
                     return
                 try:
                     updated = surfaces_mod.update_surface(name, request)
@@ -711,21 +873,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 return
             if path == "/api/settings":
                 from . import settings_store
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 64_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                raw = self.rfile.read(length) if length else b"{}"
-                try:
-                    request = json.loads(raw or b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
-                    return
-                if not isinstance(request, dict):
-                    self._send_json({"error": "bad body"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(64_000)
+                if request is None:
                     return
                 doc = settings_store.load()
                 changed = False
@@ -756,19 +905,10 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 return
             if path == "/api/settings/import":
                 from . import settings_store
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 512_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                payload = self._json_body(512_000)
+                if payload is None:
                     return
-                raw = self.rfile.read(length) if length else b"{}"
-                try:
-                    payload = json.loads(raw or b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
-                    return
-                doc = payload.get("doc") if isinstance(payload, dict) else None
+                doc = payload.get("doc")
                 if not isinstance(doc, dict):
                     self._send_json({"error": "doc must be an object"},
                                     HTTPStatus.BAD_REQUEST)
@@ -784,17 +924,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._send_json({"ok": True, **view})
                 return
             if path == "/api/workdir":
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 8_000:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                raw = self.rfile.read(length) if length else b"{}"
-                try:
-                    request = json.loads(raw or b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(8_000)
+                if request is None:
                     return
                 value = request.get("path")
                 if value is None or str(value).strip() == "":
@@ -816,17 +947,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._send_json({"ok": True, "path": _WORKDIR})
                 return
             if path == "/api/upload":
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 40 * 1024 * 1024:
-                    self._send_json({"error": "body too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                raw = self.rfile.read(length) if length else b"{}"
-                try:
-                    request = json.loads(raw or b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(40 * 1024 * 1024)
+                if request is None:
                     return
                 name = request.get("name")
                 content_b64 = request.get("contentB64")
@@ -854,17 +976,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                  "bytes": len(data)})
                 return
             if path == "/api/quick-ask":
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length > 128_000:
-                    self._send_json({"error": "prompt too large"},
-                                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                try:
-                    request = json.loads(
-                        self.rfile.read(length) if length else b"{}")
-                except json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                    HTTPStatus.BAD_REQUEST)
+                request = self._json_body(128_000, too_large="prompt too large")
+                if request is None:
                     return
                 prompt = str(request.get("prompt", "")).strip()
                 if not prompt:
@@ -877,16 +990,8 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
             if path != "/api/run":
                 self._send_json({"error": "not_found"}, HTTPStatus.NOT_FOUND)
                 return
-            length = int(self.headers.get("Content-Length", "0") or 0)
-            if length > 128_000:
-                self._send_json({"error": "prompt too large"},
-                                HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                return
-            raw = self.rfile.read(length) if length else b"{}"
-            try:
-                request = json.loads(raw or b"{}")
-            except json.JSONDecodeError:
-                self._send_json({"error": "invalid json"}, HTTPStatus.BAD_REQUEST)
+            request = self._json_body(128_000, too_large="prompt too large")
+            if request is None:
                 return
             prompt = str(request.get("prompt", "")).strip()
             if not prompt:
@@ -993,24 +1098,13 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
 
         def _v2_sessions(self, path: str, sid: str, compat) -> None:
             """OpenCode-compatible sessions surface (tracer bullet)."""
-            import json as _json
-
             if sid == "":
                 if path != "/api/v2/sessions":
                     self._send_json({"error": "bad v2 path"}, HTTPStatus.NOT_FOUND)
                     return
                 if self.command == "POST":
-                    length = int(self.headers.get("Content-Length", "0") or 0)
-                    if length > 16_000:
-                        self._send_json({"error": "body too large"},
-                                       HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                        return
-                    raw = self.rfile.read(length) if length else b"{}"
-                    try:
-                        request = _json.loads(raw or b"{}")
-                    except _json.JSONDecodeError:
-                        self._send_json({"error": "invalid json"},
-                                       HTTPStatus.BAD_REQUEST)
+                    request = self._json_body(16_000)
+                    if request is None:
                         return
                     title = str(request.get("title", "Untitled")).strip() or "Untitled"
                     created = compat.create_session(title)
@@ -1065,18 +1159,9 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                    HTTPStatus.METHOD_NOT_ALLOWED)
                     return
                 sid = base
-                length = int(self.headers.get("Content-Length", "0") or 0)
                 # 32 MB cap: text turns stay tiny; image turns can be several MB
-                if length > 32 * 1024 * 1024:
-                    self._send_json({"error": "body too large"},
-                                   HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    return
-                raw = self.rfile.read(length) if length else b"{}"
-                try:
-                    request = _json.loads(raw or b"{}")
-                except _json.JSONDecodeError:
-                    self._send_json({"error": "invalid json"},
-                                   HTTPStatus.BAD_REQUEST)
+                request = self._json_body(32 * 1024 * 1024)
+                if request is None:
                     return
                 text = str(request.get("text", "")).strip()
                 workdir = str(request.get("workdir", "")).strip() or None
@@ -1201,18 +1286,10 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                    HTTPStatus.METHOD_NOT_ALLOWED)
                     return
                 sid = base
-                approval_id = None
-                length = int(self.headers.get("Content-Length", "0") or 0)
-                if length:
-                    raw = self.rfile.read(length) if length else b"{}"
-                    try:
-                        body = _json.loads(raw or b"{}")
-                        if isinstance(body, dict):
-                            approval_id = body.get("approval_id")
-                    except _json.JSONDecodeError:
-                        self._send_json({"error": "invalid json"},
-                                        HTTPStatus.BAD_REQUEST)
-                        return
+                body = self._json_body(16_000)
+                if body is None:
+                    return
+                approval_id = body.get("approval_id")
                 try:
                     if rest == "approve":
                         result = compat.approve(sid, approval_id=approval_id)
@@ -1358,7 +1435,7 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
         def log_message(self, format, *args):  # keep stderr quiet; keel owns logs
             pass
 
-    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    return _KeelThreadingHTTPServer(("127.0.0.1", port), Handler)
 
 
 def serve(port: int = DEFAULT_PORT, *, start: bool = True) -> None:

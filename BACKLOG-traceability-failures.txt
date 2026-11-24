@@ -1,0 +1,60 @@
+D6.1	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.10	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.11	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.12	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.13	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.15	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.16	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.19	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.22	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.24	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.25	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.3	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.4	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.5	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.6	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.7	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.8	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+D6.9	d6_reliability_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.10	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.11	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.13	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.16	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.17	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.18	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.19	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.2	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.3	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.5	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.6	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.7	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E5.8	e5_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+E6.11	e6_x5_x6_backend	evidence doc does not mention ID
+E6.12	e6_x5_x6_backend	evidence doc does not mention ID
+E6.13	e6_x5_x6_backend	evidence doc does not mention ID
+E6.14	e6_x5_x6_backend	evidence doc does not mention ID
+E6.2	e6_x5_x6_backend	evidence doc does not mention ID
+E6.3	e6_x5_x6_backend	evidence doc does not mention ID
+E6.4	e6_x5_x6_backend	evidence doc does not mention ID
+E6.6	e6_x5_x6_backend	evidence doc does not mention ID
+E6.7	e6_x5_x6_backend	evidence doc does not mention ID
+X5.10	e6_x5_x6_backend	evidence doc does not mention ID
+X5.11	e6_x5_x6_backend	evidence doc does not mention ID
+X5.12	e6_x5_x6_backend	evidence doc does not mention ID
+X5.13	e6_x5_x6_backend	evidence doc does not mention ID
+X5.2	e6_x5_x6_backend	evidence doc does not mention ID
+X5.3	e6_x5_x6_backend	evidence doc does not mention ID
+X5.4	e6_x5_x6_backend	evidence doc does not mention ID
+X5.7	e6_x5_x6_backend	evidence doc does not mention ID
+X5.8	e6_x5_x6_backend	evidence doc does not mention ID
+X6.1	e6_x5_x6_backend	evidence doc does not mention ID
+X6.10	e6_x5_x6_backend	evidence doc does not mention ID
+X6.2	e6_x5_x6_backend	evidence doc does not mention ID
+X6.3	e6_x5_x6_backend	evidence doc does not mention ID
+X6.4	e6_x5_x6_backend	evidence doc does not mention ID
+X6.5	e6_x5_x6_backend	evidence doc does not mention ID
+X6.6	e6_x5_x6_backend	evidence doc does not mention ID
+X6.8	e6_x5_x6_backend	evidence doc does not mention ID
+X6.9	e6_x5_x6_backend	evidence doc does not mention ID
+Y2.16	y2_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test
+Y3.8	w7_x1_y5_d1_backend	module: no AST construct for ID and no evidence-doc row mapping the ID to a real symbol + real test; test: no test function/class/decorator references the ID or a mapped symbol, and no evidence-doc row names a real test function; evidence doc does not mention ID

@@ -72,15 +72,38 @@ def save(doc: dict) -> None:
     if SETTINGS_PATH.is_file():
         try:
             shutil.copy2(SETTINGS_PATH, BACKUP_PATH)
+            _harden(BACKUP_PATH)
         except OSError:
             pass
     tmp = SETTINGS_PATH.with_suffix(".json.tmp")
-    tmp.write_bytes(json.dumps(doc, indent=2, ensure_ascii=False).encode("utf-8"))
-    tmp.replace(SETTINGS_PATH)
+    payload = json.dumps(doc, indent=2, ensure_ascii=False).encode("utf-8")
+    # O_TRUNC (rather than O_EXCL) keeps concurrent saves from failing when a
+    # previous run left a stale temp file; the 0600 creation mode still closes
+    # the world-readable window for the normal case.
+    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    fd = os.open(str(tmp), flags, 0o600)
     try:
-        os.chmod(SETTINGS_PATH, 0o600)
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(payload)
+    except BaseException:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+        raise
+    _harden(tmp)
+    tmp.replace(SETTINGS_PATH)
+    _harden(SETTINGS_PATH)
+
+
+def _harden(path: Path) -> None:
+    """Best-effort owner-only mode on a secret-bearing local file."""
+    try:
+        os.chmod(path, 0o600)
     except OSError:
-        pass  # best effort on Windows
+        pass  # Windows has no POSIX mode bits
 
 
 def get_ui(doc: Optional[dict] = None) -> dict:
@@ -228,9 +251,20 @@ def merge_import(doc: dict, *, include_keys: bool) -> dict:
         for name, entry in doc["providerKeys"].items():
             if isinstance(entry, dict) and isinstance(entry.get("key"), str) and entry["key"].strip():
                 key = entry["key"].strip()
+                # Imported keys must get the same AES-GCM-at-rest protection as
+                # keys saved through save_provider_key(), otherwise an export
+                # containing plaintext keys silently defeats encryption. An
+                # already-encrypted entry is preserved verbatim (including its
+                # marker) rather than being encrypted twice.
+                encrypted = entry.get("enc") == secret_store.ENC_MARKER
+                hint = entry.get("hint")
+                if not isinstance(hint, str) or not hint:
+                    hint = key[-4:] if len(key) >= 4 else key
                 keys[name] = {
-                    "key": key,
-                    "hint": key[-4:] if len(key) >= 4 else key,
+                    "key": key if encrypted else secret_store.encrypt_secret(
+                        key, state_dir=STATE_DIR),
+                    "enc": secret_store.ENC_MARKER,
+                    "hint": hint,
                     "savedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 }
         merged["providerKeys"] = keys

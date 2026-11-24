@@ -27,7 +27,9 @@ class BudgetCheck:
 
 def check(measurements: dict[str, float],
           budgets: dict[str, float] | None = None) -> list[BudgetCheck]:
-    limits = budgets or DEFAULT_BUDGETS
+    # An explicitly empty mapping means "no budgets to check", not "use the
+    # defaults"; only None triggers the default set.
+    limits = DEFAULT_BUDGETS if budgets is None else budgets
     results = []
     for name, limit in limits.items():
         if name not in measurements:

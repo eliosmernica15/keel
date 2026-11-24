@@ -47,16 +47,21 @@ def read_docx(path: str | Path) -> str:
     paragraphs = []
     for para in root.iter(W_NS + "p"):
         text = "".join(node.text or "" for node in para.iter(W_NS + "t"))
-        if text.strip():
-            paragraphs.append(text)
+        # Keep empty paragraphs: write_docx emits one <w:p> per source line,
+        # so dropping blank lines silently corrupts a create -> read -> restart
+        # -> read roundtrip (and any Q&A offsets derived from it).
+        paragraphs.append(text)
     return "\n".join(paragraphs)
 
 
 def write_docx(path: str | Path, text: str) -> Path:
     """Write a minimal, valid DOCX that Word/LibreOffice can open."""
+    # One paragraph per *line* including blank lines and a trailing newline,
+    # so read_docx can restore the exact written text (lossless persistence).
+    normalized = str(text).replace("\r\n", "\n").replace("\r", "\n")
     body = "".join(
         f"<w:p><w:r><w:t xml:space=\"preserve\">{_escape(line)}</w:t></w:r></w:p>"
-        for line in str(text).splitlines())
+        for line in normalized.split("\n"))
     document = _DOCX_TEMPLATE.format(body=body or "<w:p/>")
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)

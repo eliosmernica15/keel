@@ -1,0 +1,62 @@
+#!/bin/sh
+# Local compensating control for C11.1/C11.2.
+#
+# The repository is private on GitHub's free plan. On that plan GitHub does not
+# support branch protection (confirmed live: GET branches/main/protection ->
+# 403 "Upgrade to GitHub Pro or make this repository public"). The Master Plan
+# C11.1 explicitly permits this trade-off when paired with local pre-push
+# hooks, gitleaks and signed commits.
+#
+# Install once in each clone:
+#   git config core.hooksPath .githooks
+#
+# This hook FAILS CLOSED: if a required local tool is missing, the push is
+# refused with an actionable message rather than silently allowing the push.
+
+set -eu
+
+echo "[keel pre-push] enforcing local branch policy"
+
+# 1. No direct pushes to main. All changes reach main through a reviewed PR.
+current_branch="$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo '')"
+while read -r local_ref _local_sha remote_ref _remote_sha; do
+    [ -z "$local_ref" ] && continue
+    case "$remote_ref" in
+        refs/heads/main)
+            echo "[keel pre-push] BLOCKED: direct push to main is not allowed." >&2
+            echo "[keel pre-push] Open a pull request from a topic branch instead." >&2
+            exit 1
+            ;;
+    esac
+done
+if [ "$current_branch" = "main" ]; then
+    echo "[keel pre-push] BLOCKED: refusing to push while on main." >&2
+    exit 1
+fi
+
+# 2. Secret scan. gitleaks must be installed and configured.
+if command -v gitleaks >/dev/null 2>&1; then
+    if ! gitleaks detect --no-banner --redact --config .gitleaks.toml --source .; then
+        echo "[keel pre-push] BLOCKED: gitleaks found a potential secret." >&2
+        exit 1
+    fi
+else
+    echo "[keel pre-push] BLOCKED: gitleaks is not installed." >&2
+    echo "[keel pre-push] Install it from https://github.com/gitleaks/gitleaks" >&2
+    echo "[keel pre-push] or install the pre-commit hooks: pre-commit install" >&2
+    exit 1
+fi
+
+# 3. Version consistency gate. The script lives under keel/, not at the
+# repository root; run it from keel/ so its relative path resolution works.
+if [ -f keel/scripts/check_version_sync.py ]; then
+    if ! (cd keel && python scripts/check_version_sync.py); then
+        echo "[keel pre-push] BLOCKED: version consistency check failed." >&2
+        exit 1
+    fi
+else
+    echo "[keel pre-push] BLOCKED: keel/scripts/check_version_sync.py is missing." >&2
+    exit 1
+fi
+
+echo "[keel pre-push] checks passed"

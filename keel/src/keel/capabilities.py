@@ -96,15 +96,30 @@ def invoke(cap_id: str, params: dict | None = None, *,
     # carrying a command or URL is checked before its handler runs.
     from .policy_enforcement import enforce as _enforce_policy
 
-    enforced = _enforce_policy(
-        cap_id, params,
-        state_root=context.get("state_root"),
-        interactive=bool(context.get("interactive")),
-        confirmed=bool(context.get("confirm")))
+    try:
+        enforced = _enforce_policy(
+            cap_id, params,
+            state_root=context.get("state_root"),
+            interactive=bool(context.get("interactive")),
+            confirmed=bool(context.get("confirm")))
+    except CapabilityError:
+        raise
+    except Exception as exc:
+        # A corrupt policy file must never surface as a raw JSON/OS error or
+        # bypass the typed CapabilityError boundary used by every transport.
+        raise CapabilityError(
+            f"policy evaluation failed for {cap_id}: "
+            f"{type(exc).__name__}: {exc}"[:500], code="policy_error") from exc
     if enforced is not None and enforced.decision == "deny":
         raise CapabilityError(
             f"execution policy denied {cap_id}: {enforced.reason}",
             code="policy_denied")
+    if (enforced is not None and enforced.decision == "ask"
+            and context.get("confirm") is not True):
+        # An unconfirmed `ask` must fail closed on every transport.
+        raise CapabilityError(
+            f"execution policy requires confirmation for {cap_id}: {enforced.reason}",
+            code="confirmation_required")
     started = time.monotonic()
     try:
         result = cap.handler(params, context)
@@ -130,3 +145,69 @@ def record_audit(state_root: str | Path, entry: dict) -> None:
     record.setdefault("ts", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
     with open(path, "a", encoding="utf-8") as handle:
         handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+
+# --- Master Plan v6 backend module integration -----------------------------
+# The 20 backend modules implemented for the v6 registry are reached through
+# this authenticated, permission-aware surface (web bridge, CLI, TUI, desktop).
+# Handlers import the hub lazily so capability-hub import stays cheap.
+
+
+def _register_backend_capabilities() -> None:
+    from . import backend_hub as _hub
+
+    def _bad(exc: Exception) -> CapabilityError:
+        return CapabilityError(str(exc), code="bad_request")
+
+    @capability(
+        "backend.modules", "backend_hub", "core", "read",
+        "List integrated v6 backend modules and their feature counts",
+        schema={"type": "object", "properties": {}},
+    )
+    def _backend_modules(params: dict, context: dict):
+        return {"modules": _hub.modules(), "feature_count": len(_hub.feature_ids())}
+
+    @capability(
+        "backend.describe", "backend_hub", "core", "read",
+        "Describe a backend module's feature IDs and dispatchable functions",
+        schema={"type": "object", "properties": {
+            "module": {"type": "string"}}, "required": ["module"]},
+    )
+    def _backend_describe(params: dict, context: dict):
+        try:
+            return _hub.describe(params.get("module"))
+        except _hub.BackendHubError as exc:
+            raise _bad(exc) from exc
+
+    @capability(
+        "backend.invoke", "backend_hub", "core", "execute",
+        "Execute an allowlisted deterministic function from a backend module",
+        schema={"type": "object", "properties": {
+            "module": {"type": "string"},
+            "function": {"type": "string"},
+            "params": {"type": "object"}},
+            "required": ["module", "function"]},
+        mutates=False,
+    )
+    def _backend_invoke(params: dict, context: dict):
+        try:
+            return _hub.invoke(
+                params.get("module", ""), params.get("function", ""),
+                params.get("params") or {})
+        except _hub.BackendHubError as exc:
+            raise _bad(exc) from exc
+
+    @capability(
+        "backend.verify", "backend_hub", "core", "read",
+        "Verify a backend module imports and declares its feature contract",
+        schema={"type": "object", "properties": {
+            "module": {"type": "string"}}, "required": ["module"]},
+    )
+    def _backend_verify(params: dict, context: dict):
+        try:
+            return _hub.verify(params.get("module", ""))
+        except _hub.BackendHubError as exc:
+            raise _bad(exc) from exc
+
+
+_register_backend_capabilities()

@@ -179,7 +179,8 @@ class Tui:
             return True
         if line.startswith("/invoke "):
             from . import capability_registry  # noqa: F401
-            from .capabilities import CapabilityError, invoke
+            from .capabilities import (CapabilityError, get, invoke,
+                                       record_audit)
 
             rest = line[len("/invoke "):].strip()
             parts = rest.split(None, 1)
@@ -191,12 +192,55 @@ class Tui:
                 except json.JSONDecodeError:
                     self.out("[error] invalid JSON params")
                     return True
+            cap = get(cap_id)
+            if cap is None:
+                self.out(f"[error] unknown capability: {cap_id}")
+                return True
+            needs_confirm = bool(cap.permission in ("write", "execute")
+                                 or cap.mutates)
+            if not needs_confirm:
+                # A saved policy can require consent even for a read-tier
+                # capability that carries a command or URL. Probe it as an
+                # interactive call: an "ask" verdict means the user must
+                # approve before the handler runs.
+                try:
+                    from .policy_enforcement import enforce
+
+                    assessment = enforce(
+                        cap_id, params, state_root=self.state_root,
+                        interactive=True, confirmed=False)
+                    needs_confirm = bool(
+                        assessment is not None and assessment.decision == "ask")
+                except (OSError, ValueError):
+                    needs_confirm = True  # fail closed on an unreadable policy
+            confirmed = False
+            if needs_confirm:
+                try:
+                    answer = self.inp(
+                        f"Confirm {cap_id} ({cap.permission})? [y/N] ")
+                except (EOFError, KeyboardInterrupt):
+                    answer = ""
+                if answer.strip().lower() not in ("y", "yes"):
+                    self.out(f"[cancelled] {cap_id} not invoked")
+                    return True
+                confirmed = True
             try:
                 result = invoke(cap_id, params, context={
-                    "state_root": self.state_root, "cwd": self.cwd})
+                    "state_root": self.state_root, "cwd": self.cwd,
+                    "confirm": confirmed, "interactive": True})
+                record_audit(self.state_root, {"capability": cap_id,
+                                               "ok": True, "surface": "tui"})
                 self.out(json.dumps(result.get("result"), default=str)[:2000])
             except CapabilityError as exc:
+                record_audit(self.state_root, {"capability": cap_id,
+                                               "ok": False, "code": exc.code,
+                                               "surface": "tui"})
                 self.out(f"[error] {exc.code}: {exc}")
+            except Exception as exc:  # policy/handler faults must not crash the TUI
+                record_audit(self.state_root, {"capability": cap_id,
+                                               "ok": False, "code": "runtime_error",
+                                               "surface": "tui"})
+                self.out(f"[error] {type(exc).__name__}: {exc}")
             return True
         if line == "/history":
             session = self.sessions.get(self.active_id)

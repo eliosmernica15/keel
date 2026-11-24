@@ -7,8 +7,30 @@ with dedupe/integrity, and SQLite integrity check + backup helpers. All local.
 from __future__ import annotations
 
 import hashlib
+import os
 import sqlite3
 from pathlib import Path
+
+
+def _atomic_write(path: Path, data: str | bytes) -> None:
+    """Write *data* to *path* via a same-directory temp file + os.replace.
+
+    A crash during the write leaves only the temp file; the previously
+    published state at *path* stays intact and is never observed half-written.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.{os.urandom(6).hex()}.tmp")
+    try:
+        if isinstance(data, bytes):
+            tmp.write_bytes(data)
+        else:
+            tmp.write_text(data, encoding="utf-8")
+        os.replace(tmp, path)
+    finally:
+        try:
+            tmp.unlink(missing_ok=True)
+        except OSError:
+            pass
 
 
 class CanaryFiles:
@@ -29,9 +51,8 @@ class CanaryFiles:
         paths = self._load()
         if path not in paths:
             paths.append(path)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
         import json
-        self.path.write_text(json.dumps(paths) + "\n", encoding="utf-8")
+        _atomic_write(self.path, json.dumps(paths) + "\n")
 
     def touches(self, path: str) -> bool:
         return any(path == canary or path.startswith(canary.rstrip("/") + "/")
@@ -45,9 +66,14 @@ class ContentStore:
     def put(self, data: bytes) -> str:
         digest = hashlib.sha256(data).hexdigest()
         target = self.root / digest[:2] / digest
-        if not target.exists():
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(data)
+        if target.is_file():
+            try:
+                existing = target.read_bytes()
+            except OSError:
+                existing = b""
+            if hashlib.sha256(existing).hexdigest() == digest:
+                return digest
+        _atomic_write(target, data)
         return digest
 
     def get(self, digest: str) -> bytes | None:

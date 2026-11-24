@@ -24,13 +24,13 @@ import json
 import os
 import re
 import secrets
+import shlex
 import threading
 import time
-
-_POLICY_IO_LOCK = threading.Lock()
-import shlex
 from dataclasses import dataclass, field
 from pathlib import Path
+
+_POLICY_IO_LOCK = threading.Lock()
 
 ALLOW = "allow"
 PROMPT = "prompt"
@@ -56,6 +56,30 @@ def tokenize(command: str | list[str] | tuple[str, ...]) -> list[str]:
         # Unbalanced quotes: keep a conservative token list rather than
         # silently dropping part of the command.
         return command.split()
+
+
+def _split_windows_command(command: str) -> list[str]:
+    """Split a Windows command without letting shlex eat path backslashes.
+
+    The executable token (which may be quoted and may contain spaces) is kept
+    intact; the remaining arguments are tokenized normally so prefix rules can
+    still inspect them. Previously the entire command string became a single
+    token, which meant no multi-token rule could ever match an absolute-path
+    invocation.
+    """
+    text = command.strip()
+    if text.startswith(("\"", "'")):
+        quote = text[0]
+        end = text.find(quote, 1)
+        if end != -1:
+            first, rest = text[1:end], text[end + 1:].strip()
+            return [first, *tokenize(rest)] if rest else [first]
+    parts = text.split(None, 1)
+    if not parts:
+        return []
+    first = parts[0]
+    rest = tokenize(parts[1]) if len(parts) > 1 else []
+    return [first, *rest]
 
 
 def normalize_host(raw: str) -> str:
@@ -166,10 +190,11 @@ class ExecPolicy:
               resolve_host_executables: bool = False,
               heuristics=None) -> Evaluation:
         # Host-executable checks receive a path as the first token; on Windows
-        # shlex would consume the backslashes, so keep it intact.
+        # shlex would consume the backslashes, so keep the executable intact
+        # while still tokenizing its arguments.
         if (isinstance(command, str) and resolve_host_executables
                 and _WIN_PATH.match(command)):
-            tokens = [command]
+            tokens = _split_windows_command(command)
         else:
             tokens = tokenize(command)
         matches: list[RuleMatch] = []
@@ -194,9 +219,23 @@ class ExecPolicy:
         first = tokens[0]
         path = Path(first)
         basename = path.name if first not in ("", ".") else ""
-        if not basename or basename not in self.rules_by_program:
+        if basename:
+            stem = basename
+            for extension in (".exe", ".bat", ".cmd", ".com", ".ps1"):
+                if stem.lower().endswith(extension):
+                    stem = stem[:-len(extension)]
+                    break
+            candidates = [name for name in (basename, stem) if name]
+        else:
+            candidates = []
+        for candidate in candidates:
+            if candidate in self.rules_by_program:
+                basename = candidate
+                break
+        else:
             return []
         allowed = self.host_executables.get(basename)
+        resolved = None
         if allowed is not None:
             try:
                 resolved = str(path.resolve())
@@ -344,16 +383,41 @@ def from_dict(doc: dict) -> ExecPolicy:
 
 
 def read_policy_doc(path: str | Path) -> dict | None:
-    """Read a policy document under the shared IO lock (atomic snapshot)."""
+    """Read a policy document under the shared IO lock (atomic snapshot).
+
+    The file is read exactly once, in full, and the JSON is parsed from that
+    in-memory snapshot. There is deliberately no ``is_file()`` pre-check: a
+    check-then-read pair lets the file vanish or be swapped between the two
+    operations, which previously raised out of the permission evaluator.
+    """
     target = Path(path)
-    if not target.is_file():
-        return None
     with _POLICY_IO_LOCK:
-        return json.loads(target.read_text(encoding="utf-8"))
+        try:
+            raw = target.read_bytes()
+        except (FileNotFoundError, IsADirectoryError, OSError):
+            return None
+        return json.loads(raw)
 
 
 def load_policy(path: str | Path) -> ExecPolicy:
     return from_dict(read_policy_doc(path) or {})
+
+
+def _atomic_private_write(path: Path, payload: str) -> None:
+    """Stage *payload* in an owner-only temp file (no readable window)."""
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    fd = os.open(str(path), flags, 0o600)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(payload)
+    except BaseException:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+        raise
 
 
 class ExecPolicyStore:
@@ -379,8 +443,8 @@ class ExecPolicyStore:
                 tmp = path.with_suffix(path.suffix + ".tmp-"
                                        + secrets.token_hex(4))
                 try:
-                    tmp.write_text(json.dumps(doc, indent=2) + "\n",
-                                   encoding="utf-8")
+                    _atomic_private_write(
+                        tmp, json.dumps(doc, indent=2) + "\n")
                     os.replace(tmp, path)
                     return path
                 except OSError:

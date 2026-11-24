@@ -1,0 +1,1824 @@
+{
+  "features": [
+    {
+      "id": "W1.1",
+      "feature": "\"Everything is a plugin\" architecture: core features themselves are plugins on a composable runtime (built on Cordis; paper cited in README).",
+      "detail": "Keel is Python; do not adopt Cordis. Clean-room: build a plugin scope tree (see V1) so providers, tools, channels, UI panels, memory backends and even built-in agents register through the same plugin API and can be disabled/replaced.",
+      "milestone": "M10",
+      "priority": "P0",
+      "tag/source": "T:DS",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "DeepSeek Harness README: Cordis-based composable runtime",
+        "DeepSeek Harness README: cited paper"
+      ],
+      "dependencies": [
+        "V1"
+      ],
+      "acceptance_criteria": "Confirm: Keel is Python;",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.2",
+      "feature": "Single command web launch (`npx @deepseek-ai/dsh web`) serving a Web UI at `127.0.0.1:3080`, auto-opening the browser locally.",
+      "detail": "`keel web` (A1.4) default loopback port; `--no-open`; also `pipx run`/`uvx` style zero-install launch documented for devs only.",
+      "milestone": "M20",
+      "priority": "P1",
+      "tag/source": "T:DS",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README: single-command web launch (`npx @deepseek-ai/dsh web`)",
+        "README: Web UI at 127.0.0.1:3080",
+        "README/tree: --no-open flag"
+      ],
+      "dependencies": [
+        "A1.4"
+      ],
+      "acceptance_criteria": "Confirm: `keel web` (A1.4) default loopback port;",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.3",
+      "feature": "SSH-aware launch: over SSH only print the host URL (client or editor owns the forwarded address).",
+      "detail": "Detect `SSH_CONNECTION`/`SSH_TTY`; print URL + forwarding hint, never open a browser.",
+      "milestone": "M20",
+      "priority": "P1",
+      "tag/source": "T:DS",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README: SSH-aware launch behaviour"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Detect `SSH_CONNECTION`/`SSH_TTY`;",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.4",
+      "feature": "`--no-open` flag; Web and Desktop targets from one codebase (`apps/`, `native/`, Makefile targets for both).",
+      "detail": "One renderer bundle used by Electron and `keel web` (A1.4); `make help` style task list for builder.",
+      "milestone": "M19, M20",
+      "priority": "P1",
+      "tag/source": "T:DS tree",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README/tree: --no-open flag",
+        "file tree: apps/, native/, Makefile (Web + Desktop targets)"
+      ],
+      "dependencies": [
+        "A1.4"
+      ],
+      "acceptance_criteria": "Confirm: One renderer bundle used by Electron and `keel web` (A1.4);",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.5",
+      "feature": "Test suite taxonomy by config: unit, bench, e2e, expected (golden expected outputs), snapshot, web, web-stress, web-perf as separate runner configs; plus Python tests (`pytest.ini`).",
+      "detail": "Mirror as separate CI jobs: `unit`, `bench`, `e2e`, `golden`, `snapshot`, `web`, `web-stress`, `web-perf`. Adds `web-stress` and `golden` which Addendum 3 lacked as named suites.",
+      "milestone": "M25",
+      "priority": "P0",
+      "tag/source": "T:DS tree",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "file tree: test runner configs (unit/bench/e2e/expected/snapshot/web/web-stress/web-perf) + pytest.ini"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Separate CI jobs exist for unit, bench, e2e, golden, snapshot, web, web-stress and web-perf; web-stress and golden are named suites.",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.6",
+      "feature": "`benchmarks/` + `BENCHMARK.md` at repo root, and `snapshots/` folder.",
+      "detail": "Private benchmark folder with documented method; per-release results stored (C13.5).",
+      "milestone": "M21",
+      "priority": "P1",
+      "tag/source": "T:DS tree",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "file tree: benchmarks/ + BENCHMARK.md",
+        "file tree: snapshots/"
+      ],
+      "dependencies": [
+        "C13.5"
+      ],
+      "acceptance_criteria": "Confirm: Private benchmark folder with documented method;",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.7",
+      "feature": "Staged-only lint config (`.oxlintrc.staged.json`), `lefthook.yml` git hooks, `.jscpd.json` duplicate-code detector, `.rgignore` (files ripgrep should skip), `.gitattributes`, `.editorconfig`.",
+      "detail": "Python equivalents: ruff on staged files via lefthook/pre-commit; add a duplicate-code check (jscpd is MIT, verify) and a project `.rgignore` consumed by Keel's own grep tool.",
+      "milestone": "M0",
+      "priority": "P1",
+      "tag/source": "T:DS tree",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "file tree: .oxlintrc.staged.json",
+        "file tree: lefthook.yml",
+        "file tree: .jscpd.json duplicate-code detector",
+        "file tree: .rgignore",
+        "file tree: .gitattributes",
+        "file tree: .editorconfig"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "ruff runs on staged files via hook; duplicate-code check exists and .rgignore is consumed by Keel's own grep tool.",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.8",
+      "feature": "Dual CI config (`.github` and `.gitlab-ci.yml`) in one repo.",
+      "detail": "Supports C11.1: keep CI definitions portable so the private repo can be mirrored to a free forge with protected branches.",
+      "milestone": "M1",
+      "priority": "P1",
+      "tag/source": "T:DS tree",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "file tree: dual CI (.github, .gitlab-ci.yml)"
+      ],
+      "dependencies": [
+        "C11.1"
+      ],
+      "acceptance_criteria": "Confirm: Supports C11.1: keep CI definitions portable so the private repo can be mirrored to a free forge with protected branches.",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.9",
+      "feature": "`i18n.yaml` single-source docs: `README.i18n.yaml`, `CONTRIBUTING.i18n.yaml`, `SAFETY.i18n.yaml`, `BRAND_GUIDELINES.i18n.yaml` alongside `.md` and `.zh.md`.",
+      "detail": "Keep user-facing docs (README-equivalents, safety notice, EULA summary) as YAML string sources and generate localized Markdown/HTML in CI (extends M25 i18n).",
+      "milestone": "M25",
+      "priority": "P1",
+      "tag/source": "T:DS tree",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "file tree: i18n.yaml single-source docs",
+        "README/tree: SAFETY.md / first-run safety notice",
+        "README/tree: BRAND_GUIDELINES"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Keep user-facing docs (README-equivalents, safety notice, EULA summary) as YAML string sources and generate localized Markdown/HTML in CI (extends M25 i18n).",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.10",
+      "feature": "`SAFETY.md` surfaced as a first-run notice (\"review the safety notice before running\").",
+      "detail": "In-app Safety notice shown at first run and linked from the website; versioned, re-shown when changed (like EULA, C11.5).",
+      "milestone": "M19, M23",
+      "priority": "P0",
+      "tag/source": "T:DS",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README/tree: SAFETY.md / first-run safety notice",
+        "README: Discussions-only feedback, Discord, citation block, docs site, website folder"
+      ],
+      "dependencies": [
+        "C11.5"
+      ],
+      "acceptance_criteria": "Confirm: In-app Safety notice shown at first run and linked from the website;",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.11",
+      "feature": "Developer-preview banner: explicit \"compatibility-breaking changes will happen\".",
+      "detail": "Experimental-label policy (X6.10) and a visible version/stability channel in About.",
+      "milestone": "M19, M22",
+      "priority": "P1",
+      "tag/source": "T:DS",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README: developer-preview banner"
+      ],
+      "dependencies": [
+        "X6.10"
+      ],
+      "acceptance_criteria": "Confirm: Experimental-label policy (X6.10) and a visible version/stability channel in About.",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.12",
+      "feature": "`BRAND_GUIDELINES` file (also localized).",
+      "detail": "Keel brand/usage guidelines (C11.7) generated into the website.",
+      "milestone": "M23",
+      "priority": "P2",
+      "tag/source": "T:DS tree",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README/tree: BRAND_GUIDELINES",
+        "README: Discussions-only feedback, Discord, citation block, docs site, website folder"
+      ],
+      "dependencies": [
+        "C11.7"
+      ],
+      "acceptance_criteria": "Confirm: Keel brand/usage guidelines (C11.7) generated into the website.",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.13",
+      "feature": "Builder instruction files for multiple AI tools: `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`.",
+      "detail": "Private repo keeps `AGENTS.md` plus a `CLAUDE.md` pointer so any AI builder picks up the same rules; Keel also reads these files as instruction sources (C7.1).",
+      "milestone": "M0",
+      "priority": "P1",
+      "tag/source": "T:DS tree",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "file tree: AGENTS.md / CLAUDE.md / .agents/ / .claude/"
+      ],
+      "dependencies": [
+        "C7.1"
+      ],
+      "acceptance_criteria": "Confirm: Private repo keeps `AGENTS.md` plus a `CLAUDE.md` pointer so any AI builder picks up the same rules;",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.14",
+      "feature": "Plugin discoverability via a repository topic (`dsh-plugin`).",
+      "detail": "Excluded as public mechanism (G7: extension docs private). Replace with a private plugin index file the app reads.",
+      "milestone": "M10",
+      "priority": "P2",
+      "tag/source": "T:DS",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README: dsh-plugin repository topic"
+      ],
+      "dependencies": [
+        "G7"
+      ],
+      "acceptance_criteria": "Confirm: Excluded as public mechanism (G7: extension docs private).",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.15",
+      "feature": "`python/` package in a TS monorepo (language bindings or SDK).",
+      "detail": "Treat as evidence that an SDK in the other language is expected; Keel ships Python SDK plus a thin TypeScript client (X6.3). Verify what `python/` actually contains in M0.",
+      "milestone": "M20",
+      "priority": "P1",
+      "tag/source": "T:DS tree",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "file tree: python/ package in TS monorepo"
+      ],
+      "dependencies": [
+        "X6.3"
+      ],
+      "acceptance_criteria": "Confirm: Treat as evidence that an SDK in the other language is expected;",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.16",
+      "feature": "`patches/` and `vendor/` folders for patched/vendored dependencies.",
+      "detail": "Policy: vendored code lives in `vendor/` with its license file and a `PATCHES.md` listing each local modification and upstream issue.",
+      "milestone": "M0, M1",
+      "priority": "P1",
+      "tag/source": "T:DS tree",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "file tree: patches/ and vendor/ folders"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Policy: vendored code lives in `vendor/` with its license file and a `PATCHES.md` listing each local modification and upstream issue.",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.17",
+      "feature": "Discussions-only feedback (no Issues tab visible), Discord, citation block, docs site, website folder in repo.",
+      "detail": "Keel: private repo, so feedback via email and in-app redacted bundle (C10.4); public docs site only (no source links).",
+      "milestone": "M23",
+      "priority": "P2",
+      "tag/source": "T:DS",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README: Discussions-only feedback, Discord, citation block, docs site, website folder"
+      ],
+      "dependencies": [
+        "C10.4"
+      ],
+      "acceptance_criteria": "Confirm: Keel: private repo, so feedback via email and in-app redacted bundle (C10.4);",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W1.18",
+      "feature": "MIT license + `THIRD_PARTY_NOTICES.md`.",
+      "detail": "Same notices rule; verify `LICENSE` text and every `vendor/` license in M0 before reading any code.",
+      "milestone": "M0",
+      "priority": "P0",
+      "tag/source": "T:DS",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "file tree: patches/ and vendor/ folders",
+        "README/tree: MIT license + THIRD_PARTY_NOTICES.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same notices rule;",
+      "section": "2. DeepSeek Harness (DS): features and what to take"
+    },
+    {
+      "id": "W2.1",
+      "feature": "Markdown agent files with YAML frontmatter; nested path becomes agent ID (`team/reviewer`); global + project locations; same fields as config entries; body is the system prompt.",
+      "detail": "`.keel/agents//*.md`, nested IDs.",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: `.keel/agents//*.md`, nested IDs.",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W2.2",
+      "feature": "Modes `primary` / `subagent` / `all`; subagents run in child sessions with fresh context.",
+      "detail": "Agent `mode` field.",
+      "milestone": "M7, M12",
+      "priority": "P0",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Agent `mode` field.",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W2.3",
+      "feature": "Built-ins: build, plan, general (no further subagents), explore (read-only incl. web); hidden maintenance agents (`compaction`, `title`, `summary`) that are not user-selectable and have all actions denied except their job.",
+      "detail": "Ship the same set; hidden agents map to model roles (`summarizer`, `title`).",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Ship the same set;",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W2.4",
+      "feature": "`steps` limit: max model steps per turn; on the final step tools are removed and the model must summarize in text; new user input resets.",
+      "detail": "`max_steps` with forced-summary final step (also feeds doom-loop break C3.2).",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "C3.2"
+      ],
+      "acceptance_criteria": "On the final step tools are removed and the model must summarize in text; new user input resets the step count.",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W2.5",
+      "feature": "`hidden`, `color`, `disabled` agent fields; `disabled` removes a built-in at config load.",
+      "detail": "Same fields; `hidden` is visibility only, not security (document this).",
+      "milestone": "M7, M19",
+      "priority": "P1",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same fields;",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W2.6",
+      "feature": "Subagent launch permissions: parent's `subagent` rules control which agents it may launch (e.g., deny `*`, allow `reviewer`); child uses its own permissions, not a subset of parent's.",
+      "detail": "Per-agent allowlist of launchable agents; document that child permissions are independent.",
+      "milestone": "M12, M3",
+      "priority": "P0",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Per-agent allowlist of launchable agents;",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W2.7",
+      "feature": "Default agent resolution chain: configured default, else `build`, else first visible primary-capable; changing default does not alter existing sessions.",
+      "detail": "Same chain.",
+      "milestone": "M7",
+      "priority": "P1",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same chain.",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W2.8",
+      "feature": "`system` replaces the provider base prompt for that agent, but project instructions, skills, references still get added.",
+      "detail": "Prompt assembly order documented and golden-tested (X1.15).",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "X1.15"
+      ],
+      "acceptance_criteria": "Prompt assembly order is documented and golden-tested (X1.15).",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W2.9",
+      "feature": "Agent merge semantics: later scalars replace, maps merge by key, permission rules append; global rules apply before agent rules.",
+      "detail": "Config merger with these rules.",
+      "milestone": "M2",
+      "priority": "P0",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Config merger replaces scalars, merges maps by key, appends permission rules, and applies global rules before agent rules.",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W2.10",
+      "feature": "Model reference format `provider/model#variant` and an expanded object form.",
+      "detail": "Variant support (e.g., effort level) in model refs.",
+      "milestone": "M2",
+      "priority": "P1",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Variant support (e.g., effort level) in model refs.",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W2.11",
+      "feature": "Plan agent may write only plan files in a dedicated plan folder; shell stays permission-controlled.",
+      "detail": "Plan agent writes under `.keel/plans/` only (keeps Keel's \"plan cannot edit code\" rule).",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "[T:OC-AGENTS]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Plan agent writes under `.keel/plans/` only (keeps Keel's \"plan cannot edit code\" rule).",
+      "section": "3.1 Agents `[T:OC-AGENTS]`"
+    },
+    {
+      "id": "W3.1",
+      "feature": "Rule = `{action, resource, effect}`; effects `allow/deny/ask`; no match means ask.",
+      "detail": "Default-ask baseline.",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Default-ask baseline.",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.2",
+      "feature": "Last matching rule wins (broad first, exceptions after); rules combine in order: lower-priority config, global, then agent.",
+      "detail": "See Conflict C-1 in Section 6: pick one order and document; show \"winning rule\" in policy simulator.",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "C-1"
+      ],
+      "acceptance_criteria": "Confirm: See Conflict C-1 in Section 6: pick one order and document;",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.3",
+      "feature": "Wildcards: `*` matches any characters including `/`; `?` one character; whole-value match; backslashes normalized; case-insensitive on Windows; shell pattern ending ` *` also matches the bare command.",
+      "detail": "Same matcher with property tests (B7.1).",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "B7.1"
+      ],
+      "acceptance_criteria": "Matcher passes property tests (B7.1) for *, ?, whole-value match, backslash normalization, case-insensitive Windows behaviour and shell trailing-* behaviour.",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.4",
+      "feature": "Multi-resource operations: any `deny` denies; else any `ask` asks; else allow (e.g., a patch touching several files).",
+      "detail": "Same aggregation.",
+      "milestone": "M3, M5",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same aggregation.",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.5",
+      "feature": "`~` / `$HOME` expansion at config load for path actions only; shell resources stay raw text.",
+      "detail": "Same.",
+      "milestone": "M3",
+      "priority": "P1",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same.",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.6",
+      "feature": "`external_directory` action: paths outside the project/worktree are checked before read/edit rules. opencode's default is allow.",
+      "detail": "Keel default: ask (Cautious/Balanced), allow only in Trusted. Intentional difference.",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Keel default: ask (Cautious/Balanced), allow only in Trusted.",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.7",
+      "feature": "Shell scanner for Bash, Zsh, POSIX sh and PowerShell: each extracted subcommand and `cd` target is checked; malformed or dynamically evaluated commands return a scanner error instead of running.",
+      "detail": "Implement as part of the Tier-2 command analyzer; \"cannot analyze\" = refuse or force ask, never allow.",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Implement as part of the Tier-2 command analyzer;",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.8",
+      "feature": "Base default policy: allow all, but ask on `.env` / `.env.*` reads except `.env.example`.",
+      "detail": "Keep sensitive-file ask list (env files, key files); Tier-2 protected paths stay stricter.",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Keep sensitive-file ask list (env files, key files);",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.9",
+      "feature": "Approval replies: `once`, `always` (saves tool-proposed patterns, project-scoped, never overrides a configured deny), `reject` (rejects every other pending request in that session; optional feedback text to the model).",
+      "detail": "Same three buttons; each tool proposes the saved pattern (shell: command prefix; skill/subagent: ID).",
+      "milestone": "M3, M19",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same three buttons;",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.10",
+      "feature": "Policies layer can hard-deny after rules and saved approvals; turns allow/ask into deny, never grants; global/managed policies override project config.",
+      "detail": "Matches managed policy (Y1.17); add test \"policy never grants\".",
+      "milestone": "M3, M24",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "Y1.17"
+      ],
+      "acceptance_criteria": "Test that policy never grants: it may only turn allow/ask into deny; global/managed policies override project config.",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.11",
+      "feature": "Permission actions for MCP resources: `list_mcp_resources` (resource = server) and `read_mcp_resource` (resource = `<server>:<uri>`); MCP tools as `<server>_<tool>`.",
+      "detail": "Same action names under `keel_` prefix.",
+      "milestone": "M6, M3",
+      "priority": "P1",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same action names under `keel_` prefix.",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.12",
+      "feature": "Non-interactive clients must decide approval behavior; configured deny always enforced.",
+      "detail": "`keel run` flags: `--approve=never|rules-only`; default never auto-approve.",
+      "milestone": "M20",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: `keel run` flags: `--approve=never|rules-only`;",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W3.13",
+      "feature": "Docs warning: shell has full host authority; prefer narrow allowlists over trying to recognize every dangerous command.",
+      "detail": "Presets ship allowlist-style (Cautious), not denylist-style.",
+      "milestone": "M3, M19",
+      "priority": "P0",
+      "tag/source": "[T:OC-PERM]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Presets ship allowlist-style (Cautious), not denylist-style.",
+      "section": "3.2 Permissions `[T:OC-PERM]`"
+    },
+    {
+      "id": "W4.1",
+      "feature": "CLI: `mcp add` (remote `--url`, local `-- cmd`, `--env`, `--header`, `--global`), `mcp list`, `mcp auth`, `mcp logout`; in-app `/mcps` to view/connect/disconnect/authenticate.",
+      "detail": "`keel mcp ...` and `/mcps` panel.",
+      "milestone": "M6",
+      "priority": "P0",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: `keel mcp ...` and `/mcps` panel.",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.2",
+      "feature": "Config shape: `mcp.servers.<name>` with `type local|remote`, `command`, `cwd`, `environment`, `url`, `headers`, `oauth`, `disabled`, `codemode`, `timeout`, `protocol`, `pool`. A higher-precedence config replaces the whole server object (no field merge).",
+      "detail": "Same, and warn when an override drops fields.",
+      "milestone": "M6",
+      "priority": "P0",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "A higher-precedence config replaces the whole server object and warns when an override drops fields.",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.3",
+      "feature": "OAuth for remote servers: PKCE, discovery, refresh; credentials stored outside project config; `oauth:false` for header-key servers.",
+      "detail": "Keychain-stored tokens; same.",
+      "milestone": "M6",
+      "priority": "P0",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Keychain-stored tokens;",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.4",
+      "feature": "Client registration order: pre-registered `client_id` first, then Client ID Metadata Documents (CIMD), then Dynamic Client Registration (DCR); options `client_secret`, `scope`, `callback_port`, `redirect_uri`, `auth_server_metadata_url`.",
+      "detail": "Implement the same order. CIMD needs a hosted metadata URL: Keel must not require a Keel-operated server, so fall back to DCR or user-supplied client IDs.",
+      "milestone": "M6",
+      "priority": "P1",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Implement the same order.",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.5",
+      "feature": "OAuth when the browser is on another machine (SSH/container): user pastes the failed callback URL into a prompt.",
+      "detail": "\"Paste callback URL\" fallback in the MCP sign-in dialog.",
+      "milestone": "M6, M19",
+      "priority": "P1",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README: SSH-aware launch behaviour"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: \"Paste callback URL\" fallback in the MCP sign-in dialog.",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.6",
+      "feature": "Timeouts: startup 30 s, catalog 30 s, execution 12 h defaults; global and per-server.",
+      "detail": "Same defaults, plus a visible long-running-call indicator and cancel.",
+      "milestone": "M6",
+      "priority": "P0",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Startup/catalog/execution timeouts default to 30 s / 30 s / 12 h; long-running calls show an indicator and can be cancelled.",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.7",
+      "feature": "Protocol version selection (`legacy`, `auto` probe, pinned newest revision) with probe cost warning.",
+      "detail": "`protocol` field; default conservative.",
+      "milestone": "M6",
+      "priority": "P2",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: `protocol` field;",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.8",
+      "feature": "Pooled shared connections across project directories when everything that changes the connection matches.",
+      "detail": "Share one MCP process across projects only when settings are identical (saves RAM).",
+      "milestone": "M6, M21",
+      "priority": "P2",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Share one MCP process across projects only when settings are identical (saves RAM).",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.9",
+      "feature": "Tool naming normalization (`<server>_<tool>`, invalid chars to `_`, collisions need unique short names).",
+      "detail": "Normalizer + collision detector with a clear error.",
+      "milestone": "M6",
+      "priority": "P0",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Normalizer maps invalid chars to _, detects collisions and reports a clear error.",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.10",
+      "feature": "MCP prompts become slash commands named `<server>:<prompt>` with positional args.",
+      "detail": "Command registry imports MCP prompts.",
+      "milestone": "M6, M7",
+      "priority": "P1",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Command registry imports MCP prompts.",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.11",
+      "feature": "Server instructions returned at init are injected into the system prompt in a tagged block; omitted when the agent's permissions deny all that server's tools.",
+      "detail": "Same; mark as tainted/untrusted text, lower priority than user instructions.",
+      "milestone": "M6, M7",
+      "priority": "P1",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same;",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.12",
+      "feature": "Elicitation (server asks the user for input mid-call) rendered as a form or a link; dismiss cancels.",
+      "detail": "Question card variant for MCP elicitation (Y1.9).",
+      "milestone": "M6, M19",
+      "priority": "P1",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "Y1.9"
+      ],
+      "acceptance_criteria": "Confirm: Question card variant for MCP elicitation (Y1.9).",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.13",
+      "feature": "opencode sends the session ID in request `_meta`; docs warn remote servers may log it.",
+      "detail": "Keel sends no session id by default; optional opaque per-server correlation id (V6).",
+      "milestone": "M6, M3",
+      "priority": "P0",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "V6"
+      ],
+      "acceptance_criteria": "Confirm: Keel sends no session id by default;",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W4.14",
+      "feature": "`disabled` flag keeps a server configured but unconnected; disconnect in UI does not edit config.",
+      "detail": "Same.",
+      "milestone": "M6",
+      "priority": "P1",
+      "tag/source": "[T:OC-MCP]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same.",
+      "section": "3.3 MCP `[T:OC-MCP]`"
+    },
+    {
+      "id": "W5.1",
+      "feature": "Markdown or JSON commands; nested folders become `/team/review`; global vs project; project overrides global; nearer overrides ancestor; custom may replace built-in; hot reload.",
+      "detail": "`.keel/commands//*.md`.",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "[T:OC-CMD]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: `.keel/commands//*.md`.",
+      "section": "3.4 Commands `[T:OC-CMD]`"
+    },
+    {
+      "id": "W5.2",
+      "feature": "Frontmatter: `description`, `agent`, `model`, `subagent` (true/false/omit rules); legacy alias `subtask`.",
+      "detail": "Same fields.",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "[T:OC-CMD]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same fields.",
+      "section": "3.4 Commands `[T:OC-CMD]`"
+    },
+    {
+      "id": "W5.3",
+      "feature": "Arguments: `$ARGUMENTS`, positional `$1..$n` with quote grouping (last placeholder takes the rest, missing = empty); fallback appends args when no placeholder.",
+      "detail": "Same parser with tests.",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "[T:OC-CMD]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Parser tests cover $ARGUMENTS, positional $1..$n with quote grouping, last placeholder taking the rest, missing = empty and fallback append.",
+      "section": "3.4 Commands `[T:OC-CMD]`"
+    },
+    {
+      "id": "W5.4",
+      "feature": "Shell injection `!` + backtick command: output inserted into the prompt; opencode notes it runs outside the agent permission flow.",
+      "detail": "Keel: run through the permission gate and Tier 2 like any shell call; show the resolved command to the user before first run. Intentional difference.",
+      "milestone": "M7, M3",
+      "priority": "P0",
+      "tag/source": "[T:OC-CMD]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Command runs through the permission gate and Tier 2; the resolved command is shown to the user before first run.",
+      "section": "3.4 Commands `[T:OC-CMD]`"
+    },
+    {
+      "id": "W5.5",
+      "feature": "Model precedence: command model, else command agent's model, else session model.",
+      "detail": "Same documented order.",
+      "milestone": "M7",
+      "priority": "P1",
+      "tag/source": "[T:OC-CMD]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same documented order.",
+      "section": "3.4 Commands `[T:OC-CMD]`"
+    },
+    {
+      "id": "W5.6",
+      "feature": "Background child commands (`subagent: true`): result or failure reported back to parent.",
+      "detail": "Command runs as child task (Y1.11).",
+      "milestone": "M7, M12",
+      "priority": "P1",
+      "tag/source": "[T:OC-CMD]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "Y1.11"
+      ],
+      "acceptance_criteria": "Confirm: Command runs as child task (Y1.11).",
+      "section": "3.4 Commands `[T:OC-CMD]`"
+    },
+    {
+      "id": "W5.7",
+      "feature": "`@path` is not expanded in stored templates; attachments come from the composer.",
+      "detail": "Same; avoids hidden file reads.",
+      "milestone": "M7",
+      "priority": "P1",
+      "tag/source": "[T:OC-CMD]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "@path is not expanded in stored templates; attachments come only from the composer.",
+      "section": "3.4 Commands `[T:OC-CMD]`"
+    },
+    {
+      "id": "W6.1",
+      "feature": "Accuracy-over-approval response contract: verify facts/figures/citations before finalizing; never fabricate; say unknown plainly; do not anchor on user-supplied numbers; independent estimates.",
+      "detail": "Default `PERSONA.md` rigor section + eval (V7).",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "[T:NS-SOUL]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "V7"
+      ],
+      "acceptance_criteria": "Confirm: Default `PERSONA.md` rigor section + eval (V7).",
+      "section": "4.1 Persona contract `[T:NS-SOUL]`"
+    },
+    {
+      "id": "W6.2",
+      "feature": "Explicit confidence labels (high / moderate / low / unknown) on judgments.",
+      "detail": "Optional response mode; required for factual web claims (C3.10).",
+      "milestone": "M7",
+      "priority": "P1",
+      "tag/source": "[T:NS-SOUL]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "C3.10"
+      ],
+      "acceptance_criteria": "Confirm: Optional response mode;",
+      "section": "4.1 Persona contract `[T:NS-SOUL]`"
+    },
+    {
+      "id": "W6.3",
+      "feature": "Anti-sycophancy rules: no praise of questions, say immediately if the user is wrong, strongest counterargument first, do not capitulate under pushback without new evidence.",
+      "detail": "Include; do not copy the instruction to avoid all ethics/safety caveats or to be \"aggressive\": Keel keeps its own safety messaging and Tier-2 behavior.",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/source": "[T:NS-SOUL]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Include;",
+      "section": "4.1 Persona contract `[T:NS-SOUL]`"
+    },
+    {
+      "id": "W6.4",
+      "feature": "Conductor + specialists routing: one conductor agent; external coding agents as optional specialists for multi-file work; one writer per dirty tree; always verify diffs/tests after a specialist.",
+      "detail": "`External specialist adapters` for coding CLIs the user already has (V8).",
+      "milestone": "M12",
+      "priority": "P1",
+      "tag/source": "[T:NS-SOUL]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "V8"
+      ],
+      "acceptance_criteria": "Confirm: `External specialist adapters` for coding CLIs the user already has (V8).",
+      "section": "4.1 Persona contract `[T:NS-SOUL]`"
+    },
+    {
+      "id": "W6.5",
+      "feature": "Control-plane routing: prefer local desktop tool over cloud tools when local is healthy; accessibility-tree enrichment optional; DOM work prefers browser tools.",
+      "detail": "Tool-choice hints in `PERSONA.md`: local desktop tool, then browser tool for DOM.",
+      "milestone": "M16, M7",
+      "priority": "P1",
+      "tag/source": "[T:NS-SOUL]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Tool-choice hints in `PERSONA.md`: local desktop tool, then browser tool for DOM.",
+      "section": "4.1 Persona contract `[T:NS-SOUL]`"
+    },
+    {
+      "id": "W6.6",
+      "feature": "Running ledger of important account facts/decisions in a memory file.",
+      "detail": "`MEMORY.md`-style notes in the vault with approval for writes (C3.7).",
+      "milestone": "M13",
+      "priority": "P1",
+      "tag/source": "[T:NS-SOUL]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "C3.7"
+      ],
+      "acceptance_criteria": "Confirm: `MEMORY.md`-style notes in the vault with approval for writes (C3.7).",
+      "section": "4.1 Persona contract `[T:NS-SOUL]`"
+    },
+    {
+      "id": "W7.1",
+      "feature": "Explicit trust boundary list (client untrusted, daemon holds secrets, agent environment powerful, third parties).",
+      "detail": "`security-model.md` (private) + in-app \"What Keel protects and what it cannot\".",
+      "milestone": "M1, M3",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: `security-model.md` (private) + in-app \"What Keel protects and what it cannot\".",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.2",
+      "feature": "Live-view URL given only to the owner with `Cache-Control: no-store`.",
+      "detail": "Same for any viewer endpoints.",
+      "milestone": "M16",
+      "priority": "P1",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same for any viewer endpoints.",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.3",
+      "feature": "Secrets sealed with AES-256-GCM, random 12-byte IV per value + auth tag; session cookie sealed with its own key and additional authenticated data, HttpOnly, SameSite=Lax, Secure when HTTPS, 30-day life, checked against a revocations table.",
+      "detail": "`keel web` session cookie design; revocations table (Y3.6).",
+      "milestone": "M3, M20",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "Y3.6"
+      ],
+      "acceptance_criteria": "Confirm: `keel web` session cookie design;",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.4",
+      "feature": "API keys: prefixed random token, stored only as SHA-256, shown once; per-key rate limit; per-user idempotency keys.",
+      "detail": "Local API tokens for CLI/IDE/phone clients (Z30).",
+      "milestone": "M3, M20",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "Z30"
+      ],
+      "acceptance_criteria": "Confirm: Local API tokens for CLI/IDE/phone clients (Z30).",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.5",
+      "feature": "Secrets reach child processes as a staged file read-and-deleted by the setup script, never on a command line.",
+      "detail": "Rule for MCP/plugin launches: pass secrets via env/file descriptor, never argv (visible in process lists).",
+      "milestone": "M3, M6",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Rule for MCP/plugin launches: pass secrets via env/file descriptor, never argv (visible in process lists).",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.6",
+      "feature": "Log redaction plus keyed hash of user ids instead of ids.",
+      "detail": "Redactor + keyed hashes for any identifiers in logs/traces.",
+      "milestone": "M3, M21",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Redactor + keyed hashes for any identifiers in logs/traces.",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.7",
+      "feature": "Sign-in bound to the browser that started it by a sealed SameSite=Strict cookie, so a forwarded link can't be completed by someone else.",
+      "detail": "Pairing codes (Y3.8) must be completable only on the initiating client.",
+      "milestone": "M20",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "Y3.8"
+      ],
+      "acceptance_criteria": "Confirm: Pairing codes (Y3.8) must be completable only on the initiating client.",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.8",
+      "feature": "Sign-in/pairing attempts rate limited per client address and globally; use trusted-proxy hop count for address detection; only same-origin relative return paths honored.",
+      "detail": "Rate limits on pairing; open-redirect guard in `keel web`.",
+      "milestone": "M20, M3",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Rate limits on pairing;",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.9",
+      "feature": "CSRF origin check for cookie-bearing state-changing requests; bearer routes exempt.",
+      "detail": "`keel web`: Origin check (also in Master 11.1).",
+      "milestone": "M20",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: `keel web`: Origin check (also in Master 11.1).",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.10",
+      "feature": "SSRF safe fetch details: http(s) only, resolve then pin the checked address, re-check every redirect, cap time and size.",
+      "detail": "Add \"pin resolved IP\" and redirect re-check to acceptance tests (Master 11.7).",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Add \"pin resolved IP\" and redirect re-check to acceptance tests (Master 11.7).",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.11",
+      "feature": "Streaming body-size enforcement (not just Content-Length), bounded multipart uploads, capped recordings.",
+      "detail": "Same in local API.",
+      "milestone": "M20",
+      "priority": "P1",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Same in local API.",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.12",
+      "feature": "Generic client errors + request id, details only in server log.",
+      "detail": "Error format with `request_id`; \"copy details\" in UI pulls from local log.",
+      "milestone": "M20, M21",
+      "priority": "P1",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Error format with `request_id`;",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.13",
+      "feature": "Security headers for any served UI: CSP, `X-Frame-Options: DENY`, HSTS (when HTTPS), `nosniff`, strict referrer policy, COOP, permissions policy (microphone only inside the app).",
+      "detail": "`keel web` header set; test per header.",
+      "milestone": "M20",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Test each header: CSP, X-Frame-Options: DENY, HSTS when HTTPS, nosniff, strict referrer policy, COOP, permissions policy.",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.14",
+      "feature": "Rendering safety: Markdown rendered without raw HTML; link scheme allow-list; no `dangerouslySetInnerHTML`; inline-served HTML/SVG/XML get a sandboxing CSP; generated-site previews in a sandboxed iframe.",
+      "detail": "Same in renderer; add XSS test corpus (X9.x).",
+      "milestone": "M19, M18",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "X9.x"
+      ],
+      "acceptance_criteria": "XSS test corpus (X9.x) passes: no raw HTML in Markdown, link scheme allow-list, no dangerouslySetInnerHTML, sandboxed CSP for served HTML/SVG/XML, sandboxed iframe previews.",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.15",
+      "feature": "Share tokens with 144 bits of randomness; public share pages show redacted text and short tool previews, never owner identity or instructions.",
+      "detail": "Local HTML export (Z3) uses the same redaction level.",
+      "milestone": "M4",
+      "priority": "P1",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "Z3"
+      ],
+      "acceptance_criteria": "Confirm: Local HTML export (Z3) uses the same redaction level.",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.16",
+      "feature": "Publishing copies only from the site's own folder; never hidden files or symlink targets outside.",
+      "detail": "Sites exporter (M18) uses realpath containment.",
+      "milestone": "M18",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Sites exporter (M18) uses realpath containment.",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.17",
+      "feature": "Inbound channel rules: signature verified with constant-time compare, 300 s window, de-duplication, refuse when no secret configured; only approved senders can start work; voice/phone-initiated tasks require a confirmation code; email triggers accept only clean mail and by default only from the owner's address.",
+      "detail": "Channel defaults: pairing/allowlist; for remote-initiated risky actions require confirmation in the desktop app (V9).",
+      "milestone": "M15, M3",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "V9"
+      ],
+      "acceptance_criteria": "Confirm: Channel defaults: pairing/allowlist;",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.18",
+      "feature": "Spending caps enforced atomically in the database before each vendor call.",
+      "detail": "Ledger check-then-increment in one transaction (A3.10).",
+      "milestone": "M21",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "A3.10"
+      ],
+      "acceptance_criteria": "Ledger check-then-increment happens in one transaction before each vendor call.",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.19",
+      "feature": "Honest \"known limitations\" list: prompt injection can still misuse granted power; \"watch only\" enforced only in client in openman (orgo-teammates enforces on server); one shared sign-in budget; self-hosting is only as safe as setup.",
+      "detail": "Keel About > \"Known limits\" page; choose server-side watch-only.",
+      "milestone": "M26",
+      "priority": "P0",
+      "tag/source": "[T:OM-SEC], [T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Keel About > \"Known limits\" page;",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W7.20",
+      "feature": "Deployment hygiene from orgo-teammates: narrowest-scope keys, never show keys on screen/recordings, set provider spend limits, be careful with \"Always allow\", private vulnerability reporting, only latest branch supported, best-effort fixes.",
+      "detail": "Same in docs; support policy statement on website (X10).",
+      "milestone": "M23",
+      "priority": "P1",
+      "tag/source": "[T:OT-SEC]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README: Discussions-only feedback, Discord, citation block, docs site, website folder"
+      ],
+      "dependencies": [
+        "X10"
+      ],
+      "acceptance_criteria": "Confirm: Same in docs;",
+      "section": "4.2 Security model `[T:OM-SEC]` and `[T:OT-SEC]` (new items only)"
+    },
+    {
+      "id": "W8.1",
+      "feature": "orgo-teammates `ALLOWED_EMAILS` supports `@domain` entries → paired-client allowlist should support patterns (e.g., device label prefixes), not only exact entries.",
+      "detail": "Pattern support with explicit test.",
+      "milestone": "M20",
+      "priority": "P2",
+      "tag/source": "T:OT-README",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Pattern entries (e.g. device label prefixes) are supported with an explicit test.",
+      "section": "5. New small items from earlier sources that Addendum 4 missed"
+    },
+    {
+      "id": "W8.2",
+      "feature": "openman: recordings and screenshots capped in the database.",
+      "detail": "Size caps for recorded skills (M9) and screenshots in events.",
+      "milestone": "M4, M9",
+      "priority": "P1",
+      "tag/source": "T:OM-SEC",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Size caps for recorded skills (M9) and screenshots in events.",
+      "section": "5. New small items from earlier sources that Addendum 4 missed"
+    },
+    {
+      "id": "W8.3",
+      "feature": "openman: computers named in a request are checked against the user's own listing; changes to the home computer through the API are refused.",
+      "detail": "Container-desktop IDs validated against the daemon's own pool; core desktop not mutable by agents.",
+      "milestone": "M16",
+      "priority": "P1",
+      "tag/source": "T:OM-SEC",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Container-desktop IDs are validated against the daemon's own pool; core desktop is not mutable by agents.",
+      "section": "5. New small items from earlier sources that Addendum 4 missed"
+    },
+    {
+      "id": "W8.4",
+      "feature": "opencode `question` and MCP elicitation share one UI form.",
+      "detail": "One question-card component, two sources.",
+      "milestone": "M19",
+      "priority": "P1",
+      "tag/source": "T:OC-TOOLS, OC-MCP",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: One question-card component, two sources.",
+      "section": "5. New small items from earlier sources that Addendum 4 missed"
+    },
+    {
+      "id": "V1",
+      "feature": "Plugin scope tree (lifecycle-safe plugins): every plugin runs in a scope that records what it registered (tools, hooks, routes, UI panels, timers, subprocesses); unload/reload disposes all of it automatically; child scopes inherit parent permissions only down, never up.",
+      "detail": "Python context manager tree; registration functions return disposables attached to the active scope; test by loading/unloading a plugin 100 times and asserting zero leaked handlers/processes. Underpins W1.1, hot reload (Y1.31) and safe mode.",
+      "milestone": "M10",
+      "priority": "P0",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "W1.1",
+        "Y1.31"
+      ],
+      "acceptance_criteria": "Load/unload a plugin 100 times and assert zero leaked handlers/processes.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V2",
+      "feature": "Policy simulator with \"winning rule\" trace: shows ordered rules, which matched, which won, why a multi-resource op was denied, and the Tier-2 verdict.",
+      "detail": "Reuse the matcher; output a JSON trace rendered in the UI and `keel policy test`. Required by C-1.",
+      "milestone": "M3, M19",
+      "priority": "P0",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "C-1"
+      ],
+      "acceptance_criteria": "Simulator emits a JSON trace with ordered rules, matches, winner, multi-resource denial reason and Tier-2 verdict; `keel policy test` works.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V3",
+      "feature": "Broadness scoring for saved \"always\" approvals: flag patterns like bare `*` or `rm *`, show last-used date, offer narrowing (e.g., command prefix to exact subcommand).",
+      "detail": "Score = wildcard coverage vs action risk table; surfaced in permission review screen (X5.7).",
+      "milestone": "M3, M19",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "X5.7"
+      ],
+      "acceptance_criteria": "Bare `*` and `rm *` patterns are flagged, last-used date is shown, and narrowing is offered.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V4",
+      "feature": "Reject-cascade UX: a \"Reject all pending\" button plus a per-request reject, mirroring W3.9; rejected reasons passed to the model as no-retry instruction.",
+      "detail": "UI + Y2.7 behavior.",
+      "milestone": "M19, M3",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "W3.9",
+        "Y2.7"
+      ],
+      "acceptance_criteria": "Confirm: UI + Y2.7 behavior.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V5",
+      "feature": "Strictness presets as rule sets: Cautious / Balanced / Trusted compiled into ordered rule arrays, diffable and exportable, never able to touch Tier 2.",
+      "detail": "Ship three JSONC files; wizard (Master 9.3) selects one; policy simulator compares them.",
+      "milestone": "M3, M19",
+      "priority": "P0",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Three JSONC presets ship, the wizard selects one, the simulator compares them, and none can touch Tier 2.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V6",
+      "feature": "Opaque per-server correlation IDs for MCP (instead of session ids): random value per (session, server), rotated per session, never reused across servers.",
+      "detail": "Generate on connect; store in memory only; send in `_meta` only if the server advertises support.",
+      "milestone": "M6",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Generate on connect;",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V7",
+      "feature": "Sycophancy/capitulation eval: scripted multi-turn tests where a fixture \"user\" pushes back without new evidence; pass = model keeps correct answer; plus a \"new evidence\" case where it should change.",
+      "detail": "Add to the local eval harness (M21); score per model; display in model picker next to tool reliability.",
+      "milestone": "M21, M7",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Scripted pushback without new evidence keeps the correct answer; a new-evidence case changes it.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V8",
+      "feature": "External specialist adapters: Keel can delegate a task to a coding CLI the user already has installed (any tool with a headless mode) as a child agent, with \"one writer per working tree\" locking and mandatory diff/test verification after.",
+      "detail": "Generic adapter spec: command template, stdin/stdout contract, timeout, allowed paths, output parser; adapters ship disabled; never bundle third-party CLIs; respect each tool's terms; run inside Keel worktree + permission gate.",
+      "milestone": "M12",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Adapters ship disabled, never bundle third-party CLIs, enforce one-writer locking and mandatory diff/test verification after the child.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V9",
+      "feature": "Remote-initiated action confirmation: any task started from a channel (Telegram/email/webhook) that would run shell/edit/send actions requires a one-time code confirmation in the desktop app (or a pre-approved rule), per W7.17.",
+      "detail": "Pending-turn state (Y2.6) with a \"needs local confirmation\" status and a notification (X8.5).",
+      "milestone": "M15, M3",
+      "priority": "P0",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "W7.17",
+        "Y2.6",
+        "X8.5"
+      ],
+      "acceptance_criteria": "Remote-initiated shell/edit/send requires a one-time desktop confirmation code or a pre-approved rule.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V10",
+      "feature": "Duplicate-code and dead-feature detector for the builder: CI reports duplicate blocks (W1.7) and any plan ID with code but no test/evidence.",
+      "detail": "Combine jscpd-style tool + `PLAN-INDEX.json` check script.",
+      "milestone": "M0, M25",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "file tree: .jscpd.json duplicate-code detector"
+      ],
+      "dependencies": [
+        "W1.7"
+      ],
+      "acceptance_criteria": "CI reports duplicate blocks and any plan ID with code but no test/evidence.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V11",
+      "feature": "Per-agent \"tool surface report\": shows exactly which tools, MCP servers, skills and subagents an agent can reach after merges, with the rule that allowed each.",
+      "detail": "Computed from the merged config + permission matcher; diff view when an extension update changes it (extends C8.5).",
+      "milestone": "M7, M10",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "C8.5"
+      ],
+      "acceptance_criteria": "Report lists reachable tools/MCP servers/skills/subagents and the rule allowing each; diff view on extension update.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V12",
+      "feature": "Config \"doctor\" for rule conflicts: detects rules that can never match (shadowed by a later rule), duplicate rules, and broad allows after specific denies.",
+      "detail": "Static analysis over ordered rules; run on save and in `keel doctor`.",
+      "milestone": "M3, M21",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Doctor detects shadowed rules, duplicate rules and broad allows after specific denies, on save and in `keel doctor`.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V13",
+      "feature": "Release provenance page in-app listing for the running build: version, commit-less build id, signing key fingerprint, manifest hash, SBOM link.",
+      "detail": "Reads embedded manifest; ties to C11.6.",
+      "milestone": "M22, M19",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "C11.6"
+      ],
+      "acceptance_criteria": "Release page lists version, commit-less build id, signing key fingerprint, manifest hash and SBOM link.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V14",
+      "feature": "Prompt-assembly viewer for subagents/commands (what system prompt, instructions, skills and MCP instruction blocks a child actually received), with taint labels.",
+      "detail": "Extends the Context inspector; store assembled prompt hash per run.",
+      "milestone": "M7, M21",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Viewer shows system prompt, instructions, skills and MCP instruction blocks with taint labels; prompt hash stored per run.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "V15",
+      "feature": "Local \"plugin conformance kit\": a checklist-runner that verifies a plugin cleans up on unload, respects permission denials, declares all network hosts, and survives safe-mode boot.",
+      "detail": "Uses V1 + the mock host (X6.1); required before a plugin is marked \"verified\" in the private index.",
+      "milestone": "M10",
+      "priority": "P1",
+      "tag/source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [
+        "V1",
+        "X6.1"
+      ],
+      "acceptance_criteria": "Conformance kit verifies unload cleanup, permission denials, declared network hosts and safe-mode boot; required before 'verified' status.",
+      "section": "8. Own suggestions `[S]` (no repo reference; follow Section 7)"
+    },
+    {
+      "id": "W9.1",
+      "feature": "MCP panel (`/mcps`)",
+      "detail": "per-server state (connected / needs authentication / disabled / error), connect, disconnect, authenticate, paste-callback-URL dialog, timeout and protocol fields.",
+      "milestone": "M19",
+      "priority": null,
+      "tag/source": "T:OC-MCP",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: per-server state (connected / needs authentication / disabled / error), connect, disconnect, authenticate, paste-callback-URL dialog, timeout and protocol fields.",
+      "section": "9. UI/UX additions from this pass (use Keel tokens only)"
+    },
+    {
+      "id": "W9.2",
+      "feature": "Approval card with three actions",
+      "detail": "(Once / Always with the proposed saved pattern shown and editable / Reject with optional feedback) and a banner when rejecting cancels other pending requests.",
+      "milestone": "M19",
+      "priority": null,
+      "tag/source": "T:OC-PERM",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: (Once / Always with the proposed saved pattern shown and editable / Reject with optional feedback) and a banner when rejecting cancels other pending requests.",
+      "section": "9. UI/UX additions from this pass (use Keel tokens only)"
+    },
+    {
+      "id": "W9.3",
+      "feature": "Agent picker and agent editor",
+      "detail": "(mode, model with variant, step limit, color, hidden, permission list with simulator, launchable-subagent allowlist).",
+      "milestone": "M19",
+      "priority": null,
+      "tag/source": "T:OC-AGENTS",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: (mode, model with variant, step limit, color, hidden, permission list with simulator, launchable-subagent allowlist).",
+      "section": "9. UI/UX additions from this pass (use Keel tokens only)"
+    },
+    {
+      "id": "W9.4",
+      "feature": "Command palette entries generated from commands",
+      "detail": ", with argument hints (`$1`, `$ARGUMENTS`) and a preview of the expanded prompt before submit.",
+      "milestone": "M19",
+      "priority": null,
+      "tag/source": "T:OC-CMD",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: , with argument hints (`$1`, `$ARGUMENTS`) and a preview of the expanded prompt before submit.",
+      "section": "9. UI/UX additions from this pass (use Keel tokens only)"
+    },
+    {
+      "id": "W9.5",
+      "feature": "First-run Safety notice",
+      "detail": "screen and Known limits page.",
+      "milestone": "M19",
+      "priority": null,
+      "tag/source": "T:DS, T:OM-SEC",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README/tree: SAFETY.md / first-run safety notice"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: screen and Known limits page.",
+      "section": "9. UI/UX additions from this pass (use Keel tokens only)"
+    },
+    {
+      "id": "W9.6",
+      "feature": "Web UI served on loopback with SSH hint banner showing the forwarded URL instructions.",
+      "detail": "Web UI served on loopback with SSH hint banner showing the forwarded URL instructions.",
+      "milestone": "M20",
+      "priority": null,
+      "tag/source": "T:DS",
+      "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+      "references": [
+        "README: SSH-aware launch behaviour"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Confirm: Web UI served on loopback with SSH hint banner showing the forwarded URL instructions.",
+      "section": "9. UI/UX additions from this pass (use Keel tokens only)"
+    }
+  ],
+  "metadata": {
+    "source_document": "Keel_Plan_v5_Addendum_5_DeepSeek_Harness_and_Deep_Reads.md",
+    "document_title": "Keel Plan v5 Addendum 5: DeepSeek Harness, Deeper Reads of Existing References, Plan Conflicts and Builder Guide",
+    "document_scope": "Adds only items not already in Master Plan and Addenda 1-4. Free-only. Milestones follow v5. IDs use prefix W (reference-derived) and V (own ideas) to avoid collisions.",
+    "read_date": "21 Nov 2026",
+    "tag_keys": {
+      "T:key": "Read this session (21 Nov 2026) in the named source. Reimplement from behavior only (X0.10).",
+      "K": "General knowledge, verify in M0.",
+      "S": "My suggestion, no repo behind it: follow the builder protocol in Section 7."
+    },
+    "source_key_expansions": {
+      "DS": "github.com/deepseek-ai/deepseek-harness (README + file tree only)",
+      "OC-AGENTS / OC-PERM / OC-MCP / OC-CMD": "opencode.ai/docs/agents, permissions, mcp-servers, commands",
+      "NS-SOUL": "nicks-stack files/SOUL.md",
+      "OM-SEC": "openman docs/security-model.md",
+      "OT-SEC": "orgo-teammates SECURITY.md",
+      "earlier keys": "OC-TOOLS, OC-CONFIG, OC-PLUGINS, OT-ARCH, OM-ARCH, OM-README, NS, LQ, KL as defined in Addendum 4"
+    },
+    "read_status": {
+      "read_this_session": [
+        "DeepSeek Harness front page (README, file tree, topics, license badge)",
+        "opencode agents, permissions, mcp-servers, commands",
+        "nicks-stack SOUL.md",
+        "openman security-model.md",
+        "orgo-teammates SECURITY.md"
+      ],
+      "still_unread_M0": [
+        "DeepSeek Harness: docs/architecture.md, docs/development.md, docs/user/guide/index.md, SAFETY.md, AGENTS.md, CLAUDE.md, BENCHMARK.md, BRAND_GUIDELINES.md, .agents/, .claude/, packages/*, apps/*, native/*, python/*, vendor/*, benchmarks/*, snapshots/*, website/*, Cordis framework repo and cited paper (package/app/plugin list unknown: every DS row is README/tree-level only)",
+        "opencode: policies, skills, themes, providers, models, websearch, network, snapshots, compaction, formatters, references, attachments, instructions, warming, migrate-v1, troubleshooting, build/plugins, api, cli",
+        "orgo-teammates docs/orgo-builder-guide.md and docs/xai-and-composio.md; openman docs/deploy.md, OPERATIONS.md, AGENTS.md; nicks-stack files/config.yaml, files/skills/*, plugins/orgo-desktop-local/; linq src/*",
+        "Keel keel/ source (not readable by these tools)"
+      ],
+      "correction": "Conflict C-6: opencode agents/permissions/mcp-servers/commands docs are now read; remove from M0 list."
+    },
+    "deepseek_harness_behavior_findings": [
+      "Everything is a plugin: core features are plugins on a composable runtime built on Cordis; a paper is cited in the README (W1.1).",
+      "Single-command web launch `npx @deepseek-ai/dsh web` serves a Web UI at 127.0.0.1:3080 and auto-opens the browser locally (W1.2).",
+      "SSH-aware launch prints only the host URL over SSH; the client/editor owns the forwarded address (W1.3).",
+      "--no-open flag; Web and Desktop targets from one codebase (apps/, native/, Makefile targets) (W1.4).",
+      "Test taxonomy is config-driven: unit, bench, e2e, expected (golden outputs), snapshot, web, web-stress, web-perf, plus pytest.ini (W1.5).",
+      "benchmarks/ with BENCHMARK.md and a snapshots/ folder at repo root (W1.6).",
+      "Staged-only lint (.oxlintrc.staged.json), lefthook.yml hooks, .jscpd.json duplicate-code detector, .rgignore, .gitattributes, .editorconfig (W1.7).",
+      "Dual CI config (.github and .gitlab-ci.yml) in one repo (W1.8).",
+      "i18n.yaml single-source docs: README/CONTRIBUTING/SAFETY/BRAND_GUIDELINES i18n YAML alongside .md and .zh.md (W1.9).",
+      "SAFETY.md is surfaced as a first-run notice: 'review the safety notice before running' (W1.10).",
+      "Developer-preview banner explicitly warns that compatibility-breaking changes will happen (W1.11).",
+      "BRAND_GUIDELINES file exists and is localized (W1.12).",
+      "Builder instruction files for multiple AI tools: AGENTS.md, CLAUDE.md, .agents/, .claude/ (W1.13).",
+      "Plugin discoverability through the `dsh-plugin` repository topic (W1.14).",
+      "A python/ package exists inside a TS monorepo; contents unknown (W1.15).",
+      "patches/ and vendor/ folders for patched/vendored dependencies (W1.16).",
+      "Discussions-only feedback (no Issues tab), Discord, citation block, docs site, website folder (W1.17).",
+      "MIT license plus THIRD_PARTY_NOTICES.md (W1.18).",
+      "Opencode findings used as behaviour evidence: last-match-wins rules, default-ask exceptions, external_directory default allow, shell scanner that refuses on parse failure, MCP OAuth/CIMD/DCR, prompt commands with `!` shell injection outside permission flow, session ID in _meta."
+    ],
+    "defensive_patterns": [
+      "Default-ask baseline; no matching permission rule means ask (W3.1).",
+      "Deliberately stricter than opencode: Keel defaults `external_directory` to ask (Cautious/Balanced), allow only in Trusted (C-2, W3.6).",
+      "Shell scanner for Bash/Zsh/sh/PowerShell: 'cannot analyze' means refuse or force ask, never allow (W3.7).",
+      "Prefer narrow allowlists over trying to recognize every dangerous command; presets ship allowlist-style (W3.13).",
+      "Saved 'always' approvals are project-scoped, never override a configured deny, and reject cascades to all other pending requests in the session (W3.9).",
+      "Policies layer can only hard-deny after rules and saved approvals; policy never grants (W3.10).",
+      "MCP server instructions are injected as tainted/untrusted text, lower priority than user instructions (W4.11).",
+      "Keel sends no session ID by default (W4.13); opaque per-server correlation IDs instead (V6).",
+      "Command `!` shell injection goes through the permission gate and Tier 2, with the resolved command shown before first run (W5.4, C-3).",
+      "Secrets staged via file/fd, never argv; narrow-scope keys, never shown on screen/recordings (W7.5, W7.20).",
+      "AES-256-GCM sealed secrets/cookies with random IV, AAD, HttpOnly/SameSite/Secure, revocations table (W7.3).",
+      "CSRF origin checks, same-origin-only return paths, redirected-link binding to initiating browser, and per-client/global rate limits (W7.7-W7.9).",
+      "SSRF protection pins the resolved IP and re-checks every redirect; streaming body-size enforcement (W7.10-W7.11).",
+      "Generic client errors with request id; details only in local server log (W7.12).",
+      "Security headers and rendering safety: CSP, X-Frame-Options DENY, HSTS, nosniff, no raw HTML, scheme allow-list, sandboxed previews (W7.13-W7.14).",
+      "Server-side watch-only enforcement; remote-initiated risky actions need local one-time confirmation (Y2.14, W7.19, V9).",
+      "Atomic spending caps before each vendor call (W7.18); private vulnerability reporting and support policy (W7.20).",
+      "Negative tests first for anything security-relevant; [S] items off by default behind an experimental flag (Section 7)."
+    ],
+    "clean_room_specs": [
+      "Reimplement from behavior only (X0.10); no [T] row may be built from copied code.",
+      "Do not adopt Cordis: Keel is Python. Clean-room equivalent is a plugin scope tree (V1) where providers, tools, channels, UI panels, memory backends and built-in agents register through one plugin API.",
+      "Every DS row is README/tree-level only; the package/app/plugin list is unknown and must be verified in M0 before implementation.",
+      "Verify SAFETY.md, AGENTS.md, CLAUDE.md, BENCHMARK.md, BRAND_GUIDELINES.md and the Cordis paper in M0 (currently unread).",
+      "Every V row (and any other [S] row) must record: Why (2+ similar products by category), Free check (license/date, reject paid/account-gated/non-commercial), spec in Keel's words, smallest slice behind an experimental flag, negative tests first, end-to-end and offline run ids, owner review before enabling by default (Section 7).",
+      "Keel-specific rewrites rather than copies: `keel web` port/flags, private plugin index instead of public dsh-plugin topic, private benchmark folder, in-app redacted feedback bundle, private docs site with no source links."
+    ],
+    "capability_seams": [
+      "Single plugin registration API for providers, tools, channels, UI panels, memory backends and built-in agents (W1.1).",
+      "Plugin scope tree: child scopes inherit parent permissions only down, never up; unload disposes all registered tools/hooks/routes/panels/timers/subprocesses (V1).",
+      "Hidden maintenance agents (compaction, title, summary) map to model roles and are not user-selectable (W2.3).",
+      "Per-agent launch allowlist controls which subagents may be started; child permissions are independent, not a subset (W2.6).",
+      "MCP prompts imported as slash commands; MCP elicitation and opencode question cards share one UI form (W4.10, W4.12, W8.4).",
+      "External specialist adapters let Keel delegate to a coding CLI the user already has, with one-writer-per-tree locking and mandatory diff/test verification (W6.4, V8).",
+      "Control-plane routing hints prefer a healthy local desktop tool, then browser tools for DOM work (W6.5).",
+      "Local API tokens for CLI/IDE/phone clients; optional per-server opaque correlation id in MCP _meta only when advertised (W7.4, V6).",
+      "Community feedback and extension docs stay private; no Keel-operated server required for MCP CIMD (W1.14, W1.17, W4.4)."
+    ],
+    "licensing_notes": [
+      "DeepSeek Harness is MIT-licensed with THIRD_PARTY_NOTICES.md; verify LICENSE text and every vendor/ license in M0 before reading any code (W1.18).",
+      "Vendored code lives in vendor/ with its license file and a PATCHES.md listing each local modification and upstream issue (W1.16).",
+      "jscpd duplicate-code detector is MIT - verify license before use (W1.7, V10).",
+      "Free-only constraint: reject anything paid, account-gated or non-commercial-only; record each library/model/service with license and verification date (Section 7).",
+      "External specialist adapters must never bundle third-party CLIs and must respect each tool's terms (V8).",
+      "MCP CIMD must not require a Keel-operated hosted metadata server; fall back to DCR or user-supplied client IDs (W4.4)."
+    ],
+    "conflicts": [
+      "C-1: rule order - Master 6 'first match wins' vs opencode 'last match wins'; pick one, document everywhere, record in DECISIONS.md; recommendation last-match-wins for Tier 1 with deny-aggregation for multi-resource ops and Tier 2 always above.",
+      "C-2: opencode allows everything including external_directory; Keel is intentionally stricter (W3.6). List in PLAN-INDEX.json under 'Deliberate differences'.",
+      "C-3: opencode `!`cmd`` runs outside permission flow and sends session id to remote MCP servers; Keel does neither (W5.4, W4.13). Intentional.",
+      "C-4: openman watch-only is client-side only; orgo-teammates enforces on server. Keel chooses server-side (Y2.14, W7.19).",
+      "C-5: nicks-stack persona asks for no ethics/propriety disclaimers and aggressive behaviour; adopt rigor and anti-sycophancy only (W6.3), never remove safety behavior.",
+      "C-6: opencode agents/permissions/mcp-servers/commands docs are now read; remove from M0 list.",
+      "C-7: opencode MCP pool/protocol fields refer to a 2026-07-28 MCP revision; treat as [T] for opencode only and verify against official MCP spec in M0."
+    ],
+    "builder_protocol_for_S_items": [
+      "Why: one paragraph with the user problem and 2+ similar products or standards by category (no copying).",
+      "Free check: each library/model/service, license, date verified; reject paid, account-gated or non-commercial-only.",
+      "Spec in Keel's words: behavior, edge cases, failure modes, permissions touched, data stored, Tier-2 interactions.",
+      "Smallest slice behind an `experimental` flag; off by default if it touches network, personal data or permissions.",
+      "Negative tests first for security-relevant behavior, then positive tests.",
+      "End-to-end evidence run id plus an offline run (X0.8).",
+      "Owner review before enabling by default if it stores new personal data, makes a network call or changes approval behavior."
+    ],
+    "priority_order": [
+      "Resolve C-1 to C-7 first; add to DECISIONS.md.",
+      "Permission engine parity and stricter defaults: W3.1-W3.10, W3.13, V2, V5, V12.",
+      "Plugin core: W1.1, V1, W2.1, W2.2, W2.6, W4.2, W4.9.",
+      "Security hardening for keel web/API: W7.3-W7.14, W7.17.",
+      "Quality gates: W1.5, W1.7, V10.",
+      "Everything else with its milestone; P2 after the v1.0 candidate is green. Every row goes into PLAN-INDEX.json with its source tag."
+    ],
+    "extraction_notes": {
+      "expected_features": 114,
+      "w_rows": 99,
+      "v_rows": 15,
+      "rows_without_priority_column": [
+        "W9.1",
+        "W9.2",
+        "W9.3",
+        "W9.4",
+        "W9.5",
+        "W9.6"
+      ],
+      "priority_null_reason": "Section 9 UI/UX table has columns ID | Screen/component | Source | M, with no Pri column; priority set to null.",
+      "tag_source_inferred_for_sections": [
+        "3.1",
+        "3.2",
+        "3.3",
+        "3.4",
+        "4.1",
+        "4.2",
+        "8"
+      ],
+      "tag_source_inference": "Sections 3.x and 4.x tables have no Source column; tag/source taken from section heading. W7.20 explicitly cites orgo-teammates and is tagged [T:OT-SEC]; other 4.2 rows carry both [T:OM-SEC], [T:OT-SEC]. Section 8 V rows are tagged [S] per Sections 7-8.",
+      "section_9_detail_split": "Section 9 has a single descriptive column; split at the first colon where present, otherwise the leading bold phrase is the feature and the remainder is the detail; where neither exists the full text is kept in both fields (W9.6).",
+      "acceptance_criteria_derivation": "Source has no acceptance-criteria column. Explicit test/verification statements were used where present; otherwise a short criterion was derived verbatim from the row's implementation text.",
+      "rows_with_explicit_acceptance_criteria": [
+        "V1",
+        "V10",
+        "V11",
+        "V12",
+        "V13",
+        "V14",
+        "V15",
+        "V2",
+        "V3",
+        "V5",
+        "V7",
+        "V8",
+        "V9",
+        "W1.5",
+        "W1.7",
+        "W2.4",
+        "W2.8",
+        "W2.9",
+        "W3.10",
+        "W3.3",
+        "W4.2",
+        "W4.6",
+        "W4.9",
+        "W5.3",
+        "W5.4",
+        "W5.7",
+        "W7.13",
+        "W7.14",
+        "W7.18",
+        "W8.1",
+        "W8.3"
+      ],
+      "references_meaning": "DeepSeek Harness README/file-tree areas mentioned in the row; empty for rows sourced only from other references.",
+      "dependencies_meaning": "Plan cross-reference IDs (W/V/C/X/Y/A/Z/B/G) explicitly mentioned in the row text; milestone tokens (M*) are excluded."
+    }
+  }
+}

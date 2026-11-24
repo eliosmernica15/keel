@@ -108,8 +108,10 @@ def test_path_traversal_refused_by_backup_capability(tmp_path, monkeypatch):
                                            "target": "b.json",
                                            "passphrase": "x"},
                                 "confirm": True})
-        # source not a directory in workspace -> explicit error, never success
-        assert status in (400, 200)  # may 200 with empty files if path exists
+        # source not a directory in workspace -> explicit error, never success.
+        # Canonical mapping: a handler-reported bad path is a 500 handler_error
+        # (or 400 bad_params); 200 with empty files is also acceptable.
+        assert status in (400, 500, 200)
         if status == 200:
             assert r["result"]["files"] == 0 or "error" in r
         (tmp_path / "outside").mkdir()

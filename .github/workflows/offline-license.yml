@@ -1,0 +1,68 @@
+name: Offline + license gates
+
+# Addendum 3 X0.7 / X0.8 / X0.9:
+#  - reject bundled models/voices/assets with non-commercial or unverified licenses
+#  - prove Keel boots and completes a coding task with NO network access, no
+#    account and no API key (Linux network namespace via unshare -n)
+#  - never claim offline success if an outbound attempt occurs
+# No secret values are printed and no paid service is contacted.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  license-gate:
+    name: model/voice license gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.11"
+      - name: Validate MODEL-AND-VOICE-LICENSES.json
+        run: python scripts/check_model_licenses.py
+      - name: Registry consistency (865 IDs, parity, evidence)
+        run: python scripts/verify_v6_audit.py
+      - name: Generated dependency graph freshness
+        run: python keel/scripts/build_dependency_graph.py --check
+
+  offline-smoke:
+    name: offline boot + coding task (no network namespace)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.11"
+      - name: Install
+        working-directory: keel
+        run: |
+          # All runtime/test deps are hash-pinned in requirements.lock.txt.
+          python -m pip install --require-hashes -r requirements.lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Offline test (no network, no keys, local model)
+        working-directory: keel
+        env:
+          KEEL_TOKEN: offline-ci-token
+        run: |
+          set -euo pipefail
+          # Remove every provider key from the environment.
+          for k in KEEL_OPENROUTER_API_KEY KEEL_GOOGLE_API_KEY KEEL_NVIDIA_API_KEY \
+                   KEEL_ANTHROPIC_API_KEY KEEL_COMPAT_API_KEY; do unset "$k" || true; done
+          # unshare -n gives a network namespace with no outbound route. If
+          # unshare is unavailable, fail closed (never silently run online).
+          if ! command -v unshare >/dev/null; then
+            echo "offline CI requires unshare; failing closed" >&2
+            exit 1
+          fi
+          unshare -n python -m pytest -q \
+            tests/test_offline_runtime.py \
+            tests/test_cli_e2e.py \
+            tests/test_e2e_local.py

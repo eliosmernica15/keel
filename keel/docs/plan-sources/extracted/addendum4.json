@@ -1,0 +1,2357 @@
+{
+  "features": [
+    {
+      "id": "Y1.1",
+      "feature": "Code Mode / execute tool",
+      "detail": "**Code Mode / `execute` tool:** agent writes a short script that calls many tools in parallel and processes results without pushing intermediate output into context. Runtime has no filesystem, imports or timers; only a `fetch` and the tool catalog. Denying it falls back to listing tools directly.",
+      "milestone": "M5, M6",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [
+        "B3.1"
+      ],
+      "acceptance_criteria": "Python (or JS) micro-sandbox (WASM/Pyodide per B3.1) exposing the tool registry as functions; every nested call still goes through the permission gate; per-MCP-server `codemode:false` switch.",
+      "section": "### 2.1 opencode",
+      "implementation": "Python (or JS) micro-sandbox (WASM/Pyodide per B3.1) exposing the tool registry as functions; every nested call still goes through the permission gate; per-MCP-server `codemode:false` switch."
+    },
+    {
+      "id": "Y1.2",
+      "feature": "Model-dependent tool exposure",
+      "detail": "**Model-dependent tool exposure:** `patch` tool only offered to some model families, others get `edit`+`write`.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [
+        "X1.4"
+      ],
+      "acceptance_criteria": "Tool-exposure table keyed by model family (ties to X1.4).",
+      "section": "### 2.1 opencode",
+      "implementation": "Tool-exposure table keyed by model family (ties to X1.4)."
+    },
+    {
+      "id": "Y1.3",
+      "feature": "patch multi-file format",
+      "detail": "**`patch` multi-file format** (`Add File`/`Update File`/`Delete File` sections, move/rename) with permission check on every affected path.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Own parser + atomic apply with rollback.",
+      "section": "### 2.1 opencode",
+      "implementation": "Own parser + atomic apply with rollback."
+    },
+    {
+      "id": "Y1.4",
+      "feature": "read limits and paging",
+      "detail": "`read` limits and paging: 2,000 lines / 50 KiB per page, long lines truncated, images and PDFs passed to model up to 20 MiB.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Same defaults, configurable; local PDF text fallback for non-vision models.",
+      "section": "### 2.1 opencode",
+      "implementation": "Same defaults, configurable; local PDF text fallback for non-vision models."
+    },
+    {
+      "id": "Y1.5",
+      "feature": "glob/grep defaults",
+      "detail": "`glob`/`grep` defaults: 100 results, 30 s timeout, `literal`, `include`, `caseSensitive`, `hidden` flags; grep permission resource is the **pattern**, not the path.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "ripgrep wrapper with the same parameters and limits.",
+      "section": "### 2.1 opencode",
+      "implementation": "ripgrep wrapper with the same parameters and limits."
+    },
+    {
+      "id": "Y1.6",
+      "feature": "edit unique-match requirement and formatter hook",
+      "detail": "`edit` requires a unique match unless `replaceAll`; optional formatter run after write/edit/patch.",
+      "milestone": "M5, M11",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS, OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools",
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Exact-match edit + `formatter` config.",
+      "section": "### 2.1 opencode",
+      "implementation": "Exact-match edit + `formatter` config."
+    },
+    {
+      "id": "Y1.7",
+      "feature": "Shell tool details",
+      "detail": "**Shell tool details:** `workdir` param (no `cd` in command), 2-minute foreground timeout, `background:true` returns immediately and **notifies the session when finished**, large output truncated with full output kept in a managed file, command scanner produces one permission resource per sub-command and checks external working dirs.",
+      "milestone": "M5, M3",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "PTY/process manager + analyzer (Tier 2).",
+      "section": "### 2.1 opencode",
+      "implementation": "PTY/process manager + analyzer (Tier 2)."
+    },
+    {
+      "id": "Y1.8",
+      "feature": "webfetch and websearch provider selection",
+      "detail": "`webfetch`: markdown/text/html output, 120 s max, rejects binaries; `websearch` provider selection incl. \"random\" among available.",
+      "milestone": "M5",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS, OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools",
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "SSRF-safe fetch; websearch limited to **free** providers (self-hosted SearXNG etc.).",
+      "section": "### 2.1 opencode",
+      "implementation": "SSRF-safe fetch; websearch limited to **free** providers (self-hosted SearXNG etc.)."
+    },
+    {
+      "id": "Y1.9",
+      "feature": "question tool",
+      "detail": "**`question` tool:** header + prompt + choices, `multiple`, free-form always allowed, cancel on dismiss; clients lacking UI must be detected.",
+      "milestone": "M5, M20",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "`ask_user` with **client capability negotiation** (client declares it can render question forms).",
+      "section": "### 2.1 opencode",
+      "implementation": "`ask_user` with **client capability negotiation** (client declares it can render question forms)."
+    },
+    {
+      "id": "Y1.10",
+      "feature": "skill loader advertised-list gate",
+      "detail": "`skill` tool loads a skill by ID only if it is in the advertised list or named by the user.",
+      "milestone": "M9",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Skill loader with advertised-list gate.",
+      "section": "### 2.1 opencode",
+      "implementation": "Skill loader with advertised-list gate."
+    },
+    {
+      "id": "Y1.11",
+      "feature": "Subagent semantics",
+      "detail": "**Subagent semantics:** always background; returns a `sessionID`; parent is notified when the child goes idle and after each later round; follow-up message continues the same child; default nesting depth 1, configurable (`subagent_depth`).",
+      "milestone": "M12",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS, OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools",
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Task-graph child sessions with these exact lifecycle rules.",
+      "section": "### 2.1 opencode",
+      "implementation": "Task-graph child sessions with these exact lifecycle rules."
+    },
+    {
+      "id": "Y1.12",
+      "feature": "Session utilities as tools",
+      "detail": "**Session utilities as tools:** `session_rename`, `session_move` (takes effect at a safe boundary).",
+      "milestone": "M4, M5",
+      "priority": "P2",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Tools over the session API.",
+      "section": "### 2.1 opencode",
+      "implementation": "Tools over the session API."
+    },
+    {
+      "id": "Y1.13",
+      "feature": "Worktree tools",
+      "detail": "**Worktree tools:** `worktree_create/list/remove` (remove needs `force` to discard changes; uses edit permission), configurable parent directory, plugin-registered worktree strategies.",
+      "milestone": "M11",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-TOOLS, OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools",
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [
+        "X2.6"
+      ],
+      "acceptance_criteria": "git worktree manager (extends X2.6).",
+      "section": "### 2.1 opencode",
+      "implementation": "git worktree manager (extends X2.6)."
+    },
+    {
+      "id": "Y1.14",
+      "feature": "Browser tool namespace",
+      "detail": "**Browser tool namespace:** tabs, snapshots, search, click, form input, screenshots, file transfer (5 MiB cap), console and network inspection, performance traces, heap inspection, **Lighthouse audits**; page content treated as untrusted; deny rule removes the whole catalog.",
+      "milestone": "M16",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [
+        "C4.11"
+      ],
+      "acceptance_criteria": "Playwright/CDP + free Lighthouse (Apache-2.0, verify) behind consent; extends C4.11.",
+      "section": "### 2.1 opencode",
+      "implementation": "Playwright/CDP + free Lighthouse (Apache-2.0, verify) behind consent; extends C4.11."
+    },
+    {
+      "id": "Y1.15",
+      "feature": "experimental_image_generate",
+      "detail": "`experimental_image_generate` (background job with notification, optional reference images, save path).",
+      "milestone": "M17",
+      "priority": "P2",
+      "tag/reference-source": "T:OC-TOOLS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools"
+      ],
+      "dependencies": [
+        "Y5.2"
+      ],
+      "acceptance_criteria": "Optional local diffusion provider only; shown only when a provider exists (see Y5.2).",
+      "section": "### 2.1 opencode",
+      "implementation": "Optional local diffusion provider only; shown only when a provider exists (see Y5.2)."
+    },
+    {
+      "id": "Y1.16",
+      "feature": "MCP permission naming",
+      "detail": "**MCP permission naming:** action `<server>_<tool>` with resource `*`; per-server `timeout`; global `mcp.timeout`.",
+      "milestone": "M6",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-TOOLS, OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/tools",
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Same naming in the permission table.",
+      "section": "### 2.1 opencode",
+      "implementation": "Same naming in the permission table."
+    },
+    {
+      "id": "Y1.17",
+      "feature": "Ordered rule list permissions",
+      "detail": "**Ordered rule list permissions:** `{action, resource, effect}` entries; **policies** layer (`provider.use`, `tool.use` with `shell:git push *` style resources, block MCP server/skill/plugin) that outranks normal config.",
+      "milestone": "M3, M24",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Matches Tier 1 + managed policy (Master 6.16/6.17); add `provider.use` and per-extension block actions.",
+      "section": "### 2.1 opencode",
+      "implementation": "Matches Tier 1 + managed policy (Master 6.16/6.17); add `provider.use` and per-extension block actions."
+    },
+    {
+      "id": "Y1.18",
+      "feature": "Managed config locations",
+      "detail": "**Managed config locations** per OS: `/etc/opencode`, `%ProgramData%\\opencode`, `/Library/Application Support/opencode`, macOS managed-preferences plist; managed settings have highest precedence.",
+      "milestone": "M24",
+      "priority": "P2",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [
+        "B6.3"
+      ],
+      "acceptance_criteria": "`keel-policy.json` search paths + plist/ADMX (extends B6.3).",
+      "section": "### 2.1 opencode",
+      "implementation": "`keel-policy.json` search paths + plist/ADMX (extends B6.3)."
+    },
+    {
+      "id": "Y1.19",
+      "feature": "Config precedence algorithm",
+      "detail": "**Config precedence algorithm:** merge global, then walk from filesystem root to cwd (farthest to closest), direct files then `.opencode/` files, system config last.",
+      "milestone": "M2",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [
+        "X6.8"
+      ],
+      "acceptance_criteria": "Same walk for `.keel/keel.jsonc`; show result in layered config viewer (X6.8).",
+      "section": "### 2.1 opencode",
+      "implementation": "Same walk for `.keel/keel.jsonc`; show result in layered config viewer (X6.8)."
+    },
+    {
+      "id": "Y1.20",
+      "feature": "{env:VAR} and {file:path} config substitution",
+      "detail": "`{env:VAR}` and `{file:path}` substitution inside config strings (missing becomes empty string; warn).",
+      "milestone": "M2, M3",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Substitution in config loader; **warn instead of silently empty** for secrets.",
+      "section": "### 2.1 opencode",
+      "implementation": "Substitution in config loader; **warn instead of silently empty** for secrets."
+    },
+    {
+      "id": "Y1.21",
+      "feature": "update modes (disable / notify / auto)",
+      "detail": "`update: disable | notify | auto` (global config only; project value ignored; auto-install does not restart a running server).",
+      "milestone": "M22",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Updater modes; project config cannot change it. | M22",
+      "section": "### 2.1 opencode",
+      "implementation": "Updater modes; project config cannot change it. | M22"
+    },
+    {
+      "id": "Y1.22",
+      "feature": "snapshots toggle and watcher.ignore",
+      "detail": "`snapshots` toggle for undo/revert; `watcher.ignore` globs.",
+      "milestone": "M4, M11",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Checkpoint toggle; watcher ignore list.",
+      "section": "### 2.1 opencode",
+      "implementation": "Checkpoint toggle; watcher ignore list."
+    },
+    {
+      "id": "Y1.23",
+      "feature": "media.image and tool_output limits",
+      "detail": "`media.image` auto-resize limits (max width/height, max base64 bytes); `tool_output` max lines/bytes.",
+      "milestone": "M5",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Config keys with defaults (2000 px, 5 MiB; 2000 lines, 50 KiB).",
+      "section": "### 2.1 opencode",
+      "implementation": "Config keys with defaults (2000 px, 5 MiB; 2000 lines, 50 KiB)."
+    },
+    {
+      "id": "Y1.24",
+      "feature": "Compaction config",
+      "detail": "**Compaction config:** `auto`, `keep.tokens` (recent tail kept verbatim), `buffer` as % of context kept free; optional \"native provider compaction\" vs local summary, per provider/model.",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Compaction settings + per-model override; summary stays default.",
+      "section": "### 2.1 opencode",
+      "implementation": "Compaction settings + per-model override; summary stays default."
+    },
+    {
+      "id": "Y1.25",
+      "feature": "Cache warming",
+      "detail": "**Cache warming:** periodic transient request keeps a provider prompt cache alive; per-model `cache.ttl`, `cache.warming`; off by default.",
+      "milestone": "M2",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Local analog: keep llama.cpp/Ollama KV cache resident (`keep_alive`) and prewarm the system-prompt prefix; remote warming only if the user enables it and shows cost.",
+      "section": "### 2.1 opencode",
+      "implementation": "Local analog: keep llama.cpp/Ollama KV cache resident (`keep_alive`) and prewarm the system-prompt prefix; remote warming only if the user enables it and shows cost."
+    },
+    {
+      "id": "Y1.26",
+      "feature": "References",
+      "detail": "**References:** named external directories or Git repos made available as context by name (`path` or `repository`+`branch`), with description.",
+      "milestone": "M11, M13",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "`references` config; repos cloned read-only into a cache; searchable by tools.",
+      "section": "### 2.1 opencode",
+      "implementation": "`references` config; repos cloned read-only into a cache; searchable by tools."
+    },
+    {
+      "id": "Y1.27",
+      "feature": "skills config directories and URLs",
+      "detail": "`skills` config accepts directories **and URLs** (`.well-known/skills/` discovery).",
+      "milestone": "M9",
+      "priority": "P2",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Local dirs always; URL discovery only for user-listed hosts, signed-pack check.",
+      "section": "### 2.1 opencode",
+      "implementation": "Local dirs always; URL discovery only for user-listed hosts, signed-pack check."
+    },
+    {
+      "id": "Y1.28",
+      "feature": "instructions files, globs and HTTP(S) URLs",
+      "detail": "`instructions` accept files, globs, **HTTP(S) URLs** next to `AGENTS.md`.",
+      "milestone": "M7",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [
+        "A1.14"
+      ],
+      "acceptance_criteria": "Extends A1.14; URLs fetched through SSRF-safe client and marked tainted.",
+      "section": "### 2.1 opencode",
+      "implementation": "Extends A1.14; URLs fetched through SSRF-safe client and marked tainted."
+    },
+    {
+      "id": "Y1.29",
+      "feature": "Plugin management CLI",
+      "detail": "**Plugin management CLI:** `plugin add/list/check/update/remove`; sources: npm name@version/tag/range, `github:` shorthand, git+ssh, `#branch`, `::path:` subdirectory; exact versions and full commit hashes stay pinned; `--builtin` listing.",
+      "milestone": "M10",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-PLUGINS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/plugins"
+      ],
+      "dependencies": [
+        "G7"
+      ],
+      "acceptance_criteria": "`keel plugin ...` with **private-source-only default** (G7); pin/unpin and update check.",
+      "section": "### 2.1 opencode",
+      "implementation": "`keel plugin ...` with **private-source-only default** (G7); pin/unpin and update check."
+    },
+    {
+      "id": "Y1.30",
+      "feature": "Plugin enable/disable DSL",
+      "detail": "**Plugin enable/disable DSL:** ordered entries, `-id` disables, `*` all, `.*` prefix wildcard, later entry re-enables; **built-in policy plugins cannot be disabled by a repo**.",
+      "milestone": "M10, M3",
+      "priority": "P0",
+      "tag/reference-source": "T:OC-PLUGINS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/plugins"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Same DSL; Tier-2 and policy enforcers are unremovable.",
+      "section": "### 2.1 opencode",
+      "implementation": "Same DSL; Tier-2 and policy enforcers are unremovable."
+    },
+    {
+      "id": "Y1.31",
+      "feature": "Three plugin surfaces",
+      "detail": "**Three plugin surfaces:** server plugins, GUI plugins (panels, commands, settings; Settings > Extensions > Plugins with per-plugin switch and Reload after failure), TUI-only plugins configured separately. Plugins loaded from watched directories hot-reload; unpinned packages checked for updates in background without changing the installed version.",
+      "milestone": "M10, M19",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-PLUGINS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/plugins"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Plugin manifest declares surfaces; Extensions settings page with Reload; hot reload on file change.",
+      "section": "### 2.1 opencode",
+      "implementation": "Plugin manifest declares surfaces; Extensions settings page with Reload; hot reload on file change."
+    },
+    {
+      "id": "Y1.32",
+      "feature": "location_idle_timeout",
+      "detail": "`location_idle_timeout`: unload a project's services (LSP, watchers) after N idle minutes; running sessions and background jobs keep it loaded.",
+      "milestone": "M16, M21",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [
+        "A2.4"
+      ],
+      "acceptance_criteria": "Idle unload per project (extends A2.4).",
+      "section": "### 2.1 opencode",
+      "implementation": "Idle unload per project (extends A2.4)."
+    },
+    {
+      "id": "Y1.33",
+      "feature": "experimental.todo flag",
+      "detail": "`experimental.todo` flag: `todowrite` tool is opt-in.",
+      "milestone": "M5",
+      "priority": "P2",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [
+        "A1.10",
+        "X6.10"
+      ],
+      "acceptance_criteria": "Keep `todo` tool P0 (A1.10) but expose feature-lifecycle flag (X6.10).",
+      "section": "### 2.1 opencode",
+      "implementation": "Keep `todo` tool P0 (A1.10) but expose feature-lifecycle flag (X6.10)."
+    },
+    {
+      "id": "Y1.34",
+      "feature": "model overrides and provider transport",
+      "detail": "Model entries can override ids, display name, `limit.context`/`limit.output`; provider `settings.transport` (e.g. websocket).",
+      "milestone": "M2",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Offline catalog + user overrides per model.",
+      "section": "### 2.1 opencode",
+      "implementation": "Offline catalog + user overrides per model."
+    },
+    {
+      "id": "Y1.35",
+      "feature": "agent updates config file (config_edit)",
+      "detail": "\"You can also ask the agent to update the config file for you.\"",
+      "milestone": "M2, M19",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-CONFIG",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "`config_edit` tool: proposes a validated diff of `keel.jsonc`, user approves; never touches Tier-2 settings.",
+      "section": "### 2.1 opencode",
+      "implementation": "`config_edit` tool: proposes a validated diff of `keel.jsonc`, user approves; never touches Tier-2 settings."
+    },
+    {
+      "id": "Y1.36",
+      "feature": "Migrate-from-V1 and Troubleshooting docs",
+      "detail": "**Migrate-from-V1 and Troubleshooting docs** exist as first-class pages.",
+      "milestone": "M23",
+      "priority": "P2",
+      "tag/reference-source": "T:OC-CONFIG nav",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "opencode.ai/docs/config"
+      ],
+      "dependencies": [
+        "C10.2"
+      ],
+      "acceptance_criteria": "In-app \"Migration notes\" and \"Troubleshooting\" pages generated from the error catalog (C10.2).",
+      "section": "### 2.1 opencode",
+      "implementation": "In-app \"Migration notes\" and \"Troubleshooting\" pages generated from the error catalog (C10.2)."
+    },
+    {
+      "id": "Y1.37",
+      "feature": "install script and release channels",
+      "detail": "Install script drops binary in `$HOME/.opencode/bin`; channel formulas (stable brew vs \"latest\" tap), mise, pacman, AUR beta, Nix, `brew --cask` desktop; \"remove versions older than X before installing\" tip.",
+      "milestone": "M22",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/anomalyco/opencode (README + file tree)"
+      ],
+      "dependencies": [
+        "B4.14",
+        "X0.5"
+      ],
+      "acceptance_criteria": "Per-user install dir by default; stable vs beta channels (B4.14). Store feasibility per X0.5.",
+      "section": "### 2.1 opencode",
+      "implementation": "Per-user install dir by default; stable vs beta channels (B4.14). Store feasibility per X0.5."
+    },
+    {
+      "id": "Y1.38",
+      "feature": "repo hygiene",
+      "detail": "Repo hygiene: `.husky` hooks, `.gitleaksignore` (reviewed allowlist for scanner false positives), `oxlint`, `turbo`-style task graph, `patches/` for dependency patches, `CHANGELOG.md`, `SECURITY.md`.",
+      "milestone": "M0, M1",
+      "priority": "P1",
+      "tag/reference-source": "T:OC-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/anomalyco/opencode (README + file tree)"
+      ],
+      "dependencies": [
+        "C1.1"
+      ],
+      "acceptance_criteria": "Extends C1.1: add reviewed `.gitleaksignore` policy (each entry needs a reason + expiry).",
+      "section": "### 2.1 opencode",
+      "implementation": "Extends C1.1: add reviewed `.gitleaksignore` policy (each entry needs a reason + expiry)."
+    },
+    {
+      "id": "Y1.39",
+      "feature": "'Building on X' non-affiliation notice",
+      "detail": "\"Building on X\" notice: derivative projects must state non-affiliation.",
+      "milestone": "M1",
+      "priority": "P2",
+      "tag/reference-source": "T:OC-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/anomalyco/opencode (README + file tree)"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Keel `TRADEMARKS.md` includes a non-affiliation clause for third-party extensions.",
+      "section": "### 2.1 opencode",
+      "implementation": "Keel `TRADEMARKS.md` includes a non-affiliation clause for third-party extensions."
+    },
+    {
+      "id": "Y2.1",
+      "feature": "Transcript row model",
+      "detail": "**Transcript row model:** append-mostly rows with `seq`, `updatedSeq` (per-session revision counter), `kind`, JSON `body`; a streaming reply is the same row rewritten with higher `updatedSeq`; clients **upsert by seq**; per-session `generation` counter resets a conversation.",
+      "milestone": "M4, M20",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Use this for the SSE protocol and for reconnect/replay; add to `events` schema.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Use this for the SSE protocol and for reconnect/replay; add to `events` schema."
+    },
+    {
+      "id": "Y2.2",
+      "feature": "Model history stored separately",
+      "detail": "**Model history stored separately** from UI rows (`llm_items`), so UI redaction/edits never corrupt model input; reasoning blobs passed back unchanged.",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Separate `model_items` table; UI rows derived/annotated.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Separate `model_items` table; UI rows derived/annotated."
+    },
+    {
+      "id": "Y2.3",
+      "feature": "last N screenshots inline (N=3)",
+      "detail": "Keep only the **last N screenshots** inline (N=3) in model context.",
+      "milestone": "M4, M16",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [
+        "B1.5"
+      ],
+      "acceptance_criteria": "Image-pruning rule in context manager (extends B1.5).",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Image-pruning rule in context manager (extends B1.5)."
+    },
+    {
+      "id": "Y2.4",
+      "feature": "Orphaned tool-call repair",
+      "detail": "**Orphaned tool-call repair** before the next model call after an interrupted turn.",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "History sanitizer: every tool call gets a synthetic \"interrupted\" result.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "History sanitizer: every tool call gets a synthetic \"interrupted\" result."
+    },
+    {
+      "id": "Y2.5",
+      "feature": "Per-agent serial queue",
+      "detail": "**Per-agent serial queue** for turns; user message while a turn pends closes the pending approval as expired.",
+      "milestone": "M4, M3",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Per-session queue + approval expiry rule.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Per-session queue + approval expiry rule."
+    },
+    {
+      "id": "Y2.6",
+      "feature": "Pending-turn persistence",
+      "detail": "**Pending-turn persistence:** when approval is needed, pending tool calls are saved (`pending_turns`) and the turn resumes after the answer, surviving restarts.",
+      "milestone": "M3, M4",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Persisted pending turns; resume on daemon restart.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Persisted pending turns; resume on daemon restart."
+    },
+    {
+      "id": "Y2.7",
+      "feature": "approval buttons: Allow / Always allow / Don't allow",
+      "detail": "Approval buttons: **Allow** (once), **Always allow** (stores per-tool policy), **Don't allow** (model is told **not to retry**).",
+      "milestone": "M3, M19",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Matches approval card; \"Don't allow\" must inject a no-retry instruction.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Matches approval card; \"Don't allow\" must inject a no-retry instruction."
+    },
+    {
+      "id": "Y2.8",
+      "feature": "Auto-classification of read-only tools by slug",
+      "detail": "**Auto-classification of read-only tools by slug** (`*_GET`, `*_LIST`, `*_SEARCH`, no write verb) for connectors; meta tools that can run arbitrary actions, and batches whose inner tools can't be read, always need approval.",
+      "milestone": "M15, M3",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Connector tool classifier with **explicit manifest flags** `readOnly`, never name-guessing alone (name rules only as a fallback with a warning).",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Connector tool classifier with **explicit manifest flags** `readOnly`, never name-guessing alone (name rules only as a fallback with a warning)."
+    },
+    {
+      "id": "Y2.9",
+      "feature": "card and event row kinds",
+      "detail": "Card row kinds in transcript: `approval`, `question`, `connect`, `draft`; event rows: routine created/run, voice call, group changes; `notice`.",
+      "milestone": "M19",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Row-kind registry in the UI component list (matches 9.2).",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Row-kind registry in the UI component list (matches 9.2)."
+    },
+    {
+      "id": "Y2.10",
+      "feature": "stay_silent and request_app_connection tools",
+      "detail": "`stay_silent` tool (agent may choose not to reply in group threads) and `request_app_connection` tool (agent asks user to connect an app, rendering a connect card).",
+      "milestone": "M5, M12, M15",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Both tools; connect card opens the connector form.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Both tools; connect card opens the connector form."
+    },
+    {
+      "id": "Y2.11",
+      "feature": "send_to_bot, hidden subagents and group rooms",
+      "detail": "`send_to_bot` messaging between agents; **hidden child agents** (subagents) with own context/screen removed by `stop_subagent`; **group rooms** capped at 3 responding members, @mention routing, `post_to_group`.",
+      "milestone": "M12",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [
+        "A2.5"
+      ],
+      "acceptance_criteria": "Matches A2.5 loop guards; add the 3-member responder cap as a default.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Matches A2.5 loop guards; add the 3-member responder cap as a default."
+    },
+    {
+      "id": "Y2.12",
+      "feature": "Screen leasing",
+      "detail": "**Screen leasing:** one VM, up to 4 separate desktops, leased least-recently-used among idle agents.",
+      "milestone": "M16",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Container-desktop pool with LRU leases (extends M16).",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Container-desktop pool with LRU leases (extends M16)."
+    },
+    {
+      "id": "Y2.13",
+      "feature": "Idle suspend knobs",
+      "detail": "**Idle suspend knobs** (20 min default, sweep every 60 s, dry-run mode logging decisions without acting).",
+      "milestone": "M16, M21",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Resource manager with `dry_run`; settings page.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Resource manager with `dry_run`; settings page."
+    },
+    {
+      "id": "Y2.14",
+      "feature": "VNC relay that hides credentials from the browser",
+      "detail": "**VNC relay that hides credentials from the browser** and, in **watch mode, drops keyboard/pointer/clipboard on the server** (not just in UI).",
+      "milestone": "M16",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "noVNC relay in daemon; server-side input filter for Watch vs Take over.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "noVNC relay in daemon; server-side input filter for Watch vs Take over."
+    },
+    {
+      "id": "Y2.15",
+      "feature": "rate-limit awareness and in-VM executor",
+      "detail": "Rate-limit awareness (≈600 control calls/min per computer) and plan for an **in-VM executor**.",
+      "milestone": "M16",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [
+        "C1.11"
+      ],
+      "acceptance_criteria": "Token-bucket limiter on desktop actions; executor = C1.11.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Token-bucket limiter on desktop actions; executor = C1.11."
+    },
+    {
+      "id": "Y2.16",
+      "feature": "Compaction knobs",
+      "detail": "**Compaction knobs:** trigger size, keep-last-N-user-turns verbatim (default 4), method `auto|summary`; **idle consolidation** (10 min idle, 60 s sweep); memory budget in prompt (4,000 chars).",
+      "milestone": "M13",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [
+        "A2.9"
+      ],
+      "acceptance_criteria": "Settings + defaults; extends A2.9. | M13",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Settings + defaults; extends A2.9. | M13"
+    },
+    {
+      "id": "Y2.17",
+      "feature": "Prompt cache key per agent+generation",
+      "detail": "**Prompt cache key per agent+generation**; hashed user id as safety identifier to providers.",
+      "milestone": "M2",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Stable cache key for remote providers; for local servers keep prefix stability. Never send raw identifiers.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Stable cache key for remote providers; for local servers keep prefix stability. Never send raw identifiers."
+    },
+    {
+      "id": "Y2.18",
+      "feature": "NO_SCHEDULER flag",
+      "detail": "`NO_SCHEDULER` flag so extra dev servers sharing a database don't double-fire jobs.",
+      "milestone": "M14",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "`--no-scheduler` / `KEEL_NO_SCHEDULER`.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "`--no-scheduler` / `KEEL_NO_SCHEDULER`."
+    },
+    {
+      "id": "Y2.19",
+      "feature": "Backward-compatible rename path",
+      "detail": "**Backward-compatible rename path:** old env var names still read as fallback; old DB filename kept if new one doesn't exist; old cookie still accepted; guarded symlink for renamed data folder.",
+      "milestone": "M4, M22",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-README, OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates README/tree",
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [
+        "X9.7"
+      ],
+      "acceptance_criteria": "Apply to Keel's own rename history (e.g., any pre-0.1.0 data dir/env names) and to future renames; test in migration matrix (X9.7).",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Apply to Keel's own rename history (e.g., any pre-0.1.0 data dir/env names) and to future renames; test in migration matrix (X9.7)."
+    },
+    {
+      "id": "Y2.20",
+      "feature": "Exposure defaults",
+      "detail": "**Exposure defaults:** bind 127.0.0.1; dev login ignored off-localhost; **refuse new sign-ups on a public URL until an allowlist is set**; allowlist entries accept emails or `@domain`.",
+      "milestone": "M3, M20",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates README/tree"
+      ],
+      "dependencies": [
+        "C1.12"
+      ],
+      "acceptance_criteria": "`keel serve --listen` refuses to start without auth + allowlist of paired clients (C1.12); documented in `.env`-style reference.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "`keel serve --listen` refuses to start without auth + allowlist of paired clients (C1.12); documented in `.env`-style reference."
+    },
+    {
+      "id": "Y2.21",
+      "feature": "Honest \"Project status\" section",
+      "detail": "**Honest \"Project status\" section** in README: tested vs built-not-proven, \"basic review, not professional audit\", known approval gap (browser/shell not covered).",
+      "milestone": "M26",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates README/tree"
+      ],
+      "dependencies": [
+        "A3.7"
+      ],
+      "acceptance_criteria": "Feeds A3.7 About page; add \"known limits\" list to the app.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Feeds A3.7 About page; add \"known limits\" list to the app."
+    },
+    {
+      "id": "Y2.22",
+      "feature": "voice: realtime secrets, hand_off_task, TTS/STT",
+      "detail": "Voice: short-lived realtime client secrets, relay tool `hand_off_task` to the text loop, TTS preview, STT dictation proxy.",
+      "milestone": "M17",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Local pipeline (Master 7.2); same `hand_off_task` pattern.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Local pipeline (Master 7.2); same `hand_off_task` pattern."
+    },
+    {
+      "id": "Y2.23",
+      "feature": "E2E script with prepared-audio fixture",
+      "detail": "E2E script creates a temp agent and exercises chat, computer tools, viewer, search, connections, voice, groups, settings; separate voice harness needs prepared audio file.",
+      "milestone": "M25",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates README/tree"
+      ],
+      "dependencies": [
+        "A2.8"
+      ],
+      "acceptance_criteria": "Extends A2.8; include a **prepared-audio fixture** for voice tests.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Extends A2.8; include a **prepared-audio fixture** for voice tests."
+    },
+    {
+      "id": "Y2.24",
+      "feature": "per-user SSE stream",
+      "detail": "Per-user **Server-Sent Events** stream carrying row updates, live state, roster changes, computer state.",
+      "milestone": "M20",
+      "priority": "P0",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "One SSE stream per client with typed event kinds.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "One SSE stream per client with typed event kinds."
+    },
+    {
+      "id": "Y2.25",
+      "feature": "routines: cron, event triggers, check-ins",
+      "detail": "Routines: cron + **event routines** from connector triggers; proactive check-ins for the primary agent.",
+      "milestone": "M14, M15",
+      "priority": "P1",
+      "tag/reference-source": "T:OT-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [
+        "A2.6"
+      ],
+      "acceptance_criteria": "Extends A2.6; triggers only from user-configured free connectors.",
+      "section": "### 2.2 orgo-teammates",
+      "implementation": "Extends A2.6; triggers only from user-configured free connectors."
+    },
+    {
+      "id": "Y3.1",
+      "feature": "'offer only what works' principle",
+      "detail": "Principle: **\"offer only what works\":** UI never shows an option that is disabled or unavailable for this install.",
+      "milestone": "M19",
+      "priority": "P0",
+      "tag/reference-source": "T:OM-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Hide or explain unavailable features (with the exact missing requirement); never a dead button.",
+      "section": "### 2.3 openman",
+      "implementation": "Hide or explain unavailable features (with the exact missing requirement); never a dead button."
+    },
+    {
+      "id": "Y3.2",
+      "feature": "'reuse before building' / 'server is only DB client'",
+      "detail": "Principle: **\"reuse before building\"** and **\"the server is the only DB client.\"**",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag/reference-source": "T:OM-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Daemon is the only DB writer; renderer never opens SQLite.",
+      "section": "### 2.3 openman",
+      "implementation": "Daemon is the only DB writer; renderer never opens SQLite."
+    },
+    {
+      "id": "Y3.3",
+      "feature": "Versioned, idempotent, resumable provisioning steps",
+      "detail": "**Versioned, idempotent, resumable provisioning steps:** each setup step has a version; bumping it re-runs only that step on next launch.",
+      "milestone": "M19, M22",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "First-run/upgrade \"setup steps\" registry (create dirs, probe models, register tools) with per-step versions and retry.",
+      "section": "### 2.3 openman",
+      "implementation": "First-run/upgrade \"setup steps\" registry (create dirs, probe models, register tools) with per-step versions and retry."
+    },
+    {
+      "id": "Y3.4",
+      "feature": "Relay stores every run event",
+      "detail": "**Relay stores every run event** so a client can reconnect and replay.",
+      "milestone": "M4, M20",
+      "priority": "P0",
+      "tag/reference-source": "T:OM-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Event log + `Last-Event-ID` style resume.",
+      "section": "### 2.3 openman",
+      "implementation": "Event log + `Last-Event-ID` style resume."
+    },
+    {
+      "id": "Y3.5",
+      "feature": "per-user concurrency limit and queue",
+      "detail": "Per-user concurrency limit sized to machine; extra tasks **queue and auto-start**.",
+      "milestone": "M4, M12",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [
+        "B1.7"
+      ],
+      "acceptance_criteria": "Concurrency by RAM/VRAM from hardware detector (B1.7).",
+      "section": "### 2.3 openman",
+      "implementation": "Concurrency by RAM/VRAM from hardware detector (B1.7)."
+    },
+    {
+      "id": "Y3.6",
+      "feature": "table ideas / schema additions",
+      "detail": "Table ideas: `task_events`, `task_files`, `project_proposals`, `knowledge`, `shares`, `notifications`, `automation_runs`, `recordings`, `meetings`, `api_keys`, `webhooks`, `webhook_deliveries`, **`revocations` (kept even when data is erased)**, `usage_counters`, `ops_events`, `ops_heartbeats`, `ops_alerts`, `task_costs`.",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag/reference-source": "T:OM-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Reconcile with Master Section 10 in M0; add `revocations`, `ops_*`, `task_costs`, `automation_runs`, `webhook_deliveries` if missing.",
+      "section": "### 2.3 openman",
+      "implementation": "Reconcile with Master Section 10 in M0; add `revocations`, `ops_*`, `task_costs`, `automation_runs`, `webhook_deliveries` if missing."
+    },
+    {
+      "id": "Y3.7",
+      "feature": "Scheduler tick duties",
+      "detail": "**Scheduler tick duties:** fire due automations, poll triggers, deliver/retry webhooks, backfill task costs, sweep idle task folders, record heartbeat, check alerts; ticks safe to overlap.",
+      "milestone": "M14",
+      "priority": "P0",
+      "tag/reference-source": "T:OM-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Single `tick()` with these jobs and idempotency keys.",
+      "section": "### 2.3 openman",
+      "implementation": "Single `tick()` with these jobs and idempotency keys."
+    },
+    {
+      "id": "Y3.8",
+      "feature": "Device-approval pairing flow",
+      "detail": "**Device-approval pairing flow** (short code shown, approve elsewhere, app polls; code expiry 30 min; cancel/retry states).",
+      "milestone": "M20",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [
+        "C1.12",
+        "B4.8"
+      ],
+      "acceptance_criteria": "Use for pairing phone/web clients and CLI to the daemon (C1.12, B4.8) with no account.",
+      "section": "### 2.3 openman",
+      "implementation": "Use for pairing phone/web clients and CLI to the daemon (C1.12, B4.8) with no account."
+    },
+    {
+      "id": "Y3.9",
+      "feature": "Sign out / Sign out everywhere / Disconnect",
+      "detail": "**Sign out / Sign out everywhere / Disconnect** (disconnect deletes stored credentials and signs out all clients).",
+      "milestone": "M3, M19",
+      "priority": "P0",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [
+        "A3.6"
+      ],
+      "acceptance_criteria": "Extends A3.6: three explicit actions in Settings > Sign-in & security.",
+      "section": "### 2.3 openman",
+      "implementation": "Extends A3.6: three explicit actions in Settings > Sign-in & security."
+    },
+    {
+      "id": "Y3.10",
+      "feature": "Local-only sign-in",
+      "detail": "**Local-only sign-in** gated to loopback + env flag; production refuses to start with the dev bypass set.",
+      "milestone": "M3, M25",
+      "priority": "P0",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Dev-bypass only in dev builds; release builds hard-fail if set (CI test).",
+      "section": "### 2.3 openman",
+      "implementation": "Dev-bypass only in dev builds; release builds hard-fail if set (CI test)."
+    },
+    {
+      "id": "Y3.11",
+      "feature": "Mock agent",
+      "detail": "**Mock agent** plays scripted runs when no real agent is configured.",
+      "milestone": "M2, M19",
+      "priority": "P0",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [
+        "A3.3"
+      ],
+      "acceptance_criteria": "Already A3.3; add rule: UI dev mode uses mock, **release builds never ship it enabled**.",
+      "section": "### 2.3 openman",
+      "implementation": "Already A3.3; add rule: UI dev mode uses mock, **release builds never ship it enabled**."
+    },
+    {
+      "id": "Y3.12",
+      "feature": "Invite gate",
+      "detail": "**Invite gate** (first account owns the list).",
+      "milestone": "M20",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Only for `keel serve` multi-client mode: paired-client list owned by the first admin client.",
+      "section": "### 2.3 openman",
+      "implementation": "Only for `keel serve` multi-client mode: paired-client list owned by the first admin client."
+    },
+    {
+      "id": "Y3.13",
+      "feature": "setup script: generate-only, never overwrite",
+      "detail": "`setup` script: generates missing secrets only, never overwrites, prints required values and the one step that must be done manually.",
+      "milestone": "M3",
+      "priority": "P0",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [
+        "A3.5"
+      ],
+      "acceptance_criteria": "Already A3.5; add \"never overwrite\" and \"print remaining manual step\" requirements.",
+      "section": "### 2.3 openman",
+      "implementation": "Already A3.5; add \"never overwrite\" and \"print remaining manual step\" requirements."
+    },
+    {
+      "id": "Y3.14",
+      "feature": "First-run screen offers existing resources first",
+      "detail": "**First-run screen offers existing resources first** (reuse an existing machine/model) or creating new, shows cost/size before creating.",
+      "milestone": "M19",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Wizard: detect existing Ollama/llama.cpp models first; show disk/RAM cost of a download before pulling.",
+      "section": "### 2.3 openman",
+      "implementation": "Wizard: detect existing Ollama/llama.cpp models first; show disk/RAM cost of a download before pulling."
+    },
+    {
+      "id": "Y3.15",
+      "feature": "settings structure",
+      "detail": "Settings structure: Account, Sign-in & security, operator options (invite list, alerts, limits).",
+      "milestone": "M19",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Settings tree for M19e: General, Models, Permissions, Security, Connectors, Channels, Memory, Data & privacy, Admin.",
+      "section": "### 2.3 openman",
+      "implementation": "Settings tree for M19e: General, Models, Permissions, Security, Connectors, Channels, Memory, Data & privacy, Admin."
+    },
+    {
+      "id": "Y3.16",
+      "feature": "public API, webhooks, operator page",
+      "detail": "Public API (`/api/v1`) + outgoing webhooks + operator page.",
+      "milestone": "M20",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [
+        "A3.1",
+        "A3.9"
+      ],
+      "acceptance_criteria": "Already A3.1/A3.9; version prefix and Keel-specific `/api/keel/v1`.",
+      "section": "### 2.3 openman",
+      "implementation": "Already A3.1/A3.9; version prefix and Keel-specific `/api/keel/v1`."
+    },
+    {
+      "id": "Y3.17",
+      "feature": "project update proposals need approval",
+      "detail": "Agent-proposed project updates require approval (`project_proposals`).",
+      "milestone": "M13",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-README, OM-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree",
+        "github.com/nickvasilescu/openman docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Diff proposals (already Master 7.3). Add table + UI list.",
+      "section": "### 2.3 openman",
+      "implementation": "Diff proposals (already Master 7.3). Add table + UI list."
+    },
+    {
+      "id": "Y3.18",
+      "feature": "large task files on compute side; local cache",
+      "detail": "Large task files stay on the compute side; the app keeps a local cache with a configurable data dir (`OPENMAN_DATA_DIR`).",
+      "milestone": "M4, M22",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-ARCH",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman docs/ARCHITECTURE.md"
+      ],
+      "dependencies": [
+        "X7.10"
+      ],
+      "acceptance_criteria": "`KEEL_DATA_DIR` plus cache eviction (X7.10).",
+      "section": "### 2.3 openman",
+      "implementation": "`KEEL_DATA_DIR` plus cache eviction (X7.10)."
+    },
+    {
+      "id": "Y3.19",
+      "feature": "brand strings and assets in one place",
+      "detail": "Brand strings in **one config file** and brand assets in one folder (fork must rename).",
+      "milestone": "M19, M24",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "`brand.ts`-style single source for product name/logo; supports later white-label (M24).",
+      "section": "### 2.3 openman",
+      "implementation": "`brand.ts`-style single source for product name/logo; supports later white-label (M24)."
+    },
+    {
+      "id": "Y3.20",
+      "feature": "docs set incl. security-model",
+      "detail": "Docs set: README, ARCHITECTURE, `security-model.md` (explicit limits), `deploy.md`, `OPERATIONS.md`, AGENTS.md, CODE_OF_CONDUCT, TRADEMARKS, DISCLAIMER, NOTICE, THIRD_PARTY_NOTICES.",
+      "milestone": "M1, M23",
+      "priority": "P1",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Private equivalents; **security-model doc must list what Keel cannot protect against**.",
+      "section": "### 2.3 openman",
+      "implementation": "Private equivalents; **security-model doc must list what Keel cannot protect against**."
+    },
+    {
+      "id": "Y3.21",
+      "feature": "agent runs as administrator warning",
+      "detail": "Statement that the agent \"runs as administrator on the computer\" and can be misled by content it reads.",
+      "milestone": "M19",
+      "priority": "P0",
+      "tag/reference-source": "T:OM-README",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/nickvasilescu/openman README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Prominent first-run warning + permission preset explanation.",
+      "section": "### 2.3 openman",
+      "implementation": "Prominent first-run warning + permission preset explanation."
+    },
+    {
+      "id": "Y4.1",
+      "feature": "/mcp chat command revives dormant servers instantly",
+      "detail": "**`/mcp` chat command revives dormant servers instantly**; otherwise a keyed server revives within ~5 minutes automatically.",
+      "milestone": "M6",
+      "priority": "P0",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "`/reload` and background re-probe every 5 min (configurable).",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "`/reload` and background re-probe every 5 min (configurable)."
+    },
+    {
+      "id": "Y4.2",
+      "feature": "Chat-based onboarding via QR",
+      "detail": "**Chat-based onboarding via QR** (no bot-creation step; scan and tap create) for Telegram.",
+      "milestone": "M15, M19",
+      "priority": "P1",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Channel pairing wizard with QR/deep link where the platform supports it; always show manual fallback.",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Channel pairing wizard with QR/deep link where the platform supports it; always show manual fallback."
+    },
+    {
+      "id": "Y4.3",
+      "feature": "first-boot sign-in test-fire",
+      "detail": "First-boot **sign-in test-fire** with a 1-token call so a zero-credit account fails loudly.",
+      "milestone": "M19",
+      "priority": "P0",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Already Master 9.3; add \"fail loudly with the exact provider error\".",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Already Master 9.3; add \"fail loudly with the exact provider error\"."
+    },
+    {
+      "id": "Y4.4",
+      "feature": "Secret provider map",
+      "detail": "**Secret provider map:** one token unlocks a named vault/note whose fields are named exactly like env vars; the token is isolated in a separate env file; map is **disabled until the token exists** so the CLI never prompts interactively on every start.",
+      "milestone": "M3",
+      "priority": "P2",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [
+        "A4.7"
+      ],
+      "acceptance_criteria": "Optional `op`/`pass`/`bw` command provider (A4.7): shipped disabled; enabling it validates non-interactivity first.",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Optional `op`/`pass`/`bw` command provider (A4.7): shipped disabled; enabling it validates non-interactivity first."
+    },
+    {
+      "id": "Y4.5",
+      "feature": "supervised webhook bridge",
+      "detail": "Webhook bridge as a **supervised service** that self-provisions a tunnel and wakes itself when keyed.",
+      "milestone": "M15",
+      "priority": "P1",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Inbound webhooks only via user-provided tunnel (Master 7.4); supervised service pattern for the bridge.",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Inbound webhooks only via user-provided tunnel (Master 7.4); supervised service pattern for the bridge."
+    },
+    {
+      "id": "Y4.6",
+      "feature": "Telemetry plugin + chat-side trace query MCP",
+      "detail": "**Telemetry plugin + chat-side trace query MCP** (every model/tool call traced and queryable by the agent itself).",
+      "milestone": "M21",
+      "priority": "P1",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Local traces + an internal `traces` MCP/tool so the agent can answer \"what did you do\".",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Local traces + an internal `traces` MCP/tool so the agent can answer \"what did you do\"."
+    },
+    {
+      "id": "Y4.7",
+      "feature": "Desktop-control plugin with 11 key-less tools",
+      "detail": "**Desktop-control plugin with 11 key-less tools** riding the VM's own auth.",
+      "milestone": "M16",
+      "priority": "P1",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Enumerate the 11 tools in M0 teardown; Keel's local equivalents (screenshot, click, type, key, scroll, drag, bash, file read/write, window list).",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Enumerate the 11 tools in M0 teardown; Keel's local equivalents (screenshot, click, type, key, scroll, drag, bash, file read/write, window list)."
+    },
+    {
+      "id": "Y4.8",
+      "feature": "Obsidian vault",
+      "detail": "**Obsidian vault** the agent reads and writes, opened on the agent's desktop.",
+      "milestone": "M13",
+      "priority": "P1",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [
+        "C1.8"
+      ],
+      "acceptance_criteria": "Vault is plain Markdown (C1.8); open-in-user's-editor.",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Vault is plain Markdown (C1.8); open-in-user's-editor."
+    },
+    {
+      "id": "Y4.9",
+      "feature": "Persona file with rigor contract + coding-agent routing + desktop control plane",
+      "detail": "**Persona file with rigor contract + coding-agent routing + desktop control plane** in one `SOUL.md`.",
+      "milestone": "M7",
+      "priority": "P0",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [
+        "X1",
+        "A4.5"
+      ],
+      "acceptance_criteria": "`PERSONA.md` sections; routing table consumed by the router (X1.x / A4.5).",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "`PERSONA.md` sections; routing table consumed by the router (X1.x / A4.5)."
+    },
+    {
+      "id": "Y4.10",
+      "feature": "Skill library = one setup runbook per integration (21 units).",
+      "detail": "**Skill library = one setup runbook per integration (21 units).**",
+      "milestone": "M9",
+      "priority": "P1",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "M0 lists all 21 and maps each to a Keel connector/channel.",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "M0 lists all 21 and maps each to a Keel connector/channel."
+    },
+    {
+      "id": "Y4.11",
+      "feature": "config.yaml provider switch in two lines",
+      "detail": "`config.yaml` carries model, MCP list, plugin list, secret map; \"flip the model provider in two documented lines.\"",
+      "milestone": "M2",
+      "priority": "P1",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Provider switch docs with two-line change examples per provider in the generated config reference.",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Provider switch docs with two-line change examples per provider in the generated config reference."
+    },
+    {
+      "id": "Y4.12",
+      "feature": "Deterministic template build",
+      "detail": "**Deterministic template build:** big file trees packed in one deterministic tarball because the publish API caps request size.",
+      "milestone": "M22",
+      "priority": "P1",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Reproducible packaging; **artifact size budget check** per upload target.",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Reproducible packaging; **artifact size budget check** per upload target."
+    },
+    {
+      "id": "Y4.13",
+      "feature": "version badge and zero-secrets release scan",
+      "detail": "Version badge + `VERSION=x.y.z build` pattern; release scan proves **zero secrets baked in**.",
+      "milestone": "M22",
+      "priority": "P0",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [
+        "A4.8"
+      ],
+      "acceptance_criteria": "Release script takes `VERSION`; scan on artifacts (A4.8).",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Release script takes `VERSION`; scan on artifacts (A4.8)."
+    },
+    {
+      "id": "Y4.14",
+      "feature": "16-plugin / 13-MCP preset",
+      "detail": "Config for **16 plugins** and **13 MCP servers** as one preset.",
+      "milestone": "M6, M10",
+      "priority": "P1",
+      "tag/reference-source": "T:NS",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "nicks-stack README/tree"
+      ],
+      "dependencies": [
+        "C1.9"
+      ],
+      "acceptance_criteria": "Preset bundle (C1.9). MCP presets limited to free: filesystem, git, fetch, SQLite, time, memory, Playwright, sequential-thinking, Linear (free tier, user token) etc.",
+      "section": "### 2.4 nicks-stack",
+      "implementation": "Preset bundle (C1.9). MCP presets limited to free: filesystem, git, fetch, SQLite, time, memory, Playwright, sequential-thinking, Linear (free tier, user token) etc."
+    },
+    {
+      "id": "Y5.1",
+      "feature": "plugin.json manifest and config namespace",
+      "detail": "`plugin.json` manifest at repo root + `channels.<id>` config namespace + `plugins.load.paths` for local development.",
+      "milestone": "M10, M15",
+      "priority": "P0",
+      "tag/reference-source": "T:LQ",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "clawdbot-channel-linq README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "`channel.json` + `channels.<id>` config + dev-link paths.",
+      "section": "### 2.5 clawdbot-channel-linq",
+      "implementation": "`channel.json` + `channels.<id>` config + dev-link paths."
+    },
+    {
+      "id": "Y5.2",
+      "feature": "Install from git URL one-liner",
+      "detail": "**Install from git URL one-liner** with auto-build via `prepare`; `--link` for local development.",
+      "milestone": "M10",
+      "priority": "P1",
+      "tag/reference-source": "T:LQ",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "clawdbot-channel-linq README/tree"
+      ],
+      "dependencies": [
+        "A5.2"
+      ],
+      "acceptance_criteria": "`keel plugin add <private git>`; `--link` dev mode (A5.2).",
+      "section": "### 2.5 clawdbot-channel-linq",
+      "implementation": "`keel plugin add <private git>`; `--link` dev mode (A5.2)."
+    },
+    {
+      "id": "Y5.3",
+      "feature": "Webhook subscription lifecycle",
+      "detail": "**Webhook subscription lifecycle:** subscribe to a named **event list** (message.received/delivered/read/failed, reaction.added/removed, typing started/stopped), keep the returned signing secret, exported programmatic helper for subscription creation.",
+      "milestone": "M15",
+      "priority": "P1",
+      "tag/reference-source": "T:LQ",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "clawdbot-channel-linq README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Channel SDK event enum + helper; generalize for Telegram/Discord/Matrix/Slack equivalents.",
+      "section": "### 2.5 clawdbot-channel-linq",
+      "implementation": "Channel SDK event enum + helper; generalize for Telegram/Discord/Matrix/Slack equivalents."
+    },
+    {
+      "id": "Y5.4",
+      "feature": "webhook signature headers and no-secret rejection",
+      "detail": "Signature headers `X-Webhook-Signature` (hex HMAC) + `X-Webhook-Timestamp`; signed payload is `timestamp.rawBody`; reject older than 5 min; **missing secret means every request is rejected (401)**.",
+      "milestone": "M3, M15",
+      "priority": "P0",
+      "tag/reference-source": "T:LQ",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "clawdbot-channel-linq README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Already in Master; add \"no secret configured = reject all\", never \"accept unsigned\".",
+      "section": "### 2.5 clawdbot-channel-linq",
+      "implementation": "Already in Master; add \"no secret configured = reject all\", never \"accept unsigned\"."
+    },
+    {
+      "id": "Y5.5",
+      "feature": "Reaction mapping table",
+      "detail": "**Reaction mapping table** (emoji groups to native reaction types incl. skin-tone variants), and `react` action usable by the agent, removable.",
+      "milestone": "M15",
+      "priority": "P2",
+      "tag/reference-source": "T:LQ",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "clawdbot-channel-linq README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Reaction map per channel in the capability matrix.",
+      "section": "### 2.5 clawdbot-channel-linq",
+      "implementation": "Reaction map per channel in the capability matrix."
+    },
+    {
+      "id": "Y5.6",
+      "feature": "chat-id mapping cache",
+      "detail": "Chat-id mapping cache stored under the credentials dir with documented reset.",
+      "milestone": "M15",
+      "priority": "P1",
+      "tag/reference-source": "T:LQ",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "clawdbot-channel-linq README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Per-channel chat cache in SQLite with a \"reset mapping\" button.",
+      "section": "### 2.5 clawdbot-channel-linq",
+      "implementation": "Per-channel chat cache in SQLite with a \"reset mapping\" button."
+    },
+    {
+      "id": "Y5.7",
+      "feature": "status and gateway commands",
+      "detail": "`status` command lists loaded channels; `gateway start`.",
+      "milestone": "M15, M20",
+      "priority": "P0",
+      "tag/reference-source": "T:LQ",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "clawdbot-channel-linq README/tree"
+      ],
+      "dependencies": [
+        "A5.1"
+      ],
+      "acceptance_criteria": "`keel gateway status` (A5.1).",
+      "section": "### 2.5 clawdbot-channel-linq",
+      "implementation": "`keel gateway status` (A5.1)."
+    },
+    {
+      "id": "Y5.8",
+      "feature": "troubleshooting by exact error strings",
+      "detail": "Troubleshooting sections keyed by exact error strings (\"token not configured\", \"fromNumber not configured\", \"webhook not receiving\").",
+      "milestone": "M15, M23",
+      "priority": "P1",
+      "tag/reference-source": "T:LQ",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "clawdbot-channel-linq README/tree"
+      ],
+      "dependencies": [
+        "C10.2"
+      ],
+      "acceptance_criteria": "Error catalog entries with the same pattern: message, cause, fix steps (C10.2).",
+      "section": "### 2.5 clawdbot-channel-linq",
+      "implementation": "Error catalog entries with the same pattern: message, cause, fix steps (C10.2)."
+    },
+    {
+      "id": "Y5.9",
+      "feature": "Linq API/iMessage/RCS/SMS excluded (Blocked for free)",
+      "detail": "**Excluded:** Linq API/iMessage/RCS/SMS (paid, cloud). Mark \"Blocked for free\".",
+      "milestone": "M15",
+      "priority": "n/a",
+      "tag/reference-source": "T:LQ",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "clawdbot-channel-linq README/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Telegram, Discord, Matrix, Slack, email.",
+      "section": "### 2.5 clawdbot-channel-linq",
+      "implementation": "Telegram, Discord, Matrix, Slack, email."
+    },
+    {
+      "id": "Y6.1",
+      "feature": "repo evidence docs cross-walk",
+      "detail": "Root holds many `agent-evidence-area*.md` files (commands, interactive-tui, skills, dependencies, file-editing, sandboxing, parallel-agents, permission-modes, mcp, tools-reference) plus `feature-checklist.md`, `test-plan.md`, `benchmark-and-evaluation-plan.md`, `compute-feasibility.md`, `interface-spec.md`, `llm-*` and `model-architecture-proposal.md`, `training-data-plan.md`.",
+      "milestone": "M0",
+      "priority": "P0",
+      "tag/reference-source": "T:KL",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/eliosmernica15/keel front page/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "M0: build a **cross-walk** from each of these to plan IDs; anything uncovered becomes a row. Training-data and model-architecture docs stay out of scope (Master 4.2.5).",
+      "section": "### 2.6 Keel's own repo (what the tree tells us)",
+      "implementation": "M0: build a **cross-walk** from each of these to plan IDs; anything uncovered becomes a row. Training-data and model-architecture docs stay out of scope (Master 4.2.5)."
+    },
+    {
+      "id": "Y6.2",
+      "feature": ".verify-* and .build artifacts",
+      "detail": "`.verify-*` folders (`automode`, `headless-adv`, `modelconfig`, `raw`, `skills`, `verify5`) look like verification output; `.build` too.",
+      "milestone": "M0, M1",
+      "priority": "P0",
+      "tag/reference-source": "T:KL",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/eliosmernica15/keel front page/tree"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Move to `docs/archive/` (private) or ignore; ensure absent from artifacts (artifact allowlist scan).",
+      "section": "### 2.6 Keel's own repo (what the tree tells us)",
+      "implementation": "Move to `docs/archive/` (private) or ignore; ensure absent from artifacts (artifact allowlist scan)."
+    },
+    {
+      "id": "Y6.3",
+      "feature": "four surfaces: Cowork, Code, Duet, Fleet",
+      "detail": "Repo description names four surfaces: **Cowork, Code, Duet, Fleet**; homepage `keel-desktop.vercel.app`.",
+      "milestone": "M19, M23",
+      "priority": "P0",
+      "tag/reference-source": "T:KL",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/eliosmernica15/keel front page/tree"
+      ],
+      "dependencies": [
+        "C2.5",
+        "D5"
+      ],
+      "acceptance_criteria": "Implement surface switcher (C2.5); apply D5/free-tier checks to the website host.",
+      "section": "### 2.6 Keel's own repo (what the tree tells us)",
+      "implementation": "Implement surface switcher (C2.5); apply D5/free-tier checks to the website host."
+    },
+    {
+      "id": "Y6.4",
+      "feature": "repo visibility: Public, 0 stars/forks",
+      "detail": "Repo is **Public** with 0 stars/forks (as of this fetch).",
+      "milestone": "M1",
+      "priority": "P0",
+      "tag/reference-source": "T:KL",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "github.com/eliosmernica15/keel front page/tree"
+      ],
+      "dependencies": [
+        "G1"
+      ],
+      "acceptance_criteria": "Gate G1 still pending; run Appendix B only after owner approval.",
+      "section": "### 2.6 Keel's own repo (what the tree tells us)",
+      "implementation": "Gate G1 still pending; run Appendix B only after owner approval."
+    },
+    {
+      "id": "Z1",
+      "feature": "Project environment lockfile",
+      "detail": "**Project environment lockfile** (`.keel/lock.json`): pins versions/hashes of skills, plugins, MCP servers, model files and prompt profiles used by a project; mismatch warns before running.",
+      "milestone": "M9, M10",
+      "priority": "P1",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "Y1.29"
+      ],
+      "acceptance_criteria": "Hash each installed extension at install time; compare at session start; auto-regenerate on user approval. Reuse Y1.29 pin semantics.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Hash each installed extension at install time; compare at session start; auto-regenerate on user approval. Reuse Y1.29 pin semantics."
+    },
+    {
+      "id": "Z2",
+      "feature": "Agent contract tests",
+      "detail": "**Agent contract tests:** each agent/skill ships tests (scripted fixture-model runs, X9.1) that assert tool allowlist, refusal behavior and output shape; run on install and update.",
+      "milestone": "M9, M25",
+      "priority": "P1",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "X9.1"
+      ],
+      "acceptance_criteria": "Define a `tests/` folder spec inside skill/agent packs; runner uses the mock model.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Define a `tests/` folder spec inside skill/agent packs; runner uses the mock model."
+    },
+    {
+      "id": "Z3",
+      "feature": "Redacted replay export",
+      "detail": "**Redacted replay export:** export a session as standalone HTML with secrets/paths/PII redacted and an integrity hash.",
+      "milestone": "M4, M3",
+      "priority": "P1",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "B3.8",
+        "B3.6"
+      ],
+      "acceptance_criteria": "Reuse DLP (B3.8) and redaction (B3.6); show a redaction preview; no network assets.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Reuse DLP (B3.8) and redaction (B3.6); show a redaction preview; no network assets."
+    },
+    {
+      "id": "Z4",
+      "feature": "Crash-safe turn journal",
+      "detail": "**Crash-safe turn journal** with exact resume point after power loss (tool call started, result pending).",
+      "milestone": "M4",
+      "priority": "P0",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "Y2.4",
+        "Y2.6"
+      ],
+      "acceptance_criteria": "Write-ahead entry before each tool run, mark done after; on restart show \"interrupted tool, retry or skip\". Extends Y2.4/Y2.6.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Write-ahead entry before each tool run, mark done after; on restart show \"interrupted tool, retry or skip\". Extends Y2.4/Y2.6."
+    },
+    {
+      "id": "Z5",
+      "feature": "Capability negotiation handshake",
+      "detail": "**Capability negotiation handshake** between daemon and every client (TUI, web, IDE, phone): client declares supported UI features (question form, diff viewer, image display, plugin panels).",
+      "milestone": "M20",
+      "priority": "P0",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "Y1.9"
+      ],
+      "acceptance_criteria": "JSON `capabilities` object sent at connect; daemon degrades gracefully (e.g., text prompt if no form support). Extends Y1.9.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "JSON `capabilities` object sent at connect; daemon degrades gracefully (e.g., text prompt if no form support). Extends Y1.9."
+    },
+    {
+      "id": "Z6",
+      "feature": "Local-first sync via the user's own folder",
+      "detail": "**Local-first sync via the user's own folder** (settings, memory, skills) with conflict resolution UI, no server.",
+      "milestone": "M14, M22",
+      "priority": "P2",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "B4.11"
+      ],
+      "acceptance_criteria": "Append-only change files + last-writer-wins per key with visible conflicts; encrypted (B4.11).",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Append-only change files + last-writer-wins per key with visible conflicts; encrypted (B4.11)."
+    },
+    {
+      "id": "Z7",
+      "feature": "Household/OS-user separation",
+      "detail": "**Household/OS-user separation:** per-OS-user data dirs and separate keychain entries; admin can lock model downloads.",
+      "milestone": "M22, M24",
+      "priority": "P2",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Use OS user profile paths; managed policy keys for restrictions.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Use OS user profile paths; managed policy keys for restrictions."
+    },
+    {
+      "id": "Z8",
+      "feature": "Energy and cost estimator for local runs",
+      "detail": "**Energy and cost estimator for local runs** (tokens/sec, estimated wattage) shown in the usage dashboard.",
+      "milestone": "M21",
+      "priority": "P2",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Use measured tokens/sec and user-entered power draw; label as an estimate.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Use measured tokens/sec and user-entered power draw; label as an estimate."
+    },
+    {
+      "id": "Z9",
+      "feature": "Natural-language policy editor",
+      "detail": "**Natural-language policy editor:** user describes a rule (\"never run git push\"), Keel proposes the exact rule, simulates it (policy simulator), user approves.",
+      "milestone": "M3, M19",
+      "priority": "P1",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "Y1.35"
+      ],
+      "acceptance_criteria": "LLM proposes JSON rule; validator + simulator show matches; Tier-2 conflicts rejected. Extends Y1.35.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "LLM proposes JSON rule; validator + simulator show matches; Tier-2 conflicts rejected. Extends Y1.35."
+    },
+    {
+      "id": "Z10",
+      "feature": "Provider/model drift detector",
+      "detail": "**Provider/model drift detector:** weekly local job re-runs the model health check (X1.16); alerts if tool-call score drops after a model or runtime update.",
+      "milestone": "M21",
+      "priority": "P1",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "X1.16"
+      ],
+      "acceptance_criteria": "Store scores per model hash and runtime version in SQLite; compare.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Store scores per model hash and runtime version in SQLite; compare."
+    },
+    {
+      "id": "Z11",
+      "feature": "Dormant-integration health board",
+      "detail": "**Dormant-integration health board:** one screen listing every connector/channel/MCP server as dormant, connecting, active, error, with last probe time and the exact missing setting.",
+      "milestone": "M15, M19",
+      "priority": "P0",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "A4.6",
+        "Y4.1"
+      ],
+      "acceptance_criteria": "Reuse probe() (A4.6) and Y4.1 re-probe schedule.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Reuse probe() (A4.6) and Y4.1 re-probe schedule."
+    },
+    {
+      "id": "Z12",
+      "feature": "Offline signed catalog updates",
+      "detail": "**Offline signed catalog updates:** model catalog, MCP presets and language packs delivered as signed bundles through the update feed or USB (C12.2).",
+      "milestone": "M22",
+      "priority": "P1",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "C12.2"
+      ],
+      "acceptance_criteria": "Same Ed25519 chain as release artifacts; verify before import; versioned.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Same Ed25519 chain as release artifacts; verify before import; versioned."
+    },
+    {
+      "id": "Z13",
+      "feature": "\"Why can't I do X?\" explainer",
+      "detail": "**\"Why can't I do X?\" explainer** for disabled features: shows which requirement/policy/flag blocks it.",
+      "milestone": "M19",
+      "priority": "P1",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "Y3.1"
+      ],
+      "acceptance_criteria": "Every feature has a `requires` list; UI renders it. Extends Y3.1.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Every feature has a `requires` list; UI renders it. Extends Y3.1."
+    },
+    {
+      "id": "Z14",
+      "feature": "Pre-flight installer report",
+      "detail": "**Pre-flight installer report** (\"this installer will create these files, register these protocols, add this service\") before install and in docs.",
+      "milestone": "M22, M23",
+      "priority": "P2",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": "Generate from the build manifest; display in installer and on download page.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Generate from the build manifest; display in installer and on download page."
+    },
+    {
+      "id": "Z15",
+      "feature": "Prompt-injection regression corpus",
+      "detail": "**Prompt-injection regression corpus** that grows from real blocked events (opt-in, local, anonymized) and is replayed in the red-team suite (C8.8).",
+      "milestone": "M3, M21",
+      "priority": "P1",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "C8.8"
+      ],
+      "acceptance_criteria": "Store hashed + redacted samples locally; never upload.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Store hashed + redacted samples locally; never upload."
+    },
+    {
+      "id": "Z16",
+      "feature": "Per-project cost budgets and \"stop at budget\" with summary",
+      "detail": "**Per-project cost budgets and \"stop at budget\" with summary** (tokens for local, dollars for user-key remote).",
+      "milestone": "M21",
+      "priority": "P1",
+      "tag/reference-source": "[S]",
+      "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+      "references": [
+        "[S] own suggestion - no repo reference (Section 7)"
+      ],
+      "dependencies": [
+        "A3.10"
+      ],
+      "acceptance_criteria": "Ledger enforcement (A3.10) with a project scope.",
+      "section": "## 7. Additional own suggestions `[S]` (not in any repo or earlier addendum)",
+      "builder_approach": "Ledger enforcement (A3.10) with a project scope."
+    }
+  ],
+  "metadata": {
+    "source_document": "Keel_Plan_v5_Addendum_4_Sourced_Features_and_Builder_Guide.md",
+    "document_title": "Keel Plan v5 Addendum 4: Sourced Features, Reference Map and Builder Guide for Own Ideas",
+    "document_date": "21 Nov 2026 (sources fetched/read this session)",
+    "scope": "Adds only items not already in the Master Plan, Addendum 1 (A/B), Addendum 2 (C), Addendum 3 (X). Free-only. Milestones follow v5. Every row says where it came from.",
+    "expected_counts": {
+      "Y": 112,
+      "Z": 16,
+      "total": 128
+    },
+    "actual_counts": {
+      "Y": 112,
+      "Z": 16,
+      "total": 128,
+      "unique_ids": 128
+    },
+    "source_tags": {
+      "[T:<src>]": "Read in the source named, this session (21 Nov 2026). Still reimplement from behavior (clean-room, X0.10).",
+      "[K]": "General knowledge of that product category; verify in M0.",
+      "[S]": "My suggestion. Not from any repo. Follow the builder protocol in Section 6."
+    },
+    "reference_repo_mapping": {
+      "OC-README": "github.com/anomalyco/opencode (README + file tree)",
+      "OC-TOOLS": "opencode.ai/docs/tools",
+      "OC-CONFIG": "opencode.ai/docs/config",
+      "OC-PLUGINS": "opencode.ai/docs/plugins",
+      "OT-README": "github.com/nickvasilescu/orgo-teammates README/tree",
+      "OT-ARCH": "github.com/nickvasilescu/orgo-teammates docs/ARCHITECTURE.md",
+      "OM-README": "github.com/nickvasilescu/openman README/tree",
+      "OM-ARCH": "github.com/nickvasilescu/openman docs/ARCHITECTURE.md",
+      "NS": "nicks-stack README/tree",
+      "LQ": "clawdbot-channel-linq README/tree",
+      "KL": "github.com/eliosmernica15/keel front page/tree"
+    },
+    "read_this_session": [
+      "the six repo front pages/READMEs/trees",
+      "opencode tools, config, plugins docs",
+      "both ARCHITECTURE.md files (orgo-teammates, openman)"
+    ],
+    "not_read_yet_m0_reading_list": [
+      "opencode docs: agents, commands, permissions, policies, mcp-servers, snapshots, compaction, formatters, references, attachments, skills, themes, providers, websearch, network, warming, migrate-v1, troubleshooting, build/plugins (server/GUI/TUI), api, cli; plus packages/, services/, specs/v2, .opencode/, sdks/vscode, .zed in the repo. Folders salesforce/ and strobe.json are unexplained: inspect.",
+      "orgo-teammates: docs/orgo-builder-guide.md, docs/xai-and-composio.md, SECURITY.md, web/src (screens), tests/e2e.mjs",
+      "openman: docs/security-model.md, docs/deploy.md, docs/OPERATIONS.md, AGENTS.md, content/docs, src/app (screens), src/config/usage-limits.ts, src/config/brand.ts",
+      "nicks-stack: files/config.yaml, files/SOUL.md, files/skills/* (21), files/onboard.sh, agentphone-bridge/, plugins/orgo-desktop-local/ (11 tools: list them), build_template.py",
+      "clawdbot-channel-linq: src/*, clawdbot.plugin.json",
+      "Keel itself: keel/ source is not readable by these tools. Builder reads it locally. The Keel repo still shows 'Public' with 108 commits as of this fetch, so gate G1 (Appendix B runbook) is still pending."
+    ],
+    "builder_guide_requirements": {
+      "applies_to": "Every [S] row (Section 7 Z-rows). No [S] row is 'complete' without all seven steps recorded in PLAN-INDEX.json.",
+      "steps": [
+        "1. Research note (private, 1 page): what the feature is, 2 or more existing products/standards that do something similar, and why Keel needs it. Cite sources; no copying.",
+        "2. License and free check: list every library, model or service; record license and date (FREE-TIER-REGISTER, X0.6). Reject anything paid or account-gated.",
+        "3. Spec in Keel's words: user story, behavior, edge cases, failure modes, permissions touched, data stored, what is Tier 2 (never configurable).",
+        "4. Smallest shippable slice: build the minimal version behind a feature flag labeled 'experimental' (X6.10).",
+        "5. Tests first for risk: security-relevant [S] rows need a negative test (what must be refused) before the feature test.",
+        "6. Evidence: run it end to end, store the run id; verify offline behavior (X0.8).",
+        "7. Owner review gate: if the feature stores new personal data, touches the network, or affects Tier 2, stop and ask the owner before enabling by default."
+      ]
+    },
+    "clean_room_procedures": [
+      "Section 0: [T:<src>] means the source was read this session, but implementation must still be reimplemented from behavior (clean-room, X0.10).",
+      "Section 6 step 1: cite sources; no copying.",
+      "Section 8 item 6: add all rows to PLAN-INDEX.json with their source tag; no [T] row may be implemented from copied code, and no [S] row skips Section 6.",
+      "Section 1: Keel source is not readable by these tools; builder reads it locally; gate G1 (Appendix B runbook) remains pending until owner approval.",
+      "Y1.1: per-MCP-server codemode:false switch; every nested call still goes through the permission gate.",
+      "Y2.8: connector tool classification must use explicit manifest flags, never name-guessing alone (name rules only as a fallback with a warning).",
+      "Y3.13: setup script never overwrites secrets; prints required values and the one manual step.",
+      "Y5.4: no secret configured means reject all webhook requests; never accept unsigned.",
+      "Y1.35: config_edit proposes a validated diff that the user approves; never touches Tier-2 settings.",
+      "Y3.10: dev-bypass only in dev builds; release builds hard-fail if set (CI test).",
+      "Y4.13 and A4.8: release scan proves zero secrets baked in.",
+      "Y1.28: URL instructions fetched through SSRF-safe client and marked tainted.",
+      "Y1.14: page content treated as untrusted; browser catalog behind consent."
+    ],
+    "licensing_and_attribution_notes": [
+      "Y1.14: Lighthouse must be free (Apache-2.0, verify before use).",
+      "Y1.39: Keel TRADEMARKS.md includes a non-affiliation clause for third-party extensions ('Building on X' notice).",
+      "Y3.20: private docs set must include TRADEMARKS, DISCLAIMER, NOTICE, THIRD_PARTY_NOTICES; the security-model doc must list what Keel cannot protect against.",
+      "Section 3: ElevenLabs replaced by whisper.cpp + Piper/Kokoro (license check X0.7).",
+      "Section 3: Hermes Agent (Nous), gpt-5.5 - Keel's own loop; Hermes is a reference only (verify license before reading code).",
+      "Section 3: opencode hosted share/Console/infra (sst) excluded; local HTML export instead.",
+      "Section 3: all paid/hosted pieces (Orgo cloud, Composio, xAI Grok API, Claude proxy, Supabase Postgres, AgentMail/Phone/Card, 1Password/Latitude/Honcho, ngrok/cloudflared, X API/vidiq/ideabrowser, Linq) have free local replacements or are excluded.",
+      "Y4.14: MCP presets limited to free: filesystem, git, fetch, SQLite, time, memory, Playwright, sequential-thinking, Linear (free tier, user token), etc.",
+      "Section 6 step 2: record license and date for every library/model/service in FREE-TIER-REGISTER (X0.6); reject anything paid or account-gated.",
+      "D5/free-tier checks apply to keel-desktop.vercel.app website host (Y6.3)."
+    ],
+    "decision_records": [
+      "Section 5.1: Master 7.1 said Plan agent 'cannot write even if config allows' and 'asks before bash'. README confirms plan denies edits by default and asks before bash [T:OC-README]. KEEP Keel's stricter 'cannot write' rule as an intentional difference and record it.",
+      "Section 5.2: Addendum 1 A1.10/A1.11 - opencode's todo is opt-in experimental and websearch uses selectable (some third-party) providers. Keel keeps todo on by default but NO paid search provider [T:OC-CONFIG].",
+      "Section 5.3: Addendum 1 A1.21 'remove versions older than X' is a README tip, not a feature; implement as installer pre-check only if upgrades require it.",
+      "Section 5.4: Master Section 6 rule 6 (permissions) must add the policies layer and the rule that policy enforcement plugins cannot be disabled by project config [T:OC-CONFIG, OC-PLUGINS] (Y1.17, Y1.30).",
+      "Section 5.5: Master 3.1 orgo-teammates 'Library' and 'noVNC via relay' confirmed; the relay drops input in watch mode server-side [T:OT-ARCH] (Y2.14): add to the M16 acceptance test.",
+      "Section 5.6: Master 3.1 said nicks-stack has '13 MCP servers'; confirmed and note 16 plugins [T:NS].",
+      "Locked decision (Section 3): Supabase Postgres replaced with SQLite WAL (locked decision).",
+      "Gate G1 (Appendix B runbook) pending: Keel repo still Public with 108 commits as of fetch; run only after owner approval (Section 1, Y6.4).",
+      "G7: plugin CLI uses private-source-only default (Y1.29).",
+      "Paid search providers excluded (Y1.8, Section 5.2); free providers only (self-hosted SearXNG etc.).",
+      "Master 7.3 diff proposals already cover agent-proposed project updates (Y3.17).",
+      "Master 4.2.5: training-data and model-architecture docs stay out of scope (Y6.1)."
+    ],
+    "paid_to_free_replacements": [
+      {
+        "reference_piece": "Orgo cloud computers, credits, plans",
+        "source": "OT-README, OM-README",
+        "free_replacement": "Local container desktop (M16); no cloud"
+      },
+      {
+        "reference_piece": "Composio (apps, sign-in, triggers)",
+        "source": "OT-README",
+        "free_replacement": "Direct connectors and free/self-hosted MCP servers with user's own OAuth/tokens (M15)"
+      },
+      {
+        "reference_piece": "xAI Grok API / realtime voice",
+        "source": "OT-README",
+        "free_replacement": "Local models; local STT/TTS (M17)"
+      },
+      {
+        "reference_piece": "Claude via Orgo proxy",
+        "source": "OM-README",
+        "free_replacement": "Optional user-key provider only"
+      },
+      {
+        "reference_piece": "Supabase Postgres",
+        "source": "OM-ARCH",
+        "free_replacement": "SQLite WAL (locked decision)"
+      },
+      {
+        "reference_piece": "AgentMail / AgentPhone / AgentCard",
+        "source": "OM-README, NS",
+        "free_replacement": "IMAP/SMTP of the user's own mailbox; SMS/phone/payment cards excluded"
+      },
+      {
+        "reference_piece": "ElevenLabs",
+        "source": "OM-README",
+        "free_replacement": "whisper.cpp + Piper/Kokoro (license check X0.7)"
+      },
+      {
+        "reference_piece": "1Password, Latitude, Honcho",
+        "source": "NS",
+        "free_replacement": "OS keychain + optional user-owned CLI provider; local traces; local memory"
+      },
+      {
+        "reference_piece": "ngrok / cloudflared tunnels",
+        "source": "LQ, NS",
+        "free_replacement": "Prefer outbound channels; inbound only via a user-provided tunnel"
+      },
+      {
+        "reference_piece": "X API, vidiq, ideabrowser MCPs",
+        "source": "NS",
+        "free_replacement": "Not included (paid/third-party); skip"
+      },
+      {
+        "reference_piece": "Hermes Agent (Nous), gpt-5.5",
+        "source": "NS, OM-README",
+        "free_replacement": "Keel's own loop; Hermes is a reference only (verify license before reading code)"
+      },
+      {
+        "reference_piece": "Linq (iMessage/RCS/SMS)",
+        "source": "LQ",
+        "free_replacement": "Excluded (Y5.9)"
+      },
+      {
+        "reference_piece": "opencode hosted share/Console/infra (sst)",
+        "source": "OC-README, OC-PLUGINS",
+        "free_replacement": "Excluded; local HTML export instead"
+      }
+    ],
+    "ui_ux_inventory": {
+      "opencode": "terminal UI with Build/Plan toggle (Tab); desktop app (beta); Settings > Extensions > Plugins list with per-plugin switch and Reload; question form (header, choices, multi-select, free text); update notice; subagent 'background child' indicators; worktree-aware session list. T:OC-README, OC-TOOLS, OC-PLUGINS",
+      "orgo-teammates": "sidebar (agent roster), chat transcript, details panel with tabs Activity, Tasks, Library, modals, settings, computer viewer (watch / take over), voice call bar, approval/question/connect/draft cards, group rooms. T:OT-ARCH",
+      "openman": "landing page, sign-in dialog and /signin (code approval + API key paste), first-run computer picker with price, task view with live desktop and Agent/Chat/Plan modes, projects, skills library, connectors, automations with run history, websites build/preview/publish, slides/audio generators, meeting notes, settings (Account, Sign-in & security), operator admin page, public docs. T:OM-README, OM-ARCH",
+      "nicks-stack": "first-boot setup window (model sign-in, QR pairing, optional secret-provider step). T:NS",
+      "Keel today": "existing screens read locally from keel/ renderer in M0. T:KL (source not readable by tools)"
+    },
+    "priority_order_this_addendum": [
+      "1. Foundation correctness: Y2.1, Y2.2, Y2.4, Y2.5, Y2.6, Y3.4, Y3.6, Z4, Z5.",
+      "2. Tool fidelity: Y1.2 to Y1.9, Y1.11, Y1.16, Y1.17, Y1.30.",
+      "3. Security parity: Y2.7, Y2.8, Y2.14, Y2.20, Y3.9, Y3.10, Y3.11, Y3.21, Y5.4.",
+      "4. Reliability and ops: Y3.7, Y4.1, Y2.18, Z11.",
+      "5. Everything else at its milestone; P2 after v1.0 candidate is green.",
+      "6. Add all rows to PLAN-INDEX.json with their source tag; no [T] row may be implemented from copied code, and no [S] row skips Section 6."
+    ]
+  }
+}
