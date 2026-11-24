@@ -25,7 +25,7 @@ HTML report: `fleet-next/tests/e2e/report/`. Traces/failure screenshots: `fleet-
 
 ## 2. How to run
 
-Prerequisites: `node_modules` installed; the Python bridge listening on `http://127.0.0.1:8739` with `KEEL_TOKEN=keel-frontend-verify-2026`; Chromium installed via `npx playwright install chromium`.
+Prerequisites: `node_modules` installed; a Python bridge listening on `http://127.0.0.1:8739`; Chromium installed via `npx playwright install chromium`. Start that bridge with any **throwaway local token** (e.g. `KEEL_TOKEN=local-e2e-bridge-token`) and set `KEEL_E2E_BRIDGE_TOKEN` to the same value if you use a different one. This is a test-only bridge token — never a provider key or production credential, and no such value is stored in the browser.
 
 ```powershell
 cd keel/fleet-next

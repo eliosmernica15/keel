@@ -32,7 +32,8 @@ export default defineConfig({
     env: {
       ...process.env,
       KEEL_BRIDGE_URL: "http://127.0.0.1:8739",
-      KEEL_BRIDGE_TOKEN: "keel-frontend-verify-2026",
+      // Throwaway local-bridge token for tests only (see playwright.config.ts).
+      KEEL_BRIDGE_TOKEN: process.env.KEEL_E2E_BRIDGE_TOKEN ?? "local-e2e-bridge-token",
       KEEL_DIST_DIR: ".next-e2e",
     } as Record<string, string>,
   },

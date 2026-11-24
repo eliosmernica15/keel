@@ -47,7 +47,9 @@ export default defineConfig({
     env: {
       ...process.env,
       KEEL_BRIDGE_URL: "http://127.0.0.1:8739",
-      KEEL_BRIDGE_TOKEN: "keel-frontend-verify-2026",
+      // Throwaway local-bridge token for tests only; override with
+      // KEEL_E2E_BRIDGE_TOKEN. Never a provider key or production credential.
+      KEEL_BRIDGE_TOKEN: process.env.KEEL_E2E_BRIDGE_TOKEN ?? "local-e2e-bridge-token",
       KEEL_DIST_DIR: ".next-e2e",
       NEXT_TELEMETRY_DISABLED: "1",
     } as Record<string, string>,
