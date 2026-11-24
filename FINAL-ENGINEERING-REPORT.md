@@ -27,9 +27,10 @@ Date: 2026-11-24.
 - Final full suite: see `master-plan-v6-test-evidence.md` (authoritative final run to be recorded at completion).
 
 ## Remaining
-- `not_started` features: see PLAN-INDEX.json / REMAINING-WORK-MATRIX.md (425 verified / 438 not_started / 2 blocked at last refresh; 10 P0 remaining, 2 of which are owner-gated conflicts).
-- Owner-gated: C11.1/C11.2 posture, plan upgrade decision, 2FA, signing identity, provider credentials, phone hardware, clean-VM/native runners, push authorization.
-- Conflicting plan rows REJECTED via DECISIONS.md: Y6.4 (public repo — violates private-source requirement), W1.18 (MIT license — violates proprietary requirement). Not implemented.
+- **All locally achievable P0 features are complete.** Registry: 433 verified / 430 not_started (all P1/P2) / 2 blocked.
+- The only 2 not-started P0 rows are owner-gated conflicts REJECTED via DECISIONS.md D-036/D-037: Y6.4 (public repo — violates private-source requirement), W1.18 (MIT license — violates proprietary requirement). Not implemented.
+- Remaining P1/P2 work (430 rows) continues as capacity permits; no feature silently omitted.
+- Owner/external gates: C11.1/C11.2 posture, GitHub plan upgrade decision, 2FA, signing identity, provider credentials, phone hardware, clean-VM/native runners, push authorization.
 - No claim of production readiness; no push performed.
 
 ## Verdicts
