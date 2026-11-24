@@ -1,6 +1,6 @@
 [package]
 name = "keel-desktop"
-version = "0.1.0"
+version = "0.1.1"
 description = "Keel desktop shell for the keel agentic coding harness"
 edition = "2021"
 rust-version = "1.70"

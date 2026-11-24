@@ -408,3 +408,12 @@ frontend-only evidence are explicitly excluded.
 | `scripts/plan_p0_batches.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
 | `scripts/verify_backend_operation.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
 | `scripts/verify_v6_audit.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
+
+## Explicit scope exception — required version-sync constant
+
+`keel/desktop/src-tauri/Cargo.toml` contains a **single version string** change
+(`0.1.0` -> `0.1.1`). It is classified `REQUIRED_BACKEND_DEPENDENCY` because the
+backend release/version-consistency gate (`tests/test_signing_gate.py` ->
+`keel/release/common.py::validate_version`) fails collection without it. It is
+not a UI, styling, component or behavior change: no desktop source logic is
+imported. Documented here so the promotion contains no unexplained path.
