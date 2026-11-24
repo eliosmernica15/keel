@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pricing — KEEL</title>
+  <meta name="description" content="Find the right KEEL plan for every task, from Free to Pro, Max, Ultra, Team, and Enterprise." />
+  <meta name="theme-color" content="#f5f4ed" />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/pricing" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <link rel="stylesheet" href="/ui/pricing.css" />
+  <script src="/ui/pricing.js" defer></script>
+</head>
+<body class="pricing-page">
+
+  <!-- ============ Header ============ -->
+  <header class="pr-header">
+    <div class="pr-header-inner">
+      <a class="pr-logo" href="/" aria-label="KEEL home">
+        <svg class="pr-logo-mark" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z" />
+        </svg>
+        <span>KEEL</span>
+      </a>
+
+      <nav class="pr-nav" id="prNav" aria-label="Primary">
+        <div class="pr-nav-item" data-menu="about">
+          <button class="pr-nav-trigger" type="button" aria-expanded="false" aria-controls="pr-mega-about">
+            About us <svg class="pr-chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 6l4 4 4-4" /></svg>
+          </button>
+          <div class="pr-mega" id="pr-mega-about" role="group" aria-label="About us menu">
+            <div class="pr-mega-grid">
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">Company</p>
+                <a class="pr-mega-link" href="/">About KEEL</a>
+                <a class="pr-mega-link" href="/roadmap">Our story</a>
+                <a class="pr-mega-link" href="/roadmap">Newsroom</a>
+                <a class="pr-mega-link" href="/roadmap">Customer stories</a>
+              </div>
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">Research</p>
+                <a class="pr-mega-link" href="/product/overview">Research</a>
+                <a class="pr-mega-link" href="/product/overview">Economic futures</a>
+                <a class="pr-mega-link" href="/privacy">Responsible scaling policy</a>
+              </div>
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">Join us</p>
+                <a class="pr-mega-link" href="mailto:hello@keel.dev">Careers</a>
+                <a class="pr-mega-link" href="/roadmap">Events</a>
+                <a class="pr-mega-link" href="/requirements">KEEL Academy</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pr-nav-item" data-menu="developers">
+          <button class="pr-nav-trigger" type="button" aria-expanded="false" aria-controls="pr-mega-developers">
+            Developers <svg class="pr-chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 6l4 4 4-4" /></svg>
+          </button>
+          <div class="pr-mega" id="pr-mega-developers" role="group" aria-label="Developers menu">
+            <div class="pr-mega-grid">
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">Build with</p>
+                <a class="pr-mega-link" href="/product/keel-code">KEEL Code</a>
+                <a class="pr-mega-link" href="/app">KEEL Platform</a>
+                <a class="pr-mega-link" href="/app">Managed agents</a>
+              </div>
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">For developers</p>
+                <a class="pr-mega-link" href="/requirements">Documentation</a>
+                <a class="pr-mega-link" href="/roadmap">Release notes</a>
+                <a class="pr-mega-link" href="/roadmap">Community</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pr-nav-item" data-menu="enterprise">
+          <button class="pr-nav-trigger" type="button" aria-expanded="false" aria-controls="pr-mega-enterprise">
+            Enterprise <svg class="pr-chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 6l4 4 4-4" /></svg>
+          </button>
+          <div class="pr-mega" id="pr-mega-enterprise" role="group" aria-label="Enterprise menu">
+            <div class="pr-mega-grid">
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">Enterprise</p>
+                <a class="pr-mega-link" href="/product/overview">Overview</a>
+                <a class="pr-mega-link" href="/product/keel-code">KEEL Code for Enterprise</a>
+                <a class="pr-mega-link" href="/app">KEEL Platform</a>
+              </div>
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">Departments</p>
+                <a class="pr-mega-link" href="/app">Customer support</a>
+                <a class="pr-mega-link" href="/app">Cybersecurity</a>
+                <a class="pr-mega-link" href="/app">Sales</a>
+              </div>
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">Industries</p>
+                <a class="pr-mega-link" href="/app">Financial services</a>
+                <a class="pr-mega-link" href="/app">Government</a>
+                <a class="pr-mega-link" href="/app">Healthcare</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pr-nav-item" data-menu="resources">
+          <button class="pr-nav-trigger" type="button" aria-expanded="false" aria-controls="pr-mega-resources">
+            Resources <svg class="pr-chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 6l4 4 4-4" /></svg>
+          </button>
+          <div class="pr-mega" id="pr-mega-resources" role="group" aria-label="Resources menu">
+            <div class="pr-mega-grid">
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">Insights</p>
+                <a class="pr-mega-link" href="/roadmap">Articles</a>
+                <a class="pr-mega-link" href="/roadmap">Webinars</a>
+                <a class="pr-mega-link" href="/roadmap">Customer stories</a>
+              </div>
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">Learn</p>
+                <a class="pr-mega-link" href="/requirements">KEEL Academy</a>
+                <a class="pr-mega-link" href="/requirements">Courses</a>
+                <a class="pr-mega-link" href="/requirements">Tutorials</a>
+              </div>
+              <div class="pr-mega-col">
+                <p class="pr-mega-title">Connect</p>
+                <a class="pr-mega-link" href="/roadmap">Events</a>
+                <a class="pr-mega-link" href="/roadmap">Community</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a class="pr-nav-link" href="/pricing" aria-current="page">Pricing</a>
+        <button class="pr-nav-link pr-link-btn" type="button" data-auth-open>Login</button>
+        <a class="pr-nav-link" href="mailto:hello@keel.dev">Contact</a>
+        <a class="pr-btn pr-btn-dark pr-btn-sm" href="/download">Get KEEL</a>
+      </nav>
+
+      <button class="pr-nav-toggle" type="button" aria-expanded="false" aria-controls="pr-mobile-menu" aria-label="Open menu">
+        <span class="pr-nav-toggle-bar"></span><span class="pr-nav-toggle-bar"></span><span class="pr-nav-toggle-bar"></span>
+      </button>
+    </div>
+
+    <div class="pr-mobile-menu" id="pr-mobile-menu" hidden>
+      <a href="/">About KEEL</a>
+      <a href="/product/keel-code">KEEL Code</a>
+      <a href="/app">Developers</a>
+      <a href="/product/overview">Enterprise</a>
+      <a href="/roadmap">Resources</a>
+      <a href="/pricing" aria-current="page">Pricing</a>
+      <a href="mailto:hello@keel.dev">Contact</a>
+      <a href="/download">Get KEEL</a>
+      <button class="pr-link-btn" type="button" data-auth-open>Login</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============ Hero ============ -->
+    <section class="pr-hero" aria-labelledby="prTitle">
+      <div class="pr-container">
+        <h1 class="pr-title" id="prTitle">Pricing</h1>
+        <p class="pr-subtitle">The right plan for every task</p>
+
+        <div class="pr-billing" role="tablist" aria-label="Billing period">
+          <button class="pr-billing-opt is-active" type="button" data-billing="monthly" role="tab" aria-selected="true">Monthly</button>
+          <button class="pr-billing-opt" type="button" data-billing="yearly" role="tab" aria-selected="false">Yearly <span class="pr-badge">Save up to 20%</span></button>
+        </div>
+
+        <div class="pr-plan-tabs" role="tablist" aria-label="Plan type">
+          <button class="pr-plan-tab is-active" type="button" data-plan="individual" role="tab" aria-selected="true">Individual</button>
+          <button class="pr-plan-tab" type="button" data-plan="team" role="tab" aria-selected="false">Team</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Plan cards ============ -->
+    <section class="pr-plans" aria-label="Plans">
+      <div class="pr-container">
+        <div class="pr-cards" id="prCards">
+
+          <!-- Individual: Free -->
+          <article class="pr-card" data-plan-set="individual" data-price-monthly="$0|Free forever" data-price-yearly="$0|Free forever">
+            <div class="pr-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="26" height="26" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M6 5h14l6 6v16H6z" /><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M20 5v6h6M11 17h10M11 22h7" /></svg>
+            </div>
+            <h2 class="pr-card-name">Free</h2>
+            <p class="pr-card-tagline">The essentials to get started</p>
+            <p class="pr-card-price"><span class="pr-amount">$0</span><span class="pr-period">Free forever</span></p>
+            <button class="pr-btn pr-btn-dark pr-card-cta" type="button" data-auth-open>Try KEEL</button>
+            <ul class="pr-card-features">
+              <li>Limited access to KEEL Sonnet</li>
+              <li>Help write, brainstorm, and rewrite</li>
+              <li>Summarize text and documents</li>
+              <li>Analyze data and visual assets</li>
+              <li>Create artifacts and code</li>
+              <li>Able to use tools and integrations</li>
+              <li>Limited usage every 5 hours and every week</li>
+            </ul>
+          </article>
+
+          <!-- Individual: Pro -->
+          <article class="pr-card" data-plan-set="individual" data-price-monthly="$20|per month, billed monthly" data-price-yearly="$17|per month with annual subscription">
+            <div class="pr-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="26" height="26" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M16 3l3.6 8.4L28 15l-8.4 3.6L16 27l-3.6-8.4L4 15l8.4-3.6z" /></svg>
+            </div>
+            <h2 class="pr-card-name">Pro</h2>
+            <p class="pr-card-tagline">For everyday work</p>
+            <p class="pr-card-price"><span class="pr-amount">$20</span><span class="pr-period">per month, billed monthly</span></p>
+            <button class="pr-btn pr-btn-dark pr-card-cta" type="button" data-auth-open>Try KEEL</button>
+            <p class="pr-card-includes">Everything in Free, plus:</p>
+            <ul class="pr-card-features">
+              <li>More usage than Free every 5 hours and every week</li>
+              <li>Hand off and schedule tasks</li>
+              <li>KEEL Code</li>
+              <li>Projects</li>
+              <li>More KEEL models</li>
+              <li>KEEL in Chrome and Microsoft 365</li>
+              <li>KEEL Science</li>
+            </ul>
+          </article>
+
+          <!-- Individual: Max -->
+          <article class="pr-card" data-plan-set="individual" data-price-monthly="$100|per month, billed monthly" data-price-yearly="$100|per month">
+            <div class="pr-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="26" height="26" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M5 24l7-13 5 9 4-6 6 10z" /><circle cx="23" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8" /></svg>
+            </div>
+            <h2 class="pr-card-name">Max</h2>
+            <p class="pr-card-tagline">For all-day work</p>
+            <p class="pr-card-price"><span class="pr-amount">$100</span><span class="pr-period">per month, billed monthly</span></p>
+            <button class="pr-btn pr-btn-dark pr-card-cta" type="button" data-auth-open>Try KEEL</button>
+            <p class="pr-card-includes">Everything in Pro, plus:</p>
+            <ul class="pr-card-features">
+              <li>5x Pro usage every 5 hours and every week</li>
+              <li>Fable included, up to half your weekly limit</li>
+              <li>$100 a month in API credits to build on the KEEL Platform</li>
+              <li>Early access to advanced KEEL features</li>
+              <li>Priority access at high traffic times</li>
+            </ul>
+          </article>
+
+          <!-- Individual: Ultra -->
+          <article class="pr-card" data-plan-set="individual" data-price-monthly="$200|per month, billed monthly" data-price-yearly="$200|per month">
+            <div class="pr-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="26" height="26" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M16 2l3 10 10 4-10 4-3 10-3-10-10-4 10-4z" /><path fill="none" stroke="currentColor" stroke-width="1.8" d="M26 24l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" /></svg>
+            </div>
+            <h2 class="pr-card-name">Ultra</h2>
+            <p class="pr-card-tagline">For your longest tasks</p>
+            <p class="pr-card-price"><span class="pr-amount">$200</span><span class="pr-period">per month, billed monthly</span></p>
+            <button class="pr-btn pr-btn-dark pr-card-cta" type="button" data-auth-open>Try KEEL</button>
+            <p class="pr-card-includes">Everything in Max, plus:</p>
+            <ul class="pr-card-features">
+              <li>No 5-hour limit</li>
+              <li>10x Pro usage every week</li>
+              <li>$200 a month in API credits, up from $100 on Max</li>
+              <li>Early access to experimental features</li>
+              <li>Priority support</li>
+            </ul>
+          </article>
+
+          <!-- Team -->
+          <article class="pr-card" data-plan-set="team" data-price-monthly="$25|per seat / month, billed monthly" data-price-yearly="$25|per seat / month, billed annually" hidden>
+            <div class="pr-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="26" height="26" focusable="false"><circle cx="12" cy="11" r="4" fill="none" stroke="currentColor" stroke-width="1.8" /><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M4 26c0-4.4 3.6-8 8-8s8 3.6 8 8" /><circle cx="23" cy="13" r="3" fill="none" stroke="currentColor" stroke-width="1.8" /><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M22 19c3.3 0 6 2.4 6 5.4" /></svg>
+            </div>
+            <h2 class="pr-card-name">Team</h2>
+            <p class="pr-card-tagline">Built to work together</p>
+            <p class="pr-card-price"><span class="pr-amount">$25</span><span class="pr-period">per seat / month, billed monthly</span></p>
+            <button class="pr-btn pr-btn-dark pr-card-cta" type="button" data-auth-open>Try KEEL</button>
+            <p class="pr-card-includes">Everything in Pro, plus:</p>
+            <ul class="pr-card-features">
+              <li>Shared usage across your team</li>
+              <li>Central billing and administration</li>
+              <li>Shared projects and collaboration</li>
+              <li>Admin controls for connectors</li>
+              <li>Priority support</li>
+            </ul>
+          </article>
+
+          <!-- Enterprise -->
+          <article class="pr-card" data-plan-set="team" data-price-monthly="Custom|Contact sales" data-price-yearly="Custom|Contact sales" hidden>
+            <div class="pr-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="26" height="26" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M4 28V9l12-6 12 6v19z" /><path fill="none" stroke="currentColor" stroke-width="1.8" d="M11 28v-9h10v9M11 15h2m4 0h2m4 0h2" /></svg>
+            </div>
+            <h2 class="pr-card-name">Enterprise</h2>
+            <p class="pr-card-tagline">For organizations of every size</p>
+            <p class="pr-card-price"><span class="pr-amount">Custom</span><span class="pr-period">Contact sales</span></p>
+            <button class="pr-btn pr-btn-dark pr-card-cta" type="button" data-auth-open>Contact sales</button>
+            <p class="pr-card-includes">Everything in Team, plus:</p>
+            <ul class="pr-card-features">
+              <li>Single sign-on (SSO) and domain capture</li>
+              <li>System for Cross-domain Identity Management (SCIM)</li>
+              <li>Audit logs and usage analytics</li>
+              <li>HIPAA-ready offering and custom data retention</li>
+              <li>Dedicated support and onboarding</li>
+            </ul>
+          </article>
+
+        </div>
+        <p class="pr-disclaimer">*Usage limits apply. How fast you reach a limit depends on the model you use, how long your chats are, and how large your files are. Prices shown don't include applicable tax. Price and plans are subject to change.</p>
+      </div>
+    </section>
+
+    <!-- ============ Compare features ============ -->
+    <section class="pr-compare" id="compare" aria-labelledby="prCompareTitle">
+      <div class="pr-container">
+        <div class="pr-compare-head">
+          <span class="pr-compare-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" focusable="false"><path fill="currentColor" d="M5 2l14 10-6 1.4L9.8 20z" /></svg>
+          </span>
+          <h2 id="prCompareTitle">Compare features across plans</h2>
+        </div>
+
+        <div class="pr-compare-toolbar">
+          <label class="pr-search">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M9 4a5 5 0 1 0 3.1 8.9l4.5 4.5 1.4-1.4-4.5-4.5A5 5 0 0 0 9 4zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" /></svg>
+            <input type="search" id="prSearch" placeholder="Search" aria-label="Search features" autocomplete="off" />
+          </label>
+        </div>
+
+        <div class="pr-table-wrap">
+          <table class="pr-table">
+            <caption class="sr-only">KEEL plan feature comparison</caption>
+            <thead>
+              <tr><th scope="col">Features</th><th scope="col">Free</th><th scope="col">Pro</th><th scope="col">Max</th><th scope="col">Ultra</th></tr>
+            </thead>
+            <tbody id="prTableBody">
+              <tr class="pr-group-row"><th colspan="5" scope="rowgroup">Features and capabilities</th></tr>
+              <tr data-feature="Chat on web, iOS, Android and Desktop"><td>Chat on web, iOS, Android and Desktop</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Hand off and schedule tasks"><td>Hand off and schedule tasks</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Create Artifacts"><td>Create Artifacts</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL Data"><td>KEEL Data</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL Design"><td>KEEL Design</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL Docs"><td>KEEL Docs</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL Motion (beta)"><td>KEEL Motion (beta)</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="NEW KEEL Sheets (beta)"><td>NEW KEEL Sheets (beta)</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL Slides"><td>KEEL Slides</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="NEW KEEL Whiteboards (beta)"><td>NEW KEEL Whiteboards (beta)</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL Code"><td>KEEL Code</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL for Microsoft 365"><td>KEEL for Microsoft 365</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL for Microsoft Outlook"><td>KEEL for Microsoft Outlook</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL in Chrome"><td>KEEL in Chrome</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL Science"><td>KEEL Science</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="KEEL Tag"><td>KEEL Tag</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Connectors"><td>Connectors</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Create and edit files with code execution"><td>Create and edit files with code execution</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Desktop extensions"><td>Desktop extensions</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Enterprise search"><td>Enterprise search</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Incognito chats"><td>Incognito chats</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Memory"><td>Memory</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Project sharing and collaboration"><td>Project sharing and collaboration</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Projects"><td>Projects</td><td>Up to 5</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Research"><td>Research</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Skills"><td>Skills</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="User preferences"><td>User preferences</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Voice mode"><td>Voice mode</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Web search"><td>Web search</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+
+              <tr class="pr-group-row"><th colspan="5" scope="rowgroup">Models and usage</th></tr>
+              <tr data-feature="Limit every 5 hours"><td>Limit every 5 hours</td><td>Limited</td><td>1x</td><td>5x</td><td>No 5-hour limit</td></tr>
+              <tr data-feature="Limit every week"><td>Limit every week</td><td>Limited</td><td>1x</td><td>5x</td><td>10x</td></tr>
+              <tr data-feature="Fable"><td>Fable</td><td>No</td><td>Usage credits</td><td>50% of weekly limits</td><td>50% of weekly limits</td></tr>
+              <tr data-feature="Opus"><td>Opus</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Sonnet"><td>Sonnet</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Haiku"><td>Haiku</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Context window"><td>Context window</td><td>Up to 1M, varies by model</td><td>Up to 1M, varies by model</td><td>Up to 1M, varies by model</td><td>Up to 1M, varies by model</td></tr>
+              <tr data-feature="Usage credits"><td>Usage credits</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="NEW Monthly API credits"><td>NEW Monthly API credits</td><td>No</td><td>No</td><td>$100/month</td><td>$200/month</td></tr>
+              <tr data-feature="Priority access at high traffic times"><td>Priority access at high traffic times</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="Organizational level spend controls"><td>Organizational level spend controls</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Model training"><td>Model training</td><td>Opt-out</td><td>Opt-out</td><td>Opt-out</td><td>Opt-out</td></tr>
+
+              <tr class="pr-group-row"><th colspan="5" scope="rowgroup">Security and administration</th></tr>
+              <tr data-feature="Single sign-on (SSO) and domain capture"><td>Single sign-on (SSO) and domain capture</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Central billing and administration"><td>Central billing and administration</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Admin controls for remote and local connectors"><td>Admin controls for remote and local connectors</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Enterprise deployment for the KEEL desktop app"><td>Enterprise deployment for the KEEL desktop app</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Role-based access"><td>Role-based access</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="System for Cross-domain Identity Management (SCIM)"><td>System for Cross-domain Identity Management (SCIM)</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Audit logs"><td>Audit logs</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Usage analytics"><td>Usage analytics</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Compliance API"><td>Compliance API</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="HIPAA-ready offering"><td>HIPAA-ready offering</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Custom data retention controls"><td>Custom data retention controls</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Organization wide skills deployment"><td>Organization wide skills deployment</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+
+              <tr class="pr-group-row"><th colspan="5" scope="rowgroup">Payment options</th></tr>
+              <tr data-feature="Credit card"><td>Credit card</td><td>n/a</td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td><td><span class="pr-mark pr-mark--yes"><span class="sr-only">Yes</span></span></td></tr>
+              <tr data-feature="ACH"><td>ACH</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Invoicing / net terms"><td>Invoicing / net terms</td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td><td><span class="pr-mark pr-mark--no"><span class="sr-only">No</span></span></td></tr>
+              <tr data-feature="Billing cycle"><td>Billing cycle</td><td>n/a</td><td>Monthly and annual</td><td>Monthly</td><td>Monthly</td></tr>
+              <tr data-feature="Adding seats midterm"><td>Adding seats midterm</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="pr-compare-empty" id="prEmpty" hidden>No features match your search.</p>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="pr-faq" id="faq" aria-labelledby="prFaqTitle">
+      <div class="pr-container">
+        <h2 class="pr-faq-title" id="prFaqTitle">FAQ</h2>
+        <div class="pr-faq-tabs" role="tablist" aria-label="FAQ topics">
+          <button class="pr-faq-tab is-active" type="button" data-faqtab="plans" role="tab" aria-selected="true">Plans and usage</button>
+          <button class="pr-faq-tab" type="button" data-faqtab="billing" role="tab" aria-selected="false">Billing and payments</button>
+          <button class="pr-faq-tab" type="button" data-faqtab="manage" role="tab" aria-selected="false">Managing your plan</button>
+        </div>
+
+        <div class="pr-faq-list" id="prFaqList">
+          <div class="pr-faq-item" data-faqgroup="plans">
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-1">What do I get with KEEL Pro? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-1" hidden><p>The Pro plan gives you everything in a Free plan with more usage and more of KEEL's capabilities. That includes KEEL Code, along with projects to organize your chats and documents, access to more KEEL models, and KEEL for Microsoft 365. You can choose a monthly or annual subscription.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="plans">
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-2">How are Max and Ultra different from Pro? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-2" hidden><p>Max and Ultra are built for people who work with KEEL throughout the day and want longer, uninterrupted sessions. You get everything in Pro, plus more usage. Max gives you 5x the usage of Pro, every 5 hours and every week. Ultra gives you 10x the weekly usage of Pro, with no 5-hour limit for verified accounts. Both plans include Fable, our top model, for up to half your weekly limit, and a monthly API credit to build on the KEEL Platform: $100 on Max, $200 on Ultra. Both plans are billed monthly.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="plans">
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-3">What are the usage limits on each plan, and what happens when I hit them? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-3" hidden><p>Every plan has usage limits. Most accounts have a limit that resets on a rolling five-hour session window, and paid plans add weekly limits on top. Your activity across KEEL on web, desktop, mobile, and KEEL Code all draws from the same pool of usage. How quickly you reach a limit depends on the model you use, the length of your conversations, and the size of the files you work with. When you reach a limit, you can switch to a less resource-intensive model and keep working until your window resets, or wait for the next window to begin. Free includes limited usage every five hours and every week, Pro includes 1x usage, Max includes 5x usage, and Ultra includes 10x weekly usage with no five-hour limit for verified accounts.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="plans">
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-4">Is KEEL Code included in my plan? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-4" hidden><p>KEEL Code is included in all paid plans. It shares the same usage limits as the rest of your plan, so work you do in KEEL Code counts toward the same five-hour and weekly limits as conversations in KEEL on the web, on desktop, and on mobile. You can use KEEL Code in your terminal, in your editor, or from the KEEL desktop app, and your projects and settings follow you between them.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="plans">
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-5">How much does the KEEL Enterprise plan cost? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-5" hidden><p>KEEL Enterprise is $20 per seat per month plus usage billed at API rates. The final price depends on the size of your organization, the features you need, and how your team uses KEEL, so contact our sales team for a quote. Enterprise includes central billing and administration, single sign-on, SCIM, audit logs, usage analytics, and custom data retention controls.</p></div>
+          </div>
+
+          <div class="pr-faq-item" data-faqgroup="billing" hidden>
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-6">When will I be billed for my subscription? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-6" hidden><p>You are billed on the date you start your subscription, and your subscription renews on that same date each month or each year, depending on your billing cycle. If you switch plans partway through a cycle, the change is prorated so you only pay for the time you use the new plan.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="billing" hidden>
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-7">How does the annual discount work? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-7" hidden><p>Annual subscriptions are billed once a year and save you up to 20% compared with paying month to month. For example, Pro is $17 per month with an annual subscription instead of $20 when billed monthly. You can switch between monthly and annual billing at any time from your account settings.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="billing" hidden>
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-8">What payment methods do you accept? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-8" hidden><p>Individual plans can be paid with a major credit card. Team and Enterprise customers can also arrange ACH transfers and invoicing with net terms. If you need a different payment arrangement, contact our sales team and we will help you find the right option.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="billing" hidden>
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-9">Do prices include tax? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-9" hidden><p>Prices shown do not include applicable tax. Sales tax, value added tax, and other local taxes are calculated at checkout based on your billing address and are added to your invoice.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="billing" hidden>
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-10">Can I get a refund? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-10" hidden><p>If you are not satisfied with your subscription, contact us within 14 days of your purchase and we will review your request for a refund. Refunds are handled on a case-by-case basis, and usage already consumed may be taken into account.</p></div>
+          </div>
+
+          <div class="pr-faq-item" data-faqgroup="manage" hidden>
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-11">Can I change my plan later? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-11" hidden><p>Yes. You can upgrade or downgrade your plan at any time from your account settings. Upgrades take effect immediately and are prorated for the rest of your billing cycle; downgrades take effect at the start of your next cycle so you keep the features you have already paid for.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="manage" hidden>
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-12">How do I cancel my subscription? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-12" hidden><p>Open your account settings, choose your plan, and select Cancel subscription. Your paid features remain available until the end of the current billing period, after which your account returns to the Free plan. Your conversations and projects stay in your account.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="manage" hidden>
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-13">What happens to my usage credits when I upgrade? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-13" hidden><p>Usage limits and monthly API credits reset to the levels of your new plan as soon as an upgrade takes effect. Credits from your previous plan do not carry over, and unused credits are not paid out in cash. Your existing conversations and projects are not affected.</p></div>
+          </div>
+          <div class="pr-faq-item" data-faqgroup="manage" hidden>
+            <button class="pr-faq-q" type="button" aria-expanded="false" aria-controls="pr-faq-a-14">Can I add or remove team seats midterm? <span class="pr-faq-indicator" aria-hidden="true"></span></button>
+            <div class="pr-faq-a" id="pr-faq-a-14" hidden><p>Yes. Team administrators can add seats at any time and are charged a prorated amount for the remainder of the billing cycle. Removing seats takes effect at the end of the current cycle, so your team keeps its full capacity until then.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ Footer ============ -->
+  <footer class="pr-footer">
+    <div class="pr-container pr-footer-inner">
+      <div class="pr-footer-brand">
+        <a class="pr-logo" href="/" aria-label="KEEL home">
+          <svg class="pr-logo-mark" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z" />
+          </svg>
+          <span>KEEL</span>
+        </a>
+        <p class="pr-footer-note">The right plan for every task.</p>
+        <a class="pr-btn pr-btn-outline pr-btn-sm" href="/download">Download KEEL</a>
+      </div>
+
+      <div class="pr-footer-cols">
+        <div class="pr-footer-col">
+          <h2 class="pr-footer-h">Products</h2>
+          <ul>
+            <li><a href="/">KEEL</a></li>
+            <li><a href="/product/keel-code">KEEL Code</a></li>
+            <li><a href="/product/overview">KEEL Cowork</a></li>
+            <li><a href="/product/keel-duet">KEEL Duet</a></li>
+            <li><a href="/app">KEEL Tag</a></li>
+            <li><a href="/download">KEEL Science</a></li>
+            <li><a href="/privacy">KEEL Security</a></li>
+            <li><a href="/download">Download app</a></li>
+            <li><a href="/pricing" aria-current="page">Pricing</a></li>
+            <li><button class="pr-link-btn" type="button" data-auth-open>Log in</button></li>
+          </ul>
+          <h2 class="pr-footer-h">Capabilities</h2>
+          <ul>
+            <li><a href="/product/overview">Artifacts</a></li>
+            <li><a href="/product/overview">Design</a></li>
+            <li><a href="/product/overview">Connectors</a></li>
+            <li><a href="/app">Plugins</a></li>
+            <li><a href="/app">Skills</a></li>
+          </ul>
+        </div>
+
+        <div class="pr-footer-col">
+          <h2 class="pr-footer-h">Extensions</h2>
+          <ul>
+            <li><a href="/keel-in-chrome">KEEL in Chrome</a></li>
+            <li><a href="/product/overview">KEEL for Google Workspace</a></li>
+            <li><a href="/product/overview">KEEL for Microsoft 365</a></li>
+          </ul>
+          <h2 class="pr-footer-h">Models</h2>
+          <ul>
+            <li><a href="/product/overview">Mythos (including Fable)</a></li>
+            <li><a href="/product/overview">Opus</a></li>
+            <li><a href="/product/overview">Sonnet</a></li>
+            <li><a href="/product/overview">Haiku</a></li>
+          </ul>
+        </div>
+
+        <div class="pr-footer-col">
+          <h2 class="pr-footer-h">Enterprise</h2>
+          <ul>
+            <li><a href="/product/overview">Overview</a></li>
+            <li><a href="/product/keel-code">KEEL Code for Enterprise</a></li>
+            <li><a href="/app">Departments</a></li>
+            <li><a href="/app">Industries</a></li>
+            <li><a href="mailto:hello@keel.dev">Contact sales</a></li>
+          </ul>
+          <h2 class="pr-footer-h">Resources</h2>
+          <ul>
+            <li><a href="/roadmap">Overview</a></li>
+            <li><a href="/roadmap">Articles</a></li>
+            <li><a href="/roadmap">Webinars</a></li>
+            <li><a href="/requirements">KEEL Academy</a></li>
+            <li><a href="/roadmap">Customer stories</a></li>
+            <li><a href="/roadmap">Events</a></li>
+            <li><a href="/privacy">Help and security</a></li>
+          </ul>
+        </div>
+
+        <div class="pr-footer-col">
+          <h2 class="pr-footer-h">Company</h2>
+          <ul>
+            <li><a href="/">KEEL</a></li>
+            <li><a href="mailto:hello@keel.dev">Careers</a></li>
+            <li><a href="/privacy">Policy</a></li>
+            <li><a href="/product/overview">Research</a></li>
+            <li><a href="/roadmap">News</a></li>
+          </ul>
+        </div>
+
+        <div class="pr-footer-col">
+          <h2 class="pr-footer-h">Terms and policies</h2>
+          <ul>
+            <li><a href="/privacy">Privacy policy</a></li>
+            <li><a href="/eula">Terms of service</a></li>
+            <li><a href="/trademark">Trademark</a></li>
+            <li><a href="/notices">Notices</a></li>
+            <li><a href="/requirements">Accessibility</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="pr-container">
+      <div class="pr-footer-bar">
+        <span class="pr-copyright">© 2026 KEEL</span>
+        <label class="sr-only" for="prLanguage">Language</label>
+        <select id="prLanguage" class="pr-language" aria-label="Language">
+          <option value="en" selected>English</option>
+        </select>
+        <div class="pr-footer-legal">
+          <a href="/privacy">Privacy policy</a>
+          <a href="/eula">Terms of service</a>
+          <a href="/requirements">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ Auth modal ============ -->
+  <div class="pr-modal" id="prModal" hidden role="dialog" aria-modal="true" aria-labelledby="prModalTitle">
+    <div class="pr-modal-backdrop" data-auth-close></div>
+    <div class="pr-modal-card">
+      <button class="pr-modal-close" type="button" aria-label="Close" data-auth-close>×</button>
+      <h2 id="prModalTitle">Get started with KEEL</h2>
+      <p>Choose how you'd like to continue.</p>
+      <form id="prModalForm">
+        <label for="prEmail">Work email</label>
+        <input id="prEmail" name="email" type="email" required placeholder="you@company.com" autocomplete="email" />
+        <button class="pr-btn pr-btn-dark" type="submit">Continue</button>
+        <p class="pr-form-msg" id="prFormMsg" role="status" hidden></p>
+      </form>
+      <div class="pr-modal-links">
+        <a href="/download">Download KEEL</a>
+        <a href="/app">Open KEEL</a>
+        <a href="mailto:hello@keel.dev">Contact sales</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

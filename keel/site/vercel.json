@@ -46,6 +46,7 @@
     { "source": "/product/keel-duet.html", "destination": "/product/keel-duet", "permanent": false },
     { "source": "/product/keel-code.html", "destination": "/product/keel-code", "permanent": false },
     { "source": "/product/cowork.html", "destination": "/product/cowork", "permanent": false },
-    { "source": "/product-overview.html", "destination": "/product/overview", "permanent": false }
+    { "source": "/product-overview.html", "destination": "/product/overview", "permanent": false },
+    { "source": "/platform/api.html", "destination": "/platform/api", "permanent": false }
   ]
 }

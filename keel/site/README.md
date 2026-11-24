@@ -10,6 +10,7 @@
 | `/app` | `/app.html` | The web mirror of the Keel app (BYOK chat, no agent, no disk) |
 | `/download` | `/download.html` | Platform download cards, rendered from the release manifest |
 | `/product/overview` | `/product-overview.html` | Static product overview page (editorial layout, all controls client-side) |
+| `/platform/api` | `/platform/api.html` | Static KEEL Platform page (models, agent SDK, console, enterprise, testimonials; all controls client-side) |
 | `/product/cowork` | `/product/cowork.html` | Static KEEL Cowork product page (capabilities, use cases, pricing, FAQ) |
 | `/api/download-manifest` | serverless function | Same-origin proxy for the latest GitHub Release manifest |
 | `/download.json` | static | Committed fallback manifest; all channels unavailable until a verified release is published |
@@ -37,6 +38,14 @@ link resolves to the dedicated `/pricing` page. That page ships its own
 stylesheet (`ui/pricing.css`) and script (`ui/pricing.js`); the billing and
 plan toggles, plan CTAs, feature search, FAQ tabs and accordions, nav menus
 and the contact modal are all functional client-side.
+
+The KEEL Platform page (`platform/api.html`, `ui/platform-api.css`, `ui/platform-api.js`
+and local artwork in `assets/img/platform/`) reproduces the Claude Platform
+marketing layout with KEEL branding. Its nav dropdowns, model explorer,
+capability hub, optimization tabs, console runner, testimonial carousel,
+footer search and auth/contact modals all run client-side with no network
+calls. `vercel.json` rewrites `/platform/api` to the HTML file and redirects
+direct `.html` requests back to the clean URL.
 
 The Cowork page is similarly self-contained: `product/cowork.html` ships with
 `ui/cowork.css`, `ui/cowork.js` and local artwork in `assets/img/cw-*.svg`. It
