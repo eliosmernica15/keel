@@ -17973,7 +17973,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Same for M11, M17, M22' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X0.2b exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X0.2b is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X0.2b via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -18053,7 +18058,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Store distribution conflicts with \"no source/no GitHub for users\"' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X0.5 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X0.5 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X0.5 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -18163,7 +18173,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'No risk register or rollback plan per milestone' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X0.9 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X0.9 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X0.9 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -18215,7 +18230,12 @@
         "src/keel/w7_x1_y5_d1_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Self-consistency voting for hard steps' in module w7_x1_y5_d1_backend (src/keel/w7_x1_y5_d1_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X1.10 exists in tests/test_w7_x1_y5_d1_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X1.10 is reachable through the capability hub's backend index for module w7_x1_y5_d1_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module w7_x1_y5_d1_backend declares X1.10 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-w7-x1-y5-d1-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_w7_x1_y5_d1_backend.py"
       ],
@@ -18241,7 +18261,12 @@
         "src/keel/w7_x1_y5_d1_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Streaming partial-JSON tool-argument parser' in module w7_x1_y5_d1_backend (src/keel/w7_x1_y5_d1_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X1.11 exists in tests/test_w7_x1_y5_d1_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X1.11 is reachable through the capability hub's backend index for module w7_x1_y5_d1_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module w7_x1_y5_d1_backend declares X1.11 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-w7-x1-y5-d1-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_w7_x1_y5_d1_backend.py"
       ],
@@ -18267,7 +18292,12 @@
         "src/keel/w7_x1_y5_d1_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Parallel tool calls with dependency check' in module w7_x1_y5_d1_backend (src/keel/w7_x1_y5_d1_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X1.12 exists in tests/test_w7_x1_y5_d1_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X1.12 is reachable through the capability hub's backend index for module w7_x1_y5_d1_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module w7_x1_y5_d1_backend declares X1.12 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-w7-x1-y5-d1-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_w7_x1_y5_d1_backend.py"
       ],
@@ -18319,7 +18349,12 @@
         "src/keel/w7_x1_y5_d1_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Model switch mid-session' in module w7_x1_y5_d1_backend (src/keel/w7_x1_y5_d1_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X1.14 exists in tests/test_w7_x1_y5_d1_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X1.14 is reachable through the capability hub's backend index for module w7_x1_y5_d1_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module w7_x1_y5_d1_backend declares X1.14 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-w7-x1-y5-d1-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_w7_x1_y5_d1_backend.py"
       ],
@@ -18345,7 +18380,12 @@
         "src/keel/w7_x1_y5_d1_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Per-model prompt profiles' in module w7_x1_y5_d1_backend (src/keel/w7_x1_y5_d1_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X1.15 exists in tests/test_w7_x1_y5_d1_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X1.15 is reachable through the capability hub's backend index for module w7_x1_y5_d1_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module w7_x1_y5_d1_backend declares X1.15 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-w7-x1-y5-d1-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_w7_x1_y5_d1_backend.py"
       ],
@@ -18503,7 +18543,12 @@
         "src/keel/w7_x1_y5_d1_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Apply-model role' in module w7_x1_y5_d1_backend (src/keel/w7_x1_y5_d1_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X1.6 exists in tests/test_w7_x1_y5_d1_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X1.6 is reachable through the capability hub's backend index for module w7_x1_y5_d1_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module w7_x1_y5_d1_backend declares X1.6 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-w7-x1-y5-d1-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_w7_x1_y5_d1_backend.py"
       ],
@@ -18581,7 +18626,12 @@
         "src/keel/w7_x1_y5_d1_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Few-shot tool exemplars' in module w7_x1_y5_d1_backend (src/keel/w7_x1_y5_d1_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X1.9 exists in tests/test_w7_x1_y5_d1_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X1.9 is reachable through the capability hub's backend index for module w7_x1_y5_d1_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module w7_x1_y5_d1_backend declares X1.9 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-w7-x1-y5-d1-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_w7_x1_y5_d1_backend.py"
       ],
@@ -18661,7 +18711,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Decision log (`DECISIONS.md`) separate from ADRs for owner-level choices (D1 to D7, G1 to G7) with date and answer' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X10.3 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X10.3 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X10.3 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -18713,7 +18768,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Weekly \"what is proven\" report generated from `PLAN-INDEX.json` (counts by status, stale evidence, failing rows)' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X10.5 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X10.5 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X10.5 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -18739,7 +18799,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Scope-creep guard: any new feature idea goes to `INBOX.md` with a proposed milestone instead of being built inline' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X10.6 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X10.6 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X10.6 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -18793,7 +18858,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Migration assistants (framework/library version upgrades) as bundled skills with verification steps' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.10 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.10 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.10 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -18819,7 +18889,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Notebook-aware editing (`.ipynb` cell diff, run cell, outputs stored outside the notebook diff)' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.11 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.11 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.11 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -18845,7 +18920,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Commit hygiene: conventional-commit suggestions from project history, secret scan on staged diff, hook-aware (respect existing pre-commit)' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.12 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.12 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.12 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -18871,7 +18951,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Monorepo task graph awareness (workspaces, package boundaries) so edits and tests are scoped to affected packages' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.13 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.13 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.13 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -18897,7 +18982,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature '\"Explain this change\" and \"explain this file\" with symbol-level citations' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.14 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.14 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.14 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -18923,7 +19013,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Language packs: bundled guidance + tool wiring for Python, TypeScript, Go, Rust, Java, C/C++, C#, PHP, Ruby, shell. Each pack lists install hints for compilers/LSP and test command detection' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.15 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.15 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.15 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -18949,7 +19044,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Long-running process supervisor in the terminal: named background jobs, tail/stop/restart, auto-surface crash output to the agent' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.16 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.16 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.16 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -18975,7 +19075,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Rename/extract/move via LSP code actions instead of text edits when available' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.2 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.2 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.2 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -19057,7 +19162,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Code review mode on any diff or branch (style, bugs, security, test gaps) producing inline comments the user can accept as tasks' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.5 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.5 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.5 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -19083,7 +19193,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Per-task git worktree **merge queue** with conflict preview and \"land when green\" button' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.6 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.6 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.6 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -19109,7 +19224,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Test-runner adapters (pytest, unittest, jest/vitest, go test, cargo test, JUnit-style output parsing) with failure summaries instead of raw logs' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.7 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.7 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.7 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -19135,7 +19255,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Coverage-guided hints: show which lines the change leaves untested' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.8 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.8 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.8 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -19161,7 +19286,12 @@
         "src/keel/x2_orchestration_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Dependency upgrade assistant: read changelogs offline from the package cache, upgrade one at a time, run tests, roll back on failure' in module x2_orchestration_backend (src/keel/x2_orchestration_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X2.9 exists in tests/test_x2_orchestration_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X2.9 is reachable through the capability hub's backend index for module x2_orchestration_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x2_orchestration_backend declares X2.9 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x2-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x2_orchestration_backend.py"
       ],
@@ -19187,7 +19317,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Local **desktop search** across user-approved folders (FTS5 + optional embeddings), exposed as a tool and a palette' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.1 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.1 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.1 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19213,7 +19348,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Flashcards and spaced repetition generated from notes or documents, stored locally' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.10 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.10 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.10 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19239,7 +19379,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Study/tutor mode (Socratic, quiz, explain-back) as a bundled persona + skills' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.11 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.11 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.11 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19265,7 +19410,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Writing coach with local grammar/style checking; check any third-party checker's license before bundling' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.12 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.12 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.12 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19291,7 +19441,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Personal CRM/contacts notes in the vault with follow-up reminders' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.13 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.13 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.13 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19317,7 +19472,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Local finance CSV import and categorization (no bank connections)' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.14 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.14 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.14 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19343,7 +19503,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Clipboard history tool (opt-in, encrypted, auto-expire) the agent can query with consent' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.15 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.15 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.15 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19369,7 +19534,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Screenshot region capture with OCR and \"ask about this\" action' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.16 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.16 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.16 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19423,7 +19593,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Receipt/invoice extractor to a local CSV/SQLite table (OCR + field parser) with review UI' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.3 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.3 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.3 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19449,7 +19624,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Contract/document comparison: clause diff and plain-language summary with page citations' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.4 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.4 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.4 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19475,7 +19655,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Spreadsheet helper: explain formulas, find errors, build pivots, produce charts; write results to a copy, never in place by default' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.5 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.5 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.5 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19501,7 +19686,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'File organizer rules engine (by type, date, EXIF, name patterns) with dry-run, preview, undo journal' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.6 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.6 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.6 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19527,7 +19717,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Duplicate finder (hash + perceptual hash for images) with safe-delete to Keel trash' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.7 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.7 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.7 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19553,7 +19748,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Web clipper and read-later queue (save page as Markdown into the vault)' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.8 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.8 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.8 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19579,7 +19779,12 @@
         "src/keel/x3_memory_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'RSS/Atom digest agent (user feeds only) with scheduled summary' in module x3_memory_backend (src/keel/x3_memory_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X3.9 exists in tests/test_x3_memory_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X3.9 is reachable through the capability hub's backend index for module x3_memory_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x3_memory_backend declares X3.9 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x3-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x3_memory_backend.py"
       ],
@@ -19605,7 +19810,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Barge-in: user speech interrupts TTS immediately; half-duplex fallback on weak hardware' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X4.1 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X4.1 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X4.1 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -19631,7 +19841,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Streaming TTS sentence by sentence while the model is still generating' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X4.2 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X4.2 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X4.2 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -19657,7 +19872,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Optional wake word (verify engine license) with visible mic indicator and hard mute' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X4.3 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X4.3 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X4.3 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -19683,7 +19903,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Local vision-language model tool for screenshots/diagrams (user-installed model, license shown)' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X4.4 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X4.4 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X4.4 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -19709,7 +19934,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Video tooling via user-installed ffmpeg: frame extraction, audio extraction, subtitle generation from local STT' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X4.5 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X4.5 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X4.5 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -19735,7 +19965,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Voice command grammar for app control (\"approve\", \"deny\", \"stop everything\") separate from free dictation; always requires a spoken confirmation for risky actions' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X4.6 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X4.6 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X4.6 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -19761,7 +19996,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Audio privacy rules: no recording stored by default, visible recording state, per-meeting consent reminder text' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X4.7 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X4.7 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X4.7 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -19841,7 +20081,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Provider data-handling card: for each configured remote provider, show what Keel sends (from the egress log) and a link to the user's own account settings; never claim anything about the provider's retention' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X5.11 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X5.11 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X5.11 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -19867,7 +20112,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Dependency and model **allow/deny lists** in managed policy (specific MCP servers, plugin IDs, model files by hash)' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X5.12 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X5.12 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X5.12 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -19893,7 +20143,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Safe-paste detector: warns when the user pastes text containing a key/token pattern into chat' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X5.13 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X5.13 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X5.13 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -19919,7 +20174,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Data-classification labels on files and memories (public / internal / secret) that feed redaction and egress decisions' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X5.2 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X5.2 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X5.2 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -19945,7 +20205,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Time-boxed and just-in-time permissions' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X5.3 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X5.3 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X5.3 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -19971,7 +20236,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Capability tokens for subagents and plugins: short-lived, scoped, revocable, logged' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X5.4 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X5.4 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X5.4 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20049,7 +20319,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Permission review screen: every standing allow rule with last-used date, one-click prune of unused rules' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X5.7 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X5.7 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X5.7 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20075,7 +20350,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Per-tool sandbox profiles (read-only FS, no network, temp-only write) selectable in agent frontmatter' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X5.8 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X5.8 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X5.8 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20127,7 +20407,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature '`keel dev` plugin scaffold generator, hot reload, and a **mock host** so plugins can be tested without the full app' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X6.1 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X6.1 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X6.1 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20153,7 +20438,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Feature-lifecycle labels (experimental / beta / stable) in UI and config, with experimental off by default' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X6.10 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X6.10 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X6.10 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20207,7 +20497,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Typed SDKs generated from the API schema (Python and TypeScript), version-pinned to the daemon' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X6.3 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X6.3 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X6.3 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20233,7 +20528,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'API versioning policy: deprecation headers, sunset dates, compatibility tests against the previous minor' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X6.4 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X6.4 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X6.4 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20259,7 +20559,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'In-app interactive API explorer for the local API (loopback, token-protected); docs stay private unless G7' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X6.5 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X6.5 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X6.5 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20285,7 +20590,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Event schema registry: every internal event type has a JSON Schema and a changelog; plugins subscribe by type' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X6.6 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X6.6 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X6.6 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20337,7 +20647,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Layered config viewer: shows which layer (default, global, project, env, policy) set each value' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X6.8 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X6.8 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X6.8 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20363,7 +20678,12 @@
         "src/keel/e6_x5_x6_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Settings search, diff against defaults, per-section reset, import/export' in module e6_x5_x6_backend (src/keel/e6_x5_x6_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X6.9 exists in tests/test_e6_x5_x6_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X6.9 is reachable through the capability hub's backend index for module e6_x5_x6_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module e6_x5_x6_backend declares X6.9 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-e6-x5-x6-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_e6_x5_x6_backend.py"
       ],
@@ -20389,7 +20709,12 @@
         "src/keel/y4_d4_x7_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'ARM64 builds for Windows and Linux; macOS universal or separate arm64/x64 with verified native deps' in module y4_d4_x7_backend (src/keel/y4_d4_x7_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X7.1 exists in tests/test_y4_d4_x7_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X7.1 is reachable through the capability hub's backend index for module y4_d4_x7_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module y4_d4_x7_backend declares X7.1 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-y4-d4-x7-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_y4_d4_x7_backend.py"
       ],
@@ -20415,7 +20740,12 @@
         "src/keel/y4_d4_x7_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Disk-usage manager: models, caches, sessions, trash, with sizes, safe-clean, and per-category caps' in module y4_d4_x7_backend (src/keel/y4_d4_x7_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X7.10 exists in tests/test_y4_d4_x7_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X7.10 is reachable through the capability hub's backend index for module y4_d4_x7_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module y4_d4_x7_backend declares X7.10 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-y4-d4-x7-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_y4_d4_x7_backend.py"
       ],
@@ -20441,7 +20771,12 @@
         "src/keel/y4_d4_x7_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Per-user vs per-machine install option on Windows; no admin rights required for per-user' in module y4_d4_x7_backend (src/keel/y4_d4_x7_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X7.2 exists in tests/test_y4_d4_x7_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X7.2 is reachable through the capability hub's backend index for module y4_d4_x7_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module y4_d4_x7_backend declares X7.2 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-y4-d4-x7-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_y4_d4_x7_backend.py"
       ],
@@ -20467,7 +20802,12 @@
         "src/keel/y4_d4_x7_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Uninstall options' in module y4_d4_x7_backend (src/keel/y4_d4_x7_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X7.3 exists in tests/test_y4_d4_x7_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X7.3 is reachable through the capability hub's backend index for module y4_d4_x7_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module y4_d4_x7_backend declares X7.3 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-y4-d4-x7-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_y4_d4_x7_backend.py"
       ],
@@ -20493,7 +20833,12 @@
         "src/keel/y4_d4_x7_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'File associations and URL protocol registration (`keel://`) with clean removal on uninstall' in module y4_d4_x7_backend (src/keel/y4_d4_x7_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X7.4 exists in tests/test_y4_d4_x7_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X7.4 is reachable through the capability hub's backend index for module y4_d4_x7_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module y4_d4_x7_backend declares X7.4 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-y4-d4-x7-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_y4_d4_x7_backend.py"
       ],
@@ -20519,7 +20864,12 @@
         "src/keel/y4_d4_x7_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Linux specifics: Wayland and X11 tests, tray fallback where no tray exists, AppImage desktop integration, sandbox flag guidance' in module y4_d4_x7_backend (src/keel/y4_d4_x7_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X7.5 exists in tests/test_y4_d4_x7_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X7.5 is reachable through the capability hub's backend index for module y4_d4_x7_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module y4_d4_x7_backend declares X7.5 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-y4-d4-x7-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_y4_d4_x7_backend.py"
       ],
@@ -20545,7 +20895,12 @@
         "src/keel/y4_d4_x7_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Antivirus false-positive playbook' in module y4_d4_x7_backend (src/keel/y4_d4_x7_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X7.6 exists in tests/test_y4_d4_x7_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X7.6 is reachable through the capability hub's backend index for module y4_d4_x7_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module y4_d4_x7_backend declares X7.6 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-y4-d4-x7-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_y4_d4_x7_backend.py"
       ],
@@ -20571,7 +20926,12 @@
         "src/keel/y4_d4_x7_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Installer languages for the major UI locales; installer text from the same string catalogs' in module y4_d4_x7_backend (src/keel/y4_d4_x7_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X7.7 exists in tests/test_y4_d4_x7_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X7.7 is reachable through the capability hub's backend index for module y4_d4_x7_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module y4_d4_x7_backend declares X7.7 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-y4-d4-x7-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_y4_d4_x7_backend.py"
       ],
@@ -20597,7 +20957,12 @@
         "src/keel/y4_d4_x7_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Download-integrity helper inside the app (\"verify a file I downloaded\") for users who want to check an installer before running it' in module y4_d4_x7_backend (src/keel/y4_d4_x7_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X7.8 exists in tests/test_y4_d4_x7_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X7.8 is reachable through the capability hub's backend index for module y4_d4_x7_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module y4_d4_x7_backend declares X7.8 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-y4-d4-x7-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_y4_d4_x7_backend.py"
       ],
@@ -20623,7 +20988,12 @@
         "src/keel/y4_d4_x7_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'First-run import wizard from other tools' folders (documented formats only), dry-run first' in module y4_d4_x7_backend (src/keel/y4_d4_x7_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X7.9 exists in tests/test_y4_d4_x7_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X7.9 is reachable through the capability hub's backend index for module y4_d4_x7_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module y4_d4_x7_backend declares X7.9 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-y4-d4-x7-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_y4_d4_x7_backend.py"
       ],
@@ -20675,7 +21045,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Citation chips with hover preview of the source file/page/line' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.10 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.10 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.10 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -20701,7 +21076,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Inline diff and file preview inside chat with \"open in dock\" action' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.11 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.11 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.11 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -20755,7 +21135,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Undo toast pattern for every destructive UI action (archive, delete, revoke)' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.13 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.13 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.13 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -20781,7 +21166,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Live theme editor (tokens only), contrast checker, import/export theme JSON' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.14 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.14 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.14 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -20807,7 +21197,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Optional sound cues (off by default), reduced-motion honoring everywhere' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.15 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.15 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.15 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -20833,7 +21228,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Multi-monitor awareness: remember window positions per display, detach docks to other screens' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.16 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.16 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.16 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -20859,7 +21259,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Empty-state and onboarding copy deck written once (Keel's own words) and reused across screens' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.17 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.17 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.17 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -20911,7 +21316,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Density modes (compact / comfortable), per-pane zoom, and saved layouts' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.3 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.3 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.3 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -20937,7 +21347,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Notification center and activity feed (approvals, job results, errors) with filters' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.4 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.4 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.4 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -20963,7 +21378,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Actionable OS notifications' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.5 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.5 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.5 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -20989,7 +21409,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Tray / menu-bar mini window: running agents, pending approvals, quick ask, kill switch' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.6 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.6 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.6 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -21015,7 +21440,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Selection actions: select text anywhere in Keel and \"ask about this\", \"add to context\", \"save to vault\"' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.7 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.7 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.7 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -21041,7 +21471,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Thread tools: outline/minimap, pinned messages, jump-to-tool-call, timeline scrubber for long sessions' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.8 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.8 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.8 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -21067,7 +21502,12 @@
         "src/keel/x8_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Side-by-side **session compare** (two models, two branches, before/after)' in module x8_backend (src/keel/x8_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X8.9 exists in tests/test_x8_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X8.9 is reachable through the capability hub's backend index for module x8_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module x8_backend declares X8.9 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-x8-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_x8_backend.py"
       ],
@@ -21119,7 +21559,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Mutation testing report published into the private dashboard for the permission gate and command analyzer' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X9.10 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X9.10 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X9.10 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -21145,7 +21590,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Record/replay (VCR-style) of real provider traffic with secrets scrubbed, for contract tests' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X9.2 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X9.2 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X9.2 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -21253,7 +21703,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Pseudo-localization build and RTL smoke test in CI' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X9.6 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X9.6 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X9.6 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -21305,7 +21760,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Token-accounting accuracy test (estimated vs runtime-reported usage within tolerance)' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X9.8 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X9.8 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X9.8 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
@@ -21331,7 +21791,12 @@
         "src/keel/small_groups_backend.py"
       ],
       "dependencies": [],
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        "[DERIVED - source omitted acceptance criteria] Implement the feature 'Long-session soak (thousands of events) watching memory, DB size, UI frame time' in module small_groups_backend (src/keel/small_groups_backend.py).",
+        "[DERIVED - source omitted acceptance criteria] A behavioral test for X9.9 exists in tests/test_small_groups_backend.py and passes.",
+        "[DERIVED - source omitted acceptance criteria] Behavior for X9.9 is reachable through the capability hub's backend index for module small_groups_backend.",
+        "[DERIVED - source omitted acceptance criteria] Module small_groups_backend declares X9.9 via a real code construct (registry key/membership or mapped symbol), with evidence recorded in master-plan-v6-small-groups-backend-evidence.md."
+      ],
       "test_references": [
         "tests/test_small_groups_backend.py"
       ],
