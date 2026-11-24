@@ -23,6 +23,7 @@ import shlex
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, Iterable, Mapping, Sequence
+from urllib.parse import urlsplit
 
 __all__ = [
     "W1_FEATURES", "IMPLEMENTED_FEATURES", "EXCLUDED_FEATURES",
@@ -1627,6 +1628,43 @@ _UNIX_PATH_RE = re.compile(r"(?<![\w])/(?:home|Users|root|tmp|var|etc)/[^\s\"'<>
 _IPV4_RE = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
 
 
+def _url_is_allowed(url: str, allowed: Iterable[str]) -> bool:
+    """True only when *url* is inside an explicitly allow-listed origin.
+
+    Hosts are compared with a dot boundary (equal host or a genuine
+    subdomain) instead of a raw string prefix, so a look-alike such as
+    ``https://docs.keel.example.evil.com/`` cannot inherit an allow-list
+    entry for ``https://docs.keel.example``. A rule with a path is treated
+    the same way at the path-segment boundary. Malformed URLs fail closed.
+    """
+    try:
+        parsed = urlsplit(url)
+        host = (parsed.hostname or "").lower()
+    except ValueError:
+        return False
+    if not host:
+        return False
+    for entry in allowed:
+        if not isinstance(entry, str):
+            continue
+        try:
+            rule = urlsplit(entry)
+        except ValueError:
+            continue
+        rule_host = (rule.hostname or "").lower()
+        if not rule_host:
+            continue
+        if rule.scheme and rule.scheme.lower() != parsed.scheme.lower():
+            continue
+        if host != rule_host and not host.endswith("." + rule_host):
+            continue
+        rule_path = rule.path.rstrip("/")
+        if rule_path and parsed.path != rule_path and not parsed.path.startswith(rule_path + "/"):
+            continue
+        return True
+    return False
+
+
 def feedback_policy() -> dict[str, Any]:
     return {
         "channels": list(ALLOWED_FEEDBACK_CHANNELS),
@@ -1663,7 +1701,7 @@ def redact_feedback(text: str, *, allowed_urls: Iterable[str] = ()) -> tuple[str
     sub(_SECRET_RE, lambda m: f"{m.group(1)}=[REDACTED]", "secrets")
     sub(_EMAIL_RE, "[REDACTED_EMAIL]", "emails")
     sub(_URL_RE, "[REDACTED_URL]", "urls",
-        preserve=lambda url: any(url == a or url.startswith(a) for a in allowed))
+        preserve=lambda url: _url_is_allowed(url, allowed))
     sub(_BARE_REPO_RE, "[REDACTED_SOURCE_LINK]", "source_links")
     sub(_WIN_PATH_RE, "[REDACTED_PATH]", "paths")
     sub(_UNIX_PATH_RE, "[REDACTED_PATH]", "paths")

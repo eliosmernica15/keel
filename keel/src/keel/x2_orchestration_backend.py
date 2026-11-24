@@ -511,12 +511,25 @@ class CodeActionRouter:
         applied = 0
         errors: list[str] = []
         for file, edits in plan["changes"].items():
+            # A plan may be hand-crafted, persisted or otherwise stale: never
+            # trust the paths it carries. Re-resolve every target immediately
+            # before writing so symlink/normalisation changes cannot escape.
+            try:
+                target = _resolve_in_root(self.root, _as_text(file))
+                rel = target.relative_to(self.root).as_posix()
+            except (BackendError, OSError, ValueError, RuntimeError) as exc:
+                raise BackendError(
+                    f"refusing to apply edit outside workspace root: {file!r}",
+                    code="path_escape",
+                ) from exc
+            if not isinstance(edits, list):
+                raise BackendError("invalid plan: changes must map to edit lists")
             for edit in edits:
                 try:
-                    apply_text_edit(file, edit)
+                    apply_text_edit(rel, edit)
                     applied += 1
                 except Exception as exc:  # noqa: BLE001
-                    errors.append(f"{file}: {type(exc).__name__}: {exc}")
+                    errors.append(f"{rel}: {type(exc).__name__}: {exc}")
         warnings = list(plan.get("warnings", []))
         if plan.get("fallback_used"):
             warnings.append("semantic LSP action unavailable; verify text-edit result")

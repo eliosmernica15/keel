@@ -219,6 +219,20 @@ def test_y1014_rejects_javascript_and_private_targets():
     _err(ei, "unsafe_host")
 
 
+def test_y1014_rejects_non_decimal_ip_spellings():
+    for url in (
+        "http://0x7f000001/x",        # hexadecimal integer
+        "http://017700000001/x",      # octal integer
+        "http://2130706433/x",        # decimal integer
+        "http://127.1/x",             # short form
+        "http://0x7f.0.0.1/x",        # hexadecimal components
+        "http://[::1]/x",             # IPv6 loopback
+    ):
+        with pytest.raises(y.BrowserContractError) as ei:
+            y.validate_browser_url(url)
+        _err(ei, "unsafe_host")
+
+
 # ---------------------------------------------------------------------------
 # Y1.15 - experimental_image_generate
 # ---------------------------------------------------------------------------
@@ -415,7 +429,9 @@ def test_y1027_directories_and_allowlisted_url_discovery():
     assert sources[0].kind == "directory" and sources[0].requires_signature is False
     assert sources[1].kind == "url" and sources[1].requires_signature is True
     assert sources[1].discovery_url == "https://trusted.example/.well-known/skills/"
-    assert y.skill_pack_signature_check({"signature": "abc", "algorithm": "ed25519"})["verified"] is True
+    check = y.skill_pack_signature_check({"signature": "abc", "algorithm": "ed25519"})
+    assert check["verified"] is False and check["verification_performed"] is False
+    assert check["reason"] == "verification_unavailable"
 
 
 def test_y1027_rejects_http_unlisted_hosts_credentials_and_traversal():
@@ -433,6 +449,25 @@ def test_y1027_rejects_http_unlisted_hosts_credentials_and_traversal():
     with pytest.raises(y.SkillSourceError) as ei:
         y.skill_pack_signature_check({"signature": "", "algorithm": "md5"})
     _err(ei, "signature_check_failed")
+
+
+def test_y1027_signature_check_only_verifies_with_a_real_verifier():
+    manifest = {"signature": "garbage", "algorithm": "ed25519",
+                "material": "payload", "key": "public-key"}
+    assert y.skill_pack_signature_check(manifest)["verified"] is False
+
+    calls = []
+
+    def accepting(algorithm, signature, material, key):
+        calls.append((algorithm, signature, material, key))
+        return signature == "garbage" and material == "payload" and key == "public-key"
+
+    checked = y.skill_pack_signature_check(manifest, verifier=accepting)
+    assert checked["verified"] is True and checked["verification_performed"] is True
+    assert calls == [("ed25519", "garbage", "payload", "public-key")]
+
+    rejecting = y.skill_pack_signature_check(manifest, verifier=lambda *a: False)
+    assert rejecting["verified"] is False and rejecting["reason"] == "signature_mismatch"
 
 
 # ---------------------------------------------------------------------------
@@ -616,6 +651,30 @@ def test_y1035_blocks_tier2_ambiguous_and_traversal_edits():
     with pytest.raises(y.ConfigEditError) as ei:
         y.propose_config_edit("a", [("missing", "x")])
     _err(ei, "missing_match")
+
+
+def test_y1035_tier2_gate_checks_the_full_resulting_document():
+    current = (
+        '{\n'
+        '  "auth": {\n'
+        '    "a": "1",\n'
+        '    "b": "2",\n'
+        '    "c": "3",\n'
+        '    "d": "4",\n'
+        '    "setting": "OLDVALUE"\n'
+        '  },\n'
+        '  "theme": "dark"\n'
+        '}\n'
+    )
+    # The Tier-2 key is five lines above the changed line, so it never
+    # appears in the unified diff (three lines of context).
+    with pytest.raises(y.ConfigEditError) as ei:
+        y.propose_config_edit(current, [("OLDVALUE", "NEWVALUE")])
+    _err(ei, "tier2_blocked")
+
+    # Editing outside the Tier-2 value remains allowed.
+    proposal = y.propose_config_edit(current, [("dark", "light")])
+    assert proposal.applies is False and "light" in proposal.diff
 
 
 # ---------------------------------------------------------------------------

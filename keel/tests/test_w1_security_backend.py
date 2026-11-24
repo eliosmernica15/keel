@@ -584,3 +584,19 @@ def test_w117_redaction_and_feedback_bundle():
         build_feedback_bundle("x", channel="issues")
     with pytest.raises(W1BackendError):
         redact_feedback(None)
+
+
+def test_w117_url_allowlist_uses_host_boundaries():
+    allowed = ["https://docs.keel.example"]
+    text = ("see https://docs.keel.example.evil.com/steal "
+            "and https://evil.com/?x=https://docs.keel.example "
+            "and https://docs.keel.example/ok")
+    redacted, counts = redact_feedback(text, allowed_urls=allowed)
+    assert "https://docs.keel.example/ok" in redacted
+    assert "https://docs.keel.example.evil.com/steal" not in redacted
+    assert "https://evil.com/?x=https://docs.keel.example" not in redacted
+    assert counts.get("urls") == 2
+
+    bundle = build_feedback_bundle("see https://docs.keel.example.evil.com/steal")
+    assert "https://docs.keel.example.evil.com/steal" not in bundle["redacted"]
+    assert bundle["redactions"].get("urls") == 1
