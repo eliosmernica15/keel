@@ -20,10 +20,10 @@
     }
   ],
   "rewrites": [
-    { "source": "/download", "destination": "/download.html" }
+    { "source": "/download", "destination": "/download.html" },
+    { "source": "/app", "destination": "/app.html" }
   ],
   "redirects": [
-    { "source": "/app", "destination": "/download", "permanent": false },
-    { "source": "/app.html", "destination": "/download", "permanent": false }
+    { "source": "/app.html", "destination": "/app", "permanent": false }
   ]
 }

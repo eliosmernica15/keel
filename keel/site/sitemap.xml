@@ -2,4 +2,12 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://keel-desktop.vercel.app/</loc></url>
   <url><loc>https://keel-desktop.vercel.app/download</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/app</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/privacy</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/terms</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/requirements</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/roadmap</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/eula</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/trademark</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/notices</loc></url>
 </urlset>
