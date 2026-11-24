@@ -5,8 +5,8 @@
 
 ## 1. Provenance and scope
 
-- Registry: `C:\Users\Admin\Desktop\Claude clone\PLAN-INDEX.json` — SHA-256 `b3a05baf59e2ebb24170d9223b344efef098b65d8bfda698fb7ebbd43805aeb7`.
-- Rows: **865** (status: verified 415, not_started 448, blocked 2).
+- Registry: `C:\Users\Admin\Desktop\Claude clone\PLAN-INDEX.json` — SHA-256 `0b341200d996ec0a6a89378b76482d2599a5f30e8761c162743cff5907522711`.
+- Rows: **865** (status: verified 419, not_started 444, blocked 2).
 - Decomposition source: `C:\Users\Admin\Desktop\Claude clone\plan-extract\addendum3.json` if found, otherwise built-in X0.2/X0.2b labels.
 - Stated dependency references: **144**;
   **122** rows declare at least one dependency.
@@ -42,11 +42,11 @@ At canonical M-level (splits rolled up) the longest chain is **13 milestone-node
 Full-graph chain (dependency → dependent):
 
 1. **M14** — 15 rows in cycle/group (verified 9, not_started 6)
-2. **M19 ⟷ M2 ⟷ M20 ⟷ M21 ⟷ M25 ⟷ M3 ⟷ M4 ⟷ M5** — 333 rows in cycle/group (verified 197, not_started 136)
+2. **M19 ⟷ M2 ⟷ M20 ⟷ M21 ⟷ M25 ⟷ M3 ⟷ M4 ⟷ M5** — 333 rows in cycle/group (verified 198, not_started 135)
    - edge evidence: `C3.2` → `W2.4`
 3. **M7** — 56 rows in cycle/group (verified 32, not_started 24)
    - edge evidence: `C7.1` → `W1.13`
-4. **M0** — 61 rows in cycle/group (verified 14, not_started 47)
+4. **M0** — 61 rows in cycle/group (verified 17, not_started 44)
    - edge evidence: `D7.11` → `V19`
 5. **M23** — 19 rows in cycle/group (verified 10, not_started 9)
    - edge evidence: `C10.2` → `Y5.8`
@@ -86,7 +86,7 @@ the bottleneck table ranks nodes by how many distinct groups depend on them.
 | :- | :-: | :- | :-: | :-: |
 | M3 | 61 | verified 47, not_started 14 | 6 | 20 |
 | M2 | 52 | verified 30, not_started 22 | 5 | 20 |
-| M21 | 29 | verified 15, not_started 14 | 5 | 20 |
+| M21 | 29 | verified 16, not_started 13 | 5 | 20 |
 | M10 | 33 | verified 12, not_started 21 | 5 | 9 |
 | M19 | 14 | verified 3, not_started 11 | 3 | 20 |
 | M4 | 50 | verified 27, not_started 23 | 3 | 20 |
@@ -97,7 +97,7 @@ the bottleneck table ranks nodes by how many distinct groups depend on them.
 | M7 | 56 | verified 32, not_started 24 | 2 | 4 |
 | M22a | 37 | verified 13, not_started 24 | 2 | 2 |
 | M12 | 31 | verified 13, not_started 18 | 1 | 5 |
-| M0 | 61 | verified 14, not_started 47 | 1 | 2 |
+| M0 | 61 | verified 17, not_started 44 | 1 | 2 |
 | M1 | 11 | verified 5, not_started 4, blocked 2 | 1 | 1 |
 
 Nodes on the critical path with non-green rows: **M14, M19, M2, M20, M21, M25, M3, M4, M5, M7, M0, M23, M15**.

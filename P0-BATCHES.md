@@ -1,15 +1,8 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **20 not-started P0 features** in 10 source groups.
+Generated from PLAN-INDEX.json: **16 not-started P0 features** in 9 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
-
-## D7 — 4 features
-
-- `D7.1` (M0) Gate scheduler (`run-gates`): all gates as a dependency graph; bounded concurrency env var; fail-fast switch; a failure skips only its dependents so independent
-- `D7.12` (M0) CI layout: broad lanes of independent gates, a smaller Node-version compatibility matrix, native Windows lane in a separate workflow, Python checks separate, re
-- `D7.19` (M21) Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task.
-- `D7.9` (M0) Strict dependency linker so undeclared deps fail; build scripts of dependencies explicitly allowlisted.
 
 ## X10 — 3 features
 

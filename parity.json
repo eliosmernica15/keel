@@ -9404,15 +9404,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/gate_scheduler.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Gate scheduler (`run-gates`): all gates as a dependency graph; bounded concurrency env var; fail-fast switch; a failure skips only its dependents so independent errors... (milestone M0)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_gate_scheduler.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Dev-workflow contracts: gate graph with bounded concurrency, strict dependency linker, CI lane descriptors, minimal SDK benchmark method; 77 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -9476,15 +9480,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/gate_scheduler.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "CI lanes: gates, matrix (Python 3.11/3.12/3.13), Windows, macOS, benchmarks, provider-e2e (opt-in, self-skips without key)"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_gate_scheduler.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Dev-workflow contracts: gate graph with bounded concurrency, strict dependency linker, CI lane descriptors, minimal SDK benchmark method; 77 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -9649,15 +9657,19 @@
       "milestone": "M21",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/gate_scheduler.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Implement and verify: Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task (milestone M21)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_gate_scheduler.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Dev-workflow contracts: gate graph with bounded concurrency, strict dependency linker, CI lane descriptors, minimal SDK benchmark method; 77 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -9866,15 +9878,19 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/gate_scheduler.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "`pip-compile`/lockfile with hash pinning"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_gate_scheduler.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Dev-workflow contracts: gate graph with bounded concurrency, strict dependency linker, CI lane descriptors, minimal SDK benchmark method; 77 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

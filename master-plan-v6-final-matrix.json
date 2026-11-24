@@ -4202,14 +4202,14 @@
     "id": "D7.1",
     "feature": "Gate scheduler (`run-gates`): all gates as a dependency graph; bounded concurrency env var; fail-fast switch; a failure skips only its dependents so independent errors all report.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M0",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\gate_scheduler.py",
+    "test_references": "keel\\tests\\test_gate_scheduler.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "D7.10",
@@ -4241,14 +4241,14 @@
     "id": "D7.12",
     "feature": "CI layout: broad lanes of independent gates, a smaller Node-version compatibility matrix, native Windows lane in a separate workflow, Python checks separate, required benchmarks on standard hosted Linux, real-API e2e in its own workflow, partitioned coverage using per-platform timing data.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M0",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\gate_scheduler.py",
+    "test_references": "keel\\tests\\test_gate_scheduler.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "D7.13",
@@ -4332,14 +4332,14 @@
     "id": "D7.19",
     "feature": "Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M21",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\gate_scheduler.py",
+    "test_references": "keel\\tests\\test_gate_scheduler.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "D7.2",
@@ -4449,14 +4449,14 @@
     "id": "D7.9",
     "feature": "Strict dependency linker so undeclared deps fail; build scripts of dependencies explicitly allowlisted.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M0",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\gate_scheduler.py",
+    "test_references": "keel\\tests\\test_gate_scheduler.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E1.1",
