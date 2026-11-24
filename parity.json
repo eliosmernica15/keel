@@ -14332,17 +14332,21 @@
       "milestone": "M19",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/product_contracts.py"
+      ],
       "dependencies": [
         "C11.5"
       ],
       "acceptance_criteria": [
         "Confirm: In-app Safety notice shown at first run and linked from the website;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_product_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Product contracts: SAFETY.md first-run notice, OAuth descriptor with out-of-project credentials, accuracy-over-approval, anti-sycophancy; 62 passing tests. W1.18 (MIT) excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -15640,15 +15644,19 @@
       "milestone": "M6",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/product_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Keychain-stored tokens;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_product_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Product contracts: SAFETY.md first-run notice, OAuth descriptor with out-of-project credentials, accuracy-over-approval, anti-sycophancy; 62 passing tests. W1.18 (MIT) excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16018,17 +16026,21 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/product_contracts.py"
+      ],
       "dependencies": [
         "V7"
       ],
       "acceptance_criteria": [
         "Confirm: Default `PERSONA.md` rigor section + eval (V7)."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_product_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Product contracts: SAFETY.md first-run notice, OAuth descriptor with out-of-project credentials, accuracy-over-approval, anti-sycophancy; 62 passing tests. W1.18 (MIT) excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -16070,15 +16082,19 @@
       "milestone": "M7",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/product_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Confirm: Include;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_product_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Product contracts: SAFETY.md first-run notice, OAuth descriptor with out-of-project credentials, accuracy-over-approval, anti-sycophancy; 62 passing tests. W1.18 (MIT) excluded (owner gate).",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

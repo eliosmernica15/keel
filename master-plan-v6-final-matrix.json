@@ -6594,14 +6594,14 @@
     "id": "W1.10",
     "feature": "`SAFETY.md` surfaced as a first-run notice (\"review the safety notice before running\").",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M19",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\product_contracts.py",
+    "test_references": "keel\\tests\\test_product_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "W1.11",
@@ -7218,14 +7218,14 @@
     "id": "W4.3",
     "feature": "OAuth for remote servers: PKCE, discovery, refresh; credentials stored outside project config; `oauth:false` for header-key servers.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M6",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\product_contracts.py",
+    "test_references": "keel\\tests\\test_product_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "W4.4",
@@ -7400,14 +7400,14 @@
     "id": "W6.1",
     "feature": "Accuracy-over-approval response contract: verify facts/figures/citations before finalizing; never fabricate; say unknown plainly; do not anchor on user-supplied numbers; independent estimates.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M7",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\product_contracts.py",
+    "test_references": "keel\\tests\\test_product_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "W6.2",
@@ -7426,14 +7426,14 @@
     "id": "W6.3",
     "feature": "Anti-sycophancy rules: no praise of questions, say immediately if the user is wrong, strongest counterargument first, do not capitulate under pushback without new evidence.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M7",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\product_contracts.py",
+    "test_references": "keel\\tests\\test_product_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "W6.4",

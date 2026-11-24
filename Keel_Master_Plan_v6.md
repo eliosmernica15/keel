@@ -546,7 +546,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | V8 | External specialist adapters: Keel can delegate a task to a coding CLI the user already has installed (any tool with a headless mode) as a child agent, with "one writer per working tree" locking and mandatory diff/test verification after. | M12 | P1 | not_started |
 | V9 | Remote-initiated action confirmation: any task started from a channel (Telegram/email/webhook) that would run shell/edit/send actions requires a one-time code confirmation in the desktop app (or a pre-approved rule), per W7.17. | M15 | P1 | not_started |
 | W1.1 | "Everything is a plugin" architecture: core features themselves are plugins on a composable runtime (built on Cordis; paper cited in README). | M10 | P1 | not_started |
-| W1.10 | `SAFETY.md` surfaced as a first-run notice ("review the safety notice before running"). | M19 | P0 | not_started |
+| W1.10 | `SAFETY.md` surfaced as a first-run notice ("review the safety notice before running"). | M19 | P0 | verified |
 | W1.11 | Developer-preview banner: explicit "compatibility-breaking changes will happen". | M19 | P1 | not_started |
 | W1.12 | `BRAND_GUIDELINES` file (also localized). | M23 | P2 | not_started |
 | W1.13 | Builder instruction files for multiple AI tools: `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`. | M0 | P1 | not_started |
@@ -594,7 +594,7 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | W4.13 | opencode sends the session ID in request `_meta`; docs warn remote servers may log it. | M6 | P1 | not_started |
 | W4.14 | `disabled` flag keeps a server configured but unconnected; disconnect in UI does not edit config. | M6 | P1 | not_started |
 | W4.2 | Config shape: `mcp.servers.<name>` with `type local\|remote`, `command`, `cwd`, `environment`, `url`, `headers`, `oauth`, `disabled`, `codemode`, `timeout`, `protocol`, `pool`. A higher-precedence config replaces the whole server object (no field merge). | M6 | P1 | not_started |
-| W4.3 | OAuth for remote servers: PKCE, discovery, refresh; credentials stored outside project config; `oauth:false` for header-key servers. | M6 | P0 | not_started |
+| W4.3 | OAuth for remote servers: PKCE, discovery, refresh; credentials stored outside project config; `oauth:false` for header-key servers. | M6 | P0 | verified |
 | W4.4 | Client registration order: pre-registered `client_id` first, then Client ID Metadata Documents (CIMD), then Dynamic Client Registration (DCR); options `client_secret`, `scope`, `callback_port`, `redirect_uri`, `auth_server_metadata_url`. | M6 | P1 | not_started |
 | W4.5 | OAuth when the browser is on another machine (SSH/container): user pastes the failed callback URL into a prompt. | M6 | P1 | not_started |
 | W4.6 | Timeouts: startup 30 s, catalog 30 s, execution 12 h defaults; global and per-server. | M6 | P1 | not_started |
@@ -608,9 +608,9 @@ Machine-readable registry: `PLAN-INDEX.json` (canonical) and `parity.json` (sync
 | W5.5 | Model precedence: command model, else command agent's model, else session model. | M7 | P1 | not_started |
 | W5.6 | Background child commands (`subagent: true`): result or failure reported back to parent. | M7 | P1 | not_started |
 | W5.7 | `@path` is not expanded in stored templates; attachments come from the composer. | M7 | P1 | not_started |
-| W6.1 | Accuracy-over-approval response contract: verify facts/figures/citations before finalizing; never fabricate; say unknown plainly; do not anchor on user-supplied numbers; independent estimates. | M7 | P0 | not_started |
+| W6.1 | Accuracy-over-approval response contract: verify facts/figures/citations before finalizing; never fabricate; say unknown plainly; do not anchor on user-supplied numbers; independent estimates. | M7 | P0 | verified |
 | W6.2 | Explicit confidence labels (high / moderate / low / unknown) on judgments. | M7 | P1 | not_started |
-| W6.3 | Anti-sycophancy rules: no praise of questions, say immediately if the user is wrong, strongest counterargument first, do not capitulate under pushback without new evidence. | M7 | P0 | not_started |
+| W6.3 | Anti-sycophancy rules: no praise of questions, say immediately if the user is wrong, strongest counterargument first, do not capitulate under pushback without new evidence. | M7 | P0 | verified |
 | W6.4 | Conductor + specialists routing: one conductor agent; external coding agents as optional specialists for multi-file work; one writer per dirty tree; always verify diffs/tests after a specialist. | M12 | P1 | not_started |
 | W6.5 | Control-plane routing: prefer local desktop tool over cloud tools when local is healthy; accessibility-tree enrichment optional; DOM work prefers browser tools. | M16 | P1 | not_started |
 | W6.6 | Running ledger of important account facts/decisions in a memory file. | M13 | P1 | not_started |
