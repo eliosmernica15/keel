@@ -85,6 +85,51 @@ _FS_LIST_CAP = 400
 _UPLOAD_MAX_BYTES = 24 * 1024 * 1024  # 24 MB per file, kept in memory while decoding
 _UPLOAD_SAFE = re.compile(r"[^A-Za-z0-9._-]+")
 
+# JSON bodies are attacker-controlled.  ``json.loads`` accepts NaN/Infinity by
+# default and ``json.dumps`` then writes them back as invalid JSON (strict
+# clients cannot parse the response, and the values can be persisted).  Reject
+# those constants at the boundary instead of trying to clean up downstream.
+def _reject_non_finite(value: str):
+    raise ValueError(f"non-finite JSON constant {value!r} is not allowed")
+
+
+# Status hints for workflow codes that can be raised as typed exceptions
+# *before* a workflow result object exists (e.g. a stale lock file).  The
+# canonical table in api_contracts covers capability error codes; the workflow
+# vocabulary is wider, so keep it here rather than guessing with a 500.
+_WORKFLOW_ERROR_STATUS: dict[str, int] = {
+    "operation_denied": 403, "csrf_denied": 403, "permission_denied": 403,
+    "revoked": 403, "missing_token": 403, "invalid_token": 403,
+    "bad_params": 400, "bad_state_root": 400, "bad_ttl": 400,
+    "bad_manifest": 400, "manifest_invalid": 400, "unknown_action": 400,
+    "path_escape": 400, "bound_exceeded": 400, "replay_denied": 400,
+    "unknown_request": 400, "missing_request_id": 400, "bad_project": 400,
+    "bad_rules": 400, "no_allowed_tools": 400, "lock_timeout": 400,
+    "unknown_workflow": 404, "not_found": 404,
+}
+
+
+def _workflow_http_status(code: str, hinted=None) -> HTTPStatus:
+    """Map a workflow code (and its backend hint) to a real HTTP status."""
+    from .api_contracts import http_status_for_code
+
+    if (isinstance(hinted, int) and not isinstance(hinted, bool)
+            and 400 <= hinted <= 599):
+        return HTTPStatus(hinted)
+    status = _WORKFLOW_ERROR_STATUS.get(str(code))
+    if status is None:
+        status = http_status_for_code(str(code), default=500)
+    return HTTPStatus(status)
+
+
+def _safe_record_audit(state_root: str, entry: dict) -> None:
+    """Best-effort audit append: auditing must never break a completed call."""
+    try:
+        from .capabilities import record_audit
+        record_audit(state_root, entry)
+    except Exception:
+        pass
+
 
 def _safe_upload_name(name: object) -> str:
     """Reduce an attacker/user-supplied filename to a safe basename (never a path)."""
@@ -250,7 +295,14 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
 
         # ---------------- helpers
         def _send_json(self, obj, status=HTTPStatus.OK, extra_headers=()):
-            body = json.dumps(obj).encode("utf-8")
+            try:
+                body = json.dumps(obj, allow_nan=False).encode("utf-8")
+            except (TypeError, ValueError, RecursionError):
+                # Never write non-standard JSON (NaN/Infinity) or an empty
+                # socket to a client; fail closed with a small, safe envelope.
+                obj = {"error": "internal_error", "code": "internal_error"}
+                body = b'{"error": "internal_error", "code": "internal_error"}'
+                status = HTTPStatus.INTERNAL_SERVER_ERROR
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
@@ -278,7 +330,16 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     if part.startswith("keel_token="):
                         provided = part[len("keel_token="):]
                         break
-            return bool(provided) and secrets.compare_digest(provided, _TOKEN)
+            if not provided:
+                return False
+            try:
+                # compare_digest(str, str) raises TypeError for non-ASCII input.
+                # Credentials are attacker-controlled: encode to bytes so a
+                # hostile token is refused with the normal 403, never a crash.
+                return secrets.compare_digest(
+                    provided.encode("utf-8"), _TOKEN.encode("utf-8"))
+            except (UnicodeError, TypeError, ValueError):
+                return False
 
         def path_token(self) -> Optional[str]:
             if "?t=" in self.path:
@@ -313,10 +374,19 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 self._send_json({"error": too_large},
                                 HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
                 return None
-            raw = self.rfile.read(length) if length else b"{}"
             try:
-                request = json.loads(raw or b"{}")
-            except json.JSONDecodeError:
+                raw = self.rfile.read(length) if length else b"{}"
+            except (OSError, ValueError):
+                self._send_json({"error": "cannot read body"},
+                                HTTPStatus.BAD_REQUEST)
+                return None
+            try:
+                request = json.loads(raw or b"{}",
+                                     parse_constant=_reject_non_finite)
+            except (ValueError, RecursionError):
+                # JSONDecodeError/UnicodeDecodeError are ValueError subclasses;
+                # deeply nested input raises RecursionError instead.  Both are
+                # client errors, not a reason to drop the socket.
                 self._send_json({"error": "invalid json"},
                                 HTTPStatus.BAD_REQUEST)
                 return None
@@ -591,15 +661,36 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 if request is None:
                     return
                 from . import capability_registry  # noqa: F401
-                from .capabilities import CapabilityError, invoke, record_audit
+                from .capabilities import CapabilityError, invoke
 
                 cap_id = str(request.get("id", ""))
                 from .capabilities import get as get_capability
 
+                state_root = os.environ.get(
+                    "KEEL_STATE_DIR", str(Path.home() / ".keel"))
                 cap = get_capability(cap_id)
                 needs_confirm = bool(
                     cap and (cap.permission in ("write", "execute")
                              or cap.mutates))
+                if cap is not None and not needs_confirm:
+                    # A saved `prompt` policy can require consent even for a
+                    # read-tier capability carrying a command or URL.  TUI
+                    # pre-flights this assessment; the HTTP surface must not
+                    # silently execute it without the same confirmation.
+                    try:
+                        from .policy_enforcement import enforce as _enforce
+                        assessment = _enforce(
+                            cap_id, request.get("params", {}),
+                            state_root=state_root, interactive=True,
+                            confirmed=False)
+                        needs_confirm = bool(
+                            assessment is not None and
+                            assessment.decision == "ask")
+                    except (OSError, ValueError):
+                        # Leave the failure to invoke(), which reports a clean
+                        # `policy_error`; a corrupt policy must never run a
+                        # handler, and must not be masked as a confirm prompt.
+                        pass
                 # Mutating capabilities need an explicit, real boolean confirm.
                 # Truthy values such as "false" or 1 must not satisfy the gate.
                 if needs_confirm and request.get("confirm") is not True:
@@ -609,8 +700,6 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                         "permission": cap.permission if cap else None},
                         HTTPStatus.CONFLICT)
                     return
-                state_root = os.environ.get(
-                    "KEEL_STATE_DIR", str(Path.home() / ".keel"))
                 try:
                     result = invoke(
                         cap_id, request.get("params", {}),
@@ -618,21 +707,41 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                  "cwd": _WORKDIR or os.getcwd(),
                                  "confirm": bool(request.get("confirm")),
                                  "interactive": True})
-                    record_audit(state_root, {"capability": cap_id,
-                                              "ok": True, "surface": "web"})
-                    self._send_json(result)
                 except CapabilityError as exc:
-                    record_audit(state_root, {"capability": cap_id,
-                                              "ok": False, "code": exc.code,
-                                              "surface": "web"})
-                    # Canonical error envelope with correct HTTP status:
-                    # policy_denied/permission_denied -> 403,
+                    _safe_record_audit(state_root, {
+                        "capability": cap_id, "ok": False, "code": exc.code,
+                        "surface": "web"})
+                    # Canonical status mapping: policy/permission denial -> 403,
                     # not_found -> 404, handler_error -> 500, bad_params -> 400.
                     from .api_contracts import http_status_for_code
                     status = http_status_for_code(exc.code)
                     self._send_json(
                         {"error": str(exc), "code": exc.code},
                         HTTPStatus(status))
+                    return
+                except (OSError, ValueError) as exc:
+                    # A corrupt saved policy fails before any capability handler
+                    # runs.  The CLI reports this as `policy_error`; the HTTP
+                    # surface must not drop the socket or skip the audit log.
+                    _safe_record_audit(state_root, {
+                        "capability": cap_id, "ok": False,
+                        "code": "policy_error", "surface": "web"})
+                    self._send_json({
+                        "error": f"policy_error: {type(exc).__name__}: {exc}"[:300],
+                        "code": "policy_error"}, HTTPStatus.BAD_REQUEST)
+                    return
+                except Exception as exc:
+                    _safe_record_audit(state_root, {
+                        "capability": cap_id, "ok": False,
+                        "code": "internal_error", "surface": "web"})
+                    self._send_json({
+                        "error": f"internal_error: {type(exc).__name__}"[:300],
+                        "code": "internal_error"},
+                        HTTPStatus.INTERNAL_SERVER_ERROR)
+                    return
+                _safe_record_audit(state_root, {
+                    "capability": cap_id, "ok": True, "surface": "web"})
+                self._send_json(result)
                 return
             # ---------------- Real backend product workflows
             # Same token/origin gate as every other POST (checked above) plus
@@ -651,25 +760,32 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     self._send_json({"error": "unknown_workflow", "workflow": name},
                                     HTTPStatus.NOT_FOUND)
                     return
-                result = _workflows.run_workflow(name, request.get("params", {}))
-                code = str(result.get("code") or "")
-                hinted = result.get("http_status")
+                try:
+                    result = _workflows.run_workflow(
+                        name, request.get("params", {}))
+                except Exception as exc:
+                    # Typed workflow failures such as `lock_timeout` can be
+                    # raised before a result dict exists (a stale or contended
+                    # on-disk lock).  Convert them to the same structured body
+                    # as an in-result failure; never drop the HTTP connection.
+                    code = getattr(exc, "code", None) or (
+                        f"{type(exc).__name__.lower()}_error")
+                    status = _workflow_http_status(code)
+                    self._send_json({
+                        "workflow": name, "ok": False, "code": str(code),
+                        "error": str(exc)[:300], "result": {}, "steps": [],
+                        "persisted": None, "http_status": int(status),
+                    }, status)
+                    return
                 if result.get("ok"):
                     status = HTTPStatus.OK
-                elif isinstance(hinted, int) and 400 <= hinted <= 599:
+                else:
                     # Workflows declare the accurate denial/status (403 for
                     # policy/permission denials, 400 for bad input) so real
                     # security failures are not reported as server errors.
-                    status = HTTPStatus(hinted)
-                else:
-                    status = HTTPStatus.BAD_REQUEST if code in {
-                        "bad_params", "bad_state_root", "unknown_workflow",
-                        "permission_denied", "replay_denied", "bound_exceeded",
-                        "unsupported_tool", "path_escape", "not_found",
-                        "revoked", "invalid_token", "unknown_request",
-                        "bad_ttl", "invalid_token", "operation_denied",
-                        "csrf_denied", "bad_manifest",
-                    } else HTTPStatus.INTERNAL_SERVER_ERROR
+                    status = _workflow_http_status(
+                        str(result.get("code") or ""),
+                        result.get("http_status"))
                 self._send_json(result, status)
                 return
             if path in ("/api/profiles/create", "/api/profiles/activate",
