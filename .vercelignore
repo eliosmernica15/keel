@@ -1,0 +1,21 @@
+# Keep Vercel uploads to the static site only (project root: keel/site).
+.git
+.build
+.claude
+.githooks
+.github
+.probe
+.rea-inspect
+.vercel
+.verify-*
+agent-reference-shots
+perf-harness
+plan-extract
+research
+keel/src
+keel/tests
+keel/desktop-app
+keel/docs
+keel/.venv
+__pycache__
+*.pyc
