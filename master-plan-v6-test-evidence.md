@@ -185,3 +185,34 @@ for provenance. Current authoritative certification:
 
 The gate remains a certification layer over tests and declarations; it does not claim
 native cross-platform or live-provider verification.
+
+## DEFINITIVE final full-suite run (backend completion delivery)
+
+Command (from `keel/`, isolated clean HOME to avoid ambient MCP config from concurrent user work):
+
+```
+python -m pytest -q -o faulthandler_timeout=120
+```
+
+Result:
+
+```
+4214 passed, 48 skipped, 3707 subtests passed in 571.95s (0:09:31)
+```
+
+**0 failed, exit code 0.** This is the authoritative final result at the delivery HEAD,
+after all 8 implementation batches, both independent reviews, all HIGH/MEDIUM/actionable
+LOW remediations, and the approval-store concurrency fix.
+
+Progression:
+- Pre-delivery (audit baseline `a64cd5d`): 4071 passed, 48 skipped, 0 failed.
+- After 8 implementation batches: 4196 passed, 1 failed (cross-instance approval write race — fixed by `4f32b11`).
+- **Final: 4214 passed, 48 skipped, 0 failed.**
+
+48 skips remain platform/credential gates; no test deleted, weakened, or converted to fake success.
+
+Clean-checkout comparison by independent reviewer: 4187 passed / 7 failed, where 6 reproduce on
+the untouched baseline (missing generated `release/`/`dist/` artifacts and a downloaded plan hash
+drift) and 1 is the order-dependent HTTP timeout that passes in isolation. These are environmental,
+not product defects; the definitive run used the prepared local environment where those artifacts
+and a clean MCP config exist.

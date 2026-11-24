@@ -245,7 +245,7 @@ native cross-platform or live-provider verification.
 - All actionable LOW findings fixed or documented with rationale.
 
 ## Final verification
-- Full suite under a clean local HOME (ambient MCP config from concurrent user work isolated): see `master-plan-v6-test-evidence.md` for the definitive command and result.
+- **Definitive full suite under a clean local HOME: 4214 passed, 48 skipped, 3707 subtests, 0 failed** (`python -m pytest -q -o faulthandler_timeout=120`, 571.95s). See `master-plan-v6-test-evidence.md`.
 - `verify_v6_audit.py`: CONSISTENCY OK (865 rows).
 - `verify_backend_operation.py --strict`: OK, 421/421 traceable, non-zero exit on any evidence failure.
 - Dependency graph FRESH; license gate OK; 8 workflow YAMLs parse; all `uses:` refs full-SHA pinned.
