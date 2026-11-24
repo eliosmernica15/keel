@@ -35,6 +35,21 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [
     ("slack_token", re.compile(r"\bxox(?:[baprs]|e)-[A-Za-z0-9-]{10,}\b")),
     ("jwt", re.compile(
         r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b")),
+    # Credentials without a recognised prefix must not evade outbound
+    # redaction or output DLP.  Assignment values are consumed in full (up to
+    # the next assignment/newline), including spaces, ``Bearer``/``Basic``
+    # prefixes and quoted JSON values.
+    ("inline_secret", re.compile(
+        r"(?i)(?P<assign_key>\b\w*(?:api[_-]?key|access[_-]?token|token|"
+        r"password|secret|authorization|pin)\w*)\s*['\"]?\s*[:=]\s*"
+        r"(?:"
+        r"(?P<q>['\"])(?:(?!(?P=q))[^\r\n])*(?P=q)"
+        r"|(?:['\"]?(?:Bearer|Basic)\s+)?"
+        r"(?:(?!['\"]?\b\w*(?:api[_-]?key|access[_-]?token|token|password|"
+        r"secret|authorization|pin)\w*['\"]?\s*[:=])[^\r\n])*"
+        r")")),
+    ("bearer_token", re.compile(
+        r"(?i)\b(?:Bearer|Basic)\s+[^\s,;'\"\r\n]{4,}")),
 ]
 
 

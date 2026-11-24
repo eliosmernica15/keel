@@ -591,6 +591,16 @@ def test_e5_17_multiword_secret_value_is_fully_redacted():
     assert bounded.count("[REDACTED]") == 2
 
 
+def test_e5_17_bare_bearer_token_is_redacted():
+    """Audit C9: a bare ``Bearer <token>`` has no key assignment to match."""
+    for text in ("INFO authorization: Bearer plaintexttoken12345 done",
+                 "INFO Bearer plaintexttoken12345 done"):
+        cleaned = eb.redact_diagnostics(text)
+        assert "plaintexttoken12345" not in cleaned
+        assert "Bearer" not in cleaned
+        assert "[REDACTED]" in cleaned
+
+
 # --------------------------------------------------------------------------
 # E5.18 — Keel keeps Linux; dsh does not
 # --------------------------------------------------------------------------

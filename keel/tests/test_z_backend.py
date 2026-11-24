@@ -224,6 +224,30 @@ class TestZ3RedactedReplay(unittest.TestCase):
         self.assertNotIn("abcdef123456", rendered["html"])
         self.assertNotIn("sk-abcdefghijklmnop", rendered["html"])
 
+    def test_multiword_secrets_are_redacted_in_text_records_and_replay(self):
+        """Audit C3: value classes must consume whole multi-word secrets."""
+        redacted, preview = zb.redact_text("INFO token=super secret value thanks")
+        self.assertNotIn("super secret value", redacted)
+        self.assertIn("[REDACTED:secret]", redacted)
+        self.assertIn("secret", {item["label"] for item in preview})
+
+        bounded, _ = zb.redact_text("INFO password=abc,def;ghi")
+        self.assertNotIn("abc,def;ghi", bounded)
+
+        # A literal key already replaced by the api_key rule must not leave a
+        # half-written marker behind when the assignment rule runs next.
+        keyed, _ = zb.redact_text("INFO token=sk-or-v1-abcdefghijklmnopqrstuvwx end")
+        self.assertEqual(keyed, "INFO [REDACTED:secret]")
+
+        record = zb.redact_record({"role": "user", "content": "token=super secret value"})
+        self.assertNotIn("super secret value", json.dumps(record))
+
+        rendered = zb.render_replay({
+            "events": [{"role": "user",
+                        "content": "here is my token=super secret value thanks"}]})
+        self.assertNotIn("super secret value", rendered["html"])
+        self.assertIn("secret", {item["label"] for item in rendered["redactions"]})
+
     def test_redact_record_recurses(self):
         record = {"role": "user", "content": "mail bob@example.org",
                   "meta": ["token=abcdef123456"]}

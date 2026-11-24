@@ -54,7 +54,7 @@ FEATURE_IDS: tuple[str, ...] = (
 
 FEATURE_IMPLEMENTATIONS: dict[str, str] = {
     "W4.1": "dispatch_mcp_command / mcps_panel / McpConfigStore",
-    "W4.2": "normalize_server_config / merge_config_layers",
+    "W4.2": "normalize_server_config / replace_server_configs",
     "W4.4": "select_client_registration",
     "W4.5": "extract_callback_url / parse_pasted_callback",
     "W4.6": "resolve_timeouts / call_progress",
@@ -123,15 +123,32 @@ class ElicitationError(W4Error):
     pass
 
 
-_SECRET_RE = re.compile(
-    r"(?i)\b(api[_-]?key|access[_-]?token|token|secret|password|authorization)\b\s*[:=]\s*\S+"
+# A credential's value runs to the next assignment, a line break or the end
+# of the string -- not merely to the next space.  This keeps multi-word
+# secrets, ``Bearer``/``Basic`` credentials and JWTs from surviving in OAuth
+# and CLI error text.  Quoted JSON values are bounded by their closing quote.
+_SECRET_KEYWORDS = (
+    r"api[_-]?key|access[_-]?token|token|password|secret|authorization|pin"
 )
+_NEXT_ASSIGNMENT = (
+    r"['\"]?\b\w*(?:" + _SECRET_KEYWORDS + r")\w*['\"]?\s*[:=]"
+)
+_SECRET_RE = re.compile(
+    r"(?i)(?P<key>\b\w*(?:" + _SECRET_KEYWORDS + r")\w*)\s*['\"]?\s*[:=]\s*"
+    r"(?:"
+    r"(?P<q>['\"])(?:(?!(?P=q))[^\r\n])*(?P=q)"
+    r"|(?:['\"]?(?:Bearer|Basic)\s+)?"
+    r"(?:(?!(?:" + _NEXT_ASSIGNMENT + r"))[^\r\n])*"
+    r")"
+)
+_BEARER_RE = re.compile(r"(?i)\b(?:Bearer|Basic)\s+[^\s,;'\"\r\n]{4,}")
 
 
 def redact_text(value: Any) -> str:
     """Replace credential-looking assignments before text is logged or returned."""
     text = "" if value is None else str(value)
-    return _SECRET_RE.sub(lambda m: f"{m.group(1)}=[REDACTED]", text)
+    redacted = _SECRET_RE.sub(lambda m: f"{m.group('key')}=[REDACTED]", text)
+    return _BEARER_RE.sub("[REDACTED]", redacted)
 
 
 def _copy(value: Any) -> Any:
@@ -349,12 +366,19 @@ def config_document_to_json(document: ConfigDocument) -> str:
     return json.dumps(document.to_dict(), sort_keys=True, indent=2, ensure_ascii=False)
 
 
-def merge_config_layers(layers: Sequence[Mapping[str, Any]]) -> ConfigDocument:
-    """Fold layers low -> high precedence.  A higher layer *replaces* a server.
+def replace_server_configs(layers: Sequence[Mapping[str, Any]]) -> ConfigDocument:
+    """Fold MCP config layers low -> high precedence; a higher layer *replaces* a server.
 
     No field merge is performed.  When a replacement drops keys that the lower
     layer had set, a warning is emitted so the loss is visible instead of
     silently changing a server's behavior.
+
+    This is deliberately NOT ``mcp_contracts.merge_config_layers`` (Y1.19):
+    that function deep-merges named *scope* layers and concatenates permission
+    rule lists so a deny in any scope survives.  Here the inputs are ordered
+    ``mcp.servers.<name>`` documents whose whole-object override semantics are
+    the W4.2 contract; merging fields would silently revive removed headers or
+    timeouts.  The distinct name removes the false collision.
     """
     servers: dict[str, ServerConfig] = {}
     raw_by_name: dict[str, Mapping[str, Any]] = {}
@@ -1311,7 +1335,7 @@ class ConnectionState:
 
     @classmethod
     def from_documents(cls, documents: Sequence[ConfigDocument]) -> ConnectionState:
-        merged = merge_config_layers([doc.to_dict() for doc in documents])
+        merged = replace_server_configs([doc.to_dict() for doc in documents])
         return cls(
             configured=set(merged.servers),
             disabled={name: cfg.disabled for name, cfg in merged.servers.items()},
@@ -1443,7 +1467,7 @@ class McpConfigStore:
         return sorted(rows, key=lambda row: row["name"])
 
     def effective(self) -> ConfigDocument:
-        return merge_config_layers(
+        return replace_server_configs(
             [self._documents["user"].to_dict(), self._documents["project"].to_dict()]
         )
 
