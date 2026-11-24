@@ -59,6 +59,12 @@ export interface BridgeOptions {
   sse?: string;
   /** Delay SSE until the test calls releaseSse(); useful for event ordering. */
   holdSse?: boolean;
+  /** Upstream SSE failure, used to exercise the honest reconnect banner. */
+  sseError?: boolean;
+  /** Delay the rows GET so the loading skeleton can be observed. */
+  rowsDelayMs?: number;
+  /** Body served by the real bots/:id/export.md route. */
+  exportMarkdown?: string;
   /** Rows GET returns this status/body, e.g. an expired session. */
   rowsError?: { status: number; body: Record<string, unknown> };
   /** Number of initial library POSTs that fail before uploads succeed. */
@@ -76,6 +82,9 @@ export interface BridgeController {
   rows: Record<string, unknown>[];
   bots: Record<string, unknown>[];
   sseFrames: string;
+  sseError: boolean;
+  rowsDelayMs: number;
+  exportMarkdown: string;
   libraryFailures: number;
   libraryDelayMs: number;
   messagesDelayMs: number;
@@ -98,6 +107,9 @@ export async function mockBridge(page: Page, options: BridgeOptions = {}): Promi
     rows: options.rows ? structuredClone(options.rows) : [],
     bots: options.bots ? structuredClone(options.bots) : [structuredClone(BOT)],
     sseFrames: options.sse ?? ": ping\n\n",
+    sseError: options.sseError ?? false,
+    rowsDelayMs: options.rowsDelayMs ?? 0,
+    exportMarkdown: options.exportMarkdown ?? "",
     libraryFailures: options.libraryFailures ?? 0,
     libraryDelayMs: options.libraryDelayMs ?? 0,
     messagesDelayMs: options.messagesDelayMs ?? 0,
@@ -124,6 +136,9 @@ export async function mockBridge(page: Page, options: BridgeOptions = {}): Promi
     if (path === "events") {
       await gate;
       eventsCalls++;
+      if (controller.sseError && eventsCalls === 1) {
+        return route.fulfill({ status: 503, contentType: "text/plain", body: "bridge unavailable" });
+      }
       // Only the first connection carries the scripted frames. A real bridge
       // keeps its SSE connection open; leaving the reconnect pending avoids a
       // reconnect storm (and replayed deltas) during parallel test runs.
@@ -139,8 +154,20 @@ export async function mockBridge(page: Page, options: BridgeOptions = {}): Promi
     if (request.method() === "POST" && path === "bots") return fulfill(201, { bot: controller.bots[0] });
     const rowsMatch = /^bots\/([^/]+)\/rows$/.exec(path);
     if (rowsMatch && request.method() === "GET") {
+      if (controller.rowsDelayMs) await new Promise((r) => setTimeout(r, controller.rowsDelayMs));
       if (controller.rowsError) return fulfill(controller.rowsError.status, controller.rowsError.body);
       return fulfill(200, { bot_id: rowsMatch[1], rows: controller.rows });
+    }
+    const exportMatch = /^bots\/([^/]+)\/export\.md$/.exec(path);
+    if (exportMatch && request.method() === "GET") {
+      const markdown = controller.exportMarkdown
+        || `# ${controller.bots[0]?.name ?? "Audit task"}\n\n**You**\n\nhello\n`;
+      return route.fulfill({
+        status: 200,
+        contentType: "text/markdown; charset=utf-8",
+        headers: { "content-disposition": `attachment; filename="Audit-task.md"`, "cache-control": "no-store" },
+        body: markdown,
+      });
     }
     if (path === "providers" && request.method() === "GET") return fulfill(200, { providers: options.providers ?? [], session_keys: [] });
     if (path === "projects" && request.method() === "GET") return fulfill(200, { projects: options.projects ?? [] });

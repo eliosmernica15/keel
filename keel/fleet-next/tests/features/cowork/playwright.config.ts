@@ -8,10 +8,10 @@ const BASE_URL = `http://127.0.0.1:${PORT}`;
 const APP_ROOT = path.resolve(__dirname, "../../..");
 
 export default defineConfig({
-  // The app root is the collection root so the documented command
-  // `npx playwright test tests/features/cowork --workers=2` filters to this
-  // folder when run from this directory (where this config is discovered).
-  testDir: APP_ROOT,
+  // Only this feature's specs run under the documented command. The APP_ROOT
+  // below is the Next.js project root for the isolated web server, not the
+  // test collection root (other feature configs use __dirname too).
+  testDir: __dirname,
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,

@@ -12,8 +12,10 @@ import type { Bot, Notice, Provider, Usage } from "@/lib/types";
 import Composer, { type ComposerMode, type UploadedFile } from "./Composer";
 import Timeline from "./Timeline";
 import WorkLog from "./WorkLog";
+import SearchPanel from "./Search";
+import { LiveBubble, StreamBuffer } from "./LiveStream";
 import {
-  deriveStatus, formatTime, textOf, toBots, toLibrary, toProjects, toRows,
+  deriveStatus, findRowMatches, formatTime, textOf, toBots, toLibrary, toProjects, toRows,
   type LibraryView, type ProjectView, type RowView,
 } from "./shared";
 import s from "./cowork.module.css";
@@ -24,6 +26,11 @@ const QUICK_PROMPTS = [
   "Draft a short project update from my notes.",
   "Review recent changes and list what needs attention.",
 ];
+
+// Long transcripts are rendered as a bounded window; older rows are added a
+// page at a time. This keeps token streaming and scrolling cheap.
+const WINDOW_SIZE = 150;
+const WINDOW_PAGE = 100;
 
 const TONE: Record<string, "neutral" | "info" | "success" | "warning" | "danger"> = {
   idle: "neutral", running: "info", completed: "success",
@@ -63,7 +70,6 @@ export default function Cowork() {
   const [usage, setUsage] = useState<Usage | null>(null);
 
   const [busy, setBusy] = useState(false);
-  const [streamText, setStreamText] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [runStart, setRunStart] = useState<number | null>(null);
   const [streamError, setStreamError] = useState<string | null>(null);
@@ -93,18 +99,29 @@ export default function Cowork() {
   const [focusSignal, setFocusSignal] = useState(0);
   const [workLogOpen, setWorkLogOpen] = useState(false);
 
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [activeMatch, setActiveMatch] = useState(-1);
+  const [searchFocusTick, setSearchFocusTick] = useState(0);
+  const [windowCount, setWindowCount] = useState(WINDOW_SIZE);
+  const [anchorTick, setAnchorTick] = useState(0);
+
   const botIdRef = useRef<string | null>(null);
   const rowsReq = useRef(0);
   const lastEventSeq = useRef(0);
   const lastAttempt = useRef<{ text: string; uploaded: UploadedFile[]; botId: string } | null>(null);
-  const pendingDelta = useRef("");
-  const flushRaf = useRef<number | null>(null);
   const reloadTimer = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const atBottom = useRef(true);
   const [showJump, setShowJump] = useState(false);
+  const restoreBottom = useRef<number | null>(null);
+  const pendingSeq = useRef<string | null>(null);
+  const streamRef = useRef<StreamBuffer | null>(null);
+  if (!streamRef.current) streamRef.current = new StreamBuffer();
+  const stream = streamRef.current;
 
   useEffect(() => { botIdRef.current = botId; }, [botId]);
+  useEffect(() => () => stream.dispose(), [stream]);
 
   // One stable start time per turn, so the live elapsed timer never resets.
   useEffect(() => {
@@ -142,9 +159,13 @@ export default function Cowork() {
     setSendError(null);
     setRowsError(null);
     setStreamError(null);
+    setSearchOpen(false); setQuery(""); setActiveMatch(-1);
+    setWindowCount(WINDOW_SIZE);
+    restoreBottom.current = null; pendingSeq.current = null;
+    stream.clear();
     lastEventSeq.current = 0;
     lastAttempt.current = null;
-  }, []);
+  }, [stream]);
 
   /* --------------------------- bridge loaders --------------------------- */
 
@@ -197,7 +218,11 @@ export default function Cowork() {
   useEffect(() => { void loadBots(); void loadMeta(); void loadUsage(); }, [loadBots, loadMeta, loadUsage]);
 
   useEffect(() => {
-    if (!botId) { setRows([]); setBusy(false); setStreamText(""); setAnsweredAsks(new Set()); setModels([]); return; }
+    stream.clear();
+    setWindowCount(WINDOW_SIZE);
+    setSearchOpen(false); setQuery(""); setActiveMatch(-1);
+    restoreBottom.current = null; pendingSeq.current = null;
+    if (!botId) { setRows([]); setBusy(false); setAnsweredAsks(new Set()); setModels([]); return; }
     void loadRows(botId);
     setWorkLogOpen(true);
     try {
@@ -205,7 +230,7 @@ export default function Cowork() {
       const ids = raw ? JSON.parse(raw) : [];
       setAnsweredAsks(new Set(Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string") : []));
     } catch { setAnsweredAsks(new Set()); }
-  }, [botId, loadRows]);
+  }, [botId, loadRows, stream]);
 
   /* --------------------------- live event stream ------------------------ */
 
@@ -231,24 +256,17 @@ export default function Cowork() {
 
         if (ev.type === "stream" || ev.kind === "stream") {
           const delta = typeof ev.delta === "string" ? ev.delta : typeof ev.text === "string" ? ev.text : "";
-          if (!delta) return;
-          pendingDelta.current += delta;
-          setStreaming(true);
-          if (flushRaf.current == null) {
-            flushRaf.current = requestAnimationFrame(() => {
-              flushRaf.current = null;
-              const chunk = pendingDelta.current;
-              pendingDelta.current = "";
-              if (chunk) setStreamText((prev) => prev + chunk);
-            });
-          }
+          // Only the isolated live bubble subscribes to this buffer; no parent
+          // state changes here, so the durable timeline never re-renders per
+          // token. LiveBubble reads the buffer's own active flag.
+          stream.append(delta);
           return;
         }
 
         if (ev.kind === "error" || ev.type === "error") {
           setStreamError(textOf(ev.error ?? ev.message ?? "The event stream reported an error."));
-          setStreaming(false);
-          setBusy(false);
+          setStreaming(false); setBusy(false);
+          stream.clear();
           return;
         }
 
@@ -257,8 +275,7 @@ export default function Cowork() {
           if (ev.kind === "turn_end") {
             setBusy(false);
             setStreaming(false);
-            setStreamText("");
-            pendingDelta.current = "";
+            stream.clear();
             void loadUsage();
             void loadMeta();
           }
@@ -280,21 +297,63 @@ export default function Cowork() {
     return () => {
       disposed = true;
       unsubscribe();
-      if (flushRaf.current != null) cancelAnimationFrame(flushRaf.current);
       if (reloadTimer.current != null) window.clearTimeout(reloadTimer.current);
-      flushRaf.current = null; reloadTimer.current = null;
+      reloadTimer.current = null;
     };
-  }, [streamKey, loadRows, loadUsage, loadMeta]);
+  }, [streamKey, loadRows, loadUsage, loadMeta, stream]);
 
-  /* --------------------------- scroll behaviour ------------------------- */
+  /* --------------------- windowed history, scroll and search ------------ */
+
+  // Only the newest WINDOW_SIZE rows are in the DOM. Search still sees every
+  // loaded row and expands the window when a match lives further back.
+  const visibleRows = useMemo(
+    () => rows.length > windowCount ? rows.slice(rows.length - windowCount) : rows,
+    [rows, windowCount],
+  );
+  const hiddenCount = rows.length - visibleRows.length;
+  const matches = useMemo(() => findRowMatches(rows, query), [rows, query]);
+  const activeSeq = searchOpen && activeMatch >= 0 ? matches[activeMatch]?.seq ?? null : null;
 
   useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    if (restoreBottom.current != null) {
+      const distance = restoreBottom.current;
+      restoreBottom.current = null;
+      const raf = requestAnimationFrame(() => { el.scrollTop = Math.max(0, el.scrollHeight - distance); });
+      return () => cancelAnimationFrame(raf);
+    }
+    if (pendingSeq.current != null) {
+      const seq = pendingSeq.current;
+      pendingSeq.current = null;
+      const raf = requestAnimationFrame(() => {
+        const node = Array.from(el.querySelectorAll("[data-cowork-seq]"))
+          .find((n) => n.getAttribute("data-cowork-seq") === seq);
+        if (!node) return;
+        const details = node.closest("details");
+        if (details) details.open = true;
+        node.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
+      });
+      return () => cancelAnimationFrame(raf);
+    }
+    if (!atBottom.current) return;
+    const raf = requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+    return () => cancelAnimationFrame(raf);
+  }, [visibleRows.length, anchorTick, reduceMotion]);
+
+  // Follow new streamed text only while the user is already near the bottom.
+  // This subscription updates scrollTop directly — no React state, no history
+  // render, no lost scroll position.
+  useEffect(() => stream.subscribe(() => {
+    // React bails out when the value is unchanged: tokens after the first do
+    // not re-render the page. The first token marks the turn live; clear()
+    // marks it finished.
+    setStreaming(stream.getLiveSnapshot());
     if (!atBottom.current) return;
     const el = scrollRef.current;
     if (!el) return;
-    const raf = requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
-    return () => cancelAnimationFrame(raf);
-  }, [rows, streamText]);
+    requestAnimationFrame(() => { if (atBottom.current) el.scrollTop = el.scrollHeight; });
+  }), [stream]);
 
   const onScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -304,12 +363,64 @@ export default function Cowork() {
     setShowJump(!near);
   }, []);
 
+  const showEarlier = useCallback(() => {
+    const el = scrollRef.current;
+    // Distance from the current scroll offset to the bottom. Restoring this
+    // after prepending older rows keeps the message under the user's eye.
+    if (el) restoreBottom.current = Math.max(0, el.scrollHeight - el.scrollTop);
+    setWindowCount((count) => Math.min(rows.length, count + WINDOW_PAGE));
+  }, [rows.length]);
+
   const jumpToLatest = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
+    if (hiddenCount > 0) { restoreBottom.current = 0; setWindowCount(WINDOW_SIZE); }
     el.scrollTo({ top: el.scrollHeight, behavior: reduceMotion ? "auto" : "smooth" });
     atBottom.current = true; setShowJump(false);
-  }, [reduceMotion]);
+  }, [hiddenCount, reduceMotion]);
+
+  const openSearch = useCallback(() => {
+    if (!botIdRef.current) return;
+    setSearchOpen(true);
+    setSearchFocusTick((n) => n + 1);
+  }, []);
+
+  const closeSearch = useCallback(() => {
+    setSearchOpen(false); setActiveMatch(-1);
+  }, []);
+
+  const selectMatch = useCallback((index: number) => {
+    const match = matches[index];
+    if (!match) return;
+    setActiveMatch(index);
+    pendingSeq.current = String(match.seq);
+    const windowStart = rows.length - visibleRows.length;
+    if (match.index < windowStart) {
+      setWindowCount(rows.length - match.index + Math.floor(WINDOW_SIZE / 2));
+    } else {
+      setAnchorTick((n) => n + 1);
+    }
+  }, [matches, rows.length, visibleRows.length]);
+
+  const stepMatch = useCallback((delta: number) => {
+    if (!matches.length) return;
+    const base = activeMatch < 0 ? (delta > 0 ? -1 : 0) : activeMatch;
+    selectMatch((base + delta + matches.length) % matches.length);
+  }, [matches.length, activeMatch, selectMatch]);
+
+  // Ctrl/⌘+F opens search from anywhere in the Cowork session; the input
+  // handles Enter / Shift+Enter / arrows / Escape itself.
+  useEffect(() => {
+    if (!botId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        openSearch();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [botId, openSearch]);
 
   /* --------------------------- actions ---------------------------------- */
 
@@ -355,8 +466,7 @@ export default function Cowork() {
         notify("Agent is busy — message not queued.", "info");
         return false;
       }
-      setStreamText("");
-      pendingDelta.current = "";
+      stream.clear();
       await loadRows(id);
       setBusy(false);
       return true;
@@ -371,7 +481,7 @@ export default function Cowork() {
       notify(busyTurn ? "Agent is busy — message not queued." : `Message failed: ${msg}`, busyTurn ? "info" : "error");
       return false;
     }
-  }, [loadRows, mode, notify]);
+  }, [loadRows, mode, notify, stream]);
 
   const stop = useCallback(() => {
     const id = botIdRef.current;
@@ -380,13 +490,14 @@ export default function Cowork() {
       try {
         await bridge.cancel(id);
         setBusy(false); setStreaming(false);
+        stream.clear();
         notify("Stop requested — the turn ends at the next model boundary.", "info");
         await loadRows(id);
       } catch (err) {
         notify(`Stop failed: ${errMessage(err)}`, "error");
       }
     })();
-  }, [loadRows, notify]);
+  }, [loadRows, notify, stream]);
 
   const decide = useCallback(async (row: RowView, decision: "once" | "always" | "never") => {
     const id = botIdRef.current;
@@ -499,10 +610,20 @@ export default function Cowork() {
     return () => { disposed = true; };
   }, [botId, bot?.provider]);
 
-  const status = deriveStatus(bot, rows, busy || streaming, answeredAsks);
+  const status = useMemo(
+    () => deriveStatus(bot, rows, busy || streaming, answeredAsks),
+    [bot, rows, busy, streaming, answeredAsks],
+  );
   const providerReady = providers.length === 0 ? null : providers.some((p) => p.configured || p.connected);
   const workspace = projects[0];
   const activeSince = status.state === "running" ? runStart : null;
+
+  // Memoised so parent state changes (and stream status flips) cannot
+  // re-render the durable transcript; only LiveBubble subscribes to tokens.
+  const liveBubble = useMemo(
+    () => <LiveBubble stream={stream} active={streaming || busy} botName={bot?.name ?? "Keel"} />,
+    [stream, streaming, busy, bot?.name],
+  );
 
   const composer = (
     <Composer
@@ -603,6 +724,16 @@ export default function Cowork() {
             {botsLoading ? <Skeleton width={130} /> : <h1>{bot?.name ?? "Cowork task"}</h1>}
             <Badge tone={TONE[status.state] || "neutral"} dot>{status.label}</Badge>
             {status.reason && <span className={s.statusReason}>{status.reason}</span>}
+            <button
+              type="button"
+              className={s.searchBtn}
+              onClick={openSearch}
+              aria-label="Search conversation"
+              aria-keyshortcuts="Control+F Meta+F"
+              title="Search this conversation (Ctrl/⌘+F)"
+            >
+              <Icon name="search" size={15} /> <span>Search</span>
+            </button>
             <span className={s.headSpacer} />
             {bots.length > 1 && (
               <select
@@ -616,10 +747,40 @@ export default function Cowork() {
               </select>
             )}
             <IconButton label="New task" onClick={() => { void createTask(); }}><Icon name="plus" size={17} /></IconButton>
-            <a className={s.exportLink} href={bridge.exportUrl(botId)} download title="Export this conversation as Markdown">
-              <Icon name="download" size={15} /> <span>Export</span>
-            </a>
+            <div className={s.exportGroup}>
+              <a className={s.exportLink} href={bridge.exportUrl(botId)} download title="Export this conversation as Markdown">
+                <Icon name="download" size={15} /> <span>Export</span>
+              </a>
+              {/* Honest gap: the bridge has a real export.md route but no route
+                  that accepts this Markdown back. Never offer a fake import. */}
+              <button
+                type="button"
+                className={s.importButton}
+                disabled
+                aria-label="Import transcript unavailable"
+                aria-describedby="cowork-import-note"
+                title="Import is unavailable — see the note beside this control"
+              >
+                <Icon name="panel" size={14} /> <span>Import</span>
+              </button>
+              <span className={s.importNote} id="cowork-import-note" role="note">
+                Import unavailable — no bridge route accepts the exported Markdown.
+              </span>
+            </div>
           </header>
+
+          {searchOpen && (
+            <SearchPanel
+              query={query}
+              matches={matches}
+              active={activeMatch}
+              focusTick={searchFocusTick}
+              onQuery={(value) => { setQuery(value); setActiveMatch(-1); }}
+              onClose={closeSearch}
+              onStep={stepMatch}
+              onSelect={selectMatch}
+            />
+          )}
 
           {(botsError || rowsError || streamError || metaError || providerReady === false || offline) && (
             <div className={s.banners}>
@@ -640,12 +801,20 @@ export default function Cowork() {
             aria-label="Cowork conversation"
           >
             <WorkLog
-              rows={rows}
+              rows={visibleRows}
               status={status}
               activeSince={activeSince}
               expanded={workLogOpen}
               onToggle={() => setWorkLogOpen((v) => !v)}
             />
+
+            {hiddenCount > 0 && (
+              <div className={s.windowBar}>
+                <button type="button" className={s.windowEarlier} onClick={showEarlier}>
+                  <Icon name="chevron" size={13} /> Show earlier messages — {Math.min(WINDOW_PAGE, hiddenCount)} of {hiddenCount} hidden
+                </button>
+              </div>
+            )}
 
             {rowsLoading && rows.length === 0 ? (
               <div className={s.skeletonWrap} aria-label="Loading conversation">
@@ -660,11 +829,8 @@ export default function Cowork() {
               </div>
             ) : (
               <Timeline
-                rows={rows}
-                streamText={streamText}
-                streaming={streaming || busy}
+                rows={visibleRows}
                 botName={bot?.name ?? "Keel"}
-                status={status}
                 library={library}
                 usage={usage}
                 answeredAskIds={answeredAsks}
@@ -673,6 +839,8 @@ export default function Cowork() {
                 onRewind={rewind}
                 onDecide={decide}
                 onAnswer={answer}
+                activeSeq={activeSeq}
+                live={liveBubble}
               />
             )}
 

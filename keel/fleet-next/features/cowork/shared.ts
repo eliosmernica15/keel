@@ -307,3 +307,69 @@ export function usageFacts(usage: Usage | null): string[] {
   if (typeof usage.requests === "number") out.push(`${usage.requests} requests`);
   return out;
 }
+
+/* ---------------------------------------------------------------- search */
+
+const SEARCH_FIELDS = [
+  "content", "text", "question", "answer", "summary", "operation",
+  "explanation", "description", "detail", "path", "name", "title",
+  "tool_name", "status", "terminal_reason",
+];
+
+/** Search only the rows the bridge already loaded — never a new backend call. */
+export function searchableText(row: RowView): string {
+  const parts: string[] = [];
+  if (row.role) parts.push(row.role);
+  for (const field of SEARCH_FIELDS) {
+    const value = row.body[field];
+    if (typeof value === "string") parts.push(value);
+    else if (Array.isArray(value)) parts.push(value.map(textOf).join(" "));
+  }
+  return parts.join(" ");
+}
+
+export interface RowMatch {
+  /** Position in the full loaded row list, including rows outside the window. */
+  index: number;
+  seq: string | number;
+  label: string;
+  snippet: string;
+}
+
+function rowLabel(row: RowView): string {
+  if (row.kind === "message") return (row.role ?? textOf(row.body.role)) === "user" ? "You" : "Assistant";
+  const kind = row.kind.replace(/_/g, " ");
+  return kind.charAt(0).toUpperCase() + kind.slice(1);
+}
+
+function snippetOf(text: string, at: number, length: number): string {
+  const start = Math.max(0, at - 34);
+  const end = Math.min(text.length, at + length + 54);
+  return `${start > 0 ? "…" : ""}${text.slice(start, end).trim()}${end < text.length ? "…" : ""}`;
+}
+
+/** Case-insensitive substring search over loaded history. Duplicate/replayed
+ *  sequence numbers yield one result; the first 500 results are enough for a
+ *  human to scan and keep the search panel itself bounded. */
+export function findRowMatches(rows: RowView[], query: string, limit = 500): RowMatch[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return [];
+  const out: RowMatch[] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < rows.length && out.length < limit; i++) {
+    const row = rows[i];
+    const text = searchableText(row);
+    const at = text.toLowerCase().indexOf(needle);
+    if (at < 0) continue;
+    const seq = row.seq;
+    if (seen.has(String(seq))) continue;
+    seen.add(String(seq));
+    out.push({
+      index: i,
+      seq,
+      label: rowLabel(row),
+      snippet: snippetOf(text, at, needle.length),
+    });
+  }
+  return out;
+}

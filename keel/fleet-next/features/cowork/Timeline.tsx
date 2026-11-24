@@ -4,7 +4,7 @@
 // tool detail is disclosed on demand and no outcome is shown before the API
 // confirms it.
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Icon, IconButton } from "@/components/icons";
 import { Badge } from "@/components/ui";
 import { bridge } from "@/lib/api";
@@ -12,17 +12,14 @@ import { Markdown } from "./Markdown";
 import {
   changedFiles, formatDuration, formatTime, humanSummary, isExpired, isUnanswered,
   safeJson, textOf, toolVerb, turnUsageFacts, usageFacts,
-  type LibraryView, type RowView, type StatusInfo,
+  type LibraryView, type RowView,
 } from "./shared";
 import type { Usage } from "@/lib/types";
 import s from "./cowork.module.css";
 
 export interface TimelineProps {
   rows: RowView[];
-  streamText: string;
-  streaming: boolean;
   botName: string;
-  status: StatusInfo;
   library: LibraryView[];
   usage: Usage | null;
   answeredAskIds: Set<string>;
@@ -31,6 +28,18 @@ export interface TimelineProps {
   onRewind: (row: RowView) => void;
   onDecide: (row: RowView, decision: "once" | "always" | "never") => Promise<boolean>;
   onAnswer: (row: RowView, answer: string) => Promise<boolean>;
+  /** Isolated live bubble; streamed tokens must not re-render the history. */
+  live?: React.ReactNode;
+  /** Sequence of the row highlighted by session search. */
+  activeSeq?: string | number | null;
+}
+
+/** Search anchor + highlight attributes for one durable row. */
+function rowAttrs(seq: string | number, activeSeq?: string | number | null): Record<string, string> {
+  return {
+    "data-cowork-seq": String(seq),
+    ...(activeSeq != null && String(activeSeq) === String(seq) ? { "data-match-active": "true" } : {}),
+  };
 }
 
 const DECISION_LABEL: Record<"once" | "always" | "never", string> = {
@@ -45,10 +54,11 @@ function isResolved(row: RowView): boolean {
 
 const askId = (row: RowView) => textOf(row.body.ask_id ?? row.body.id);
 
-function AskCard({ row, onAnswer, answeredIds }: {
+function AskCard({ row, onAnswer, answeredIds, activeSeq }: {
   row: RowView;
   onAnswer: (r: RowView, a: string) => Promise<boolean>;
   answeredIds: Set<string>;
+  activeSeq?: string | number | null;
 }) {
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
@@ -58,7 +68,7 @@ function AskCard({ row, onAnswer, answeredIds }: {
 
   if (isResolved(row) || wasAnswered) {
     return (
-      <div className={s.resolvedCard} role="status">
+      <div className={s.resolvedCard} role="status" {...rowAttrs(row.seq, activeSeq)}>
         <Icon name="check" size={14} /> <b>Answered</b>
         <span>{(answered ?? textOf(row.body.answer)) || "Your answer was sent."}</span>
       </div>
@@ -74,7 +84,7 @@ function AskCard({ row, onAnswer, answeredIds }: {
   };
 
   return (
-    <section className={`${s.card} ${s.askCard}`} aria-label="Agent question">
+    <section className={`${s.card} ${s.askCard}`} aria-label="Agent question" {...rowAttrs(row.seq, activeSeq)}>
       <header className={s.cardHead}>
         <Icon name="info" size={16} />
         <h4>Agent is asking · waiting for you</h4>
@@ -96,7 +106,7 @@ function AskCard({ row, onAnswer, answeredIds }: {
   );
 }
 
-function ApprovalCard({ row, onDecide }: { row: RowView; onDecide: TimelineProps["onDecide"] }) {
+function ApprovalCard({ row, onDecide, activeSeq }: { row: RowView; onDecide: TimelineProps["onDecide"]; activeSeq?: string | number | null }) {
   const [pending, setPending] = useState(false);
   const [resolved, setResolved] = useState<"once" | "always" | "never" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +117,7 @@ function ApprovalCard({ row, onDecide }: { row: RowView; onDecide: TimelineProps
 
   if (expired && !resolved && textOf(row.body.status).toLowerCase() !== "expired") {
     return (
-      <section className={`${s.card} ${s.expiredCard}`} aria-label="Expired approval request">
+      <section className={`${s.card} ${s.expiredCard}`} aria-label="Expired approval request" {...rowAttrs(row.seq, activeSeq)}>
         <header className={s.cardHead}>
           <Icon name="warning" size={16} />
           <h4>Approval expired</h4>
@@ -121,7 +131,7 @@ function ApprovalCard({ row, onDecide }: { row: RowView; onDecide: TimelineProps
 
   if (isResolved(row) || resolved) {
     return (
-      <div className={s.resolvedCard} role="status">
+      <div className={s.resolvedCard} role="status" {...rowAttrs(row.seq, activeSeq)}>
         <Icon name="check" size={14} /> <b>{resolved ? DECISION_LABEL[resolved] : expired ? "Request expired" : "Resolved"}</b>
         <span>{operation}{scope ? ` · ${scope}` : ""}</span>
       </div>
@@ -138,7 +148,7 @@ function ApprovalCard({ row, onDecide }: { row: RowView; onDecide: TimelineProps
   };
 
   return (
-    <section className={`${s.card} ${s.approvalCard}`} aria-label="Permission request">
+    <section className={`${s.card} ${s.approvalCard}`} aria-label="Permission request" {...rowAttrs(row.seq, activeSeq)}>
       <header className={s.cardHead}>
         <Icon name="shield" size={16} />
         <h4>Approval required</h4>
@@ -158,7 +168,7 @@ function ApprovalCard({ row, onDecide }: { row: RowView; onDecide: TimelineProps
   );
 }
 
-function PlanCard({ row, onDecide }: { row: RowView; onDecide: TimelineProps["onDecide"] }) {
+function PlanCard({ row, onDecide, activeSeq }: { row: RowView; onDecide: TimelineProps["onDecide"]; activeSeq?: string | number | null }) {
   const [pending, setPending] = useState(false);
   const [decision, setDecision] = useState<"once" | "always" | "never" | null>(null);
   const raw = row.body.steps ?? row.body.plan ?? row.body.tasks;
@@ -177,7 +187,7 @@ function PlanCard({ row, onDecide }: { row: RowView; onDecide: TimelineProps["on
   };
 
   return (
-    <section className={s.card} aria-label="Plan from the agent">
+    <section className={s.card} aria-label="Plan from the agent" {...rowAttrs(row.seq, activeSeq)}>
       <header className={s.cardHead}><Icon name="tasks" size={16} /><h4>Plan reported by the agent</h4></header>
       <ol className={s.planList}>
         {steps.map((step, i) => {
@@ -208,11 +218,11 @@ function PlanCard({ row, onDecide }: { row: RowView; onDecide: TimelineProps["on
 
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|bmp|svg)$/i;
 
-function DeliverableCard({ row }: { row: RowView }) {
+function DeliverableCard({ row, activeSeq }: { row: RowView; activeSeq?: string | number | null }) {
   const files = Array.isArray(row.body.files) ? row.body.files : null;
   if (!files && !row.body.path && !row.body.name) return null;
   return (
-    <section className={s.card} aria-label="Deliverable reported by the agent">
+    <section className={s.card} aria-label="Deliverable reported by the agent" {...rowAttrs(row.seq, activeSeq)}>
       <header className={s.cardHead}><Icon name="file" size={16} /><h4>Deliverable</h4></header>
       {files ? (
         <ul className={s.fileList}>
@@ -244,13 +254,14 @@ function messageRole(row: RowView): "user" | "assistant" {
   return (row.role ?? textOf(row.body.role)) === "user" ? "user" : "assistant";
 }
 
-function MessageGroup({ rows, role, botName, onCopy, onFork, onRewind }: {
+function MessageGroup({ rows, role, botName, onCopy, onFork, onRewind, activeSeq }: {
   rows: RowView[];
   role: "user" | "assistant";
   botName: string;
   onCopy: (row: RowView) => void;
   onFork: (row: RowView) => void;
   onRewind: (row: RowView) => void;
+  activeSeq?: string | number | null;
 }) {
   return (
     <div
@@ -262,7 +273,7 @@ function MessageGroup({ rows, role, botName, onCopy, onFork, onRewind }: {
         <div className={s.groupHead}>{role === "user" ? "You" : botName} · {rows.length} messages</div>
       )}
       {rows.map((row) => (
-        <article className={`${s.bubble} ${role === "user" ? s.bubbleUser : s.bubbleAssistant}`} key={row.key}>
+        <article className={`${s.bubble} ${role === "user" ? s.bubbleUser : s.bubbleAssistant}`} key={row.key} {...rowAttrs(row.seq, activeSeq)}>
           <header className={s.bubbleHead}>
             <span className={s.role}>{role === "user" ? "You" : botName}</span>
             {row.ts != null && <time>{formatTime(row.ts)}</time>}
@@ -279,9 +290,13 @@ function MessageGroup({ rows, role, botName, onCopy, onFork, onRewind }: {
   );
 }
 
-export default function Timeline(props: TimelineProps) {
-  const { rows, streamText, streaming, botName, status, library, usage, answeredAskIds, onCopy, onFork, onRewind, onDecide, onAnswer } = props;
+function Timeline(props: TimelineProps) {
+  const { rows, botName, library, usage, answeredAskIds, onCopy, onFork, onRewind, onDecide, onAnswer, live, activeSeq } = props;
   const [decided, setDecided] = useState<Record<string, "once" | "always" | "never">>({});
+  // Diagnostic: streaming deltas must not increase this. The live bubble is
+  // subscribed separately; the durable history is not re-rendered per token.
+  const renders = useRef(0);
+  renders.current += 1;
   const lastEnd = [...rows].reverse().find((r) => r.kind === "turn_end");
   const files = changedFiles(rows);
   const facts = [...new Set([...usageFacts(usage), ...(lastEnd ? turnUsageFacts(lastEnd) : [])])];
@@ -303,7 +318,7 @@ export default function Timeline(props: TimelineProps) {
         <summary><Icon name="chevron" size={13} /><span>{humanSummary(group)}</span><span className={s.stepCount}>{group.length}</span></summary>
         <ul>
           {group.map((r) => (
-            <li key={r.key}>
+            <li key={r.key} {...rowAttrs(r.seq, activeSeq)}>
               <b>{toolVerb(textOf(r.body.name ?? r.body.tool) || "tool")}</b>
               {r.body.detail != null && <span> — {textOf(r.body.detail)}</span>}
               {r.body.status != null && <span className={s.stepStatus}> · {textOf(r.body.status)}</span>}
@@ -326,7 +341,7 @@ export default function Timeline(props: TimelineProps) {
     // A real row body may carry a plan under any kind — only render it when
     // the bridge actually returned steps.
     if (Array.isArray(b.steps) || Array.isArray(b.plan)) {
-      out.push(<PlanCard row={row} onDecide={decide} key={row.key} />);
+      out.push(<PlanCard row={row} onDecide={decide} activeSeq={activeSeq} key={row.key} />);
       continue;
     }
     if (row.kind === "message") {
@@ -339,38 +354,30 @@ export default function Timeline(props: TimelineProps) {
       i = j - 1;
       out.push(
         <MessageGroup key={`msg-${row.key}`} rows={group} role={role} botName={botName}
-          onCopy={onCopy} onFork={onFork} onRewind={onRewind} />,
+          onCopy={onCopy} onFork={onFork} onRewind={onRewind} activeSeq={activeSeq} />,
       );
     } else if (row.kind === "approval") {
       if (decided[row.key]) {
-        out.push(<div className={s.resolvedCard} key={row.key} role="status"><Icon name="check" size={14} /> <b>{DECISION_LABEL[decided[row.key]]}</b><span>{textOf(b.tool_name ?? b.operation)}</span></div>);
+        out.push(<div className={s.resolvedCard} key={row.key} role="status" {...rowAttrs(row.seq, activeSeq)}><Icon name="check" size={14} /> <b>{DECISION_LABEL[decided[row.key]]}</b><span>{textOf(b.tool_name ?? b.operation)}</span></div>);
       } else {
-        out.push(<ApprovalCard row={row} onDecide={decide} key={row.key} />);
+        out.push(<ApprovalCard row={row} onDecide={decide} activeSeq={activeSeq} key={row.key} />);
       }
     } else if (row.kind === "ask") {
-      out.push(<AskCard row={row} onAnswer={onAnswer} answeredIds={answeredAskIds} key={row.key} />);
+      out.push(<AskCard row={row} onAnswer={onAnswer} answeredIds={answeredAskIds} activeSeq={activeSeq} key={row.key} />);
     } else if (row.kind === "plan") {
-      out.push(<PlanCard row={row} onDecide={decide} key={row.key} />);
+      out.push(<PlanCard row={row} onDecide={decide} activeSeq={activeSeq} key={row.key} />);
     } else if (row.kind === "deliverable" || row.kind === "artifact") {
-      out.push(<DeliverableCard row={row} key={row.key} />);
+      out.push(<DeliverableCard row={row} activeSeq={activeSeq} key={row.key} />);
     } else if (row.kind === "notice") {
-      out.push(<div className={s.notice} key={row.key}><Icon name={/warn|error/i.test(textOf(b.level)) ? "warning" : "info"} size={13} />{textOf(b.text)}</div>);
+      out.push(<div className={s.notice} key={row.key} {...rowAttrs(row.seq, activeSeq)}><Icon name={/warn|error/i.test(textOf(b.level)) ? "warning" : "info"} size={13} />{textOf(b.text)}</div>);
     } else if (row.kind === "turn_end") {
       // the finish-of-turn summary is rendered once, after the loop
     } else if (textOf(b.text) || textOf(b.content)) {
-      out.push(<p className={s.systemLine} key={row.key}>{textOf(b.text ?? b.content)}</p>);
+      out.push(<p className={s.systemLine} key={row.key} {...rowAttrs(row.seq, activeSeq)}>{textOf(b.text ?? b.content)}</p>);
     }
   }
   flushSteps("end");
-
-  if (streaming && streamText) {
-    out.push(
-      <article className={`${s.bubble} ${s.bubbleAssistant} ${s.streamBubble}`} key="stream" aria-live="polite">
-        <header className={s.bubbleHead}><span className={s.role}>{botName}</span><span className={s.streamingLabel}>streaming</span></header>
-        <Markdown text={streamText} /><span className={s.caret} aria-hidden="true" />
-      </article>,
-    );
-  }
+  if (live) out.push(<React.Fragment key="live">{live}</React.Fragment>);
 
   if (showSummary && lastEnd) {
     const dur = typeof lastEnd.body.duration_ms === "number" ? formatDuration(lastEnd.body.duration_ms as number) : null;
@@ -406,5 +413,9 @@ export default function Timeline(props: TimelineProps) {
     );
   }
 
-  return <div className={s.timeline}>{out}</div>;
+  return <div className={s.timeline} data-timeline-renders={renders.current}>{out}</div>;
 }
+
+// The history is pure derivation from durable rows. Memoising it keeps the
+// scroll position and DOM stable while tokens arrive in the isolated bubble.
+export default React.memo(Timeline);
