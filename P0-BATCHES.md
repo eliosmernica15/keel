@@ -1,6 +1,6 @@
 # Remaining P0 implementation batches
 
-Generated from PLAN-INDEX.json: **25 not-started P0 features** in 12 source groups.
+Generated from PLAN-INDEX.json: **20 not-started P0 features** in 10 source groups.
 
 These are candidate workstreams for specialist agents. Do not mark any feature verified until real code, tests and runtime evidence exist.
 
@@ -10,12 +10,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `D7.12` (M0) CI layout: broad lanes of independent gates, a smaller Node-version compatibility matrix, native Windows lane in a separate workflow, Python checks separate, re
 - `D7.19` (M21) Benchmark method: drive tasks through the SDK's minimal JSON-RPC agent variant with separate workspaces and session ids per independent task.
 - `D7.9` (M0) Strict dependency linker so undeclared deps fail; build scripts of dependencies explicitly allowlisted.
-
-## E4 — 3 features
-
-- `E4.15` (M0) Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every requir
-- `E4.5` (M25) Snapshot scenarios: parent/child session files with version in filename that must agree with header; snapshot.yml declares profile, header class, recording poli
-- `E4.8` (M25) Test-process isolation rules: forked workers share ports, paths, namespaces and children; each test owns every resource it acquires through teardown; a spec tha
 
 ## X10 — 3 features
 
@@ -28,11 +22,6 @@ These are candidate workstreams for specialist agents. Do not mark any feature v
 - `Y6.1` (M0) repo evidence docs cross-walk
 - `Y6.2` (M0) .verify-* and .build artifacts
 - `Y6.4` (M1) repo visibility: Public, 0 stars/forks
-
-## E3 — 2 features
-
-- `E3.3` (M12) Agent names: 1 to 32 lowercase letters/digits/hyphens starting with a letter, not lead; default agent-N; root is lead; full names are slash paths; names are mod
-- `E3.8` (M12) Result object: final output = last non-empty assistant message; optional structured value validated against the requested schema; diagnostic text limited to 4,0
 
 ## W1 — 2 features
 

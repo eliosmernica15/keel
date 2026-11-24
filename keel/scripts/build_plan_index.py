@@ -858,6 +858,13 @@ V_INVARIANT_EVIDENCE = (
     "Invariant/conformance contracts: scoped plugin tree, policy simulator "
     "trace, strictness presets, Keel gate catalog, tool conformance kit, "
     "request reconstruction, transport spike descriptors; 56 passing tests.")
+E34_RESULT_TOKENS = frozenset({"E3.3", "E3.8", "E4.5", "E4.8", "E4.15"})
+E34_RESULT_SRC = ["src/keel/result_contracts.py"]
+E34_RESULT_TESTS = ["tests/test_result_contracts.py"]
+E34_RESULT_EVIDENCE = (
+    "Result/snapshot contracts: agent-name grammar, result object with "
+    "diagnostic sanitization, versioned snapshots, test isolation, keyless "
+    "change log; 60 passing adversarial tests.")
 
 TOOL_CONTRACT_SRC = ["src/keel/tool_contracts.py",
                      "src/keel/tool_contracts_bridge.py"]
@@ -895,7 +902,8 @@ def _load_extra_features() -> list[dict]:
                                A6_TOKENS | E5_DESKTOP_TOKENS | X0_PLAN_TOKENS |
                                X9_RELIABILITY_TOKENS | X5_GUARD_TOKENS |
                                D5_RESPONSIBLE_TOKENS | D4_COMPOSITION_TOKENS |
-                               Y4_IDENTITY_TOKENS | V_INVARIANT_TOKENS)
+                               Y4_IDENTITY_TOKENS | V_INVARIANT_TOKENS |
+                               E34_RESULT_TOKENS)
             verified = fid in implemented_ids
             src_files = (TOOL_CONTRACT_SRC if fid in TOOL_CONTRACT_IDS else
                          X1_REPO_SRC if fid in X1_REPO_TOKENS else
@@ -916,7 +924,8 @@ def _load_extra_features() -> list[dict]:
                          D5_RESPONSIBLE_SRC if fid in D5_RESPONSIBLE_TOKENS else
                          D4_COMPOSITION_SRC if fid in D4_COMPOSITION_TOKENS else
                          Y4_IDENTITY_SRC if fid in Y4_IDENTITY_TOKENS else
-                         V_INVARIANT_SRC if fid in V_INVARIANT_TOKENS else [])
+                         V_INVARIANT_SRC if fid in V_INVARIANT_TOKENS else
+                         E34_RESULT_SRC if fid in E34_RESULT_TOKENS else [])
             test_files = (TOOL_CONTRACT_TESTS if fid in TOOL_CONTRACT_IDS else
                           X1_REPO_TESTS if fid in X1_REPO_TOKENS else
                           X1_STEERING_TESTS if fid in X1_STEERING_TOKENS else
@@ -936,7 +945,8 @@ def _load_extra_features() -> list[dict]:
                           D5_RESPONSIBLE_TESTS if fid in D5_RESPONSIBLE_TOKENS else
                           D4_COMPOSITION_TESTS if fid in D4_COMPOSITION_TOKENS else
                           Y4_IDENTITY_TESTS if fid in Y4_IDENTITY_TOKENS else
-                          V_INVARIANT_TESTS if fid in V_INVARIANT_TOKENS else [])
+                          V_INVARIANT_TESTS if fid in V_INVARIANT_TOKENS else
+                          E34_RESULT_TESTS if fid in E34_RESULT_TOKENS else [])
             evidence = (TOOL_CONTRACT_EVIDENCE if fid in TOOL_CONTRACT_IDS else
                         X1_REPO_EVIDENCE if fid in X1_REPO_TOKENS else
                         X1_STEERING_EVIDENCE if fid in X1_STEERING_TOKENS else
@@ -956,7 +966,8 @@ def _load_extra_features() -> list[dict]:
                         D5_RESPONSIBLE_EVIDENCE if fid in D5_RESPONSIBLE_TOKENS else
                         D4_COMPOSITION_EVIDENCE if fid in D4_COMPOSITION_TOKENS else
                         Y4_IDENTITY_EVIDENCE if fid in Y4_IDENTITY_TOKENS else
-                        V_INVARIANT_EVIDENCE if fid in V_INVARIANT_TOKENS else "")
+                        V_INVARIANT_EVIDENCE if fid in V_INVARIANT_TOKENS else
+                        E34_RESULT_EVIDENCE if fid in E34_RESULT_TOKENS else "")
             out.append({
                 "id": fid,
                 "feature": str(f.get("feature") or fid),

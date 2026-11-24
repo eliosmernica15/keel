@@ -10893,15 +10893,19 @@
       "milestone": "M12",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/result_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Agent names: 1 to 32 lowercase letters/digits/hyphens starting with a letter, not lead; default agent-N; root is lead; full names are slash paths; names are model-facing references, session ids are the authority; resolve returns the id and grants no permission; a slash path with no match fails AGENT_NAME_NOT_FOUND."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_result_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Result/snapshot contracts: agent-name grammar, result object with diagnostic sanitization, versioned snapshots, test isolation, keyless change log; 60 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11016,17 +11020,21 @@
       "milestone": "M12",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/result_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Result object: final output = last non-empty assistant message; optional structured value validated against the requested schema; diagnostic text limited to 4,096 bytes and free of tool inputs, file contents, env values, credentials, raw protocol payloads; stop reason enum (completed, aborted, error, max-tokens, refusal).",
         "Child failure resolves with error, not an exception.",
         "Result dataclass + diagnostic sanitizer test."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_result_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Result/snapshot contracts: agent-name grammar, result object with diagnostic sanitization, versioned snapshots, test isolation, keyless change log; 60 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11244,16 +11252,20 @@
       "milestone": "M0",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/result_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every required test tier at plan time.",
         "Plan-time \"test tiers\" field in PLAN-INDEX.json."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_result_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Result/snapshot contracts: agent-name grammar, result object with diagnostic sanitization, versioned snapshots, test isolation, keyless change log; 60 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11349,16 +11361,20 @@
       "milestone": "M25",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/result_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Snapshot scenarios: parent/child session files with version in filename that must agree with header; snapshot.yml declares profile, header class, recording policy, workspace facts; typed tokens keep parent/child identity relations; mutating scenarios compare a full workspace.expected/ tree that record/refresh never rewrite; modes record (needs key), refresh (replay input still valid), review every diff;",
         "CI read-only replay."
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_result_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Result/snapshot contracts: agent-name grammar, result object with diagnostic sanitization, versioned snapshots, test isolation, keyless change log; 60 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""
@@ -11423,16 +11439,20 @@
       "milestone": "M25",
       "priority": "P0",
       "original_priority": "P0",
-      "status": "not_started",
-      "source_files": [],
+      "status": "verified",
+      "source_files": [
+        "src/keel/result_contracts.py"
+      ],
       "dependencies": [],
       "acceptance_criteria": [
         "Test-process isolation rules: forked workers share ports, paths, namespaces and children; each test owns every resource it acquires through teardown; a spec that passes only alone is a test defect; fork-exit diagnostics report PID, file, code, signal; flake-diagnosis workflow classifies probabilistic failures.",
         "tests/conftest.py fixtures for ports/tmp dirs;"
       ],
-      "test_references": [],
+      "test_references": [
+        "tests/test_result_contracts.py"
+      ],
       "implementation_tier": "local_module",
-      "verification_evidence": "",
+      "verification_evidence": "Result/snapshot contracts: agent-name grammar, result object with diagnostic sanitization, versioned snapshots, test isolation, keyless change log; 60 passing adversarial tests.",
       "owner_approval_required": false,
       "external_prerequisite": "",
       "known_limitations": ""

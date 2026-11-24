@@ -4904,14 +4904,14 @@
     "id": "E3.3",
     "feature": "Agent names: 1 to 32 lowercase letters/digits/hyphens starting with a letter, not lead; default agent-N; root is lead; full names are slash paths; names are model-facing references, session ids are the authority; resolve returns the id and grants no permission; a slash path with no match fails AGENT_NAME_NOT_FOUND.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M12",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\result_contracts.py",
+    "test_references": "keel\\tests\\test_result_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E3.4",
@@ -4969,14 +4969,14 @@
     "id": "E3.8",
     "feature": "Result object: final output = last non-empty assistant message; optional structured value validated against the requested schema; diagnostic text limited to 4,096 bytes and free of tool inputs, file contents, env values, credentials, raw protocol payloads; stop reason enum (completed, aborted, error, max-tokens, refusal). Child failure resolves with error, not an exception.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M12",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\result_contracts.py",
+    "test_references": "keel\\tests\\test_result_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E3.9",
@@ -5073,14 +5073,14 @@
     "id": "E4.15",
     "feature": "Every non-trivial model/protocol/human-visible change updates a keyless recorded-session scenario; new capability seams and lifecycle variants name every required test tier at plan time.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M0",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\result_contracts.py",
+    "test_references": "keel\\tests\\test_result_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E4.2",
@@ -5125,14 +5125,14 @@
     "id": "E4.5",
     "feature": "Snapshot scenarios: parent/child session files with version in filename that must agree with header; snapshot.yml declares profile, header class, recording policy, workspace facts; typed tokens keep parent/child identity relations; mutating scenarios compare a full workspace.expected/ tree that record/refresh never rewrite; modes record (needs key), refresh (replay input still valid), review every diff; CI read-only replay.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M25",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\result_contracts.py",
+    "test_references": "keel\\tests\\test_result_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E4.6",
@@ -5164,14 +5164,14 @@
     "id": "E4.8",
     "feature": "Test-process isolation rules: forked workers share ports, paths, namespaces and children; each test owns every resource it acquires through teardown; a spec that passes only alone is a test defect; fork-exit diagnostics report PID, file, code, signal; flake-diagnosis workflow classifies probabilistic failures.",
     "tier": "local_module",
-    "status": "not_started",
+    "status": "verified",
     "milestone": "M25",
     "priority": "P0",
-    "source_files": "",
-    "test_references": "",
+    "source_files": "keel\\src\\keel\\result_contracts.py",
+    "test_references": "keel\\tests\\test_result_contracts.py",
     "owner_approval_required": false,
-    "implementation_verified": false,
-    "notes": "source_file_missing, test_file_missing"
+    "implementation_verified": true,
+    "notes": ""
   },
   {
     "id": "E4.9",
