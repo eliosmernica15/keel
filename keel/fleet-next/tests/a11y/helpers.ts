@@ -20,6 +20,9 @@ export async function openAppThemed(
   );
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.locator(".keel-app").waitFor({ state: "visible" });
+  // AppProvider sets these only after its mount effect; without this gate a
+  // themed interaction can race hydration (QA-G-002).
+  await page.locator("html[data-reduced-motion]").waitFor({ state: "attached" });
   await page.locator(`html[data-theme="${theme}"]`).waitFor({ state: "attached" });
 }
 

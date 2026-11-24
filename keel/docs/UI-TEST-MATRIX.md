@@ -118,3 +118,21 @@ destination visible, and the 12 contact sheets visually inspected. Onboarding's 
 | Tauri packaged build | not in scope | packaging workstream |
 | Public `/app` mirror | unchanged | separate surface |
 | PWA shell freshness | pass | fixed cache-first `/` staleness in `public/sw.js`; verified cache v2 → v3 migration in browser |
+
+## Agent G — independent full-plan re-run (2026-11-24, post-integration)
+
+Whole-plan detail, registry sample and defect table are in `FULL-PLAN-QA.md`. Raw command output is in `fleet-next/tests/ui/qa-logs/` (git-ignored). Integration commits present: `dee01be`, `7a5cd22`, `ea3f20b`, `e76aed0`. QA-owned bridge `:8739`, production build `.next-e2e` on `:3300`, a11y dev server `:3302`; lead's `:3200`/`:3000` untouched.
+
+| Check | Exact command | Real result |
+|---|---|---|
+| TypeScript | `npx tsc --noEmit --incremental false` | exit 0, no output |
+| Static harness | `node tests/ui/verify-ui.mjs` | `{"info":1,"pass":14,"skipped":4}`, exit 0 (twice) |
+| Production E2E (final, 144 tests) | `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2 --reporter=line` | **142 pass / 2 fail (3.4 min)**; both are QA-F-003/011 bridge-504 console-gate noise. Single-worker re-runs: `1 passed` (Fleet panels) + `2 passed` (dark/light 1440×900 cowork). Earlier mid-integration run was 131/144 (11 504 failures + 2 QA-control races, all re-run green). |
+| Accessibility (full 12) | `npx playwright test --config tests/a11y/playwright.a11y.config.ts --workers=1 --reporter=line` | first run **8 pass / 4 fail**; targeted re-run **2 pass / 2 fail**; final post-integration **12 pass / 0 fail (1.2 min)** → QA-G-002 is a fixture flake (hydration gate), not an app defect. Dark/light contrast 0 violations (min 5.33 / 4.87). |
+| Feature suites | `npm run test:features` | Cowork 28 + Code/Duet 30 + Fleet 20 + Capabilities/Settings 17 + Onboarding 13 = **108 pass / 0 fail** (QA-F-016/017/018 fixed by owners). |
+| QA hydration control (new) | `npx playwright test tests/e2e/13-qa-hydration-gate.spec.ts --workers=1` and same with `--config tests/e2e/playwright.prod-reuse.config.ts` | **4 pass** in dev and **4 pass** in production — palette/New-agent focus traps, 200 % zoom sidebar and 1–4 shortcuts work with the robust hydration gate. |
+| Registry sample (24 IDs, 5 domains) | `python -m pytest -q` on 18 cited test files (`$env:PYTHONPATH='src'`) | **418 passed / 639 subtests**, exit 0 (plus 5 TUI tests and two earlier subsets). All 24 sampled `verified` claims had cited tests present and passing. |
+| Generated-file discipline | `git hash-object` vs `git rev-parse HEAD:<path>` | `PLAN-INDEX.json`, `parity.json`, `Keel_Master_Plan_v6.md`, `keel/docs/parity.json` all byte-identical to HEAD; no change since `3863a2b`. |
+| Secret / artifact scan | `git grep -E <secret-marker regex>` + `keel.dev_tools.security_scan` | 0 secret markers in tracked files; scanner's 128 flagged lines are all synthetic redaction fixtures. No generated build/test output in the last 25 commits; tracked `results.json` / `viewport-results.json` remain a hygiene exception (QA-G-004). |
+
+New QA defects: QA-G-001 (transient prod-build block from an in-flight `tests/zoom-a11y/helpers.ts`, fixed by owner, verified), QA-G-002 (a11y fixture flake, open), QA-G-003 (bridge 504 console noise, open/environmental), QA-G-004 (tracked generated harness outputs, open). Retested and fixed: QA-F-013, QA-F-016/017/018.
