@@ -84,6 +84,11 @@ _ASSIGNED_SECRET_RE = re.compile(
     r")"
 )
 _BARE_BEARER_RE = re.compile(r"(?i)\b(?:Bearer|Basic)\s+[^\s,;'\"\r\n]{4,}")
+# The shared vocabulary is prefix-driven; prose declarations of a multi-word
+# secret need an explicit high-recall pattern for public-share artifacts.
+_PROSE_SECRET_RE = re.compile(
+    r"(?i)\b(?:the\s+)?(?:secret|password|passphrase|pin)\s+is\s+[^\r\n.!?]{2,120}"
+)
 
 
 def _utc_now() -> str:
@@ -99,10 +104,20 @@ def _b64u_decode(text: str) -> bytes:
 
 
 def _scrub_secrets(text: str) -> str:
-    """Remove credential-shaped substrings and e-mail addresses from text."""
-    out = _SECRET_RE.sub("[REDACTED]", str(text))
+    """Remove credential-shaped substrings and e-mail addresses from text.
+
+    Every published artifact uses the *same* DLP vocabulary as outbound
+    redaction: JWTs, AWS/OpenRouter/Google/GitHub/Slack keys, PEM private keys,
+    assignment-style credentials and bearer tokens.  The local patterns below
+    only add e-mail and prose multi-word secrets, which are share-specific.
+    """
+    from .redaction import redact_text
+
+    out = redact_text(str(text))[0]
+    out = _SECRET_RE.sub("[REDACTED]", out)
     out = _ASSIGNED_SECRET_RE.sub(lambda m: f"{m.group('key')}=[REDACTED]", out)
     out = _BARE_BEARER_RE.sub("[REDACTED]", out)
+    out = _PROSE_SECRET_RE.sub("[REDACTED]", out)
     out = _EMAIL_RE.sub("[REDACTED]", out)
     return out
 
