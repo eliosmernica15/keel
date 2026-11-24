@@ -59,8 +59,13 @@ export async function openApp(
       /* storage disabled */
     }
   }, done);
-  await page.goto("/");
+  // domcontentloaded avoids waiting on the long-lived SSE response; the
+  // strict locator assertion below is the real readiness gate.
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect(page.locator(".keel-app")).toBeVisible();
+  // AppProvider sets this only after its mount effect: a force-click before
+  // hydration is silently dropped, leaving the previous surface active.
+  await page.locator("html[data-reduced-motion]").waitFor({ state: "attached" });
 }
 
 /** The BFF must actually reach the local Python bridge before we trust UI data. */
@@ -82,6 +87,9 @@ export async function gotoSidebar(page: Page, label: string): Promise<void> {
     if (!(await sidebar.evaluate((el) => el.classList.contains("is-open")))) {
       await page.getByRole("button", { name: "Toggle sidebar" }).click();
       await expect(sidebar).toHaveClass(/is-open/);
+      // The drawer animates in; wait for its transform to settle before a
+      // forced click, otherwise Chromium can report "outside of viewport".
+      await page.waitForTimeout(250);
     }
   }
   await page

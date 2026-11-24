@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24T02:37:30.339Z",
+  "generatedAt": "2026-11-24T15:21:09.703Z",
   "app": "fleet-next",
   "summary": {
     "info": 1,
@@ -75,16 +75,30 @@
   "frontendEndpoints": [
     {
       "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\features\\code\\workspace.tsx",
-      "line": 1074,
+      "line": 1077,
       "raw": "/api/fleet/shells",
       "path": "/api/fleet/shells",
       "method": "GET"
     },
     {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\features\\cowork\\Composer.tsx",
+      "line": 66,
+      "raw": "/api/bridge/library",
+      "path": "/api/fleet/library",
+      "method": "GET"
+    },
+    {
       "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\features\\fleet\\Tasks.tsx",
-      "line": 91,
+      "line": 92,
       "raw": "tasks/${id}/assign",
       "path": "/api/fleet/tasks/*/assign",
+      "method": "POST"
+    },
+    {
+      "file": "C:\\Users\\Admin\\Desktop\\keel-frontend-worktree\\keel\\fleet-next\\features\\fleet\\Tasks.tsx",
+      "line": 103,
+      "raw": "tasks/${id}/cancel",
+      "path": "/api/fleet/tasks/*/cancel",
       "method": "POST"
     },
     {
@@ -728,7 +742,7 @@
       "id": "API-01",
       "check": "Every frontend bridge call maps to a backend route",
       "status": "pass",
-      "detail": "82 call sites inspected; 0 unmapped endpoints",
+      "detail": "84 call sites inspected; 0 unmapped endpoints",
       "evidence": []
     },
     {
@@ -881,28 +895,28 @@
       "id": "E2E-01",
       "check": "Playwright end-to-end flows",
       "status": "skipped",
-      "detail": "not run by this harness: Playwright 1.65.1 is installed by another workstream (tests/e2e), but QA does not own or execute that suite",
+      "detail": "not run by this static harness; real coverage lives in tests/e2e/** (Playwright 1.65.1 devDependency), executed separately by continuous QA",
       "evidence": []
     },
     {
       "id": "VIS-01",
       "check": "Visual regression screenshots at 6 viewports",
       "status": "skipped",
-      "detail": "no visual-regression baseline exists; see verify-viewports.mjs for read-only overflow measurements at 6 viewports",
+      "detail": "no pixel-diff baseline exists; 72 real screenshots at 6 viewports x 6 destinations x 2 themes are captured by tests/e2e/09-theme-viewports.spec.ts and inspected via contact sheets",
       "evidence": []
     },
     {
       "id": "A11Y-06",
       "check": "Runtime a11y tree / keyboard walkthrough / contrast",
       "status": "skipped",
-      "detail": "static source analysis cannot compute computed styles or focus order; in-app browser was disconnected during the QA audit",
+      "detail": "static source analysis cannot compute computed styles; real measurements are in tests/a11y/** and docs/UI-ACCESSIBILITY-AUDIT.md (note: light-theme AA contrast fails)",
       "evidence": []
     },
     {
       "id": "PERF-01",
       "check": "Runtime virtualization / streaming re-render profiling",
       "status": "skipped",
-      "detail": "requires a running browser with a live model turn; no provider credentials on this host",
+      "detail": "live model turn needs provider credentials (none on this host); large-data rerender/stress coverage is in tests/e2e/08-stress.spec.ts",
       "evidence": []
     }
   ]

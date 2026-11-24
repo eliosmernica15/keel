@@ -38,7 +38,11 @@ function walk(dir, acc = []) {
   catch { return acc; }
   for (const e of entries) {
     if (e.isDirectory()) {
-      if (!IGNORE_DIRS.has(e.name)) walk(path.join(dir, e.name), acc);
+      // Every Next distDir variant (.next, .next-e2e, .next-a11y,
+      // .next-caps-settings, …) is generated output, never source. Strings in
+      // bundles produce false endpoint/TODO findings if scanned.
+      const generatedNextDir = /^\.next(?:[-_.]|$)/i.test(e.name);
+      if (!IGNORE_DIRS.has(e.name) && !generatedNextDir) walk(path.join(dir, e.name), acc);
     } else if (SRC_EXTS.has(path.extname(e.name))) {
       acc.push(path.join(dir, e.name));
     }
@@ -536,10 +540,10 @@ check("FAB-02", "Permission-mode preference is consumed by the Cowork composer",
 // 6. SKIPPED browser-only checks (never claim what was not run)
 // ---------------------------------------------------------------------------
 for (const [id, name, why] of [
-  ["E2E-01", "Playwright end-to-end flows", "not run by this harness: Playwright 1.65.1 is installed by another workstream (tests/e2e), but QA does not own or execute that suite"],
-  ["VIS-01", "Visual regression screenshots at 6 viewports", "no visual-regression baseline exists; see verify-viewports.mjs for read-only overflow measurements at 6 viewports"],
-  ["A11Y-06", "Runtime a11y tree / keyboard walkthrough / contrast", "static source analysis cannot compute computed styles or focus order; in-app browser was disconnected during the QA audit"],
-  ["PERF-01", "Runtime virtualization / streaming re-render profiling", "requires a running browser with a live model turn; no provider credentials on this host"],
+  ["E2E-01", "Playwright end-to-end flows", "not run by this static harness; real coverage lives in tests/e2e/** (Playwright 1.65.1 devDependency), executed separately by continuous QA"],
+  ["VIS-01", "Visual regression screenshots at 6 viewports", "no pixel-diff baseline exists; 72 real screenshots at 6 viewports x 6 destinations x 2 themes are captured by tests/e2e/09-theme-viewports.spec.ts and inspected via contact sheets"],
+  ["A11Y-06", "Runtime a11y tree / keyboard walkthrough / contrast", "static source analysis cannot compute computed styles; real measurements are in tests/a11y/** and docs/UI-ACCESSIBILITY-AUDIT.md (note: light-theme AA contrast fails)"],
+  ["PERF-01", "Runtime virtualization / streaming re-render profiling", "live model turn needs provider credentials (none on this host); large-data rerender/stress coverage is in tests/e2e/08-stress.spec.ts"],
 ]) check(id, name, "skipped", why);
 
 // ---------------------------------------------------------------------------
