@@ -1,0 +1,1776 @@
+/* ==========================================================================
+   KEEL — Editorial Article Stylesheet
+   Anthropic-style editorial page, rebranded for KEEL.
+   --------------------------------------------------------------------------
+   Scope: every rule is prefixed with a .ks-* class (or body.ks-body) so this
+   file cannot leak into the rest of the site.
+
+   Table of contents
+     1.  Fonts & custom properties
+     2.  Reset & base
+     3.  Utilities & accessibility
+     4.  Layout primitives
+     5.  Header (sticky, translucent, mega menu, mobile)
+     6.  Search overlay
+     7.  Article head (eyebrow, title, deck, byline, hero art)
+     8.  Article grid + right-hand TOC
+     9.  Prose typography
+     10. Figures
+     11. Code blocks & copy button
+     12. Quotes, callouts, steps, checklists, links
+     13. Related articles
+     14. Footer (CTA, newsletter, link columns, bottom bar)
+     15. Back-to-top button
+     16. Responsive breakpoints
+     17. Reduced motion
+   ========================================================================== */
+
+/* ==========================================================================
+   1. Fonts & custom properties
+   ========================================================================== */
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/ui/fonts/space-grotesk-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/ui/fonts/inter-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/ui/fonts/jetbrains-mono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Palette */
+  --ks-paper: #f7f6f2;
+  --ks-paper-warm: #faf9f6;
+  --ks-band: #efeee9;
+  --ks-white: #ffffff;
+  --ks-ink: #191919;
+  --ks-body-ink: #3a3a38;
+  --ks-muted: #6b6b6b;
+  --ks-muted-2: #8a8a84;
+  --ks-hairline: #e6e4dc;
+  --ks-hairline-strong: #d8d5c9;
+  --ks-dark: #141413;
+  --ks-dark-soft: #1e1e1c;
+  --ks-dark-muted: #9a9a94;
+  --ks-accent: #e6d54c;
+  --ks-accent-soft: #f6f0c8;
+  --ks-coral: #e8a187;
+  --ks-peach: #f2cdb4;
+
+  /* Typography */
+  --ks-font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --ks-font-editorial: Georgia, "Times New Roman", "Space Grotesk", serif;
+  --ks-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --ks-font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  /* Metrics */
+  --ks-container: 1120px;
+  --ks-prose: 680px;
+  --ks-toc-w: 200px;
+  --ks-gap: 64px;
+  --ks-header-h: 64px;
+  --ks-radius: 10px;
+  --ks-radius-sm: 6px;
+
+  /* Effects */
+  --ks-shadow-sm: 0 1px 2px rgba(20, 20, 19, 0.06), 0 2px 8px rgba(20, 20, 19, 0.04);
+  --ks-shadow-md: 0 10px 30px rgba(20, 20, 19, 0.10), 0 2px 8px rgba(20, 20, 19, 0.06);
+  --ks-shadow-lg: 0 18px 50px rgba(20, 20, 19, 0.16);
+  --ks-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ==========================================================================
+   2. Reset & base
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--ks-header-h) + 32px);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body.ks-body {
+  margin: 0;
+  background: var(--ks-paper);
+  color: var(--ks-ink);
+  font-family: var(--ks-font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body.ks-body a {
+  color: inherit;
+  text-decoration: none;
+}
+
+body.ks-body button,
+body.ks-body input,
+body.ks-body select,
+body.ks-body textarea {
+  font: inherit;
+  color: inherit;
+}
+
+body.ks-body button {
+  cursor: pointer;
+}
+
+body.ks-body img {
+  max-width: 100%;
+}
+
+body.ks-body h1,
+body.ks-body h2,
+body.ks-body h3,
+body.ks-body h4,
+body.ks-body p,
+body.ks-body ul,
+body.ks-body ol,
+body.ks-body figure,
+body.ks-body blockquote,
+body.ks-body pre {
+  margin: 0;
+}
+
+body.ks-body ul,
+body.ks-body ol {
+  padding: 0;
+  list-style: none;
+}
+
+/* ==========================================================================
+   3. Utilities & accessibility
+   ========================================================================== */
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.ks-skip {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 2000;
+  transform: translateY(-160%);
+  padding: 10px 16px;
+  background: var(--ks-dark);
+  color: var(--ks-white);
+  border-radius: var(--ks-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: var(--ks-shadow-md);
+  transition: transform 0.16s var(--ks-ease);
+}
+
+.ks-skip:focus {
+  transform: translateY(0);
+}
+
+body.ks-body :focus-visible {
+  outline: 2px solid var(--ks-accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   4. Layout primitives
+   ========================================================================== */
+
+.ks-container {
+  width: 100%;
+  max-width: var(--ks-container);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.ks-main {
+  display: block;
+  min-height: 60vh;
+}
+
+.ks-article {
+  display: block;
+  padding-block: 48px 96px;
+}
+
+/* ==========================================================================
+   5. Header (sticky, translucent, mega menu, mobile)
+   ========================================================================== */
+
+header.ks-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: var(--ks-header-h);
+  background: rgba(247, 246, 242, 0.82);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border-bottom: 1px solid var(--ks-hairline);
+}
+
+.ks-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  height: 100%;
+  max-width: var(--ks-container);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+/* Brand */
+.ks-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  color: var(--ks-ink);
+  font-family: var(--ks-font-display);
+  font-weight: 400;
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+}
+
+.ks-brand:hover {
+  color: var(--ks-ink);
+}
+
+.ks-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--ks-dark);
+  color: var(--ks-accent);
+  font-family: var(--ks-font-display);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+/* Desktop nav */
+.ks-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 1 1 auto;
+}
+
+.ks-nav-group {
+  position: relative;
+  display: inline-flex;
+}
+
+.ks-nav-btn,
+.ks-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--ks-radius-sm);
+  background: transparent;
+  color: var(--ks-body-ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 0.16s var(--ks-ease), color 0.16s var(--ks-ease);
+}
+
+.ks-nav-btn:hover,
+.ks-nav-link:hover,
+.ks-nav-group:hover > .ks-nav-btn {
+  background: rgba(20, 20, 19, 0.05);
+  color: var(--ks-ink);
+}
+
+.ks-chevron {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  transition: transform 0.18s var(--ks-ease);
+}
+
+.ks-nav-group:hover .ks-chevron,
+.ks-nav-group[aria-expanded="true"] .ks-chevron {
+  transform: rotate(180deg);
+}
+
+/* Mega dropdown */
+.ks-mega {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  z-index: 1100;
+  transform: translateX(-50%) translateY(-6px);
+  width: min(860px, calc(100vw - 48px));
+  padding: 28px 32px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px 28px;
+  background: var(--ks-white);
+  border: 1px solid var(--ks-hairline);
+  border-radius: 14px;
+  box-shadow: var(--ks-shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.18s var(--ks-ease), transform 0.18s var(--ks-ease), visibility 0.18s;
+}
+
+/* Hidden attribute always wins. */
+.ks-mega[hidden] {
+  display: none !important;
+}
+
+/* Keyboard/JS-driven open state, plus hover fallback. Never override [hidden]. */
+.ks-mega:not([hidden]),
+.ks-nav-group:hover .ks-mega:not([hidden]),
+.ks-nav-group:focus-within .ks-mega:not([hidden]) {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Invisible hover bridge keeps the panel open between trigger and card. */
+.ks-mega::before {
+  content: "";
+  position: absolute;
+  top: -16px;
+  left: 0;
+  right: 0;
+  height: 16px;
+}
+
+.ks-mega-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ks-mega-h {
+  margin-bottom: 8px;
+  color: var(--ks-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.ks-mega-link {
+  display: block;
+  padding: 6px 8px;
+  margin-inline: -8px;
+  border-radius: var(--ks-radius-sm);
+  color: var(--ks-body-ink);
+  font-size: 0.875rem;
+  line-height: 1.35;
+  transition: background-color 0.16s var(--ks-ease), color 0.16s var(--ks-ease);
+}
+
+.ks-mega-link:hover {
+  background: var(--ks-accent-soft);
+  color: var(--ks-ink);
+}
+
+/* Header actions */
+.ks-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.ks-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--ks-radius-sm);
+  background: transparent;
+  color: var(--ks-body-ink);
+  transition: background-color 0.16s var(--ks-ease), border-color 0.16s var(--ks-ease);
+}
+
+.ks-icon-btn:hover {
+  background: rgba(20, 20, 19, 0.05);
+  border-color: var(--ks-hairline);
+}
+
+.ks-icon-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.ks-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--ks-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform 0.16s var(--ks-ease), background-color 0.16s var(--ks-ease),
+    color 0.16s var(--ks-ease), border-color 0.16s var(--ks-ease), box-shadow 0.16s var(--ks-ease);
+}
+
+.ks-btn:hover {
+  transform: translateY(-1px);
+}
+
+.ks-btn-dark {
+  background: var(--ks-dark);
+  color: var(--ks-white);
+  border-color: var(--ks-dark);
+}
+
+.ks-btn-dark:hover {
+  background: #000000;
+  color: var(--ks-white);
+  box-shadow: 0 4px 12px rgba(20, 20, 19, 0.18);
+}
+
+/* anchor elements inherit body colour — restore button contrast */
+body.ks-body a.ks-btn-dark,
+body.ks-body a.ks-btn-dark:hover {
+  color: var(--ks-white);
+}
+
+body.ks-body a.ks-btn-light,
+body.ks-body a.ks-btn-light:hover {
+  color: var(--ks-ink);
+}
+
+.ks-btn-light {
+  background: var(--ks-white);
+  color: var(--ks-ink);
+  border-color: var(--ks-hairline-strong);
+}
+
+.ks-btn-light:hover {
+  background: var(--ks-accent-soft);
+  color: var(--ks-ink);
+  border-color: var(--ks-accent);
+}
+
+/* Mobile */
+.ks-menu-toggle {
+  display: none;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ks-hairline);
+  border-radius: var(--ks-radius-sm);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ks-ink);
+}
+
+.ks-menu-toggle svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.ks-mobile-menu {
+  position: absolute;
+  top: var(--ks-header-h);
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 24px 20px;
+  background: var(--ks-paper-warm);
+  border-bottom: 1px solid var(--ks-hairline);
+  box-shadow: var(--ks-shadow-md);
+  max-height: calc(100vh - var(--ks-header-h));
+  overflow-y: auto;
+}
+
+.ks-mobile-menu a {
+  display: block;
+  padding: 11px 8px;
+  border-radius: var(--ks-radius-sm);
+  color: var(--ks-body-ink);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.ks-mobile-menu a:hover {
+  background: var(--ks-white);
+  color: var(--ks-ink);
+}
+
+/* ==========================================================================
+   6. Search overlay
+   ========================================================================== */
+
+.ks-search {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 24px 24px;
+  background: rgba(20, 20, 19, 0.45);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  overflow-y: auto;
+}
+
+.ks-search[hidden] {
+  display: none !important;
+}
+
+.ks-search-inner {
+  width: 100%;
+  max-width: 640px;
+  background: var(--ks-paper-warm);
+  border: 1px solid var(--ks-hairline);
+  border-radius: 14px;
+  box-shadow: var(--ks-shadow-lg);
+  overflow: hidden;
+}
+
+.ks-search-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--ks-hairline);
+}
+
+.ks-search-form svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  color: var(--ks-muted);
+}
+
+#ks-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ks-ink);
+  font-size: 1.05rem;
+  outline: none;
+}
+
+#ks-search-input::placeholder {
+  color: var(--ks-muted-2);
+}
+
+.ks-search-close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--ks-hairline);
+  border-radius: var(--ks-radius-sm);
+  background: var(--ks-white);
+  color: var(--ks-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.ks-search-close:hover {
+  color: var(--ks-ink);
+  border-color: var(--ks-hairline-strong);
+}
+
+.ks-search-results {
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.ks-search-result {
+  display: block;
+  padding: 12px 14px;
+  border-radius: var(--ks-radius-sm);
+  color: var(--ks-body-ink);
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.ks-search-result:hover,
+.ks-search-result:focus-visible {
+  background: var(--ks-white);
+  color: var(--ks-ink);
+}
+
+.ks-search-result strong {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: var(--ks-ink);
+}
+
+.ks-search-result span {
+  color: var(--ks-muted);
+  font-size: 0.8125rem;
+}
+
+.ks-search-empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--ks-muted);
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   7. Article head (eyebrow, title, deck, byline, hero art)
+   ========================================================================== */
+
+.ks-article-head {
+  max-width: var(--ks-prose);
+  margin: 0 0 56px;
+  text-align: left;
+}
+
+.ks-hero-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  margin: 0 0 28px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, var(--ks-peach), var(--ks-coral));
+  box-shadow: inset 0 0 0 1px rgba(20, 20, 19, 0.05), var(--ks-shadow-sm);
+  overflow: hidden;
+}
+
+.ks-hero-art svg,
+.ks-hero-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ks-eyebrow {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: var(--ks-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ks-title {
+  font-family: var(--ks-font-editorial);
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: var(--ks-ink);
+  margin-bottom: 20px;
+}
+
+.ks-deck {
+  max-width: 620px;
+  margin: 0 0 28px;
+  color: var(--ks-muted);
+  font-size: 1.25rem;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+
+.ks-byline {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--ks-muted);
+  font-size: 0.875rem;
+}
+
+.ks-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--ks-dark);
+  color: var(--ks-accent);
+  font-family: var(--ks-font-display);
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.ks-byline strong {
+  color: var(--ks-ink);
+  font-weight: 600;
+}
+
+.ks-sep {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--ks-hairline-strong);
+  vertical-align: middle;
+}
+
+/* ==========================================================================
+   8. Article grid + right-hand TOC
+   ========================================================================== */
+
+.ks-article-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--ks-toc-w);
+  gap: var(--ks-gap);
+  align-items: start;
+  max-width: none;
+  width: 100%;
+  margin-inline: 0;
+}
+
+aside.ks-toc {
+  position: sticky;
+  top: 96px;
+  align-self: start;
+  grid-column: 2;
+  grid-row: 1;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-left: 18px;
+  border-left: 1px solid var(--ks-hairline);
+}
+
+.ks-toc-title {
+  margin-bottom: 14px;
+  color: var(--ks-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+nav.ks-toc-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+nav.ks-toc-nav a {
+  position: relative;
+  display: block;
+  padding: 6px 6px 6px 12px;
+  margin-left: -19px;
+  border-left: 2px solid transparent;
+  color: var(--ks-muted);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  transition: color 0.16s var(--ks-ease), background-color 0.16s var(--ks-ease),
+    border-color 0.16s var(--ks-ease);
+}
+
+nav.ks-toc-nav a:hover {
+  color: var(--ks-ink);
+  background: rgba(20, 20, 19, 0.03);
+}
+
+nav.ks-toc-nav a.is-active {
+  color: var(--ks-ink);
+  font-weight: 600;
+  border-left-color: var(--ks-accent);
+}
+
+/* ==========================================================================
+   9. Prose typography
+   ========================================================================== */
+
+div.ks-prose {
+  min-width: 0;
+  max-width: var(--ks-prose);
+  grid-column: 1;
+  grid-row: 1;
+  color: var(--ks-body-ink);
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+.ks-section {
+  scroll-margin-top: calc(var(--ks-header-h) + 32px);
+}
+
+.ks-section + .ks-section {
+  margin-top: 8px;
+}
+
+.ks-prose h2 {
+  margin-top: 56px;
+  margin-bottom: 16px;
+  color: var(--ks-ink);
+  font-family: var(--ks-font-display);
+  font-size: 1.875rem;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.ks-prose h2:first-child {
+  margin-top: 0;
+}
+
+.ks-prose h3 {
+  margin-top: 36px;
+  margin-bottom: 12px;
+  color: var(--ks-ink);
+  font-family: var(--ks-font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.ks-prose p {
+  color: var(--ks-body-ink);
+  margin-bottom: 24px;
+}
+
+.ks-prose p:last-child {
+  margin-bottom: 0;
+}
+
+.ks-prose strong {
+  color: var(--ks-ink);
+  font-weight: 600;
+}
+
+.ks-prose a,
+.ks-prose .ks-link {
+  color: var(--ks-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--ks-hairline-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: background-color 0.16s var(--ks-ease), text-decoration-color 0.16s var(--ks-ease);
+}
+
+.ks-prose a:hover,
+.ks-link:hover {
+  background: var(--ks-accent-soft);
+  text-decoration-color: var(--ks-accent);
+}
+
+.ks-prose code {
+  padding: 2px 5px;
+  border: 1px solid var(--ks-hairline);
+  border-radius: 4px;
+  background: #f0efe9;
+  color: var(--ks-ink);
+  font-family: var(--ks-font-mono);
+  font-size: 0.86em;
+  white-space: nowrap;
+}
+
+.ks-prose ul,
+.ks-prose ol {
+  margin: 0 0 24px;
+  padding-left: 1.4em;
+}
+
+.ks-prose ul {
+  list-style: disc;
+}
+
+.ks-prose ol {
+  list-style: decimal;
+}
+
+.ks-prose li {
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.ks-prose li::marker {
+  color: var(--ks-muted);
+}
+
+.ks-prose li > ul,
+.ks-prose li > ol {
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   10. Figures
+   ========================================================================== */
+
+.ks-figure {
+  width: 100%;
+  margin: 36px 0;
+  border: 1px solid var(--ks-hairline);
+  border-radius: var(--ks-radius);
+  background: var(--ks-white);
+  overflow: hidden;
+}
+
+.ks-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ks-figure figcaption {
+  padding: 12px 16px;
+  border-top: 1px solid var(--ks-hairline);
+  background: var(--ks-paper-warm);
+  color: var(--ks-muted);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+/* ==========================================================================
+   11. Code blocks & copy button
+   ========================================================================== */
+
+pre.ks-code {
+  position: relative;
+  margin: 32px 0;
+  padding: 20px 22px;
+  border: 1px solid #2a2a28;
+  border-radius: var(--ks-radius);
+  background: var(--ks-dark);
+  color: #e8e8e2;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  box-shadow: var(--ks-shadow-sm);
+}
+
+.ks-code code {
+  display: block;
+  font-family: var(--ks-font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  white-space: pre;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+}
+
+button.ks-copy {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  padding: 5px 10px;
+  border: 1px solid #3a3a37;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #c9c9c2;
+  font-family: var(--ks-font-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1;
+  transition: background-color 0.16s var(--ks-ease), color 0.16s var(--ks-ease),
+    border-color 0.16s var(--ks-ease);
+}
+
+button.ks-copy:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: #55554f;
+}
+
+button.ks-copy.copied {
+  background: var(--ks-accent);
+  color: var(--ks-dark);
+  border-color: var(--ks-accent);
+}
+
+button.ks-copy:focus-visible {
+  outline-color: var(--ks-accent);
+}
+
+/* ==========================================================================
+   12. Quotes, callouts, steps, checklists, links
+   ========================================================================== */
+
+.ks-quote {
+  margin: 32px 0;
+  padding: 16px 22px;
+  border-left: 3px solid var(--ks-accent);
+  border-radius: 0 var(--ks-radius-sm) var(--ks-radius-sm) 0;
+  background: var(--ks-paper-warm);
+  color: var(--ks-body-ink);
+  font-family: var(--ks-font-editorial);
+  font-size: 1.2rem;
+  font-style: italic;
+  line-height: 1.55;
+}
+
+.ks-quote cite,
+.ks-quote footer {
+  display: block;
+  margin-top: 10px;
+  color: var(--ks-muted);
+  font-family: var(--ks-font-body);
+  font-size: 0.8125rem;
+  font-style: normal;
+}
+
+.ks-callout {
+  margin: 32px 0;
+  padding: 20px 22px;
+  border: 1px solid #e4d67a;
+  border-radius: var(--ks-radius);
+  background: #fbf6d9;
+  color: var(--ks-ink);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.ks-callout strong {
+  font-weight: 600;
+}
+
+.ks-callout p {
+  margin-bottom: 0;
+}
+
+/* Numbered steps — badges provide the number, not CSS counters. */
+ol.ks-steps {
+  margin: 28px 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+ol.ks-steps li {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-left: 0;
+}
+
+ol.ks-steps li::marker {
+  content: "";
+}
+
+.ks-step-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  margin-top: 3px;
+  border: 1px solid var(--ks-hairline-strong);
+  border-radius: 50%;
+  background: var(--ks-white);
+  color: var(--ks-ink);
+  font-family: var(--ks-font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* Checklist with custom check marks. */
+ul.ks-checklist {
+  margin: 28px 0;
+  padding: 0;
+  list-style: none;
+}
+
+ul.ks-checklist li {
+  position: relative;
+  padding-left: 34px;
+  margin-bottom: 12px;
+}
+
+ul.ks-checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.42em;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ks-accent);
+}
+
+ul.ks-checklist li::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: calc(0.42em + 5px);
+  width: 5px;
+  height: 9px;
+  border: solid var(--ks-dark);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Standalone link class */
+.ks-link {
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   13. Related articles
+   ========================================================================== */
+
+section.ks-related {
+  margin-top: 24px;
+  padding: 64px 0 72px;
+  background: var(--ks-band);
+  border-top: 1px solid var(--ks-hairline);
+}
+
+.ks-related .ks-container {
+  max-width: var(--ks-container);
+}
+
+.ks-related-title {
+  margin-bottom: 28px;
+  color: var(--ks-ink);
+  font-family: var(--ks-font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.ks-related-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+a.ks-related-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0 0 16px;
+  border: 1px solid var(--ks-hairline);
+  border-radius: var(--ks-radius);
+  background: var(--ks-white);
+  color: var(--ks-ink);
+  transition: transform 0.18s var(--ks-ease), box-shadow 0.18s var(--ks-ease),
+    border-color 0.18s var(--ks-ease);
+}
+
+a.ks-related-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ks-shadow-md);
+  border-color: var(--ks-hairline-strong);
+}
+
+.ks-related-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: #e9e7df;
+  border-bottom: 1px solid var(--ks-hairline);
+}
+
+.ks-related-tag {
+  display: inline-block;
+  align-self: flex-start;
+  margin: 14px 16px 6px;
+  color: var(--ks-muted);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ks-related-card h3 {
+  margin: 0 16px 6px;
+  font-family: var(--ks-font-display);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--ks-ink);
+}
+
+.ks-related-card p {
+  margin: 0 16px;
+  color: var(--ks-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.ks-read {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 14px 16px 0;
+  color: var(--ks-ink);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid var(--ks-accent);
+  padding-bottom: 2px;
+  align-self: flex-start;
+  transition: background-color 0.16s var(--ks-ease);
+}
+
+.ks-read:hover {
+  background: var(--ks-accent-soft);
+}
+
+/* ==========================================================================
+   14. Footer (CTA, newsletter, link columns, bottom bar)
+   ========================================================================== */
+
+footer.ks-footer {
+  background: var(--ks-dark);
+  color: #e8e8e2;
+  padding: 64px 0 0;
+  font-size: 0.875rem;
+}
+
+.ks-footer .ks-container {
+  max-width: var(--ks-container);
+}
+
+.ks-footer-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid #30302e;
+}
+
+.ks-footer-cta h2,
+.ks-footer-cta h3 {
+  margin-bottom: 12px;
+  color: var(--ks-white);
+  font-family: var(--ks-font-display);
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.ks-footer-cta p {
+  max-width: 440px;
+  color: var(--ks-dark-muted);
+  line-height: 1.6;
+}
+
+.ks-footer-cta .ks-btn {
+  margin-top: 20px;
+}
+
+.ks-newsletter {
+  padding-left: 48px;
+  border-left: 1px solid #30302e;
+}
+
+.ks-news-h {
+  margin-bottom: 6px;
+  color: var(--ks-white);
+  font-family: var(--ks-font-display);
+  font-size: 1.125rem;
+  font-weight: 400;
+}
+
+.ks-news-sub {
+  margin-bottom: 18px;
+  color: var(--ks-dark-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+form.ks-news-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#ks-email {
+  flex: 1 1 240px;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1px solid #3a3a37;
+  border-radius: var(--ks-radius-sm);
+  background: var(--ks-dark-soft);
+  color: var(--ks-white);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.16s var(--ks-ease), box-shadow 0.16s var(--ks-ease);
+}
+
+#ks-email::placeholder {
+  color: var(--ks-dark-muted);
+}
+
+#ks-email:focus {
+  border-color: var(--ks-accent);
+  box-shadow: 0 0 0 3px rgba(230, 213, 76, 0.18);
+}
+
+.ks-news-form button {
+  flex: 0 0 auto;
+  padding: 11px 18px;
+  border: 1px solid var(--ks-accent);
+  border-radius: var(--ks-radius-sm);
+  background: var(--ks-accent);
+  color: var(--ks-dark);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background-color 0.16s var(--ks-ease), color 0.16s var(--ks-ease);
+}
+
+.ks-news-form button:hover {
+  background: var(--ks-white);
+  color: var(--ks-dark);
+  border-color: var(--ks-white);
+}
+
+.ks-news-msg {
+  min-height: 1.2em;
+  margin-top: 10px;
+  color: var(--ks-dark-muted);
+  font-size: 0.8125rem;
+}
+
+.ks-news-msg.is-error {
+  color: #f0a89a;
+}
+
+.ks-news-msg.is-ok {
+  color: var(--ks-accent);
+}
+
+/* Footer link columns */
+.ks-footer-cols {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 32px;
+  padding: 44px 0;
+  border-bottom: 1px solid #30302e;
+}
+
+.ks-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ks-footer-col h4,
+.ks-footer-col .ks-mega-h {
+  margin: 0 0 4px;
+  color: var(--ks-dark-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ks-footer-col a {
+  color: #c9c9c2;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  transition: color 0.16s var(--ks-ease);
+}
+
+.ks-footer-col a:hover {
+  color: var(--ks-white);
+  text-decoration: underline;
+  text-decoration-color: var(--ks-accent);
+  text-underline-offset: 3px;
+}
+
+/* Bottom bar */
+.ks-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  padding: 22px 0 28px;
+  color: var(--ks-dark-muted);
+  font-size: 0.8125rem;
+}
+
+.ks-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ks-white);
+  font-family: var(--ks-font-display);
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.ks-footer-brand .ks-brand-mark {
+  width: 24px;
+  height: 24px;
+  font-size: 0.85rem;
+}
+
+.ks-social {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ks-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #30302e;
+  border-radius: var(--ks-radius-sm);
+  color: var(--ks-dark-muted);
+  transition: color 0.16s var(--ks-ease), border-color 0.16s var(--ks-ease),
+    background-color 0.16s var(--ks-ease);
+}
+
+.ks-social a:hover {
+  color: var(--ks-white);
+  border-color: var(--ks-accent);
+  background: rgba(230, 213, 76, 0.08);
+}
+
+.ks-social svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.ks-lang {
+  padding: 6px 10px;
+  border: 1px solid #3a3a37;
+  border-radius: var(--ks-radius-sm);
+  background: var(--ks-dark-soft);
+  color: #c9c9c2;
+  font-size: 0.8125rem;
+}
+
+.ks-lang:focus {
+  border-color: var(--ks-accent);
+  outline: none;
+}
+
+/* ==========================================================================
+   15. Back-to-top button
+   ========================================================================== */
+
+button.ks-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--ks-hairline-strong);
+  border-radius: 50%;
+  background: var(--ks-white);
+  color: var(--ks-ink);
+  box-shadow: var(--ks-shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px) scale(0.9);
+  transition: opacity 0.2s var(--ks-ease), transform 0.2s var(--ks-ease),
+    background-color 0.16s var(--ks-ease), color 0.16s var(--ks-ease);
+}
+
+button.ks-to-top.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+button.ks-to-top:hover {
+  transform: translateY(-2px) scale(1.06);
+  background: var(--ks-accent);
+  color: var(--ks-dark);
+}
+
+button.ks-to-top svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* ==========================================================================
+   16. Responsive breakpoints
+   ========================================================================== */
+
+/* --- Tablet / small desktop --- */
+@media (max-width: 1040px) {
+  :root {
+    --ks-gap: 40px;
+    --ks-toc-w: 180px;
+  }
+
+  .ks-related-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ks-footer-cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ks-mega {
+    width: min(720px, calc(100vw - 48px));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* --- Mobile / nav collapse --- */
+@media (max-width: 900px) {
+  .ks-nav {
+    display: none !important;
+  }
+
+  .ks-menu-toggle {
+    display: inline-flex;
+  }
+
+  .ks-header-actions .ks-btn {
+    display: none;
+  }
+
+  .ks-article-grid {
+    display: block;
+    max-width: var(--ks-prose);
+  }
+
+  aside.ks-toc {
+    position: static;
+    max-height: none;
+    margin: 0 0 36px;
+    padding: 16px 18px;
+    border: 1px solid var(--ks-hairline);
+    border-radius: var(--ks-radius);
+    background: var(--ks-paper-warm);
+  }
+
+  nav.ks-toc-nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+  }
+
+  nav.ks-toc-nav a {
+    margin-left: 0;
+    padding: 4px 8px;
+    border-left: 0;
+    border-radius: var(--ks-radius-sm);
+    font-size: 0.8125rem;
+  }
+
+  nav.ks-toc-nav a.is-active {
+    background: var(--ks-accent-soft);
+    border-left: 0;
+  }
+
+  .ks-hero-art {
+    width: 76px;
+    height: 76px;
+  }
+
+  .ks-title {
+    font-size: clamp(2rem, 7vw, 2.5rem);
+  }
+
+  .ks-deck {
+    font-size: 1.1rem;
+  }
+
+  .ks-footer-top {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .ks-newsletter {
+    padding-left: 0;
+    border-left: 0;
+    padding-top: 36px;
+    border-top: 1px solid #30302e;
+  }
+}
+
+/* --- Small phones --- */
+@media (max-width: 620px) {
+  .ks-container,
+  .ks-header-inner {
+    padding-inline: 18px;
+  }
+
+  .ks-article {
+    padding-block: 32px 72px;
+  }
+
+  .ks-article-head {
+    margin-bottom: 40px;
+  }
+
+  div.ks-prose {
+    font-size: 1.08rem;
+  }
+
+  .ks-prose h2 {
+    margin-top: 44px;
+    font-size: 1.65rem;
+  }
+
+  .ks-prose h3 {
+    font-size: 1.15rem;
+  }
+
+  .ks-related-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ks-footer-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 20px;
+  }
+
+  .ks-footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ks-byline {
+    font-size: 0.8125rem;
+  }
+
+  .ks-mega {
+    display: none !important;
+  }
+
+  .ks-search {
+    padding: 8vh 16px 16px;
+  }
+}
+
+/* --- Very narrow --- */
+@media (max-width: 420px) {
+  .ks-related-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ks-footer-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .ks-search-inner {
+    border-radius: 10px;
+  }
+
+  button.ks-to-top {
+    right: 16px;
+    bottom: 16px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ==========================================================================
+   17. Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  body.ks-body *,
+  body.ks-body *::before,
+  body.ks-body *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  a.ks-related-card:hover,
+  .ks-btn:hover,
+  button.ks-to-top:hover {
+    transform: none !important;
+  }
+}

@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Introducing Keel Code | Keel</title>
+  <meta name="description" content="Keel Code is the terminal-native agent that pairs with you on real work, reads your workspace, respects permission gates, and records every run as a replayable session." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/resources/articles/introducing-keel-code" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Introducing Keel Code | Keel" />
+  <meta property="og:description" content="Keel Code is the terminal-native agent that pairs with you on real work, reads your workspace, respects permission gates, and records every run as a replayable session." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/resources/articles/introducing-keel-code" />
+  <meta property="og:image" content="https://keel-desktop.vercel.app/assets/img/article/ks-og.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Introducing Keel Code | Keel" />
+  <meta name="twitter:description" content="Keel Code is the terminal-native agent that pairs with you on real work, reads your workspace, respects permission gates, and records every run as a replayable session." />
+  <meta name="twitter:image" content="https://keel-desktop.vercel.app/assets/img/article/ks-og.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f7f6f2" />
+  <link rel="stylesheet" href="/ui/article.css" />
+  <script src="/ui/article.js" defer></script>
+</head>
+<body class="ks-body">
+  <a class="ks-skip" href="#ks-main">Skip to content</a>
+
+  <!-- ===================== header ===================== -->
+  <header class="ks-header" id="ks-header">
+    <div class="ks-header-inner ks-container">
+      <a class="ks-brand" href="/" aria-label="Keel home">
+        <img class="ks-brand-mark" src="/assets/img/article/ks-mark.svg" alt="" width="26" height="26" />
+        <span>Keel</span>
+      </a>
+
+      <nav class="ks-nav" id="ks-nav" aria-label="Primary">
+        <div class="ks-nav-group" data-menu="products">
+          <button class="ks-nav-btn" type="button" aria-expanded="false" aria-controls="ks-menu-products">
+            Products
+            <svg class="ks-chevron" viewBox="0 0 12 8" width="10" height="7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5 11 1.5" /></svg>
+          </button>
+          <div class="ks-mega" id="ks-menu-products" hidden>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">Platform</p>
+              <a class="ks-mega-link" href="/product-overview">Keel</a>
+              <a class="ks-mega-link" href="/product/keel-code">Keel Code</a>
+              <a class="ks-mega-link" href="/roadmap">Keel Ship</a>
+              <a class="ks-mega-link" href="/product/keel-duet">Keel Duet</a>
+              <a class="ks-mega-link" href="/requirements">Keel Platform</a>
+            </div>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">Capabilities</p>
+              <a class="ks-mega-link" href="/product/keel-code">Terminal workflows</a>
+              <a class="ks-mega-link" href="/roadmap">Session replay</a>
+              <a class="ks-mega-link" href="/requirements">Context management</a>
+              <a class="ks-mega-link" href="/requirements">Managed agents</a>
+              <a class="ks-mega-link" href="/requirements">Fleet</a>
+            </div>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">Extensions</p>
+              <a class="ks-mega-link" href="/keel-in-chrome">Keel in Chrome</a>
+              <a class="ks-mega-link" href="/chrome-web-store">Chrome Web Store</a>
+              <a class="ks-mega-link" href="/download">Keel for desktop</a>
+              <a class="ks-mega-link" href="/app">Open the console</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="ks-nav-group" data-menu="solutions">
+          <button class="ks-nav-btn" type="button" aria-expanded="false" aria-controls="ks-menu-solutions">
+            Solutions
+            <svg class="ks-chevron" viewBox="0 0 12 8" width="10" height="7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5 11 1.5" /></svg>
+          </button>
+          <div class="ks-mega" id="ks-menu-solutions" hidden>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">By team</p>
+              <a class="ks-mega-link" href="/product/keel-code">Engineering</a>
+              <a class="ks-mega-link" href="/product-overview">Product</a>
+              <a class="ks-mega-link" href="/requirements">Research</a>
+              <a class="ks-mega-link" href="/notices">Design</a>
+            </div>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">By task</p>
+              <a class="ks-mega-link" href="/product/keel-code">Build features</a>
+              <a class="ks-mega-link" href="/roadmap">Review code</a>
+              <a class="ks-mega-link" href="/download">Automate workflows</a>
+              <a class="ks-mega-link" href="/requirements">Analyze data</a>
+            </div>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">Enterprise</p>
+              <a class="ks-mega-link" href="/#pricing">Overview</a>
+              <a class="ks-mega-link" href="/#pricing">Keel Code for Enterprise</a>
+              <a class="ks-mega-link" href="/privacy">Security and privacy</a>
+              <a class="ks-mega-link" href="/requirements">Compliance</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="ks-nav-group" data-menu="resources">
+          <button class="ks-nav-btn" type="button" aria-expanded="false" aria-controls="ks-menu-resources">
+            Resources
+            <svg class="ks-chevron" viewBox="0 0 12 8" width="10" height="7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5 11 1.5" /></svg>
+          </button>
+          <div class="ks-mega" id="ks-menu-resources" hidden>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">Learn</p>
+              <a class="ks-mega-link" href="/requirements">Documentation</a>
+              <a class="ks-mega-link" href="/notices">Articles</a>
+              <a class="ks-mega-link" href="/roadmap">Roadmap</a>
+              <a class="ks-mega-link" href="/product-overview">Product overview</a>
+            </div>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">Community</p>
+              <a class="ks-mega-link" href="/notices">News</a>
+              <a class="ks-mega-link" href="/notices">Events</a>
+              <a class="ks-mega-link" href="/notices">Changelog</a>
+              <a class="ks-mega-link" href="/notices">Customer stories</a>
+            </div>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">Get help</p>
+              <a class="ks-mega-link" href="/notices">Support centre</a>
+              <a class="ks-mega-link" href="/notices">Status</a>
+              <a class="ks-mega-link" href="/requirements">System requirements</a>
+              <a class="ks-mega-link" href="/privacy">Trust centre</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="ks-nav-group" data-menu="company">
+          <button class="ks-nav-btn" type="button" aria-expanded="false" aria-controls="ks-menu-company">
+            Company
+            <svg class="ks-chevron" viewBox="0 0 12 8" width="10" height="7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5 11 1.5" /></svg>
+          </button>
+          <div class="ks-mega" id="ks-menu-company" hidden>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">About</p>
+              <a class="ks-mega-link" href="/">About Keel</a>
+              <a class="ks-mega-link" href="/notices">Newsroom</a>
+              <a class="ks-mega-link" href="/notices">Careers</a>
+              <a class="ks-mega-link" href="/roadmap">Roadmap</a>
+            </div>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">Policies</p>
+              <a class="ks-mega-link" href="/privacy">Privacy policy</a>
+              <a class="ks-mega-link" href="/terms">Terms of service</a>
+              <a class="ks-mega-link" href="/trademark">Trademark</a>
+              <a class="ks-mega-link" href="/notices">Notices</a>
+            </div>
+            <div class="ks-mega-col">
+              <p class="ks-mega-h">Connect</p>
+              <a class="ks-mega-link" href="/download">Download Keel</a>
+              <a class="ks-mega-link" href="/app">Open the console</a>
+              <a class="ks-mega-link" href="/notices">Contact</a>
+            </div>
+          </div>
+        </div>
+
+        <a class="ks-nav-link" href="/#pricing">Pricing</a>
+      </nav>
+
+      <div class="ks-header-actions">
+        <button class="ks-icon-btn" id="ks-search-open" type="button" aria-label="Search" aria-expanded="false" aria-controls="ks-search">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5" /></svg>
+        </button>
+        <a class="ks-btn ks-btn-dark" href="/download">Download Keel</a>
+        <button class="ks-menu-toggle" id="ks-menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="ks-mobile-menu">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="ks-mobile-menu" id="ks-mobile-menu" hidden>
+      <div class="ks-container">
+        <p class="ks-mobile-h">Products</p>
+        <a href="/product-overview">Keel</a>
+        <a href="/product/keel-code">Keel Code</a>
+        <a href="/roadmap">Keel Ship</a>
+        <a href="/product/keel-duet">Keel Duet</a>
+        <p class="ks-mobile-h">Solutions</p>
+        <a href="/requirements">Engineering</a>
+        <a href="/notices">Product</a>
+        <a href="/privacy">Enterprise</a>
+        <p class="ks-mobile-h">Resources</p>
+        <a href="/requirements">Documentation</a>
+        <a href="/notices">Articles</a>
+        <a href="/roadmap">Roadmap</a>
+        <p class="ks-mobile-h">Company</p>
+        <a href="/">About Keel</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a class="ks-mobile-download" href="/download">Download Keel</a>
+      </div>
+    </div>
+
+    <div class="ks-search" id="ks-search" hidden>
+      <div class="ks-container ks-search-inner">
+        <form class="ks-search-form" id="ks-search-form" role="search">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5" /></svg>
+          <input id="ks-search-input" type="search" placeholder="Search Keel" autocomplete="off" aria-label="Search articles" />
+          <button type="button" class="ks-search-close" id="ks-search-close" aria-label="Close search">&times;</button>
+        </form>
+        <div class="ks-search-results" id="ks-search-results" aria-live="polite"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== main ===================== -->
+  <main class="ks-main" id="ks-main">
+    <article class="ks-article ks-container">
+      <header class="ks-article-head">
+        <div class="ks-hero-art"><img src="/assets/img/article/ks-hero.svg" alt="Abstract Keel Code illustration" width="96" height="96" /></div>
+        <p class="ks-eyebrow">Engineering</p>
+        <h1 class="ks-title">Introducing Keel Code</h1>
+        <p class="ks-deck">Keel Code is the terminal-native agent that pairs with you on real work — reading your workspace, respecting your boundaries, and leaving a session you can replay.</p>
+        <div class="ks-byline">
+          <span class="ks-avatar">K</span>
+          <span>By the Keel team</span>
+          <span class="ks-sep">&middot;</span>
+          <time datetime="2026-05-21">May 21, 2026</time>
+        </div>
+      </header>
+
+      <div class="ks-article-grid">
+        <aside class="ks-toc" aria-label="On this page">
+          <p class="ks-toc-title">On this page</p>
+          <nav class="ks-toc-nav" id="ks-toc">
+            <a href="#kc-partner">A partner in the terminal</a>
+            <a href="#kc-workspace">Reading your workspace</a>
+            <a href="#kc-control">Permission gates and your own keys</a>
+            <a href="#kc-sessions">Sessions you can replay</a>
+            <a href="#kc-getting-started">Getting started with keel code</a>
+            <a href="#kc-availability">Availability</a>
+          </nav>
+        </aside>
+
+        <div class="ks-prose">
+          <section id="kc-partner" class="ks-section">
+            <h2>A partner in the terminal</h2>
+            <p>Keel Code is a terminal-native agent that pairs with you on real work. It is not a chat window that happens to mention your repository — it is a collaborator that lives in the same shell where you already build, test, and ship.</p>
+            <p>Most coding assistants wait to be told exactly what to do. Keel Code starts by understanding where you are. It reads the files in front of you, the tests you run, and the conventions your team has already agreed on. Then it works in small, visible increments, pausing at the moments that matter so you stay in charge.</p>
+            <p>That pairing is the point. You keep the decisions; Keel Code keeps the typing. When a task is mechanical — a rename across twenty files, a migration, a test for an awkward edge case — it moves quickly. When a task is ambiguous, it asks, proposes a short plan, and waits for a yes. Every step lands in a session you can inspect later, so the work never disappears into a stream of scrollback.</p>
+            <p>Today we are opening Keel Code to everyone. This article walks through how it reads a project, where the permission gates sit, how to bring your own provider, and what a replayable session makes possible.</p>
+          </section>
+
+          <figure class="ks-figure">
+            <img src="/assets/img/article/ks-subagent.svg" alt="A Keel Code agent receiving a scoped task and returning an edited file" loading="lazy" />
+            <figcaption>Keel Code works in small, bounded steps that you can review as they happen.</figcaption>
+          </figure>
+
+          <section id="kc-workspace" class="ks-section">
+            <h2>Reading your workspace</h2>
+            <p>Every run begins with a read. Keel Code walks the workspace the way a new teammate would: the README, the package manifests, the test configuration, the instruction files your team keeps in the repo, and the code around the file you mentioned. It respects ignore rules and symlinks in the same way your existing tooling does, so generated output and secrets stay out of the picture.</p>
+            <p>From that reading it builds a compact model of the project — which commands are safe to run, how the pieces fit together, and what “done” looks like for the change you asked for. Because the model is rebuilt from the workspace each time, it does not go stale the way a pasted summary does. Change a test command on Tuesday and Keel Code sees the new one on Wednesday.</p>
+            <p>You can scope that reading precisely. Point it at a single directory, hand it a specific file, or tell it to stay inside a worktree. The narrower the scope, the smaller the blast radius, and the easier it is to review what came back. For larger tasks, Keel Code reads broadly but still proposes one change at a time, so you can watch the direction before it commits to a path.</p>
+          </section>
+
+          <section id="kc-control" class="ks-section">
+            <h2>Permission gates and your own keys</h2>
+            <p>An agent that can edit files and run commands needs boundaries. Keel Code ships with permission gates that are explicit, local, and under your control. Reads are allowed by default. Edits to files in the working tree are shown as a proposed patch before they are applied. Commands that touch the network, install packages, or leave the project directory require a clear yes.</p>
+            <p>Those gates are not a single on/off switch. You can allow a whole category for the length of a run, approve one action once, or deny it and move on. Denials are remembered in the session, so the agent does not ask again about something you already refused. If you want a faster loop for a trusted task, you can grant a broader scope for that session only — and it resets when the session ends.</p>
+            <p>Providers are yours to choose. Keel Code supports bring-your-own-key: point it at the provider you already use, supply your own credentials, and set your own spending limits. Credentials are stored locally and encrypted at rest, never written into a session or a prompt. Nothing is sent to a service you have not configured, and the whole workflow functions without a hosted account.</p>
+          </section>
+
+          <figure class="ks-figure">
+            <img src="/assets/img/article/ks-context.svg" alt="Context flowing from the repository, permission decisions and provider settings into a Keel Code task" loading="lazy" />
+            <figcaption>Repository context, your approvals, and your provider settings shape every run.</figcaption>
+          </figure>
+
+          <section id="kc-sessions" class="ks-section">
+            <h2>Sessions you can replay</h2>
+            <p>Every Keel Code run is recorded. A session is an ordered artifact: the prompt you gave, the context that was read, each proposed change, each tool call and its arguments, the checks that ran, and the moment you approved or denied something. It is replay in the most practical sense — you can open a finished run and step through it rather than guessing from a diff.</p>
+            <p>That record has immediate uses. Review a run before you merge. Hand a teammate the exact sequence that produced a surprising result. Branch from an earlier step with a corrected instruction instead of starting over. Sessions are plain files on your machine; they work offline and they survive a change of provider.</p>
+            <p>Because Keel Ship uses the same session format, a run you start in the CLI continues cleanly in the desktop app. The surface changes; the artifact does not.</p>
+          </section>
+
+          <figure class="ks-figure">
+            <img src="/assets/img/article/ks-replay.svg" alt="A session replay showing ordered steps, tool calls and approval decisions" loading="lazy" />
+            <figcaption>Replay keeps the <em>why</em> next to the <em>what</em>.</figcaption>
+          </figure>
+
+          <section id="kc-getting-started" class="ks-section">
+            <h2>Getting started with keel code</h2>
+            <p>Getting started takes a terminal and a repository. Install Keel Code, open a shell in your project, and run <code>keel code</code>. The CLI checks the workspace, shows which provider is active, and waits for your first instruction.</p>
+            <pre class="ks-code"><button class="ks-copy" type="button">Copy</button><code>$ cd ~/projects/atlas-api
+$ keel code
+  Keel Code · workspace: atlas-api · provider: your-key
+
+&gt; Add retry with backoff to the webhook worker
+  read   12 files · plan: 3 steps
+  edit   worker/retry.py           +18 -2   [approved]
+  run    pytest -q tests/test_webhook.py    14 passed
+  session saved → ~/.keel/sessions/2026-05-21-1042.json</code></pre>
+            <p>From there, a short loop is enough for most tasks:</p>
+            <ol class="ks-steps">
+              <li>
+                <span class="ks-step-n">1</span>
+                <div>
+                  <h3>Verify the install</h3>
+                  <p>Run <code>keel --version</code> to confirm the CLI is on your path, then open a terminal at the root of the repository you want to work in.</p>
+                </div>
+              </li>
+              <li>
+                <span class="ks-step-n">2</span>
+                <div>
+                  <h3>Connect a provider</h3>
+                  <p>Add your own key with <code>keel code model --set</code>, or stay on the local default. Credentials never enter a session file.</p>
+                </div>
+              </li>
+              <li>
+                <span class="ks-step-n">3</span>
+                <div>
+                  <h3>Start the session</h3>
+                  <p>Run <code>keel code</code> and describe one change in a sentence. Review each proposed patch and approve, deny, or edit the plan as it goes.</p>
+                </div>
+              </li>
+              <li>
+                <span class="ks-step-n">4</span>
+                <div>
+                  <h3>Read the session</h3>
+                  <p>Use <code>keel code sessions --last 5</code> to find recent runs, then step through the one you just finished before you merge anything.</p>
+                </div>
+              </li>
+            </ol>
+            <p>A little preparation makes the first run much smoother:</p>
+            <ul class="ks-checklist">
+              <li>A repository with a readable README and a test command the agent can discover.</li>
+              <li>A provider key of your own, or the local default model.</li>
+              <li>A clean branch or worktree you are comfortable letting the agent edit.</li>
+              <li>A few minutes at the end to read the session before you merge.</li>
+            </ul>
+            <div class="ks-callout"><strong>Tip</strong><p>Start with one small, checkable task — a single bug, one migration, one test made green. Keel Code is at its best when a run has a clear finish line. Once you trust the loop, chain several short sessions together.</p></div>
+          </section>
+
+          <figure class="ks-figure">
+            <img src="/assets/img/article/ks-result.svg" alt="A completed Keel Code run with a clean check result and a saved session" loading="lazy" />
+            <figcaption>A finished run: a small change, passing checks, and a session you can revisit.</figcaption>
+          </figure>
+
+          <section id="kc-availability" class="ks-section">
+            <h2>Availability</h2>
+            <p>Keel Code is available today on macOS, Linux, and Windows as part of the Keel download. Install the CLI to work from the terminal, or use the desktop app when you would rather watch a visual timeline of each step — both share the same session format, so moving between them costs nothing.</p>
+            <p>Runs are local by default. Your repository, your sessions, and your credentials stay on your machine, and you choose which provider Keel Code uses and what it is allowed to touch. See the product page for the full command reference, or check system requirements before you install.</p>
+            <p>Read more about <a class="ks-link" href="/product/keel-code">Keel Code</a> and <a class="ks-link" href="/requirements">system requirements</a>, or get Keel now. <a class="ks-link" href="/download">Download Keel &rarr;</a></p>
+          </section>
+        </div>
+      </div>
+    </article>
+
+    <!-- ===================== related articles ===================== -->
+    <section class="ks-related" aria-labelledby="ks-related-title">
+      <div class="ks-container">
+        <h2 class="ks-related-title" id="ks-related-title">Related articles</h2>
+        <div class="ks-related-grid">
+          <a class="ks-related-card" href="/resources/articles/introducing-keel-ship">
+            <img class="ks-related-img" src="/assets/img/article/ks-related-1.svg" alt="" loading="lazy" />
+            <span class="ks-related-tag">Product</span>
+            <h3>Introducing Keel Ship</h3>
+            <p>The agentic coding tool that turns every run into a session you can inspect and replay.</p>
+            <span class="ks-read">Read article &rarr;</span>
+          </a>
+          <a class="ks-related-card" href="/resources/articles/keel-ship-session-format">
+            <img class="ks-related-img" src="/assets/img/article/ks-related-2.svg" alt="" loading="lazy" />
+            <span class="ks-related-tag">Engineering</span>
+            <h3>The Keel Ship session format</h3>
+            <p>How we made agent runs inspectable, branchable, and replayable from a plain folder of files.</p>
+            <span class="ks-read">Read article &rarr;</span>
+          </a>
+          <a class="ks-related-card" href="/product/keel-duet">
+            <img class="ks-related-img" src="/assets/img/article/ks-related-3.svg" alt="" loading="lazy" />
+            <span class="ks-related-tag">Product</span>
+            <h3>Keel Duet: pair sessions across devices</h3>
+            <p>Keep one conversation going from the desktop app to the terminal and back again.</p>
+            <span class="ks-read">Read article &rarr;</span>
+          </a>
+          <a class="ks-related-card" href="/roadmap">
+            <img class="ks-related-img" src="/assets/img/article/ks-related-4.svg" alt="" loading="lazy" />
+            <span class="ks-related-tag">Company</span>
+            <h3>What is next for Keel</h3>
+            <p>A look at the roadmap, from managed agents to deeper terminal workflows.</p>
+            <span class="ks-read">Read article &rarr;</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== footer ===================== -->
+  <footer class="ks-footer">
+    <div class="ks-container">
+      <div class="ks-footer-top">
+        <div class="ks-footer-cta">
+          <h2>Transform your business<br />with Keel</h2>
+          <p>Over 50% of the Fortune 500 use Keel to build faster and work smarter.</p>
+          <a class="ks-btn ks-btn-light" href="/product-overview">See how &rarr;</a>
+        </div>
+        <div class="ks-newsletter">
+          <p class="ks-news-h">Get the developer newsletter</p>
+          <p class="ks-news-sub">Product news, research, and stories from the team behind Keel.</p>
+          <form class="ks-news-form" id="ks-newsletter">
+            <label class="sr-only" for="ks-email">Email address</label>
+            <input id="ks-email" name="email" type="email" placeholder="Email address" required />
+            <button type="submit">Subscribe</button>
+          </form>
+          <p class="ks-news-msg" id="ks-news-msg" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="ks-footer-cols">
+        <div class="ks-footer-col">
+          <h3>Products</h3>
+          <a href="/product-overview">Keel</a>
+          <a href="/product/keel-code">Keel Code</a>
+          <a href="/roadmap">Keel Ship</a>
+          <a href="/product/keel-duet">Keel Duet</a>
+          <a href="/product/cowork">KEEL Cowork</a>
+          <a href="/requirements">Keel Platform</a>
+        </div>
+        <div class="ks-footer-col">
+          <h3>Developer tools</h3>
+          <a href="/requirements">Documentation</a>
+          <a href="/notices">Developer blog</a>
+          <a href="/app">Console</a>
+          <a href="/product/keel-code">Keel Code CLI</a>
+          <a href="/requirements">Managed agents</a>
+          <a href="/roadmap">Roadmap</a>
+        </div>
+        <div class="ks-footer-col">
+          <h3>Company</h3>
+          <a href="/">About Keel</a>
+          <a href="/notices">News</a>
+          <a href="/notices">Careers</a>
+          <a href="/notices">Transparency</a>
+          <a href="/download">Download Keel</a>
+          <a href="/keel-in-chrome">Keel in Chrome</a>
+        </div>
+        <div class="ks-footer-col">
+          <h3>Legal</h3>
+          <a href="/privacy">Privacy policy</a>
+          <a href="/terms">Terms of service</a>
+          <a href="/trademark">Trademark</a>
+          <a href="/notices">Notices</a>
+          <a href="/privacy">Trust centre</a>
+        </div>
+        <div class="ks-footer-col">
+          <h3>Social</h3>
+          <a href="/notices">X</a>
+          <a href="/notices">LinkedIn</a>
+          <a href="/notices">GitHub</a>
+          <a href="/notices">YouTube</a>
+          <a href="/notices">Community</a>
+        </div>
+      </div>
+
+      <div class="ks-footer-bottom">
+        <a class="ks-brand ks-footer-brand" href="/" aria-label="Keel home">
+          <img class="ks-brand-mark" src="/assets/img/article/ks-mark.svg" alt="" width="26" height="26" />
+          <span>Keel</span>
+        </a>
+        <span>&copy; <span data-year="2026">2026</span> Keel. All rights reserved.</span>
+        <div class="ks-social">
+          <a href="/notices" aria-label="Keel on X"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16M20 4L4 20" /></svg></a>
+          <a href="/notices" aria-label="Keel on LinkedIn"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4 9h4v11H4zM6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM11 9h4v1.7c.8-1.2 2-2 3.5-2 2.5 0 3.5 1.6 3.5 4.3V20h-4v-6c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2 1-2.2 2.4V20h-4z" /></svg></a>
+          <a href="/notices" aria-label="Keel on GitHub"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.4-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.5.1 2.8.6.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2z" /></svg></a>
+          <a href="/notices" aria-label="Keel on YouTube"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true" focusable="false"><path d="M22 12s0-3.4-.4-5a2.5 2.5 0 0 0-1.8-1.8C18.2 4.8 12 4.8 12 4.8s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7C2 8.6 2 12 2 12s0 3.4.4 5a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-5 .4-5zM10 15V9l5.2 3z" /></svg></a>
+        </div>
+        <label class="ks-lang">
+          <select aria-label="Language">
+            <option>English</option>
+            <option>Deutsch</option>
+            <option>Español</option>
+            <option>Français</option>
+            <option>日本語</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </footer>
+
+  <button class="ks-to-top" id="ks-to-top" type="button" aria-label="Back to top">&uarr;</button>
+</body>
+</html>

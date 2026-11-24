@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" role="img" aria-labelledby="t">
+  <title id="t">Keel for Teams network motif</title>
+  <rect width="800" height="500" fill="#141413"/>
+  <rect x="10" y="10" width="780" height="480" rx="28" fill="none" stroke="#e6d54c" stroke-width="2" opacity="0.5"/>
+
+  <!-- connections -->
+  <g stroke="#e6d54c" stroke-width="2" opacity="0.65" stroke-linecap="round">
+    <path d="M400 250 L170 130 M400 250 L300 110 M400 250 L520 118 M400 250 L650 160 M400 250 L640 340 M400 250 L520 396 M400 250 L280 400 M400 250 L150 330"/>
+    <path d="M170 130 L300 110 M300 110 L520 118 M520 118 L650 160 M650 160 L640 340 M640 340 L520 396 M520 396 L280 400 M280 400 L150 330 M150 330 L170 130"/>
+  </g>
+
+  <!-- outer nodes -->
+  <g fill="#141413" stroke="#e6d54c" stroke-width="3">
+    <circle cx="170" cy="130" r="20"/>
+    <circle cx="300" cy="110" r="16"/>
+    <circle cx="520" cy="118" r="18"/>
+    <circle cx="650" cy="160" r="22"/>
+    <circle cx="640" cy="340" r="16"/>
+    <circle cx="520" cy="396" r="20"/>
+    <circle cx="280" cy="400" r="18"/>
+    <circle cx="150" cy="330" r="14"/>
+  </g>
+  <g fill="#e6d54c">
+    <circle cx="170" cy="130" r="7"/>
+    <circle cx="300" cy="110" r="5"/>
+    <circle cx="520" cy="118" r="6"/>
+    <circle cx="650" cy="160" r="8"/>
+    <circle cx="640" cy="340" r="5"/>
+    <circle cx="520" cy="396" r="7"/>
+    <circle cx="280" cy="400" r="6"/>
+    <circle cx="150" cy="330" r="4"/>
+  </g>
+
+  <!-- central hub -->
+  <circle cx="400" cy="250" r="56" fill="#e6d54c" stroke="#f7f6f2" stroke-width="3"/>
+  <circle cx="400" cy="250" r="66" fill="none" stroke="#e6d54c" stroke-width="2" stroke-dasharray="5 8" opacity="0.7"/>
+  <g fill="none" stroke="#191919" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M382 222 V278"/>
+    <path d="M382 250 L414 222"/>
+    <path d="M382 250 L414 278"/>
+  </g>
+  <circle cx="416" cy="250" r="5" fill="#191919"/>
+  <circle cx="416" cy="250" r="10" fill="none" stroke="#191919" stroke-width="3"/>
+
+  <!-- label -->
+  <rect x="300" y="434" width="200" height="30" rx="8" fill="#e6d54c"/>
+  <text x="400" y="454" font-family="monospace" font-size="15" font-weight="bold" letter-spacing="2" fill="#191919" text-anchor="middle">KEEL</text>
+
+  <!-- small peach accent nodes -->
+  <circle cx="92" cy="210" r="7" fill="#f0c4a8"/>
+  <circle cx="724" cy="238" r="9" fill="#f0c4a8"/>
+</svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" role="img" aria-labelledby="t">
+  <title id="t">Keel Code K monogram with orbit rings</title>
+  <rect width="800" height="500" fill="#f7f6f2"/>
+  <rect x="10" y="10" width="780" height="480" rx="28" fill="none" stroke="#191919" stroke-width="2"/>
+
+  <!-- orbit rings -->
+  <g fill="none" stroke="#e6d54c" stroke-width="5">
+    <ellipse cx="400" cy="250" rx="250" ry="118" transform="rotate(-22 400 250)"/>
+    <ellipse cx="400" cy="250" rx="250" ry="118" transform="rotate(28 400 250)" opacity="0.75"/>
+    <ellipse cx="400" cy="250" rx="200" ry="200" transform="rotate(0 400 250)" opacity="0.25" stroke="#191919" stroke-width="2" stroke-dasharray="6 10"/>
+  </g>
+
+  <!-- orbit dots -->
+  <g fill="#191919">
+    <circle cx="628" cy="170" r="9"/>
+    <circle cx="180" cy="322" r="7"/>
+  </g>
+  <g fill="#e6d54c" stroke="#191919" stroke-width="2.5">
+    <circle cx="566" cy="360" r="11"/>
+    <circle cx="238" cy="146" r="9"/>
+  </g>
+
+  <!-- K monogram -->
+  <g fill="none" stroke="#191919" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M330 142 V358"/>
+    <path d="M330 254 L452 142"/>
+    <path d="M330 254 L460 358"/>
+  </g>
+  <circle cx="455" cy="250" r="13" fill="#e6d54c" stroke="#191919" stroke-width="5"/>
+
+  <!-- corner ticks -->
+  <g stroke="#191919" stroke-width="3" stroke-linecap="round" opacity="0.6">
+    <path d="M64 64 h28 M64 64 v28"/>
+    <path d="M736 64 h-28 M736 64 v28"/>
+    <path d="M64 436 h28 M64 436 v-28"/>
+    <path d="M736 436 h-28 M736 436 v-28"/>
+  </g>
+</svg>

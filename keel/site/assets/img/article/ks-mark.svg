@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" role="img" aria-labelledby="t">
+  <title id="t">Keel app icon</title>
+  <rect x="0" y="0" width="32" height="32" rx="8" fill="#191919"/>
+  <path d="M12 8.5 L12 23.5" fill="none" stroke="#e6d54c" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M12 16 L21 8.5" fill="none" stroke="#e6d54c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M12 16 L21 23.5" fill="none" stroke="#e6d54c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="21.4" cy="16" r="1.7" fill="#f7f6f2"/>
+</svg>

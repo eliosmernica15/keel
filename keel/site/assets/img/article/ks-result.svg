@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="t">
+  <title id="t">Keel Code successful build and ship terminal</title>
+  <rect width="1200" height="700" fill="#f7f6f2"/>
+
+  <rect x="48" y="44" width="1104" height="612" rx="18" fill="#141413" stroke="#191919" stroke-width="2"/>
+  <path d="M48 100 H1152" stroke="#000000" stroke-width="0.6"/>
+  <circle cx="82" cy="72" r="7" fill="#f0c4a8"/>
+  <circle cx="106" cy="72" r="7" fill="#6b6b6b" opacity="0.6"/>
+  <circle cx="130" cy="72" r="7" fill="#6b6b6b" opacity="0.35"/>
+  <rect x="160" y="60" width="62" height="24" rx="6" fill="#e6d54c" stroke="#191919" stroke-width="1.5"/>
+  <text x="191" y="76" font-family="monospace" font-size="12" font-weight="bold" fill="#191919" text-anchor="middle">KEEL</text>
+  <text x="236" y="77" font-family="monospace" font-size="15" fill="#f7f6f2" opacity="0.75">keel code · build</text>
+  <circle cx="1118" cy="72" r="6" fill="#6b9a6f" stroke="#f7f6f2" stroke-width="1.5" opacity="0.9"/>
+
+  <!-- command -->
+  <rect x="84" y="130" width="18" height="12" rx="3" fill="#e6d54c"/>
+  <rect x="114" y="130" width="330" height="12" rx="3" fill="#f7f6f2" opacity="0.9"/>
+  <rect x="114" y="158" width="180" height="8" rx="3" fill="#f7f6f2" opacity="0.35"/>
+
+  <!-- success rows -->
+  <g>
+    <circle cx="98" cy="202" r="11" fill="#6b9a6f"/>
+    <path d="M92 202 l4 4 l8 -9" fill="none" stroke="#141413" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="122" y="198" width="240" height="9" rx="4" fill="#f7f6f2" opacity="0.85"/>
+    <rect x="980" y="198" width="100" height="9" rx="4" fill="#6b9a6f" opacity="0.8"/>
+
+    <circle cx="98" cy="242" r="11" fill="#6b9a6f"/>
+    <path d="M92 242 l4 4 l8 -9" fill="none" stroke="#141413" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="122" y="238" width="310" height="9" rx="4" fill="#f7f6f2" opacity="0.85"/>
+    <rect x="980" y="238" width="76" height="9" rx="4" fill="#6b9a6f" opacity="0.8"/>
+
+    <circle cx="98" cy="282" r="11" fill="#6b9a6f"/>
+    <path d="M92 282 l4 4 l8 -9" fill="none" stroke="#141413" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="122" y="278" width="200" height="9" rx="4" fill="#f7f6f2" opacity="0.85"/>
+    <rect x="980" y="278" width="112" height="9" rx="4" fill="#6b9a6f" opacity="0.8"/>
+
+    <circle cx="98" cy="322" r="11" fill="#6b9a6f"/>
+    <path d="M92 322 l4 4 l8 -9" fill="none" stroke="#141413" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="122" y="318" width="274" height="9" rx="4" fill="#f7f6f2" opacity="0.85"/>
+    <rect x="980" y="318" width="88" height="9" rx="4" fill="#6b9a6f" opacity="0.8"/>
+  </g>
+
+  <!-- diff panel -->
+  <rect x="84" y="360" width="1032" height="188" rx="10" fill="#1e1e1c" stroke="#6b6b6b" stroke-width="0.8" opacity="0.98"/>
+  <rect x="84" y="360" width="1032" height="34" rx="10" fill="#262624"/>
+  <path d="M84 394 H1116" stroke="#3a3a37" stroke-width="1"/>
+  <rect x="104" y="372" width="110" height="9" rx="3" fill="#f7f6f2" opacity="0.5"/>
+  <rect x="950" y="372" width="60" height="9" rx="3" fill="#6b9a6f" opacity="0.7"/>
+
+  <g font-family="monospace" font-size="14" font-weight="bold">
+    <text x="104" y="426" fill="#6b9a6f">−</text>
+    <text x="104" y="454" fill="#6b9a6f">−</text>
+    <text x="104" y="482" fill="#e6d54c">+</text>
+    <text x="104" y="510" fill="#e6d54c">+</text>
+    <text x="104" y="538" fill="#e6d54c">+</text>
+  </g>
+  <g>
+    <rect x="126" y="417" width="320" height="9" rx="3" fill="#f0c4a8" opacity="0.65"/>
+    <rect x="126" y="445" width="250" height="9" rx="3" fill="#f0c4a8" opacity="0.65"/>
+    <rect x="126" y="473" width="380" height="9" rx="3" fill="#e6d54c" opacity="0.8"/>
+    <rect x="126" y="501" width="300" height="9" rx="3" fill="#e6d54c" opacity="0.8"/>
+    <rect x="126" y="529" width="350" height="9" rx="3" fill="#e6d54c" opacity="0.8"/>
+    <rect x="700" y="417" width="120" height="9" rx="3" fill="#f7f6f2" opacity="0.25"/>
+    <rect x="700" y="445" width="90" height="9" rx="3" fill="#f7f6f2" opacity="0.25"/>
+    <rect x="700" y="473" width="140" height="9" rx="3" fill="#f7f6f2" opacity="0.25"/>
+    <rect x="700" y="501" width="110" height="9" rx="3" fill="#f7f6f2" opacity="0.25"/>
+    <rect x="700" y="529" width="100" height="9" rx="3" fill="#f7f6f2" opacity="0.25"/>
+  </g>
+
+  <!-- shipped badge -->
+  <g transform="translate(830 168)">
+    <rect x="0" y="0" width="248" height="64" rx="14" fill="#e6d54c" stroke="#191919" stroke-width="2.5"/>
+    <circle cx="36" cy="32" r="15" fill="#191919"/>
+    <path d="M29 32 l5 5 l10 -11" fill="none" stroke="#e6d54c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="64" y="40" font-family="monospace" font-size="24" font-weight="bold" fill="#191919">Shipped</text>
+  </g>
+
+  <!-- footer -->
+  <rect x="84" y="592" width="18" height="12" rx="3" fill="#e6d54c"/>
+  <rect x="114" y="592" width="160" height="12" rx="3" fill="#f7f6f2" opacity="0.55"/>
+  <rect x="930" y="592" width="186" height="12" rx="3" fill="#6b9a6f" opacity="0.5"/>
+</svg>
