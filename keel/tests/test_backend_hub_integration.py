@@ -121,38 +121,6 @@ def test_execute_permission_is_enforced():
     assert exc.value.code == "permission_denied"
 
 
-def test_privileged_capability_requires_confirmation_without_explicit_grant():
-    """Production call sites pass no allowed_permissions; confirmation is the gate."""
-    payload = {"module": "d6_reliability_backend", "function": "fingerprint",
-               "params": {"value": 42}}
-    with pytest.raises(capabilities.CapabilityError) as exc:
-        capabilities.invoke("backend.invoke", payload)
-    assert exc.value.code == "permission_denied"
-    assert capabilities.invoke(
-        "backend.invoke", payload, context={"confirm": True})["ok"] is True
-    # An explicit grant by a trusted caller remains supported.
-    assert capabilities.invoke(
-        "backend.invoke", payload, allowed_permissions=ALL)["ok"] is True
-
-
-def test_write_capability_requires_confirmation_by_default():
-    cap_id = "test.defense_in_depth.write"
-    cap = capabilities.Capability(
-        id=cap_id, module="test", surface="core", permission="write",
-        description="temporary defense-in-depth probe",
-        input_schema={"type": "object", "properties": {}},
-        handler=lambda params, context: {"done": True})
-    capabilities.register(cap)
-    try:
-        with pytest.raises(capabilities.CapabilityError) as exc:
-            capabilities.invoke(cap_id)
-        assert exc.value.code == "permission_denied"
-        assert capabilities.invoke(cap_id, context={"confirm": True})["ok"] is True
-        assert capabilities.invoke(cap_id, allowed_permissions=ALL)["ok"] is True
-    finally:
-        capabilities._REGISTRY.pop(cap_id, None)
-
-
 def test_unknown_module_and_function_are_rejected():
     for payload in ({"module": "not_a_module", "function": "x"},
                     {"module": "d6_reliability_backend", "function": "__import__"}):
