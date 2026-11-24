@@ -10,6 +10,7 @@ import { useApp } from "@/lib/state";
 import { Badge, Button, Card, IconButton, Progress, TextField } from "@/components/ui";
 import { Icon, KeelMark, type IconName } from "@/components/icons";
 import type { Surface } from "@/lib/types";
+import { OPEN_HELP_EVENT } from "./SetupChecklist";
 import {
   STEP_IDS, ITEM_IDS, readMode, readStep, restartAtStep, updateChecklist,
   useChecklist, writeMode, writeStep,
@@ -90,6 +91,16 @@ const SURFACE_CHOICES: Array<{ surface: Surface; icon: IconName; title: string; 
   { surface: "cowork", icon: "cowork", title: "Start with Cowork", description: "General work, research and multi-step tasks in one conversation." },
   { surface: "code", icon: "code", title: "Start with Code", description: "Work inside a trusted local folder with files, diffs and a terminal." },
   { surface: "fleet", icon: "fleet", title: "Set up Fleet", description: "Manage named agents, groups, tasks and scheduled routines." },
+];
+
+// All four work surfaces are introduced here. Duet is deliberately not a
+// "start here" choice on the welcome step: it is a split view of the two
+// surfaces below, so picking it before either exists would be misleading.
+const SURFACE_TILES: Array<{ surface: Surface; icon: IconName; title: string; description: string }> = [
+  { surface: "cowork", icon: "cowork", title: "Cowork", description: "One conversation for research, writing and multi-step work." },
+  { surface: "code", icon: "code", title: "Code", description: "Real files, read-only review and a guarded terminal in a folder you trust." },
+  { surface: "duet", icon: "duet", title: "Duet", description: "Cowork and Code side by side, so you can discuss a change while you edit it." },
+  { surface: "fleet", icon: "fleet", title: "Fleet", description: "Named agents, groups, tasks and scheduled routines you can inspect." },
 ];
 
 // Which checklist item a step's "Skip for now" defers. A skipped item is
@@ -457,6 +468,11 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
 
   const tourActions: Array<{ icon: IconName; title: string; copy: string; surface?: Surface; guidance: string }> = [
     {
+      icon: "plus", title: "Create your first task", surface: "cowork",
+      copy: "Use New task in the sidebar, then send a prompt in Cowork.",
+      guidance: "New task in the sidebar creates a real task through the bridge. Open it in Cowork and send a prompt to work on it. This tour does not create one for you.",
+    },
+    {
       icon: "send", title: "Send a first prompt", surface: "cowork",
       copy: "Type a real request in the Cowork composer and press Enter.",
       guidance: "Cowork is open. Send a prompt from the composer — Keel streams the response and saves the conversation.",
@@ -519,6 +535,16 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
               <div className={s.fact}><Icon name="folder" size={18} /><div><b>Local-first</b><span>Agent work happens in local folders you choose, through the Python bridge running here.</span></div></div>
               <div className={s.fact}><Icon name="shield" size={18} /><div><b>Your provider, your key</b><span>Keel uses a provider you configure. There is no mandatory cloud account or paid Keel service.</span></div></div>
               <div className={s.fact}><Icon name="spark" size={18} /><div><b>Optional extras</b><span>Provider keys, workspace trust, capabilities and messaging are opt-in. Local use works without them.</span></div></div>
+            </div>
+            <div className={s.subhead}>Four work surfaces</div>
+            <p className={s.fine}>Pick a tile to open that surface now; these are shortcuts, not gates. You can switch surfaces at any time from the top bar.</p>
+            <div className={s.surfaceGrid}>
+              {SURFACE_TILES.map((tile) => (
+                <button key={tile.surface} type="button" className={s.surfaceTile} onClick={() => chooseSurface(tile.surface)}>
+                  <Icon name={tile.icon} size={16} />
+                  <span><b>{tile.title}</b><small>{tile.description}</small></span>
+                </button>
+              ))}
             </div>
           </>
         );
@@ -770,6 +796,11 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
           <div className={s.brand}><KeelMark size={26} /><span>Keel setup</span></div>
           <div className={s.headerRight}>
             <span className={s.stepCount}>Step {stepIndex + 1} of {STEP_IDS.length}</span>
+            <IconButton
+              label="Help & troubleshooting"
+              title="Help & troubleshooting"
+              onClick={() => window.dispatchEvent(new Event(OPEN_HELP_EVENT))}
+            ><Icon name="info" size={16} /></IconButton>
             <IconButton label="Close setup" onClick={close}><Icon name="close" size={16} /></IconButton>
           </div>
         </header>

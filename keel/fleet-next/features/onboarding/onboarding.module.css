@@ -385,6 +385,106 @@
 .checklistActions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 9px; }
 .checklistNote { margin-top: 6px; font-size: 10.5px; color: var(--muted); }
 
+/* four-surface introduction on the "how Keel works" step */
+.surfaceGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.surfaceTile {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  transition: border-color .2s, background .2s;
+}
+.surfaceTile:hover { border-color: var(--accent); background: var(--cardb); }
+.surfaceTile > svg { color: var(--accent); flex: none; margin-top: 2px; }
+.surfaceTile span { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.surfaceTile b { font-size: 12.5px; }
+.surfaceTile small { font-size: 11px; line-height: 1.45; color: var(--muted); overflow-wrap: anywhere; }
+
+/* contextual help / troubleshooting dialog (above the wizard overlay) */
+.helpOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, #000 62%, transparent);
+  backdrop-filter: blur(4px);
+}
+.helpDialog {
+  display: flex;
+  flex-direction: column;
+  width: min(720px, 100%);
+  max-height: min(820px, calc(100dvh - 32px));
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid var(--line-strong);
+  background: var(--win);
+  box-shadow: var(--shadow);
+  outline: none;
+}
+.helpHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.helpBrand { display: inline-flex; align-items: center; gap: 9px; min-width: 0; }
+.helpBrand > svg { color: var(--accent); flex: none; }
+.helpHead h2 { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600; margin: 0; }
+.helpBody { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 18px 20px 20px; }
+.helpLead { font-size: 13px; line-height: 1.6; color: var(--body); margin: 0 0 14px; }
+.helpProbe {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: var(--code);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.helpCard {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.helpCardHead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.helpCardHead > svg { color: var(--accent); flex: none; }
+.helpCardHead h3 { font-size: 13.5px; font-weight: 600; margin: 0; color: var(--text); }
+.helpStatus { font-size: 11.5px; line-height: 1.5; color: var(--info); margin: 0 0 8px; overflow-wrap: anywhere; }
+.helpCardBody { font-size: 12px; line-height: 1.6; color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+.helpCardBody code { font-family: 'JetBrains Mono', monospace; color: var(--text); }
+.helpActions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
+.helpFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.helpNote { font-size: 11px; line-height: 1.5; color: var(--muted); margin: 0; max-width: 440px; }
+
 /* honour both the global user setting and the OS preference */
 .reduceMotion *, .reduceMotion *::before, .reduceMotion *::after {
   animation: none !important;
@@ -400,7 +500,10 @@
   .dialog { max-height: calc(100dvh - 16px); border-radius: 15px; }
   .body { padding: 16px 14px 18px; }
   .header, .footer { padding-left: 14px; padding-right: 14px; }
-  .choiceGrid { grid-template-columns: 1fr; }
+  .choiceGrid, .surfaceGrid { grid-template-columns: 1fr; }
+  .helpOverlay { padding: 8px; }
+  .helpDialog { max-height: calc(100dvh - 16px); border-radius: 15px; }
+  .helpBody { padding: 16px 14px 18px; }
   .choiceCard { flex-direction: row; align-items: center; }
   .choiceArrow { margin-left: auto; }
   .footer { flex-direction: column; align-items: stretch; }

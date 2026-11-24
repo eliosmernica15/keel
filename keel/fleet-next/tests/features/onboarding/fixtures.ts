@@ -25,6 +25,8 @@ export interface BridgeOptions {
   credential: "success" | "failure";
   save: "success" | "failure";
   projects: Array<{ id: string; name: string; path: string; trusted: boolean }>;
+  /** Simulate the BFF's honest HTTP 502 for an unconfigured/unreachable bridge. */
+  bridgeUnavailable: boolean;
 }
 
 export interface BridgeFixture {
@@ -71,6 +73,7 @@ const DEFAULTS: BridgeOptions = {
   credential: "success",
   save: "success",
   projects: [],
+  bridgeUnavailable: false,
 };
 
 export { expect };
@@ -93,6 +96,9 @@ export const test = base.extend<{
         // other console error still fails the test.
         if (bridge.options.credential === "failure" &&
             /status of 400/.test(text) && /providers\/credential/.test(loc.url)) return;
+        // The deliberate 502 for an unconfigured bridge is one resource error
+        // per request; it is the state under test, not an application fault.
+        if (bridge.options.bridgeUnavailable && /status of 502/.test(text)) return;
         errors.push(`console.error: ${text} @ ${loc.url}:${loc.lineNumber + 1}:${loc.columnNumber + 1}`);
       }
     });
@@ -139,6 +145,12 @@ export const test = base.extend<{
 
       const json = (data: unknown, status = 200) =>
         route.fulfill({ status, contentType: "application/json", body: JSON.stringify(data) });
+
+      // An unconfigured bridge is answered exactly as the verified BFF does.
+      // Keep the local SSE probe finite so the page stays testable.
+      if (fixture.options.bridgeUnavailable && path !== "events") {
+        return json({ error: "bridge_unavailable" }, 502);
+      }
 
       // Cowork mounts underneath the overlay and opens the live SSE stream.
       // Answer it as a real, finite event-stream response (no ERR_FAILED noise).
