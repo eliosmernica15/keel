@@ -15,6 +15,14 @@ _REAL_LOAD = settings_store.load
 _REAL_SAVE = settings_store.save
 
 
+@pytest.fixture(autouse=True)
+def _private_process_environment(monkeypatch):
+    """Keep provider keys written by save_provider_key/apply_stored_keys from
+    leaking into later tests (real hidden test pollution)."""
+    import os
+    monkeypatch.setattr(os, "environ", dict(os.environ))
+
+
 @pytest.fixture
 def isolated_store(tmp_path, monkeypatch):
     monkeypatch.setattr(settings_store, "load", _REAL_LOAD)
