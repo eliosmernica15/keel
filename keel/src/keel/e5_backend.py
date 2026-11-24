@@ -988,17 +988,29 @@ def assert_signing_steps_complete(
             raise SigningError("a signing/notarization step failed")
 
 
+# A secret's value runs to the next key assignment, a line break or a
+# delimiter -- not just the next whitespace. The ``\w*`` prefix allows names
+# such as ``KEEL_RELEASE_TOKEN`` to be recognised as assignments too.
+_SECRET_ASSIGNMENT = r"\b\w*(?:pin|token|password|secret)\w*\s*[:=]\s*"
+_INLINE_SECRET_RE = re.compile(
+    r"(?i)(?P<key>\b\w*(?:pin|token|password|secret)\w*)\s*[:=]\s*"
+    r"(?P<value>(?:(?!" + _SECRET_ASSIGNMENT + r")[^\r\n,;])*)"
+)
+
+
 def redact_diagnostics(text: str, secrets: Iterable[str] = ()) -> str:
-    """Redact known secrets and any inline PIN/token values from diagnostics."""
+    """Redact known secrets and any inline PIN/token values from diagnostics.
+
+    The complete value of an inline assignment is removed: a multi-word secret
+    (``token=super secret value``) must not leak its remaining words.
+    """
     redacted = str(text)
     for secret in secrets:
         if secret:
             redacted = redacted.replace(secret, "[REDACTED]")
-    redacted = re.sub(
-        r"(?i)\b(pin|token|password|secret)\s*[:=]\s*\S+",
-        r"\1=[REDACTED]", redacted,
+    return _INLINE_SECRET_RE.sub(
+        lambda match: f"{match.group('key')}=[REDACTED]", redacted,
     )
-    return redacted
 
 
 def assert_signing_pin_not_persisted(config: Mapping[str, object]) -> None:

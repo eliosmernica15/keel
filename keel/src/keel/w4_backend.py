@@ -1528,6 +1528,11 @@ def dispatch_mcp_command(argv: Sequence[str], store: McpConfigStore) -> CliResul
             return CliResult("list", True, store.rows())
 
         parsed = _parse_cli(tokens, command)
+        if not parsed["positional"]:
+            # ``add`` is guarded in _parse_cli; ``auth``/``logout`` are not, so
+            # a bare command (or one carrying only flags) would otherwise index
+            # an empty list and raise an unhandled IndexError here.
+            raise CliError("missing_server_name")
         name = parsed["positional"][0]
         if command == "add":
             scope = "user" if parsed.get("--global") else "project"

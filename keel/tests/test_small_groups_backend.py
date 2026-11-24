@@ -306,6 +306,19 @@ def test_e4_3_coverage_gate_philosophy():
     assert "src/pwsh.py" in ci["dead_code_candidates"]
 
 
+def test_e4_3_empty_coverage_report_cannot_pass_gate():
+    for empty in ({}, {"files": {}},
+                  {"files": {"src/a.py": {"covered": 0, "total": 0}}}):
+        result = CoverageGate().evaluate(empty)
+        assert result["passed"] is False
+        assert result["has_coverage_data"] is False
+        assert result["percent"] == 0.0
+    # A real measurement still passes when it clears the threshold.
+    real = CoverageGate().evaluate(
+        {"files": {"src/a.py": {"covered": 9, "total": 10}}})
+    assert real["passed"] is True and real["has_coverage_data"] is True
+
+
 def test_e4_4_benchmark_budgets():
     gate = BenchmarkGate()
     gate.set_budget("session_open", max_seconds=1.0, max_heap_mb=64.0, max_scale_factor=2.0)

@@ -578,6 +578,19 @@ def test_e5_17_diagnostics_redacted_and_pin_never_persisted():
         eb.assert_signing_pin_not_persisted({"WINDOWS_SIGNING_PIN": "1234"})
 
 
+def test_e5_17_multiword_secret_value_is_fully_redacted():
+    text = eb.redact_diagnostics("token=super secret value here")
+    assert text == "token=[REDACTED]"
+    assert "super secret" not in text and "value here" not in text
+
+    bounded = eb.redact_diagnostics(
+        "token=super secret value; user=bob\npassword=long pass phrase")
+    assert "super secret value" not in bounded
+    assert "long pass phrase" not in bounded
+    assert "user=bob" in bounded
+    assert bounded.count("[REDACTED]") == 2
+
+
 # --------------------------------------------------------------------------
 # E5.18 — Keel keeps Linux; dsh does not
 # --------------------------------------------------------------------------

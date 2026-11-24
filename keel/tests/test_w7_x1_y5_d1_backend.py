@@ -463,6 +463,40 @@ def test_y5_3_webhook_subscription_lifecycle(tmp_path):
         manager.subscribe("http://example.test/hook", ["message.read"])
 
 
+def test_y5_3_concurrent_subscribers_do_not_lose_updates(tmp_path):
+    manager = m.WebhookSubscriptionManager(tmp_path / "credentials")
+    count = 24
+    barrier = threading.Barrier(count)
+    errors = []
+
+    def worker(index):
+        try:
+            barrier.wait()
+            manager.subscribe(f"https://example.test/hook/{index}",
+                              ["message.received"], label=f"sub-{index}")
+        except BaseException as exc:  # surfaced by the assertion below
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(count)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert not errors
+    assert len(manager.list()) == count
+    assert len(m.WebhookSubscriptionManager(tmp_path / "credentials").list()) == count
+
+
+def test_y5_3_caller_paths_reject_traversal(tmp_path):
+    traversal = tmp_path / "ok" / ".." / "escape"
+    with pytest.raises(m.BackendError, match="traversal"):
+        m.WebhookSubscriptionManager(traversal)
+    with pytest.raises(m.BackendError, match="traversal"):
+        m.ChatIdCache(traversal)
+    with pytest.raises(m.BackendError, match="traversal"):
+        m.log_error_detail(traversal / "server.log", "req", "detail")
+
+
 def test_y5_5_reaction_mapping():
     assert m.map_reaction("👍")["native"] == "thumbsup"
     variant = m.map_reaction("👍🏽")
