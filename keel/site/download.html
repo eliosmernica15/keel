@@ -4,89 +4,638 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Download Keel</title>
-  <meta name="description" content="Download Keel — a local, private, multi-agent coding workspace. Windows, macOS, Linux." />
+  <meta name="description" content="Download Keel for desktop and mobile. Think, hand off tasks, and code, all in one place." />
   <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
-  <link rel="stylesheet" href="/ui/style.css" />
-  <style>
-    body.download {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--display, system-ui, sans-serif);
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-    }
-    .nav { display: flex; align-items: center; gap: 18px; padding: 18px 28px; border-bottom: 1px solid var(--edge-dim); }
-    .nav a { color: var(--muted); text-decoration: none; font-size: 14px; }
-    .nav a:hover { color: var(--text); }
-    .nav .brand { color: var(--text); font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 10px; }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 60px 28px 120px; }
-    h1 { font-size: 44px; line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 14px; }
-    .sub { font-size: 18px; color: var(--muted); max-width: 620px; margin-bottom: 42px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
-    .card { border: 1px solid var(--edge); border-radius: 16px; padding: 22px 20px 20px;
-      background: linear-gradient(160deg, var(--panel) 0%, var(--panel-2) 100%); display: flex; flex-direction: column; gap: 12px; }
-    .card h2 { font-size: 18px; display: flex; align-items: center; gap: 10px; }
-    .card small { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
-    .btn-download { display: inline-flex; align-items: center; gap: 10px; padding: 11px 18px; border-radius: 12px;
-      background: var(--accent); color: var(--bg); font-weight: 700; text-decoration: none; font-size: 15px;
-      border: none; cursor: pointer; align-self: flex-start; transition: filter .15s ease; }
-    .btn-download:hover { filter: brightness(1.05); }
-    .btn-download:disabled, .btn-download[aria-disabled="true"] { background: var(--panel-2); color: var(--muted); cursor: not-allowed; }
-    .meta { font-size: 12px; color: var(--muted); font-family: var(--mono); line-height: 1.6; white-space: pre-line; }
-    .meta-row { font-size: 12px; color: var(--muted); font-family: var(--mono); line-height: 1.6; }
-    .notes { font-size: 13px; color: var(--muted); line-height: 1.55; }
-    .badge { align-self: flex-start; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; border: 1px solid var(--edge); border-radius: 999px; padding: 4px 10px; color: var(--muted); }
-    .channel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-    .verified { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 3px 8px; }
-    .checkrow { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
-    .checkrow code { font-family: var(--mono); font-size: 11px; color: var(--muted); word-break: break-all; line-height: 1.5; }
-    .copy-btn { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; background: transparent; color: var(--muted); border: 1px solid var(--edge); border-radius: 8px; padding: 4px 8px; cursor: pointer; }
-    .copy-btn:hover { color: var(--text); border-color: var(--muted); }
-    .alts { font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
-    .alts a { color: var(--accent); text-decoration: none; }
-    .alts a:hover { text-decoration: underline; }
-    .hero-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 14px; margin-bottom: 6px; }
-    .version { font-family: var(--mono); font-size: 12px; color: var(--muted); border: 1px solid var(--edge); border-radius: 8px; padding: 4px 10px; }
-    .detect { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 20px; }
-    .footnote { margin-top: 40px; font-size: 12px; color: var(--muted); line-height: 1.6; max-width: 780px; }
-    .kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--edge); border-bottom-width: 2px; border-radius: 6px; padding: 1px 5px; }
-  </style>
+  <link rel="stylesheet" href="/ui/download-clone.css" />
 </head>
-<body class="download">
-  <nav class="nav" aria-label="Site">
-    <a class="brand" href="/">
-      <img src="/ui/icons/icon-192.png" alt="Keel" width="22" height="22" />
-      <span>Keel</span>
-    </a>
-    <a href="/">Home</a>
-    <a href="/download" aria-current="page" style="color: var(--text);">Download</a>
-    <a href="/#docs">Docs</a>
-  </nav>
+<body class="download-clone">
 
-  <main class="wrap">
-    <div class="hero-row">
-      <h1>Download Keel</h1>
-      <span class="version" id="version-pill">v0.1.0</span>
-    </div>
-    <p class="sub">A private, local, multi-agent coding workspace for your machine. The same installer experience you want from a VS Code–class app, with nothing leaving your computer by default.</p>
-    <p class="detect" id="detect-note">Detecting your platform…</p>
-
-    <div class="grid" id="download-grid" aria-label="Installers">
-      <!-- populated by /ui/download.js -->
+  <!-- ============ Header / announcement strip / nav ============ -->
+  <header class="kp-header">
+    <div class="kp-topline">
+      <span class="kp-topline-label">Download</span>
+      <span class="kp-topline-label">Latest news</span>
     </div>
 
-    <p class="footnote" id="hosting-note">
-      No installer is publicly available yet. When a release is published, this page will
-      show the verified download link and its SHA-256. Uninstalling never touches your
-      <span class="kbd">~/.keel</span> directory. Installers are unsigned: SmartScreen and
-      Gatekeeper will warn until code signing is configured.
-    </p>
-    <noscript>
-      <p class="footnote">Enable JavaScript to see installer options.</p>
-    </noscript>
+    <nav class="kp-nav" aria-label="Main navigation">
+      <div class="kp-nav-inner">
+        <div class="kp-nav-left">
+          <a class="kp-wordmark" href="/" aria-label="Keel home">
+            <span class="kp-brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+            </span>
+            <span class="kp-wordmark-text">Keel</span>
+          </a>
+        </div>
+
+        <div class="kp-nav-links">
+          <!-- Product -->
+          <div class="kp-nav-item" data-menu="product">
+            <button class="kp-nav-trigger" type="button" aria-expanded="false" aria-controls="kp-mega-product">Product <span class="kp-chevron" aria-hidden="true"></span></button>
+            <div class="kp-mega" id="kp-mega-product" role="group" aria-label="Product menu">
+              <div class="kp-mega-grid">
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Products</p>
+                  <a class="kp-mega-link" href="/">Keel</a>
+                  <a class="kp-mega-link" href="/app">Keel Code</a>
+                  <a class="kp-mega-link" href="/app">Keel Cowork</a>
+                  <a class="kp-mega-link" href="/app">Keel Duet</a>
+                  <a class="kp-mega-link" href="/app">Keel Platform</a>
+                  <a class="kp-mega-link" href="/app">Keel Tag</a>
+                  <p class="kp-mega-subhead">Specialized</p>
+                  <a class="kp-mega-link" href="/privacy">Keel Security</a>
+                  <a class="kp-mega-link" href="/download">Keel Science</a>
+                </div>
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Capabilities</p>
+                  <a class="kp-mega-link" href="/app">Artifacts</a>
+                  <a class="kp-mega-link" href="/app">Design</a>
+                  <a class="kp-mega-link" href="/app">Connectors</a>
+                  <a class="kp-mega-link" href="/app">Plugins</a>
+                  <a class="kp-mega-link" href="/app">Skills</a>
+                </div>
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Extensions</p>
+                  <a class="kp-mega-link" href="/download">Keel in Chrome</a>
+                  <a class="kp-mega-link" href="/download">Keel for Google Workspace</a>
+                  <a class="kp-mega-link" href="/download">Keel for Microsoft 365</a>
+                </div>
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Models</p>
+                  <a class="kp-mega-link" href="/#models">Mythos (including Fable) <span class="kp-ext">↗</span></a>
+                  <a class="kp-mega-link" href="/#models">Opus <span class="kp-ext">↗</span></a>
+                  <a class="kp-mega-link" href="/#models">Sonnet <span class="kp-ext">↗</span></a>
+                  <a class="kp-mega-link" href="/#models">Haiku <span class="kp-ext">↗</span></a>
+                </div>
+              </div>
+              <div class="kp-mega-foot">
+                <div class="kp-mega-foot-left"><a class="kp-mega-link" href="/app">Import to Keel</a></div>
+                <div class="kp-mega-foot-right">
+                  <a class="kp-mega-link" href="/download">Download apps <span class="kp-dl">↓</span></a>
+                  <button class="kp-mega-link kp-link-btn" type="button" data-auth-open>Login <span class="kp-ext">↗</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Developers -->
+          <div class="kp-nav-item" data-menu="developers">
+            <button class="kp-nav-trigger" type="button" aria-expanded="false" aria-controls="kp-mega-developers">Developers <span class="kp-chevron" aria-hidden="true"></span></button>
+            <div class="kp-mega" id="kp-mega-developers" role="group" aria-label="Developers menu">
+              <a class="kp-explore-hint" href="/app">Explore here <span class="kp-dl">↓</span></a>
+              <div class="kp-mega-grid">
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Build with</p>
+                  <a class="kp-mega-link" href="/app">Keel Code</a>
+                  <a class="kp-mega-link" href="/app">Keel Platform</a>
+                  <a class="kp-mega-link" href="/app">Keel Ship</a>
+                  <a class="kp-mega-link" href="/app">Code Review</a>
+                  <a class="kp-mega-link" href="/app">Managed Agents</a>
+                </div>
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">For developers</p>
+                  <a class="kp-mega-link" href="/requirements">Keel Academy <span class="kp-ext">↗</span></a>
+                  <a class="kp-mega-link" href="/roadmap">Community</a>
+                  <a class="kp-mega-link" href="/roadmap">Developer blog <span class="kp-ext">↗</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enterprise -->
+          <div class="kp-nav-item" data-menu="enterprise">
+            <button class="kp-nav-trigger" type="button" aria-expanded="false" aria-controls="kp-mega-enterprise">Enterprise <span class="kp-chevron" aria-hidden="true"></span></button>
+            <div class="kp-mega" id="kp-mega-enterprise" role="group" aria-label="Enterprise menu">
+              <div class="kp-mega-grid">
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Enterprise</p>
+                  <a class="kp-mega-link" href="/app">Overview</a>
+                  <a class="kp-mega-link" href="/app">Keel Code for Enterprise</a>
+                  <a class="kp-mega-link" href="/app">Keel Platform</a>
+                  <a class="kp-mega-link" href="/app">Keel Ship</a>
+                </div>
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Use Cases</p>
+                  <a class="kp-mega-link" href="/app">AI Agents</a>
+                  <a class="kp-mega-link" href="/app">Coding</a>
+                  <a class="kp-mega-link" href="/app">Commerce</a>
+                  <p class="kp-mega-subhead">Departments</p>
+                  <a class="kp-mega-link" href="/app">Customer support</a>
+                  <a class="kp-mega-link" href="/app">Cybersecurity</a>
+                  <a class="kp-mega-link" href="/eula">Legal</a>
+                  <a class="kp-mega-link" href="/app">Sales</a>
+                </div>
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Industries</p>
+                  <a class="kp-mega-link" href="/app">Financial advisors</a>
+                  <a class="kp-mega-link" href="/app">Financial services</a>
+                  <a class="kp-mega-link" href="/app">Government</a>
+                  <a class="kp-mega-link" href="/app">Healthcare</a>
+                  <a class="kp-mega-link" href="/app">Higher education</a>
+                  <a class="kp-mega-link" href="/app">K-12 teachers</a>
+                  <a class="kp-mega-link" href="/app">Life sciences</a>
+                  <a class="kp-mega-link" href="/app">Manufacturing</a>
+                  <a class="kp-mega-link" href="/app">Nonprofits</a>
+                </div>
+              </div>
+              <div class="kp-mega-foot">
+                <div class="kp-mega-foot-left"><a class="kp-mega-link" href="/download">Browse marketplace</a></div>
+                <div class="kp-mega-foot-right">
+                  <a class="kp-mega-link" href="/roadmap">Customers</a>
+                  <button class="kp-mega-link kp-link-btn" type="button" data-auth-open>Contact sales</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resources -->
+          <div class="kp-nav-item" data-menu="resources">
+            <button class="kp-nav-trigger" type="button" aria-expanded="false" aria-controls="kp-mega-resources">Resources <span class="kp-chevron" aria-hidden="true"></span></button>
+            <div class="kp-mega" id="kp-mega-resources" role="group" aria-label="Resources menu">
+              <div class="kp-mega-grid">
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Insights</p>
+                  <a class="kp-mega-link" href="/roadmap">Resources</a>
+                  <a class="kp-mega-link" href="/roadmap">Articles</a>
+                  <a class="kp-mega-link" href="/roadmap">Webinars</a>
+                  <a class="kp-mega-link" href="/roadmap">Customer stories</a>
+                  <a class="kp-mega-link" href="/download">Marketplace</a>
+                  <a class="kp-mega-link" href="/roadmap">Keel news <span class="kp-ext">↗</span></a>
+                </div>
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Learn</p>
+                  <a class="kp-mega-link" href="/requirements">Keel Academy <span class="kp-ext">↗</span></a>
+                  <a class="kp-mega-link" href="/requirements">Courses <span class="kp-ext">↗</span></a>
+                  <a class="kp-mega-link" href="/requirements">Tutorials <span class="kp-ext">↗</span></a>
+                  <a class="kp-mega-link" href="/app">Use cases <span class="kp-ext">↗</span></a>
+                </div>
+                <div class="kp-mega-col">
+                  <p class="kp-mega-title">Connect</p>
+                  <a class="kp-mega-link" href="/roadmap">Events <span class="kp-ext">↗</span></a>
+                  <a class="kp-mega-link" href="/roadmap">Community <span class="kp-ext">↗</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pricing -->
+          <div class="kp-nav-item" data-menu="pricing">
+            <button class="kp-nav-trigger" type="button" aria-expanded="false" aria-controls="kp-mega-pricing">Pricing <span class="kp-chevron" aria-hidden="true"></span></button>
+            <div class="kp-mega" id="kp-mega-pricing" role="group" aria-label="Pricing menu">
+              <div class="kp-mega-grid">
+                <div class="kp-mega-col">
+                  <a class="kp-mega-link" href="/">Overview</a>
+                  <a class="kp-mega-link" href="/app">API</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="kp-nav-link kp-link-btn" type="button" data-auth-open>Login</button>
+
+          <div class="kp-nav-actions">
+            <button class="kp-btn kp-btn-outline kp-btn-sm" type="button" data-auth-open>Contact sales</button>
+            <button class="kp-btn kp-btn-dark kp-btn-sm" type="button" data-auth-open>Try Keel</button>
+          </div>
+        </div>
+
+        <button class="kp-nav-toggle" type="button" aria-expanded="false" aria-controls="kp-mobile-menu" aria-label="Open menu">
+          <span class="kp-nav-toggle-bar"></span><span class="kp-nav-toggle-bar"></span><span class="kp-nav-toggle-bar"></span>
+        </button>
+      </div>
+
+      <div class="kp-mobile-menu" id="kp-mobile-menu">
+        <a href="/#product">Product</a>
+        <a href="/app">Developers</a>
+        <a href="/app">Enterprise</a>
+        <a href="/roadmap">Resources</a>
+        <a href="/">Pricing</a>
+        <button class="kp-link-btn" type="button" data-auth-open>Login</button>
+        <button class="kp-link-btn" type="button" data-auth-open>Contact sales</button>
+        <button class="kp-link-btn" type="button" data-auth-open>Try Keel</button>
+        <a href="/download">Download apps</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ============ Hero ============ -->
+    <section class="kp-hero" aria-labelledby="kp-hero-title">
+      <div class="kp-container">
+        <h1 class="kp-hero-title" id="kp-hero-title">Download Keel</h1>
+        <p class="kp-hero-sub">Think, hand off tasks, and code, all in one place.</p>
+
+        <div class="kp-hero-ctas">
+          <a class="kp-btn kp-btn-dark" id="hero-download" href="#windows">
+            <svg class="kp-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 4.5l8.5-1.2v7.8H2zM11.8 3.1L22 1.5v10.7h-10.2zM2 12.9h8.5v7.8L2 19.5zM11.8 12.2H22v10.6l-10.2-1.6z"/></svg>
+            <span>Download for Windows</span>
+          </a>
+          <a class="kp-btn kp-btn-outline" href="#windows-arm64">Windows (arm64)</a>
+          <a class="kp-btn kp-btn-outline" href="#windows">
+            <svg class="kp-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2.5 3.2l8.8-1.2v8H2.5zm10.2-1.4L21.5 1v9H12.7zM2.5 11.7h8.8v8L2.5 18.5zm10.2 0h8.8v9l-8.8-1.3z"/></svg>
+            Download from the Microsoft Store
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Get started ============ -->
+    <section class="kp-section kp-section-alt">
+      <div class="kp-container">
+        <div class="kp-split">
+          <div class="kp-section-intro kp-section-head">
+            <h2 class="kp-section-title">Get started</h2>
+            <p class="kp-section-sub">Access all of Keel on desktop and mobile.</p>
+          </div>
+          <div class="kp-cards">
+            <article class="kp-card" id="windows">
+              <h3 class="kp-card-title">Desktop</h3>
+              <p class="kp-card-sub">Use Keel on your computer with your files and apps right from the menu bar.</p>
+              <div class="kp-rows">
+                <div class="kp-row"><span class="kp-row-label">macOS</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" data-channel="macos" href="/download" aria-disabled="true" title="Not publicly available yet">Download</a></div>
+                <div class="kp-row"><span class="kp-row-label">Windows</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" data-channel="windows" href="/download" aria-disabled="true" title="Not publicly available yet">Download</a></div>
+                <div class="kp-row" id="windows-arm64"><span class="kp-row-label">Windows (arm64)</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" data-channel="windows-arm64" href="/download" aria-disabled="true" title="Not publicly available yet">Download</a></div>
+                <div class="kp-row"><span class="kp-row-label">Microsoft Store</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">Download from Store</a></div>
+                <div class="kp-row"><span class="kp-row-label">Flutter</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/requirements">See docs</a></div>
+                <div class="kp-row"><span class="kp-row-label">Slack</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">See docs</a></div>
+              </div>
+              <div class="kp-card-foot">
+                <span>Enterprise deployment</span>
+                <span class="kp-foot-tags"><span class="kp-tag">macOS</span><span class="kp-tag">Windows</span></span>
+              </div>
+            </article>
+
+            <article class="kp-card">
+              <h3 class="kp-card-title">Mobile</h3>
+              <p class="kp-card-sub">Use Keel anywhere, with the desktop app.</p>
+              <div class="kp-qr-wrap">
+                <img class="kp-qr" src="/assets/img/qr-download.svg" alt="QR code to download the Keel app" width="160" height="160" />
+                <p class="kp-qr-caption">Scan to download the Keel app</p>
+                <p class="kp-qr-sub">Or get the app on the App Store or Google Play</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Promo banner ============ -->
+    <section class="kp-section kp-banner-section">
+      <div class="kp-container">
+        <div class="kp-banner">
+          <div class="kp-banner-inner">
+            <div class="kp-banner-text">
+              <strong class="kp-banner-title">Keel Science, inc.</strong>
+              <span class="kp-banner-sub">Fast, powerful research</span>
+            </div>
+            <div class="kp-banner-actions">
+              <a class="kp-btn kp-btn-dark kp-btn-sm" href="/download">Download</a>
+              <a class="kp-btn kp-btn-light kp-btn-sm" href="/requirements">Learn more</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Go further ============ -->
+    <section class="kp-section kp-section-alt">
+      <div class="kp-container">
+        <div class="kp-split">
+          <div class="kp-section-intro kp-section-head">
+            <h2 class="kp-section-title">Go further</h2>
+            <p class="kp-section-sub">Bring Keel to your workflow.</p>
+          </div>
+          <div class="kp-cards">
+            <article class="kp-card">
+              <h3 class="kp-card-title">Keel extensions</h3>
+              <p class="kp-card-sub">PAC version of Keel in your apps.</p>
+              <div class="kp-rows">
+                <div class="kp-row"><span class="kp-row-label">Chrome</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">Install</a></div>
+                <div class="kp-row"><span class="kp-row-label">Slack</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">Install</a></div>
+                <div class="kp-row"><span class="kp-row-label">Cursor</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">Install</a></div>
+                <div class="kp-row"><span class="kp-row-label">VS Code Power</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">Install</a></div>
+                <div class="kp-row"><span class="kp-row-label">Word</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">Install</a></div>
+                <div class="kp-row"><span class="kp-row-label">Google Workspace</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">Install</a></div>
+              </div>
+              <div class="kp-card-foot">Google Workspace app by Keel</div>
+            </article>
+
+            <article class="kp-card">
+              <h3 class="kp-card-title">Keel Code environments</h3>
+              <p class="kp-card-sub">Use Keel where you code, at home or on the go.</p>
+              <div class="kp-rows">
+                <div class="kp-row"><span class="kp-row-label">Desktop</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" data-channel="windows" href="/download" aria-disabled="true" title="Not publicly available yet">Download</a></div>
+                <div class="kp-row"><span class="kp-row-label">Terminal</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/app">Download</a></div>
+                <div class="kp-row"><span class="kp-row-label">VS Code</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/app">Install</a></div>
+                <div class="kp-row"><span class="kp-row-label">JetBrains</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/app">Install</a></div>
+                <div class="kp-row"><span class="kp-row-label">Slack</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">Install</a></div>
+                <div class="kp-row"><span class="kp-row-label">GitHub</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/app">Install</a></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Take Keel on the go ============ -->
+    <section class="kp-section kp-go">
+      <div class="kp-container">
+        <div class="kp-go-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="46" height="46" focusable="false">
+            <rect x="13" y="2" width="21" height="35" rx="4" fill="none" stroke="currentColor" stroke-width="2" />
+            <path d="M20 7h7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <circle cx="23.5" cy="32" r="1.6" fill="currentColor" />
+            <path fill="currentColor" d="M31 29c0-1.2-1-2-2.2-2-.8 0-1.5.4-1.9 1V20a2 2 0 0 0-4 0v10.4-2.1a2 2 0 0 0-4 0v3.5a8 8 0 0 0 8 8h1.4a7 7 0 0 0 6.5-4.3l1.6-4a2 2 0 0 0-3.7-1.5L31 29z" />
+          </svg>
+        </div>
+        <h2 class="kp-section-title">Take Keel on the go</h2>
+        <p class="kp-section-sub">Start a thought here, finish anywhere. Keel members access all their projects, tools and the web.</p>
+        <div class="kp-qr-wrap">
+          <img class="kp-qr" src="/assets/img/qr-download.svg" alt="QR code to download the Keel app" width="160" height="160" />
+          <p class="kp-qr-caption">Scan with your phone to get the Keel app</p>
+          <p class="kp-qr-sub">Or sign in on your phone via your desktop.</p>
+        </div>
+        <div class="kp-go-steps">
+          <div class="kp-go-step">
+            <span class="kp-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M4 12l5 5L20 6" /></svg></span>
+            <span class="kp-step-text"><strong>Hand a task to your desktop</strong><span>Start in the Keel app and pick up right where you left off in the Desktop app.</span></span>
+          </div>
+          <div class="kp-go-step">
+            <span class="kp-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M4 12l5 5L20 6" /></svg></span>
+            <span class="kp-step-text"><strong>Kick off a coding task from your pocket</strong><span>Use Remote Control on mobile to send tasks to your local machine. Control CLI, access your local environment or files.</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="kp-section kp-faq">
+      <div class="kp-container">
+        <div class="kp-faq-head kp-section-head">
+          <span class="kp-faq-icon kp-faq-icon-bookmark" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path fill="currentColor" d="M6 2h12a1 1 0 0 1 1 1v19l-7-4-7 4V3a1 1 0 0 1 1-1z" /></svg></span>
+          <h2 class="kp-section-title">FAQ</h2>
+        </div>
+        <div class="kp-faq-list">
+          <div class="kp-faq-item">
+            <button class="kp-faq-q" type="button" aria-expanded="false" aria-controls="kp-faq-a-1"><span>Do I need a paid plan to use the desktop or mobile apps?</span><span class="kp-faq-icon kp-faq-icon-toggle" aria-hidden="true" style="display:inline;width:auto;height:auto;margin:0">+</span></button>
+            <div class="kp-faq-a" id="kp-faq-a-1"><p>No. The desktop and mobile apps are free to download and use with a Keel account. Some advanced features and higher usage limits require a paid plan.</p></div>
+          </div>
+          <div class="kp-faq-item">
+            <button class="kp-faq-q" type="button" aria-expanded="false" aria-controls="kp-faq-a-2"><span>What's the difference between the desktop app and using Keel in my browser?</span><span class="kp-faq-icon kp-faq-icon-toggle" aria-hidden="true" style="display:inline;width:auto;height:auto;margin:0">+</span></button>
+            <div class="kp-faq-a" id="kp-faq-a-2"><p>The desktop app works with your local files, apps, and system integrations, while the browser version runs entirely in the cloud. Your conversations and projects stay in sync between them.</p></div>
+          </div>
+          <div class="kp-faq-item">
+            <button class="kp-faq-q" type="button" aria-expanded="false" aria-controls="kp-faq-a-3"><span>Can I use the same account across desktop, web, and mobile?</span><span class="kp-faq-icon kp-faq-icon-toggle" aria-hidden="true" style="display:inline;width:auto;height:auto;margin:0">+</span></button>
+            <div class="kp-faq-a" id="kp-faq-a-3"><p>Yes. Sign in with the same Keel account everywhere, and your projects, settings, and history follow you from desktop to web to mobile.</p></div>
+          </div>
+          <div class="kp-faq-item">
+            <button class="kp-faq-q" type="button" aria-expanded="false" aria-controls="kp-faq-a-4"><span>How do I connect Keel to tools?</span><span class="kp-faq-icon kp-faq-icon-toggle" aria-hidden="true" style="display:inline;width:auto;height:auto;margin:0">+</span></button>
+            <div class="kp-faq-a" id="kp-faq-a-4"><p>Use Connectors and Plugins in settings to link tools such as Google Workspace, Microsoft 365, Slack, and GitHub. Connected tools can then be used directly from a conversation.</p></div>
+          </div>
+          <div class="kp-faq-item">
+            <button class="kp-faq-q" type="button" aria-expanded="false" aria-controls="kp-faq-a-5"><span>How does Keel Desktop work with the Chrome extension?</span><span class="kp-faq-icon kp-faq-icon-toggle" aria-hidden="true" style="display:inline;width:auto;height:auto;margin:0">+</span></button>
+            <div class="kp-faq-a" id="kp-faq-a-5"><p>The extension and Keel Desktop share your account and conversation history, so you can start a task in the browser and continue it on your computer. The desktop app also adds local file and app access.</p></div>
+          </div>
+          <div class="kp-faq-item">
+            <button class="kp-faq-q" type="button" aria-expanded="false" aria-controls="kp-faq-a-6"><span>Can I use Keel Code in the desktop app?</span><span class="kp-faq-icon kp-faq-icon-toggle" aria-hidden="true" style="display:inline;width:auto;height:auto;margin:0">+</span></button>
+            <div class="kp-faq-a" id="kp-faq-a-6"><p>Yes. Keel Code is available inside the desktop app with access to your local projects, terminal, and files. You can also use it in your editor or from the terminal.</p></div>
+          </div>
+          <div class="kp-faq-item">
+            <button class="kp-faq-q" type="button" aria-expanded="false" aria-controls="kp-faq-a-7"><span>How can I get the desktop app in my organization?</span><span class="kp-faq-icon kp-faq-icon-toggle" aria-hidden="true" style="display:inline;width:auto;height:auto;margin:0">+</span></button>
+            <div class="kp-faq-a" id="kp-faq-a-7"><p>IT administrators can roll out the desktop app with our enterprise installers and manage updates and policies from the Keel admin console. Contact sales for deployment guidance.</p></div>
+          </div>
+          <div class="kp-faq-item">
+            <button class="kp-faq-q" type="button" aria-expanded="false" aria-controls="kp-faq-a-8"><span>Where can I get help or learn more?</span><span class="kp-faq-icon kp-faq-icon-toggle" aria-hidden="true" style="display:inline;width:auto;height:auto;margin:0">+</span></button>
+            <div class="kp-faq-a" id="kp-faq-a-8"><p>Visit Keel Academy, our documentation, or the community forum for guides and tutorials. You can also reach support from the Help menu in the app.</p></div>
+          </div>
+          <div class="kp-faq-item">
+            <button class="kp-faq-q" type="button" aria-expanded="false" aria-controls="kp-faq-a-9"><span>Which Linux distributions does Keel Desktop support?</span><span class="kp-faq-icon kp-faq-icon-toggle" aria-hidden="true" style="display:inline;width:auto;height:auto;margin:0">+</span></button>
+            <div class="kp-faq-a" id="kp-faq-a-9"><p>Keel Desktop supports modern 64-bit distributions such as Ubuntu, Debian, and Fedora, along with other glibc-based releases. AppImage and .deb packages are provided.</p></div>
+          </div>
+          <div class="kp-faq-item">
+            <button class="kp-faq-q" type="button" aria-expanded="false" aria-controls="kp-faq-a-10"><span>Are all features available on Linux?</span><span class="kp-faq-icon kp-faq-icon-toggle" aria-hidden="true" style="display:inline;width:auto;height:auto;margin:0">+</span></button>
+            <div class="kp-faq-a" id="kp-faq-a-10"><p>Most features work on Linux, including chat, projects, and Keel Code. A few platform-specific integrations, such as certain menu bar actions, are available only on macOS and Windows.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <script type="module" src="/ui/download.js"></script>
+  <!-- ============ Footer ============ -->
+  <footer class="kp-footer">
+    <div class="kp-container kp-footer-inner">
+      <div class="kp-footer-brand">
+        <a class="kp-wordmark" href="/" aria-label="Keel home">
+          <span class="kp-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+          <span class="kp-wordmark-text">Keel</span>
+        </a>
+        <form class="kp-footer-search" role="search">
+          <label class="kp-sr-only" for="kp-footer-q">How can we help today?</label>
+          <input id="kp-footer-q" type="search" placeholder="How can we help today?" autocomplete="off" />
+          <button type="submit" aria-label="Search footer links">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M9 4a5 5 0 1 0 3.1 8.9l4.5 4.5 1.4-1.4-4.5-4.5A5 5 0 0 0 9 4zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>
+          </button>
+        </form>
+        <p class="kp-search-status" role="status" aria-live="polite"></p>
+        <p class="kp-footer-note">Download Keel for your platform</p>
+        <a class="kp-btn kp-btn-outline kp-btn-sm" href="/download">Download Keel</a>
+      </div>
+
+      <div class="kp-footer-cols">
+        <div class="kp-footer-col">
+          <h3 class="kp-footer-h">Products</h3>
+          <ul>
+            <li><a href="/">Keel</a></li>
+            <li><a href="/app">Keel Code</a></li>
+            <li><a href="/app">Keel Cowork</a></li>
+            <li><a href="/app">Keel Duet</a></li>
+            <li><a href="/app">Keel Platform</a></li>
+            <li><a href="/app">Keel Code review</a></li>
+            <li><a href="/privacy">Keel Security</a></li>
+            <li><a href="/download">Keel Science</a></li>
+            <li><a href="/download">Keel for Chrome</a></li>
+            <li><a href="/download">Keel for Excel</a></li>
+            <li><a href="/download">Keel for Google Workspace</a></li>
+            <li><a href="/download">Keel for PowerPoint</a></li>
+            <li><a href="/download">Keel for Word</a></li>
+            <li><a href="/download">Keel in Slack</a></li>
+            <li><a href="/app">Artifacts</a></li>
+            <li><a href="/app">Design</a></li>
+            <li><a href="/app">Connectors</a></li>
+            <li><a href="/app">Plugins</a></li>
+            <li><a href="/app">Skills</a></li>
+            <li><a href="/app">Keel Tag</a></li>
+            <li><a href="/app">Keel Cowork</a></li>
+            <li><a href="/download">Keel for Chrome</a></li>
+            <li><a href="/app">Custom instructions</a></li>
+            <li><a href="/download">Desktop app</a></li>
+            <li><a href="/download">Mobile app</a></li>
+            <li><a href="/app">Keel Code</a></li>
+            <li><a href="/app">Enterprise</a></li>
+            <li><a href="/roadmap">Platform status</a></li>
+            <li><a href="/">Pricing</a></li>
+            <li><a href="/roadmap">Release notes</a></li>
+          </ul>
+        </div>
+
+        <div class="kp-footer-col">
+          <h3 class="kp-footer-h">Resources</h3>
+          <ul>
+            <li><a href="/requirements">Keel Academy</a></li>
+            <li><a href="/roadmap">Community</a></li>
+            <li><a href="/roadmap">Events</a></li>
+            <li><a href="/requirements">Courses</a></li>
+            <li><a href="/requirements">Tutorials</a></li>
+            <li><a href="/requirements">Documentation</a></li>
+            <li><a href="/app">Use cases</a></li>
+            <li><a href="/roadmap">Customer stories</a></li>
+            <li><a href="/roadmap">Keel news</a></li>
+            <li><a href="/roadmap">Blog</a></li>
+            <li><a href="/roadmap">Webinars</a></li>
+            <li><a href="/download">Marketplace</a></li>
+            <li><a href="/app">Connectors directory</a></li>
+            <li><a href="/privacy">Trust center</a></li>
+            <li><a href="/roadmap">Engineering blog</a></li>
+            <li><a href="/app">Explore here</a></li>
+          </ul>
+        </div>
+
+        <div class="kp-footer-col">
+          <h3 class="kp-footer-h">Companies</h3>
+          <ul>
+            <li><a href="/">Keel</a></li>
+            <li><a href="/">About Keel</a></li>
+            <li><a href="mailto:careers@keel.software">Careers</a></li>
+            <li><a href="/roadmap">Customers</a></li>
+            <li><a href="/roadmap">Newsroom</a></li>
+            <li><a href="/roadmap">Keel Foundation</a></li>
+            <li><a href="/roadmap">Economic Futures</a></li>
+            <li><a href="/privacy">Responsible Scaling Policy</a></li>
+            <li><a href="/privacy">Security</a></li>
+            <li><a href="/privacy">Trust center</a></li>
+            <li><a href="/requirements">Compliance</a></li>
+            <li><a href="/eula">Legal</a></li>
+            <li><a href="/privacy">Privacy</a></li>
+            <li><a href="/terms">Terms of service</a></li>
+            <li><a href="/privacy">Cookie settings</a></li>
+            <li><a href="/notices">Modern Slavery Statement</a></li>
+            <li><a href="/requirements">Accessibility</a></li>
+            <li><a href="/notices">Sustainability</a></li>
+          </ul>
+        </div>
+
+        <div class="kp-footer-col">
+          <h3 class="kp-footer-h">Explore</h3>
+          <ul>
+            <li><a href="/app">Financial advisors</a></li>
+            <li><a href="/app">Financial services</a></li>
+            <li><a href="/app">Government</a></li>
+            <li><a href="/app">Healthcare</a></li>
+            <li><a href="/app">Higher education</a></li>
+            <li><a href="/app">K-12 teachers</a></li>
+            <li><a href="/app">Life sciences</a></li>
+            <li><a href="/app">Manufacturing</a></li>
+            <li><a href="/app">Nonprofits</a></li>
+            <li><a href="/app">AI Agents</a></li>
+            <li><a href="/app">Coding</a></li>
+            <li><a href="/app">Commerce</a></li>
+            <li><a href="/app">Customer support</a></li>
+            <li><a href="/app">Cybersecurity</a></li>
+            <li><a href="/eula">Legal</a></li>
+            <li><a href="/app">Sales</a></li>
+            <li><a href="/app">Startups</a></li>
+            <li><a href="/app">Nonprofits</a></li>
+            <li><a href="/download">Download apps</a></li>
+            <li><a href="/download">Partners</a></li>
+            <li><a href="/download">Integrations</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="kp-container">
+      <div class="kp-footer-bar">
+        <span class="kp-footer-sig">KEEL</span>
+        <span class="kp-copyright">© 2026 Keel, Inc.</span>
+        <div class="kp-socials">
+          <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="X">X</a>
+          <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">in</a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">GitHub</a>
+          <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">YouTube</a>
+        </div>
+        <div class="kp-legal">
+          <a href="/privacy">Privacy policy</a>
+          <a href="/terms">Terms of service</a>
+          <a href="/privacy">Cookie settings</a>
+          <a href="/trademark">Trademark</a>
+          <a href="/sitemap.xml">Site map</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ Floating news toast + chat widget ============ -->
+  <div class="kp-news" role="status">
+    <span class="kp-news-label">Latest news</span>
+    <a class="kp-news-text" href="/download">Keel Desktop is here. Download it for your platform.</a>
+    <button class="kp-news-close" type="button" aria-label="Dismiss latest news">×</button>
+  </div>
+
+  <div class="kp-chat">
+    <div class="kp-chat-panel" id="kp-chat-panel">
+      <button class="kp-chat-close" type="button" aria-label="Close chat">×</button>
+      <div class="kp-chat-art" aria-hidden="true">
+        <svg viewBox="0 0 120 80" width="110" height="74" focusable="false">
+          <circle cx="60" cy="42" r="26" fill="currentColor" opacity=".12" />
+          <circle cx="51" cy="38" r="3" fill="currentColor" />
+          <circle cx="69" cy="38" r="3" fill="currentColor" />
+          <path d="M50 52q10 8 20 0" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" />
+          <path d="M18 14l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" />
+          <path d="M96 22l1.5 4 4 1.5-4 1.5L96 33l-1.5-4-4-1.5 4-1.5z" fill="currentColor" opacity=".7" />
+        </svg>
+      </div>
+      <h3 class="kp-chat-title">Introducing Keel Desktop</h3>
+      <p class="kp-chat-text">Meet your new AI coding assistant.</p>
+      <a class="kp-btn kp-btn-dark kp-btn-sm" href="/app">Get started</a>
+    </div>
+    <button class="kp-chat-toggle" type="button" aria-label="Open chat" aria-controls="kp-chat-panel" aria-expanded="false">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4 3h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4V5a2 2 0 0 1 2-2z" /></svg>
+    </button>
+  </div>
+
+  <!-- ============ Sign-in / contact modal ============ -->
+  <div class="kp-modal" id="kp-auth-modal" hidden>
+    <div class="kp-modal-backdrop" data-auth-close></div>
+    <div class="kp-modal-card" role="dialog" aria-modal="true" aria-labelledby="kp-auth-title" aria-describedby="kp-auth-desc">
+      <button class="kp-modal-close" type="button" aria-label="Close sign-in dialog" data-auth-close>×</button>
+      <div data-auth-form-view>
+        <h2 class="kp-modal-title" id="kp-auth-title">Continue with Keel</h2>
+        <p class="kp-modal-desc" id="kp-auth-desc">Sign in to take your projects from desktop to web to mobile.</p>
+        <button class="kp-btn kp-btn-outline kp-modal-google" type="button" data-auth-demo>
+          <span class="kp-google-g" aria-hidden="true">G</span> Demo sign-in with Google
+        </button>
+        <p class="kp-modal-note">Demo only — no account is contacted and no data leaves this browser.</p>
+        <div class="kp-modal-divider"><span>or</span></div>
+        <form class="kp-auth-form" novalidate>
+          <label for="kp-auth-email">Email address</label>
+          <input id="kp-auth-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="kp-auth-error" />
+          <p class="kp-auth-error" id="kp-auth-error" role="alert" hidden>Please enter a valid email address.</p>
+          <button class="kp-btn kp-btn-dark kp-modal-submit" type="submit">Continue with email</button>
+        </form>
+        <p class="kp-modal-fine">By continuing, you agree to Keel's <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms of Service</a>.</p>
+      </div>
+      <div class="kp-modal-success" data-auth-success hidden>
+        <h2 class="kp-modal-title">You're signed in</h2>
+        <p class="kp-modal-desc">Your local Keel session is ready. Continue to the app to start a conversation.</p>
+        <a class="kp-btn kp-btn-dark kp-modal-submit" href="/app">Continue to /app</a>
+        <button class="kp-btn kp-btn-outline kp-modal-submit" type="button" data-auth-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/ui/download-clone.js"></script>
 </body>
 </html>
