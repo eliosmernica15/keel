@@ -23,6 +23,25 @@ Generated: 2026-11-24.
 Screenshots: `fleet-next/tests/e2e/screenshots/<WxH>/<destination>.png`.
 HTML report: `fleet-next/tests/e2e/report/`. Traces/failure screenshots: `fleet-next/tests/e2e/test-results/` (gitignored by the lead).
 
+### New-requirement coverage (final completion round)
+
+`tests/e2e/12-new-requirements.spec.ts` (QA-owned) extends the suite with:
+
+- Fleet **Board / Delegation map / Live wall / Cost** tabs: each tab must render its real panel
+  (no dead tab), show the bridge's real task statuses, and state honestly that the hierarchy and
+  per-agent cost are unavailable rather than inventing them.
+- Cowork **search** (`Ctrl+F`, match count, next/prev, Escape), **export** href/target, honest
+  disabled **import**, and **bounded history** (150-row DOM window with "Show earlier messages"
+  and search reaching rows outside the window).
+- Onboarding **Help & troubleshooting**: real bridge probe, three real-state cards, Escape, and
+  navigation to an actual destination.
+- Duet **Review pair**: builder/reviewer identity from real bots and an explicitly comment-only
+  reviewer with no edit/write/execute control; honest "not configured" state when no reviewer role exists.
+
+Run: `npx playwright test tests/e2e/12-new-requirements.spec.ts --workers=1 --reporter=line`.
+First run: 1 pass / 5 fail — all five downstream of QA-F-009 (impure CSS Module selector in
+`features/cowork/cowork.module.css:285` returning `GET / 500`). Re-run only after that fix lands.
+
 ## 2. How to run
 
 Prerequisites: `node_modules` installed; a Python bridge listening on `http://127.0.0.1:8739`; Chromium installed via `npx playwright install chromium`. Start that bridge with any **throwaway local token** (e.g. `KEEL_TOKEN=local-e2e-bridge-token`) and set `KEEL_E2E_BRIDGE_TOKEN` to the same value if you use a different one. This is a test-only bridge token — never a provider key or production credential, and no such value is stored in the browser.

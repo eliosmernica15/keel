@@ -542,7 +542,7 @@ check("FAB-02", "Permission-mode preference is consumed by the Cowork composer",
 for (const [id, name, why] of [
   ["E2E-01", "Playwright end-to-end flows", "not run by this static harness; real coverage lives in tests/e2e/** (Playwright 1.65.1 devDependency), executed separately by continuous QA"],
   ["VIS-01", "Visual regression screenshots at 6 viewports", "no pixel-diff baseline exists; 72 real screenshots at 6 viewports x 6 destinations x 2 themes are captured by tests/e2e/09-theme-viewports.spec.ts and inspected via contact sheets"],
-  ["A11Y-06", "Runtime a11y tree / keyboard walkthrough / contrast", "static source analysis cannot compute computed styles; real measurements are in tests/a11y/** and docs/UI-ACCESSIBILITY-AUDIT.md (note: light-theme AA contrast fails)"],
+  ["A11Y-06", "Runtime a11y tree / keyboard walkthrough / contrast", "static source analysis cannot compute computed styles; real measurements are in tests/a11y/** and docs/UI-ACCESSIBILITY-AUDIT.md (light-theme AA contrast was fixed under QA-F-002 and re-verified: 0 violations)"],
   ["PERF-01", "Runtime virtualization / streaming re-render profiling", "live model turn needs provider credentials (none on this host); large-data rerender/stress coverage is in tests/e2e/08-stress.spec.ts"],
 ]) check(id, name, "skipped", why);
 

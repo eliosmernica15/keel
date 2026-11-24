@@ -62,3 +62,25 @@ visibly confirm the low-contrast grey/orange text recorded by the computed audit
   functional assertions inside a test pass. They are recorded as an environmental/backend reliability finding,
   not treated as an accessibility pass.
 - System theme and first-paint flash remain outside this audit's direct measurement.
+
+## 5. Final completion round — new components (static review; runtime re-test pending)
+
+Read-only review of the components added by the other owners this round:
+
+| Component | Keyboard / names / states observed in source | Honest-state rule |
+|---|---|---|
+| `cowork/Search.tsx` | `<section aria-label="Conversation search">` (region), labelled input with `aria-keyshortcuts`, labelled Previous/Next/Close buttons, `aria-current` on the active result, live match count | Search is explicitly client-side over rows already loaded — no invented backend call. **Defect QA-F-013:** Escape is bound only to the input, so it stops working after a nav button takes focus. |
+| `cowork/LiveStream.tsx` | Stream buffer isolates the token-level re-render to one bubble; history is not re-rendered per token | No stream text is invented; deltas come only from SSE rows. |
+| `cowork/Cowork.tsx` windowing | `WINDOW_SIZE=150`, visible "Show earlier messages — N of M hidden" control; search indexes all loaded rows and expands the window | Rows outside the window are not rendered as if absent; the count is shown. Export link is a real download; Import is `disabled` with `aria-describedby` and an explicit note. |
+| `fleet/Board.tsx` | Five column `role=region`s named from the real `fleet_tasks.status` values; per-card labelled status/assignee selects | Unknown statuses are counted and shown as outside the known set, never relabelled. |
+| `fleet/OrgChart.tsx` | Status region explains the missing hierarchy; only row-derived delegation edges with named actions | States plainly that `parent_id` and a hierarchy route do not exist; no tree is fabricated. |
+| `fleet/LiveWall.tsx` | Cards labelled `Agent <name> activity`, activity badge/dot, explicit "not reported" copy | No `bots.state` column exists; agents with no reported activity stay "not reported". |
+| `fleet/CostPanel.tsx` | Table column headers with `scope="col"`, row headers with `scope="row"` | Dollar figures only from a real `cost_usd`; token counts are labelled "not cost". |
+| `onboarding/HelpCenter.tsx` | `role="dialog" aria-modal="true"` labelled by a real heading; window-capture Escape/Tab trap with focus restoration; labelled action buttons | Both registries are read live on open; the page cannot start a bridge, grant trust or store a key. |
+| `duet/reviewPair.tsx` | Builder/reviewer cards with explicit identity facts, `Badge` states ("Comment-only"/"Builds"), labelled review findings | Reviewer role comes only from reported `role` text; an absent reviewer is "not configured by this bridge"; status is labelled as inferred from a real row. No edit/write/execute control is rendered. |
+
+Runtime a11y re-verification of these components requires a clean app build; the first attempt was
+blocked by QA-F-009 (CSS Module `CssSyntaxError` → `GET / 500`), which the colleague fixed at 5:41 PM.
+Re-run `KEEL_A11Y_REUSE=1 npx playwright test --config tests/a11y/playwright.a11y.config.ts --workers=1`
+after the concurrent owner suites finish; results are recorded in `UI-TEST-MATRIX.md`.
+

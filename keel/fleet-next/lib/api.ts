@@ -31,12 +31,16 @@ export { api };
 export function errMessage(err: unknown): string {
   if (err instanceof Error) {
     const e = err as ApiRequestError;
+    const detail = e.message;
+    // Prefer a human-readable `detail`, but fall back to the stable BFF code
+    // when the detail is absent or generic (e.g. an upstream "TypeError").
+    if (detail && detail !== e.code && !/^(typeerror|error|fetch failed|failed to fetch|network error)$/i.test(detail)) return detail;
     if (e.code) return e.code;
     if (e.status === 502 || e.status === 504) return `http ${e.status}`;
-    return e.message;
+    return detail || "Request failed";
   }
   const e = err as ApiErrorShape;
-  return e?.error || e?.detail || e?.refused || e?.raw || "Request failed";
+  return e?.detail || e?.error || e?.refused || e?.raw || "Request failed";
 }
 
 /** True when the BFF reports that the local bridge is not configured/running. */

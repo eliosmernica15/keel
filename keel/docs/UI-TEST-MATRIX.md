@@ -23,6 +23,42 @@ No result is marked `pass` without recorded command output.
 | Tour-command regression | `npx playwright test tests/e2e/11-tour-command.spec.ts --workers=2` | **pass (1/1)** | storage order `keel-onboarding:step="tour"` before `keel-onboarding-done=false` |
 | 6 viewports × 6 destinations × 2 themes | `npx playwright test tests/e2e/09-theme-viewports.spec.ts --workers=2` | **72/72 captured; 70 pass + 2 re-run pass** | 72 PNGs in `tests/e2e/screenshots/themes/`; the two console-gate failures were QA-F-003 504 noise and passed on a 4-test targeted re-run (4/4). All 12 contact sheets visually inspected |
 
+## Final completion round — re-runs (2026-11-24, Agent F, concurrent owners)
+
+| Check | Command | Status | Evidence |
+|---|---|---|---|
+| UI contract checks (re-run) | `node tests/ui/verify-ui.mjs` | **pass (14)** / 4 skipped | `{"info":1,"pass":14,"skipped":4}`, exit 0, twice (before and after concurrent edits) |
+| TypeScript | `npx tsc --noEmit --incremental false` | **pass** | no output, `TSC_EXIT=0` |
+| Production E2E (baseline, pre-new-feature build) | `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2 --reporter=line` | **129 pass / 2 fail** | 3.2 min; failures: `07-responsive settings@1440` (three `/api/bridge/*` 504s, QA-F-003) and `11-tour-command` palette not visible (QA-F-012). |
+| New-requirement E2E (first run) | `npx playwright test tests/e2e/12-new-requirements.spec.ts --workers=1 --reporter=line` | **1 pass / 5 fail** | 5.3 min. Five downstream failures caused by QA-F-009 (`GET / 500` from a non-pure CSS Module selector); the pass was "Fleet board columns are the bridge's real task statuses". Spec assertions corrected/expanded after reading the owners' landed components. |
+| Production build (blocker confirmation) | `$env:KEEL_DIST_DIR='.next-qa-build'; npx next build` | **FAIL** | `Failed to compile. ./features/cowork/cowork.module.css:285:1 — Selector "[data-match-active=\"true\"]" is not pure`, `BUILD_EXIT=1`. Release blocker QA-F-009. |
+| CSS Module purity scan | grep `^\[...=` in `**/*.module.css` | 5 matches | Only `cowork.module.css:285` is impure; `code.module.css:33-34` and `duet.module.css:63-64` include local `.drawer` classes and are valid. |
+
+## Final verification after all owners landed (Agent F, 2026-11-24 evening)
+
+Environment: QA bridge on `:8739` (`tests/ui/start_bridge.py`, real `~/.keel`, throwaway token),
+QA-owned production servers on `:3300`/`:3302` from a verified `.next-e2e` build.
+`node tests/ui/verify-ui.mjs` → `{"info":1,"pass":14,"skipped":4}`, exit 0.
+`$env:KEEL_DIST_DIR='.next-e2e'; npx next build` → **compiled successfully, 5/5 pages, exit 0, 90.7 s**.
+
+| Check | Command | Real result |
+|---|---|---|
+| Full production E2E (140 tests incl. QA's 9 new) | `npx playwright test --config tests/e2e/playwright.prod-reuse.config.ts --workers=2 --reporter=line` | **132 pass / 8 fail (5.0 min)**. 7 failures are bridge-504 console-gate noise under parallel load (QA-F-011); 1 is the real QA-F-013 Escape defect. `NETWORK failed=[] httpErrors=[]`; 13/13 read-only BFF routes HTTP 200. |
+| 504-noise re-run (single worker) | same config, `--workers=1 tests/e2e/09-theme-viewports.spec.ts` | **72 pass / 0 fail (2.5 min)** — all 6 viewports × 6 destinations × 2 themes re-captured |
+| Other 504-noise failures re-run | same config, `--workers=1 --grep "number shortcuts do not fire\|Cowork home shows an empty state\|no pageerror or console.error while visiting"` | **3 pass / 0 fail (11.4 s)** |
+| Accessibility (fresh production build) | `$env:KEEL_A11Y_REUSE=1; npx playwright test --config tests/a11y/playwright.a11y.config.ts --workers=1 --reporter=line` | **12 pass / 0 fail (46.9 s)**. Dark: 0 violations, min 5.33:1 (Fleet 247 nodes); light: 0 violations, min 4.87:1 (Fleet 247, Capabilities 212). Reduced motion 0.001 ms; 200% zoom no overflow; keyboard walkthrough reaches all six. |
+| New-requirement suite | `npx playwright test tests/e2e/12-new-requirements.spec.ts --workers=2 --reporter=line` | **8 pass / 1 fail** — sole failure is QA-F-013. |
+| Owner feature suites | `npm run test:features` (stops at Cowork), then each config separately | Cowork **25 pass / 3 fail**; Code+Duet **30 pass**; Fleet **20 pass**; Capabilities+Settings **17 pass**; Onboarding **12 pass / 1 fail**. Failures are owner test-fixture drift (QA-F-016/017/018). |
+| Visual inspection | `python tests/ui/make_contact_sheets.py`, all 12 sheets opened | 72/72 screenshots present; no horizontal overflow or whitespace-only surface; drawers closed at 360–1024 px, open at 1280–1440 px; Fleet's new tabs and Settings' "Agent models" section visible in both themes. |
+
+> Lead's `lib/client.ts` now retries **idempotent GETs only** on 502/504 (writes never retried). This
+> does not remove the browser's `console.error` for the first failed GET, so the strict console gate
+> still fails when the shared bridge returns 504 under load; the 13-endpoint route probe and all
+> functional assertions pass. QA-F-011 remains an environmental/backend finding.
+
+> The new E2E spec `tests/e2e/12-new-requirements.spec.ts` is owned by QA and covers Fleet Board/Delegation map/Live wall/Cost (incl. honest states), board status columns, Cowork search/export/windowing/import honesty, onboarding Help & troubleshooting, and Duet review-pair identity + comment-only.
+
+
 > Note: `next dev` for the isolated E2E/a11y builds auto-added `.next-e2e*/types/**/*.ts` entries to the
 > lead-owned `fleet-next/tsconfig.json`. No QA agent edited that file; `npx tsc --noEmit --incremental false`
 > passes with those entries present (D-E2E-003 remains acknowledged).

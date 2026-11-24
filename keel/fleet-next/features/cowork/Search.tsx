@@ -28,6 +28,19 @@ export default function SearchPanel({
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => { inputRef.current?.focus(); }, [focusTick]);
 
+  // Escape must close the panel regardless of which control currently has
+  // focus (input, Next/Previous buttons or a result). QA-F-013.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      onClose();
+    };
+    document.addEventListener("keydown", onKey, true);
+    return () => document.removeEventListener("keydown", onKey, true);
+  }, [onClose]);
+
   const hasQuery = query.trim().length > 0;
   const count = matches.length;
   const shown = matches.slice(0, SHOWN);

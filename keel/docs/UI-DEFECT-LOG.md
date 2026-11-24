@@ -124,5 +124,58 @@ This section is written from commands actually executed against the worktree whi
 | `npx playwright test tests/e2e/10-network-routes.spec.ts tests/e2e/11-tour-command.spec.ts --workers=2` | **4 passed** (SSE teardown aborts excluded from the failed-request gate) |
 | `npx playwright test tests/e2e/09-theme-viewports.spec.ts --workers=2` | 70 passed / 2 failed (504 console noise), 72 PNGs written; targeted re-run of the two + their theme twins: **4 passed** |
 | `npx playwright test --workers=2 --reporter=line` (full dev suite) | 127 passed / 4 failed in 1.2 h under heavy parallel load; targeted re-run of the 4 after QA-F-007 fixture hardening: **4 passed** |
-| `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2 --reporter=line` | **131 passed / 0 failed (4.4 min)** — clean end-to-end result |
+| `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2 --reporter=line` | **131 passed / 0 failed (4.4 min)** — clean end-to-end result (earlier round) |
+
+---
+
+## 8. Final completion round — continuous QA (Agent F, 2026-11-24, concurrent owners landing)
+
+Baseline re-runs on branch `feat/frontend-completion-2026-11-24` with a QA-owned bridge on `:8739`
+(`tests/ui/start_bridge.py`, token `local-e2e-bridge-token`, real `~/.keel` state). Lead's `:3200`/.next untouched.
+
+| Command | Real result |
+|---|---|
+| `node tests/ui/verify-ui.mjs` | `{"info":1,"pass":14,"skipped":4}`, exit 0 (before concurrent edits landed) |
+| `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2 --reporter=line` | **129 passed / 2 failed (3.2 min)**. Failures: 07-responsive settings@1440 (three `/api/bridge/*` 504s — QA-F-003) and 11-tour-command palette not visible (QA-F-012). This build predates the new-feature source landing mid-run. |
+| `npx playwright test tests/e2e/12-new-requirements.spec.ts --workers=1 --reporter=line` | **1 passed / 5 failed (5.3 min)**. All five downstream failures are caused by QA-F-009 (`GET / 500`); the single pass was "Fleet board columns are the bridge's real task statuses". The first Fleet failure was a QA assertion wording mistake (corrected in the spec), not an app defect. |
+
+### New defects
+
+| ID | Severity | File:line | Description | Owner | Status |
+|---|---|---|---|---|---|
+| QA-F-009 | **Blocker** | `fleet-next/features/cowork/cowork.module.css:285` | Bare attribute selector `[data-match-active="true"]` in a CSS Module is not "pure" (no local class/id). Next webpack rejects it with `CssSyntaxError`, `GET /` returns **500**, and **no surface renders** — the app is completely down in dev and would fail the production build. Observed live in the new-requirements run (`GET / 500 in 45318ms`; `pageerror: Syntax error: Selector "[data-match-active=\"true\"]" is not pure`), and the line is still present on read-back. Fix is to scope it to a local class (e.g. `.searchResult[data-match-active="true"]`) or use `:global(...)`. | Cowork (A) | **fixed & re-verified** — read-back shows `.timeline [data-match-active="true"]` (local class makes the selector pure); production build and full suites then passed |
+| QA-F-010 | Medium | `fleet-next/features/fleet/Fleet.tsx:27-39` vs `:99-120` | First read after the Fleet owner's edit showed four new tabs (Board / Delegation map / Live wall / Cost) declared in `TABS` but **absent from the `content` switch** — clicking them rendered nothing (dead controls). Re-read after the owner's next edit shows `case "board"/"org"/"live"/"cost"` added with `Board`, `OrgChart`, `LiveWall`, `CostPanel`; the E2E run confirmed the Delegation map panel and its honest-unavailable copy render. | Fleet (C) | **fixed by owner; E2E-observed** |
+| QA-F-011 | Medium (environmental) | `app/api/bridge/[...path]/route.ts:149-154` | Recurrence of QA-F-003: three concurrent `/api/bridge/*` requests returned 504 during the production suite, tripping the strict console gate on `07-responsive settings@1440x900`. All functional assertions in that test passed. | backend / environment | **open / environmental** |
+| QA-F-012 | Low (transient) | no app line identified | `11-tour-command` failed once in the production run: `getByRole("dialog", {name:"Command palette"})` never appeared after Ctrl+K. Same test passed earlier (131/131 round) and `04-command-shortcuts` palette tests passed in the same run. Not reproduced yet; targeted re-run pending. | shell / transient | **not reproduced** |
+| QA-F-013 | **Medium (a11y/UX)** | `fleet-next/features/cowork/Search.tsx:47-52` (Escape handler lives only on the search `<input>`); consumer `Cowork.tsx:409-419` (window handler handles only Ctrl/⌘+F) | After clicking **Next match / Previous match**, focus moves to that button, and **Escape no longer closes the Conversation search panel**. Verified by `tests/e2e/12-new-requirements.spec.ts` targeted run: `getByRole('region',{name:'Conversation search'})` stayed in the DOM after Escape (26×, 12 s). Escape works while the input is focused. Requirement calls for Escape to dismiss the dialog-like panel regardless of which of its controls has focus. | Cowork (A) | **open** |
+| QA-F-014 | Low (transient) | no stable app line | One targeted Duet run timed out with `pageerror: Unexpected end of input` and `html[data-reduced-motion]` never set — consistent with a dev-server HMR chunk truncated while the owner was actively writing `features/code/workspace.tsx`. The same test loaded and reached its assertions in the preceding full run and in a later re-run. | concurrent edits | **not reproducible** |
+
+| QA-F-015 | **Blocker (fixed by owner; see re-test below)** | `fleet-next/features/fleet/fleet.module.css:276-289` (selector list contains `:global(.keel-empty) button:focus`) | A second CSS-Module purity regression blocks every runtime suite: `npx next build` fails with `Syntax error: Selector ".tab:focus, … :global(.keel-empty) button:focus, …" is not pure (pure selectors must contain at least one local class or id)`, `Failed to compile`, and the production Playwright `webServer` never starts. Confirmed by `npx playwright test --config tests/e2e/playwright.prod.config.ts …` → `Error: Process from config.webServer was not able to start. Exit code: 1`. The file is **uncommitted working-tree work** (`git status M …fleet.module.css`), not in HEAD. Fix: give that selector a local class (e.g. `:global(.keel-empty) .linkBtn:focus`) or drop it from the list; the other `:global(...)` uses in the codebase all carry a following local class and are valid. | Fleet (C) | **fixed & re-verified** — read-back of `fleet.module.css:282-288` shows the `:global(.keel-empty) button:focus` line removed; production build then compiled and the full suite ran |
+
+### Re-tests after owners' fixes (2026-11-24 evening, Agent F)
+
+| ID | Final status | Re-test evidence |
+|---|---|---|
+| QA-F-009 | **fixed & re-verified** | Owner scoped the selector to `.timeline [data-match-active="true"]`; `$env:KEEL_DIST_DIR='.next-e2e'; npx next build` compiled successfully (5/5 pages, exit 0, 90.7 s); full E2E and a11y suites ran against that build. |
+| QA-F-010 | **fixed & re-verified** | New E2E "Fleet kanban… no dead controls" test passes; all four new Fleet tabs render their real panels. |
+| QA-F-011 | **still environmental** | With `--workers=2`, 7 tests failed on `console.error: … 504 (Gateway Timeout)` from `/api/bridge/*`; all 7 pass on single-worker re-runs (72/72 theme screenshots, 3/3 other tests). The lead's GET-retry in `lib/client.ts` is write-safe but cannot remove the browser console entry for the first failed GET. 13/13 read-only routes answer 200 in the dedicated probe. |
+| QA-F-012 | **not reproducible** | `11-tour-command` passed in the final 140-test production run. |
+| QA-F-013 | **OPEN — real defect** | Still fails in the final production run and in the isolated QA test: `getByRole('region',{name:'Conversation search'})` remains in the DOM after Escape when a match-nav button has focus. Source re-check: `Search.tsx:47-52` binds Escape only to the input. |
+| QA-F-014 | **not reproducible** | No `pageerror: Unexpected end of input` in the clean production runs. |
+| QA-F-015 | **fixed & re-verified** | Owner removed the impure `:global(.keel-empty) button:focus` line at 20:50; production build then succeeded and the full suite ran. |
+
+### Owner-suite fixture drift found while running the five feature suites (QA does not edit these files)
+
+| ID | Severity | Owner file:line | Description | Owner | Status |
+|---|---|---|---|---|---|
+| QA-F-016 | Low (test fixture) | `tests/features/cowork/07-states.spec.ts:19` | Expects the error banner `Session expired` from a one-shot mocked `bots/:id/rows` failure. The lead's new idempotent-GET retry makes the second attempt succeed, so the banner correctly never appears. The **app behaviour is right**; the fixture must simulate a persistent failure (or assert recovery). | Cowork (A) | **open — owner fixture** |
+| QA-F-017 | Low (test fixture / copy) | `tests/features/cowork/08-composer.spec.ts:29`; `tests/features/cowork/03-upload.spec.ts:20` | Owners' tests expect `Message failed: Provider not configured` and exact `Failed`; the UI now renders `Message failed: provider_not_configured` (observed in the failure's accessibility snapshot) and a differently worded upload failure. Failure is honest, but the copy is less human-readable than the asserted text. | Cowork (A) | **open — owner fixture / copy** |
+| QA-F-018 | Low (test fixture / copy) | `tests/features/onboarding/01-full-wizard.spec.ts:115` | Test expects `Verification failed: Key rejected by provider: invalid x-api-key`; the UI renders `Verification failed: invalid_key` (exact `Received string` in command output). Still an honest failure state; fixture/copy need alignment. | Onboarding (E) | **open — owner fixture / copy** |
+
+### New E2E coverage added (owned by QA)
+
+`tests/e2e/12-new-requirements.spec.ts` — six tests for Fleet board/org/live/cost panels and honest states,
+board column identity, Cowork search (Ctrl+F, match count, step, Escape), Cowork export href,
+onboarding Help & troubleshooting (real bridge probe, Escape, real navigation), and Duet builder/reviewer
+identity with reviewer comment-only. Evidence and status are updated in `UI-TEST-MATRIX.md`.
 
