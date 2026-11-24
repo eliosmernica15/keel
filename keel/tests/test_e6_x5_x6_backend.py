@@ -519,6 +519,36 @@ def test_x53_jit_grant_concurrent_consumption_succeeds_once() -> None:
     assert grant.consumed is True
 
 
+def test_x53_jit_grant_snapshot_cannot_replay_after_consume() -> None:
+    """C8: single-use lives in shared state, not in this dataclass instance."""
+    grant = issue_grant("deploy", 1000, duration_seconds=600, just_in_time=True)
+    snapshot = grant.to_dict()
+    assert snapshot["consumed"] is False
+
+    first = consume_grant(grant, 1001)
+    assert first.granted is True and first.reason == "just_in_time_granted"
+
+    replay = TimeBoxedGrant(**snapshot)  # round-tripped before consumption
+    second = consume_grant(replay, 1002)
+    assert second.granted is False
+    assert second.reason == "grant_inactive"
+    assert consume_grant(TimeBoxedGrant(**snapshot), 1003).granted is False
+
+
+def test_x53_unregistered_grant_is_denied() -> None:
+    """A fabricated, unsigned grant descriptor must never be trusted."""
+    fabricated = TimeBoxedGrant(
+        grant_id="fabricated-grant",
+        scope="deploy",
+        issued_at=1000,
+        expires_at=10**9,
+        just_in_time=True,
+    )
+    decision = consume_grant(fabricated, 1002)
+    assert decision.granted is False
+    assert decision.reason == "grant_inactive"
+
+
 # ---------------------------------------------------------------------------
 # X5.4 -- capability tokens
 # ---------------------------------------------------------------------------
@@ -918,3 +948,21 @@ def test_sunset_invalid_date_fails_closed() -> None:
     except BackendError:
         return
     raise AssertionError("expected BackendError for invalid sunset date")
+
+
+def test_e6_x5_x6_feature_traceability_registry_maps_real_symbols() -> None:
+    """Every declared E6/X5/X6 ID resolves to real, usable module symbols."""
+    expected = {
+        "E6.2", "E6.3", "E6.4", "E6.6", "E6.7", "E6.11", "E6.12", "E6.13",
+        "E6.14", "X5.2", "X5.3", "X5.4", "X5.7", "X5.8", "X5.10", "X5.11",
+        "X5.12", "X5.13", "X6.1", "X6.2", "X6.3", "X6.4", "X6.5", "X6.6",
+        "X6.8", "X6.9", "X6.10",
+    }
+    assert set(b.FEATURE_TRACEABILITY) == expected
+    for fid, names in b.FEATURE_TRACEABILITY.items():
+        assert names, fid
+        for name in names:
+            obj = getattr(b, name, None)
+            assert obj is not None, (fid, name)
+            assert callable(obj) or isinstance(
+                obj, (type, int, str, tuple, dict, set, frozenset)), (fid, name)

@@ -116,3 +116,137 @@ See `master-plan-v6-test-evidence.md` for exact commands and outputs.
 | Production release | BLOCKED (signing, clean-VM, push authorization) |
 
 No production-ready claim is made while signing, native cross-platform verification and push authorization remain unresolved.
+
+# Final adversarial backend integration audit — 2026-11-24
+
+Independent audit of the reported state at `5dbc5f9`, before any further change.
+
+## Verified state
+Branch `integration/v6-backend-complete`, HEAD `5dbc5f9` exists, clean tree, 68 commits,
+20 backend modules, 865 IDs / 854 verified / 9 not_started / 2 blocked, `origin/main`
+untouched. `BACKEND-IMPLEMENTATION-DETAIL.md` present.
+
+## Subagent execution
+- **10 independent audit agents** in isolated worktrees: hub integration, real app pathways,
+  module functionality (2 agents), cross-module workflows, security red team, persistence,
+  test quality, architecture, and a separate adversarial red team.
+- **7 remediation agents** with exclusive file ownership; every fix had a regression test
+  proven to fail against pre-fix source and pass after; lead reviewed diffs and re-ran
+  targeted suites before merging.
+- Total subagent sessions for this operation: **17**.
+
+## Key audit verdicts
+1. **All 20 modules perform genuine backend operations** — no descriptor-only stubs.
+2. **Real application entry points verified live**: HTTP `POST /api/capabilities/invoke`
+   (auth 403, confirm 409, real result 200, real handler error 400), CLI `capability invoke`,
+   TUI `/invoke`, and the shipped UI capability browser.
+3. **5/5 multi-module workflows passed end-to-end (102/102 steps)**: agent execution,
+   subagent delegation, MCP/plugin lifecycle, cowork/background with restart recovery, and
+   code workflow — all with real modules, no mocks.
+4. **No normal product workflow directly imports the 20 modules.** They are reachable but
+   peripheral behind an intentional, permission-gated capability boundary. The earlier
+   "fully integrated into production workflows" claim was overstated and is corrected here.
+5. **Registry certification was shallow** (dict membership; 93 empty criteria; evidence =
+   doc filename). Fixed: derived criteria for 93 rows, AST + evidence-doc symbol/test
+   cross-check; 361/421 IDs now traceable (was 231). No status downgraded; limitation
+   documented in `REGISTRY-EVIDENCE-INTEGRITY.md`.
+
+## Security defects found and fixed
+3 HIGH: W7 public-share credential leak, W4 OAuth error redaction leak, Z replay HTML secret
+retention. MEDIUM: shared DLP gaps, Y1 SSRF DNS bypass, Z `LocalSync` cross-instance chain
+corruption, W7 manager lost updates, X3 consent not durable, Z budget TOCTOU/JSONL corruption,
+v-series release signature fail-open, y4 tar member traversal, and several fake-success paths.
+All fixed with regression tests. Native Linux/macOS sandbox execution remains unverified.
+
+## Test execution
+- Audit full-suite reproduction under 15 concurrent agents: 4027 passed / 2 failed / 48 skipped /
+  3621 subtests — the 2 failures were 30s localhost HTTP timeouts caused by ambient MCP
+  servers in `~/.keel/settings.json` from concurrent user work (with an isolated HOME both
+  pass in 4-6s). No product defect.
+- **Definitive final clean-environment full-suite result: 4071 passed, 48 skipped, 3640 subtests, 0 failed** (`python -m pytest -q -o faulthandler_timeout=120`, 585.13s; see `master-plan-v6-test-evidence.md`).
+
+## Final production-readiness assessment (unchanged)
+Backend functionality and real capability-surface integration: **PASS**.
+Independent audit + remediation: **PASS**. Test coverage: **PASS**.
+Security: **PARTIAL** (native Linux/macOS verification external).
+Platform support: **PARTIAL** (Windows native; Linux/macOS external).
+Production release: **BLOCKED** (signing, clean-VM, push authorization, owner gates).
+No production-ready claim made. No push/release/deploy/visibility change.
+
+## Additive reconciliation amendment (2026-11-24 — no result changed)
+
+This section is appended; the assessments and test results above are unchanged and remain
+authoritative. It resolves stale inventory counts used in earlier documentation.
+
+- **Canonical registry:** `PLAN-INDEX.json`, SHA-256
+  `62fd5c6ac2d166e8cb1f5752c168d22d56d767c7e6a5bf9384696756a4a5b2f6` — **865 rows:
+  854 verified, 9 not_started, 2 blocked**. The 433 / 430 / 2 figures found in older
+  matrix snapshots are historical provenance only and are not planning authority.
+- **Non-additive inventories:** the 228-row v5 base registry is a subset of 865;
+  `feature-checklist.md`'s 398 observable contracts (410 unique IDs in the rendered
+  tables) are a separate cross-cutting observability inventory and are never summed with
+  the registry.
+- **Backend accounting:** deduplicated denominator **421** backend-attributed IDs;
+  421 / 421 = 100.0% `verified`, but only 361 / 421 = 85.7% fully traceable and
+  60 / 421 = 14.3% verified with certification limitation. See
+  `BACKEND-COMPLETION-ACCOUNTING.md`.
+- **Remaining work:** 9 `not_started` (7 D6 conventions + W1.18 + Y6.4) and 2 `blocked`
+  (C11.1/C11.2); 9 rows excluded as owner-gated/external/dormant. See
+  `REMAINING-WORK-MATRIX.md`.
+- **Consumption boundary:** real capability entry points are verified and 5 / 5 workflows
+  passed, but no normal product workflow directly consumes the backend modules — an
+  intentional capability boundary while workflow integration proceeds in parallel.
+  This does not change the production-readiness assessment above.
+
+
+## FINAL AMENDMENT — all 421 traceability gaps closed (authoritative)
+
+A later remediation batch (`agent/final-trace`, merged and pushed) added AST-visible
+`FEATURE_TRACEABILITY` declarations and per-ID evidence rows to every owning module.
+`python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
+and `--strict` enforces the gate with a non-zero exit on any failure.
+
+All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+are **historical** — they describe the state before that batch and are retained only
+for provenance. Current authoritative certification:
+
+- Fully traceable: **421 / 421 = 100.0%**
+- Verified-with-limitation: **0 / 421 = 0.0%**
+- Registry unchanged: 865 rows, 854 verified / 9 not_started / 2 blocked.
+
+The gate remains a certification layer over tests and declarations; it does not claim
+native cross-platform or live-provider verification.
+
+# Backend completion delivery — GitHub push verification (2026-11-24)
+
+## Delivery
+- Repository: https://github.com/eliosmernica15/keel
+- Integration branch: `integration/backend-completion-2026-11-24`
+- Starting commit: `a64cd5dae8d760c164106be01496e2a9e6b7d530`
+- The branch was created, pushed and its remote SHA verified BEFORE implementation began.
+- Every reviewed batch was committed and pushed immediately; the remote SHA was verified with `git ls-remote origin refs/heads/integration/backend-completion-2026-11-24` after each push.
+- `main` was never modified (`origin/main` remained `ecba9d2b9678ab7a3a744c62683eea28a1ce01ee` throughout).
+- Direct branch URL: https://github.com/eliosmernica15/keel/tree/integration/backend-completion-2026-11-24
+
+## Backlog execution (all pushed)
+1. Real product workflows (`backend_workflows.py`): request, approval, delegation, MCP, recovery — exposed through webapp `POST /api/backend-workflows/<name>` and CLI `keel backend-workflow`, with durable JSONL ledgers, idempotency replay guards and permission checks.
+2. Typed contracts in the hub: canonical envelopes, `ModelId` conversion, 144 signature-derived function schemas, startup dispatch validation.
+3. Feature traceability: all 421 attributed IDs now pass the strengthened evidence gate (was 361).
+4. Remaining LOW defects: bounded ledgers, tri-state settings, AST-based offline build check, negative recording bounds, unknown removal keys, approval cross-instance write race, seal-key init race, Literal schema typing.
+5. Test quality: descriptor-only tests replaced with behavioral coverage plus mutation proofs.
+6. Inventory reconciliation: 865 authoritative registry; 228 base subset; 398 checklist contracts a separate observability inventory — not summed.
+7. Observability: hash-chained JSONL events, redaction, health snapshots, diagnostics.
+8. Typed event union (18 kinds), durable `EventBus`, `DeliveryTracker` with cross-process atomic appends and crash recovery.
+
+## Independent review
+- 2 independent reviewers, both with dedicated worktrees and no implementation ownership.
+- Review 1 (security/integration): 4 HIGH + 6 MEDIUM findings, ALL reproduced then fixed and re-verified by the same reviewer → **PASS**.
+- Review 2 (tests/accounting): 2 HIGH findings, fixed and re-verified → **PASS**.
+- All actionable LOW findings fixed or documented with rationale.
+
+## Final verification
+- **Definitive full suite under a clean local HOME: 4214 passed, 48 skipped, 3707 subtests, 0 failed** (`python -m pytest -q -o faulthandler_timeout=120`, 571.95s). See `master-plan-v6-test-evidence.md`.
+- `verify_v6_audit.py`: CONSISTENCY OK (865 rows).
+- `verify_backend_operation.py --strict`: OK, 421/421 traceable, non-zero exit on any evidence failure.
+- Dependency graph FRESH; license gate OK; 8 workflow YAMLs parse; all `uses:` refs full-SHA pinned.
+- Registry unchanged: 854 verified / 9 not_started / 2 blocked; no status inflation.

@@ -786,7 +786,15 @@ _PLUS_FILE_RE = re.compile(r"^\+\+\+\s+(.+?)(?:\t.*)?$")
 
 
 def parse_unified_diff(text: Any) -> dict[str, list[int]]:
-    """Map each file to the *new-file* line numbers of its added lines."""
+    """Map each file to the *new-file* line numbers of its added lines.
+
+    Non-text input is refused instead of silently producing an empty (successful)
+    result; an empty *text* diff is a legitimate empty mapping.
+    """
+    if isinstance(text, bytes):
+        text = text.decode("utf-8", errors="replace")
+    if not isinstance(text, str):
+        raise BackendError("unified diff must be text")
     files: dict[str, list[int]] = {}
     current: str | None = None
     new_line = 0
@@ -1264,12 +1272,26 @@ _PARSERS: dict[str, Callable[[str], TestSummary]] = {
 
 
 def summarize(raw: Any, runner: str | None = None) -> TestSummary:
-    """X2.7: turn raw runner output into a bounded failure summary."""
-    text = strip_ansi(_as_text(raw))
+    """X2.7: turn raw runner output into a bounded failure summary.
+
+    Missing, mistyped or evidence-free output is an honest failure: it raises a
+    typed ``BackendError`` (invalid input) or returns ``ok=False`` with a note
+    (empty output), never ``ok=True`` on no evidence.
+    """
+    if raw is None:
+        raise BackendError("no test output to summarize")
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8", errors="replace")
+    if not isinstance(raw, str):
+        raise BackendError("test output must be text")
+    text = strip_ansi(raw)
     truncated = len(text) > 200_000
     if truncated:
         text = text[:200_000]
     chosen = detect_runner(text, runner)
+    if not text.strip():
+        return TestSummary(chosen, False, guessed=True,
+                           note="no test output; cannot confirm success")
     parser = _PARSERS.get(chosen, _parse_generic)
     try:
         summary = parser(text)

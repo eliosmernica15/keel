@@ -22,6 +22,24 @@ def _err(excinfo, code: str) -> None:
     assert excinfo.value.code == code
 
 
+def _offline_dns(host: str) -> tuple[str, ...]:
+    """Deterministic, offline resolver for allow-listed documentation names.
+
+    The production default uses ``socket.getaddrinfo``; tests inject this stub
+    so that no test performs a real DNS lookup or outbound fetch.
+    """
+    public = {
+        "trusted.example": "93.184.216.34",
+        "docs.example": "93.184.216.34",
+        "public.example": "8.8.8.8",
+        "example.test": "8.8.8.8",
+    }
+    try:
+        return (public[host.lower()],)
+    except KeyError as exc:
+        raise RuntimeError(f"offline resolver has no record for {host!r}") from exc
+
+
 # ---------------------------------------------------------------------------
 # Y1.1 - Code Mode / execute tool
 # ---------------------------------------------------------------------------
@@ -159,7 +177,7 @@ def test_y1013_create_uses_edit_permission_and_plugin_strategy():
     )
     assert plan.permission == "edit" and plan.permission_resource == "worktree:feat"
     assert plan.strategy == "mirror" and plan.directory == "/repo/worktrees"
-    assert "worktree_create" in y.WORKTREE_TOOLS
+    assert y.WORKTREE_TOOLS == ("worktree_create", "worktree_list", "worktree_remove")
 
 
 def test_y1013_remove_requires_force_and_edit_permission():
@@ -188,8 +206,9 @@ def test_y1013_rejects_traversal_and_unregistered_strategy():
 
 
 def test_y1014_deny_removes_whole_catalog():
-    assert "browser.lighthouse" in y.BROWSER_TOOLS
-    assert y.browser_tool_catalog() == y.BROWSER_TOOLS
+    catalog = y.browser_tool_catalog()
+    assert len(catalog) == 14
+    assert catalog[0] == "browser.tabs.open" and catalog[-1] == "browser.lighthouse"
     assert y.browser_tool_catalog(denied=["browser"]) == ()
     assert y.browser_tool_catalog(denied=["browser.*"]) == ()
     assert y.browser_tool_catalog(allowed=["browser.network"]) == ("browser.network",)
@@ -231,6 +250,74 @@ def test_y1014_rejects_non_decimal_ip_spellings():
         with pytest.raises(y.BrowserContractError) as ei:
             y.validate_browser_url(url)
         _err(ei, "unsafe_host")
+
+
+def test_y1014_rejects_dns_names_resolving_to_private_addresses():
+    """C5: DNS names that point at loopback must be denied, not passed through."""
+    def resolving_to_loopback(host: str) -> tuple[str, ...]:
+        return {
+            "localtest.me": ("127.0.0.1",),
+            "127.0.0.1.nip.io": ("127.0.0.1",),
+        }[host.lower()]
+
+    for url in ("http://localtest.me/x", "http://127.0.0.1.nip.io/x"):
+        with pytest.raises(y.BrowserContractError) as ei:
+            y.validate_browser_url(url, dns_resolver=resolving_to_loopback)
+        _err(ei, "unsafe_host")
+    # A name that resolves to a mix of public and private addresses is denied too.
+    with pytest.raises(y.BrowserContractError) as ei:
+        y.validate_browser_url(
+            "https://mixed.example/x",
+            dns_resolver=lambda host: ("8.8.8.8", "10.0.0.5"),
+        )
+    _err(ei, "unsafe_host")
+
+
+def test_y1014_dns_failure_or_empty_answer_fails_closed():
+    def unavailable(host: str) -> tuple[str, ...]:
+        raise RuntimeError("DNS temporarily unavailable")
+
+    for resolver in (unavailable, lambda host: ()):
+        with pytest.raises(y.BrowserContractError) as ei:
+            y.validate_browser_url("https://public.example/x", dns_resolver=resolver)
+        _err(ei, "unsafe_host")
+
+
+def test_y1014_public_dns_name_allowed_and_literals_skip_resolution():
+    assert y.validate_browser_url(
+        "https://example.test/x", dns_resolver=_offline_dns
+    ) == "https://example.test/x"
+
+    def must_not_resolve(host: str) -> tuple[str, ...]:
+        raise AssertionError("IP literals must use the no-I/O fast path")
+
+    # IP-literal forms are already checked by address arithmetic: no DNS call.
+    with pytest.raises(y.BrowserContractError) as ei:
+        y.validate_browser_url("http://127.0.0.1/x", dns_resolver=must_not_resolve)
+    _err(ei, "unsafe_host")
+    # Structural rejections happen before resolution as well.
+    with pytest.raises(y.BrowserContractError) as ei:
+        y.validate_browser_url("javascript:alert(1)", dns_resolver=must_not_resolve)
+    assert ei.value.code in ("unsafe_tag", "unsupported_scheme")
+
+
+def test_default_dns_resolver_delegates_to_stdlib_without_real_lookup(monkeypatch):
+    """The default seam resolves; the stub keeps this test fully offline."""
+    import socket
+
+    calls = []
+
+    def fake_getaddrinfo(host, port, *, type):  # noqa: A002 - stdlib signature
+        calls.append((host, port, type))
+        return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("8.8.8.8", port or 0))]
+
+    monkeypatch.setattr(socket, "getaddrinfo", fake_getaddrinfo)
+    assert list(y._default_dns_resolver("public.example")) == ["8.8.8.8"]
+    assert calls == [("public.example", None, socket.SOCK_STREAM)]
+
+    # No injected resolver -> the guard uses the default seam (stubbed here).
+    assert y.validate_browser_url("https://public.example/x") == "https://public.example/x"
+    assert len(calls) == 2
 
 
 # ---------------------------------------------------------------------------
@@ -425,6 +512,7 @@ def test_y1027_directories_and_allowlisted_url_discovery():
     sources = y.parse_skill_sources(
         ["skills/local", "https://trusted.example/skills"],
         allowed_hosts=["trusted.example"],
+        dns_resolver=_offline_dns,
     )
     assert sources[0].kind == "directory" and sources[0].requires_signature is False
     assert sources[1].kind == "url" and sources[1].requires_signature is True
@@ -449,6 +537,17 @@ def test_y1027_rejects_http_unlisted_hosts_credentials_and_traversal():
     with pytest.raises(y.SkillSourceError) as ei:
         y.skill_pack_signature_check({"signature": "", "algorithm": "md5"})
     _err(ei, "signature_check_failed")
+
+
+def test_y1027_rejects_allowlisted_dns_name_resolving_to_loopback():
+    """The resolver seam must be honoured by every URL-taking Y1 contract."""
+    with pytest.raises(y.SkillSourceError) as ei:
+        y.parse_skill_sources(
+            ["https://localtest.me/skills"],
+            allowed_hosts=["localtest.me"],
+            dns_resolver=lambda host: ("127.0.0.1",),
+        )
+    _err(ei, "unsafe_host")
 
 
 def test_y1027_signature_check_only_verifies_with_a_real_verifier():
@@ -479,6 +578,7 @@ def test_y1028_files_globs_and_tainted_urls():
     sources = y.parse_instruction_sources(
         ["AGENTS.md", "docs/*.md", "https://docs.example/agent.md"],
         allowed_hosts=["docs.example"],
+        dns_resolver=_offline_dns,
     )
     assert [s.kind for s in sources] == ["file", "glob", "url"]
     assert [s.tainted for s in sources] == [False, False, True]
@@ -493,6 +593,16 @@ def test_y1028_rejects_ssrf_and_traversal():
     with pytest.raises(y.InstructionSourceError) as ei:
         y.parse_instruction_sources(["../../etc/passwd"])
     _err(ei, "unsafe_path")
+
+
+def test_y1028_rejects_allowlisted_dns_name_resolving_to_loopback():
+    with pytest.raises(y.InstructionSourceError) as ei:
+        y.parse_instruction_sources(
+            ["https://localtest.me/agent.md"],
+            allowed_hosts=["localtest.me"],
+            dns_resolver=lambda host: ("127.0.0.1",),
+        )
+    _err(ei, "unsafe_host")
 
 
 # ---------------------------------------------------------------------------
@@ -687,7 +797,7 @@ def test_y1036_docs_generated_and_escaped():
         {"code": "E1", "message": "<script>alert(1)</script>", "remedy": "Restart the server"},
         {"code": "E2", "message": "Bad flag", "remedy": "Use --safe"},
     ])
-    assert tuple(p.route for p in pages) == y.DOC_ROUTES
+    assert tuple(p.route for p in pages) == ("/docs/migrate-from-v1", "/docs/troubleshooting")
     assert "&lt;script&gt;" in pages[1].body and "<script>" not in pages[1].body
     assert "Restart the server" in pages[0].body
 
@@ -712,7 +822,7 @@ def test_y1037_per_user_target_channel_formulas_and_cleanup_tip():
     assert "# preview only" in plan.script_preview
     assert y.install_plan("beta", "aur", home="/home/me", cleanup_older_than=2,
                           existing_versions=["1.0.0", "2.1.0"]).cleanup_tip.count("1.0.0") == 1
-    assert y.STORE_FEASIBILITY["brew-cask"] is True
+    assert "install stable binary into /home/me/.opencode/bin" in plan.script_preview
 
 
 def test_y1037_rejects_system_dirs_injection_and_channel_mismatch():

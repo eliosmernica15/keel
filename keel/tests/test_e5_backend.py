@@ -591,6 +591,16 @@ def test_e5_17_multiword_secret_value_is_fully_redacted():
     assert bounded.count("[REDACTED]") == 2
 
 
+def test_e5_17_bare_bearer_token_is_redacted():
+    """Audit C9: a bare ``Bearer <token>`` has no key assignment to match."""
+    for text in ("INFO authorization: Bearer plaintexttoken12345 done",
+                 "INFO Bearer plaintexttoken12345 done"):
+        cleaned = eb.redact_diagnostics(text)
+        assert "plaintexttoken12345" not in cleaned
+        assert "Bearer" not in cleaned
+        assert "[REDACTED]" in cleaned
+
+
 # --------------------------------------------------------------------------
 # E5.18 — Keel keeps Linux; dsh does not
 # --------------------------------------------------------------------------
@@ -635,3 +645,20 @@ def test_e5_19_adversarial_incomplete_section_rejected():
         "release_qualification_needs_production", "")
     with pytest.raises(eb.LimitationsError, match="release_qualification"):
         eb.assert_known_limitations_complete(incomplete)
+
+
+def test_e5_feature_traceability_declaration_maps_real_symbols():
+    """Every declared E5 ID resolves to real, usable module symbols."""
+    expected = {
+        "E5.2", "E5.3", "E5.5", "E5.6", "E5.7", "E5.8", "E5.10", "E5.11",
+        "E5.13", "E5.16", "E5.17", "E5.18", "E5.19",
+    }
+    pairs = eb.feature_traceability_declaration()
+    assert {fid for fid, _ in pairs} == expected
+    for fid, names in pairs:
+        assert names, fid
+        for name in names:
+            obj = getattr(eb, name, None)
+            assert obj is not None, (fid, name)
+            assert callable(obj) or isinstance(
+                obj, (type, str, tuple, dict, set, frozenset)), (fid, name)

@@ -553,6 +553,36 @@ def test_realtime_secret_token_is_unpredictable_and_never_disclosed():
     assert secret.public_dict()["token"] == "[redacted]"
 
 
+def test_realtime_secret_is_valid_rejects_wrong_token():
+    """C10: a known session id must not make an arbitrary token valid."""
+    issuer = y.RealtimeSecretIssuer(clock=lambda: 0.0)
+    issued = issuer.issue("session-A", now=1000.0)
+    assert issuer.is_valid(issued, now=1001.0) is True
+
+    wrong = y.RealtimeSecret(
+        token="totally-wrong-token",
+        session_id=issued.session_id,
+        expires_at=issued.expires_at,
+        issued_at=issued.issued_at,
+    )
+    assert issuer.is_valid(wrong, now=1001.0) is False
+
+    # A genuine token from another session cannot be relabelled either.
+    other = issuer.issue("session-B", now=1000.0)
+    relabelled = y.RealtimeSecret(
+        token=other.token,
+        session_id="session-A",
+        expires_at=other.expires_at,
+        issued_at=other.issued_at,
+    )
+    assert issuer.is_valid(relabelled, now=1001.0) is False
+    assert issuer.is_valid(other, now=1001.0) is True
+
+    # A token minted by a different issuer is not registered with this one.
+    foreign = y.RealtimeSecretIssuer(clock=lambda: 0.0).issue("session-A", now=1000.0)
+    assert issuer.is_valid(foreign, now=1001.0) is False
+
+
 def test_handoff_task_relays_to_text_loop():
     seam = y.RecordingTextLoopSeam()
     relay = y.HandoffRelay(seam=seam, clock=lambda: 1000.0)
@@ -701,3 +731,16 @@ def test_checkin_cadence_and_cron_fire():
     trigger = cron_engine.evaluate(now=0.0)[0]
     assert trigger.due is True
     assert cron_engine.fire(trigger, now=0.0).kind is y.RoutineKind.CRON
+
+
+def test_y2_16_feature_traceability_maps_real_symbols():
+    """Y2.16 resolves to real compaction symbols exercised above."""
+    pairs = y.FEATURE_TRACEABILITY
+    assert set(pairs) == {"Y2.16"}
+    names = pairs["Y2.16"]
+    assert "plan_compaction" in names
+    for name in names:
+        obj = getattr(y, name, None)
+        assert obj is not None, name
+        assert callable(obj) or isinstance(
+            obj, (type, int, str, tuple, dict, set, frozenset)), name

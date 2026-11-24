@@ -48,6 +48,21 @@ def test_output_dlp_detects_secrets():
     assert redaction.check_output_dlp("just a normal sentence") == []
 
 
+def test_output_dlp_and_redact_messages_catch_bearer_and_multiword_secrets():
+    """Audit C4: unknown credential formats must not evade DLP or egress."""
+    assert redaction.check_output_dlp("token=super secret value")
+    assert redaction.check_output_dlp("Bearer abcdef1234567890")
+
+    messages = [{"role": "user", "content": "Bearer plaintexttoken12345"},
+                {"role": "assistant",
+                 "content": [{"type": "text", "text": "token=super secret value"}]}]
+    clean, counts = redaction.redact_messages(messages)
+    assert "plaintexttoken12345" not in clean[0]["content"]
+    assert "super secret value" not in clean[1]["content"][0]["text"]
+    assert counts.get("bearer_token") and counts.get("inline_secret")
+    assert messages[0]["content"] == "Bearer plaintexttoken12345"  # no mutation
+
+
 def test_write_file_refuses_secret_content(tmp_path, monkeypatch):
     monkeypatch.delenv("KEEL_OUTPUT_DLP", raising=False)
     target = tmp_path / "out.txt"

@@ -43,6 +43,7 @@ import re
 import threading
 import time
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Iterable, Mapping
 
@@ -522,20 +523,50 @@ class TickReport:
         return {"outcomes": [o.to_dict() for o in self.outcomes]}
 
 
-class IdempotencyLedger:
-    """In-memory key ledger; real persistence belongs behind a storage seam."""
+#: Upper bound on retained idempotency keys.  Dedup is guaranteed only for the
+#: most recent ``capacity`` claims; older keys are intentionally forgotten so a
+#: long-lived scheduler cannot grow without bound.  Real persistence belongs
+#: behind a storage seam.
+DEFAULT_IDEMPOTENCY_CAPACITY = 4096
 
-    def __init__(self) -> None:
-        self._seen: set[str] = set()
+
+class IdempotencyLedger:
+    """Thread-safe key ledger with bounded FIFO retention.
+
+    ``capacity`` must be a positive integer; anything else raises
+    :class:`SchedulerError`.  Once full, claiming a new key evicts the oldest
+    retained key, so the ledger holds at most ``capacity`` keys at any time.
+    """
+
+    def __init__(self, capacity: int = DEFAULT_IDEMPOTENCY_CAPACITY) -> None:
+        if isinstance(capacity, bool) or not isinstance(capacity, int) or capacity < 1:
+            raise SchedulerError("idempotency capacity must be a positive integer")
+        self._capacity = capacity
+        self._seen: dict[str, None] = {}  # insertion-ordered FIFO
+        self._lock = threading.Lock()
+
+    @property
+    def capacity(self) -> int:
+        return self._capacity
+
+    def __len__(self) -> int:
+        with self._lock:
+            return len(self._seen)
 
     def claim(self, key: str) -> bool:
-        if key in self._seen:
-            return False
-        self._seen.add(key)
-        return True
+        if not isinstance(key, str) or not key:
+            raise SchedulerError("idempotency key must be a non-empty string")
+        with self._lock:
+            if key in self._seen:
+                return False
+            if len(self._seen) >= self._capacity:
+                self._seen.pop(next(iter(self._seen)))
+            self._seen[key] = None
+            return True
 
     def snapshot(self) -> tuple[str, ...]:
-        return tuple(sorted(self._seen))
+        with self._lock:
+            return tuple(sorted(self._seen))
 
 
 class TickGuard:
@@ -572,13 +603,34 @@ def _job_items(job: TickJob, work: DueWork) -> tuple[str, ...]:
     return work.alerts
 
 
+def _tick_stamp(now: Any) -> str:
+    """Validate ``now`` as a strict ISO-8601 timestamp and normalize to text.
+
+    The stamp feeds idempotency keys, so arbitrary labels (or wrong types) must
+    not be accepted as a tick time.
+    """
+    if not isinstance(now, str) or not now.strip():
+        raise SchedulerError("tick needs a 'now' stamp")
+    text = now.strip()
+    candidate = text[:-1] + "+00:00" if text[-1] in "Zz" else text
+    if not re.match(r"^\d{4}-\d{2}-\d{2}[Tt ]\d{2}:\d{2}", candidate):
+        raise SchedulerError("tick 'now' must be an ISO-8601 timestamp: %r" % now)
+    try:
+        datetime.fromisoformat(candidate)
+    except (ValueError, TypeError):
+        raise SchedulerError("tick 'now' must be an ISO-8601 timestamp: %r" % now) from None
+    return text
+
+
 def tick(work: DueWork, *, now: str,
          ledger: IdempotencyLedger | None = None,
          guard: TickGuard | None = None) -> TickReport:
     """Run all seven tick duties once for ``now``; repeated keys are no-ops."""
-    if not now:
-        raise SchedulerError("tick needs a 'now' stamp")
-    ledger = ledger or IdempotencyLedger()
+    now = _tick_stamp(now)
+    # An empty ledger is falsy once it implements __len__; identity, not truth
+    # value, decides whether the caller supplied one.
+    if ledger is None:
+        ledger = IdempotencyLedger()
     outcomes: list[TickOutcome] = []
 
     def _run() -> None:

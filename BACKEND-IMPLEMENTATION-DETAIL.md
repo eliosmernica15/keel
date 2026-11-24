@@ -31,4 +31,62 @@ Attribution uses each module's declared feature registry; cross-references to ot
 - Modules are reachable from the real runtime through `keel/src/keel/backend_hub.py`, which registers four capabilities on `keel.capabilities` — the authenticated permission-aware surface used by the web bridge, CLI, TUI and desktop shell. `backend.invoke` executes only an explicit allowlist of real deterministic module functions and enforces the `execute` permission.
 - `keel/tests/test_backend_hub_integration.py` exercises discovery, permission denial, real function invocation, unknown-module/function rejection, import verification and feature-index integrity.
 - MEDIUM/LOW findings from independent review were fixed with regression tests (see remediation commits).
-- All 865 canonical IDs are unchanged: 854 verified, 9 not_started (7 D6 human-workflow conventions + W1.18/Y6.4 owner-gated conflicts), 2 blocked (C11.1/C11.2).
+- All 865 canonical IDs are unchanged: 854 verified, 9 not_started (7 D6 human-workflow conventions + W1.18 licensing + Y6.4 external observation), 2 blocked (C11.1/C11.2, owner-gated). See `REMAINING-WORK-MATRIX.md` for the exact reasons.
+
+## Independent audit outcomes (final adversarial backend audit)
+
+Ten independent audit agents (`agent/audit-*` worktrees) examined the 20 modules, their
+reachability, cross-module behaviour, security, persistence, testing and architecture.
+Headline results, from `AUDIT-REMEDIATION-SUMMARY.md`:
+
+- **All 20 modules are genuine backends.** Independent reviewers rated every module
+  `GENUINE_BACKEND`; there are no descriptor-only stubs. The 421 declared feature IDs
+  sum exactly to the deduplicated `backend-final-attribution.json` denominator.
+- **Real capability entry points are verified.** The four `backend.*` capabilities are
+  reachable through real HTTP (`POST /api/capabilities/invoke`), CLI (`capability
+  invoke`) and TUI (`/invoke`) paths, with authentication and explicit confirm gates;
+  the shipped UI exposes a capability browser. `backend.invoke` executes only an
+  explicit allowlist of real deterministic module functions and enforces the `execute`
+  permission. `keel/tests/test_backend_hub_integration.py` covers discovery, permission
+  denial, real invocation and rejection of unknown modules/functions.
+- **5 / 5 end-to-end multi-module workflows passed, 102 / 102 steps**, driving real
+  modules (not mocks) through the HTTP bridge.
+- **Consumption boundary — intentional, not an integration failure.** No *normal*
+  product workflow directly imports or calls the backend modules. They are reachable
+  and exercised, but peripheral: an **intentional capability boundary**, not a coherent
+  end-to-end product pipeline. Earlier "fully integrated" wording overstated this and
+  is corrected here. No normal product workflow directly imports or calls the modules.
+  The capability surface is the intended integration path while the
+  workflow integration is completed in parallel by a separate workstream; this document
+  makes no claim that such integration is finished.
+- **Certification limitation:** the strengthened per-ID gate certifies **361 / 421**
+  backend IDs; **60** are `verified with certification limitation` (prose-only ID
+  mentions or module-level evidence docs without per-ID rows). No registry status was
+  changed. See `REGISTRY-EVIDENCE-INTEGRITY.md` §4 and `REMAINING-WORK-MATRIX.md` §5.
+- **Defects found were fixed** with fail-before/pass-after regression tests (redaction,
+  SSRF/token/grant guards, X3 persistence durability, hub dispatch, fail-open signature
+  gate, tar traversal, races); one over-broad hub confirm gate was reverted. All seven
+  remediation branches were reviewed and merged. Honest accepted limitations (external
+  gates, cross-process grant single-use, DNS-rebinding revalidation) remain documented.
+
+For the authoritative deduplicated denominator, classification counts and completion
+formulas, see `BACKEND-COMPLETION-ACCOUNTING.md`.
+
+
+## FINAL AMENDMENT — all 421 traceability gaps closed (authoritative)
+
+A later remediation batch (`agent/final-trace`, merged and pushed) added AST-visible
+`FEATURE_TRACEABILITY` declarations and per-ID evidence rows to every owning module.
+`python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
+and `--strict` enforces the gate with a non-zero exit on any failure.
+
+All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+are **historical** — they describe the state before that batch and are retained only
+for provenance. Current authoritative certification:
+
+- Fully traceable: **421 / 421 = 100.0%**
+- Verified-with-limitation: **0 / 421 = 0.0%**
+- Registry unchanged: 865 rows, 854 verified / 9 not_started / 2 blocked.
+
+The gate remains a certification layer over tests and declarations; it does not claim
+native cross-platform or live-provider verification.

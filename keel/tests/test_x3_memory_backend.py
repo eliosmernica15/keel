@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import base64
 import json
+import os
+import sqlite3
 import struct
+import threading
+import time
 import zlib
 from pathlib import Path
 
@@ -354,6 +358,18 @@ def test_x313_crm_followups_and_vault_sanitization(tmp_path, backend):
     assert "\\---" in text and "Ada" in text
 
 
+def test_x313_update_contact_rejects_non_serializable_changes(backend):
+    contact = backend.add_contact("Ada", email="ada@example.test")
+    with pytest.raises(X3Error, match="serializable"):
+        backend.update_contact(contact["id"], tags={1, 2})
+    assert backend.list_contacts()[0]["tags"] == []   # durable state untouched
+    with pytest.raises(X3Error, match="serializable"):
+        backend.update_contact(contact["id"], notes=object())
+    assert backend.list_contacts()[0]["notes"] == ""  # durable state untouched
+    updated = backend.update_contact(contact["id"], tags=["friend"], notes="ok")
+    assert updated["tags"] == ["friend"] and updated["notes"] == "ok"
+
+
 # --- X3.14 finance CSV -------------------------------------------------------
 
 def test_x314_finance_csv_import_categorize_and_reject_network(backend):
@@ -462,3 +478,202 @@ def test_consolidation_is_idempotent_and_durable(tmp_path):
     assert report["stale_search_docs"] == 1
     assert backend.consolidate()["duplicate_flashcards"] == 0
     assert X3Backend(tmp_path / "state").list_cards() and Path(backend.path).is_file()
+
+
+# --- persistence / reliability regressions -----------------------------------
+# Each test below fails on the unpatched backend and passes after remediation.
+
+def _guard(errors, fn, *args):
+    try:
+        fn(*args)
+    except Exception as exc:  # collected so the test can report every failure
+        errors.append(exc)
+
+
+def test_x3_consent_grants_are_durable_immediately(tmp_path):
+    root = tmp_path / "state"
+    backend = X3Backend(root)
+    backend.grant_clipboard_consent()
+    assert X3Backend(root)._has_consent("clipboard_query"), "grant must be persisted now"
+    backend.grant_screenshot_consent()
+    fresh = X3Backend(root)
+    assert fresh._has_consent("clipboard_query")
+    assert fresh._has_consent("screenshot_ask")
+
+
+def test_x3_consent_grant_fails_closed_if_persistence_fails(tmp_path, monkeypatch):
+    root = tmp_path / "state"
+    backend = X3Backend(root)
+    with monkeypatch.context() as patch:
+        def boom(*_args, **_kwargs):
+            raise OSError("simulated disk error")
+        patch.setattr("keel.x3_memory_backend.os.replace", boom)
+        with pytest.raises(OSError):
+            backend.grant_clipboard_consent()
+    assert not backend._has_consent("clipboard_query")
+    assert not X3Backend(root)._has_consent("clipboard_query")
+    assert list(root.glob("*.tmp")) == []
+
+
+def test_x3_save_under_concurrency_uses_unique_temps_and_keeps_all_updates(
+        tmp_path, monkeypatch):
+    root = tmp_path / "state"
+    backend = X3Backend(root)
+    folders = []
+    for index in range(30):
+        folder = tmp_path / f"folder-{index}"
+        folder.mkdir()
+        folders.append(folder)
+    seen, errors = [], []
+    real_replace = os.replace
+
+    def spy_replace(source, target):
+        seen.append(os.fspath(source))
+        time.sleep(0.002)  # widen the window that used to collide on one .tmp path
+        return real_replace(source, target)
+
+    with monkeypatch.context() as patch:
+        patch.setattr("keel.x3_memory_backend.os.replace", spy_replace)
+        threads = [threading.Thread(target=_guard, args=(errors, backend.approve_folder, folder))
+                   for folder in folders]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+    assert not errors, errors[:3]
+    assert len(seen) == 30 and len(set(seen)) == 30, f"temp paths reused: {seen[:3]}"
+    assert list(root.glob("*.tmp")) == []
+    assert len(X3Backend(root).approved_folders()) == 30
+
+
+def test_x3_save_failure_cleans_temp_and_restores_in_memory_state(tmp_path, monkeypatch):
+    root = tmp_path / "state"
+    backend = X3Backend(root)
+    folder = tmp_path / "folder"
+    folder.mkdir()
+    with monkeypatch.context() as patch:
+        def boom(*_args, **_kwargs):
+            raise OSError("simulated disk error")
+        patch.setattr("keel.x3_memory_backend.os.replace", boom)
+        with pytest.raises(OSError):
+            backend.approve_folder(folder)
+    assert list(root.glob("*.tmp")) == []
+    assert backend.approved_folders() == [], "failed save must not leave split-brain state"
+    assert X3Backend(root).approved_folders() == []
+
+
+def test_x3_discards_orphan_temp_files_on_startup(tmp_path):
+    root = tmp_path / "state"
+    X3Backend(root)
+    orphan = root / "x3_state.dead-process.tmp"
+    orphan.write_text("partial write from a killed process", encoding="utf-8")
+    X3Backend(root)
+    assert not orphan.exists()
+
+
+def test_x3_tampered_or_corrupt_state_fails_closed(tmp_path):
+    root = tmp_path / "state"
+    backend = X3Backend(root)
+    folder = tmp_path / "folder"
+    folder.mkdir()
+    backend.approve_folder(folder)
+    path = root / "x3_state.json"
+    document = json.loads(path.read_text(encoding="utf-8"))
+    document.setdefault("context", {}).setdefault("consent", {})[
+        "forged_scope"] = "1999-01-01T00:00:00Z"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(X3Error) as error:
+        X3Backend(root)
+    assert "integrity" in str(error.value).lower()
+    path.write_text("{not json", encoding="utf-8")
+    with pytest.raises(X3Error):
+        X3Backend(root)
+
+
+def test_x3_explicit_recovery_quarantines_untrusted_state(tmp_path):
+    root = tmp_path / "state"
+    X3Backend(root)
+    (root / "x3_state.json").write_text("{not json", encoding="utf-8")
+    with pytest.raises(X3Error):
+        X3Backend(root)
+    recovered = X3Backend.recover_state(root)
+    assert recovered.approved_folders() == []
+    assert any(p.name.startswith("x3_state.corrupt.") for p in root.glob("*.json"))
+
+
+def test_x3_concurrent_duplicate_finance_import_is_idempotent(tmp_path, monkeypatch):
+    backend = X3Backend(tmp_path / "state")
+    csv_text = "date,description,amount\n2024-01-15,uber ride,12.34\n"
+    barrier = threading.Barrier(30)
+    real_db = backend._finance_db
+
+    class BarrierConnection:
+        """Force every duplicate import past the dedupe check before any insert."""
+
+        def __init__(self, connection):
+            self._connection = connection
+
+        def __enter__(self):
+            self._connection.__enter__()
+            return self
+
+        def __exit__(self, *args):
+            return self._connection.__exit__(*args)
+
+        def execute(self, sql, *args):
+            if str(sql).startswith("SELECT 1 FROM transactions"):
+                barrier.wait(timeout=10)
+            return self._connection.execute(sql, *args)
+
+    errors = []
+    with monkeypatch.context() as patch:
+        patch.setattr(backend, "_finance_db", lambda: BarrierConnection(real_db()))
+        threads = [threading.Thread(target=_guard, args=(errors, backend.import_finance_csv,
+                                                         csv_text))
+                   for _ in range(30)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+    assert not errors, errors[:3]
+    assert backend.finance_summary()["count"] == 1
+
+
+def test_x3_review_receipt_save_failure_does_not_commit_sqlite(tmp_path, monkeypatch):
+    root = tmp_path / "state"
+    backend = X3Backend(root)
+    receipt = backend.submit_receipt("Shop\n2024-01-15\nTotal: $12.34\n")
+    with monkeypatch.context() as patch:
+        def boom():
+            raise OSError("simulated failure after DB commit")
+        patch.setattr(backend, "save", boom)
+        with pytest.raises(OSError):
+            backend.review_receipt(receipt["id"], {}, approve=True)
+    assert backend.receipt_rows() == []
+    fresh = X3Backend(root)
+    queue = [r for r in fresh._section("receipts")["review"] if r["id"] == receipt["id"]]
+    assert queue and queue[0]["status"] == "pending"
+
+
+def test_x3_review_receipt_sqlite_failure_rolls_back_json_status(tmp_path, monkeypatch):
+    root = tmp_path / "state"
+    backend = X3Backend(root)
+    receipt = backend.submit_receipt("Shop\n2024-01-16\nTotal: $5.00\n")
+
+    class BrokenConnection:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def execute(self, *_args, **_kwargs):
+            raise sqlite3.OperationalError("receipt database unavailable")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(backend, "_receipt_db", BrokenConnection)
+        with pytest.raises(sqlite3.OperationalError):
+            backend.review_receipt(receipt["id"], {}, approve=True)
+    fresh = X3Backend(root)
+    queue = [r for r in fresh._section("receipts")["review"] if r["id"] == receipt["id"]]
+    assert queue and queue[0]["status"] == "pending"

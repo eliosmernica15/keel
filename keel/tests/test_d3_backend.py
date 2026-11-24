@@ -577,6 +577,29 @@ def test_inspector_rejects_unpinned_or_network_dependencies():
         db.inspector_build_plan("not a spec")
 
 
+def test_inspector_ast_scan_catches_network_writes_and_obfuscation():
+    report = db.check_offline_build({
+        "net.py": "from urllib import request\nrequest.urlopen('https://example.test')\n",
+        "sock.py": "import socket\ns = socket.socket()\ns.connect(('h', 9))\n",
+        "write.py": "from pathlib import Path\nPath('out.bin').write_bytes(b'x')\n",
+        "obf.py": "__import__('sock' + 'et').socket()\n",
+        "indirect.py": "import requests\ngetattr(requests, 'get')('https://example.test')\n",
+        "clean.py": "def build():\n    return 1 + 1\n",
+    })
+    assert set(report["violations"]) == {
+        "net.py", "sock.py", "write.py", "obf.py", "indirect.py"}
+    assert report["clean"] is False and report["io_performed"] is False
+    assert "ast" in report["method"]
+    for name in report["violations"]:
+        assert report["reasons"][name]
+
+    broken = db.check_offline_build({"broken.py": "def f(:\n"})
+    assert broken["violations"] == ["broken.py"]
+    assert broken["reasons"]["broken.py"]
+    with pytest.raises(db.InspectorError):
+        db.check_offline_build({"x.py": 42})
+
+
 # ---------------------------------------------------------------------------
 # D3.23 — Live Share wire codecs (no browser carrier, no cloud relay)
 # ---------------------------------------------------------------------------

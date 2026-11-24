@@ -1275,3 +1275,72 @@ Lead integration: tour palette command now calls `restartAtStep("tour")`; added 
 - Lead integration also fixed the palette tour command (`restartAtStep("tour")`), added `test:e2e` / `test:features` / `test:ui` npm scripts so all five feature suites are discoverable, and extended `.gitignore` for every isolated `.next-*/` build dir plus generated E2E artifacts.
 - Final lead verification after all integration: `npx tsc --noEmit` exit 0; `node tests/ui/verify-ui.mjs` 14 pass / 4 skipped; `npm run build` pass; `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2 --reporter=line` → **131 passed / 0 failed (2.5 min)** with strict console gate. Deep baseline (`5dbc5f9`) Python suite: 7 failed / 4019 passed / 51 skipped — failures all in untouched release/plan/backend areas (see § Python regression guard).
 - Remaining open: packed Electron/Tauri GUI verification (no fresh package build / Tauri binary; documented renderer finding), live provider turn (no credentials), screen-reader hardware audit, browser-native zoom control, intermittent bridge 504 under heavy parallel load, optional dictation, and history virtualization.
+
+---
+
+# Backend completion ledger (merged baseline fe6cdd7)
+
+---
+
+## FINAL AMENDMENT — authoritative current state (2026-11-24, docsync reconciliation)
+
+> This amendment is appended, not substituted. All historical batch logs above remain
+> part of the record. Where an earlier entry states stale counts, **this amendment and the
+> root-level v6 evidence documents govern**. No source, test, registry, plan or generator
+> was changed by this reconciliation.
+
+**Registry (authoritative).** `PLAN-INDEX.json` (SHA-256
+`62fd5c6ac2d166e8cb1f5752c168d22d56d767c7e6a5bf9384696756a4a5b2f6`) holds **865 rows:
+854 `verified`, 9 `not_started`, 2 `blocked`**. The earlier 433 / 430 / 2 figures in this
+log and in older matrix snapshots are superseded; they are retained only as historical
+provenance. The 228-row v5 base registry (addenda 1–2) is a **subset** of 865, not an
+additional inventory. `feature-checklist.md` declares **398 observable contracts** (410
+unique IDs in the rendered tables) — a different, cross-cutting observability inventory
+that is **not additive** to the plan registry.
+
+**Remaining work.** The 9 `not_started` rows are 7 D6 builder-convention rules plus W1.18
+(license/notices verification) and Y6.4 (external repo-visibility observation, gate G1).
+The 2 `blocked` rows are C11.1 and C11.2 (owner-gated source-hosting/security decisions,
+gates G6 and owner account). Excluded from completion claims: 3 owner-gated, 3 external
+(B4.8/B6.6/C11.8) and 3 dormant/descriptor (B6.2/B6.3/B6.5) rows. See
+`REMAINING-WORK-MATRIX.md` for exact reasons.
+
+**Backend.** All 20 backend modules are genuine; 421 deduplicated backend-attributed IDs
+carry `verified` status. The strengthened gate certifies **361 / 421 (85.7%)**; **60 rows
+are `verified with certification limitation`** (evidence-layer gaps, not status changes).
+Real entry points exist over HTTP/CLI/TUI with auth + confirm gates, and 5 / 5
+multi-module workflows passed 102 / 102 steps. No *normal* product workflow directly
+consumes the modules — an intentional capability boundary while workflow integration is
+completed in parallel. Denominator, classification and formulas:
+`BACKEND-COMPLETION-ACCOUNTING.md`; detail: `BACKEND-IMPLEMENTATION-DETAIL.md`.
+
+**Authoritative root-level evidence (read these for final status):**
+- `master-plan-v6-final-report.md`, `master-plan-v6-final-completion-report.md`,
+  `master-plan-v6-final-delivery-report.md` — final delivery and gate status.
+- `master-plan-v6-test-evidence.md` — definitive clean-environment suite result
+  (4071 passed / 48 skipped / 3640 subtests / 0 failed) and gate outputs.
+- `REGISTRY-EVIDENCE-INTEGRITY.md`, `AUDIT-REMEDIATION-SUMMARY.md`,
+  `REMAINING-WORK-MATRIX.md`, `BACKEND-COMPLETION-ACCOUNTING.md`,
+  `FINAL-ENGINEERING-REPORT.md` — certification, audit, remaining work, accounting and
+  production-readiness assessment.
+- Production release remains **BLOCKED** on external/owner gates (signing, clean-VM,
+  push authorization, native Linux/macOS verification). No push/release/deploy.
+
+
+## FINAL AMENDMENT — all 421 traceability gaps closed (authoritative)
+
+A later remediation batch (`agent/final-trace`, merged and pushed) added AST-visible
+`FEATURE_TRACEABILITY` declarations and per-ID evidence rows to every owning module.
+`python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
+and `--strict` enforces the gate with a non-zero exit on any failure.
+
+All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+are **historical** — they describe the state before that batch and are retained only
+for provenance. Current authoritative certification:
+
+- Fully traceable: **421 / 421 = 100.0%**
+- Verified-with-limitation: **0 / 421 = 0.0%**
+- Registry unchanged: 865 rows, 854 verified / 9 not_started / 2 blocked.
+
+The gate remains a certification layer over tests and declarations; it does not claim
+native cross-platform or live-provider verification.

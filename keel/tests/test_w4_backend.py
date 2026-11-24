@@ -50,6 +50,30 @@ def test_manifest_covers_exactly_the_13_not_started_rows():
             assert hasattr(w, symbol), (fid, symbol)
 
 
+def test_w4_redact_text_removes_full_assignment_values_and_bearer_jwt():
+    """Audit C2: a JWT after ``token=`` must not survive in OAuth/CLI errors."""
+    jwt = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abcdefghij"
+    cleaned = w.redact_text(f"token=Bearer {jwt} end")
+    assert jwt not in cleaned
+    assert "Bearer" not in cleaned
+    assert "[REDACTED]" in cleaned
+
+    cleaned = w.redact_text("token=super secret value end")
+    assert "secret value" not in cleaned
+    assert "super secret" not in cleaned
+
+    cleaned = w.redact_text("authorization: Bearer plaintexttoken12345 done")
+    assert "plaintexttoken12345" not in cleaned
+    assert "Bearer" not in cleaned
+
+    # The same helper protects pasted-callback OAuth errors.
+    with pytest.raises(w.OAuthError) as exc:
+        w.parse_pasted_callback(
+            "http://127.0.0.1/cb?error=token%3Dsuper%20secret%20value&state=s",
+            expected_state="s")
+    assert "secret value" not in str(exc.value)
+
+
 # ---------------------------------------------------------------------------
 # W4.2 - config shape and whole-object precedence
 # ---------------------------------------------------------------------------
@@ -95,12 +119,30 @@ def test_w42_higher_layer_replaces_whole_server_and_warns_on_dropped_fields():
                         "headers": {"Authorization": "Bearer secret"},
                         "timeout": 9}})
     high = _doc({"srv": {"type": "remote", "url": "https://b.test"}})
-    merged = w.merge_config_layers([low, high])
+    merged = w.replace_server_configs([low, high])
     cfg = merged.servers["srv"]
     assert cfg.url == "https://b.test"
     assert cfg.headers == {} and cfg.timeout is None  # no field merge
     assert any("srv" in warning and "headers" in warning
                and "timeout" in warning for warning in merged.warnings)
+
+
+def test_w42_config_precedence_name_is_not_the_y119_deep_merge():
+    """Architecture audit e25b830: one name must not mean two contracts."""
+    assert not hasattr(w, "merge_config_layers")
+    assert hasattr(w, "replace_server_configs")
+
+    low = _doc({"srv": {"type": "remote", "url": "https://a.test",
+                        "headers": {"Authorization": "Bearer secret"}}})
+    high = _doc({"srv": {"type": "remote", "url": "https://b.test"}})
+    replaced = w.replace_server_configs([low, high])
+    assert replaced.servers["srv"].headers == {}  # W4.2 whole-object override
+
+    # The Y1.19 helper in mcp_contracts keeps its deep-merge/deny semantics.
+    from keel import mcp_contracts as mc
+    merged = mc.merge_config_layers(
+        {"user": {"rules": ["allow"]}, "project": {"rules": ["deny"]}})
+    assert merged["rules"] == ["allow", "deny"]
 
 
 def test_w42_json_round_trip_and_bad_json():

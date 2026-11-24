@@ -31,12 +31,21 @@ Companion to :mod:`keel.mcp_contracts`, which already owns the 14 verified
     Y1.39 "Building on X" non-affiliation notice
 
 Everything here is a *contract*: it validates, normalises, plans or selects
-data and returns deterministic, structured results. No function opens a socket,
+data and returns deterministic, structured results. No function fetches a URL,
 spawns a process, reads a secret, imports a third-party package or writes a
 file. Host-owned operations (permission checks, file reads, downloads, git
 commands, page loads) are injected callables or are represented as descriptors
 only. Strings from untrusted sources are treated as data and are escaped or
 rejected, never interpreted.
+
+URL guards also resolve DNS names so a name that points into loopback/private
+space is denied. The resolver is an injected seam (``dns_resolver``); its
+default is the only place in this module that may touch the network stack
+(stdlib ``socket.getaddrinfo``). IP literals and structurally invalid or
+non-allow-listed inputs take a no-I/O fast path and are never resolved, so
+importing and testing this module stays offline. One-shot resolution cannot
+defeat DNS rebinding: the host that actually fetches must re-validate at fetch
+time. This module never fetches anything itself.
 """
 
 from __future__ import annotations
@@ -403,6 +412,50 @@ def _ip_address_or_none(host: str) -> ipaddress.IPv4Address | ipaddress.IPv6Addr
         return None
 
 
+# A resolver accepts a hostname and returns an iterable of literal IP address
+# strings. The default seam is the only place in this module that may touch the
+# network stack; callers and tests can inject a pure, offline resolver instead.
+_DnsResolver = Callable[[str], Sequence[str]]
+
+
+def _default_dns_resolver(host: str) -> Sequence[str]:
+    """Resolve a DNS name via the stdlib; fail closed if resolution errors."""
+    import socket  # local import: importing this module has no network effects
+
+    try:
+        infos = socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)
+    except (OSError, UnicodeError, ValueError) as exc:
+        raise RuntimeError("dns resolution failed") from exc
+    addresses: list[str] = []
+    for info in infos:
+        sockaddr = info[4]
+        if sockaddr:
+            addresses.append(str(sockaddr[0]))
+    return addresses
+
+
+def _is_public_address(address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    return not (
+        address.is_private
+        or address.is_loopback
+        or address.is_link_local
+        or address.is_reserved
+        or address.is_multicast
+    )
+
+
+def _reject_non_public_addresses(
+    addresses: Sequence[Any],
+    field_name: str,
+    error: type[Y1ContractError],
+) -> None:
+    """Deny if any resolved address is non-public or not a literal address."""
+    for candidate in addresses:
+        address = _ip_address_or_none(str(candidate))
+        if address is None or not _is_public_address(address):
+            raise error("unsafe_host", f"{field_name} points at a non-public address")
+
+
 def _url(
     value: Any,
     *,
@@ -410,6 +463,7 @@ def _url(
     allowed_hosts: Sequence[str] = (),
     field_name: str = "url",
     error: type[Y1ContractError] = Y1ContractError,
+    dns_resolver: _DnsResolver | None = None,
 ):
     raw = _text(value, field_name, max_len=2048, error=error)
     try:
@@ -425,14 +479,9 @@ def _url(
     if not host:
         raise error("missing_host", f"{field_name} has no host")
     address = _ip_address_or_none(host)
-    if address is not None and (
-        address.is_private
-        or address.is_loopback
-        or address.is_link_local
-        or address.is_reserved
-        or address.is_multicast
-    ):
-        raise error("unsafe_host", f"{field_name} points at a non-public address")
+    if address is not None:
+        # Fast path: a literal IP is already known; no DNS lookup is performed.
+        _reject_non_public_addresses((str(address),), field_name, error)
     if allowed_hosts:
         allowed = tuple(str(h).lower() for h in allowed_hosts)
         matched = False
@@ -445,6 +494,20 @@ def _url(
             raise error("host_not_allowed", f"{field_name} host is not allow-listed")
     if port is not None and port not in (80, 443):
         raise error("invalid_port", f"{field_name} uses a disallowed port")
+    if address is None:
+        # DNS name: resolve through the injected seam, after all cheap
+        # structural checks have already rejected unsafe/disallowed inputs.
+        # Fail closed on a resolution error, an empty answer or any resolved
+        # address that is not public. The host must re-check at fetch time to
+        # defeat DNS rebinding; this contract never fetches.
+        resolver = dns_resolver if dns_resolver is not None else _default_dns_resolver
+        try:
+            resolved = tuple(resolver(host))
+        except Exception as exc:  # noqa: BLE001 - any resolver failure is fatal
+            raise error("unsafe_host", f"{field_name} host could not be resolved") from exc
+        if not resolved:
+            raise error("unsafe_host", f"{field_name} host could not be resolved")
+        _reject_non_public_addresses(resolved, field_name, error)
     return parts
 
 
@@ -848,13 +911,19 @@ def browser_tool_catalog(
     return tuple(result)
 
 
-def validate_browser_url(url: Any, *, allowed_hosts: Sequence[str] = ()) -> str:
+def validate_browser_url(
+    url: Any,
+    *,
+    allowed_hosts: Sequence[str] = (),
+    dns_resolver: _DnsResolver | None = None,
+) -> str:
     parts = _url(
         url,
         schemes=("http", "https"),
         allowed_hosts=allowed_hosts,
         field_name="browser_url",
         error=BrowserContractError,
+        dns_resolver=dns_resolver,
     )
     return parts.geturl()
 
@@ -1295,7 +1364,12 @@ class SkillSource(_Descriptor):
     requires_signature: bool
 
 
-def parse_skill_sources(sources: Sequence[Any], *, allowed_hosts: Sequence[str] = ()) -> tuple[SkillSource, ...]:
+def parse_skill_sources(
+    sources: Sequence[Any],
+    *,
+    allowed_hosts: Sequence[str] = (),
+    dns_resolver: _DnsResolver | None = None,
+) -> tuple[SkillSource, ...]:
     result: list[SkillSource] = []
     for item in _sequence(sources, "skills", error=SkillSourceError):
         if isinstance(item, Mapping):
@@ -1311,6 +1385,7 @@ def parse_skill_sources(sources: Sequence[Any], *, allowed_hosts: Sequence[str] 
                 allowed_hosts=allowed_hosts,
                 field_name="skills URL",
                 error=SkillSourceError,
+                dns_resolver=dns_resolver,
             )
             host = (parts.hostname or "").lower()
             discovery = f"https://{host}/.well-known/skills/"
@@ -1385,6 +1460,7 @@ def parse_instruction_sources(
     items: Sequence[Any],
     *,
     allowed_hosts: Sequence[str] = (),
+    dns_resolver: _DnsResolver | None = None,
 ) -> tuple[InstructionSource, ...]:
     result: list[InstructionSource] = []
     for item in _sequence(items, "instructions", error=InstructionSourceError):
@@ -1398,6 +1474,7 @@ def parse_instruction_sources(
                 allowed_hosts=allowed_hosts,
                 field_name="instructions URL",
                 error=InstructionSourceError,
+                dns_resolver=dns_resolver,
             )
             result.append(InstructionSource("url", parts.geturl(), True))
         else:

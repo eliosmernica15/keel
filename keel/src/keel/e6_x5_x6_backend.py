@@ -234,6 +234,55 @@ __all__ = [
     "validate_feature_config",
 ]
 
+
+# ---------------------------------------------------------------------------
+# feature traceability declaration (ID -> implementing symbols)
+# ---------------------------------------------------------------------------
+
+# Explicit ID -> implementing-symbol declaration for all 27 E6/X5/X6 rows.
+# Every value names only symbols that really exist in this module and are
+# exercised in tests/test_e6_x5_x6_backend.py. The name is deliberately not
+# one of backend_hub's reserved registry attributes; FEATURE_LIFECYCLES above
+# remains the runtime registry used by backend_hub.verify.
+FEATURE_TRACEABILITY: dict[str, tuple[str, ...]] = {
+    "E6.2": ("CredentialEditor", "InMemoryCredentialSeam",
+             "SHARED_CREDENTIAL_WARNING", "DELETION_IRREVERSIBLE_WARNING"),
+    "E6.3": ("detect_env_credential", "HintStatus", "CredentialHint"),
+    "E6.4": ("should_refresh", "update_published", "edit_model_list",
+             "restore_defaults"),
+    "E6.6": ("parse_models_response", "build_candidate", "save_candidate",
+             "fallback_manual"),
+    "E6.7": ("ModelPicker", "ModelRef"),
+    "E6.11": ("lookup_troubleshooting", "render_troubleshooting_page",
+              "TROUBLESHOOTING_CATALOG"),
+    "E6.12": ("HotReloadAdapter", "InMemoryConfigSeam", "can_open_in_editor"),
+    "E6.13": ("check_model_compatibility", "ClientUpgradeRequired", "parse_semver"),
+    "E6.14": ("build_config_catalog", "catalog_digest", "assert_catalog_current"),
+    "X5.2": ("classification_from_labels", "redaction_required",
+             "egress_allowed", "DataPolicy"),
+    "X5.3": ("issue_grant", "is_active", "remaining_seconds", "consume_grant"),
+    "X5.4": ("CapabilityTokenIssuer", "CapabilityToken", "AuditEntry"),
+    "X5.7": ("review_rules", "prune_unused", "StandingRule"),
+    "X5.8": ("resolve_profile", "operation_allowed", "SandboxProfile"),
+    "X5.10": ("seal_export", "verify_import", "EXPORT_SCHEMA_VERSION"),
+    "X5.11": ("build_data_handling_cards", "assert_no_retention_claims",
+              "EgressRecord"),
+    "X5.12": ("evaluate_dependency", "ManagedPolicy", "DependencyDecision"),
+    "X5.13": ("detect_secret_paste", "PasteWarning"),
+    "X6.1": ("plugin_scaffold", "detect_changes", "MockHost"),
+    "X6.2": ("compare_event_streams", "permission_denial_check",
+             "GoldenEventStream"),
+    "X6.3": ("generate_python_sdk", "generate_typescript_sdk",
+             "assert_sdk_version_pinned"),
+    "X6.4": ("parse_version", "deprecation_headers", "is_compatible", "is_sunset"),
+    "X6.5": ("explorer_access", "ExplorerDecision"),
+    "X6.6": ("validate_event", "SubscriptionRegistry", "EVENT_SCHEMAS"),
+    "X6.8": ("resolve_layers", "ConfigLayer", "LAYER_PRECEDENCE"),
+    "X6.9": ("search_settings", "diff_against_defaults", "reset_section",
+             "export_settings", "import_settings"),
+    "X6.10": ("feature_enabled", "validate_feature_config", "FEATURE_LIFECYCLES"),
+}
+
 SCHEMA = "e6-x5-x6-backend/v1"
 
 
@@ -1171,15 +1220,23 @@ def issue_grant(
     duration_seconds: int = 1800,
     just_in_time: bool = False,
 ) -> TimeBoxedGrant:
-    """Issue an "allow for N minutes" grant (default 30 minutes)."""
+    """Issue an "allow for N minutes" grant (default 30 minutes).
+
+    Issuance installs a fresh shared consumption record for the grant id. The
+    id is deterministic, so re-issuing the same grant parameters intentionally
+    starts a new grant; every other copy of that id shares this one record.
+    """
     issued = int(now)
-    return TimeBoxedGrant(
+    grant = TimeBoxedGrant(
         grant_id=id_for("grant", scope, issued, duration_seconds, just_in_time),
         scope=scope,
         issued_at=issued,
         expires_at=issued + int(duration_seconds),
         just_in_time=bool(just_in_time),
     )
+    with _GRANT_CONSUME_LOCK:
+        _GRANT_STATES[grant.grant_id] = _GrantState()
+    return grant
 
 
 def is_active(grant: TimeBoxedGrant, now: int) -> bool:
@@ -1191,22 +1248,45 @@ def remaining_seconds(grant: TimeBoxedGrant, now: int) -> int:
     return max(0, grant.expires_at - int(now))
 
 
-# Guards the check-then-consume transition so a JIT grant can be granted to
-# exactly one caller even when several threads attempt to use it at once.
+@dataclass
+class _GrantState:
+    """In-process consumption record shared by every copy of one grant id.
+
+    ``TimeBoxedGrant`` is a serialisable *description*. Keeping single-use state
+    on that object lets a caller snapshot it before consumption and reconstruct
+    an unconsumed replica. The authoritative state lives here, keyed by
+    ``grant_id``, so a round-tripped snapshot cannot replay a spent grant.
+    """
+
+    consumed: bool = False
+
+
+# Guards both issuance and the check-then-consume transition so a JIT grant is
+# granted to exactly one caller even when several threads race on it, and so a
+# copied dataclass shares the same consumption record as the original.
 _GRANT_CONSUME_LOCK = threading.Lock()
+_GRANT_STATES: dict[str, _GrantState] = {}
 
 
 def consume_grant(grant: TimeBoxedGrant, now: int) -> GrantDecision:
-    """Use a grant. A JIT grant is single-use; expired/consumed grants deny."""
+    """Use a grant. A JIT grant is single-use; expired/consumed grants deny.
+
+    Consumption is bound to the issued grant id in ``_GRANT_STATES``, not to
+    the dataclass instance: serialising and rebuilding a grant cannot mint a
+    fresh use. Grants that were never issued deny as well (they are unsigned
+    descriptions, so their fields cannot be trusted).
+    """
     with _GRANT_CONSUME_LOCK:
-        if not is_active(grant, now):
+        state = _GRANT_STATES.get(grant.grant_id)
+        if state is None or not is_active(grant, now) or state.consumed:
             reason = "grant_expired" if int(now) > grant.expires_at else "grant_inactive"
             return GrantDecision(False, reason, remaining_seconds(grant, now))
         remaining = remaining_seconds(grant, now)
         if grant.just_in_time:
-            # Mark the grant consumed within the same critical section as the
-            # check so the same object cannot be replayed within its TTL.
-            # This is the single sanctioned mutation of the frozen dataclass.
+            # Mark the shared record inside the same critical section as the
+            # check. The local flag is also set to keep is_active()/to_dict()
+            # consistent for callers holding this object.
+            state.consumed = True
             object.__setattr__(grant, "consumed", True)
             return GrantDecision(True, "just_in_time_granted", remaining)
         return GrantDecision(True, "time_boxed_granted", remaining)

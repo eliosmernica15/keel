@@ -207,6 +207,22 @@ class TestV6CorrelationIds(unittest.TestCase):
         self.assertFalse(store.is_retired(b1.value))
         self.assertEqual(len(json.dumps(store.snapshot())), len(json.dumps(store.snapshot())))
 
+    def test_retired_ids_are_bounded_and_fail_closed(self):
+        store = v.CorrelationIdStore(retired_capacity=4)
+        values = [store.rotate("s", "srv", "tok%d" % i).value for i in range(12)]
+        snap = store.snapshot()
+        self.assertEqual(snap["retired_count"], 4)
+        self.assertEqual(snap["retired_capacity"], 4)
+        for value in values[-5:-1]:
+            self.assertTrue(store.is_retired(value))
+        self.assertFalse(store.is_retired(values[0]))   # oldest was evicted
+        self.assertFalse(store.is_retired(values[-1]))  # current is never retired
+        default = v.CorrelationIdStore()
+        self.assertEqual(default.snapshot()["retired_capacity"],
+                         v.MAX_RETIRED_CORRELATION_IDS)
+        with self.assertRaises(v.ContractValidationError):
+            v.CorrelationIdStore(retired_capacity=0)
+
     def test_meta_only_for_advertising_servers_never_session_id(self):
         store = v.CorrelationIdStore()
         self.assertEqual(v.build_mcp_meta(store, "s1", "srv", False), {})
@@ -846,14 +862,32 @@ class TestV27ReleaseVerifier(unittest.TestCase):
 
     def test_pre_and_post_upload_pass(self):
         bundle, raw = self._bundle()
-        before = v.verify_before_upload(bundle, {"app.bin": raw}, "1.1.0")
+        verifier = lambda name, sig, data: sig == "sig" and data == raw
+        before = v.verify_before_upload(bundle, {"app.bin": raw}, "1.1.0",
+                                        signature_verifier=verifier)
         self.assertTrue(before["passed"], before["issues"])
         after = v.verify_after_upload(bundle, {"app.bin": raw})
         self.assertTrue(after["passed"])
         report = v.release_publish_report(bundle, {"app.bin": raw},
-                                          {"app.bin": raw}, "1.1.0")
+                                          {"app.bin": raw}, "1.1.0",
+                                          signature_verifier=verifier)
         self.assertTrue(report["passed"])
         self.assertTrue(report["metadata_last"])
+
+    def test_bogus_signature_fails_closed_without_verifier(self):
+        """A non-empty bogus signature must never yield a passing gate."""
+        bundle, raw = self._bundle()
+        bundle = v.make_release_bundle(
+            bundle.version, bundle.artifacts, {"app.bin": "TOTALLY-BOGUS"},
+            bundle.manifest, bundle.completion_record)
+        before = v.verify_before_upload(bundle, {"app.bin": raw}, "1.1.0")
+        self.assertFalse(before["passed"], before)
+        self.assertTrue(any("verif" in issue for issue in before["issues"]),
+                        before["issues"])
+        report = v.release_publish_report(
+            bundle, {"app.bin": raw}, {"app.bin": raw}, "1.1.0")
+        self.assertFalse(report["passed"], report)
+        self.assertFalse(report["before"]["passed"], report["before"])
 
     def test_all_pre_upload_checks_fail_closed(self):
         bundle, raw = self._bundle()

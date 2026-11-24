@@ -14,6 +14,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import sqlite3
 import sys
 import tempfile
 import threading
@@ -223,6 +224,30 @@ class TestZ3RedactedReplay(unittest.TestCase):
         rendered = zb.render_replay(session)
         self.assertNotIn("abcdef123456", rendered["html"])
         self.assertNotIn("sk-abcdefghijklmnop", rendered["html"])
+
+    def test_multiword_secrets_are_redacted_in_text_records_and_replay(self):
+        """Audit C3: value classes must consume whole multi-word secrets."""
+        redacted, preview = zb.redact_text("INFO token=super secret value thanks")
+        self.assertNotIn("super secret value", redacted)
+        self.assertIn("[REDACTED:secret]", redacted)
+        self.assertIn("secret", {item["label"] for item in preview})
+
+        bounded, _ = zb.redact_text("INFO password=abc,def;ghi")
+        self.assertNotIn("abc,def;ghi", bounded)
+
+        # A literal key already replaced by the api_key rule must not leave a
+        # half-written marker behind when the assignment rule runs next.
+        keyed, _ = zb.redact_text("INFO token=sk-or-v1-abcdefghijklmnopqrstuvwx end")
+        self.assertEqual(keyed, "INFO [REDACTED:secret]")
+
+        record = zb.redact_record({"role": "user", "content": "token=super secret value"})
+        self.assertNotIn("super secret value", json.dumps(record))
+
+        rendered = zb.render_replay({
+            "events": [{"role": "user",
+                        "content": "here is my token=super secret value thanks"}]})
+        self.assertNotIn("super secret value", rendered["html"])
+        self.assertIn("secret", {item["label"] for item in rendered["redactions"]})
 
     def test_redact_record_recurses(self):
         record = {"role": "user", "content": "mail bob@example.org",
@@ -611,6 +636,24 @@ class TestZ11HealthBoard(unittest.TestCase):
             "slack.token": "x", "slack.connecting": True}, now=1)
         self.assertEqual(connecting["status"], zb.STATUS_CONNECTING)
 
+    def test_explicit_false_and_zero_are_not_present_settings(self):
+        """A disabled flag is distinguishable from an absent one (Z11 audit)."""
+        integration = zb.Integration("flag", "connector", ("flag.enabled",))
+        disabled = zb.probe(integration, {"flag.enabled": False}, now=1)
+        self.assertEqual(disabled["status"], zb.STATUS_DORMANT)
+        self.assertEqual(disabled["missing_settings"], [])
+        self.assertEqual(disabled["disabled_settings"], ["flag.enabled"])
+        zero = zb.probe(integration, {"flag.enabled": 0}, now=1)
+        self.assertEqual(zero["status"], zb.STATUS_DORMANT)
+        self.assertEqual(zero["disabled_settings"], ["flag.enabled"])
+        absent = zb.probe(integration, {}, now=1)
+        self.assertEqual(absent["status"], zb.STATUS_DORMANT)
+        self.assertEqual(absent["missing_settings"], ["flag.enabled"])
+        self.assertEqual(absent["disabled_settings"], [])
+        self.assertFalse(zb._setting_present(False))
+        self.assertFalse(zb._setting_present(0))
+        self.assertTrue(zb._setting_present("x"))
+
     def test_board_summary_and_ordering(self):
         settings = {"slack.token": "x", "cal.token": "y", "mcp.fs.path": "/tmp"}
         board = zb.health_board(self.integrations, settings, now=1000)
@@ -908,6 +951,117 @@ class TestZ16ProjectBudgets(unittest.TestCase):
             self.budgets.record("alpha", kind="bogus")
         with self.assertRaises(ValueError):
             self.budgets.set_budget("../escape", local_tokens=1)
+
+
+class TestAuditRaceRegressions(unittest.TestCase):
+    """Regressions for the confirmed concurrency defects in the Z backend."""
+
+    def test_z16_budget_concurrent_records_do_not_overspend(self):
+        with tempfile.TemporaryDirectory() as td:
+            budgets = zb.ProjectBudgets(Path(td))
+            budgets.set_budget("demo", local_tokens=100)
+            errors: list[Exception] = []
+            barrier = threading.Barrier(30)
+
+            def worker(index: int) -> None:
+                try:
+                    barrier.wait()
+                    budgets.record("demo", kind="local", tokens=10,
+                                   ts=float(index + 1))
+                except zb.BudgetExceeded:
+                    pass
+                except BaseException as exc:  # surfaced by the assertion below
+                    errors.append(exc)
+
+            threads = [threading.Thread(target=worker, args=(i,)) for i in range(30)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+
+            self.assertEqual(errors, [])
+            rows = zb._read_jsonl(Path(td) / "project-usage.jsonl")
+            self.assertEqual(len(rows), 10)
+            self.assertEqual(sum(int(row["tokens"]) for row in rows), 100)
+            self.assertTrue(budgets.check("demo")["stopped"])
+
+    def test_append_jsonl_stress_keeps_every_record_and_valid_json(self):
+        for round_no in range(8):
+            with self.subTest(round=round_no), tempfile.TemporaryDirectory() as td:
+                path = Path(td) / "usage.jsonl"
+                barrier = threading.Barrier(30)
+
+                def writer(index: int) -> None:
+                    barrier.wait()
+                    zb._append_jsonl(path, {"i": index, "pad": "x" * 256})
+
+                threads = [threading.Thread(target=writer, args=(i,))
+                           for i in range(30)]
+                for thread in threads:
+                    thread.start()
+                for thread in threads:
+                    thread.join()
+                records = zb._read_jsonl(path)  # fails closed on a torn record
+                self.assertEqual(sorted(int(r["i"]) for r in records),
+                                 list(range(30)))
+
+    def test_z6_multiple_instances_share_one_valid_chain(self):
+        with tempfile.TemporaryDirectory() as td:
+            instances = [zb.LocalSync(Path(td)) for _ in range(4)]
+            errors: list[Exception] = []
+            barrier = threading.Barrier(40)
+
+            def worker(index: int) -> None:
+                try:
+                    barrier.wait()
+                    instances[index % len(instances)].append(
+                        f"key{index}", index, ts=float(index + 1))
+                except BaseException as exc:  # surfaced by the assertion below
+                    errors.append(exc)
+
+            threads = [threading.Thread(target=worker, args=(i,)) for i in range(40)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+
+            self.assertEqual(errors, [])
+            chain = zb.LocalSync(Path(td)).changes()
+            self.assertEqual([c.seq for c in chain], list(range(1, 41)))
+
+    def test_z10_driftstore_records_from_many_threads(self):
+        with tempfile.TemporaryDirectory() as td:
+            db_path = Path(td) / "drift.sqlite"
+            store = zb.DriftStore(db_path)
+            try:
+                errors: list[Exception] = []
+                barrier = threading.Barrier(30)
+
+                def worker(index: int) -> None:
+                    try:
+                        barrier.wait()
+                        store.record("model", "hash", "v1", 0.5,
+                                     ts=float(index + 1))
+                    except BaseException as exc:  # surfaced by the assertion below
+                        errors.append(exc)
+
+                threads = [threading.Thread(target=worker, args=(i,))
+                           for i in range(30)]
+                for thread in threads:
+                    thread.start()
+                for thread in threads:
+                    thread.join()
+
+                self.assertEqual(errors, [])
+                conn = sqlite3.connect(db_path)
+                try:
+                    rows = conn.execute(
+                        "SELECT COUNT(*) FROM model_health").fetchone()[0]
+                finally:
+                    conn.close()
+                self.assertEqual(rows, 30)
+            finally:
+                store.close()
 
 
 if __name__ == "__main__":

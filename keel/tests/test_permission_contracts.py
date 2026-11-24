@@ -501,6 +501,38 @@ def test_w39_corrupt_store_fails_closed(tmp_path):
     assert outcome.decision.effect is Effect.ALLOW  # once is an explicit reply
 
 
+def test_w39_cross_instance_approval_writes_are_lossless_under_load(tmp_path):
+    """Many instances on one approval file must not lose writes or collide on
+    a shared temp path, even when threads start simultaneously."""
+    import threading
+    count = 24
+    barrier = threading.Barrier(count + 1)
+    errors: list[BaseException] = []
+
+    def worker(index: int) -> None:
+        try:
+            own = ApprovalStore(tmp_path, "project-a")
+            barrier.wait(timeout=10)
+            own.decide(
+                ApprovalRequest("execute", f"load{index}", f"load{index}*"),
+                ApprovalReply.ALWAYS,
+            )
+        except BaseException as exc:  # pragma: no cover - diagnostic
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(count)]
+    for thread in threads:
+        thread.start()
+    barrier.wait(timeout=10)
+    for thread in threads:
+        thread.join(timeout=30)
+    assert not errors, errors[:2]
+    patterns = set(ApprovalStore(tmp_path, "project-a").saved_patterns())
+    for index in range(count):
+        assert ("execute", f"load{index}*") in patterns
+    assert not list(tmp_path.glob("*.tmp")), "atomic-write temp files leaked"
+
+
 def test_w39_concurrent_approval_writes_are_lossless(tmp_path):
     store = ApprovalStore(tmp_path, "project-a")
     count = 12

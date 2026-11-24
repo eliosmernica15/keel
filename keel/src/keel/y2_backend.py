@@ -39,6 +39,7 @@ metadata published in its redacted form.
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import math
 import os
@@ -53,6 +54,21 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Sequence
+
+
+# ---------------------------------------------------------------------------
+# feature traceability declaration (ID -> implementing symbols)
+# ---------------------------------------------------------------------------
+
+# Explicit, AST-visible declaration for the traceability gap on Y2.16. Every
+# named symbol is really defined below and exercised by the compaction tests in
+# tests/test_y2_backend.py. The name is deliberately not one of backend_hub's
+# reserved registry attributes, so backend_hub.verify keeps its AST fallback
+# behaviour for this module.
+FEATURE_TRACEABILITY: dict[str, tuple[str, ...]] = {
+    "Y2.16": ("DEFAULT_KEEP_LAST_USER_TURNS", "DEFAULT_MEMORY_BUDGET_CHARS",
+              "CompactionConfig", "CompactionMethod", "plan_compaction"),
+}
 
 
 # ---------------------------------------------------------------------------
@@ -1474,6 +1490,9 @@ class RealtimeSecretIssuer:
         self.ttl_seconds = int(ttl_seconds)
         self._clock = clock
         self._revoked: set[str] = set()
+        # sha256(token) -> session id. Validity is not derivable from public
+        # fields alone: a presented token must match a token this issuer made.
+        self._issued: dict[bytes, str] = {}
         self._lock = threading.RLock()
 
     def _now(self, now: float | None) -> float:
@@ -1489,13 +1508,37 @@ class RealtimeSecretIssuer:
             # counter: public_dict() publishes the first two, and the counter
             # is trivially guessable.  256 bits from the stdlib CSPRNG.
             token = secrets.token_urlsafe(32)
-            return RealtimeSecret(token=token, session_id=str(session_id),
+            session = str(session_id)
+            self._issued[hashlib.sha256(token.encode("utf-8")).digest()] = session
+            return RealtimeSecret(token=token, session_id=session,
                                   expires_at=current + self.ttl_seconds,
                                   issued_at=current)
 
     def is_valid(self, secret: RealtimeSecret, *, now: float | None = None) -> bool:
+        """Validity requires the *presented token* to match an issued one.
+
+        Expiry/revocation alone are not sufficient: callers may build a
+        RealtimeSecret from an untrusted session id, so a known session id
+        must never make an arbitrary bearer token valid.
+        """
         current = self._now(now)
+        try:
+            presented = hashlib.sha256(secret.token.encode("utf-8")).digest()
+            presented_session = str(secret.session_id).encode("utf-8")
+        except (AttributeError, TypeError, UnicodeError):
+            return False
         with self._lock:
+            matched_session: str | None = None
+            for known_digest, session in self._issued.items():
+                # Constant-time comparison against the stored token digest.
+                if hmac.compare_digest(known_digest, presented):
+                    matched_session = session
+            if matched_session is None:
+                return False
+            if not hmac.compare_digest(
+                matched_session.encode("utf-8"), presented_session
+            ):
+                return False
             return (secret.session_id not in self._revoked
                     and secret.expires_at > current)
 

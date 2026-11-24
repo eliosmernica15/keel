@@ -20,6 +20,7 @@ import hashlib
 import hmac
 import html
 import json
+import math
 import os
 import re
 import secrets
@@ -32,6 +33,21 @@ from collections import Counter, OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
+
+
+# ---------------------------------------------------------------------------
+# feature traceability declaration (ID -> implementing symbols)
+# ---------------------------------------------------------------------------
+
+# PLAN-INDEX.json attributes Y3.8 (device-approval pairing flow) to this
+# module. The explicit, AST-visible declaration maps that ID to the real
+# pairing symbols defined by BrowserBoundSignIn below; each is exercised in
+# tests/test_w7_x1_y5_d1_backend.py. The name is deliberately not one of
+# backend_hub's reserved registry attributes, so backend_hub.verify keeps its
+# AST fallback behaviour for this module.
+FEATURE_TRACEABILITY: dict[str, tuple[str, ...]] = {
+    "Y3.8": ("BrowserBoundSignIn", "bind_pairing", "complete_pairing"),
+}
 
 
 class BackendError(RuntimeError):
@@ -50,6 +66,24 @@ _SECRET_RE = re.compile(
     r"gh[pousr]_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{8,})\b"
 )
 _EMAIL_RE = re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b")
+# Public-share output must not publish assignment-style credentials.  As in
+# the other backends, the value runs to the next assignment/newline rather
+# than to the next space, so "token=super secret value" is removed in full.
+_SECRET_KEYWORDS = (
+    r"api[_-]?key|access[_-]?token|token|password|secret|authorization|pin"
+)
+_NEXT_ASSIGNMENT = (
+    r"['\"]?\b\w*(?:" + _SECRET_KEYWORDS + r")\w*['\"]?\s*[:=]"
+)
+_ASSIGNED_SECRET_RE = re.compile(
+    r"(?i)(?P<key>\b\w*(?:" + _SECRET_KEYWORDS + r")\w*)\s*['\"]?\s*[:=]\s*"
+    r"(?:"
+    r"(?P<q>['\"])(?:(?!(?P=q))[^\r\n])*(?P=q)"
+    r"|(?:['\"]?(?:Bearer|Basic)\s+)?"
+    r"(?:(?!(?:" + _NEXT_ASSIGNMENT + r"))[^\r\n])*"
+    r")"
+)
+_BARE_BEARER_RE = re.compile(r"(?i)\b(?:Bearer|Basic)\s+[^\s,;'\"\r\n]{4,}")
 
 
 def _utc_now() -> str:
@@ -67,13 +101,30 @@ def _b64u_decode(text: str) -> bytes:
 def _scrub_secrets(text: str) -> str:
     """Remove credential-shaped substrings and e-mail addresses from text."""
     out = _SECRET_RE.sub("[REDACTED]", str(text))
+    out = _ASSIGNED_SECRET_RE.sub(lambda m: f"{m.group('key')}=[REDACTED]", out)
+    out = _BARE_BEARER_RE.sub("[REDACTED]", out)
     out = _EMAIL_RE.sub("[REDACTED]", out)
     return out
 
 
-# Serialises read-modify-write cycles (and the replace itself) across every
-# caller, including separate manager instances pointing at the same file.
+# Serialises the replace itself; every caller shares this lock.
 _WRITE_LOCK = threading.RLock()
+
+# Read-modify-write cycles need a lock keyed by the resolved *state file*, not
+# by manager instance: two managers over one credentials dir must not both
+# load the same document, append their own entry and overwrite each other.
+_PATH_LOCKS_GUARD = threading.Lock()
+_PATH_LOCKS: dict[str, threading.RLock] = {}
+
+
+def _lock_for_path(path: str | Path) -> threading.RLock:
+    key = str(Path(path).resolve())
+    with _PATH_LOCKS_GUARD:
+        lock = _PATH_LOCKS.get(key)
+        if lock is None:
+            lock = threading.RLock()
+            _PATH_LOCKS[key] = lock
+        return lock
 
 
 def _contained_path(root: str | Path, name: str, *, label: str = "path") -> Path:
@@ -499,10 +550,25 @@ def authorize_live_view(request_owner: str, resource_owner: str) -> bool:
 
 # --- W7.7: browser-bound sealed sign-in ------------------------------------
 
+# HMAC-SHA256 is only as strong as its key.  An arbitrarily short key yields a
+# valid-looking token that is trivially brute-forceable, so reject it at the
+# boundary instead of silently issuing weak signatures.
+_SEAL_KEY_MIN_BYTES = 16
+
+
+def _require_seal_key(key: bytes) -> bytes:
+    if not isinstance(key, (bytes, bytearray)):
+        raise BackendError("seal key must be bytes")
+    value = bytes(key)
+    if len(value) < _SEAL_KEY_MIN_BYTES:
+        raise BackendError(f"seal key must be at least {_SEAL_KEY_MIN_BYTES} bytes")
+    return value
+
 
 def seal_value(value: dict, key: bytes, *, ttl: int = 600,
                now: int | None = None) -> str:
     """W7.7: seal a value as ``b64(payload).b64(hmac)`` with an expiry."""
+    key = _require_seal_key(key)
     issued = int(now if now is not None else time.time())
     payload = dict(value)
     payload["exp"] = issued + int(ttl)
@@ -513,6 +579,10 @@ def seal_value(value: dict, key: bytes, *, ttl: int = 600,
 
 def unseal_value(token: str, key: bytes, *, now: int | None = None) -> dict | None:
     """W7.7: verify the HMAC in constant time and enforce expiry."""
+    try:
+        key = _require_seal_key(key)
+    except BackendError:
+        return None  # fail closed on an under-strength key
     try:
         raw, sig = token.rsplit(".", 1)
         expected = _b64u_encode(hmac.new(key, raw.encode("ascii"), hashlib.sha256).digest())
@@ -545,7 +615,7 @@ class BrowserBoundSignIn:
     """W7.7: a sign-in that only the initiating browser can complete."""
 
     def __init__(self, key: bytes):
-        self.key = key
+        self.key = _require_seal_key(key)
         self._states: dict[str, dict] = {}
         self._consumed: set[str] = set()
         self._lock = threading.RLock()
@@ -662,7 +732,15 @@ def bounded_multipart(parts: list[tuple[str, bytes]], *, max_part_bytes: int = 1
 
 def cap_recording(events: list[dict], *, max_events: int = 500,
                   max_bytes: int = 1_000_000) -> list[dict]:
-    """W7.11: cap a recording by event count and serialized byte size."""
+    """W7.11: cap a recording by event count and serialized byte size.
+
+    Invalid (negative) bounds are rejected: a negative ``max_events`` used to
+    silently slice ``events[:-1]`` and report a partial recording as complete.
+    """
+    if max_events < 0 or max_bytes < 0:
+        raise BackendError(
+            f"recording bounds must be non-negative: max_events={max_events}, "
+            f"max_bytes={max_bytes}")
     kept: list[dict] = []
     size = 0
     for event in events[:max_events]:
@@ -741,8 +819,10 @@ def public_share_view(transcript: dict, *, preview_chars: int = 160) -> dict:
 
 def render_share_html(view: dict) -> str:
     """W7.15/Z3: local HTML export using the same public redaction level."""
-    safe_text = html.escape(str(view.get("text", "")))
-    items = "".join(f"<li>{html.escape(str(p))}</li>"
+    # Scrub again: callers may hand this renderer a view they built themselves
+    # rather than one returned by ``public_share_view``.
+    safe_text = html.escape(_scrub_secrets(str(view.get("text", ""))))
+    items = "".join(f"<li>{html.escape(_scrub_secrets(str(p)))}</li>"
                     for p in view.get("tool_previews", []))
     return ("<!doctype html><html><body>"
             f"<main><p>{safe_text}</p><ul>{items}</ul></main>"
@@ -754,6 +834,10 @@ def render_share_html(view: dict) -> str:
 
 class SpendLimitExceeded(BackendError):
     pass
+
+
+class InvalidSpendAmount(BackendError):
+    """A charge/cap that is not a positive, finite, representable amount."""
 
 
 class AtomicSpendLedger:
@@ -768,7 +852,15 @@ class AtomicSpendLedger:
 
     @classmethod
     def _units(cls, amount: float) -> int:
-        return max(0, int(round(float(amount) * cls._SCALE)))
+        if isinstance(amount, bool) or not isinstance(amount, (int, float)):
+            raise InvalidSpendAmount("amount must be a number")
+        value = float(amount)
+        if not math.isfinite(value) or value <= 0:
+            raise InvalidSpendAmount("amount must be finite and > 0")
+        units = int(round(value * cls._SCALE))
+        if units <= 0:
+            raise InvalidSpendAmount("amount is too small to represent in micro-units")
+        return units
 
     def authorize_and_charge(self, vendor: str, amount: float) -> dict:
         cost = self._units(amount)
@@ -1135,7 +1227,7 @@ class WebhookSubscriptionManager:
     def __init__(self, credentials_dir: str | Path):
         self.path = _contained_path(
             credentials_dir, "webhook-subscriptions.json", label="credentials path")
-        self._lock = threading.RLock()
+        self._lock = _lock_for_path(self.path)
 
     def _load(self) -> dict:
         doc = _load_json(self.path, {})
@@ -1228,7 +1320,7 @@ class ChatIdCache:
     def __init__(self, credentials_dir: str | Path):
         self.path = _contained_path(
             credentials_dir, "chat-id-map.json", label="credentials path")
-        self._lock = threading.RLock()
+        self._lock = _lock_for_path(self.path)
 
     def _load(self) -> dict:
         doc = _load_json(self.path, {})

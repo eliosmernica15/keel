@@ -256,6 +256,35 @@ def test_w7_15_share_tokens_and_public_redaction():
     assert "<script>" not in m.render_share_html({"text": "<script>alert(1)</script>"})
 
 
+def test_w7_15_public_share_redacts_multiword_and_bearer_secrets():
+    """Audit C1: published share artifacts must not carry credential values."""
+    transcript = {
+        "messages": [{"role": "user",
+                      "content": "my token=super secret value and Bearer abcdef1234567890"}],
+        "tool_calls": [{"args": "password=hunter2 secret"}],
+    }
+    view = m.public_share_view(transcript)
+    assert "super secret value" not in view["text"]
+    assert "abcdef1234567890" not in view["text"]
+    assert "Bearer" not in view["text"]
+    assert all("hunter2 secret" not in p for p in view["tool_previews"])
+    rendered = m.render_share_html(view)
+    assert "super secret value" not in rendered
+    assert "abcdef1234567890" not in rendered
+    assert "hunter2 secret" not in rendered
+
+    # A caller may hand render_share_html a view it built itself; it must
+    # still scrub before publishing.
+    raw = m.render_share_html({"text": "my token=super secret value",
+                               "tool_previews": ["Bearer abcdef1234567890"]})
+    assert "super secret value" not in raw
+    assert "abcdef1234567890" not in raw
+
+    shown = m.redact_keys_for_display("token=super secret value")
+    assert "super secret value" not in shown
+    assert "[REDACTED]" in shown
+
+
 def test_w7_18_atomic_spend_ledger():
     ledger = m.AtomicSpendLedger({"vendor-a": 10.0})
     for _ in range(10):
@@ -554,6 +583,57 @@ def test_y5_9_excluded_channels():
 
 
 # ---------------------------------------------------------------------------
+# Regressions for the confirmed race / fake-success findings
+# ---------------------------------------------------------------------------
+
+
+def test_y5_3_concurrent_subscribers_across_instances_do_not_lose_updates(tmp_path):
+    managers = [m.WebhookSubscriptionManager(tmp_path / "credentials")
+                for _ in range(2)]
+    count = 60
+    errors: list[Exception] = []
+    barrier = threading.Barrier(count)
+
+    def worker(index):
+        try:
+            barrier.wait()
+            managers[index % len(managers)].subscribe(
+                f"https://example.test/hook/{index}", ["message.received"],
+                label=f"sub-{index}")
+        except BaseException as exc:  # surfaced by the assertion below
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(count)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert not errors
+    assert len(m.WebhookSubscriptionManager(tmp_path / "credentials").list()) == count
+
+
+def test_w7_18_non_positive_or_invalid_charges_are_rejected():
+    ledger = m.AtomicSpendLedger({"ads": 10.0})
+    for bad in (-3, 0, -0.5, float("nan"), float("inf"), "3", True, None):
+        with pytest.raises(m.InvalidSpendAmount):
+            ledger.authorize_and_charge("ads", bad)
+    assert ledger.spent("ads") == 0.0
+    receipt = ledger.authorize_and_charge("ads", 1.0)
+    assert receipt["charged_units"] == 1_000_000
+    assert ledger.spent("ads") == 1.0
+
+
+def test_w7_7_seal_key_minimum_length_is_enforced():
+    strong = b"synthetic-test-key-32-bytes-long!!"
+    token = m.seal_value({"user": "alice"}, strong, ttl=60, now=1000)
+    assert m.unseal_value(token, strong, now=1001) == {"user": "alice", "exp": 1060}
+    with pytest.raises(m.BackendError):
+        m.seal_value({"user": "alice"}, b"short")
+    # A token presented with an under-strength key fails closed.
+    assert m.unseal_value(token, b"short", now=1001) is None
+
+
+# ---------------------------------------------------------------------------
 # Registry consistency guard
 # ---------------------------------------------------------------------------
 
@@ -572,3 +652,49 @@ def test_all_31_not_started_feature_ids_are_covered():
     for feature_id in ids:
         assert feature_id in source, feature_id
         assert feature_id in test_source, feature_id
+
+
+# ---------------------------------------------------------------------------
+# Y3.8 (device-approval pairing flow) — attributed to this module by the
+# canonical registry.
+# ---------------------------------------------------------------------------
+
+
+def test_y3_8_browser_bound_pairing():
+    """Y3.8: a sealed pairing code is completable only by its own client/browser."""
+    key = b"synthetic-test-key-32-bytes-long!!"
+    signin = m.BrowserBoundSignIn(key)
+    fp_a = m.browser_fingerprint({"User-Agent": "Y3.8-A", "Accept-Language": "en"})
+    fp_b = m.browser_fingerprint({"User-Agent": "Y3.8-B", "Accept-Language": "en"})
+    assert fp_a != fp_b
+
+    cookie = signin.bind_pairing("client-1", fp_a)
+    # Correct client + browser + non-empty approval code completes the flow.
+    assert signin.complete_pairing(cookie, "client-1", fp_a, "PAIR-1") is True
+    # A different client, a different browser or an empty code fails closed.
+    assert signin.complete_pairing(cookie, "client-2", fp_a, "PAIR-1") is False
+    assert signin.complete_pairing(cookie, "client-1", fp_b, "PAIR-1") is False
+    assert signin.complete_pairing(cookie, "client-1", fp_a, "") is False
+    # A sign-in cookie cannot be replayed as a pairing cookie (kind mismatch).
+    signin_cookie = signin.start(fp_a)["cookie"]
+    assert signin.complete_pairing(signin_cookie, "client-1", fp_a, "PAIR-1") is False
+
+    # The declaration names the real pairing surface.
+    assert set(m.FEATURE_TRACEABILITY) == {"Y3.8"}
+    assert m.FEATURE_TRACEABILITY["Y3.8"] == (
+        "BrowserBoundSignIn", "bind_pairing", "complete_pairing")
+    assert hasattr(m.BrowserBoundSignIn, "bind_pairing")
+    assert hasattr(m.BrowserBoundSignIn, "complete_pairing")
+
+
+def test_w7_11_cap_recording_rejects_negative_bounds():
+    """A negative bound must not silently cap/truncate a recording."""
+    for kwargs in ({"max_events": -1}, {"max_bytes": -1},
+                   {"max_events": -3, "max_bytes": -5}):
+        try:
+            m.cap_recording([{"n": 1}, {"n": 2}], **kwargs)
+        except m.BackendError as exc:
+            assert "non-negative" in str(exc)
+        else:
+            raise AssertionError(f"negative bounds accepted: {kwargs}")
+

@@ -113,11 +113,34 @@ def _atomic_write_text(path: Path, text: str) -> Path:
     return path
 
 
+# One reentrant lock per resolved state file.  The registry guard protects only
+# the map itself; the per-path lock is what serialises every read-modify-write
+# cycle (budget check+append, sync chain append, JSONL reads) across all callers
+# on the same file, not merely within one object instance.
+_PATH_LOCKS_GUARD = threading.Lock()
+_PATH_LOCKS: dict[str, threading.RLock] = {}
+
+
+def _lock_for_path(path: str | Path) -> threading.RLock:
+    key = str(Path(path).resolve())
+    with _PATH_LOCKS_GUARD:
+        lock = _PATH_LOCKS.get(key)
+        if lock is None:
+            lock = threading.RLock()
+            _PATH_LOCKS[key] = lock
+        return lock
+
+
 def _read_jsonl(path: Path) -> list[dict]:
     if not path.is_file():
         return []
+    text = path.read_text(encoding="utf-8")
+    if text and not text.endswith("\n"):
+        # A final record without its terminator is a torn append: fail closed
+        # instead of silently accepting a partially written ledger.
+        raise ValueError(f"corrupt JSONL record in {path}: incomplete final line")
     records = []
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line in text.splitlines():
         if not line.strip():
             continue
         try:
@@ -132,10 +155,20 @@ def _read_jsonl(path: Path) -> list[dict]:
 
 def _append_jsonl(path: Path, record: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "a", encoding="utf-8") as handle:
-        handle.write(_canonical_json(record) + "\n")
-        handle.flush()
-        os.fsync(handle.fileno())
+    # The path lock makes the primitive safe for every caller, even when the
+    # callers are different objects.  A single O_APPEND write followed by fsync
+    # keeps each record whole and durable; partial writes are continued under
+    # the same lock rather than interleaved with another record.
+    data = (_canonical_json(record) + "\n").encode("utf-8")
+    with _lock_for_path(path):
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+        try:
+            view = memoryview(data)
+            while view:
+                view = view[os.write(fd, view):]
+            os.fsync(fd)
+        finally:
+            os.close(fd)
 
 
 def _safe_relpath(raw: Any, label: str = "path") -> Path:
@@ -455,13 +488,33 @@ def run_contract_tests(pack_root: str | Path,
 # Z3 — Redacted replay export
 # ===========================================================================
 
+# Assignment values must be consumed in full, including spaces: a short
+# first word ("token=super secret value") previously prevented any match at
+# all.  Stop at the next secret-key assignment or a line break, and treat a quoted
+# value as bounded by its closing quote.  Dict keys and Bearer credentials
+# keep their existing handling (the rules below run in order).
+_SECRET_KEYWORDS = (
+    r"api[_-]?key|access[_-]?token|token|password|secret|authorization|pin"
+)
+_NEXT_ASSIGNMENT = (
+    r"['\"]?\b\w*(?:" + _SECRET_KEYWORDS + r")\w*['\"]?\s*[:=]"
+)
+_ASSIGNED_SECRET_RE = re.compile(
+    r"(?i)\b\w*(?:" + _SECRET_KEYWORDS + r")\w*\s*['\"]?\s*[:=]\s*"
+    r"(?:"
+    r"(?P<q>['\"])(?:(?!(?P=q))[^\r\n])*(?P=q)"
+    r"|(?:['\"]?(?:Bearer|Basic)\s+)?"
+    r"(?:(?!(?:" + _NEXT_ASSIGNMENT + r"))[^\r\n])*"
+    r")"
+)
+_BARE_BEARER_RE = re.compile(r"(?i)\b(?:Bearer|Basic)\s+[^\s,;'\"\r\n]{4,}")
+
 _REDACTION_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("api_key", re.compile(
         r"\b(?:sk-[A-Za-z0-9_\-]{12,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{20,})\b")),
     ("email", re.compile(r"\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b")),
-    ("secret", re.compile(
-        r"(?i)\b(?:api[_-]?key|token|password|secret|authorization)\s*[:=]\s*"
-        r"['\"]?(?:(?:Bearer|Basic)\s+)?[A-Za-z0-9_\-/+.]{6,}['\"]?")),
+    ("secret", _ASSIGNED_SECRET_RE),
+    ("secret", _BARE_BEARER_RE),
     ("home_path", re.compile(
         r"(?:[A-Za-z]:[\\/]Users[\\/]|/home/|/Users/)[^\s\"'<>]+")),
     ("abs_path", re.compile(
@@ -733,12 +786,14 @@ class LocalSync:
     def __init__(self, root: str | Path):
         self.root = Path(root)
         self.changes_path = self.root / "changes.jsonl"
-        # Serialises read-chain / compute-seq / append so concurrent writers
-        # cannot reuse the same seq and prev digest.
-        self._lock = threading.RLock()
+        # Serialises read-chain / compute-seq / append across *all* instances
+        # on this file, so concurrent writers cannot reuse the same seq and
+        # prev digest.  A per-instance lock cannot protect a shared ledger.
+        self._lock = _lock_for_path(self.changes_path)
 
     def changes(self) -> list[Change]:
-        records = _read_jsonl(self.changes_path)
+        with self._lock:
+            records = _read_jsonl(self.changes_path)
         result: list[Change] = []
         prev = GENESIS_DIGEST
         for expected_seq, record in enumerate(records, start=1):
@@ -1090,17 +1145,23 @@ class DriftStore:
 
     def __init__(self, db_path: str | Path):
         self.db_path = str(db_path)
-        self.conn = sqlite3.connect(self.db_path)
+        # One shared connection usable from any thread, with a reentrant lock
+        # around every operation.  Keeping a single connection also preserves
+        # :memory: state across calls (and across threads).
+        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
-        self.conn.execute(
-            "CREATE TABLE IF NOT EXISTS model_health ("
-            "seq INTEGER PRIMARY KEY AUTOINCREMENT, model TEXT NOT NULL, "
-            "model_hash TEXT NOT NULL, runtime_version TEXT NOT NULL, "
-            "score REAL NOT NULL, ts REAL NOT NULL)")
-        self.conn.commit()
+        self._lock = threading.RLock()
+        with self._lock:
+            self.conn.execute(
+                "CREATE TABLE IF NOT EXISTS model_health ("
+                "seq INTEGER PRIMARY KEY AUTOINCREMENT, model TEXT NOT NULL, "
+                "model_hash TEXT NOT NULL, runtime_version TEXT NOT NULL, "
+                "score REAL NOT NULL, ts REAL NOT NULL)")
+            self.conn.commit()
 
     def close(self) -> None:
-        self.conn.close()
+        with self._lock:
+            self.conn.close()
 
     def record(self, model: str, model_hash: str, runtime_version: str,
                score: float, *, ts: float | None = None) -> dict:
@@ -1111,23 +1172,25 @@ class DriftStore:
         if value > 1.0:
             raise ValueError("score must be <= 1")
         stamp = time.time() if ts is None else _require_number(ts, "ts")
-        cursor = self.conn.execute(
-            "INSERT INTO model_health(model, model_hash, runtime_version, score, ts) "
-            "VALUES (?,?,?,?,?)", (model, model_hash, runtime_version, value, stamp))
-        self.conn.commit()
+        with self._lock:
+            cursor = self.conn.execute(
+                "INSERT INTO model_health(model, model_hash, runtime_version, score, ts) "
+                "VALUES (?,?,?,?,?)", (model, model_hash, runtime_version, value, stamp))
+            self.conn.commit()
         return {"seq": cursor.lastrowid, "model": model, "model_hash": model_hash,
                 "runtime_version": runtime_version, "score": value, "ts": stamp}
 
     def latest(self, model: str, *, before: float | None = None) -> dict | None:
         _require_str(model, "model")
-        if before is None:
-            row = self.conn.execute(
-                "SELECT * FROM model_health WHERE model=? ORDER BY ts DESC, seq DESC LIMIT 1",
-                (model,)).fetchone()
-        else:
-            row = self.conn.execute(
-                "SELECT * FROM model_health WHERE model=? AND ts < ? "
-                "ORDER BY ts DESC, seq DESC LIMIT 1", (model, before)).fetchone()
+        with self._lock:
+            if before is None:
+                row = self.conn.execute(
+                    "SELECT * FROM model_health WHERE model=? ORDER BY ts DESC, seq DESC LIMIT 1",
+                    (model,)).fetchone()
+            else:
+                row = self.conn.execute(
+                    "SELECT * FROM model_health WHERE model=? AND ts < ? "
+                    "ORDER BY ts DESC, seq DESC LIMIT 1", (model, before)).fetchone()
         return dict(row) if row is not None else None
 
     def detect(self, model: str, model_hash: str, runtime_version: str,
@@ -1136,28 +1199,30 @@ class DriftStore:
         """Compare a new score with the previous one and persist the new score."""
         drop_limit = _require_number(threshold, "threshold")
         stamp = time.time() if ts is None else _require_number(ts, "ts")
-        previous = self.latest(model, before=stamp)
         value = _require_number(score, "score")
         if value > 1.0:
             raise ValueError("score must be <= 1")
-        if previous is None:
-            report = {"drift": False, "reason": "no_baseline", "previous": None,
-                      "delta": 0.0, "changed_model_hash": False,
-                      "changed_runtime_version": False}
-        else:
-            delta = round(float(previous["score"]) - value, 8)
-            changed_hash = previous["model_hash"] != model_hash
-            changed_runtime = previous["runtime_version"] != runtime_version
-            if delta >= drop_limit:
-                reason = "score_drop_after_change" if (changed_hash or changed_runtime) \
-                    else "score_regression"
+        # The comparison and the persistence are one operation under the lock.
+        with self._lock:
+            previous = self.latest(model, before=stamp)
+            if previous is None:
+                report = {"drift": False, "reason": "no_baseline", "previous": None,
+                          "delta": 0.0, "changed_model_hash": False,
+                          "changed_runtime_version": False}
             else:
-                reason = "stable"
-            report = {"drift": delta >= drop_limit, "reason": reason,
-                      "previous": previous, "delta": delta,
-                      "changed_model_hash": changed_hash,
-                      "changed_runtime_version": changed_runtime}
-        current = self.record(model, model_hash, runtime_version, value, ts=stamp)
+                delta = round(float(previous["score"]) - value, 8)
+                changed_hash = previous["model_hash"] != model_hash
+                changed_runtime = previous["runtime_version"] != runtime_version
+                if delta >= drop_limit:
+                    reason = "score_drop_after_change" if (changed_hash or changed_runtime) \
+                        else "score_regression"
+                else:
+                    reason = "stable"
+                report = {"drift": delta >= drop_limit, "reason": reason,
+                          "previous": previous, "delta": delta,
+                          "changed_model_hash": changed_hash,
+                          "changed_runtime_version": changed_runtime}
+            current = self.record(model, model_hash, runtime_version, value, ts=stamp)
         report.update({"model": model, "model_hash": model_hash,
                        "runtime_version": runtime_version, "current": current,
                        "threshold": drop_limit})
@@ -1204,8 +1269,27 @@ class Integration:
                 "display_name": self.display_name or self.id}
 
 
+# A required setting is classified into three distinct states: absent (the key
+# was never configured), disabled (the key is configured but explicitly turned
+# off with ``False``/``0``) and present (a usable value).  Collapsing the first
+# two into "missing", or treating the second as present, made a disabled
+# required flag look like a healthy integration on the health board (Z11 audit).
+SETTING_ABSENT = "absent"
+SETTING_DISABLED = "disabled"
+SETTING_PRESENT = "present"
+
+
+def _setting_state(value: Any) -> str:
+    if value is None or value == "" or value == [] or value == {}:
+        return SETTING_ABSENT
+    if value is False or value == 0:
+        return SETTING_DISABLED
+    return SETTING_PRESENT
+
+
 def _setting_present(value: Any) -> bool:
-    return value is not None and value != "" and value != [] and value != {}
+    """True only for a usable value; ``False``/``0`` are explicitly disabled."""
+    return _setting_state(value) == SETTING_PRESENT
 
 
 def probe(integration: Integration, settings: Mapping[str, Any], *,
@@ -1214,9 +1298,15 @@ def probe(integration: Integration, settings: Mapping[str, Any], *,
     if integration.kind not in ("connector", "channel", "mcp_server"):
         raise ValueError(f"unknown integration kind: {integration.kind}")
     _require_dict(settings, "settings")
-    missing = [key for key in integration.required_settings
-               if not _setting_present(settings.get(key))]
-    if missing:
+    missing: list[str] = []
+    disabled: list[str] = []
+    for key in integration.required_settings:
+        state = _setting_state(settings.get(key))
+        if state == SETTING_ABSENT:
+            missing.append(key)
+        elif state == SETTING_DISABLED:
+            disabled.append(key)
+    if missing or disabled:
         status = STATUS_ERROR if settings.get(f"{integration.id}.last_error") \
             else STATUS_DORMANT
         last_probe = None
@@ -1230,7 +1320,8 @@ def probe(integration: Integration, settings: Mapping[str, Any], *,
         status = STATUS_ACTIVE
         last_probe = time.time() if now is None else _require_number(now, "now")
     return {"id": integration.id, "kind": integration.kind, "status": status,
-            "missing_settings": missing, "last_probe": last_probe,
+            "missing_settings": missing, "disabled_settings": disabled,
+            "last_probe": last_probe,
             "display_name": integration.display_name or integration.id}
 
 
@@ -1870,20 +1961,25 @@ class ProjectBudgets:
         if count != int(count):
             raise ValueError("tokens must be an integer")
         cost = _require_number(cost_usd, "cost_usd")
-        decision = self.check(name)
-        if not decision["allowed"] and decision.get("stopped"):
-            raise BudgetExceeded(decision["reason"])
-        entry = {"schema": "keel.project-usage/1", "project": name, "kind": kind,
-                 "tokens": int(count), "cost_usd": round(cost, 8),
-                 "provider": provider, "model": model,
-                 "ts": time.time() if ts is None else _require_number(ts, "ts")}
-        _append_jsonl(self.usage_path, entry)
-        return entry
+        # check() + append() must be one atomic decision: without the shared
+        # path lock every thread reads the same pre-spend usage and overspends.
+        with _lock_for_path(self.usage_path):
+            decision = self.check(name)
+            if not decision["allowed"] and decision.get("stopped"):
+                raise BudgetExceeded(decision["reason"])
+            entry = {"schema": "keel.project-usage/1", "project": name, "kind": kind,
+                     "tokens": int(count), "cost_usd": round(cost, 8),
+                     "provider": provider, "model": model,
+                     "ts": time.time() if ts is None else _require_number(ts, "ts")}
+            _append_jsonl(self.usage_path, entry)
+            return entry
 
     def _usage(self, project: str) -> dict:
         local_tokens = 0
         remote_usd = 0.0
-        for entry in _read_jsonl(self.usage_path):
+        with _lock_for_path(self.usage_path):
+            entries = _read_jsonl(self.usage_path)
+        for entry in entries:
             if entry.get("project") != project:
                 continue
             if entry.get("kind") == "local":
