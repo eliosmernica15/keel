@@ -52,13 +52,17 @@ export default function OrgChart({ bots, rowsResource, onOpenBot }: {
       </div>
 
       <ResourceNotice resource={rowsResource} emptyTitle="No transcripts reported"
-        emptyDescription="The bridge reported no agent transcripts, so no delegation can be derived.">
+        emptyDescription="The bridge reported no agent transcripts, so no delegation can be derived."
+        emptyAction={<Button size="sm" variant="secondary" onClick={rowsResource.reload}>Reload delegation rows</Button>}>
         {() => edges.length === 0 ? (
-          <EmptyState
-            icon={<Icon name="fleet" size={26} />}
-            title="No delegation reported by the bridge"
-            description="No send_to_bot delegation fields or delegated_from parent fields were found in the reported transcripts."
-          />
+          <div role="status">
+            <EmptyState
+              icon={<Icon name="fleet" size={26} />}
+              title="No delegation reported by the bridge"
+              description="No send_to_bot delegation fields or delegated_from parent fields were found in the reported transcripts."
+              action={<Button size="sm" variant="secondary" onClick={rowsResource.reload}>Recheck delegation rows</Button>}
+            />
+          </div>
         ) : (
           <div className={s.panel}>
             <div className={s.panelHead}>

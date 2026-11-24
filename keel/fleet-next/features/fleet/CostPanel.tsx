@@ -105,7 +105,7 @@ function CostContent({ bots, rows }: { bots: Bot[]; rows: BotRowsView[] }) {
         </div>
       )}
       {withTokens.length === 0 && withCost.length === 0 && (
-        <p className={s.hintNote}>No agent reported any usage rows. Nothing is shown as a cost.</p>
+        <p className={s.hintNote} role="status">No agent reported any usage rows. Nothing is shown as a cost.</p>
       )}
     </div>
   );

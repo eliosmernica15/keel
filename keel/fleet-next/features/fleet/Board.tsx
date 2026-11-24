@@ -97,7 +97,8 @@ export default function Board({ tasksResource, bots, onOpenBot }: {
       </div>
 
       <ResourceNotice resource={tasksResource} emptyTitle="No tasks reported"
-        emptyDescription="The board is empty because the bridge reported no tasks. No placeholder cards are shown.">
+        emptyDescription="The board is empty because the bridge reported no tasks. No placeholder cards are shown."
+        emptyAction={<Button size="sm" variant="secondary" onClick={tasksResource.reload}>Reload tasks</Button>}>
         {() => (
           <div className={s.stack}>
             <div className={s.board}>
@@ -130,6 +131,8 @@ export default function Board({ tasksResource, bots, onOpenBot }: {
                         <article
                           key={t.id}
                           className={s.boardCard}
+                          role="group"
+                          aria-label={`Task ${title}: ${text(t.status, "unknown")}, ${text(t.priority, "normal")} priority`}
                           draggable={busyId !== t.id}
                           onDragStart={(e) => e.dataTransfer.setData("text/plain", t.id)}
                         >

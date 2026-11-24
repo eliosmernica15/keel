@@ -46,19 +46,25 @@ export function ResourceNotice<T>({
   if (resource.error && resource.data === null) {
     const offline = resource.unavailable || isBridgeUnavailable(resource.error);
     return (
-      <EmptyState
-        icon={<Icon name={offline ? "warning" : "error"} size={26} />}
-        title={offline ? "Local bridge unavailable" : "Could not load this view"}
-        description={offline
-          ? "Start `keel fleet` (or check KEEL_BRIDGE_URL / KEEL_BRIDGE_TOKEN) and retry. No data is shown while the bridge is offline."
-          : errMessage(resource.error)}
-        action={<Button variant="secondary" onClick={resource.reload}><Icon name="refresh" size={15} /> Retry</Button>}
-      />
+      <div role="status">
+        <EmptyState
+          icon={<Icon name={offline ? "warning" : "error"} size={26} />}
+          title={offline ? "Local bridge unavailable" : "Could not load this view"}
+          description={offline
+            ? "Start `keel fleet` (or check KEEL_BRIDGE_URL / KEEL_BRIDGE_TOKEN) and retry. No data is shown while the bridge is offline."
+            : errMessage(resource.error)}
+          action={<Button variant="secondary" onClick={resource.reload}><Icon name="refresh" size={15} /> Retry</Button>}
+        />
+      </div>
     );
   }
   const data = resource.data;
   if (data === null || (Array.isArray(data) && data.length === 0)) {
-    return <EmptyState icon={<Icon name="fleet" size={26} />} title={emptyTitle} description={emptyDescription} action={emptyAction} />;
+    return (
+      <div role="status">
+        <EmptyState icon={<Icon name="fleet" size={26} />} title={emptyTitle} description={emptyDescription} action={emptyAction} />
+      </div>
+    );
   }
   return <>{children(data)}</>;
 }

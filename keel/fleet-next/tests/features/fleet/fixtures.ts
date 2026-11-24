@@ -76,6 +76,16 @@ export const ROWS: Record<string, unknown[]> = {
   ],
 };
 
+/** Real-shaped task rows covering every status CHECK value plus one unknown. */
+export const BOARD_TASKS = [
+  { id: "t1", title: "Draft brief", status: "pending", priority: "normal", progress: 0, assigned_bot_id: "b_alpha", created_by: "user", source: "user", created: "2026-11-24T09:00:00Z" },
+  { id: "t2", title: "Review draft", status: "in_progress", priority: "high", progress: 25, assigned_bot_id: "b_beta", created_by: "user", source: "user", created: "2026-11-24T09:10:00Z" },
+  { id: "t3", title: "Publish notes", status: "completed", priority: "normal", progress: 100, assigned_bot_id: "b_alpha", created_by: "user", source: "user", created: "2026-11-24T09:20:00Z" },
+  { id: "t4", title: "Fix import", status: "failed", priority: "high", progress: 40, assigned_bot_id: "b_beta", created_by: "b_alpha", source: "delegation", created: "2026-11-24T09:30:00Z" },
+  { id: "t5", title: "Old cleanup", status: "cancelled", priority: "low", progress: 0, assigned_bot_id: null, created_by: "user", source: "user", created: "2026-11-24T09:40:00Z" },
+  { id: "t6", title: "Unrecognised status", status: "archived", priority: "low", progress: 0, assigned_bot_id: null, created_by: "user", source: "user", created: "2026-11-24T09:50:00Z" },
+];
+
 export const TASKS = [
   {
     id: "t1", title: "Draft brief", status: "pending", priority: "normal",
@@ -170,7 +180,18 @@ function parseBody(route: import("@playwright/test").Route): unknown {
  * envelopes. `events` receives a valid text/event-stream ping frame so the
  * EventSource stays quiet without depending on the bridge proxy's availability.
  */
-export async function routeFleetBridge(page: Page, options: { groupMessageMode?: "ok" | "conflict"; runMode?: "ok" | "conflict"; botsUnavailable?: boolean; audit?: typeof AUDIT } = {}): Promise<FleetBridgeFixture> {
+export async function routeFleetBridge(page: Page, options: {
+  groupMessageMode?: "ok" | "conflict";
+  runMode?: "ok" | "conflict";
+  botsUnavailable?: boolean;
+  audit?: typeof AUDIT;
+  /** Real-shaped transcript rows keyed by bot id (used by the new Fleet views). */
+  rows?: Record<string, unknown[]>;
+  /** Raw SSE frames, e.g. a named `event: row` frame with a real row payload. */
+  sseFrames?: string;
+  /** Real-shaped task rows for the board. */
+  tasks?: unknown[];
+} = {}): Promise<FleetBridgeFixture> {
   const fixture: FleetBridgeFixture = {
     calls: [],
     groupRows: [...INITIAL_GROUP_ROWS],
@@ -187,7 +208,7 @@ export async function routeFleetBridge(page: Page, options: { groupMessageMode?:
         status: 200,
         contentType: "text/event-stream; charset=utf-8",
         headers: { "Cache-Control": "no-cache", "X-Accel-Buffering": "no" },
-        body: ": ping\n\n".repeat(4),
+        body: options.sseFrames ?? ": ping\n\n".repeat(4),
       });
     }
 
@@ -230,12 +251,12 @@ export async function routeFleetBridge(page: Page, options: { groupMessageMode?:
     }
     if (path === "bots") return json(route, { bots: BOTS });
     const botRows = path.match(/^bots\/([^/]+)\/rows$/);
-    if (botRows) return json(route, { bot_id: botRows[1], rows: ROWS[botRows[1]] ?? [] });
+    if (botRows) return json(route, { bot_id: botRows[1], rows: (options.rows ?? ROWS)[botRows[1]] ?? [] });
     const botPolicies = path.match(/^bots\/([^/]+)\/policies$/);
     if (botPolicies) return json(route, { bot_id: botPolicies[1], policies: POLICIES });
     const botAudit = path.match(/^bots\/([^/]+)\/audit$/);
     if (botAudit) return json(route, { bot_id: botAudit[1], audit: options.audit ?? AUDIT });
-    if (path === "tasks") return json(route, { tasks: TASKS });
+    if (path === "tasks") return json(route, { tasks: options.tasks ?? TASKS });
     const taskEvents = path.match(/^tasks\/([^/]+)\/events$/);
     if (taskEvents) return json(route, { task_id: taskEvents[1], events: [{ id: 1, task_id: taskEvents[1], event: "created", from_status: null, to_status: "pending", created_at: "2026-11-24T09:00:00Z" }] });
     const taskDetail = path.match(/^tasks\/([^/]+)$/);

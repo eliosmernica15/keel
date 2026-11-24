@@ -53,7 +53,11 @@ export default function LiveWall({ bots, rowsResource, events, streamError, onRe
       )}
 
       {bots.length === 0 ? (
-        <EmptyState icon={<Icon name="agents" size={26} />} title="No agents reported" description="The bridge reported no agents, so there is no wall to render." />
+        <div role="status">
+          <EmptyState icon={<Icon name="agents" size={26} />} title="No agents reported"
+            description="The bridge reported no agents, so there is no wall to render."
+            action={<Button size="sm" variant="secondary" onClick={rowsResource.reload}>Reload agent rows</Button>} />
+        </div>
       ) : (
         <div className={s.wallGrid}>
           {bots.map((bot) => {

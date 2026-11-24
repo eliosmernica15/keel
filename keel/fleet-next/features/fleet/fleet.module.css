@@ -272,3 +272,20 @@
 .costTable thead th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
 .costTable tbody th { font-weight: 600; }
 
+/* Keyboard focus is always visible in the new Fleet views. */
+.tab:focus,
+.chip:focus,
+.linkBtn:focus,
+.field select:focus,
+.field input:focus,
+.filtersInput:focus,
+.boardCard select:focus,
+.edge button:focus,
+.wallCard button:focus,
+.unavailable button:focus,
+.boardCol:focus,
+.boardCard:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+

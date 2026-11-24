@@ -3,7 +3,7 @@
 // Fleet command centre. Every section reads and writes the Python bridge via
 // the shared lib/api.ts contract; no status, progress or audit data is faked.
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui";
 import { Icon, type IconName } from "@/components/icons";
 import { bridge, errMessage } from "@/lib/api";
@@ -43,6 +43,20 @@ export default function Fleet() {
   const [tab, setTab] = useState<Tab>("agents");
   const [focusBotId, setFocusBotId] = useState<string | null>(null);
   const [events, setEvents] = useState<FleetEvent[]>([]);
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  /** WAI-ARIA tablist: one tab in the tab order, arrow/Home/End move focus. */
+  const onTabKeyDown = useCallback((event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let next = index;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % TABS.length;
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (index - 1 + TABS.length) % TABS.length;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = TABS.length - 1;
+    else return;
+    event.preventDefault();
+    setTab(TABS[next].value);
+    tabRefs.current[next]?.focus();
+  }, []);
 
   const botsResource = useBridgeResource(
     useCallback(() => bridge.listBots().then((r) => wrapped<Bot>(r as Record<string, unknown>, "bots")), []), []);
@@ -151,15 +165,26 @@ export default function Fleet() {
       )}
 
       <div className={s.tabs} role="tablist" aria-label="Fleet sections">
-        {TABS.map((t) => (
-          <button key={t.value} role="tab" aria-selected={tab === t.value} className={s.tab} onClick={() => setTab(t.value)}>
+        {TABS.map((t, i) => (
+          <button
+            key={t.value}
+            ref={(el) => { tabRefs.current[i] = el; }}
+            role="tab"
+            id={`fleet-tab-${t.value}`}
+            aria-selected={tab === t.value}
+            aria-controls="fleet-sections"
+            tabIndex={tab === t.value ? 0 : -1}
+            className={s.tab}
+            onClick={() => setTab(t.value)}
+            onKeyDown={(e) => onTabKeyDown(e, i)}
+          >
             <Icon name={t.icon} size={15} /> {t.label}
             {counts[t.value] > 0 && <span className={s.tabCount}>{counts[t.value]}</span>}
           </button>
         ))}
       </div>
 
-      <main>{content}</main>
+      <main id="fleet-sections" aria-labelledby={`fleet-tab-${tab}`}>{content}</main>
     </div>
   );
 }
