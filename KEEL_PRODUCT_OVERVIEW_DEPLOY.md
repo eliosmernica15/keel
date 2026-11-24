@@ -71,7 +71,26 @@ git push origin HEAD
 `src/keel/capabilities.py` and other pre-existing changes stay untouched by this
 commit.
 
+## Durable routing (important)
+
+`keel/site/product/overview/index.html` is a physical copy of the page. It makes
+`/product/overview` work even if another agent rewrites `vercel.json` and drops the
+friendly rewrite. If `product-overview.html` is ever updated, copy it to
+`product/overview/index.html` as well.
+
 ## Vercel
+
+Deploying from the workspace root can fail with `File size limit exceeded (100 MB)`
+or a 15,000-file upload cap because that repository contains large research
+clones. Deploy from a clean staging directory whose layout is `<root>/keel/site/...`
+with a `<root>/.vercel/project.json` pointing at `prj_5BOkBPE8UcXwZApO0FiKyUFyCbSC`:
+
+```powershell
+$staging = "$env:TEMP\opencode\keel-deploy-staging"
+Copy-Item -Recurse "keel/site" "$staging\keel\site"
+cd $staging
+vercel --prod --yes
+```
 
 The project is linked in `keel/site/.vercel/project.json`
 (`prj_5BOkBPE8UcXwZApO0FiKyUFyCbSC`, project `keel-desktop`) and `vercel whoami`
