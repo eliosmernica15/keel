@@ -11,7 +11,11 @@ from __future__ import annotations
 import hashlib
 import http.client
 import json
+import os
+import subprocess
+import sys
 import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -238,9 +242,13 @@ def test_mcp_workflow_validates_discovers_invokes_and_cleans_up(state_root):
         "deny_tools": ["secret"], "tool": "echo",
     }
     result = bw.run_mcp_workflow(params)
-    assert result["ok"] is True, result
+    # The MCP seam is an honest dry run: no caller-supplied command is executed.
+    assert result["ok"] is False, result
+    assert result["code"] == "dry_run"
     payload = result["result"]
-    assert payload["outcome"] == "success"
+    assert payload["dry_run"] is True
+    assert payload["command_executed"] is False
+    assert payload["outcome"] == "dry_run_descriptor"
     assert payload["plugin"] == "demo"
     assert payload["allowed_tools"] == ["echo"]
     assert payload["invocation"]["tool"] == "echo"
@@ -263,8 +271,10 @@ def test_mcp_workflow_handles_real_failure_and_denies_all_tools(state_root):
         "manifest": {"name": "demo", "surfaces": ["server"]},
         "tools": ["echo"], "tool": "echo", "fail": True,
     })
-    assert failed["ok"] is True, failed
+    assert failed["ok"] is False, failed
+    assert failed["code"] == "tool_failure"
     assert failed["result"]["outcome"] == "failure_handled"
+    assert failed["result"]["dry_run"] is True
     assert failed["result"]["failure"]["reason"] == "tool_failure"
     assert failed["result"]["failure"]["status"]["returncode"] != 0
     assert failed["result"]["cleanup"]["state"] == "disconnected"
@@ -401,3 +411,239 @@ def test_cli_backend_workflow_runs_and_replays(state_root, capsys):
     assert cli.main(["backend-workflow", "approval", "--params", "{not json",
                      "--confirm"]) == 1
     assert "--params must be valid JSON" in capsys.readouterr().err
+
+
+# ---------------------------------------------------------------------------
+# Security regressions (independent review: REVIEW-FINAL-SECURITY.md)
+# ---------------------------------------------------------------------------
+
+def test_approval_resolve_requires_caller_token_possession(state_root):
+    """H1: knowing a request_id must never be enough to consume an approval."""
+    base = {"state_root": str(state_root), "operation": "fs_read",
+            "scope": "workflow:read", "subject": "victim"}
+    issued = bw.run_approval_workflow({**base, "action": "request",
+                                       "idempotency_key": "seed"})
+    assert issued["ok"] is True
+    request_id = issued["result"]["request_id"]
+    token = issued["result"]["token"]
+
+    missing = bw.run_approval_workflow({
+        **base, "action": "resolve", "request_id": request_id,
+        "idempotency_key": "no-token"})
+    assert missing["ok"] is False and missing["code"] == "missing_token"
+
+    wrong = bw.run_approval_workflow({
+        **base, "action": "resolve", "request_id": request_id,
+        "token": token[:-2] + "xx", "idempotency_key": "wrong-token"})
+    assert wrong["ok"] is False and wrong["code"] == "invalid_token"
+
+    right = bw.run_approval_workflow({
+        **base, "action": "resolve", "request_id": request_id,
+        "token": token, "idempotency_key": "right-token"})
+    assert right["ok"] is True and right["result"]["grant"]["granted"] is True
+
+    events = _records(state_root / "backend-workflows" / "approval-events.jsonl")
+    assert sum(e.get("action") == "consume" for e in events) == 1
+
+
+def test_approval_uses_trusted_clock_and_bounded_ttl(state_root, monkeypatch):
+    """H2/L1: caller time cannot revive an expired token; TTL is bounded."""
+    clock = [1_700_000_000]
+    monkeypatch.setattr(bw, "_now", lambda: clock[0])
+    base = {"state_root": str(state_root), "operation": "fs_read",
+            "scope": "workflow:read", "subject": "victim", "ttl_seconds": 60}
+
+    issued = bw.run_approval_workflow({**base, "action": "request",
+                                       "now": 1_900_000_000,
+                                       "idempotency_key": "seed"})
+    assert issued["ok"] is True
+    assert issued["result"]["expires_at"] == 1_700_000_060
+    request_id = issued["result"]["request_id"]
+    token = issued["result"]["token"]
+
+    clock[0] += 61
+    expired = bw.run_approval_workflow({**base, "action": "resolve",
+                                        "request_id": request_id, "token": token,
+                                        "now": 1_700_000_030,
+                                        "idempotency_key": "expired"})
+    assert expired["ok"] is False
+    assert expired["code"] in {"invalid_token", "permission_denied"}
+    events = _records(state_root / "backend-workflows" / "approval-events.jsonl")
+    assert not any(e.get("action") == "consume" for e in events)
+
+    for bad in (0, -1, 86401):
+        result = bw.run_approval_workflow({**base, "ttl_seconds": bad,
+                                           "idempotency_key": f"ttl-{bad}"})
+        assert result["ok"] is False and result["code"] == "bad_ttl", result
+
+
+# A tiny subprocess worker used by the cross-process probe tests.  A file-based
+# start gate makes every worker enter the guarded section at the same instant.
+_WORKER_TEMPLATE = """\
+import json, sys, time
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+from keel import backend_workflows as bw
+payload = json.loads(sys.argv[2])
+go = Path(sys.argv[3])
+deadline = time.time() + 30
+while not go.exists() and time.time() < deadline:
+    time.sleep(0.002)
+res = bw.run_workflow(payload["name"], payload["params"])
+result = res.get("result") if isinstance(res.get("result"), dict) else {}
+print(json.dumps({"ok": res["ok"], "code": res["code"],
+                  "granted": bool(result.get("grant", {}).get("granted"))}))
+"""
+
+
+def _run_concurrent(state_root: Path, name: str, params_list: list[dict],
+                    tmp_path: Path) -> list[dict]:
+    script = tmp_path / "_wf_worker.py"
+    script.write_text(_WORKER_TEMPLATE, encoding="utf-8")
+    gate = tmp_path / "_wf_go"
+    if gate.exists():
+        gate.unlink()
+    src = str(Path(bw.__file__).resolve().parents[1])
+    processes = []
+    for params in params_list:
+        payload = json.dumps({"name": name, "params": params})
+        processes.append(subprocess.Popen(
+            [sys.executable, str(script), src, payload, str(gate)],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True))
+    gate.write_text("go", encoding="utf-8")
+    outputs: list[dict] = []
+    for process in processes:
+        stdout, stderr = process.communicate(timeout=120)
+        assert process.returncode == 0, stderr[-1000:]
+        outputs.append(json.loads(stdout.strip().splitlines()[-1]))
+    return outputs
+
+
+def test_approval_consumption_is_cross_process_atomic(state_root, tmp_path):
+    """H3-A: eight processes, one single-use grant -> exactly one grant."""
+    base = {"state_root": str(state_root), "operation": "fs_read",
+            "scope": "workflow:read", "subject": "racer"}
+    seed = bw.run_approval_workflow({**base, "action": "request",
+                                     "idempotency_key": "seed"})
+    request_id = seed["result"]["request_id"]
+    token = seed["result"]["token"]
+    params = [{**base, "action": "resolve", "request_id": request_id,
+               "token": token, "idempotency_key": f"racer-{i}"}
+              for i in range(8)]
+    outcomes = _run_concurrent(state_root, "approval", params, tmp_path)
+    assert sum(1 for row in outcomes if row["granted"]) == 1, outcomes
+    events = _records(state_root / "backend-workflows" / "approval-events.jsonl")
+    assert sum(e.get("action") == "consume" for e in events) == 1
+
+
+def test_request_replay_guard_is_cross_process(state_root, tmp_path):
+    """H3-B: six processes with identical params -> one persisted record."""
+    note = state_root / "note.txt"
+    note.write_text("shared payload", encoding="utf-8")
+    params = {"state_root": str(state_root), "project_root": str(state_root),
+              "file_path": str(note), "query": "shared"}
+    outcomes = _run_concurrent(state_root, "request", [dict(params)] * 6,
+                               tmp_path)
+    assert sum(1 for row in outcomes if row["ok"]) == 1, outcomes
+    assert len(_records(_ledger(state_root, "request"))) == 1
+
+
+def test_request_and_recovery_paths_are_confined_to_state_root(state_root):
+    """M1: caller-chosen roots/permissions cannot read or write outside."""
+    outside = state_root.parent / (state_root.name + "-outside")
+    outside.mkdir(parents=True, exist_ok=True)
+    secret = outside / "credentials.txt"
+    secret.write_text("API_KEY=supersecret123\n", encoding="utf-8")
+
+    escaped = bw.run_request_workflow({
+        "state_root": str(state_root), "project_root": str(outside),
+        "file_path": str(secret), "query": "credentials",
+        "idempotency_key": "outside-project"})
+    assert escaped["ok"] is False and escaped["code"] == "path_escape"
+    assert "supersecret123" not in json.dumps(escaped, ensure_ascii=False)
+
+    widened = bw.run_request_workflow({
+        "state_root": str(state_root), "project_root": str(outside),
+        "file_path": str(secret), "query": "credentials",
+        "allow_rules": ["read_file"], "permission_mode": "bypassPermissions",
+        "idempotency_key": "widened"})
+    assert widened["ok"] is False and widened["code"] == "path_escape"
+
+    recovery = bw.run_recovery_workflow({
+        "state_root": str(state_root), "folder": str(outside),
+        "content": "PERSISTED-BY-WORKFLOW", "idempotency_key": "outside-write"})
+    assert recovery["ok"] is False and recovery["code"] == "path_escape"
+    assert not (outside / "recovery-note.md").exists()
+
+    traversal = bw.run_request_workflow({
+        "state_root": str(state_root), "project_root": str(state_root),
+        "file_path": "../credentials.txt", "query": "credentials",
+        "idempotency_key": "traversal"})
+    assert traversal["ok"] is False and traversal["code"] == "path_escape"
+
+    symlink = state_root / "link-out"
+    try:
+        symlink.symlink_to(outside, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        symlink = None  # symlink creation is privileged on some Windows hosts
+    if symlink is not None:
+        linked = bw.run_request_workflow({
+            "state_root": str(state_root), "project_root": str(symlink),
+            "file_path": str(secret), "query": "credentials",
+            "idempotency_key": "symlink-escape"})
+        assert linked["ok"] is False and linked["code"] == "path_escape"
+
+
+def test_workflow_results_are_redacted_before_persist_and_return(state_root):
+    """M2: secrets in tool results never reach the ledger or the caller."""
+    note = state_root / "leak.md"
+    note.write_text("API_KEY=supersecret123\n", encoding="utf-8")
+    result = bw.run_request_workflow({
+        "state_root": str(state_root), "project_root": str(state_root),
+        "file_path": str(note), "query": "leak", "idempotency_key": "leak"})
+    assert result["ok"] is True
+    assert "supersecret123" not in json.dumps(result, ensure_ascii=False)
+    ledger = _ledger(state_root, "request").read_text(encoding="utf-8")
+    assert "supersecret123" not in ledger
+    assert "[REDACTED]" in ledger
+
+
+def test_workflow_results_carry_http_status_hints(state_root):
+    """M3: typed client failures carry a 403/400 hint for webapp.py."""
+    denied = bw.run_approval_workflow({
+        "state_root": str(state_root), "operation": "network_egress",
+        "profile": "no_network", "idempotency_key": "status-denied"})
+    assert denied["http_status"] == 403
+
+    bad_ttl = bw.run_approval_workflow({
+        "state_root": str(state_root), "operation": "fs_read",
+        "ttl_seconds": 0, "idempotency_key": "status-ttl"})
+    assert bad_ttl["http_status"] == 400
+
+    csrf = bw.run_approval_workflow({
+        "state_root": str(state_root), "operation": "fs_read",
+        "headers": {"Origin": "https://evil.test"},
+        "expected_origin": "https://good.test",
+        "idempotency_key": "status-csrf"})
+    assert csrf["http_status"] == 403
+
+    bad_manifest = bw.run_mcp_workflow({
+        "state_root": str(state_root), "manifest": 123,
+        "idempotency_key": "status-manifest"})
+    assert bad_manifest["http_status"] == 400
+
+
+def test_mcp_never_executes_caller_supplied_command(state_root, tmp_path):
+    """M5: no caller command runs, and the result is an honest dry run."""
+    marker = tmp_path / "caller-command-ran"
+    command = [sys.executable, "-c",
+               f"open({str(marker)!r}, 'w', encoding='utf-8').write('x')"]
+    result = bw.run_mcp_workflow({
+        "state_root": str(state_root),
+        "manifest": {"name": "demo", "surfaces": ["server"]},
+        "server_config": {"type": "local", "command": command, "oauth": False},
+        "tools": ["echo"], "tool": "echo", "idempotency_key": "no-rce"})
+    assert not marker.exists()
+    assert result["ok"] is False and result["code"] == "dry_run"
+    assert result["result"]["dry_run"] is True
+    assert result["result"]["command_executed"] is False
