@@ -19,6 +19,7 @@ Honesty rules enforced here:
 from __future__ import annotations
 
 import os
+import re
 import threading
 import time
 from dataclasses import dataclass
@@ -56,12 +57,37 @@ def _credential_malformed(raw: str) -> bool:
     return any(ch.isspace() or ord(ch) < 32 or ord(ch) == 127 for ch in raw)
 
 
+# L-1 local defence: output DLP in keel.redaction only recognises assignment
+# forms ("password=..."), so a phrase like "The password is Harbor Seal42
+# Tango Mike" leaks. This boundary applies one extra heuristic before any
+# validation report leaves this module. The authoritative fix belongs in
+# keel.redaction (see STAB-PROVIDER-EVIDENCE.md); this is defence in depth for
+# the validation surface owned here.
+_NATURAL_SECRET_RE = re.compile(
+    r"(?i)\b(?P<key>password|passphrase|secret|api[ _-]?key|"
+    r"access[ _-]?token|token)\s+is\s+(?P<value>[^\r\n.!?]{3,160})")
+
+
+def _redact_natural_language(value):
+    """Redact 'password is <value>' phrasings in a report structure."""
+    if isinstance(value, str):
+        return _NATURAL_SECRET_RE.sub(
+            lambda m: f"{m.group('key')} is [REDACTED]", value)
+    if isinstance(value, dict):
+        return {k: _redact_natural_language(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_redact_natural_language(v) for v in value]
+    if isinstance(value, tuple):
+        return tuple(_redact_natural_language(v) for v in value)
+    return value
+
+
 def _safe_error(exc: BaseException, cap, *, prefix: str = "") -> str:
     """Error detail safe for a report: the credential is redacted first."""
     raw = _credential(cap)
     secrets = (raw,) if raw.strip() else ()
     text = f"{prefix}{type(exc).__name__}: {exc}"
-    return redact_message(text, secrets)[:300]
+    return _redact_natural_language(redact_message(text, secrets))[:300]
 
 
 def configured_providers() -> list[str]:
@@ -209,9 +235,9 @@ def run_validation(*, live: bool = False,
                 "live_provider", "SKIP",
                 "live validation requires --live and a configured credential"))
         results[cap.name] = [c.__dict__ for c in checks]
-    return {
+    return _redact_natural_language({
         "providers": results,
         "configured": configured,
         "live": live,
         "note": "No real-provider success is reported without a real call.",
-    }
+    })
