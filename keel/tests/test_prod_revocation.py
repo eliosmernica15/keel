@@ -15,6 +15,7 @@ The tests deliberately separate two things:
 """
 
 from __future__ import annotations
+import pytest
 
 import json
 import os
@@ -58,6 +59,14 @@ def _isolate_state(tmp_path: Path, monkeypatch) -> None:
 # ---------------------------------------------------------------------------
 # 1. Provider key: real encryption at rest, real env apply, real removal
 # ---------------------------------------------------------------------------
+
+
+@pytest.fixture(autouse=True)
+def _private_process_environment(monkeypatch):
+    """save_provider_key/apply_stored_keys write directly to os.environ; keep
+    provider keys from leaking into later tests (hidden test pollution)."""
+    import os
+    monkeypatch.setattr(os, "environ", dict(os.environ))
 
 
 def test_provider_key_revocation_clears_env_and_live_store(tmp_path, monkeypatch):
