@@ -1,7 +1,7 @@
-# FINAL RELEASE ARTIFACTS — what actually exists at `FINAL_COMPLETION_HEAD`
+# FINAL RELEASE ARTIFACTS — what actually exists at `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)`
 
 > Documentation-only inventory at completion HEAD
-> `FINAL_COMPLETION_HEADabfd784393b2b252e2b9e2927aba817dd` (tree identical to
+> `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd784393b2b252e2b9e2927aba817dd` (tree identical to
 > `c512f87971a02b05d9a9422338522f66495c0eeb`). No artifact was built, signed,
 > tagged, pushed or published by this reconciliation. No distribution link is
 > asserted: none exists in tracked metadata. Checksums below are reproduced only

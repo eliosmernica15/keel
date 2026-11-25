@@ -1,4 +1,4 @@
-# FINAL PRODUCTION-READINESS MATRIX — Keel, completion HEAD `FINAL_COMPLETION_HEAD`
+# FINAL PRODUCTION-READINESS MATRIX — Keel, completion HEAD `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)`
 
 > **Authoritative reconciliation of PR-01…PR-20.** This document replaces the
 > provisional classifications in `PRODUCTION-READINESS-MATRIX.md` §D, the
@@ -13,8 +13,8 @@
 
 | Field | Exact value |
 | --- | --- |
-| Completion HEAD (authoritative) | `FINAL_COMPLETION_HEADabfd784393b2b252e2b9e2927aba817dd` (`agent/final-docs2`, worktree `…\worktree\final\docs2`) |
-| Definitive full-suite commit | `c512f87971a02b05d9a9422338522f66495c0eeb` — `git diff --stat c512f87..FINAL_COMPLETION_HEAD` is **empty**; the two trees are byte-identical, so the recorded suite result is evidence for the completion HEAD |
+| Completion HEAD (authoritative) | `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd784393b2b252e2b9e2927aba817dd` (`agent/final-docs2`, worktree `…\worktree\final\docs2`) |
+| Definitive full-suite commit | `c512f87971a02b05d9a9422338522f66495c0eeb` — `git diff --stat c512f87..completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)` is **empty**; the two trees are byte-identical, so the recorded suite result is evidence for the completion HEAD |
 | Authoritative full suite at that tree | `4610 passed, 54 skipped, 3707 subtests, 0 failed` in `474.31 s` (`master-plan-v6-test-evidence.md:260-274`) |
 | Independent-acceptance candidate (historical) | `63ab72e452f9c78af46db55489ef8d9def02212c` — `PASS_WITH_EXTERNAL_LIMITATIONS`; five later commits changed the tree |
 | Prior baseline (historical) | `f60b080a1c770608e1ddbf3d888a6e63a7c1b6bb` |
@@ -27,7 +27,7 @@
 
 | Key | Full SHA | Role |
 | --- | --- | --- |
-| `C0` | `FINAL_COMPLETION_HEADabfd784393b2b252e2b9e2927aba817dd` | Completion HEAD; final merge of PR #17 |
+| `C0` | `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd784393b2b252e2b9e2927aba817dd` | Completion HEAD; final merge of PR #17 |
 | `C1` | `c512f87971a02b05d9a9422338522f66495c0eeb` | Definitive 4610/0 full suite; tree = `C0` |
 | `C2` | `50e5be0ecc902c53b7d5f441001c26facc175942` | O(1) verified-ledger cache (perf §9.1); stabilization report finalize |
 | `C3` | `788090ca327e5a6ee76c749884519ba6a0502641` | Owner-main merge: frontend/distribution/signing code and docs |
@@ -173,7 +173,7 @@ SHA existed; at `C0` it refines to the table above. No gate is counted twice and
 
 | Stale claim / artifact | Where | Status at `C0` |
 | --- | --- | --- |
-| `<<CANDIDATE_HEAD_REFERENCE — PLACEHOLDER>>`, `<<LEAD_SUPPLIED_SHA…>>` | `PRODUCTION-READINESS-MATRIX.md:17`; `PRODUCTION-READINESS-REPORT.md:5` | **[HISTORICAL]** — final SHA is `FINAL_COMPLETION_HEADabfd…` |
+| `<<CANDIDATE_HEAD_REFERENCE — PLACEHOLDER>>`, `<<LEAD_SUPPLIED_SHA…>>` | `PRODUCTION-READINESS-MATRIX.md:17`; `PRODUCTION-READINESS-REPORT.md:5` | **[HISTORICAL]** — final SHA is `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd…` |
 | `f60b080` as "current baseline tip" | matrix/report §A | **[HISTORICAL]** baseline; completion HEAD is `C0` |
 | Candidate `63ab72e` as final | `FINAL-STABILIZATION-ACCEPTANCE.md` | **[HISTORICAL]** acceptance candidate; 5 commits later the tree is `C0` = `C1` |
 | `e573273`, `ac84fee`, `fe6cdd`, `ecba9d2b`, `CANDIDATE_HEAD…`; branches `agent/prod-ops`, `integration/*`, `final/v6-production`, `agent/stab-*` | PROD-*/FINAL-*/master-plan-v6-* docs | **[HISTORICAL]** provenance only; never current evidence for `C0` |
