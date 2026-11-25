@@ -48,7 +48,41 @@ DIAG_PREFIX = "[keel"
 _MAX_SSRF_REDIRECTS = 5
 _SSRF_REDIRECT_CODES = frozenset({301, 302, 303, 307, 308})
 _SSRF_LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1", "0.0.0.0", "[::1]"})
-_SSRF_METADATA_IPS = frozenset({"169.254.169.254", "fd00:ec2::254"})
+_SSRF_METADATA_IPS = frozenset({
+    "169.254.169.254",    # AWS/GCP/Azure IMDSv1
+    "fd00:ec2::254",      # AWS IPv6 IMDS
+    "100.100.100.200",    # Alibaba Cloud ECS metadata
+})
+
+# Python 3.11 does not mark RFC 6598 CGNAT (100.64.0.0/10) as private or
+# reserved, so the is_private() checks alone would let Alibaba's metadata IP
+# (100.100.100.200, inside that /10) through. Enumerate every special-use
+# range explicitly and fail closed; the stdlib flags remain as a backstop.
+_SSRF_BLOCKED_NETWORKS = tuple(
+    ipaddress.ip_network(network)
+    for network in (
+        "0.0.0.0/8",           # "this network" (includes 0.0.0.0)
+        "100.64.0.0/10",       # RFC 6598 CGNAT / cloud metadata
+        "169.254.0.0/16",      # link-local / IMDS
+        "192.0.0.0/24",        # IETF protocol assignments
+        "192.88.99.0/24",      # deprecated 6to4 relay
+        "198.18.0.0/15",       # benchmarking
+        "198.51.100.0/24",     # TEST-NET-2
+        "203.0.113.0/24",      # TEST-NET-3
+        "224.0.0.0/4",         # multicast
+        "240.0.0.0/4",         # reserved (includes broadcast)
+        "255.255.255.255/32",  # limited broadcast
+        "::/128", "::1/128",   # unspecified / loopback
+        "::/96",               # IPv4-compatible
+        "::ffff:0:0/96",       # IPv4-mapped
+        "64:ff9b::/96", "64:ff9b:1::/48",  # NAT64
+        "2002::/16",           # 6to4
+        "2001:db8::/32",       # documentation
+        "fc00::/7",            # unique local
+        "fe80::/10",           # link-local
+        "ff00::/8",            # multicast
+    )
+)
 
 
 def _ssrf_getaddrinfo(host: str, port: int | None):
@@ -71,7 +105,8 @@ def _ssrf_ip_allowed(addr: str) -> bool:
         return False
     if str(ip) in _SSRF_METADATA_IPS:
         return False
-    return True
+    return not any(network.version == ip.version and ip in network
+                   for network in _SSRF_BLOCKED_NETWORKS)
 
 
 def _validate_fetch_url(url: str) -> dict:
