@@ -19,6 +19,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import socket
 import subprocess
 import sys
 import threading
@@ -38,6 +39,7 @@ from keel import (  # noqa: E402
     provider_catalog,
     provider_contracts as pc,
     provider_validation as pv,
+    runner,
     secret_providers,
     secret_store,
     settings_store,
@@ -564,3 +566,67 @@ def test_http_mcp_error_body_is_redacted(monkeypatch):
     assert "http 401" in str(exc.value)
     assert "abcdef1234567890STAB" not in str(exc.value)
     assert "[REDACTED]" in str(exc.value)
+
+
+# ---------------------------------------------------------------------------
+# 5. M-5 SSRF special ranges and L-1 natural-language DLP (follow-up)
+# ---------------------------------------------------------------------------
+
+_M5_BLOCKED = (
+    "100.64.0.1", "100.100.100.200",   # RFC 6598 CGNAT / Alibaba metadata
+    "169.254.169.254", "192.0.0.1", "192.0.0.9", "198.18.0.1",
+    "198.19.255.254", "240.0.0.1", "0.1.2.3", "224.0.0.1",
+    "255.255.255.255", "::ffff:100.100.100.200", "64:ff9b::7f00:1",
+    "fd00:ec2::254", "2001:db8::1",
+)
+
+
+@pytest.mark.parametrize("address", _M5_BLOCKED)
+def test_m5_special_ranges_are_refused_by_ip_filter(address):
+    assert runner._ssrf_ip_allowed(address) is False
+
+
+@pytest.mark.parametrize("address", (
+    "100.64.0.1", "100.100.100.200", "192.0.0.9", "198.18.0.1",
+    "169.254.169.254", "240.0.0.1", "0.1.2.3", "224.0.0.1",
+    "255.255.255.255"))
+def test_m5_dns_pinning_seam_refuses_hostile_resolution(address, monkeypatch):
+    """A hostname resolving into any special range is refused before connect."""
+    monkeypatch.delenv("KEEL_EGRESS_ALLOWLIST", raising=False)
+
+    def hostile_dns(host, port):
+        return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", (address, port or 0))]
+
+    monkeypatch.setattr(runner, "_ssrf_getaddrinfo", hostile_dns)
+    with pytest.raises(ValueError, match="refusing to fetch private/internal"):
+        runner._validate_fetch_url("https://safe.example.invalid/resource")
+
+
+def test_m5_public_unicast_still_passes_the_pinning_seam(monkeypatch):
+    monkeypatch.delenv("KEEL_EGRESS_ALLOWLIST", raising=False)
+    monkeypatch.setattr(runner, "_ssrf_getaddrinfo", lambda host, port: [
+        (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", port or 0))])
+    validated = runner._validate_fetch_url("https://safe.example.invalid/resource")
+    assert validated["ip"] == "93.184.216.34"
+    assert runner._ssrf_ip_allowed("8.8.8.8") is True
+
+
+def test_l1_natural_language_password_is_redacted_in_validation_report(
+        probe_cap, monkeypatch):
+    monkeypatch.setenv(probe_cap.env_var, SYNTHETIC_KEY)
+
+    class Talkative:
+        def __init__(self, cap, *, api_key=""):
+            pass
+
+        def complete(self, request):
+            raise ProviderError(
+                "The password is Harbor Seal42 Tango Mike", RETRY_AUTH, 401)
+
+    report = pv.run_validation(live=True, providers=[probe_cap],
+                               adapter_factory=Talkative)
+    dumped = json.dumps(report)
+    assert "Harbor Seal42 Tango Mike" not in dumped
+    assert "[REDACTED]" in dumped
+    assert _check(report["providers"]["stabprobe"], "streaming_response")[
+        "status"] == "FAIL"
