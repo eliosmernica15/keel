@@ -11,8 +11,14 @@ from .artifacts import scan_secret_markers, scan_sidecar_payload, scan_tree
 from .build import build_command
 from .licenses import licenses_command
 from .publish import publish_command
-from .signing import SigningGateError
+from .signing import SigningGateError, SigningMode
 from .verify import verify_command
+
+
+def _add_mode(p: argparse.ArgumentParser, *, help_text: str) -> None:
+    p.add_argument(
+        "--mode", choices=[mode.value for mode in SigningMode], default=None,
+        help=help_text)
 
 
 def _add_common(p: argparse.ArgumentParser) -> None:
@@ -49,6 +55,9 @@ def build_parser() -> argparse.ArgumentParser:
     publish.add_argument(
         "--public-key", default=None,
         help="Ed25519 public key PEM used to verify release signatures")
+    _add_mode(publish, help_text=(
+        "signing mode: dev (local), test (ephemeral Ed25519), distribution "
+        "(owner platform signing; fails closed without verifiers)"))
     publish.set_defaults(func=publish_command)
 
     verify = sub.add_parser("verify", help="verify a release manifest and its files")
@@ -62,7 +71,15 @@ def build_parser() -> argparse.ArgumentParser:
     verify.add_argument(
         "--public-key", default=None,
         help="optional owner-supplied Ed25519 public key PEM for signature verification")
+    _add_mode(verify, help_text="signing mode used when reporting signature status")
     verify.set_defaults(func=verify_command)
+
+    signing_status = sub.add_parser(
+        "signing-status", help="report honest signing status of a staged release")
+    signing_status.add_argument("--artifacts", default="release")
+    signing_status.add_argument("--public-key", default=None)
+    _add_mode(signing_status, help_text="signing mode to evaluate")
+    signing_status.set_defaults(func=signing_status_command)
 
     licenses = sub.add_parser("licenses", help="write a dependency license inventory")
     licenses.add_argument("--out", default="release")
@@ -106,6 +123,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--require-signed", action="store_true",
         help="hard-fail when the release manifest or artifacts are unsigned "
              "(also enabled by KEEL_REQUIRE_SIGNED=1)")
+    _add_mode(dry_run, help_text="signing mode to evaluate during the dry run")
     dry_run.set_defaults(func=dry_run_command)
 
     update_check = sub.add_parser("update-check", help="check a signed release manifest")
@@ -207,8 +225,16 @@ def integrity_command(args) -> int:
 def dry_run_command(args) -> int:
     from . import common
     from .artifacts import scan_secret_markers, scan_tree
-    from .signing import require_signed_enabled, verify_signed_release
+    from .signing import (
+        distribution_readiness_errors,
+        require_signed_enabled,
+        resolve_mode,
+        verify_platform_signatures,
+        verify_release_bundle,
+        verify_signed_release,
+    )
 
+    mode = resolve_mode(getattr(args, "mode", None))
     version = common.validate_version()
     dist = Path(args.dist)
     if not dist.is_absolute():
@@ -225,6 +251,16 @@ def dry_run_command(args) -> int:
 
     require_signed = require_signed_enabled(
         bool(getattr(args, "require_signed", False)))
+    if mode is SigningMode.DISTRIBUTION:
+        pending = (distribution_readiness_errors()
+                   + verify_platform_signatures(artifacts))
+        if pending:
+            for error in pending:
+                print(f"ERROR: {error}", file=sys.stderr)
+            print("RELEASE SIGNING GATE FAILED - refusing to claim trusted "
+                  "distribution", file=sys.stderr)
+            return 1
+        require_signed = True  # distribution is always a hard gate
     if require_signed:
         errors = verify_signed_release(artifacts, getattr(args, "public_key", None))
         if errors:
@@ -251,6 +287,11 @@ def dry_run_command(args) -> int:
                 print(f"manifest missing {field}", file=sys.stderr)
                 return 1
 
+    if not require_signed:
+        status = verify_release_bundle(artifacts, mode=mode)
+        note = status.errors[0] if status.errors else "no verification performed"
+        print(f"Signing status: {status.status} ({note})")
+
     print(f"OK - dry run passed for {version}; no release published")
     return 0
 
@@ -261,6 +302,32 @@ def _optional_public_key(path: str | None):
     from .signing import load_public_key
 
     return load_public_key(Path(path))
+
+
+def signing_status_command(args) -> int:
+    """Report signing status honestly, without leaking key material."""
+    from .signing import resolve_mode, verify_release_bundle
+
+    mode = resolve_mode(getattr(args, "mode", None))
+    artifacts = Path(args.artifacts)
+    if not artifacts.is_absolute():
+        artifacts = Path.cwd() / artifacts
+    key_ref = getattr(args, "public_key", None)
+    result = verify_release_bundle(artifacts, public_key=key_ref, mode=mode)
+    payload = {
+        "mode": mode.value,
+        "status": result.status,
+        # "verified" means signature/platform verification actually happened,
+        # not merely that the dev-mode advisory pass completed.
+        "verified": result.ok and result.status != "unsigned",
+        "key_reference": key_ref,
+        "key_id": result.key_id,
+        "trusted_distribution": result.trusted_distribution,
+        "errors": list(result.errors),
+    }
+    print(json.dumps(payload, indent=2))
+    honest = {"unsigned", "dev-verified", "test-verified", "distribution-verified"}
+    return 0 if result.status in honest else 1
 
 
 def update_check_command(args) -> int:

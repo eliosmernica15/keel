@@ -305,18 +305,44 @@ def load_manifest(path_or_url: str, *, allow_http: bool, timeout: int) -> dict[s
 
 
 def verify_command(args: argparse.Namespace) -> int:
+    from .signing import (
+        SigningMode,
+        distribution_readiness_errors,
+        resolve_mode,
+        verify_manifest_detailed,
+        verify_platform_signatures,
+    )
+
+    mode = resolve_mode(getattr(args, "mode", None))
+    if mode is SigningMode.DISTRIBUTION:
+        target = Path(args.manifest)
+        if target.is_file():
+            target = target.parent
+        pending = (distribution_readiness_errors()
+                   + verify_platform_signatures(target))
+        for item in pending:
+            print(f"ERROR: {item}", file=sys.stderr)
+        return 1
+
     manifest = load_manifest(args.manifest, allow_http=args.allow_http, timeout=args.timeout)
     public_key = None
+    signature_status = "UNSIGNED / NOT VERIFIED (no --public-key supplied)"
     public_key_path = getattr(args, "public_key", None)
     if public_key_path:
         from pathlib import Path
 
-        from .signing import load_public_key, verify_manifest as verify_sig
+        from .signing import load_public_key
 
         public_key = load_public_key(Path(public_key_path))
-        if not verify_sig(manifest, public_key):
-            print("ERROR: release manifest signature invalid", file=sys.stderr)
+        result = verify_manifest_detailed(manifest, public_key=public_key)
+        if not result.ok:
+            for error in result.errors:
+                print(f"ERROR: release manifest signature invalid: {error}", file=sys.stderr)
             return 1
+        signature_status = (
+            "Ed25519 signature VERIFIED (test-release integrity only; "
+            "not trusted Windows/macOS platform signing)"
+        )
     if args.compare:
         other = load_manifest(args.compare, allow_http=args.allow_http, timeout=args.timeout)
         if manifest != other:
@@ -353,4 +379,5 @@ def verify_command(args: argparse.Namespace) -> int:
     channels = manifest.get("channels", {})
     available = [k for k, v in channels.items() if isinstance(v, dict) and v.get("available")]
     print(f"OK - verified {len(available)} available channel(s)")
+    print(f"Signature status: {signature_status}")
     return 0

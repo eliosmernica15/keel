@@ -25,8 +25,12 @@ from .common import (
 from .github import GitHubClient, GitHubError, token_from_env
 from .signing import (
     SigningGateError,
+    SigningMode,
+    distribution_readiness_errors,
     load_public_key,
     require_signed_enabled,
+    resolve_mode,
+    verify_platform_signatures,
     verify_signed_release,
 )
 from .verify import verify_manifest, verify_release_manifest, load_manifest
@@ -51,14 +55,29 @@ def _flatten_artifacts(artifacts_root: Path, out_dir: Path) -> dict[str, Path]:
     return validate_artifacts(out_dir, validate_version())
 
 
-def _release_body(version: str, tag: str, *, signed: bool = False) -> str:
-    signed_note = (
-        "Installers and the release manifest carry Ed25519 signatures verified "
-        "by the release gate before publication."
-        if signed else
-        "Installers are unsigned: SmartScreen (Windows) and Gatekeeper (macOS) "
-        "will warn on first run."
-    )
+def _release_body(
+    version: str, tag: str, *, signed: bool = False,
+    mode: SigningMode = SigningMode.TEST,
+) -> str:
+    if signed and mode is SigningMode.DISTRIBUTION:
+        signed_note = (
+            "Installers and the release manifest carry owner-controlled "
+            "platform signatures and Ed25519 signatures verified by the "
+            "release gate before publication."
+        )
+    elif signed:
+        signed_note = (
+            "Installers and the release manifest carry Ed25519 signatures "
+            "verified by the release gate (test-release integrity only). "
+            "Trusted platform signing for SmartScreen (Windows) and "
+            "Gatekeeper (macOS) requires the owner's code-signing identities "
+            "and notarization and is pending."
+        )
+    else:
+        signed_note = (
+            "Installers are unsigned: SmartScreen (Windows) and Gatekeeper "
+            "(macOS) will warn on first run."
+        )
     return (
         f"Keel {version} installers.\n\n"
         "Every file in this release was built by GitHub Actions and verified by "
@@ -69,6 +88,10 @@ def _release_body(version: str, tag: str, *, signed: bool = False) -> str:
 
 def publish_command(args: argparse.Namespace) -> int:
     dry_run = bool(getattr(args, "dry_run", False))
+    # Default to TEST mode for backward compatibility with existing Ed25519
+    # release flows. Distribution mode is opt-in and fails closed without
+    # owner-controlled platform signature verifiers.
+    mode = resolve_mode(getattr(args, "mode", None), default=SigningMode.TEST)
     # A real publish is ALWAYS gated: unsigned artifacts may never be sent as a
     # production release, regardless of whether --require-signed was passed.
     # Local dry-runs remain unsigned/backward-compatible unless explicitly
@@ -129,6 +152,22 @@ def publish_command(args: argparse.Namespace) -> int:
             )
         remote_public_key = load_public_key(Path(public_key))
         print("Release signing gate: manifest and all artifacts verified")
+        if mode is SigningMode.DISTRIBUTION:
+            print("Signing status: DISTRIBUTION signatures verified by owner "
+                  "platform verifiers")
+        else:
+            print("Signing status: TEST Ed25519 signatures verified "
+                  "(release integrity only; not trusted platform signing)")
+
+    if mode is SigningMode.DISTRIBUTION:
+        pending = (distribution_readiness_errors()
+                   + verify_platform_signatures(out_dir))
+        if pending:
+            detail = "\n  - ".join(pending)
+            raise SigningGateError(
+                "RELEASE SIGNING GATE FAILED - trusted distribution pending:\n  - "
+                + detail
+            )
 
     if dry_run:
         print("DRY RUN - no network writes")
@@ -157,7 +196,7 @@ def publish_command(args: argparse.Namespace) -> int:
     if release is None:
         release = client.create_release(
             tag, f"Keel {version}",
-            _release_body(version, tag, signed=enforce_signing), True)
+            _release_body(version, tag, signed=enforce_signing, mode=mode), True)
     release_id = release["id"]
     draft = bool(release.get("draft", False))
 
