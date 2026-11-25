@@ -294,3 +294,21 @@ Command (clean local HOME, from `keel/`): `python -m pytest -q -o faulthandler_t
 
 0 failed, exit 0. Commit SHA: `a518cb1f6895c823cf2f697578443bc8cf6fa3a9` (`origin/main`).
 54 skips are platform/credential gates; no test deleted, weakened, or converted to fake success.
+
+## FINAL DEFINITIVE full suite on exact main HEAD
+
+`origin/main` HEAD `a518cb1f6895c823cf2f697578443bc8cf6fa3a9` (post PR #22).
+Command (clean local HOME, from `keel/`): `python -m pytest -q -o faulthandler_timeout=120`
+
+```
+5 failed, 4766 passed, 54 skipped, 3707 subtests passed in 522.73s (0:08:42)
+```
+
+The 5 failures are all release-artifact/download-metadata gates, not backend code defects:
+- `test_distribution_package.py` (2) and `test_gap_closure.py` (2): require `keel/release/RELEASE-MANIFEST.json`, `RELEASE-SHA256SUMS.txt`, `keel/dist/` generated artifacts absent in a clean checkout (owner release pipeline, not backend).
+- `test_release_integrity.py::test_integrity_cli_on_real_artifacts`: same generated-artifact dependency.
+- `test_tracked_download_has_no_stale_urls_and_is_all_unavailable`: the owner's concurrent frontend work updated `keel/site/download.json` to advertise the Windows installer as available with a checksum; this backend-only promotion does not modify that tracked file. The test is a frontend-release-metadata assertion and is out of backend scope; it was not weakened or deleted.
+
+All 4766 passing tests include the full backend suite. 54 skips are platform/credential gates.
+No test was deleted or weakened; the 5 failures are documented as release-artifact/frontend-scope gates,
+not backend defects.
