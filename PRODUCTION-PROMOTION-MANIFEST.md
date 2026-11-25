@@ -489,3 +489,12 @@ remain untouched. All backend fixes from the earlier candidate are present in v2
 | Authoritative candidate SHA | `CANDIDATE_HEADd0994986223dd802e47a078a0aeaf5203` |
 | Excluded unrelated commit | `6970867` (frontend `/download` rebuild) |
 | Frontend/desktop paths in v2 | only the documented one-line `Cargo.toml` version constant |
+
+## Latest main merge before promotion
+
+The repository owner advanced `origin/main` during this operation with frontend-only
+commits (`7d48236`, `b2d7403` — Keel-in-Chrome pages, Web Store clone, MV3 extension).
+Those changes were merged into the candidate so the final promotion is a clean
+fast-forward and no owner work is overwritten or discarded. They are **pre-existing on
+main**, not backend work imported by this plan. All backend paths in this manifest remain
+the only changes this plan contributes.
