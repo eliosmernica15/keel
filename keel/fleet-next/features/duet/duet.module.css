@@ -62,6 +62,8 @@
 .drawer { position: absolute; inset: 46px 0 0 0; z-index: 5; width: auto !important; }
 [data-narrow="true"] .drawer.explorer { right: 30%; }
 [data-narrow="true"] .drawer.context { left: 30%; }
+/* The trust gate must remain reachable when a narrow explorer drawer is open. */
+[data-narrow="true"] .gate { position: relative; z-index: 6; }
 
 .main { display: flex; flex: 1; min-width: 0; min-height: 0; flex-direction: column; overflow: hidden; }
 .pane { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; overflow: hidden; }
