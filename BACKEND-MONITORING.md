@@ -1,10 +1,17 @@
 # Backend Monitoring — Keel
 
-**Candidate:** `e57327378f56062db3b13d3db941ac2cf2a641a3`.
+**Branch:** `stabilization/post-promotion-production-2026-11-25`
+**Exact final stabilization SHA:** `<<LEAD_SUPPLIED_SHA — placeholder; see matrix §A>>`
 This document describes the signals the code **actually emits** and how to read them.
 It does not invent metrics, exporters, dashboards, or alert rules that do not exist in
 the repository. Proposed thresholds at the end are explicitly **proposed, not
 owner-approved** and are not implemented configuration.
+
+**Readiness states (do not conflate):** backend implementation **complete**; backend
+locally verified **historical only**, not current; backend production-ready **no**;
+desktop release-ready **no**; production deployment completed **no**. Monitoring is a
+set of local signals, not a deployed observability stack; see
+`PRODUCTION-READINESS-MATRIX.md` §§B/D (PR-18 is `external_validation_pending`).
 
 Sources: `keel/src/keel/backend_observability.py`, `keel/src/keel/webapp.py`,
 `keel/src/keel/start_health.py`, `keel/src/keel/diagnostics.py`,
@@ -84,8 +91,10 @@ configure one that does not exist.
   `streaming_capability`, and `live_provider` SKIP unless `--live` plus a configured
   credential (`provider_validation.py:40-58`, `106-132`).
 - `keel provider smoke <name>` exercises a real adapter through the registry
-  (`cli/main.py:1235-1255`). No live credential is configured on this host, so live
-  results are **unverified**, not green.
+  (`cli/main.py:1235-1255`). **[HISTORICAL]** no live credential was configured on the
+  candidate host (`PROD-PROVIDER-EVIDENCE.md`). **Current classification:** PR-06 is
+  `external_validation_pending`; SKIP is not a pass and no live result may be reported
+  as green without a recorded round-trip at the exact final stabilization SHA.
 - Circuit breaker: `health_score()`, `health` field in provider status
   (`keel/src/keel/circuit_breaker.py:100-112`); provider registry status is exposed at
   `GET /api/providers` (`webapp.py:7`, `webapp.py:384`).

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import uuid
 from pathlib import Path
 
 DEFAULT_THRESHOLD = 3
@@ -32,9 +33,26 @@ def _load(state_root: str) -> dict:
 
 
 def _save(state_root: str, doc: dict) -> None:
+    """Persist the counters atomically.
+
+    A torn write (crash, disk-full, lock) must never leave a truncated JSON
+    file: ``_load`` treats an unreadable file as empty state, which would reset
+    the consecutive-failure counter and silently defeat auto-rollback. Write to
+    a sibling temp file and replace the real file only once the bytes are
+    complete.
+    """
     path = state_path(state_root)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+    tmp = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        tmp.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+        tmp.replace(path)
+    finally:
+        if tmp.exists():
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
 
 
 def record_start(state_root: str, version: str, *, ok: bool,

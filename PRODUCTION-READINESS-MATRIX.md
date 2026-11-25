@@ -1,53 +1,182 @@
-# Production Readiness Matrix — Keel backend candidate `CANDIDATE_HEAD`
+# Production Readiness Matrix — Keel backend, stabilization branch `stabilization/post-promotion-production-2026-11-25`
 
-**Candidate SHA:** `CANDIDATE_HEAD78f56062db3b13d3db941ac2cf2a641a3` (worktree branch
-`agent/prod-ops`).
-**Status vocabulary (from the mission):** `production_verified` (real production
-evidence), `pass` (real source + test evidence, local scope), `unverified` (capability
-exists but no required evidence), `blocked` (named external/owner dependency).
-The gate classification is the same three-way split: pass / unverified / blocked.
-**`production_verified` is used zero times**: there is no deployed production instance,
-no signed/published release, no clean-VM validation, no native Linux/macOS run, and no
-live provider call. Claiming it would be false.
+> **PROVISIONAL REBUILD — the exact final stabilization SHA has not yet been supplied by
+> the lead.** This matrix is anchored to the branch named above. The exact commit is held
+> as a placeholder in §A and must be filled before this document is cited as authoritative.
+> No gate is marked `production_verified` or `pass locally` until evidence exists at that
+> exact SHA. Historical candidate evidence is retained but explicitly labelled.
 
-`PR-01`..`PR-20` are this matrix's stable identifiers for the 20 mandatory gates.
-Evidence links are repository-relative; line numbers refer to candidate `CANDIDATE_HEAD`.
+---
 
-| Requirement ID | subsystem | requirement | source evidence | code evidence | test evidence | operational evidence | security status | platform | status | remaining work | owner | reviewer |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PR-01 | process | Start and stop the Keel backend deterministically | `keel/docs/FINAL-RELEASE-OPERATIONS.md:227-249`; `keel/docs/CHECKLIST.md:46` | `keel/src/keel/cli/main.py:119-167`; `keel/src/keel/webapp.py:1314-1327`; `keel/src/keel/fleet/scheduler.py:343-357` | `master-plan-v6-test-evidence.md:200-210` (4214 passed / 48 skipped / 0 failed); targeted CLI suites in `master-plan-v6-cli-surface-evidence.md` | `keel serve`/`keel fleet` bind loopback, Ctrl+C closes server; daemon disable via `KEEL_FLEET_SCHEDULER_DISABLED=1` | token-gated loopback only, no public interface (`webapp.py:19-32`) | Windows local verified; Linux/macOS native not run | pass | Clean-VM backend startup/shutdown check is UNVERIFIED; no SIGTERM handler or service unit exists | Backend ops owner | Independent reviewer |
-| PR-02 | health | Liveness signal distinct from backend readiness | `keel/docs/FINAL-RELEASE-OPERATIONS.md:4-10` | `keel/src/keel/webapp.py:6`, `378`; `keel/src/keel/commands.py:189-212`; `keel/src/keel/capability_registry.py:91-95` | `master-plan-v6-test-evidence.md` web/CLI suites | `GET /api/health` returns ok + version; `keel doctor` reports tools, masked keys, state dirs | health endpoint is token-gated (`webapp.py:253-280`) | Windows local | pass | No `/api/ready` endpoint exists; do not claim one | Backend ops owner | Independent reviewer |
-| PR-03 | readiness | Backend module health and release-readiness evidence | `master-plan-v6-release-acceptance.md`; `master-plan-v6-release-audit.md:140` | `keel/src/keel/backend_observability.py:481-566`; `keel/scripts/validate_desktop.py`; `scripts/verify_backend_operation.py` | `scripts/verify_backend_operation.py:448-475` reports 20 modules / 421 attributed IDs; 7/7 local integrity in `FINAL-RELEASE-OPERATIONS.md:96-112` | `health_snapshot()` reports real import status; evidence gate is reported-only unless `--strict` | fail-closed on corrupt chain (`backend_observability.py:386-392`) | Windows local; clean-VM external checks UNVERIFIED | pass | Run the six external clean-VM checks (`FINAL-RELEASE-OPERATIONS.md:241-249`); heal clean-checkout suite reproducibility | Release owner | Independent reviewer |
-| PR-04 | configuration | Scoped config resolution and env validation | `master-plan-v6-config-contracts-evidence.md`; `keel/src/keel/admin_ops.py:12-20` | `keel/src/keel/settings.py:1-10`, `44-87`, `475-476`; `keel/src/keel/cli/main.py:636-688`, `807-877` | `keel/tests/test_config_contracts.py`, `test_exec_path_coverage.py` | `keel settings show/schema/validate` and `keel execpolicy validate/active` return real diagnostics; monotonic keys take strictest value | project scope may not set bypass flags (`settings.py:66-75`) | Cross-platform source; Windows local run | pass | Force absolute `KEEL_STATE_DIR` in all CLI paths to avoid relative `.keel` split | Backend ops owner | Config reviewer |
-| PR-05 | secrets | Encrypted secret storage with presence-only diagnostics | `master-plan-v6-secrets-policy-evidence.md`; `FINAL-RELEASE-OPERATIONS.md:181-201` | `keel/src/keel/secret_store.py:1-8`, `65-131`; `keel/src/keel/secret_providers.py:1-12`, `126-160`; `cli/main.py:880-919` | `keel/tests/test_secret_providers.py`, `test_secrets_policy_hardening.py` | AES-256-GCM at rest, keyring then passphrase then 0600 key file; `keel secrets providers/has` reveal no values | no secret logged or in errors; values only via explicit reveal | Windows local; OS keyring behavior platform-dependent | pass | No live keyring rotation or bulk re-encryption test; document provider-side rotation | Security owner | Security reviewer |
-| PR-06 | providers | Provider configuration and validation without fabricated success | `FINAL-RELEASE-OPERATIONS.md:181-201`; `master-plan-v6-provider-contracts-evidence.md` | `keel/src/keel/provider_validation.py:23-58`, `106-132`; `keel/src/keel/cli/main.py:1215-1257`; `keel/src/keel/circuit_breaker.py:100-112` | `keel/tests/test_provider_contracts.py`, `test_live_smoke.py` (credential-gated SKIP) | `keel provider validate` reports PASS/FAIL/SKIP; live checks need `--live` plus a real key | no credentials on host, no live call (`master-plan-v6-final-report.md:143`) | Windows source; live providers not exercised | unverified | Configure `KEEL_*_API_KEY` via masked secrets or encrypted store and run live validation; do not mark verified yet | Provider owner | Security reviewer |
-| PR-07 | data | Verified encrypted backup and restore of local state | `master-plan-v6-db-persistence-evidence.md`; `master-plan-v6-recovery-evidence.md` | `keel/src/keel/backups.py:119-235`; `keel/src/keel/resilience.py:87-99`; `capability_registry.py:1591-1595`, `1798-1820` | `keel/tests/test_db_persistence_hardening.py`, `test_recovery_hardening.py` | AES-256-GCM + PBKDF2 200k, manifest SHA-256 verified before any write; atomic restore, refuses newer files | passphrase not stored in backup; restore errors map to bad_params | Windows local | pass | No `keel backup` CLI; operators must use capabilities or Python APIs | Backend ops owner | Data reviewer |
-| PR-08 | data | Forward DB migration and honest rollback limits | `master-plan-v6-db-persistence-evidence.md`; `keel/docs/FINAL-RELEASE-OPERATIONS.md:246-249` | `keel/src/keel/fleet/db.py:237-365` (schema v1..v11 forward only); `keel/src/keel/config_contracts.py:760-804` (`SchemaApplySeam.apply` is NotImplementedError) | `keel/tests/test_db_persistence_hardening.py`, `test_config_contracts.py` | `connect()` creates `~/.keel/fleet.db` with WAL + FK and applies forward migrations; no down-migration exists | no SQL execution in descriptor migration | Windows local | pass | Implement or explicitly waive a reviewable down-migration; never restore older DB over newer schema | Data owner | Data reviewer |
-| PR-09 | release | Installer rollback and failed-start auto-rollback | `FINAL-RELEASE-OPERATIONS.md:227-249`; `master-plan-v6-final-report.md:145-150` | `keel/src/keel/release/updater.py:143-167`; `keel/src/keel/start_health.py:1-6`, `15`, `40-50`; `keel/src/keel/e5_backend.py:300-369` | `keel/tests/test_recovery_hardening.py`, `test_signing_gate.py` | `rollback` requires backup dir; 3 failed starts sets `rollback: true`; health-gated staged swap | unsigned installers; no production rollback drill | Windows local code; clean-VM upgrade_and_rollback UNVERIFIED | unverified | Run disposable-VM install 0.1.0 then 0.1.1 and force 3 failed starts (external check 5) | Release owner | Independent reviewer |
-| PR-10 | logging | Locatable, tamper-evident, redacted event log | `master-plan-v6-reliability-contracts-evidence.md`; `master-plan-v6-final-report.md` §I | `keel/src/keel/backend_observability.py:1-16`, `38`, `121-184`, `276-425`; `keel/src/keel/redaction.py:17-53` | `keel/tests/test_backend_observability.py`, `test_redaction.py` | `<state_root>/observability.jsonl`, seq + SHA-256 chain, 0o600 fsync appends, fail-closed reads | redaction applied before persistence; no web duplication of logs | Windows local; cross-platform source | pass | No automatic rotation/retention; operator must define it | Backend ops owner | Security reviewer |
-| PR-11 | diagnostics | Redacted diagnostic export | `FINAL-RELEASE-OPERATIONS.md:4-10`; `diagnostics.py` docstring | `keel/src/keel/diagnostics.py:19-57`; `cli/main.py:177-189`; `capability_registry.py:91-95` | `keel/tests/test_diagnostics.py`; full suite in `master-plan-v6-test-evidence.md:200-210` | `keel doctor --bundle` writes `keel-diagnostics.zip`, masks credential-like env names, no conversation content | never uploaded; user chooses sharing | Windows local | pass | Manual review of bundle before sharing; add a new-pattern redaction test if credential formats change | Backend ops owner | Security reviewer |
-| PR-12 | workers | Scheduler and gateway recovery after restart or failure | `master-plan-v6-gate-scheduler-evidence.md`; `master-plan-v6-fleet-events-evidence.md` | `keel/src/keel/fleet/scheduler.py:8-21`, `81-94`, `97-191`, `307-357`; `keel/src/keel/gateway.py:14-63` | `keel/tests/test_gate_scheduler.py`, `test_fleet_tasks.py` | skip-missed advances slots, atomic claim prevents overlap, total failure releases claim, timeout fails closed | routines get no extra authority (`scheduler.py:18-20`) | Windows local | pass | Verify recovery under a real multi-day restart schedule; no automated soak exists | Fleet owner | Independent reviewer |
-| PR-13 | security | Stop unsafe execution and change execution posture | `master-plan-v6-security-contracts-evidence.md`; `master-plan-v6-win-network-evidence.md` | `keel/src/keel/fleet/turn_core.py:56-77`; `keel/src/keel/webapp.py:714-728`; `keel/src/keel/gateway.py:56-63`; `cli/main.py:807-877` | `keel/tests/test_security_validation.py`, `test_web_surface_hardening.py` | kill switch cancels all turns and rotates token; cooperative single-turn stop; execpolicy activation | Windows FS/process/network enforced; Linux/macOS native not verified | Windows pass; Linux/macOS blocked for native enforcement | pass | Do not rely on Linux/macOS sandboxes here; native runner evidence still required | Security owner | Security reviewer |
-| PR-14 | security | Revoke credentials and disable a compromised integration | `master-plan-v6-config-contracts-evidence.md`; `keel/src/keel/config_contracts.py:15` docstring; `FINAL-RELEASE-OPERATIONS.md:205-223` | `cli/main.py:691-739`, `580-614`; `keel/src/keel/mcp.py:77`; `keel/src/keel/custom_tools.py:68`; `keel/src/keel/pairing.py:63-68`; `config_contracts.py:888-967` | `keel/tests/test_mcp.py`, `test_webhook_security.py`, `test_signing_gate.py` | `mcp revoke`, `tools revoke`, `release.revoke`, kill-switch token rotation are callable; Y3.9 sign-out is descriptors plus in-memory ledger only, not credential purge | revocation descriptors carry no secret values (`config_contracts.py:906-916`) | Windows local; live provider revoke untested | unverified | Implement real credential purge or document waiver; add a live revoke round-trip test | Security owner | Security reviewer |
-| PR-15 | security | Preserve forensic evidence during an incident | `master-plan-v6-recovery-evidence.md`; `diagnostics.py:1-6` | `keel/src/keel/backend_observability.py:319-323`, `428-449`; `keel/src/keel/diagnostics.py:49-57` | `keel/tests/test_backend_observability.py`, `test_redaction.py` | verify chain before cleanup; bundle masks credentials and omits conversation; truncation detectable | fail-closed chain prevents silent tampering | Windows local | pass | Define evidence-retention policy; operator copies logs manually | Security owner | Security reviewer |
-| PR-16 | deployment | Clean setup and dependency install from source | `FINAL-RELEASE-OPERATIONS.md:22-70`; `master-plan-v6-release-audit.md:140` | `keel/pyproject.toml:1-18`; `keel/scripts/check_version_sync.py`; `keel/src/keel/release/cli.py:24-111` | `master-plan-v6-test-evidence.md:200-210` clean local HOME; `REVIEW-FINAL-QUALITY.md:134` disputes clean-checkout reproducibility | `pip install -e . pyinstaller pillow` and version gate are real CI commands; no clean-VM run recorded | no third-party storage; installer unsigned | Windows CI configs; Linux/macOS installers not built | unverified | Reproduce the full suite on an exact clean checkout of `CANDIDATE_HEAD`; close the release-audit finding | Release owner | Independent reviewer |
-| PR-17 | deployment | Upgrade and recovery path | `FINAL-RELEASE-OPERATIONS.md:241-249`; `master-plan-v6-final-report.md:145-147` | `keel/src/keel/release/updater.py:143-167`; `keel/src/keel/e5_backend.py:300-369`; `keel/src/keel/release/verify.py` | `keel/tests/test_release_controls.py`, `test_signing_gate.py` | atomic_install preserves previous install; rollback requires backup dir; release verify re-fetches manifest | no signed release to verify in production | Windows local code; clean-VM upgrade/rollback UNVERIFIED | unverified | Run external check 5 on a disposable VM; add owner signing identity before any publish | Release owner | Independent reviewer |
-| PR-18 | monitoring | Watch real signals with redaction and bounded views | `master-plan-v6-reliability-contracts-evidence.md`; `master-plan-v6-final-report.md` §I | `backend_observability.py:530-566` (last 20 errors); `keel/src/keel/admin_page.py:17-72`; `keel/src/keel/circuit_breaker.py:100-112`; `cli/main.py:478-521` | `keel/tests/test_backend_observability.py`, `test_status_page.py` | diagnostic_report exposes chain status, counts by kind/session, bounded errors; gateway ticks and provider caps inspectable | redaction before persistence and in diagnostics | Windows local | pass | No alerting/exporter exists; proposed thresholds are not owner-approved | Backend ops owner | Independent reviewer |
-| PR-19 | platform | Native Linux and macOS execution and installers | `FINAL-RELEASE-OPERATIONS.md:168-178`; `master-plan-v6-platform-compatibility.md:13`; `master-plan-v6-final-report.md:140-141`, `146-147` | `keel/src/keel/sandbox_linux.py`, `keel/src/keel/sandbox_macos.py`, `keel/src/keel/os_sandbox.py` | 36 Linux and 14 macOS platform-gated tests SKIP on this Windows host | backends integrated with ABI/BPF fixes; not executed natively; macOS read isolation BLOCKED by `sandbox-exec` SIGABRT | no native enforcement claim on this host | Linux runner needed kernel≥5.13; macOS arm64 and Intel runners needed | blocked | Run native sandbox and installer suites; fix macOS 26 read isolation; build DMG/ZIP/AppImage/deb | Platform owner | Security reviewer |
-| PR-20 | governance | Live providers, signing and release authorization | `FINAL-RELEASE-OPERATIONS.md:140-164`, `262-273`; `master-plan-v6-final-report.md:143`, `148-158` | `keel/src/keel/release/signing.py`, `keel/src/keel/release/publish.py`; `.github/workflows/signing-readiness.yml` | `keel/tests/test_signing_gate.py`, `test_live_smoke.py` (credential-gated) | zero GitHub Actions secrets, unsigned installer, no provider key, no push or publish performed | C11.2 PARTIAL and owner-gated; no signing identity | Windows only partial; macOS/Linux release not built | blocked | Owner: signing keys, CI sign job, provider credentials, push/publish authorization, clean-VM validation, 2FA/branch protection | Owner | Independent reviewer |
+## A. Commit identity (exact SHA placeholder — lead to fill)
 
-## Gate classification summary
+| Field | Verified value / placeholder |
+| --- | --- |
+| Authoritative branch | `stabilization/post-promotion-production-2026-11-25` |
+| Current baseline tip (verified in this worktree) | `f60b080a1c770608e1ddbf3d888a6e63a7c1b6bb` — `docs(stabilization): record verified baseline and failing CI workflows` |
+| **Exact final stabilization SHA** | **`<<LEAD_SUPPLIED_SHA — PLACEHOLDER, NOT YET FILLED>>`** |
+| `origin/main` (verified) | `9a63be929d7b364411b856aaf61230817697c410` |
+| Prior backend promotion | `779ff942fff9dd106af7d7b3b4b35f95bfc5d2a4` (ancestor of `origin/main`) |
+| Stabilization diff vs `origin/main` at baseline | 1 path (`POST-PROMOTION-STABILIZATION-BASELINE.md`) |
+| Current version constant | `0.1.1` (`keel/src/keel/__init__.py`, `keel/pyproject.toml`) |
+| CI at baseline | All six backend workflows FAIL on main SHA `9a63be92`; step logs no longer retrievable (`POST-PROMOTION-STABILIZATION-BASELINE.md:9-20`) |
+
+**Historical SHAs — NOT current evidence.** `e573273…`, `ac84fee…`, `fe6cdd…`,
+`CANDIDATE_HEAD…` tokens, `ecba9d2b…` and any line number keyed to those commits are
+historical provenance from the pre-promotion candidate family. A test executed at one of
+those commits is **not** evidence for the final stabilization SHA. `PROD-*-EVIDENCE.md`
+and `master-plan-v6-*.md` files are cited below only in this historical sense. No
+`STAB-*-EVIDENCE.md` file had landed at the baseline tip when this matrix was rebuilt;
+`pass locally` is therefore zero until such evidence is attached.
+
+**Stale counts recorded here for provenance only:** 383 / 422 changed paths, 30/30 (also
+reported as 20 and 23) action pin counts, 4214 / 4419 / 4437 full-suite pass counts. The
+**current** baseline facts are 1 changed path and **31** `uses:` references in
+`.github/workflows/*.yml`, all 40-character SHA pins (12 checkout, 10 setup-python,
+4 setup-node, 3 upload-artifact, 2 download-artifact). The extra `setup-node` ref
+accounts for the 30→31 drift; older 20/23 counts are superseded.
+
+---
+
+## B. Status vocabulary used by this rebuild
+
+| Status | Meaning |
+| --- | --- |
+| `production_verified` | Real **current** production evidence: deployed instance, live provider call, or signed/published release at the exact final SHA. |
+| `pass locally` | Current source **and** test evidence at local scope, produced at the exact final SHA. Historical candidate tests do not qualify. |
+| `external_validation_pending` | Mechanism implemented and locally evidenced historically, but an external check, clean-VM run, or live credential round-trip must be repeated at the exact final SHA before closure. |
+| `owner_gated` | Cannot be closed by engineering: needs owner signing identity, credentials, authorization, or a governance decision. |
+| `blocked` | Hard technical/platform blocker that must be removed before the gate can be attempted (e.g. native macOS runner absent, `sandbox-exec` SIGABRT). |
+
+`production_verified` is **0** and `pass locally` is **0** in §D. That is a provisional
+consequence of the missing exact SHA and absent current evidence — **not** a finding that
+the code regressed.
+
+`PR-01`..`PR-20` are the stable gate identifiers. Source anchors are file paths only:
+line numbers were keyed to historical candidate commits and are deliberately omitted.
+
+---
+
+## C. Authoritative gates
+
+| ID | Subsystem | Requirement | Current source anchor (branch, re-check at final SHA) | Historical evidence (NOT current) | Status | Evidence required to close | Owner |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| PR-01 | process | Start/stop Keel deterministically | `keel/src/keel/cli/main.py` (`serve`/`fleet`/`web`), `webapp.py` (`serve`, Ctrl+C), `fleet/scheduler.py` (`start_daemon`) | `master-plan-v6-test-evidence.md`; `BACKEND-OPERATIONS-RUNBOOK.md` §1 | external_validation_pending | Repeat startup/shutdown on exact SHA; clean-VM check 1; add SIGTERM/service path if claimed | Backend ops |
+| PR-02 | health | Liveness distinct from readiness | `keel/src/keel/webapp.py` (`/api/health`), `commands.py` (`doctor`), `capability_registry.py` (diagnostics) | `master-plan-v6-cli-surface-evidence.md`; runbook §2 | external_validation_pending | Re-run health/doctor checks on exact SHA; do not claim `/api/ready` | Backend ops |
+| PR-03 | readiness | Module health and release evidence | `backend_observability.py` (`health_snapshot`), `scripts/verify_backend_operation.py` (root) | `master-plan-v6-release-acceptance.md`; `FINAL-RELEASE-OPERATIONS.md` | external_validation_pending | Re-run evidence gate with `--strict` on exact SHA; close clean-checkout reproducibility defect | Release owner |
+| PR-04 | configuration | Scoped config and env validation | `settings.py`, `cli/main.py` (`settings`, `execpolicy`), `admin_ops.py` | `master-plan-v6-config-contracts-evidence.md` | external_validation_pending | Re-run config suites on exact SHA; force absolute `KEEL_STATE_DIR` in operator paths | Backend ops |
+| PR-05 | secrets | Encrypted secrets, presence-only diagnostics | `secret_store.py`, `secret_providers.py`, `cli/main.py` (`secrets`) | `master-plan-v6-secrets-policy-evidence.md` | external_validation_pending | Re-run secret suites on exact SHA; document keyring rotation | Security owner |
+| PR-06 | providers | Configuration/validation without fabricated success | `provider_validation.py`, `provider_contracts.py`, `circuit_breaker.py`, `cli/main.py` (`provider validate [--live]`) | `PROD-PROVIDER-EVIDENCE.md` (offline injection only; no live call) | external_validation_pending | Disposable provider credential + live smoke at exact SHA; see §E.1 | Provider owner |
+| PR-07 | data | Verified encrypted backup/restore | `backups.py`, `resilience.py`, `capability_registry.py` (`release.backups.*`) | `master-plan-v6-db-persistence-evidence.md`, `master-plan-v6-recovery-evidence.md` | external_validation_pending | Re-run backup/restore tests on exact SHA; no `keel backup` CLI exists | Data owner |
+| PR-08 | data | Forward migration, honest rollback limits | `fleet/db.py` (`_migrate`, v1..v11), `config_contracts.py` (`SchemaApplySeam.apply`) | `master-plan-v6-db-persistence-evidence.md` | external_validation_pending | Re-run migration tests on exact SHA; implement or formally waive down-migration | Data owner |
+| PR-09 | release | Installer rollback / failed-start auto-rollback | `release/updater.py` (`atomic_install`, `rollback`), `start_health.py`, `e5_backend.py` | `PROD-ROLLBACK-EVIDENCE.md` (6 real-code drill tests at historical candidate) | external_validation_pending | Disposable-VM check 5 at exact SHA; see §E.2 | Release owner |
+| PR-10 | logging | Locatable, tamper-evident, redacted log | `backend_observability.py`, `redaction.py` | `master-plan-v6-reliability-contracts-evidence.md` | external_validation_pending | Re-run chain/redaction tests on exact SHA; define rotation | Backend ops |
+| PR-11 | diagnostics | Redacted diagnostic export | `diagnostics.py`, `cli/main.py` (`doctor --bundle`) | `diagnostics.py` docstring, `master-plan-v6-test-evidence.md` | external_validation_pending | Re-run bundle redaction tests on exact SHA; manual bundle review | Security owner |
+| PR-12 | workers | Scheduler/gateway recovery | `fleet/scheduler.py`, `gateway.py` | `master-plan-v6-gate-scheduler-evidence.md`, `master-plan-v6-fleet-events-evidence.md` | external_validation_pending | Re-run scheduler tests on exact SHA; no multi-day soak exists | Fleet owner |
+| PR-13 | security | Stop unsafe execution / change posture | `fleet/turn_core.py`, `webapp.py` (`kill-switch`), `gateway.py`, `execpolicy` CLI | `master-plan-v6-security-contracts-evidence.md`, `master-plan-v6-win-network-evidence.md` | external_validation_pending | Re-run Windows enforcement tests on exact SHA; native Linux/macOS handled under PR-19 | Security owner |
+| PR-14 | security | Revoke credentials / disable integration | `cli/main.py` (`mcp`/`tools` revoke), `settings_store.py`, `pairing.py`, `config_contracts.py`, `release.revoke` | `PROD-REVOCATION-EVIDENCE.md` (7 local tests at historical candidate; gap G1 reported) | external_validation_pending | Live revoke round-trip at exact SHA; owner decision on Y3.9 descriptor gap G1; see §E.3 | Security owner |
+| PR-15 | security | Preserve forensic evidence | `backend_observability.py` (`verify_chain`), `diagnostics.py` | `master-plan-v6-recovery-evidence.md` | external_validation_pending | Re-run chain/retention tests on exact SHA; define retention policy | Security owner |
+| PR-16 | deployment | Clean setup and dependency install | `pyproject.toml`, `keel/scripts/check_version_sync.py`, `scripts/verify_clean_setup.py`, `scripts/verify_backend_operation.py` | `PROD-CLEAN-SETUP-EVIDENCE.md` (clean-venv `pass` at historical candidate; release audit disputes reproducibility) | external_validation_pending | Repeat clean-checkout install + full suite on exact SHA; close audit finding; see §E.4 | Release owner |
+| PR-17 | deployment | Upgrade and recovery path | `release/updater.py`, `release/verify.py`, `e5_backend.py`, `release/cli.py` | `PROD-ROLLBACK-EVIDENCE.md` (local drill, ephemeral key, historical) | external_validation_pending | Signed clean-VM upgrade/rollback at exact SHA with owner signing identity; see §E.5 | Release owner |
+| PR-18 | monitoring | Real signals, redaction, bounded views | `backend_observability.py` (`diagnostic_report`), `admin_page.py`, `circuit_breaker.py`, `cli/main.py` (`costs status`) | `master-plan-v6-reliability-contracts-evidence.md` | external_validation_pending | Re-run signal tests on exact SHA; no exporter/pager exists and thresholds are unapproved | Backend ops |
+| PR-19 | platform | Native Linux/macOS execution and installers | `sandbox_linux.py`, `sandbox_macos.py`, `os_sandbox.py` | `PROD-PLATFORM-EVIDENCE.md` (Windows native verified; Linux WSL2 6.6.87.2 scoped; macOS none) | blocked | Native macOS runner incl. macOS 26 `sandbox-exec` SIGABRT fix; bare-metal/Linux CI runner; DMG/ZIP/AppImage/deb; see §E.6 | Platform owner |
+| PR-20 | governance | Live providers, signing, release authorization | `release/signing.py`, `release/publish.py`, `.github/workflows/signing-readiness.yml` | `PROD-SUPPLY-CHAIN-EVIDENCE.md` (31 SHA-pinned action refs at current baseline; unsigned installers); owner gates | owner_gated | Owner signing identity, CI sign job, provider credentials, push/publish authorization, 2FA/branch protection; see §E.7 | Owner |
+
+---
+
+## D. Gate classification summary (provisional)
 
 | Classification | Count | Requirement IDs |
-| --- | --- | --- |
-| pass | 17 | PR-01, PR-02, PR-03, PR-04, PR-05, PR-07, PR-08, PR-10, PR-11, PR-12, PR-13, PR-15, PR-18 |
-| unverified | 3 | PR-06 live providers, PR-17 signed clean-VM upgrade, PR-19 native macOS |
-| blocked | 2 | PR-19 native macOS (sandbox-exec SIGABRT), PR-20 signing identity |
-| production_verified | 0 | none — no production deployment or live evidence exists |
+| --- | ---: | --- |
+| `production_verified` | 0 | none — no current deployed instance, live provider call, or signed published release |
+| `pass locally` | 0 | none — no evidence produced at the exact final SHA; see §A |
+| `external_validation_pending` | 18 | PR-01..PR-18 |
+| `owner_gated` | 1 | PR-20 |
+| `blocked` | 1 | PR-19 |
+| **Total mandatory gates** | **20** | PR-01..PR-20 |
 
-## Honest scope note
+Superseded counts (retained for provenance, **do not cite**): the earlier matrix summary
+claimed `pass 17 / unverified 3 / blocked 2` while listing only 13 pass IDs and counting
+PR-19 in both `unverified` and `blocked`; the earlier report claimed
+`pass 13 / unverified 5 / blocked 2`. Both were keyed to historical candidate SHAs and
+disagreed with their own row statuses. This rebuild replaces them.
 
-A `pass` here means **source + test evidence on the local Windows candidate**, never
-production verification. No row claims native Linux/macOS execution, a live provider
-call, a signed installer, a clean-VM install, or a published release. Those remain
-unverified or blocked exactly as the authoritative documents record them.
+---
+
+## E. Reconciliation of the seven named gates
+
+### E.1 PR-06 — providers
+`PROD-PROVIDER-EVIDENCE.md` is explicit: 55 offline injection tests, **no real provider
+request**, and a documented integration gap (production callers have not opted into the
+new policy layer). Required credentials are named but no values were used. **Status:
+external_validation_pending.** It is not `owner_gated` only because the executing party
+could supply a disposable credential; it is not `pass locally` because the live gap is
+open even in the historical evidence, and nothing was re-run at the final SHA.
+
+### E.2 PR-09 — rollback
+`PROD-ROLLBACK-EVIDENCE.md` records six real-code tests (real loopback server, signed
+ephemeral manifest, real `atomic_install`/`rollback`, SQLite canary preserved, four
+fail-closed cases) and states verbatim: "locally closed at the code-path level; full
+matrix gate still requires the disposable-VM check 5" and "Classification: pass locally /
+external validation pending. Do **not** record this as `production_verified`." That test
+ran at historical candidate `ac84fee`; it is retained as historical. **Status:
+external_validation_pending.**
+
+### E.3 PR-14 — revocation
+`PROD-REVOCATION-EVIDENCE.md` records seven real local tests (provider key removal clears
+env and ciphertext, MCP connector/approval disable, pairing revoke, approval-token revoke,
+redacted audit chain) and one **negative** test proving the Y3.9 sign-out descriptor does
+**not** delete stored credentials (gap G1). Historical verdict: locally achieved gates
+closed, live provider revoke still untested. **Status: external_validation_pending** with
+an owner decision required on gap G1 (implement real purge or accept a documented waiver).
+
+### E.4 PR-16 — clean setup
+`PROD-CLEAN-SETUP-EVIDENCE.md` records a real hash-verified install in two disposable
+venvs, 7/7 runtime checks and 141-142 tests "exercised with failures characterized", and
+concludes `pass` at local scope while explicitly denying `production_verified`. It is
+keyed to historical `ac84fee`. `master-plan-v6-release-audit.md` and
+`REVIEW-FINAL-QUALITY.md` dispute clean-checkout reproducibility, and the stabilization
+baseline records all backend CI workflows failing on `9a63be92`. **Status:
+external_validation_pending** — repeat on exact final SHA before any `pass locally`.
+
+### E.5 PR-17 — upgrade/recovery
+Same historical drill as PR-09 plus the interrupted-swap recovery test, using an ephemeral
+Ed25519 key. No VM tooling, no built installers, no production signing identity were
+available. The signed clean-VM `0.1.0 → 0.1.1` upgrade is outstanding. **Status:
+external_validation_pending**, with a signing dependency that is owner-gated under PR-20.
+
+### E.6 PR-19 — native platforms
+`PROD-PLATFORM-EVIDENCE.md` verifies Windows natively (scoped) and the integrated Linux
+Landlock+seccomp backend on WSL2 kernel 6.6.87.2 with four conformance failures, while
+Linux CI/bare-metal remains unverified. macOS was not executed; read isolation is BLOCKED
+by `sandbox-exec` SIGABRT on macOS 26. This is a hard blocker, not an owner preference.
+**Status: blocked.**
+
+### E.7 PR-20 — governance, signing, live providers
+Action pinning is currently 31/31 SHA refs across eight workflows (current baseline
+verification), but installers remain unsigned, no `KEEL_RELEASE_SIGNING_KEY` identity
+exists, no live provider credential exists, and GitHub Free private-repo branch
+protection is unavailable (403/404/422). These are owner/plan actions. **Status:
+owner_gated.** Do not downgrade to `pass locally` on the strength of pinning or build
+integrity alone.
+
+---
+
+## F. Historical passages retained explicitly
+
+The following statements belong to the pre-promotion candidate family and are preserved
+only as provenance in `PRODUCTION-READINESS-REPORT.md` and the four backend runbooks:
+"Candidate `CANDIDATE_HEAD` / `e573273` / `ac84fee`", branch `agent/prod-ops`, the
+4214/4419/4437 suite figures, the 383/422 path counts, "no push performed", "NOT PROMOTED
+TO MAIN", and the subsequent "owner-authorized promotion" note. The current state is
+recorded in §A and in `POST-PROMOTION-STABILIZATION-BASELINE.md`.
+
+---
+
+## G. Honest scope note
+
+This matrix covers backend/harness operations only. No frontend, no source/test/workflow
+change, and no push are part of this rebuild. A gate may move to `pass locally` or
+`production_verified` only when evidence at the exact final stabilization SHA is attached
+and the owner signs off. Until then the counts in §D are the authoritative provisional
+verdict.
