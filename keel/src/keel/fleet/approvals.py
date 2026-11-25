@@ -28,6 +28,8 @@ import threading
 import uuid
 from datetime import datetime, timezone
 
+from ..redaction import redact_text
+
 from ..permissions import Decision
 
 
@@ -55,7 +57,14 @@ def _truncate(text: str, limit: int) -> str:
 
 
 def args_summary(tool_name: str, tool_input: dict) -> str:
-    """Human-facing one-liner for the card. Truncated, never audit."""
+    """Human-facing one-liner for the card. Truncated and redacted."""
+    summary = _raw_args_summary(tool_name, tool_input)
+    redacted, _ = redact_text(summary)
+    return redacted
+
+
+def _raw_args_summary(tool_name: str, tool_input: dict) -> str:
+    """Build the raw summary; only ``args_summary`` may expose it."""
     args = tool_input or {}
     if tool_name == "run_shell":
         return _truncate(args.get("command") or "(empty command)", 1000)

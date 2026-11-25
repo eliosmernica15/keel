@@ -2,7 +2,49 @@
 
 This document is the truthful state of how finished Keel installers reach users.
 
-## Current state (2026-11-19)
+## 0. Reconciliation (2026-11-25 — authoritative over the 2026-11-19 snapshot below)
+
+The 2026-11-19 section is preserved as history, but three of its statements are
+now superseded by the code in this worktree:
+
+1. **"No secrets are required beyond the automatic `GITHUB_TOKEN`" is stale.**
+   `keel/src/keel/release/publish.py` now hard-gates every real publish on
+   Ed25519 signatures: `enforce_signing = (not dry_run) or …`, and
+   `verify_signed_release(root, public_key)` must succeed. Without an
+   owner-supplied `--public-key` and valid `<file>.sig` assets plus a signed
+   `RELEASE-MANIFEST.json`, publish fails with `RELEASE SIGNING GATE FAILED`.
+   `GITHUB_TOKEN` is still the only *network* credential, but a release-signing
+   key is now mandatory for a real publish. See
+   `keel/docs/release/SIGNING-PREPARATION.md`.
+2. **Native packages are now the primary path.** Concurrent packaging work
+   changed `desktop-app/package.json` to `build.mac.target = pkg` for `arm64`
+   and `x64` (install location `/Applications`, `overwriteAction: upgrade`) and
+   `build.linux.target = [deb, rpm]` (no AppImage). `release/common.py`
+   `CHANNELS` and `release/packaging.py` now mirror that and reject
+   DMG/ZIP/AppImage advertising. The historical file table below (DMG/ZIP/
+   AppImage/deb) describes the older 0.1.0 artifacts; it is not the current
+   target. The committed `site/download.json` fallback is stale but safe (all
+   channels unavailable). See `DISTRIBUTION-INSTALLATION.md` §1 and §8.
+3. **GitHub Releases on the private source repo is not yet a public endpoint.**
+   `KEEL_DOWNLOAD_MANIFEST_URL` is unset by default and the proxy returns 503;
+   `site/download.json` is an honest all-unavailable fallback. A first-party,
+   public, binaries-only endpoint and the `/download` cutover remain owner-gated
+   (G1/G3). No release has been published, so there is no verified public URL.
+
+Also resolved since the baseline: the PWA routing defect (see
+`DISTRIBUTION-SMART-DOWNLOAD.md` §6) — `vercel.json` rewrites `/app` →
+`/app.html` and redirects `/app.html` → `/app`; the manifest now uses
+`"id": "/app"`, `"start_url": "/app"`, `"scope": "/"`, with a single
+"Get Keel Desktop" shortcut to `/download`. The service worker is v17 and
+never caches release metadata or installer binaries. This is a source-tree
+observation, not a live deployment test.
+
+**Bottom line:** the chosen architecture below (GitHub Releases + Vercel proxy +
+Python-only automation) still describes the code, but a real publication is
+blocked by the signing key and public-endpoint owner gates. Do not describe the
+current state as a production release.
+
+## Current state (2026-11-19 — historical snapshot; see §0)
 
 Keel has **no third-party storage provider**. Installers are published as assets
 of a GitHub Release attached to `github.com/eliosmernica15/keel`, and the Vercel
@@ -101,7 +143,10 @@ existing `v0.1.0` tag points at an older commit (`f2aba1d`). To publish:
    If any file, checksum or public read fails, the job fails and no manifest is
    published.
 
-No secrets are required beyond the automatic `GITHUB_TOKEN`.
+`GITHUB_TOKEN` is the only network credential; a real publish additionally
+requires the owner-supplied Ed25519 signing key and matching public key
+(§0 and `keel/docs/release/SIGNING-PREPARATION.md`). Without them the publish
+step fails closed.
 
 ## What this pipeline will NOT do
 

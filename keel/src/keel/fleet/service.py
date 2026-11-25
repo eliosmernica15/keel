@@ -296,6 +296,16 @@ class FleetStore:
         return self.get_bot(bot_id)
 
     # ---------------- projects (local folders the human picked)
+    @staticmethod
+    def _require_project_trust(proj: dict | None) -> None:
+        """Enforce the explicit per-project trust decision before any disk I/O.
+
+        Trust is a security boundary owned by the Python runtime; the UI's
+        trust dialog is only a way to call ``set_project_trusted``.
+        """
+        if not proj or not proj.get("trusted"):
+            raise PermissionError("workspace is not trusted")
+
     def create_project(self, *, path: str, name: str | None = None) -> dict:
         import uuid as _uuid
         from pathlib import Path as _Path
@@ -380,8 +390,7 @@ class FleetStore:
     def list_project_tree(self, project_id: str, *, max_entries: int = 4000) -> list[dict]:
         """Depth-first listing of the project folder; dirs and files."""
         proj = self.get_project(project_id)
-        if not proj:
-            return []
+        self._require_project_trust(proj)
         from pathlib import Path as _Path
         root = _Path(proj["path"])
         entries: list[dict] = []
@@ -414,12 +423,11 @@ class FleetStore:
     def read_project_file(self, project_id: str, rel_path: str,
                           *, max_bytes: int = 1_500_000) -> dict:
         proj = self.get_project(project_id)
-        if not proj:
-            raise ValueError("unknown project")
+        self._require_project_trust(proj)
         from pathlib import Path as _Path
         base = _Path(proj["path"]).resolve()
         target = (base / rel_path).resolve()
-        # strict containment — never escape the project root
+        # strict containment - never escape the project root
         if base != target.parent and base not in target.parents:
             raise ValueError("path escapes the project root")
         if not target.is_file():
@@ -443,8 +451,7 @@ class FleetStore:
     def write_project_file(self, project_id: str, rel_path: str,
                            content: str) -> dict:
         proj = self.get_project(project_id)
-        if not proj:
-            raise ValueError("unknown project")
+        self._require_project_trust(proj)
         from pathlib import Path as _Path
         base = _Path(proj["path"]).resolve()
         target = (base / rel_path).resolve()

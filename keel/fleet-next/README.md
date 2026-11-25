@@ -80,9 +80,16 @@ accepts every file type. `/` opens the slash palette (`/context`, `/model`,
 the model delegates when a job warrants it. Background shells pill + Ctrl+B
 works in both surfaces.
 
-Not yet (use the classic UI for these): Groups, routine creation, library
-upload/deletion, library previews, per-agent permission policy management,
-audit log view. Offline use of the API is not supported (shell only).
+Parity note (updated by the unified-frontend workstream): the "not yet" list
+above described an earlier snapshot. The current bridge exposes groups,
+routine creation/history, library upload/deletion/preview, per-agent policies
+and audit history, and this app's Fleet surface now implements them against
+those real endpoints. See `../docs/UI-FEATURE-PARITY.md` for the evidence-based
+matrix and `../docs/UI-BACKEND-CONTRACT.md` for the verified API contract.
+Still unavailable by design: a browser-preview route, file-level diff/apply,
+a tool catalogue, egress rules and a live model turn without provider
+credentials — the UI labels these explicitly instead of faking them.
+Offline use of the API is not supported (shell only).
 
 ## Security notes
 

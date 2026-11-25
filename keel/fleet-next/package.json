@@ -6,7 +6,10 @@
     "dev": "next dev -H 127.0.0.1 -p 3000",
     "build": "next build",
     "start": "next start -H 127.0.0.1 -p 3000",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "playwright test",
+    "test:features": "playwright test --config tests/features/cowork/playwright.config.ts && playwright test --config tests/features/code-duet/playwright.config.ts && playwright test --config tests/features/fleet/playwright.config.ts && playwright test --config tests/features/capabilities-settings/playwright.config.ts && playwright test --config tests/features/onboarding/playwright.config.ts",
+    "test:ui": "node tests/ui/verify-ui.mjs"
   },
   "dependencies": {
     "next": "^15.1.6",
@@ -14,6 +17,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",

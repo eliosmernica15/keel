@@ -33,6 +33,11 @@ def detect_host_platform() -> str:
     return HOST_PLATFORM.get(platform.system(), "unknown")
 
 
+def generate_installer_assets() -> None:
+    """Generate NSIS/PKG/Linux icon assets before static config checks."""
+    run_cmd([sys.executable, "desktop-app/scripts/generate_assets.py"], cwd=PROJECT_ROOT)
+
+
 def build_sidecar(out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     run_cmd([sys.executable, "desktop-app/scripts/generate_assets.py"], cwd=PROJECT_ROOT)
@@ -54,7 +59,12 @@ def build_sidecar(out_dir: Path) -> None:
 def npm_install() -> None:
     desktop = PROJECT_ROOT / "desktop-app"
     if not (desktop / "node_modules").exists():
-        run_cmd(["npm", "install", "--no-audit", "--no-fund"], cwd=desktop)
+        # npm ci enforces package-lock.json integrity hashes; npm install would
+        # silently resolve a different electron-builder than the pinned one.
+        if (desktop / "package-lock.json").is_file():
+            run_cmd(["npm", "ci", "--no-audit", "--no-fund"], cwd=desktop)
+        else:
+            run_cmd(["npm", "install", "--no-audit", "--no-fund"], cwd=desktop)
 
 
 def electron_build(platform_name: str) -> None:
@@ -68,8 +78,10 @@ def electron_build(platform_name: str) -> None:
             cwd=desktop,
         )
     elif platform_name == "linux":
+        # Native packages only. AppImage/archives are not a primary consumer
+        # path and are deliberately not requested here.
         run_cmd(
-            ["npx", "electron-builder", "--linux", "AppImage", "deb", "rpm",
+            ["npx", "electron-builder", "--linux", "deb", "rpm",
              "--publish", "never"],
             cwd=desktop,
         )
@@ -121,11 +133,27 @@ def build_command(args: argparse.Namespace) -> int:
     tag = args.tag or f"v{version}"
     validate_version(tag)
 
+    # Fail fast on configuration drift before spending minutes on a build.
+    # Icons are generated first because the acceptance checks inspect them.
+    generate_installer_assets()
+    from .packaging import check_packaging_config
+
+    config_errors = check_packaging_config()
+    if config_errors:
+        raise SystemExit("packaging configuration invalid:\n  - " +
+                         "\n  - ".join(config_errors))
+
     print(f"Building Keel {version} ({platform_name})")
     build_sidecar(Path("unused"))
     npm_install()
     electron_build(platform_name)
     validate_packaged_outputs()
+    from .packaging import check_built_inventory
+
+    inventory_errors = check_built_inventory(PROJECT_ROOT / "dist", platform_name)
+    if inventory_errors:
+        raise SystemExit("build output inventory invalid:\n  - " +
+                         "\n  - ".join(inventory_errors))
 
     out_dir = Path(args.out)
     if not out_dir.is_absolute():

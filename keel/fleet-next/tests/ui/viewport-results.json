@@ -1,0 +1,46 @@
+{
+  "generatedAt": "2026-11-24T01:13:08.926Z",
+  "base": "http://127.0.0.1:3300/",
+  "note": "Read-only. No POST/PUT/DELETE is issued by this script. Onboarding is suppressed via localStorage only.",
+  "viewports": [
+    {
+      "name": "360x800",
+      "width": 360,
+      "height": 800,
+      "surfaces": []
+    },
+    {
+      "name": "390x844",
+      "width": 390,
+      "height": 844,
+      "surfaces": []
+    },
+    {
+      "name": "768x1024",
+      "width": 768,
+      "height": 1024,
+      "surfaces": []
+    },
+    {
+      "name": "1024x768",
+      "width": 1024,
+      "height": 768,
+      "surfaces": []
+    },
+    {
+      "name": "1280x800",
+      "width": 1280,
+      "height": 800,
+      "surfaces": []
+    },
+    {
+      "name": "1440x900",
+      "width": 1440,
+      "height": 900,
+      "surfaces": []
+    }
+  ],
+  "consoleErrors": [],
+  "commandPalette": null,
+  "error": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3300/\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:3300/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+}

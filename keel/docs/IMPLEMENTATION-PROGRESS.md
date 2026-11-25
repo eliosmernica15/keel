@@ -1132,6 +1132,228 @@ query safety (`db_explorer.py`), SARIF 2.1.0 emission/ingestion (`sarif.py`),
 offline SVG charts/diagrams (`charts.py`), and macro/prompt/spec authoring
 helpers (`authoring.py`), plus session import/stats over the bridge.
 
+
+---
+
+# Frontend delivery ledger (from feature branch)
+
+
+---
+
+# Frontend workstream — unified workspace (2026-11-24)
+
+This section is **appended** to the existing batch ledger. It tracks the frontend workstream only. Status vocabulary: `implemented+verified`, `implemented (unverified)`, `partial`, `blocked`, `not started`. A placeholder is not a completed feature.
+
+## Repository / Git setup — verified
+
+| Item | Value |
+|---|---|
+| Remote | `https://github.com/eliosmernica15/keel.git` |
+| Original branch (untouched) | `integration/v6-addenda-complete` @ `c297d7a` |
+| Pre-existing change (preserved, excluded from all frontend commits) | `keel/scripts/build_plan_index.py` in the original worktree |
+| Frontend branch | `feat/frontend-unified-workspace` |
+| Worktree | `C:\Users\Admin\Desktop\keel-frontend-worktree` |
+| Renderer target | `fleet-next`; see `UI-ARCHITECTURE.md` for the decision record |
+
+## Phase status (final)
+
+| Phase | Status | Evidence |
+|---|---|---|
+| 0 — Repository & architecture audit | done | remote/branch/worktree verified; renderer inventory in `UI-ARCHITECTURE.md`; routes verified in `UI-BACKEND-CONTRACT.md` |
+| 1 — Foundations (tokens, primitives, contract) | implemented + verified | `app/globals.css`, `app/ui.css`, `components/{ui,icons,ErrorBoundary}.tsx`, `lib/{types,api,state}.ts*`; tsc + build + browser pass |
+| 2 — Unified shell | implemented + verified | `app/page.tsx` reduced 3,823 → ~280 lines; top bar, four surfaces, sidebar, context panel, status strip, command palette, notices, drawers, shortcuts; browser-verified |
+| 3 — Cowork | implemented + verified | `features/cowork/`; timeline, work log, approvals, questions, drafts, real library uploads; browser-render verified (no live model turn — no credentials) |
+| 4 — Code | implemented + verified | `features/code/`; trust gate, tree, guarded file read/write, read-only review, real terminal; browser-render verified |
+| 5 — Duet | implemented + verified | `features/duet/`; tabbed panes, resize, persistence, honest preview gap; browser-render verified |
+| 6 — Fleet | implemented + verified | `features/fleet/`; agents, groups, tasks, routines, library, audit, policies; browser-rendered 7 real agents / 2 real tasks |
+| 7 — Capabilities | implemented + verified | `features/capabilities/`; skills/MCP/connectors/tools/commands/workflows with real bridge data; browser-render verified |
+| 8 — Settings & security | implemented + verified | `features/settings/`; providers, masked credentials, modes, trust, privacy, diagnostics, appearance; browser-render verified |
+| 9 — Onboarding | implemented + verified | `features/onboarding/`; 8-step resumable wizard + sidebar checklist; browser screenshot verified |
+| 10 — Motion / a11y / responsive | partial | tokens + reduced motion + focus rules implemented; one real viewport exercised, static review for the rest (see `UI-TEST-MATRIX.md`) |
+| 11 — Integration & verification | done with documented gaps | tsc pass, build pass, QA harness 11 pass/4 skipped, browser walkthrough, Python regression run |
+| 12 — Documentation & local commits | done | this section + five new UI docs; focused local commits on the frontend branch |
+
+## Subagent work log (final)
+
+| Agent | Responsibility | Actual deliverables | Verification |
+|---|---|---|---|
+| A | Cowork | 7 files in `features/cowork/`; SSE with rAF batching, approvals `once\|always\|never`, questions, work log, per-bot drafts, real `uploadLibrary` with per-file status and retry | tsc clean for folder; contract cross-checked; browser render |
+| B | Code & Duet | `features/code/{Code,workspace}.tsx`, `features/duet/Duet.tsx`; explicit trust gate, tree, read-only viewer, guarded write, read-only git review, real shells, persistent panes | tsc clean; browser render both surfaces |
+| C | Fleet | 10 files incl. `Fleet.tsx`; roster, details drawer, groups, tasks, routines, library, audit, real policy revoke; honest gaps for subagent tree and recoverable delete | tsc clean; browser render with live bridge data |
+| D | Capabilities & settings | 11 files; real skills/MCP/connectors/commands/workflows, masked credentials, searchable settings | tsc clean; browser render both surfaces |
+| E | Onboarding | 4 files; 8-step resumable wizard, real provider verification, explicit workspace trust, no mandatory cloud | tsc clean; browser screenshot |
+| F | QA | `tests/ui/{verify-ui.mjs,route_scan.py,probe_bridge.py,results.json,QA-REPORT.md}` | 11 pass / 4 skipped; 81 endpoint call sites mapped; 0 fabricated-data/static-a11y violations; DF-001 fixed and re-verified |
+
+## Lead-owned work
+
+Shared types/API/state, UI primitives and icon set, design-token mapping, app shell, error boundary, service-worker freshness fix, all six UI docs, cross-agent contract corrections, integration fixes (surface persistence on reload, stale SW cache), verification and commits.
+
+## Verification log (real commands)
+
+| Command | Result |
+|---|---|
+| `npx tsc --noEmit` (in `keel/fleet-next`) | pass, no output |
+| `npm run build` (in `keel/fleet-next`) | pass; 5/5 pages generated; `/` 90 kB |
+| `node tests/ui/verify-ui.mjs` | `{"info":1,"pass":11,"skipped":4}` |
+| Live bridge GET probe (harness) | 11 endpoints, all HTTP 200 |
+| In-app Chromium walkthrough on `next start` :3200 | all 6 surfaces render; 0 console errors; theme toggle, theme persistence, command palette, surface persistence verified |
+| `python -m pytest -q` (in `keel/`) | **22 failed, 2531 passed, 51 skipped** — all 22 failures are in untouched backend/release/plan areas (release manifest absent, plan hashes, tool registry, policy enforcement, session export, webapp upload path); no Python files were changed by this workstream; these are pre-existing baseline failures, not regressions introduced here |
+
+## Known limitations / deferred
+
+- No live model turn or streaming: no provider credentials on this host.
+- Playwright is not a project dependency; full E2E/visual-regression suite was not run. Manual browser walkthrough performed instead.
+- Only one real viewport (912×670) available; other required sizes were statically reviewed, not pixel-verified.
+- No file-level diff/apply/revert, browser preview, tool catalogue, egress-rules, retention or diagnostics-bundle routes exist in the bridge; the UI shows explicit unavailable states rather than fake controls.
+- Rendering switch (Electron/Tauri → `fleet-next`) and the public-mirror boundary remain packaging/workstream gates; legacy renderers were not repointed.
+
+
+### Continuation round — integration results
+
+- **Subagents:** Playwright E2E/viewport verification; shared-primitive accessibility; Electron/Tauri renderer audit; continuous QA. All four delivered exclusive-ownership results; no ownership conflicts occurred.
+- **Renderer audit outcome (`UI-DESKTOP-RENDERING.md`):** the packaged Electron app currently resolves `resources/site` and serves the browser-only `site/app.html` mirror, not the local UI; `keel serve` serves `desktop/ui`, Tauri uses `frontendDist: ../ui`, and `fleet-next` is not reachable from any shipped entry point. No renderer was repointed — that is a gated packaging decision (G4/G6). Added `desktop-app/scripts/assert-ui-entrypoints.js`: 21/21 source checks and 26/26 with a real unpacked Electron layout.
+- **QA found eight real defects, all fixed and re-verified:**
+  - QA-001 SSE named frames were never delivered (bridge emits `event: row`) — shared subscriber now listens for the named event and generic frames exactly once.
+  - QA-002 `shells/clear/finished` was POSTed but is a GET route — corrected.
+  - QA-003 permission mode written by Settings/Onboarding was not read by Cowork — composer now loads and persists it.
+  - QA-004 Capabilities claimed unconditional "Live bridge data" — replaced with honest copy.
+  - QA-005 Fleet showed answered questions as waiting — answered `ask_id` set is now excluded.
+  - QA-006 command palette had no focus trap / invalid listbox roles — real buttons + Tab trap.
+  - QA-007 Fleet opened two SSE connections — now one.
+  - QA-008 `keep-awake` payload key corrected to `{on: …}`.
+- **Lead fixes:** sidebar "New task" now creates a real bridge bot (verified live: bot count 7 → 8); skip link, roving tabindex + arrow keys for the surface switch, `role=tabpanel`, Escape-closable drawers, pre-paint `color-scheme`, focus-visible radius cleanup, numeric ResizeHandle ARIA values; drawers now default closed below 900 px (found by inspecting the generated 360px screenshot).
+- **Verification:** `npx tsc --noEmit` exit 0; `node tests/ui/verify-ui.mjs` → 14 pass / 0 fail / 4 skipped; `npm run build` pass; six-viewport read-only probe found 0 horizontal overflow; browser checks confirmed skip link, tabpanel, color-scheme, roving tabindex `[0,-1,-1,-1]`, no listbox, button scrim, arrow-key surface switching and 0 console errors.
+
+
+### Continuation round — final E2E verification
+
+- Added `@playwright/test@1.65.1` as a **devDependency** only; Chromium installed locally. No new runtime dependency.
+- Added `playwright.config.ts` (dev webServer on :3300, isolated `KEEL_DIST_DIR=.next-e2e`, bridge env inject) and an optional production-style config. Added seven E2E specs + fixtures covering launch/onboarding, navigation, themes, command palette and shortcuts, surface data, console-error gating, and 6 viewports × 6 destinations.
+- E2E found six more real defects, **all fixed and re-verified**: D-E2E-001 infinite command-registration loop; D-E2E-002 dev CSP blocked React Refresh (`'unsafe-eval'` now dev-only); D-E2E-004 typed palette query was erased; D-E2E-005 Code/Duet work area collapsed to 0 px at 1024×768 (drawer breakpoint moved to 1100 px); D-E2E-006 hydration mismatch from `useChecklist()` reading localStorage during first render; D-E2E-003 was a harmless Next-generated `tsconfig.json` include.
+- Final real results: `npx playwright test --workers=2` → **52 passed / 0 failed / 0 skipped**; production-config run → **52 passed / 0 failed / 0 skipped**; `npx tsc --noEmit` clean; `npm run build` pass; QA harness 14 pass / 0 fail / 4 skipped.
+- 36 required viewport × destination screenshots plus the first-run screenshot regenerated. The 360/390 captures show drawers closed with the workspace visible; 1024×768 Code/Duet show a real work area.
+- See `UI-E2E-GUIDE.md`, `UI-DEFECT-LOG.md` and `UI-DESKTOP-RENDERING.md` for full evidence, including what remains unverified (live model turn, packaged Electron/Tauri GUI, computed contrast, screen-reader walkthrough).
+
+
+### Finalization round 2 — independent verification (lead)
+
+- Re-verified repository and all 11 previous frontend commits by hash and subject on `feat/frontend-unified-workspace`; working tree was clean before any new work.
+- Shared baseline had advanced again: `0865817` → `5dbc5f9` (`integration/v6-backend-complete`, 68 new commits). Reconciled with a no-conflict merge commit `07a15fa`. The only API-adjacent change is additive capability-hub registrations in `keel/src/keel/capabilities.py`; no fleet bridge route, webapp route or request/response shape changed, so `UI-BACKEND-CONTRACT.md` remains valid.
+- Launched all six implementation/QA subagents in parallel with exclusive ownership: A Cowork, B Code+Duet, C Fleet, D Capabilities/Providers/Settings, E Onboarding, F independent QA/a11y/visual.
+- Lead verification after merge: `npx tsc --noEmit` exit 0; `node tests/ui/verify-ui.mjs` 14 pass / 0 fail / 4 skipped; `npm run build` pass.
+- Independently re-read renderer path sources: Electron `uiRoot()` prefers `resources/site` (browser-only mirror), Tauri `frontendDist: ../ui` (`desktop/ui`), bridge `UI_DIR` defaults to `desktop/ui` with env override. Matches `UI-DESKTOP-RENDERING.md`; no renderer repointed.
+- Visually inspected generated E2E screenshots at 360×800 (drawers closed, workspace visible) and 1024×768 (Code has a non-zero work area with clear empty states).
+- Live browser walkthrough against the real local bridge: Cowork, Code, Duet and Fleet all rendered; 0 console errors; `scrollWidth === innerWidth`; theme dark.
+
+
+### Python regression guard (lead, after baseline merge)
+
+Command: `cd keel && $env:PYTHONPATH='src'; python -m pytest -q`
+Result: **7 failed, 4019 passed, 51 skipped, 3621 subtests passed in 805.07 s (13m25s)**.
+
+All seven failures are outside the frontend scope and in untouched files:
+- `test_distribution_package.py` (2) / `test_gap_closure.py` (2) / `test_release_integrity.py` (1): `keel/release/RELEASE-MANIFEST.json`, `RELEASE-SHA256SUMS.txt` and build artifacts are absent in this checkout — release-packaging environment, not code changed here.
+- `test_plan_index.py::test_authoritative_source_hashes_unchanged`: checked-in plan fixture hash mismatch.
+- `test_quick_ask.py::test_quick_ask_endpoint_uses_real_runtime`: HTTP 30 s timeout while many parallel agent dev servers were running; environment contention, not a frontend change.
+
+No Python file was modified by the frontend workstream. These are existing baseline/environment failures, not frontend regressions.
+
+
+### Finalization round 2 — subagent results
+
+| Agent | Responsibility | Actual deliverables | Tests (real output) |
+|---|---|---|---|
+| A | Cowork | GFM tables/code copy, message grouping, ordered execution timeline with real progressbar, plan states from real approval ids, expired/resolved approval handling, stale-run fixes, StrictMode draft fix, real model selector via `providers/catalog` + `bots/:id/update`, XHR upload with byte progress/failure/retry, offline banner | 18 passed (8 specs, 57.5 s) in `tests/features/cowork`; tsc clean |
+| B | Code & Duet | Right-tab hydration fix, per-project pane geometry, dirty-tab close guard, unsaved panes kept mounted, porcelain status parsing fix, Duet per-project layout map, dirty indicators | 16 passed (5 specs, 2.7 m); `npm run build` pass |
+| C | Fleet | Real groups count from `GET groups`, seq-based group round tracking + honest 409, task cancel route + undo, routine pause reason, preview for all real files, reasoning-effort allow-list, audit filter values, parent/child from real row fields, no fake hierarchy | 8 passed (1.9 m); parity matrix updated with route evidence |
+| D | Capabilities / providers / settings | Removed dead bundled-skill Remove control, labelled client-only slash commands, fixed Windows risky-path detection | 14 passed (3.3 m); credentials never prefilled/stored/echoed |
+| E | Onboarding | Trust result visibility, working "Skip for now" (records deferred), tour restart at correct step, checklist tour action, honest copy, workspace empty state | 8 passed (1.8 m); tsc clean |
+| F | QA / a11y / visual | continuous — see `UI-TEST-MATRIX.md` / `UI-DEFECT-LOG.md` / `UI-ACCESSIBILITY-AUDIT.md` | in progress at time of this entry |
+
+Lead integration: tour palette command now calls `restartAtStep("tour")`; added `test:e2e`, `test:features`, `test:ui` npm scripts so all five feature suites are discoverable; `.gitignore` extended for all isolated `.next-*/` build dirs and generated E2E artifacts.
+
+
+### Finalization round 3 — completion
+
+- All six required subagents launched and completed: A Cowork (18 tests), B Code+Duet (16), C Fleet (8), D Capabilities/Settings (14), E Onboarding (8), F continuous QA/a11y/visual (131 E2E + a11y/stress/network suites). Each had exclusive file ownership and reported real commands/results; no agent made commits or touched backend code.
+- Agent F found QA-F-002 (High): 338 computed light-theme AA contrast violations. Lead fixed root tokens in `app/globals.css` (`--muted:#5f5952`, `--accent:#8a5a07` — the plan's light accent, `--warn:#7a5200`, `--ok:#1b6b47`, `--danger:#a8382a`, `--info:#294a9c`) and paired white text with the dark accent in light theme (`app/ui.css` primary button + skip link). Re-test: `npx playwright test --config tests/a11y/playwright.a11y.config.ts tests/a11y/01-contrast.spec.ts --workers=1` → **2 passed**, 0 violations in both themes, light minimum 4.87:1. QA-F-002 closed in `UI-DEFECT-LOG.md`; `UI-ACCESSIBILITY-AUDIT.md` and `UI-DESIGN-SYSTEM.md` updated.
+- Lead integration also fixed the palette tour command (`restartAtStep("tour")`), added `test:e2e` / `test:features` / `test:ui` npm scripts so all five feature suites are discoverable, and extended `.gitignore` for every isolated `.next-*/` build dir plus generated E2E artifacts.
+- Final lead verification after all integration: `npx tsc --noEmit` exit 0; `node tests/ui/verify-ui.mjs` 14 pass / 4 skipped; `npm run build` pass; `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2 --reporter=line` → **131 passed / 0 failed (2.5 min)** with strict console gate. Deep baseline (`5dbc5f9`) Python suite: 7 failed / 4019 passed / 51 skipped — failures all in untouched release/plan/backend areas (see § Python regression guard).
+- Remaining open: packed Electron/Tauri GUI verification (no fresh package build / Tauri binary; documented renderer finding), live provider turn (no credentials), screen-reader hardware audit, browser-native zoom control, intermittent bridge 504 under heavy parallel load, optional dictation, and history virtualization.
+
+---
+
+# Backend completion ledger (merged baseline fe6cdd7)
+
+---
+
+## FINAL AMENDMENT — authoritative current state (2026-11-24, docsync reconciliation)
+
+> This amendment is appended, not substituted. All historical batch logs above remain
+> part of the record. Where an earlier entry states stale counts, **this amendment and the
+> root-level v6 evidence documents govern**. No source, test, registry, plan or generator
+> was changed by this reconciliation.
+
+**Registry (authoritative).** `PLAN-INDEX.json` (SHA-256
+`62fd5c6ac2d166e8cb1f5752c168d22d56d767c7e6a5bf9384696756a4a5b2f6`) holds **865 rows:
+854 `verified`, 9 `not_started`, 2 `blocked`**. The earlier 433 / 430 / 2 figures in this
+log and in older matrix snapshots are superseded; they are retained only as historical
+provenance. The 228-row v5 base registry (addenda 1–2) is a **subset** of 865, not an
+additional inventory. `feature-checklist.md` declares **398 observable contracts** (410
+unique IDs in the rendered tables) — a different, cross-cutting observability inventory
+that is **not additive** to the plan registry.
+
+**Remaining work.** The 9 `not_started` rows are 7 D6 builder-convention rules plus W1.18
+(license/notices verification) and Y6.4 (external repo-visibility observation, gate G1).
+The 2 `blocked` rows are C11.1 and C11.2 (owner-gated source-hosting/security decisions,
+gates G6 and owner account). Excluded from completion claims: 3 owner-gated, 3 external
+(B4.8/B6.6/C11.8) and 3 dormant/descriptor (B6.2/B6.3/B6.5) rows. See
+`REMAINING-WORK-MATRIX.md` for exact reasons.
+
+**Backend.** All 20 backend modules are genuine; 421 deduplicated backend-attributed IDs
+carry `verified` status. The strengthened gate certifies **361 / 421 (85.7%)**; **60 rows
+are `verified with certification limitation`** (evidence-layer gaps, not status changes).
+Real entry points exist over HTTP/CLI/TUI with auth + confirm gates, and 5 / 5
+multi-module workflows passed 102 / 102 steps. No *normal* product workflow directly
+consumes the modules — an intentional capability boundary while workflow integration is
+completed in parallel. Denominator, classification and formulas:
+`BACKEND-COMPLETION-ACCOUNTING.md`; detail: `BACKEND-IMPLEMENTATION-DETAIL.md`.
+
+**Authoritative root-level evidence (read these for final status):**
+- `master-plan-v6-final-report.md`, `master-plan-v6-final-completion-report.md`,
+  `master-plan-v6-final-delivery-report.md` — final delivery and gate status.
+- `master-plan-v6-test-evidence.md` — definitive clean-environment suite result
+  (4071 passed / 48 skipped / 3640 subtests / 0 failed) and gate outputs.
+- `REGISTRY-EVIDENCE-INTEGRITY.md`, `AUDIT-REMEDIATION-SUMMARY.md`,
+  `REMAINING-WORK-MATRIX.md`, `BACKEND-COMPLETION-ACCOUNTING.md`,
+  `FINAL-ENGINEERING-REPORT.md` — certification, audit, remaining work, accounting and
+  production-readiness assessment.
+- Production release remains **BLOCKED** on external/owner gates (signing, clean-VM,
+  push authorization, native Linux/macOS verification). No push/release/deploy.
+
+
+## FINAL AMENDMENT — all 421 traceability gaps closed (authoritative)
+
+A later remediation batch (`agent/final-trace`, merged and pushed) added AST-visible
+`FEATURE_TRACEABILITY` declarations and per-ID evidence rows to every owning module.
+`python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
+and `--strict` enforces the gate with a non-zero exit on any failure.
+
+All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+are **historical** — they describe the state before that batch and are retained only
+for provenance. Current authoritative certification:
+
+- Fully traceable: **421 / 421 = 100.0%**
+- Verified-with-limitation: **0 / 421 = 0.0%**
+- Registry unchanged: 865 rows, 854 verified / 9 not_started / 2 blocked.
+
+The gate remains a certification layer over tests and declarations; it does not claim
+native cross-platform or live-provider verification.
+
+---
+
+# Backend / main delivery ledger (from origin/main)
+
 ---
 
 ## FINAL AMENDMENT — authoritative current state (2026-11-24, docsync reconciliation)

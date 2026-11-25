@@ -29,11 +29,8 @@ TAG = "v0.1.1"
 
 ARTIFACTS = {
     "Keel-Setup-0.1.1.exe": b"windows-installer-bytes",
-    "Keel-0.1.1-macos-arm64.dmg": b"macos-dmg-bytes",
-    "Keel-0.1.1-macos-arm64.zip": b"macos-zip-bytes",
-    "Keel-0.1.1-macos-x64.dmg": b"macos-intel-dmg-bytes",
-    "Keel-0.1.1-macos-x64.zip": b"macos-intel-zip-bytes",
-    "Keel-0.1.1-linux-x86_64.AppImage": b"linux-appimage-bytes",
+    "Keel-0.1.1-macos-arm64.pkg": b"macos-arm64-pkg-bytes",
+    "Keel-0.1.1-macos-x64.pkg": b"macos-intel-pkg-bytes",
     "Keel-0.1.1-linux-amd64.deb": b"linux-deb-bytes",
     "Keel-0.1.1-linux-x86_64.rpm": b"linux-rpm-bytes",
 }
@@ -55,7 +52,7 @@ def test_version_sync_ok() -> None:
 def test_expected_filenames() -> None:
     names = common.expected_filenames(VERSION)
     assert set(names) == set(ARTIFACTS)
-    assert len(names) == 8
+    assert len(names) == 5
 
 
 def test_find_and_validate_artifacts(artifacts: Path) -> None:
@@ -101,15 +98,15 @@ def test_build_download_manifest(artifacts: Path) -> None:
         assert channel["size"] == len(ARTIFACTS[channel["file"]])
         assert channel["sha256"] == hashlib.sha256(ARTIFACTS[channel["file"]]).hexdigest().upper()
     # alternatives
+    assert manifest["channels"]["macos"]["file"] == "Keel-0.1.1-macos-arm64.pkg"
     macos_alts = manifest["channels"]["macos"]["alternatives"]
     assert [a["file"] for a in macos_alts] == [
-        "Keel-0.1.1-macos-arm64.zip",
-        "Keel-0.1.1-macos-x64.dmg",
-        "Keel-0.1.1-macos-x64.zip",
+        "Keel-0.1.1-macos-x64.pkg",
     ]
+    assert macos_alts[0]["arch"] == "x64"
+    assert manifest["channels"]["linux"]["file"] == "Keel-0.1.1-linux-amd64.deb"
     linux_alts = manifest["channels"]["linux"]["alternatives"]
     assert [a["file"] for a in linux_alts] == [
-        "Keel-0.1.1-linux-amd64.deb",
         "Keel-0.1.1-linux-x86_64.rpm",
     ]
 
@@ -118,7 +115,7 @@ def test_build_release_manifest(artifacts: Path) -> None:
     validated = common.validate_artifacts(artifacts, VERSION)
     base = "https://github.com/eliosmernica15/keel/releases/download"
     manifest = common.build_release_manifest(validated, VERSION, TAG, base)
-    assert len(manifest["files"]) == 8
+    assert len(manifest["files"]) == 5
     assert all(f["url"].startswith("https://github.com/") for f in manifest["files"])
     assert manifest["checksums_file"] == "RELEASE-SHA256SUMS.txt"
 

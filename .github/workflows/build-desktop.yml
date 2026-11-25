@@ -1,30 +1,27 @@
 name: Build desktop installers
 
-# Builds Keel Desktop for Windows, macOS and Linux in CI.
-# Keel lives in the `keel/` directory of this repository, so every build
-# step that needs the project runs with working-directory: keel.
+# Builds Keel Desktop installers on NATIVE runners:
+#   Windows -> Keel-Setup-<version>.exe            (NSIS, per-user, branded)
+#   macOS   -> Keel-<version>-macos-{arm64,x64}.pkg (native product archive)
+#   Linux   -> Keel-<version>-linux-amd64.deb +
+#              Keel-<version>-linux-x86_64.rpm     (native packages)
+# Archives (DMG/ZIP/AppImage) are not primary consumer artifacts.
 #
 # Guarantees:
 # - Version sync is asserted before any build job runs (fail fast).
-# - The Python release manager owns build, publish and verify.
+# - The Python release manager owns build, verify, checksum, manifest, publish.
 # - electron-builder never publishes (`--publish never`); GH_TOKEN is not
 #   provided to the packaging steps. GitHub Releases are created only by the
 #   publish job, and only after every installer has been verified.
-# - Every platform artifact (Windows exe, macOS dmg+zip, Linux AppImage+deb)
-#   must exist before a release can proceed.
-# - The publish job uploads to a GitHub Release attached to this repository,
-#   then downloads every public asset over HTTPS and compares status, byte
-#   count and SHA-256 before publishing download.json.
-# - download.json is published last, after verification, and is re-fetched
-#   and compared so the site only sees a verified release.
-# - A missing file or checksum mismatch fails the job.
-# - FAIL CLOSED: a tag release is never published unless the signing gate job
-#   verifies every platform bundle's RELEASE-MANIFEST.json and all artifact
-#   signatures against the owner-supplied Ed25519 public key. Missing key or
-#   missing signatures fail the gate; no unsigned release is sent as signed.
-#
-# No third-party storage provider is used. Installers are hosted as assets of
-# the GitHub Release; the Vercel site only links to them.
+# - Static packaging/UI acceptance runs on each runner before electron-builder.
+# - Each platform has an independent verify-* stage (inventory + native package
+#   structure inspection) before the fail-closed signing gate can run.
+# - OS code signing / notarization is wired to optional owner secrets and its
+#   real status is reported; it is never claimed when absent. Keel's Ed25519
+#   release signing is separate and always required for a published tag.
+# - download.json is published last, after verification, and is re-fetched and
+#   compared so the site only sees a verified release.
+# - A missing file, checksum mismatch or unsigned bundle fails the job.
 
 on:
   push:
@@ -103,14 +100,28 @@ jobs:
             }
             console.log(`electron-builder pinned from lockfile: ${installed}`);
           '
+      - name: Static packaging + UI acceptance checks (Windows)
+        shell: powershell
+        working-directory: keel
+        run: |
+          python -m pip install --require-hashes -r requirements.lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+          python desktop-app/scripts/generate_assets.py
+          python -m keel.release check-packaging
+          node --check desktop-app/main.js
+          node desktop-app/scripts/test-ui-root.js
+          node desktop-app/scripts/assert-ui-entrypoints.js
       - name: Build installers (Python release manager)
         shell: powershell
         working-directory: keel
         env:
           # npx must resolve the lockfile-installed local binary, never the registry.
           npm_config_offline: "true"
+          # Optional OS code signing. Unset => electron-builder skips signing and
+          # the status step below reports the installer as unsigned.
+          CSC_LINK: ${{ secrets.WINDOWS_SIGNING_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_SIGNING_CSC_KEY_PASSWORD }}
         run: |
-          # All runtime/build deps are hash-pinned in requirements.lock.txt.
           python -m pip install --require-hashes -r requirements.lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
           if ($env:KEEL_SIGNING_KEY_PATH) {
@@ -119,6 +130,16 @@ jobs:
             python -m keel.release build --platform windows --out release
           }
           python -m keel.release licenses --out release
+          $installer = Get-ChildItem dist -Filter "Keel-Setup-*.exe" | Select-Object -First 1
+          python -m keel.release check-packaging --installer $installer.FullName --dist dist --platform windows
+      - name: Report OS signature status (truthful)
+        shell: powershell
+        working-directory: keel
+        run: |
+          $installer = Get-ChildItem dist -Filter "Keel-Setup-*.exe" | Select-Object -First 1
+          $sig = Get-AuthenticodeSignature $installer.FullName
+          Write-Host "WINDOWS_OS_SIGNATURE_STATUS=$($sig.Status)"
+          Write-Host "WINDOWS_OS_SIGNER=$($sig.SignerCertificate.Subject)"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: keel-windows
@@ -156,9 +177,7 @@ jobs:
         working-directory: keel/desktop-app
         run: |
           set -euo pipefail
-          # npm ci enforces package-lock.json integrity hashes; npm install would not.
           npm ci --no-audit --no-fund
-          # Fail closed if electron-builder is not the exact lockfile-pinned local binary.
           node -e '
             const fs = require("fs");
             const lock = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
@@ -170,13 +189,34 @@ jobs:
             }
             console.log(`electron-builder pinned from lockfile: ${installed}`);
           '
+      - name: Static packaging + UI acceptance checks (macOS)
+        working-directory: keel
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements.lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+          python desktop-app/scripts/generate_assets.py
+          python -m keel.release check-packaging
+          node --check desktop-app/main.js
+          node desktop-app/scripts/test-ui-root.js
+          node desktop-app/scripts/assert-ui-entrypoints.js
       - name: Build installers (Python release manager)
         working-directory: keel
         env:
-          # npx must resolve the lockfile-installed local binary, never the registry.
           npm_config_offline: "true"
+          # Optional Apple Developer identity + notarization credentials.
+          # electron-builder signs/notarizes only when these are configured;
+          # the status step below reports the truth either way.
+          CSC_LINK: ${{ secrets.MACOS_SIGNING_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MACOS_SIGNING_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         run: |
-          # All runtime/build deps are hash-pinned in requirements.lock.txt.
+          set -euo pipefail
           python -m pip install --require-hashes -r requirements.lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
           if [ -n "${KEEL_SIGNING_KEY_PATH:-}" ]; then
@@ -185,6 +225,15 @@ jobs:
             python -m keel.release build --platform macos --out release
           fi
           python -m keel.release licenses --out release
+          python -m keel.release check-packaging --dist dist --platform macos
+      - name: Report OS signature status (truthful)
+        working-directory: keel
+        run: |
+          set -euo pipefail
+          PKG=$(find dist -name "*.pkg" | head -1)
+          if [ -z "$PKG" ]; then echo "no .pkg produced"; exit 1; fi
+          echo "MACOS_PKG=$PKG"
+          pkgutil --check-signature "$PKG" || echo "MACOS_OS_SIGNATURE_STATUS=unsigned or unrecognized"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: keel-macos
@@ -203,10 +252,10 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "22"
-      - name: System deps for electron-builder
+      - name: System deps for native packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y libarchive-tools desktop-file-utils rpm
+          sudo apt-get install -y dpkg-dev desktop-file-utils rpm libarchive-tools
       - name: Stage owner release signing key (if configured)
         env:
           KEEL_RELEASE_SIGNING_KEY: ${{ secrets.KEEL_RELEASE_SIGNING_KEY }}
@@ -226,9 +275,7 @@ jobs:
         working-directory: keel/desktop-app
         run: |
           set -euo pipefail
-          # npm ci enforces package-lock.json integrity hashes; npm install would not.
           npm ci --no-audit --no-fund
-          # Fail closed if electron-builder is not the exact lockfile-pinned local binary.
           node -e '
             const fs = require("fs");
             const lock = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
@@ -240,13 +287,23 @@ jobs:
             }
             console.log(`electron-builder pinned from lockfile: ${installed}`);
           '
-      - name: Build installers (Python release manager)
+      - name: Static packaging + UI acceptance checks (Linux)
+        working-directory: keel
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements.lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+          python desktop-app/scripts/generate_assets.py
+          python -m keel.release check-packaging
+          node --check desktop-app/main.js
+          node desktop-app/scripts/test-ui-root.js
+          node desktop-app/scripts/assert-ui-entrypoints.js
+      - name: Build packages (Python release manager)
         working-directory: keel
         env:
-          # npx must resolve the lockfile-installed local binary, never the registry.
           npm_config_offline: "true"
         run: |
-          # All runtime/build deps are hash-pinned in requirements.lock.txt.
+          set -euo pipefail
           python -m pip install --require-hashes -r requirements.lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
           if [ -n "${KEEL_SIGNING_KEY_PATH:-}" ]; then
@@ -255,6 +312,8 @@ jobs:
             python -m keel.release build --platform linux --out release
           fi
           python -m keel.release licenses --out release
+          python -m keel.release check-packaging --dist dist --platform linux
+          echo "LINUX_OS_SIGNATURE_STATUS=not configured (distro package signing is an owner gate)"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: keel-linux
@@ -262,9 +321,110 @@ jobs:
           if-no-files-found: error
           path: keel/release/**
 
+  verify-windows:
+    name: Verify Windows installer
+    needs: build-windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.11"
+      - name: Install Python dependencies
+        working-directory: keel
+        run: |
+          python -m pip install --require-hashes -r requirements.lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: keel-windows
+          path: artifacts
+      - name: Verify inventory, checksums and NSIS metadata
+        shell: powershell
+        working-directory: keel
+        run: |
+          python -m keel.release check-packaging --dist ../artifacts --platform windows
+          python -m keel.release dry-run --dist ../artifacts --artifacts ../artifacts
+          $installer = Get-ChildItem ../artifacts -Recurse -Filter "Keel-Setup-*.exe" | Select-Object -First 1
+          python -m keel.release check-packaging --installer $installer.FullName
+          $expected = (Get-Content ../artifacts/RELEASE-SHA256SUMS.txt | Where-Object { $_ -match "Keel-Setup-" }).Split()[0]
+          $actual = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash.ToLower()
+          if ($actual -ne $expected) { throw "installer checksum mismatch" }
+          Write-Host "WINDOWS_VERIFY_PASS"
+
+  verify-macos:
+    name: Verify macOS PKG
+    needs: build-macos
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.11"
+      - name: Install Python dependencies
+        working-directory: keel
+        run: |
+          python -m pip install --require-hashes -r requirements.lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: keel-macos
+          path: artifacts
+      - name: Verify PKG inventory, checksums and distribution payload
+        working-directory: keel
+        run: |
+          set -euo pipefail
+          python -m keel.release check-packaging --dist ../artifacts --platform macos
+          python -m keel.release dry-run --dist ../artifacts --artifacts ../artifacts
+          for pkg in ../artifacts/Keel-*.pkg; do
+            test -f "$pkg"
+            echo "PKG=$(basename "$pkg")"
+            pkgutil --expand "$pkg" /tmp/keel-pkg-expand
+            test -f /tmp/keel-pkg-expand/Distribution
+            /usr/bin/xmllint --noout /tmp/keel-pkg-expand/Distribution
+            rm -rf /tmp/keel-pkg-expand
+          done
+          echo "MACOS_VERIFY_PASS"
+
+  verify-linux:
+    name: Verify Linux native packages
+    needs: build-linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.11"
+      - name: Install Python and package inspection dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev desktop-file-utils rpm
+          python -m pip install --require-hashes -r keel/requirements.lock.txt
+      - name: Install Keel release manager
+        working-directory: keel
+        run: python -m pip install --no-deps --no-build-isolation -e .
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: keel-linux
+          path: artifacts
+      - name: Verify DEB/RPM inventory, checksums and desktop entry
+        working-directory: keel
+        run: |
+          set -euo pipefail
+          python -m keel.release check-packaging --dist ../artifacts --platform linux
+          python -m keel.release dry-run --dist ../artifacts --artifacts ../artifacts
+          DEB=$(find ../artifacts -name "*.deb" | head -1)
+          RPM=$(find ../artifacts -name "*.rpm" | head -1)
+          test -n "$DEB" && test -n "$RPM"
+          dpkg-deb -c "$DEB" | grep -q "/usr/share/applications/keel.desktop"
+          dpkg-deb -c "$DEB" | grep -q "/usr/share/icons"
+          dpkg-deb -f "$DEB" Depends
+          rpm -qpl "$RPM" | grep -q "keel.desktop"
+          echo "LINUX_VERIFY_PASS"
+
   verify-release-signatures:
     name: Fail-closed release signing gate
-    needs: [build-windows, build-macos, build-linux]
+    needs: [verify-windows, verify-macos, verify-linux]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
@@ -279,7 +439,6 @@ jobs:
       - name: Install Python dependencies
         working-directory: keel
         run: |
-          # All runtime/build deps are hash-pinned in requirements.lock.txt.
           python -m pip install --require-hashes -r requirements.lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
@@ -316,7 +475,7 @@ jobs:
 
   publish:
     name: Publish verified release (GitHub Releases)
-    needs: [build-windows, build-macos, build-linux, verify-release-signatures]
+    needs: [verify-windows, verify-macos, verify-linux, verify-release-signatures]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
@@ -333,7 +492,6 @@ jobs:
       - name: Install Python dependencies
         working-directory: keel
         run: |
-          # All runtime/build deps are hash-pinned in requirements.lock.txt.
           python -m pip install --require-hashes -r requirements.lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
@@ -351,16 +509,12 @@ jobs:
           umask 077
           public_key="$RUNNER_TEMP/keel-release.pub.pem"
           printf '%s\n' "$KEEL_RELEASE_SIGNING_PUBLIC_KEY" > "$public_key"
-          # publish is hard-gated internally even without --require-signed;
-          # the flag is explicit here so the intent is auditable in logs.
           python -m keel.release publish \
             --artifacts ../artifacts \
             --tag "$RELEASE_TAG" \
             --out release \
             --require-signed \
             --public-key "$public_key"
-          # Verify the published RELEASE-MANIFEST.json and every detached
-          # artifact signature against the owner key.
           python -m keel.release verify \
             --manifest release/RELEASE-MANIFEST.json \
             --public-key "$public_key" \

@@ -1,0 +1,99 @@
+/* Phase 4 — Code workspace layout. Colour tokens live in globals.css. */
+
+.code {
+  display: flex; flex-direction: column; height: 100%; min-height: 0; min-width: 0;
+  background: var(--main); color: var(--text); position: relative;
+}
+
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  flex-wrap: wrap; padding: 8px 12px; min-height: 48px;
+  background: var(--win); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px);
+}
+.topbarLeft, .topbarRight { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
+.crumb { display: inline-flex; align-items: center; gap: 7px; font-family: "Space Grotesk", var(--font-sans, sans-serif); font-weight: 600; font-size: 14px; }
+.crumb svg { color: var(--accent); }
+.projectSelect {
+  max-width: 280px; min-width: 150px; padding: 6px 9px; border-radius: 7px;
+  border: 1px solid var(--line-strong); background: var(--card); color: var(--text);
+  font: inherit; font-size: 12.5px; outline: none;
+}
+.projectSelect:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+.body { display: flex; flex: 1; min-height: 0; min-width: 0; }
+.explorer, .right {
+  display: flex; flex-direction: column; flex: none; min-height: 0; min-width: 0;
+  background: var(--side); overflow: hidden;
+}
+.explorer { border-right: 1px solid var(--line); }
+.right { border-left: 1px solid var(--line); background: var(--panel); }
+.drawer { position: absolute; inset: 0; z-index: 5; width: auto !important; min-width: 0; }
+[data-narrow="true"] .drawer.explorer { right: 22%; }
+[data-narrow="true"] .drawer.right { left: 22%; }
+
+.paneHead {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--muted); border-bottom: 1px solid var(--line);
+}
+.searchRow { display: flex; align-items: center; gap: 7px; margin: 9px 10px; padding: 5px 8px; border: 1px solid var(--line-strong); border-radius: 7px; color: var(--ic); background: var(--code); }
+.searchRow:focus-within { outline: 2px solid var(--focus); outline-offset: 1px; }
+.searchRow input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 12.5px; outline: none; }
+.inlineLoad { display: flex; align-items: center; gap: 8px; padding: 6px 12px; color: var(--muted); font-size: 12px; }
+.treeFoot { margin: 6px 10px 10px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.explorerFoot { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--line); }
+
+.main { display: flex; flex: 1; min-width: 0; min-height: 0; flex-direction: column; }
+.tabbar { display: flex; align-items: center; gap: 4px; min-height: 38px; padding: 4px 8px; border-bottom: 1px solid var(--line); background: var(--win); overflow-x: auto; }
+.tab { display: inline-flex; align-items: center; gap: 1px; flex: none; border: 1px solid transparent; border-radius: 7px 7px 0 0; }
+.tabActive { border-color: var(--line); border-bottom-color: transparent; background: var(--editor); }
+.tabLabel { display: inline-flex; align-items: center; gap: 6px; max-width: 220px; padding: 5px 6px 5px 9px; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; }
+.tabLabel span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tabActive .tabLabel { color: var(--text); }
+.tabClose { width: 22px; height: 22px; }
+.dirtyDot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); flex: none; }
+.tabSpacer { flex: 1; min-width: 8px; }
+.workArea { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
+.fileStack { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
+.filePane { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
+.filePane[hidden] { display: none; }
+
+.rightTabs { padding: 6px 8px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.rightBody { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
+.panelBody { display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; overflow: auto; padding: 14px; }
+.panelBody h3 { margin: 0 0 4px; font-size: 14px; }
+.fileList { list-style: none; margin: 6px 0 10px; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.fileListItem { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border: 0; border-radius: 6px; background: transparent; color: var(--text); font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+.fileListItem:hover { background: var(--panel); }
+.fileListItem span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* trust gate */
+.gateWrap { display: flex; flex: 1; align-items: center; justify-content: center; overflow: auto; padding: 28px 18px; }
+.gate { width: min(680px, 100%); padding: 28px; border: 1px solid var(--line-strong); border-radius: 16px; background: var(--card); box-shadow: var(--shadow); }
+.gateIcon { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; margin-bottom: 12px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); }
+.gate h2 { margin: 0 0 8px; font-family: "Space Grotesk", var(--font-sans, sans-serif); font-size: 22px; }
+.gateLead { margin: 0 0 18px; color: var(--body); font-size: 13.5px; line-height: 1.65; overflow-wrap: anywhere; }
+.scopeList { margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+.scopeList > div { display: grid; grid-template-columns: 74px 1fr; gap: 12px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); font-size: 12.5px; line-height: 1.55; }
+.scopeList dt { color: var(--accent); font-weight: 600; }
+.scopeList dd { margin: 0; color: var(--muted); }
+.gateActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.errorBox { margin: 10px 0; padding: 9px 11px; border: 1px solid var(--danger); border-radius: 8px; background: color-mix(in srgb, var(--danger) 10%, transparent); color: var(--danger); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.hint { margin: 8px 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.muted { color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+.quickList { list-style: none; margin: 8px 0 0; padding: 0; max-height: 380px; overflow: auto; }
+.quickItem { display: flex; align-items: center; gap: 9px; width: 100%; padding: 7px 8px; border: 0; border-radius: 7px; background: transparent; color: var(--text); font: inherit; font-size: 12px; text-align: left; cursor: pointer; overflow: hidden; }
+.quickItem:hover, .quickItem:focus-visible { background: var(--panel); outline: none; }
+.quickItem span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .topbar { position: relative; z-index: 2; }
+  .tabLabel { max-width: 150px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :global(html[data-reduced-motion="false"]) .tabLabel { transition: color .12s var(--ease-out); }
+}
