@@ -1,5 +1,11 @@
 # Production Readiness Matrix — Keel backend, stabilization branch `stabilization/post-promotion-production-2026-11-25`
 
+> **[SUPERSEDED — 2026-11-25]** Written before the STAB evidence landed and while the
+> final SHA was a placeholder. At completion HEAD
+> `35fb2b8abfd784393b2b252e2b9e2927aba817dd` the authoritative 20-row accounting is
+> `FINAL-PRODUCTION-READINESS-MATRIX.md` (16 locally verified + 2 external + 1 owner +
+> 1 blocked = 20). This text is retained unchanged as audit history; nothing was deleted.
+>
 > **PROVISIONAL REBUILD — the exact final stabilization SHA has not yet been supplied by
 > the lead.** This matrix is anchored to the branch named above. The exact commit is held
 > as a placeholder in §A and must be filled before this document is cited as authoritative.
