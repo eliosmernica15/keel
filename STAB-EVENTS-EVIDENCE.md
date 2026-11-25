@@ -1,6 +1,7 @@
 # Stabilization evidence — events and observability
 
 **Branch:** `agent/stab-events`
+**HMAC remediation commit:** `7a47db7` (preceded by hardening commit `bc553b4` and merge `bb16353`)
 **Worktree:** `C:\Users\Admin\.local\share\opencode\worktree\stab\events`
 **Baseline:** stabilization HEAD `f60b080`, merged to
 `origin/stabilization/post-promotion-production-2026-11-25` HEAD `17c4420`.
