@@ -82,9 +82,10 @@ test("Keyboard-only board assignment posts the real assign payload", async ({ pa
   await expect(assignee).toHaveCSS("outline-style", "solid");
 
   await page.keyboard.press("ArrowDown");
-  const assign = fixture.calls.find((c) => c.path === "tasks/t3/assign");
-  expect(assign?.method).toBe("POST");
-  expect(assign?.body).toEqual({ assigned_bot_id: "b_beta" });
+  await expect.poll(() => fixture.calls.find((c) => c.path === "tasks/t3/assign")).toMatchObject({
+    method: "POST",
+    body: { assigned_bot_id: "b_beta" },
+  });
 });
 
 test("Unavailable banners are announced and empty-state actions are keyboard reachable", async ({ page, consoleErrors }) => {

@@ -29,19 +29,16 @@ type Tab = "agents" | "groups" | "tasks" | "board" | "org" | "live" | "cost" | "
 // real data yet; show them only when their backing data exists.
 const TABS: Array<{ value: Tab; label: string; icon: IconName; hidden?: boolean }> = [
   { value: "agents", label: "Agents", icon: "agents" },
+  { value: "groups", label: "Groups", icon: "fleet", hidden: true },
   { value: "tasks", label: "Tasks", icon: "tasks" },
   { value: "board", label: "Board", icon: "tasks" },
   { value: "cost", label: "Cost", icon: "info" },
-  { value: "audit", label: "Decision history", icon: "shield" },
   { value: "routines", label: "Routines", icon: "routine" },
   { value: "library", label: "Library", icon: "library" },
-  { value: "groups", label: "Groups", icon: "fleet", hidden: true },
   { value: "org", label: "Delegation map", icon: "fleet", hidden: true },
   { value: "live", label: "Live wall", icon: "agents", hidden: true },
+  { value: "audit", label: "Decision history", icon: "shield" },
 ];
-
-// Default-visible tabs only; hidden tabs appear when their backing data exists.
-const VISIBLE_TABS = TABS.filter((t) => !t.hidden);
 
 export default function Fleet() {
   const { registerCommands, notify } = useApp();
@@ -51,15 +48,15 @@ export default function Fleet() {
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   /** WAI-ARIA tablist: one tab in the tab order, arrow/Home/End move focus. */
-  const onTabKeyDown = useCallback((event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+  const onTabKeyDown = useCallback((event: React.KeyboardEvent<HTMLButtonElement>, index: number, visibleTabs: typeof TABS) => {
     let next = index;
-    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % VISIBLE_TABS.length;
-    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (index - 1 + VISIBLE_TABS.length) % VISIBLE_TABS.length;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % visibleTabs.length;
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (index - 1 + visibleTabs.length) % visibleTabs.length;
     else if (event.key === "Home") next = 0;
-    else if (event.key === "End") next = VISIBLE_TABS.length - 1;
+    else if (event.key === "End") next = visibleTabs.length - 1;
     else return;
     event.preventDefault();
-    setTab(VISIBLE_TABS[next].value);
+    setTab(visibleTabs[next].value);
     tabRefs.current[next]?.focus();
   }, []);
 
@@ -92,13 +89,14 @@ export default function Fleet() {
     groups: (groupsResource.data ?? []).length,
     tasks: (tasksResource.data ?? []).length,
     board: (tasksResource.data ?? []).length,
-    org: 0,
+    org: bots.length,
     live: bots.length,
     cost: 0,
     routines: (routinesResource.data ?? []).length,
     library: wrapped<LibraryItem>(libraryResource.data as Record<string, unknown>, "files").length,
     audit: 0,
   };
+  const visibleTabs = TABS.filter((t) => !t.hidden || counts[t.value] > 0);
 
   const refreshAll = useCallback(() => {
     botsResource.reload(); groupsResource.reload(); tasksResource.reload(); routinesResource.reload(); libraryResource.reload(); rowsResource.reload();
@@ -170,7 +168,7 @@ export default function Fleet() {
       )}
 
       <div className={s.tabs} role="tablist" aria-label="Fleet sections">
-        {VISIBLE_TABS.map((t, i) => (
+        {visibleTabs.map((t, i) => (
           <button
             key={t.value}
             ref={(el) => { tabRefs.current[i] = el; }}
@@ -181,7 +179,7 @@ export default function Fleet() {
             tabIndex={tab === t.value ? 0 : -1}
             className={s.tab}
             onClick={() => setTab(t.value)}
-            onKeyDown={(e) => onTabKeyDown(e, i)}
+            onKeyDown={(e) => onTabKeyDown(e, i, visibleTabs)}
           >
             <Icon name={t.icon} size={15} /> {t.label}
             {counts[t.value] > 0 && <span className={s.tabCount}>{counts[t.value]}</span>}
