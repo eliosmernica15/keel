@@ -140,3 +140,56 @@ The separate frontend evidence remains `UI-REQUIREMENTS-MATRIX.md` (150 criteria
 3. Screen-reader/NVDA/VoiceOver manual speech walkthrough — software/platform unavailable; manual steps documented.
 4. Native Ctrl+ zoom gesture — CDP cannot drive browser chrome; CSS-viewport proxy + page-scale evidence recorded.
 5. Owner decisions: repo visibility (D-036), security hygiene (C11.1/C11.2), MIT rejection (D-037).
+
+---
+
+## 8. Production distribution round — documentation reconciliation (2026-11-25)
+
+This section records the **documentation workstream only** (Agent H). It does
+not re-verify the 865 registry criteria and does not regenerate any registry.
+`PLAN-INDEX.json`, `parity.json`, `Keel_Master_Plan_v6.md` and plan sources were
+read but never edited.
+
+### 8.1 Documents delivered or reconciled this round
+
+| File | Change | Evidence basis |
+|---|---|---|
+| `keel/docs/DISTRIBUTION-INSTALLATION.md` | New. Honest install/upgrade/uninstall guide for Windows NSIS EXE, **macOS PKG (arm64/x64)**, **Linux DEB/RPM**; architecture matrix; unsigned/notarized status; checksum steps; stale-fallback caveat. | `desktop-app/package.json`, `build/nsis-keel.nsh`, `release/{common,packaging,build}.py`, `FINAL-RELEASE-OPERATIONS.md`. |
+| `keel/docs/DISTRIBUTION-SMART-DOWNLOAD.md` | New. Live `download.js` UX (verified_at gate, explicit variants, `arch-confirm`, unsupported states), three UI paths, detection limits, manifest contract, pipeline, hosting, PWA v17 behavior and contextual shortcut, open gaps. | `site/ui/{download-clone,download,landing-download}.js`, `site/api/download-manifest.js`, `site/sw.js`, `site/manifest.webmanifest`, `release/{common,build,publish,verify,signing,updater,packaging,cli}.py`. |
+| `keel/docs/DISTRIBUTION-ARCHITECTURE.md` | New. Additive distribution decisions DA-01…DA-09; explicitly preserves D-036/D-037, adds no license grant or visibility change. | `DECISIONS.md` (read only), Master Plan v6 §0.1/§0.2, baseline contracts. |
+| `keel/docs/release/SIGNING-PREPARATION.md` | Expanded. Distinguishes Keel Ed25519 release signing (hard publish gate) from OS code signing/notarization; exact secret names and owner actions. | `release/signing.py`, `publish.py`, `signing-readiness.yml`. |
+| `keel/docs/HOSTING.md` | §0 reconciliation added: "no secrets required" superseded by signing gate; native PKG/DEB/RPM target replaces historical DMG/ZIP/AppImage table; private-repo Releases not a public endpoint; PWA routing defect resolved in tree (SW v17, `/app`). | Current source files. |
+| Root `THIRD_PARTY_NOTICES.md`, `keel/docs/THIRD_PARTY_NOTICES.md` | Dependency re-audit note added (§5 / pointer). No new license grant; proprietary status unchanged. | Manifests + installed metadata re-sampled 2026-11-25. |
+
+### 8.2 Status reconciliation — implementations vs evidence
+
+| Item | Documented status | Evidence-backed disposition |
+|---|---|---|
+| Distribution docs | New / updated | **Implemented (documentation)**. No production release claimed. |
+| Public installer availability | `site/download.json` all channels `available:false`, `verified:false`, no URL; proxy 503 by default | **Not published**. No public HTTPS 200 asset exists. |
+| Native packaging target (concurrent Agent E work) | `package.json` → NSIS / PKG arm64+x64 / DEB+RPM; `common.CHANNELS` and `packaging.py` reject DMG/ZIP/AppImage | **Configured, not built/published**. Committed `site/download.json` fallback still lists old archive names (safe but stale); regenerate before release. |
+| Smart Download / PWA (concurrent Agent A work) | `download.html` loads `download.js` (verified_at gate, explicit variants, arch-confirm); SW v17, `start_url /app`, `Get Keel Desktop` shortcut | **Implemented in source**; no live deployment or native-runner result claimed. Earlier Intel/Linux-choice gaps resolved in UX. |
+| Real `keel.release publish` | Code says publishable with `GITHUB_TOKEN` (older `HOSTING.md`) | **Superseded**: hard-gated on Ed25519 signatures; no key → `RELEASE SIGNING GATE FAILED`. Owner-blocked. |
+| OS code signing / notarization | No certificate, no notarization | **Absent / owner-gated** (paid; SignPath not eligible for proprietary). |
+| Windows clean-VM install / uninstall / data preservation | Notes string claims tested; runbook lists six external checks | **Design + static evidence only**; external checks reported UNVERIFIED on this host. |
+| macOS / Linux native GUI verification | Built/structure-inspected on CI historically | **Not GUI-verified** on this host; no native runner result this round. |
+| W1.18 | not_started / blocked | **Unchanged**: `THIRD_PARTY_NOTICES` portion implemented; MIT portion rejected by D-037. No license term change. |
+| C11.1, C11.2, Y6.4 | blocked / not_started | **Unchanged** — owner gates (forge protection, 2FA/signed commits, repo visibility D-036). No settings changed. |
+| Sibling owner docs (security / QA / agent audit / provider audit) | Not present when this section was written; QA E2E specs landed at `keel/fleet-next/tests/distribution-qa/*.spec.ts` | **Pending docs.** Specs present, results not asserted here; no pass/fail inferred. Lead to reconcile when the four docs land. |
+
+### 8.3 New external gate discovered this round
+
+Add to §7's gate list:
+
+6. **Ed25519 release-signing key (BLOCKED).** Owner must provision
+   `KEEL_RELEASE_SIGNING_KEY` / `KEEL_RELEASE_SIGNING_PUBLIC_KEY`, add the CI
+   `sign` job, and pass `--public-key` at publish/verify. Without it no real
+   release can be published at all, regardless of build integrity.
+
+### 8.4 Percentages
+
+**No percentage is recomputed here.** The registry was not regenerated and
+these are documentation/owner decisions rather than fresh acceptance runs of
+all 865 criteria. Any recalculation must come from a regenerated
+`PLAN-INDEX.json` by the lead after the owner gates above are discharged.
+Registry percentages are not whole-product production readiness.

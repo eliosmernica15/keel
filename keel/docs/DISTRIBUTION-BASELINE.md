@@ -10,7 +10,7 @@
 ## Existing implementation
 - `site/download.html`, `site/ui/download.js`, `site/download.json` (fallback manifest: all channels `available:false`, `verified:false`, no URLs).
 - `site/api/download-manifest.js`: GET-only HTTPS proxy, 256 KB cap, JSON validation, no credentials; returns 503 when `KEEL_DOWNLOAD_MANIFEST_URL` is unset.
-- `site/vercel.json`: `/download` → `/download.html`; **`/app` and `/app.html` redirect to `/download`** — confirmed PWA routing defect to fix.
+- `site/vercel.json` at the reconciled baseline already routed `/app` → `/app.html` (the real app); the earlier report that `/app` redirected to `/download` was stale. Agent A hardened this routing and pointed the PWA `start_url` at `/app`.
 - Electron: `desktop-app/main.js` now prefers full local `desktop/ui`; `site` mirror reachable only via `KEEL_UI_PROFILE=mirror` or explicit `KEEL_UI_DIR`. Packaged Windows NSIS EXE built and launched in the previous round.
 - Release manager under `src/keel/release/`; existing signing, manifest verification and publish modules must be reused.
 

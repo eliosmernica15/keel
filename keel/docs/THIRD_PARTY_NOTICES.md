@@ -7,6 +7,9 @@
 > review. The proprietary manifests remain authoritative, and the owner-gated
 > W1.18 MIT portion is recorded in `keel/docs/MASTER-PLAN-INVENTORY.md` §6.1.
 > The text below is the historical notice, preserved rather than rewritten.
+> A further dependency re-audit was recorded on 2026-11-25 in the root notice
+> (§5): declared dependency sets and installed versions were re-sampled, no new
+> dependency or license grant was added, and Keel code remains proprietary.
 
 Historical statement from this notice: Keel's licensing was recorded here as
 proprietary, with a pointer to a `LICENSE` file that was not present in the tree

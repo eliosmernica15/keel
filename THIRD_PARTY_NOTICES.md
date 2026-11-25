@@ -132,3 +132,38 @@ are not new claims.
 - `keyring` and Chromium's bundled license set could not be re-verified from
   local metadata in this round and are explicitly marked as carried-forward.
 - No generated feature registry (`PLAN-INDEX.json`, `parity.json`) was edited.
+
+## 5. Production distribution round re-audit (2026-11-25)
+
+This round re-read the dependency manifests and re-sampled installed metadata;
+it adds **no** license grant and changes **no** license term.
+
+- **Declared dependency sets are unchanged.** `keel/pyproject.toml` still
+  declares `tzdata>=2024.1`, `cryptography>=42.0`, `keyring>=24.0`,
+  `Pillow>=10.0` with `license = { text = "Proprietary" }`;
+  `keel/fleet-next/package.json` still declares `next`, `react`, `react-dom`
+  (runtime) and `@playwright/test`, `@types/*`, `typescript` (dev);
+  `keel/desktop-app/package.json` still has **no** runtime `dependencies` and
+  only `electron` / `electron-builder` as dev/build deps. No new package was
+  introduced by the distribution workstream.
+- **Installed metadata re-sampled on this host** matches the 2026-11-24 audit:
+  tzdata 2026.5 (Apache-2.0), cryptography 50.0.1 (Apache-2.0 OR
+  BSD-3-Clause), pillow 11.1.0 (MIT-CMU), certifi 2026.7.22 (MPL-2.0),
+  setuptools 84.0.0 (MIT), pyinstaller 6.19.0 (GPLv2-or-later with the
+  distribution exception), pytest 9.0.2 (MIT). `keyring` remains **not
+  installed** here; its MIT status is still carried forward from
+  `keel/docs/proprietary/THIRD_PARTY_NOTICES.draft.md`, not freshly observed.
+- **Release signing adds no dependency.** The Ed25519 release gate uses the
+  already-declared `cryptography` package (Apache-2.0 OR BSD-3-Clause); no new
+  signing library was added.
+- **Shipped installer contents remain as previously audited:** Electron's
+  bundled Chromium/V8 license text, PyInstaller's bundling exception, and Keel
+  assets under `keel/desktop-app/build/LICENSE.txt`. The `fleet-next` dev tree
+  is not copied into the desktop installer. If that changes, the inventory must
+  be regenerated before a release notice is published.
+- **Governance unchanged:** Keel code stays proprietary under `DECISIONS.md`
+  D-037; the draft MIT `LICENSE` remains removed. Third-party components keep
+  their own licenses and nothing here grants rights beyond them. The root
+  notice remains the human-readable summary of
+  `keel/docs/DEPENDENCY-LICENSE-INVENTORY.md`.
+- No generated feature registry or plan source was hand-edited.
