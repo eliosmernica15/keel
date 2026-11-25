@@ -44,6 +44,22 @@ FAILED test_m5_dns_pinning_seam_refuses_hostile_resolution[192.0.0.9]
 FAILED test_l1_natural_language_password_is_redacted_in_validation_report
 ```
 
+## Full-suite context (informational)
+
+A full `python -m pytest tests -q` run (started before the follow-up edits and
+spanning the merge) reported **7 failed, 4459 passed, 51 skipped, 3707 subtests
+passed in 569 s**. The failures are unrelated to provider work: six are the
+known release-artifact-dependent cases (`test_distribution_package` ×2,
+`test_gap_closure` ×2, `test_release_integrity` ×1 — no
+`RELEASE-MANIFEST.json`/`RELEASE-SHA256SUMS.txt` in the worktree) plus
+`test_release_controls::test_gitleaks_config_is_present_and_narrowly_scoped`
+(which expects 10 allowlists but the merged stabilization commit `101fcec`
+ships 25). `test_fleet_delegation::test_delegation_timeout_returns_error_to_caller`
+was timing-sensitive in that loaded run and passes in isolation (`1 passed in
+13.65 s`) in the clean-HOME environment. None of these files were edited by
+this branch.
+
+>>>>>>> agent/stab-provider
 ## 1. Provider validation workflow
 
 Verified in `keel/tests/test_stab_provider.py` (24 original + 3 follow-up tests)
