@@ -56,21 +56,21 @@
       <!-- ===================== sidebar ===================== -->
       <aside class="pr-sidebar" id="pr-sidebar" aria-label="Keel sidebar">
         <nav class="pr-side-nav" aria-label="Keel">
-          <button class="pr-nav-item" id="pr-nav-new" type="button">
+          <a class="pr-nav-item" id="pr-nav-new" href="/new">
             <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-plus"/></svg><span>New</span>
-          </button>
-          <button class="pr-nav-item" id="pr-nav-search" type="button" data-search-trigger aria-expanded="false" aria-controls="pr-recents-search-wrap">
+          </a>
+          <button class="pr-nav-item" id="pr-nav-search" type="button" data-search-trigger aria-expanded="false">
             <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-search"/></svg><span>Search</span>
           </button>
-          <button class="pr-nav-item is-active" id="pr-nav-projects" type="button" aria-current="page">
+          <a class="pr-nav-item is-active" id="pr-nav-projects" href="/projects" aria-current="page">
             <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-layers"/></svg><span>Projects</span>
-          </button>
-          <button class="pr-nav-item" type="button" data-info-panel="artifacts">
+          </a>
+          <a class="pr-nav-item" id="pr-nav-artifacts" href="/artifacts">
             <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-artifact"/></svg><span>Artifacts</span>
-          </button>
-          <button class="pr-nav-item" type="button" data-info-panel="plugins">
+          </a>
+          <a class="pr-nav-item" id="pr-nav-plugins" href="/plugins">
             <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-puzzle"/></svg><span>Plugins</span>
-          </button>
+          </a>
         </nav>
 
         <div class="pr-recents-head">
@@ -79,29 +79,11 @@
           </button>
         </div>
 
-        <div class="pr-search-wrap" id="pr-recents-search-wrap" hidden>
-          <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-search"/></svg>
-          <label class="pr-sr-only" for="pr-recents-search">Filter recent chats</label>
-          <input id="pr-recents-search" type="search" placeholder="Filter recents" autocomplete="off" />
-          <button class="pr-search-close" id="pr-recents-search-close" type="button" aria-label="Close recent chat filter">&times;</button>
-        </div>
-
         <div class="pr-recents-scroll" id="pr-recents-scroll">
-          <ul class="pr-recents" id="pr-recents-list" aria-label="Recent chats">
-            <li><button class="pr-recent" type="button" data-title="Keel harness build plan"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Keel harness build plan</span></button></li>
-            <li><button class="pr-recent" type="button" data-title="Keel project review and plan"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Keel project review and plan</span></button></li>
-            <li><button class="pr-recent" type="button" data-title="Keel project plan review"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Keel project plan review</span></button></li>
-            <li><button class="pr-recent" type="button" data-title="Test exercise answers"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Test exercise answers</span></button></li>
-            <li><button class="pr-recent" type="button" data-title="Team member project reports"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-doc"/></svg><span>Team member project reports</span></button></li>
-            <li data-extra="true"><button class="pr-recent" type="button" data-title="Connecting AutoCAD with MCP"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Connecting AutoCAD with MCP</span></button></li>
-            <li data-extra="true"><button class="pr-recent" type="button" data-title="Golden Gate Bridge PowerPoint"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Golden Gate Bridge PowerPoint</span></button></li>
-            <li data-extra="true"><button class="pr-recent" type="button" data-title="Base quantities and SI units"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Base quantities and SI units</span></button></li>
-            <li data-extra="true"><button class="pr-recent" type="button" data-title="AutoCAD seminar document with cust…"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-doc"/></svg><span>AutoCAD seminar document with cust…</span></button></li>
-            <li data-extra="true"><button class="pr-recent" type="button" data-title="Exam answers request declined"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Exam answers request declined</span></button></li>
-          </ul>
-          <p class="pr-recents-empty" id="pr-recents-empty" role="status" hidden>No matching chats.</p>
+          <ul class="pr-recents" id="pr-recents-list" aria-label="Recent chats"></ul>
+          <p class="pr-recents-empty" id="pr-recents-empty" role="status">No recent chats yet</p>
         </div>
-        <button class="pr-view-all pr-recents-view-all" id="pr-recents-view-all" type="button" aria-expanded="true" aria-label="Show fewer recent chats">View all</button>
+        <button class="pr-view-all pr-recents-view-all" id="pr-recents-view-all" type="button" aria-expanded="false" aria-label="Show all recent chats" hidden>View all</button>
 
         <div class="pr-account-wrap" id="pr-account-wrap">
           <button class="pr-account" id="pr-account" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pr-account-menu">

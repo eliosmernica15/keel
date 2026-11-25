@@ -108,25 +108,21 @@
   /* ------------------------------ shell ------------------------------ */
 
   var app = $('ar-app');
-  var main = document.querySelector('.ar-main');
   var sidebarToggle = $('ar-sidebar-toggle');
   var collapse = $('ar-collapse');
   var scrim = $('ar-scrim');
-  var navNew = $('ar-nav-new');
   var navSearch = $('ar-nav-search');
-  var navArtifacts = $('ar-nav-artifacts');
   var recentsToggle = $('ar-recents-toggle');
   var recentsList = $('ar-recents-list');
   var recentsEmpty = $('ar-recents-empty');
   var recentsViewAll = $('ar-recents-view-all');
-  var searchWrap = $('ar-recents-search-wrap');
-  var searchInput = $('ar-recents-search');
-  var searchClose = $('ar-recents-search-close');
   var accountBtn = $('ar-account');
   var accountMenu = $('ar-account-menu');
   var helpBtn = $('ar-help');
 
   var mobileQuery = window.matchMedia('(max-width: 860px)');
+  var RECENTS_KEY = 'keel_new_recents_v1';
+  var RECENTS_PREVIEW = 5;
 
   function isSidebarOpen() {
     if (mobileQuery.matches) return app.classList.contains('sidebar-open');
@@ -140,21 +136,33 @@
     collapse.setAttribute('aria-label', open ? 'Collapse sidebar' : 'Expand sidebar');
   }
 
+  /* One authoritative state class on the app root at a time: `sidebar-open`
+     on small screens, `sidebar-collapsed` on wide screens, none otherwise. */
   function setSidebar(open) {
+    app.classList.remove('sidebar-open', 'sidebar-collapsed');
     if (mobileQuery.matches) {
-      app.classList.remove('sidebar-collapsed');
-      app.classList.toggle('sidebar-open', open);
-    } else {
-      app.classList.remove('sidebar-open');
-      app.classList.toggle('sidebar-collapsed', !open);
+      if (open) app.classList.add('sidebar-open');
+    } else if (!open) {
+      app.classList.add('sidebar-collapsed');
     }
     syncSidebarToggles();
   }
 
   function onViewportChange() {
-    app.classList.remove('sidebar-open');
-    app.classList.remove('sidebar-collapsed');
+    app.classList.remove('sidebar-open', 'sidebar-collapsed');
     syncSidebarToggles();
+  }
+
+  function paletteOpen() {
+    return !!(window.KeelSearchPalette &&
+      typeof window.KeelSearchPalette.isOpen === 'function' &&
+      window.KeelSearchPalette.isOpen());
+  }
+
+  function openSearchPalette() {
+    if (window.KeelSearchPalette && typeof window.KeelSearchPalette.open === 'function') {
+      window.KeelSearchPalette.open(navSearch);
+    }
   }
 
   sidebarToggle.addEventListener('click', function () { setSidebar(!isSidebarOpen()); });
@@ -166,89 +174,85 @@
 
   /* ------------------------------ recents ------------------------------ */
 
-  var recentItems = toArray(recentsList.querySelectorAll('li'));
-  var allRecents = true;
+  /* Recents are empty until Keel saves real chats in keel_new_recents_v1. */
+  function loadRecents() {
+    try {
+      var raw = window.localStorage.getItem(RECENTS_KEY);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      var titles = [];
+      parsed.forEach(function (entry) {
+        var title = '';
+        if (typeof entry === 'string') {
+          title = entry;
+        } else if (entry && typeof entry === 'object') {
+          title = typeof entry.title === 'string' ? entry.title
+            : typeof entry.prompt === 'string' ? entry.prompt
+            : typeof entry.text === 'string' ? entry.text
+            : typeof entry.label === 'string' ? entry.label : '';
+        }
+        title = String(title).replace(/\s+/g, ' ').trim();
+        if (title && titles.indexOf(title) === -1) titles.push(title.slice(0, 90));
+      });
+      return titles;
+    } catch (error) {
+      return [];
+    }
+  }
+
+  var recentItems = [];
+  var allRecents = false;
+
+  function buildRecentItem(title) {
+    var li = document.createElement('li');
+    var button = document.createElement('button');
+    button.className = 'ar-recent';
+    button.type = 'button';
+    button.setAttribute('data-title', title);
+    button.innerHTML = '<svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-chat"/></svg>';
+    var label = document.createElement('span');
+    label.textContent = title;
+    button.appendChild(label);
+    button.addEventListener('click', function () { window.location.assign('/new'); });
+    li.appendChild(button);
+    recentsList.appendChild(li);
+    return li;
+  }
+
+  loadRecents().forEach(function (title) { recentItems.push(buildRecentItem(title)); });
 
   function applyRecents() {
-    var query = searchInput.value.trim().toLowerCase();
-    var visible = 0;
-    recentItems.forEach(function (li) {
-      var button = li.querySelector('.ar-recent');
-      var title = (button.getAttribute('data-title') || '').toLowerCase();
-      var isExtra = li.getAttribute('data-extra') === 'true';
-      var show = (!query || title.indexOf(query) !== -1) && (allRecents || !isExtra);
-      li.hidden = !show;
-      if (show) visible += 1;
+    recentItems.forEach(function (li, index) {
+      li.hidden = !allRecents && index >= RECENTS_PREVIEW;
     });
-    recentsEmpty.hidden = !(query && visible === 0);
-  }
-
-  function openRecentsSearch() {
-    searchWrap.hidden = false;
-    navSearch.setAttribute('aria-expanded', 'true');
-    searchInput.focus();
-  }
-
-  function closeRecentsSearch(restoreFocus) {
-    searchWrap.hidden = true;
-    navSearch.setAttribute('aria-expanded', 'false');
-    searchInput.value = '';
-    applyRecents();
-    if (restoreFocus) navSearch.focus();
+    recentsEmpty.hidden = recentItems.length > 0;
+    var showAll = recentItems.length > RECENTS_PREVIEW;
+    recentsViewAll.hidden = !showAll || recentsList.hidden;
+    recentsViewAll.setAttribute('aria-expanded', String(allRecents));
+    recentsViewAll.setAttribute('aria-label', allRecents ? 'Show fewer recent chats' : 'Show all recent chats');
   }
 
   navSearch.addEventListener('click', function () {
-    /* When the shared palette is wired to this button it handles the click. */
-    if (paletteAvailable() && navSearch.getAttribute('data-ksp-bound') === '1') return;
-    if (searchWrap.hidden) openRecentsSearch(); else closeRecentsSearch(true);
+    if (mobileQuery.matches) setSidebar(false);
+    openSearchPalette();
   });
-  searchClose.addEventListener('click', function () { closeRecentsSearch(true); });
-  searchInput.addEventListener('input', applyRecents);
 
   recentsToggle.addEventListener('click', function () {
     var willShow = recentsList.hidden;
     recentsList.hidden = !willShow;
-    recentsViewAll.hidden = !willShow;
-    if (!willShow) closeRecentsSearch(false);
+    if (willShow) {
+      applyRecents();
+    } else {
+      recentsEmpty.hidden = true;
+      recentsViewAll.hidden = true;
+    }
     recentsToggle.setAttribute('aria-expanded', String(willShow));
   });
 
   recentsViewAll.addEventListener('click', function () {
     allRecents = !allRecents;
-    recentsViewAll.setAttribute('aria-expanded', String(allRecents));
-    recentsViewAll.setAttribute('aria-label', allRecents ? 'Show fewer recent chats' : 'Show all recent chats');
     applyRecents();
-  });
-
-  recentItems.forEach(function (li) {
-    li.querySelector('.ar-recent').addEventListener('click', function (event) {
-      var title = event.currentTarget.getAttribute('data-title') || '';
-      if (mobileQuery.matches) setSidebar(false);
-      showInfo('Recent chat', 'Open "' + title + '" as a new chat in Keel.', '/new', 'Start in Keel');
-    });
-  });
-
-  navNew.addEventListener('click', function () { window.location.assign('/new'); });
-  navArtifacts.addEventListener('click', function () {
-    if (mobileQuery.matches) setSidebar(false);
-    resetFilters();
-    if (main) main.scrollTop = 0;
-    var title = $('ar-title');
-    title.setAttribute('tabindex', '-1');
-    title.focus();
-  });
-
-  var panelMessages = {
-    projects: ['Projects', 'Projects keep related chats, files and artifacts together. Manage them in the Keel app.', '/app'],
-    plugins: ['Plugins', 'Plugins extend Keel with the tools you already use. Add them from the local Keel app.', '/download']
-  };
-
-  toArray(document.querySelectorAll('[data-info-panel]')).forEach(function (button) {
-    button.addEventListener('click', function () {
-      if (mobileQuery.matches) setSidebar(false);
-      var message = panelMessages[button.getAttribute('data-info-panel')];
-      if (message) showInfo(message[0], message[1], message[2]);
-    });
   });
 
   helpBtn.addEventListener('click', function () {
@@ -756,7 +760,7 @@
 
   document.addEventListener('keydown', function (event) {
     if (event.key !== 'Escape') return;
-    if (paletteAvailable() && typeof window.KeelSearchPalette.isOpen === 'function' && window.KeelSearchPalette.isOpen()) return;
+    if (paletteOpen()) return;
 
     if (activeModal) { closeModal(); return; }
 
@@ -768,8 +772,7 @@
       $('ar-search-btn').click();
       return;
     }
-    if (!searchWrap.hidden && document.activeElement === searchInput) { closeRecentsSearch(true); return; }
-    if (mobileQuery.matches && app.classList.contains('sidebar-open')) setSidebar(false);
+    if (mobileQuery.matches && isSidebarOpen()) setSidebar(false);
   });
 
   /* ------------------------------- init ------------------------------- */

@@ -95,8 +95,16 @@ for needle in ["Question what", "Continue with Google", "Continue with Apple",
 
 new = read(SITE / "new.html")
 for needle in ["You're here", "New", "Search", "Projects", "Artifacts", "Plugins",
-               "Keel harness build plan", "Recent artifacts", "Elios"]:
+               "Recent artifacts", "Elios"]:
     check(needle.lower() in new.lower(), f"new page missing: {needle!r}")
+for route in ["/projects", "/artifacts", "/plugins", "/new"]:
+    check(f'href="{route}"' in new, f"new page missing sidebar link {route}")
+check("keel-chat.js not yet created", (SITE / "ui" / "keel-chat.js").exists())
+chat = read(SITE / "ui" / "keel-chat.js")
+for needle in ["global.KeelChat =", "openrouter", "google", "attachFiles", "send",
+               "keel_mirror_settings_v1", "verifyKey", "fetchModels"]:
+    check(needle in chat, f"keel-chat.js missing: {needle!r}")
+check("new page missing zip accept", ".zip" in new)
 
 pl = read(SITE / "plugins.html")
 for needle in ["Plugins", "Your plugins", "Most used", "Popular workflows",

@@ -6,6 +6,7 @@ import http.server
 import socketserver
 import sys
 import threading
+import zipfile
 from pathlib import Path
 
 from selenium import webdriver
@@ -29,6 +30,9 @@ def check(name: str, cond: bool, detail: str = "") -> None:
 ROUTE_MAP = {
     "/login": "/login.html",
     "/new": "/new.html",
+    "/plugins": "/plugins.html",
+    "/projects": "/projects.html",
+    "/artifacts": "/artifacts.html",
     "/app": "/app.html",
     "/download": "/download.html",
     "/downloads": "/downloads.html",
@@ -182,6 +186,7 @@ def run():
                        "Popular workflows", "Trending", "Categories",
                        "AI models & agents", "Show all"]:
             check("plugins: has " + needle, needle.lower() in pl_text.lower())
+        check("plugins: recents start empty", "Keel harness build plan" not in pl_text)
         check("plugins: no dead # links",
               not driver.execute_script("return [...document.querySelectorAll('a[href=\"#\"]')].length"))
         driver.save_screenshot(str(SHOTS / "plugins.png"))
@@ -192,6 +197,7 @@ def run():
         for needle in ["Projects", "Looking to start a project?", "Upload materials",
                        "New project"]:
             check("projects: has " + needle, needle.lower() in pr_text.lower())
+        check("projects: recents start empty", "Keel harness build plan" not in pr_text)
         check("projects: no dead # links",
               not driver.execute_script("return [...document.querySelectorAll('a[href=\"#\"]')].length"))
         driver.save_screenshot(str(SHOTS / "projects.png"))
@@ -202,6 +208,7 @@ def run():
         for needle in ["Artifacts", "Make something new", "Docs", "Slides",
                        "Design", "GPT-6.2 vs Fable 5.2 Prompts", "Discover Kosovo"]:
             check("artifacts: has " + needle, needle.lower() in ar_text.lower())
+        check("artifacts: recents start empty", "Keel harness build plan" not in ar_text)
         check("artifacts: no dead # links",
               not driver.execute_script("return [...document.querySelectorAll('a[href=\"#\"]')].length"))
         driver.save_screenshot(str(SHOTS / "artifacts.png"))
@@ -221,7 +228,8 @@ def run():
         driver.implicitly_wait(3)
         new_body = driver.find_element(By.TAG_NAME, "body").text
         check("new: greeting", "You're here" in new_body)
-        check("new: recents", "Keel harness build plan" in new_body)
+        check("new: recents start empty", "Keel harness build plan" not in new_body)
+        check("new: recents empty message", "No recent chats" in new_body or "no recent" in new_body.lower())
         check("new: sidebar entries",
               all(x in new_body for x in ["New", "Search", "Projects", "Artifacts", "Plugins"]))
         try:
@@ -245,6 +253,67 @@ def run():
             driver.save_screenshot(str(SHOTS / "search-palette.png"))
             driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
             check("palette: closes on Escape", not visible(driver, ".ksp-root"))
+
+        for route in ["/projects", "/artifacts", "/plugins"]:
+            links = driver.find_elements(By.CSS_SELECTOR, 'a[href="%s"]' % route)
+            check("new: sidebar link " + route, bool(links))
+            if links:
+                links[0].click()
+                check("new: navigates to " + route, route in driver.current_url,
+                      driver.current_url)
+                driver.get(base + "/new.html")
+                driver.implicitly_wait(2)
+
+        check("new: KeelChat global",
+              driver.execute_script("return typeof window.KeelChat === 'object'"))
+        check("new: KeelChat API",
+              driver.execute_script(
+                  "return ['send','attachFiles','verifyKey','fetchModels',"
+                  "'saveSettings','buildPrompt'].every(k=>typeof window.KeelChat[k]==='function')"))
+        zips = driver.find_elements(By.CSS_SELECTOR, "input[type=file][accept*='.zip']")
+        check("new: zip-capable attach input", bool(zips))
+        if zips:
+            zpath = str(SHOTS / "sample.zip")
+            with zipfile.ZipFile(zpath, "w") as zf:
+                zf.writestr("note.txt", "hello from the attached zip")
+            zips[0].send_keys(zpath)
+            try:
+                WebDriverWait(driver, 6).until(
+                    lambda d: "sample.zip" in d.find_element(By.TAG_NAME, "body").text
+                    or "note.txt" in d.find_element(By.TAG_NAME, "body").text)
+                attached = True
+            except Exception:
+                attached = False
+            check("new: zip attachment processed", attached)
+        settings_btns = driver.find_elements(
+            By.XPATH, "//button[contains(., 'Settings') or contains(@aria-label, 'Settings')]")
+        check("new: settings control", bool(settings_btns))
+        if settings_btns:
+            settings_btns[0].click()
+            provider_tabs = driver.find_elements(
+                By.CSS_SELECTOR, ".n-dialog-tab[data-view='providers']")
+            if provider_tabs:
+                provider_tabs[0].click()
+            stxt = driver.find_element(By.TAG_NAME, "body").text
+            check("new: settings shows OpenRouter", "OpenRouter" in stxt)
+            check("new: settings shows Google AI Studio", "Google AI Studio" in stxt)
+            driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
+
+        driver.set_window_size(390, 844)
+        driver.get(base + "/new.html")
+        toggles = driver.find_elements(
+            By.CSS_SELECTOR,
+            "[data-sidebar-toggle], #n-side-toggle, button[aria-label*='sidebar' i]")
+        check("new: mobile sidebar toggle", bool(toggles))
+        if toggles:
+            app = driver.find_element(By.CSS_SELECTOR, "#n-app")
+            before = app.get_attribute("class") or ""
+            toggles[0].click()
+            after = app.get_attribute("class") or ""
+            check("new: sidebar toggle changes state", before != after,
+                  "%s -> %s" % (before, after))
+        driver.set_window_size(1440, 1000)
+        driver.get(base + "/new.html")
         driver.save_screenshot(str(SHOTS / "new.png"))
 
         driver.get(base + "/app.html")
@@ -259,7 +328,9 @@ def run():
         check("app: starburst", "starburst" in driver.page_source)
         errs = [e for e in console_errors(driver)
                 if "/api/health" not in e.get("message", "")
-                and "/api/capabilities/invoke" not in e.get("message", "")]
+                and "/api/capabilities/invoke" not in e.get("message", "")
+                and "/api/model-catalog/" not in e.get("message", "")
+                and "generativelanguage.googleapis.com" not in e.get("message", "")]
         check("app: no fatal console errors", not errs, str(errs[:3]))
         driver.save_screenshot(str(SHOTS / "app.png"))
 
