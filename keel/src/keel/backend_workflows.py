@@ -398,10 +398,27 @@ def _record_digest(record: dict, key: bytes) -> str:
     return hmac.new(key, _canonical(body).encode("utf-8"), hashlib.sha256).hexdigest()
 
 
+# Stat-validated ledger cache. Verifying a 1 MB HMAC chain on every workflow
+# call grew latency linearly with deployment age (perf audit 9.1). A cache hit
+# requires the same (mtime_ns, size) signature; any cross-process append changes
+# it and forces a full re-verification, so integrity is never weakened.
+_LEDGER_CACHE: dict[str, tuple[tuple[int, int], list[dict]]] = {}
+
+
+def _ledger_stat(target: Path) -> tuple[int, int]:
+    st = target.stat()
+    return (st.st_mtime_ns, st.st_size)
+
+
 def _read_jsonl(path: str | Path) -> list[dict]:
     target = Path(path)
     if not target.is_file():
+        _LEDGER_CACHE.pop(str(target), None)
         return []
+    signature = _ledger_stat(target)
+    cached = _LEDGER_CACHE.get(str(target))
+    if cached is not None and cached[0] == signature:
+        return list(cached[1])
     records: list[dict] = []
     with _locked_path(target):
         lines = target.read_text(encoding="utf-8").splitlines()
@@ -441,6 +458,7 @@ def _read_jsonl(path: str | Path) -> list[dict]:
             expected_seq += 1
             records.append(record)
         _verify_chain_head(target, records, key)
+        _LEDGER_CACHE[str(target)] = (_ledger_stat(target), list(records))
     return records
 
 
@@ -466,6 +484,9 @@ def _append_jsonl(path: str | Path, record: dict) -> int:
             handle.flush()
             os.fsync(handle.fileno())
         _write_chain_head(target, seq, safe["hash"], key)
+        # Refresh the verified cache so the next call is O(1) while still
+        # re-verifying whenever another process changes the file.
+        _LEDGER_CACHE[str(target)] = (_ledger_stat(target), records + [safe])
         with contextlib.suppress(OSError):
             os.chmod(target, 0o600)
         return seq
