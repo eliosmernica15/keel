@@ -1,6 +1,6 @@
 # FINAL RELEASE COMPLETION REPORT — reconciliation of PR-01…PR-20
 
-**Completion HEAD:** `FINAL_COMPLETION_HEADabfd784393b2b252e2b9e2927aba817dd` (branch
+**Completion HEAD:** `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd784393b2b252e2b9e2927aba817dd` (branch
 `agent/final-docs2`, worktree `…\worktree\final\docs2`).
 **Date:** 2026-11-25. **Scope:** documentation only. No source, test, workflow or
 frontend file was edited; no push, tag, secret write, signature, release or deployment.
@@ -54,9 +54,9 @@ completion HEAD it refines to the table in §1.
 
 ### 2.2 Exact commit identity
 
-- Completion HEAD `FINAL_COMPLETION_HEADabfd784393b2b252e2b9e2927aba817dd`.
+- Completion HEAD `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd784393b2b252e2b9e2927aba817dd`.
 - The definitive suite was recorded at `c512f87971a02b05d9a9422338522f66495c0eeb`;
-  `git diff --stat c512f87..FINAL_COMPLETION_HEAD` is empty, so the two trees are byte-identical and
+  `git diff --stat c512f87..completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)` is empty, so the two trees are byte-identical and
   that result is evidence for the completion HEAD.
 - `63ab72e452f9c78af46db55489ef8d9def02212c` is the historical independent-acceptance
   candidate (`PASS_WITH_EXTERNAL_LIMITATIONS`); five commits followed it, including the

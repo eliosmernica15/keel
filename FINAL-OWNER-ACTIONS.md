@@ -1,6 +1,6 @@
 # FINAL OWNER ACTIONS — the only genuine external requirements
 
-> **Scope:** completion HEAD `FINAL_COMPLETION_HEADabfd784393b2b252e2b9e2927aba817dd`, version `0.1.1` / tag `v0.1.1`.
+> **Scope:** completion HEAD `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd784393b2b252e2b9e2927aba817dd`, version `0.1.1` / tag `v0.1.1`.
 > This file lists **only** actions that engineering cannot perform: owner-controlled
 > credentials, an owner-provided Darwin host, an owner signing identity, an owner plan
 > entitlement, and owner deployment authorization. No engineering follow-up is listed
