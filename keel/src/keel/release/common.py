@@ -36,28 +36,39 @@ WINDOWS_NOTES = (
     "SmartScreen."
 )
 MACOS_NOTES = (
-    "Built in CI for Apple Silicon (arm64) and Intel (x64). Unsigned - "
-    "Gatekeeper will block first launch on both architectures."
+    "Native macOS installer package (.pkg) built on a macOS CI runner for "
+    "Apple Silicon (arm64) and Intel (x64); installed to /Applications with "
+    "bundle id app.keel.desktop. Unsigned - Gatekeeper will block first launch "
+    "on both architectures unless an Apple Developer identity is configured."
 )
 LINUX_NOTES = (
-    "Built in CI as AppImage, .deb and .rpm; artifacts are structure-inspected "
-    "but not launched on desktop Linux. Unsigned; your distribution may show a "
-    "policy warning."
+    "Native packages built on a Linux CI runner: .deb (Debian/Ubuntu) and .rpm "
+    "(Fedora/RHEL), with desktop entry, icon and runtime dependencies. "
+    "Structure-inspected in CI but not launched on desktop Linux. Unsigned; "
+    "your distribution may show a policy warning."
 )
 
 WINDOWS_INSTALL = (
     "Run Keel-Setup-{version}.exe. Accept the installer prompts. Launch from the "
-    "Start Menu shortcut or Desktop shortcut."
+    "Start Menu shortcut or Desktop shortcut. Your ~/.keel data is preserved on "
+    "uninstall."
 )
 MACOS_INSTALL = (
-    "Open the DMG, drag Keel into Applications, then right-click Keel and choose "
-    "Open the first time (Gatekeeper)."
+    "Open Keel-{version}-macos-arm64.pkg (Apple Silicon) or "
+    "Keel-{version}-macos-x64.pkg (Intel). The installer places Keel in "
+    "/Applications. If Gatekeeper blocks first launch, right-click Keel and "
+    "choose Open."
 )
 LINUX_INSTALL = (
-    "Make the AppImage executable and run it. On Debian/Ubuntu use the .deb; on "
-    "Fedora/RHEL use the .rpm with your package manager."
+    "Debian/Ubuntu: install Keel-{version}-linux-amd64.deb with your package "
+    "manager. Fedora/RHEL: install Keel-{version}-linux-x86_64.rpm. Launch Keel "
+    "from your desktop's application menu."
 )
 
+# Primary consumer path is a native OS installer on every platform. Archives
+# (DMG/ZIP/AppImage) are deliberately NOT primary; they are not offered as
+# alternatives either, so availability can only be advertised for packages a
+# native CI runner actually produced and verified.
 CHANNELS = [
     {
         "key": "windows",
@@ -70,30 +81,43 @@ CHANNELS = [
     },
     {
         "key": "macos",
-        "primary": "Keel-{version}-macos-arm64.dmg",
+        "primary": "Keel-{version}-macos-arm64.pkg",
         "alternatives": [
-            "Keel-{version}-macos-arm64.zip",
-            "Keel-{version}-macos-x64.dmg",
-            "Keel-{version}-macos-x64.zip",
+            "Keel-{version}-macos-x64.pkg",
         ],
         "arch": "arm64",
-        "name": "macOS arm64 (Apple Silicon)",
+        "name": "macOS arm64 (Apple Silicon, PKG)",
         "notes": MACOS_NOTES,
         "installation": MACOS_INSTALL,
     },
     {
         "key": "linux",
-        "primary": "Keel-{version}-linux-x86_64.AppImage",
+        "primary": "Keel-{version}-linux-amd64.deb",
         "alternatives": [
-            "Keel-{version}-linux-amd64.deb",
             "Keel-{version}-linux-x86_64.rpm",
         ],
         "arch": "x86_64",
-        "name": "Linux x86_64",
+        "name": "Linux x86_64 (DEB)",
         "notes": LINUX_NOTES,
         "installation": LINUX_INSTALL,
     },
 ]
+
+
+def arch_for_artifact(filename: str, default: str) -> str:
+    """Return the architecture represented by an artifact filename.
+
+    macOS ships one PKG per architecture, so an alternative can differ from
+    the channel's primary architecture. Keeping this derivation in one place
+    prevents an Intel PKG from being mislabelled as arm64 in the manifest.
+    """
+    if "-x64." in filename:
+        return "x64"
+    if "-arm64." in filename:
+        return "arm64"
+    if "-amd64." in filename or "-x86_64." in filename:
+        return "x86_64"
+    return default
 
 
 def sha256_file(path: Path) -> str:
@@ -307,7 +331,7 @@ def build_download_manifest(
             alternatives.append(
                 {
                     "file": alt_name,
-                    "arch": channel["arch"],
+                    "arch": arch_for_artifact(alt_name, channel["arch"]),
                     "label": _alternative_label(alt_name),
                     "size": artifacts[alt_name].stat().st_size,
                     "sha256": sha256_file(artifacts[alt_name]),
@@ -349,12 +373,77 @@ def build_download_manifest(
     }
 
 
+def build_fallback_download_manifest(version: str, tag: str) -> dict:
+    """Emit the site's fallback ``download.json`` shape without any URL.
+
+    This is the generator for Agent A's static fallback file. It deliberately
+    never claims availability: no asset, size, SHA-256 or URL is fabricated.
+    The lead copies the generated output into ``site/download.json``; this
+    generator never writes to that file itself.
+    """
+    channels: dict[str, dict] = {}
+    for channel in CHANNELS:
+        alternatives = []
+        for alt in channel["alternatives"]:
+            name = alt.format(version=version)
+            alternatives.append(
+                {
+                    "file": name,
+                    "arch": arch_for_artifact(name, channel["arch"]),
+                    "label": _alternative_label(name),
+                    "size": None,
+                    "sha256": None,
+                    "url": None,
+                    "available": False,
+                    "verified": False,
+                }
+            )
+        channels[channel["key"]] = {
+            "name": channel["name"],
+            "arch": channel["arch"],
+            "version": version,
+            "file": channel["primary"].format(version=version),
+            "size": None,
+            "sha256": None,
+            "url": None,
+            "available": False,
+            "verified": False,
+            "verified_at": None,
+            "notes": (
+                "Not publicly hosted yet; there is nothing to download. "
+                "Installers will appear here after verification."
+            ),
+            "installation": channel["installation"].format(version=version),
+            "alternatives": alternatives,
+        }
+    return {
+        "name": "Keel Desktop",
+        "version": version,
+        "tag": tag,
+        "generated": "fallback",
+        "published_at": None,
+        "verified_at": None,
+        "base_url": None,
+        "release_manifest_url": None,
+        "channels": channels,
+    }
+
+
 def _alternative_label(filename: str) -> str:
     suffix = Path(filename).suffix.lower()
+    if suffix == ".pkg":
+        arch = arch_for_artifact(filename, "")
+        return "Intel (PKG)" if arch == "x64" else "Apple Silicon (PKG)"
     if suffix == ".zip":
         return "ZIP archive"
+    if suffix == ".dmg":
+        return "macOS disk image (.dmg)"
     if suffix == ".deb":
         return "Debian/Ubuntu package (.deb)"
+    if suffix == ".rpm":
+        return "Fedora/RHEL package (.rpm)"
+    if suffix == ".appimage":
+        return "Linux AppImage (legacy)"
     return filename
 
 

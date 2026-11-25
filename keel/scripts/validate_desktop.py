@@ -18,6 +18,16 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from keel.release.common import read_version  # noqa: E402
+
+
+def installer_name(version: str) -> str:
+    """Windows installer filename for a given release version."""
+    return f"Keel-Setup-{version}.exe"
 
 
 def _check(name: str, fn) -> dict:
@@ -38,7 +48,8 @@ def main() -> int:
         dist = ROOT / dist
     unpacked = dist / "win-unpacked"
     sidecar = dist / "keel-sidecar"
-    installer = dist / "Keel-Setup-0.1.1.exe"
+    version = read_version()
+    installer = dist / installer_name(version)
 
     results = []
     results.append(_check("installer_present", lambda: (
@@ -104,7 +115,7 @@ def main() -> int:
          "command": "run uninstaller in %LOCALAPPDATA%\\KeelValidation"},
         {"name": "upgrade_and_rollback",
          "reason": "requires two installer versions on clean VM",
-         "command": "install 0.1.0 then 0.1.1; force 3 failed starts; verify rollback"},
+         "command": f"install 0.1.0 then {version}; force 3 failed starts; verify rollback"},
         {"name": "signed_launch",
          "reason": "requires owner-controlled signing credentials",
          "command": "owner gate — not performed"},

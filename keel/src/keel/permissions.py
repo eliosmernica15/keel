@@ -302,6 +302,11 @@ def evaluate(*, tool_name: str, tool_input: dict,
     if verdict == "allow":
         return Decision("allow", "mode", f"{mode} mode baseline ({op_class})",
                         "mode", None, op_class, indeterminate)
+    if verdict == "deny":
+        # An explicit mode-table deny must stay a deny in both interactive and
+        # non-interactive paths; never promote it into an approval prompt.
+        return Decision("deny", "mode", f"{mode} mode denies {op_class}",
+                        "mode", None, op_class, indeterminate)
     if not interactive:
         return Decision("deny", "consent_required",
                         f"{mode} mode requires consent for {op_class}; "

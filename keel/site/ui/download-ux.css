@@ -1,0 +1,87 @@
+/* /download — small additions for manifest-driven availability.
+   Keeps the cream / ink / orange design; only status and compact selection
+   affordances are added. Everything is scoped to body.download-clone. */
+
+body.download-clone .kp-download-primary.is-disabled {
+  pointer-events: none;
+}
+
+body.download-clone .kp-download-status {
+  margin: 14px 0 0;
+  min-height: 1.4em;
+  color: var(--kp-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+body.download-clone .kp-download-status[data-state="ready"] { color: #3d7a52; }
+body.download-clone .kp-download-status[data-state="started"] { color: var(--kp-accent-deep); }
+body.download-clone .kp-download-status[data-state="unavailable"],
+body.download-clone .kp-download-status[data-state="unsupported"],
+body.download-clone .kp-download-status[data-state="arch-confirm"] { color: #9a5a3c; }
+
+/* Permanent signing disclosure: checksum verification is not OS code signing. */
+body.download-clone .kp-signing-note {
+  margin: 8px 0 0;
+  max-width: 720px;
+  color: var(--kp-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+body.download-clone .kp-signing-note code { font-size: 11px; }
+
+/* Secondary platform picker: deliberately quieter than the primary action. */
+body.download-clone .kp-other-platforms { position: relative; display: inline-flex; }
+body.download-clone .kp-other-platforms > summary {
+  list-style: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+body.download-clone .kp-other-platforms > summary::-webkit-details-marker { display: none; }
+body.download-clone .kp-other-options {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 180px;
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--kp-card);
+  border: 1px solid var(--kp-line-strong);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(25, 25, 24, .12);
+}
+body.download-clone .kp-other-platforms[open] .kp-other-options { display: flex; }
+body.download-clone .kp-other-option {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--kp-ink);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  padding: 7px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+body.download-clone .kp-other-option:hover { background: var(--kp-soft); }
+body.download-clone .kp-other-option[aria-pressed="true"] { color: var(--kp-accent-deep); font-weight: 600; }
+
+/* Variant rows re-use .kp-row / .kp-btn-outline from the base stylesheet. */
+body.download-clone .kp-variant-row .kp-row-label { color: var(--kp-ink); font-weight: 600; }
+body.download-clone .kp-variant-row .kp-row-label small { font-weight: 400; }
+body.download-clone .kp-variant-row .kp-variant-note { max-width: 320px; }
+body.download-clone .kp-variant-row .kp-row-action { text-align: center; }
+body.download-clone .kp-variant-row button.kp-row-action[aria-disabled="true"] {
+  opacity: .55;
+  cursor: not-allowed;
+}
+body.download-clone .kp-variant-row button.kp-row-action[aria-disabled="true"]:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 760px) {
+  body.download-clone .kp-other-options { left: auto; right: 0; }
+}

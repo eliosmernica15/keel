@@ -68,6 +68,25 @@ def build_parser() -> argparse.ArgumentParser:
     licenses.add_argument("--out", default="release")
     licenses.set_defaults(func=licenses_command)
 
+    fallback = sub.add_parser(
+        "fallback", help="generate the site fallback download.json (no URLs, all unavailable)")
+    fallback.add_argument("--out", default="release/download.fallback.json")
+    fallback.set_defaults(func=fallback_command)
+
+    packaging = sub.add_parser(
+        "check-packaging", help="static native-packaging acceptance checks (no build required)")
+    packaging.add_argument(
+        "--installer", default=None,
+        help="optional built Windows installer to statically inspect")
+    packaging.add_argument(
+        "--dist", default=None,
+        help="optional dist directory to check for built artifacts")
+    packaging.add_argument(
+        "--platform", default=None,
+        choices=["windows", "macos", "linux"],
+        help="platform whose artifacts must be present in --dist")
+    packaging.set_defaults(func=check_packaging_command)
+
     check = sub.add_parser("check-artifacts", help="scan a directory for prohibited files")
     check.add_argument("path", help="directory to scan")
     check.set_defaults(func=check_artifacts_command)
@@ -111,6 +130,47 @@ def build_parser() -> argparse.ArgumentParser:
     update_download.set_defaults(func=update_download_command)
 
     return parser
+
+
+def fallback_command(args) -> int:
+    version = common.validate_version()
+    doc = common.build_fallback_download_manifest(version, f"v{version}")
+    out = Path(args.out)
+    if not out.is_absolute():
+        out = Path.cwd() / out
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({
+        "output": str(out),
+        "channels": {
+            key: {"file": ch["file"], "available": ch["available"],
+                  "verified": ch["verified"], "url": ch["url"]}
+            for key, ch in doc["channels"].items()
+        },
+    }, indent=2))
+    return 0
+
+
+def check_packaging_command(args) -> int:
+    from .packaging import (check_built_inventory, check_packaging_config,
+                            check_windows_installer)
+
+    errors = check_packaging_config()
+    if getattr(args, "installer", None):
+        errors += [f"installer: {e}" for e in
+                   check_windows_installer(args.installer)]
+    if getattr(args, "dist", None) and getattr(args, "platform", None):
+        errors += [f"inventory: {e}" for e in
+                   check_built_inventory(args.dist, args.platform)]
+    if errors:
+        for error in errors:
+            print(f"FAIL: {error}", file=sys.stderr)
+        print(f"packaging checks: {len(errors)} failure(s)", file=sys.stderr)
+        return 1
+    print("packaging checks: PASS (config"
+          + (", installer" if getattr(args, "installer", None) else "")
+          + (", inventory" if getattr(args, "dist", None) else "") + ")")
+    return 0
 
 
 def check_artifacts_command(args) -> int:
@@ -215,7 +275,11 @@ def update_check_command(args) -> int:
         timeout=args.timeout,
         client_id=args.client_id,
     )
-    print(json.dumps(asdict(plan) if plan else {"available": False}))
+    payload = asdict(plan) if plan else {"available": False}
+    # Explicit, truthful advisory flag: an unsigned manifest (no --public-key)
+    # must never be presented as signature-verified to the desktop shell.
+    payload["signatureVerified"] = bool(plan and plan.signature_verified)
+    print(json.dumps(payload))
     return 0
 
 

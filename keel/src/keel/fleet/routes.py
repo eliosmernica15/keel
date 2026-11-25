@@ -370,13 +370,23 @@ def dispatch_get(handler, *, _authorized, _origin_ok, _token=""):
         pid = parts[3]
         sub = parts[4] if len(parts) >= 5 else None
         if sub == "tree":
-            _send(handler, {"entries": store().list_project_tree(pid)})
+            try:
+                _send(handler, {"entries": store().list_project_tree(pid)})
+            except PermissionError:
+                _send(handler, {"error": "workspace_not_trusted",
+                                "detail": "Trust this workspace before reading its files"},
+                      HTTPStatus.FORBIDDEN)
             return True
         if sub == "review":
             import subprocess as _sp
             proj = store().get_project(pid)
             if not proj:
                 _send(handler, {"error": "not_found"}, HTTPStatus.NOT_FOUND)
+                return True
+            if not proj.get("trusted"):
+                _send(handler, {"error": "workspace_not_trusted",
+                                "detail": "Trust this workspace before reviewing its git state"},
+                      HTTPStatus.FORBIDDEN)
                 return True
             cwd = proj["path"]
             result = {"is_git": False, "status": "", "log": "", "diff_stat": ""}
@@ -414,6 +424,9 @@ def dispatch_get(handler, *, _authorized, _origin_ok, _token=""):
                 _send(handler, store().read_project_file(pid, rel))
             except FileNotFoundError:
                 _send(handler, {"error": "file_not_found"}, HTTPStatus.NOT_FOUND)
+            except PermissionError as exc:
+                _send(handler, {"error": "workspace_not_trusted", "detail": str(exc)},
+                      HTTPStatus.FORBIDDEN)
             except ValueError as exc:
                 _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
             return True
@@ -883,6 +896,11 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
         if not proj:
             _send(handler, {"error": "project_not_found"}, HTTPStatus.NOT_FOUND)
             return True
+        if not proj.get("trusted"):
+            _send(handler, {"error": "workspace_not_trusted",
+                            "detail": "Trust this workspace before running commands in it"},
+                  HTTPStatus.FORBIDDEN)
+            return True
         payload, err = _read_json(handler, limit=64 * 1024)
         if err:
             _send(handler, {"error": err}, HTTPStatus.BAD_REQUEST)
@@ -957,6 +975,9 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
                 return True
             try:
                 _send(handler, store().write_project_file(pid, rel, content))
+            except PermissionError as exc:
+                _send(handler, {"error": "workspace_not_trusted", "detail": str(exc)},
+                      HTTPStatus.FORBIDDEN)
             except ValueError as exc:
                 _send(handler, {"error": str(exc)}, HTTPStatus.BAD_REQUEST)
             return True

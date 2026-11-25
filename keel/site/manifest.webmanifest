@@ -1,12 +1,23 @@
 {
   "name": "Keel",
   "short_name": "Keel",
+  "id": "/app",
+  "lang": "en",
   "description": "Keel — a local, private, multi-agent coding workspace. The web mirror; the desktop app is the full experience. No account, no telemetry.",
-  "start_url": "/app.html",
+  "start_url": "/app",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0605",
   "theme_color": "#0a0605",
   "orientation": "any",
+  "shortcuts": [
+    {
+      "name": "Get Keel Desktop",
+      "short_name": "Get Keel Desktop",
+      "description": "Open the verified desktop installer download page.",
+      "url": "https://keel-desktop.vercel.app/download"
+    }
+  ],
   "icons": [
     {
       "src": "/ui/icons/icon-192.png",

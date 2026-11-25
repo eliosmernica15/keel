@@ -36,19 +36,52 @@ module.exports = async function handler(req, res) {
     return fail(res, 503, "manifest_url_insecure");
   }
 
+  // SEC-F-01: validate every redirect hop. Automatic `redirect:"follow"`
+  // would let an HTTPS first-party URL hand the browser an attacker-controlled
+  // manifest while keeping our origin, defeating the URL check above.
+  const extraHosts = String(process.env.KEEL_DOWNLOAD_ALLOWED_HOSTS || "")
+    .split(",").map((h) => h.trim().toLowerCase()).filter(Boolean);
+  const hostAllowed = (url) => url.protocol === "https:" &&
+    (url.hostname === target.hostname || extraHosts.includes(url.hostname.toLowerCase()));
+
+  let current = target;
   let upstream;
   try {
-    upstream = await fetch(target, {
-      headers: { Accept: "application/json" },
-      cache: "no-store",
-      redirect: "follow",
-      signal: AbortSignal.timeout(8000),
-    });
+    for (let hop = 0; hop <= 2; hop++) {
+      upstream = await fetch(current, {
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+        redirect: "manual",
+        signal: AbortSignal.timeout(8000),
+      });
+      const status = Number(upstream.status || 0);
+      if (status >= 300 && status < 400) {
+        if (hop === 2) return fail(res, 502, "manifest_redirect_loop");
+        const location = upstream.headers && typeof upstream.headers.get === "function"
+          ? upstream.headers.get("location") : null;
+        if (!location) return fail(res, 502, "manifest_redirect_invalid");
+        let next;
+        try { next = new URL(location, current); } catch {
+          return fail(res, 502, "manifest_redirect_invalid");
+        }
+        if (!hostAllowed(next)) return fail(res, 502, "manifest_redirect_untrusted");
+        current = next;
+        continue;
+      }
+      break;
+    }
   } catch {
     return fail(res, 502, "manifest_unreachable");
   }
   if (!upstream.ok) {
     return fail(res, 502, "manifest_unreachable");
+  }
+
+  // SEC-F-04: enforce the cap in UTF-8 bytes, not UTF-16 string length.
+  const declared = Number(upstream.headers && typeof upstream.headers.get === "function"
+    ? upstream.headers.get("content-length") : 0);
+  if (Number.isFinite(declared) && declared > MAX_BYTES) {
+    return fail(res, 502, "manifest_too_large");
   }
 
   let text;
@@ -57,7 +90,7 @@ module.exports = async function handler(req, res) {
   } catch {
     return fail(res, 502, "manifest_unreadable");
   }
-  if (text.length > MAX_BYTES) {
+  if (Buffer.byteLength(text, "utf8") > MAX_BYTES) {
     return fail(res, 502, "manifest_too_large");
   }
 

@@ -170,6 +170,21 @@ jobs:
           test -n "$SIDECAR"
           "$SIDECAR" --version
           hdiutil detach /tmp/keel-dmg
+      - name: Expand PKG and inspect native installer payload
+        run: |
+          set -euo pipefail
+          PKG=$(find artifacts -name "*.pkg" | head -1)
+          if [ -z "$PKG" ]; then echo "no .pkg found"; exit 1; fi
+          echo "PKG=$(basename "$PKG")"
+          rm -rf /tmp/keel-pkg-expand
+          pkgutil --expand "$PKG" /tmp/keel-pkg-expand
+          test -f /tmp/keel-pkg-expand/Distribution
+          /usr/bin/xmllint --noout /tmp/keel-pkg-expand/Distribution
+          BOM=$(find /tmp/keel-pkg-expand -name Bom | head -1)
+          test -n "$BOM"
+          lsbom "$BOM" | grep -q "Keel.app/Contents/MacOS/Keel"
+          lsbom "$BOM" | grep -q "Resources/keel/keel"
+          pkgutil --check-signature "$PKG" || echo "MACOS_OS_SIGNATURE_STATUS=unsigned or unrecognized"
           echo "MACOS_PACKAGE_CONTENT_PASS"
 
   linux-package:
@@ -182,17 +197,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
         run: gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" -n keel-linux -D artifacts
-      - name: Validate AppImage and deb contents
+      - name: Validate native DEB and RPM contents
         run: |
           set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y -qq libarchive-tools desktop-file-utils rpm >/dev/null
-          APPIMAGE=$(find artifacts -name "*.AppImage" | head -1)
-          test -n "$APPIMAGE"
-          chmod +x "$APPIMAGE"
-          "$APPIMAGE" --appimage-extract >/dev/null
-          test -x squashfs-root/Keel
+          sudo apt-get install -y -qq desktop-file-utils rpm >/dev/null
           DEB=$(find artifacts -name "*.deb" | head -1)
-          test -n "$DEB"
+          RPM=$(find artifacts -name "*.rpm" | head -1)
+          test -n "$DEB" && test -n "$RPM"
           dpkg-deb -c "$DEB" | grep -q "Keel"
+          dpkg-deb -c "$DEB" | grep -q "/usr/share/applications/keel.desktop"
+          dpkg-deb -f "$DEB" Depends
+          rpm -qpl "$RPM" | grep -q "keel.desktop"
+          desktop-file-validate <(dpkg-deb --fsys-tarfile "$DEB" | tar -xO ./usr/share/applications/keel.desktop) || true
           echo "LINUX_PACKAGE_CONTENT_PASS"
