@@ -20,7 +20,7 @@ export type ComposerMode = "build" | "plan" | "autopilot" | "acceptEdits";
 const MODES: Array<{ value: ComposerMode; label: string }> = [
   { value: "build", label: "Build" },
   { value: "plan", label: "Plan" },
-  { value: "autopilot", label: "Autopilot" },
+  { value: "autopilot", label: "Auto-accept edits" },
   { value: "acceptEdits", label: "Accept edits" },
 ];
 

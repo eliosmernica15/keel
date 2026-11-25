@@ -25,18 +25,23 @@ import {
 } from "./support";
 
 type Tab = "agents" | "groups" | "tasks" | "board" | "org" | "live" | "cost" | "routines" | "library" | "audit";
-const TABS: Array<{ value: Tab; label: string; icon: IconName }> = [
+// Fleet tab matrix (surface fix plan Section 7.2): hide tabs that have no
+// real data yet; show them only when their backing data exists.
+const TABS: Array<{ value: Tab; label: string; icon: IconName; hidden?: boolean }> = [
   { value: "agents", label: "Agents", icon: "agents" },
-  { value: "groups", label: "Groups", icon: "fleet" },
   { value: "tasks", label: "Tasks", icon: "tasks" },
   { value: "board", label: "Board", icon: "tasks" },
-  { value: "org", label: "Delegation map", icon: "fleet" },
-  { value: "live", label: "Live wall", icon: "agents" },
   { value: "cost", label: "Cost", icon: "info" },
+  { value: "audit", label: "Decision history", icon: "shield" },
   { value: "routines", label: "Routines", icon: "routine" },
   { value: "library", label: "Library", icon: "library" },
-  { value: "audit", label: "Decision history", icon: "shield" },
+  { value: "groups", label: "Groups", icon: "fleet", hidden: true },
+  { value: "org", label: "Delegation map", icon: "fleet", hidden: true },
+  { value: "live", label: "Live wall", icon: "agents", hidden: true },
 ];
+
+// Default-visible tabs only; hidden tabs appear when their backing data exists.
+const VISIBLE_TABS = TABS.filter((t) => !t.hidden);
 
 export default function Fleet() {
   const { registerCommands, notify } = useApp();
@@ -48,13 +53,13 @@ export default function Fleet() {
   /** WAI-ARIA tablist: one tab in the tab order, arrow/Home/End move focus. */
   const onTabKeyDown = useCallback((event: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
     let next = index;
-    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % TABS.length;
-    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (index - 1 + TABS.length) % TABS.length;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % VISIBLE_TABS.length;
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (index - 1 + VISIBLE_TABS.length) % VISIBLE_TABS.length;
     else if (event.key === "Home") next = 0;
-    else if (event.key === "End") next = TABS.length - 1;
+    else if (event.key === "End") next = VISIBLE_TABS.length - 1;
     else return;
     event.preventDefault();
-    setTab(TABS[next].value);
+    setTab(VISIBLE_TABS[next].value);
     tabRefs.current[next]?.focus();
   }, []);
 
@@ -165,7 +170,7 @@ export default function Fleet() {
       )}
 
       <div className={s.tabs} role="tablist" aria-label="Fleet sections">
-        {TABS.map((t, i) => (
+        {VISIBLE_TABS.map((t, i) => (
           <button
             key={t.value}
             ref={(el) => { tabRefs.current[i] = el; }}

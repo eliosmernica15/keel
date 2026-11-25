@@ -397,7 +397,7 @@ export default function Duet() {
       <div className={s.gateIcon}><Icon name="shield" size={28} /></div>
       <h2 id="duet-trust-title">Trust this folder before using Duet</h2>
       <p className={s.gateLead}>
-        <strong>{project.path ?? "(path not reported by bridge)"}</strong> is not trusted. Keel will not list files, read files or run commands until you decide. There is no automatic trust.
+        <strong>{project.path ?? "(path not available)"}</strong> is not trusted. Keel will not list files, read files or run commands until you decide. There is no automatic trust.
       </p>
       <ul className={s.scopeList}>
         <li><strong>Read</strong> — list and view text files in this folder.</li>
