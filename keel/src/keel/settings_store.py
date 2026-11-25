@@ -27,8 +27,11 @@ from typing import Any, Optional
 
 from . import secret_store
 from .jsonc import loads as jsonc_loads
+from .settings import default_state_root
 
-STATE_DIR = Path(os.environ.get("KEEL_STATE_DIR", Path.home() / ".keel"))
+# Derived from the one authoritative resolver in keel.settings, so CLI,
+# web runtime and this store agree on where durable state lives.
+STATE_DIR = default_state_root()
 SETTINGS_PATH = STATE_DIR / "settings.json"
 BACKUP_PATH = STATE_DIR / "settings.json.bak"
 

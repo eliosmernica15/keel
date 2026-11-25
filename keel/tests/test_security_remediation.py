@@ -30,5 +30,8 @@ def test_policy_store_atomic_saves_under_concurrency(tmp_path):
 def test_web_confirmation_is_forwarded_to_policy_context():
     source = (Path(__file__).resolve().parents[1] / "src" / "keel" /
               "webapp.py").read_text(encoding="utf-8")
-    assert '"confirm": bool(request.get("confirm"))' in source
+    # The web capability surface derives the strict boolean from the request
+    # before building the policy context (workflow hardening renamed the local
+    # variable but kept the same behavior).
+    assert '"confirm": confirmed' in source
     assert '"interactive": True' in source
