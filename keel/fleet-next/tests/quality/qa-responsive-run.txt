@@ -1,0 +1,1747 @@
+[WebServer]    Γû▓ Next.js 15.5.29
+
+[WebServer]    - Local:        http://127.0.0.1:3306
+[WebServer]    - Network:      http://127.0.0.1:3306
+[WebServer]    - Environments: .env.local
+[WebServer] 
+[WebServer]  Γ£ô Starting...
+
+[WebServer]  Γ£ô Ready in 8s
+
+[WebServer]  Γùï Compiling / ...
+
+[WebServer]  Γ£ô Compiled / in 7.8s (670 modules)
+
+
+Running 74 tests using 1 worker
+
+[WebServer]  GET / 200 in 10583ms
+
+[1/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 646ms
+
+[WebServer]  Γùï Compiling /api/bridge/[...path] ...
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT dark/360x800/cowork: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Checking bridgeSurface: coworkTheme: darkKeel ┬╖ local build"}
+
+[2/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  Γ£ô Compiled /api/bridge/[...path] in 4.6s (681 modules)
+
+[WebServer]  GET / 200 in 9312ms
+
+[WebServer]  GET /api/bridge/bots 200 in 288ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT dark/360x800/code: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Checking bridgeSurface: codeTheme: darkKeel ┬╖ local build"}
+
+[3/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/providers 200 in 1605ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1613ms
+
+[WebServer]  GET /api/bridge/library 200 in 1611ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1610ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1618ms
+
+[WebServer]  GET / 200 in 502ms
+
+[WebServer]  GET /api/bridge/bots 200 in 316ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1008ms
+
+[WebServer]  GET /api/bridge/library 200 in 1022ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1053ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1150ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1194ms
+
+[WebServer]  GET /api/bridge/projects 200 in 406ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT dark/360x800/duet: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Bridge onlineSurface: duetTheme: darkKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/projects 200 in 930ms
+
+[WebServer]  Γùï Compiling /manifest.webmanifest ...
+
+[WebServer]  GET / 200 in 1626ms
+
+[4/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  Γ£ô Compiled /manifest.webmanifest in 4.8s (697 modules)
+
+[WebServer]  GET / 200 in 6550ms
+
+[WebServer]  GET /api/bridge/bots 200 in 254ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT dark/360x800/fleet: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Checking bridgeSurface: fleetTheme: darkKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/providers 200 in 1589ms
+
+[5/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/library 200 in 1612ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1618ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1621ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1618ms
+
+[WebServer]  GET / 200 in 424ms
+
+[WebServer]  GET /api/bridge/bots 200 in 657ms
+
+[WebServer]  GET /api/bridge/projects 200 in 612ms
+
+[WebServer]  GET /api/bridge/providers 200 in 627ms
+
+[WebServer]  GET /api/bridge/library 200 in 641ms
+
+[WebServer]  GET /api/bridge/usage 200 in 677ms
+
+[WebServer]  GET /api/bridge/providers 200 in 725ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 188ms
+
+[WebServer]  GET /api/bridge/events 200 in 746ms
+
+[WebServer]  GET / 200 in 1115ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT dark/360x800/capabilities: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Bridge onlineSurface: capabilitiesTheme: darkKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/skills 200 in 619ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 613ms
+
+[WebServer]  GET /api/bridge/skills 200 in 621ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 624ms
+
+[6/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 358ms
+
+[WebServer]  GET /api/bridge/bots 200 in 759ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2181ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2192ms
+
+[WebServer]  GET /api/bridge/library 200 in 2201ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2219ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2235ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 360x800 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT dark/360x800/settings: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Checking bridgeSurface: settingsTheme: darkKeel ┬╖ local build"}
+
+[7/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/providers 200 in 479ms
+
+[WebServer]  GET /api/bridge/providers 200 in 465ms
+
+[WebServer]  GET / 200 in 1044ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT dark/390x844/cowork: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"dark","surface":" Checking bridgeSurface: coworkTheme: darkKeel ┬╖ local build"}
+
+[8/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 1800ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1800ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1892ms
+
+[WebServer]  GET /api/bridge/library 200 in 1813ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1826ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1916ms
+
+[WebServer]  GET / 200 in 676ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT dark/390x844/code: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"dark","surface":" Checking bridgeSurface: codeTheme: darkKeel ┬╖ local build"}
+
+[9/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 1682ms
+
+[WebServer]  GET /api/bridge/library 200 in 1688ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1697ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1658ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1788ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1816ms
+
+[WebServer]  GET / 200 in 2225ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1746ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT dark/390x844/duet: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"dark","surface":" Checking bridgeSurface: duetTheme: darkKeel ┬╖ local build"}
+
+[10/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 5673ms
+
+[WebServer]  GET /api/bridge/providers 200 in 5675ms
+
+[WebServer]  GET /api/bridge/projects 200 in 5698ms
+
+[WebServer]  GET /api/bridge/library 200 in 5684ms
+
+[WebServer]  GET /api/bridge/providers 200 in 5702ms
+
+[WebServer]  GET / 200 in 2794ms
+
+[WebServer]  GET /api/bridge/bots 200 in 770ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT dark/390x844/fleet: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"dark","surface":" Checking bridgeSurface: fleetTheme: darkKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/projects 200 in 2057ms
+
+[WebServer]  GET /api/bridge/library 200 in 2069ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2104ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2087ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2104ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 466ms
+
+[WebServer]  GET /api/bridge/routines 200 in 440ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 456ms
+
+[WebServer]  GET /api/bridge/groups 200 in 459ms
+
+[WebServer]  GET /api/bridge/bots 200 in 461ms
+
+[WebServer]  GET /api/bridge/library 200 in 480ms
+
+[11/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 754ms
+
+[WebServer]  GET /api/bridge/providers 200 in 618ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT dark/390x844/capabilities: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"dark","surface":" Checking bridgeSurface: capabilitiesTheme: darkKeel ┬╖ local build"}
+
+[12/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 4556ms
+
+[WebServer]  GET /api/bridge/providers 200 in 4556ms
+
+[WebServer]  GET /api/bridge/projects 200 in 4568ms
+
+[WebServer]  GET /api/bridge/library 200 in 4576ms
+
+[WebServer]  GET /api/bridge/bots 200 in 4582ms
+
+[WebServer]  GET / 200 in 948ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 390x844 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT dark/390x844/settings: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"dark","surface":" Checking bridgeSurface: settingsTheme: darkKeel ┬╖ local build"}
+
+[13/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 3986ms
+
+[WebServer]  GET /api/bridge/library 200 in 3995ms
+
+[WebServer]  GET /api/bridge/providers 200 in 3986ms
+
+[WebServer]  GET /api/bridge/projects 200 in 4000ms
+
+[WebServer]  GET /api/bridge/providers 200 in 4044ms
+
+[WebServer]  GET /api/bridge/bots 200 in 4051ms
+
+[WebServer]  GET / 200 in 3169ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT dark/768x1024/cowork: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"dark","surface":" Checking bridgeSurface: coworkTheme: darkKeel ┬╖ local build"}
+
+[14/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/bots 200 in 3818ms
+
+[WebServer]  GET / 200 in 1613ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1353ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1459ms
+
+[WebServer]  GET /api/bridge/library 200 in 1468ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1631ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1681ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1713ms
+
+[WebServer]  GET /api/bridge/events 200 in 1318ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 1660ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT dark/768x1024/code: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"dark","surface":" Bridge onlineSurface: codeTheme: darkKeel ┬╖ local build"}
+
+[15/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 2299ms
+
+[WebServer]  GET / 200 in 601ms
+
+[WebServer]  GET /api/bridge/bots 200 in 282ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1416ms
+
+[WebServer]  GET /api/bridge/library 200 in 1427ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1441ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1530ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1620ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT dark/768x1024/duet: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"dark","surface":" Checking bridgeSurface: duetTheme: darkKeel ┬╖ local build"}
+
+[16/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/projects 200 in 659ms
+
+[WebServer]  GET /api/bridge/projects 200 in 654ms
+
+[WebServer]  GET / 200 in 907ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT dark/768x1024/fleet: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"dark","surface":" Checking bridgeSurface: fleetTheme: darkKeel ┬╖ local build"}
+
+[17/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  Γ£ô Compiled in 4.1s (697 modules)
+
+[WebServer]  GET / 200 in 4056ms
+
+[WebServer]  GET /api/bridge/bots 200 in 927ms
+
+[WebServer]  GET /api/bridge/projects 200 in 823ms
+
+[WebServer]  GET /api/bridge/providers 200 in 917ms
+
+[WebServer]  GET /api/bridge/library 200 in 906ms
+
+[WebServer]  GET /api/bridge/usage 200 in 917ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2304ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT dark/768x1024/capabilities: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"dark","surface":" Checking bridgeSurface: capabilitiesTheme: darkKeel ┬╖ local build"}
+
+[18/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/skills/manage 200 in 645ms
+
+[WebServer]  GET /api/bridge/skills 200 in 733ms
+
+[WebServer]  GET /api/bridge/skills 200 in 682ms
+
+[WebServer]  GET / 200 in 1161ms
+
+[WebServer]  GET /api/bridge/bots 200 in 436ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1177ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1197ms
+
+[WebServer]  GET /api/bridge/library 200 in 1214ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1230ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1247ms
+
+[WebServer]  GET /api/bridge/events 200 in 439ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 591ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 768x1024 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT dark/768x1024/settings: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"dark","surface":" Bridge onlineSurface: settingsTheme: darkKeel ┬╖ local build"}
+
+[19/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 1846ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1710ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1709ms
+
+[WebServer]  GET / 200 in 330ms
+
+[WebServer]  GET /api/bridge/bots 200 in 340ms
+
+[WebServer]  GET /api/bridge/projects 200 in 683ms
+
+[WebServer]  GET /api/bridge/library 200 in 692ms
+
+[WebServer]  GET /api/bridge/usage 200 in 703ms
+
+[WebServer]  GET /api/bridge/providers 200 in 726ms
+
+[WebServer]  GET /api/bridge/providers 200 in 833ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 360ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT dark/1024x768/cowork: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"dark","surface":" Bridge onlineSurface: coworkTheme: darkKeel ┬╖ local build"}
+
+[20/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 731ms
+
+[WebServer]  GET /api/bridge/events 200 in 846ms
+
+[WebServer]  GET / 200 in 459ms
+
+[WebServer]  GET /api/bridge/bots 200 in 330ms
+
+[WebServer]  GET /api/bridge/providers 200 in 778ms
+
+[WebServer]  GET /api/bridge/projects 200 in 780ms
+
+[WebServer]  GET /api/bridge/library 200 in 798ms
+
+[WebServer]  GET /api/bridge/usage 200 in 811ms
+
+[WebServer]  GET /api/bridge/providers 200 in 938ms
+
+[WebServer]  GET /api/bridge/projects 200 in 246ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT dark/1024x768/code: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"dark","surface":" Bridge onlineSurface: codeTheme: darkKeel ┬╖ local build"}
+
+[WebServer]  GET /manifest.webmanifest 200 in 422ms
+
+[WebServer]  GET /api/bridge/projects 200 in 503ms
+
+[21/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 685ms
+
+[WebServer]  GET / 200 in 350ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT dark/1024x768/duet: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"dark","surface":" Checking bridgeSurface: duetTheme: darkKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/bots 200 in 2224ms
+
+[22/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/projects 200 in 2998ms
+
+[WebServer]  GET /api/bridge/providers 200 in 3005ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2971ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2972ms
+
+[WebServer]  GET /api/bridge/library 200 in 3000ms
+
+[WebServer]  GET / 200 in 576ms
+
+[WebServer]  GET /api/bridge/bots 200 in 718ms
+
+[WebServer]  GET /api/bridge/projects 200 in 658ms
+
+[WebServer]  GET /api/bridge/library 200 in 730ms
+
+[WebServer]  GET /api/bridge/providers 200 in 760ms
+
+[WebServer]  GET /api/bridge/usage 200 in 768ms
+
+[WebServer]  GET /api/bridge/providers 200 in 779ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT dark/1024x768/fleet: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"dark","surface":" Bridge onlineSurface: fleetTheme: darkKeel ┬╖ local build"}
+
+[23/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/library 200 in 1805ms
+
+[WebServer]  GET /api/bridge/routines 200 in 1807ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1819ms
+
+[WebServer]  GET /api/bridge/groups 200 in 1834ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1856ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1891ms
+
+[WebServer]  GET / 200 in 800ms
+
+[WebServer]  GET /api/bridge/bots 200 in 3626ms
+
+[WebServer]  GET /api/bridge/projects 200 in 3613ms
+
+[WebServer]  GET /api/bridge/library 200 in 3693ms
+
+[WebServer]  GET /api/bridge/providers 200 in 3847ms
+
+[WebServer]  GET /api/bridge/providers 200 in 4005ms
+
+[WebServer]  GET /api/bridge/usage 200 in 3993ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT dark/1024x768/capabilities: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"dark","surface":" Bridge onlineSurface: capabilitiesTheme: darkKeel ┬╖ local build"}
+
+[24/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET /manifest.webmanifest 200 in 2160ms
+
+[WebServer]  GET / 200 in 2177ms
+
+[WebServer]  GET /api/bridge/skills 200 in 2016ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 2001ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 2100ms
+
+[WebServer]  GET /api/bridge/skills 200 in 2145ms
+
+[WebServer]  GET / 200 in 1851ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1024x768 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT dark/1024x768/settings: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"dark","surface":" Checking bridgeSurface: settingsTheme: darkKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/bots 200 in 2959ms
+
+[25/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/providers 200 in 3306ms
+
+[WebServer]  GET /api/bridge/providers 200 in 4287ms
+
+[WebServer]  GET /api/bridge/projects 200 in 4257ms
+
+[WebServer]  GET /api/bridge/library 200 in 4207ms
+
+[WebServer]  GET /api/bridge/usage 200 in 4207ms
+
+[WebServer]  GET / 200 in 4683ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT dark/1280x800/cowork: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Checking bridgeSurface: coworkTheme: darkKeel ┬╖ local build"}
+
+[26/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 4136ms
+[WebServer]  GET /api/bridge/providers 200 in 4134ms
+
+[WebServer]  GET /api/bridge/projects 200 in 4145ms
+[WebServer]  GET /api/bridge/library 200 in 4144ms
+[WebServer]  GET /api/bridge/providers 200 in 4155ms
+[WebServer]  GET /api/bridge/bots 200 in 4161ms
+
+[WebServer]  GET / 200 in 5124ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT dark/1280x800/code: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Checking bridgeSurface: codeTheme: darkKeel ┬╖ local build"}
+
+[27/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 883ms
+
+[WebServer]  GET /api/bridge/bots 200 in 696ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT dark/1280x800/duet: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Checking bridgeSurface: duetTheme: darkKeel ┬╖ local build"}
+
+[28/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/providers 200 in 2763ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2630ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2661ms
+
+[WebServer]  GET /api/bridge/library 200 in 2664ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2668ms
+
+[WebServer]  GET / 200 in 2243ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT dark/1280x800/fleet: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Checking bridgeSurface: fleetTheme: darkKeel ┬╖ local build"}
+
+[29/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 2420ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2407ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2431ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2470ms
+
+[WebServer]  GET /api/bridge/library 200 in 2467ms
+
+[WebServer]  GET /api/bridge/bots 200 in 2503ms
+
+[WebServer]  GET / 200 in 1491ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT dark/1280x800/capabilities: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Checking bridgeSurface: capabilitiesTheme: darkKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/bots 200 in 2605ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2745ms
+
+[WebServer]  GET /api/bridge/library 200 in 2726ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2765ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2982ms
+
+[WebServer]  GET /api/bridge/providers 200 in 3008ms
+
+[30/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 967ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1280x800 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT dark/1280x800/settings: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"dark","surface":" Checking bridgeSurface: settingsTheme: darkKeel ┬╖ local build"}
+
+[31/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 4900ms
+
+[WebServer]  GET /api/bridge/projects 200 in 4923ms
+
+[WebServer]  GET /api/bridge/providers 200 in 5011ms
+
+[WebServer]  GET /api/bridge/providers 200 in 4940ms
+
+[WebServer]  GET /api/bridge/library 200 in 4943ms
+
+[WebServer]  GET /api/bridge/bots 200 in 5146ms
+
+[WebServer]  GET / 200 in 2090ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT dark/1440x900/cowork: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"dark","surface":" Checking bridgeSurface: coworkTheme: darkKeel ┬╖ local build"}
+
+[32/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 1377ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1163ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1376ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1468ms
+
+[WebServer]  GET /api/bridge/library 200 in 1674ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1694ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1735ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT dark/1440x900/code: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"dark","surface":" Checking bridgeSurface: codeTheme: darkKeel ┬╖ local build"}
+
+[33/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/projects 200 in 1675ms
+
+[WebServer]  GET / 200 in 1207ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT dark/1440x900/duet: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"dark","surface":" Checking bridgeSurface: duetTheme: darkKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/bots 200 in 2355ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2204ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2464ms
+
+[WebServer]  GET /api/bridge/library 200 in 2193ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2409ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2425ms
+
+[34/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 1068ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT dark/1440x900/fleet: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"dark","surface":" Checking bridgeSurface: fleetTheme: darkKeel ┬╖ local build"}
+
+[35/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 3287ms
+
+[WebServer]  GET /api/bridge/providers 200 in 3286ms
+
+[WebServer]  GET /api/bridge/projects 200 in 3293ms
+
+[WebServer]  GET /api/bridge/providers 200 in 3297ms
+
+[WebServer]  GET /api/bridge/library 200 in 3293ms
+
+[WebServer]  GET /api/bridge/bots 200 in 3819ms
+
+[WebServer]  GET / 200 in 1437ms
+
+[WebServer]  GET /api/bridge/bots 200 in 482ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT dark/1440x900/capabilities: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"dark","surface":" Checking bridgeSurface: capabilitiesTheme: darkKeel ┬╖ local build"}
+
+[36/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 3319ms
+
+[WebServer]  GET /api/bridge/providers 200 in 3317ms
+
+[WebServer]  GET /api/bridge/providers 200 in 3401ms
+
+[WebServer]  GET /api/bridge/library 200 in 3324ms
+
+[WebServer]  GET /api/bridge/projects 200 in 3328ms
+
+[WebServer]  GET / 200 in 459ms
+
+[WebServer]  GET /api/bridge/bots 200 in 609ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1773ms
+
+[WebServer]  GET /api/bridge/library 200 in 1730ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1875ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1768ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1746ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ dark @ 1440x900 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT dark/1440x900/settings: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"dark","surface":" Checking bridgeSurface: settingsTheme: darkKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/providers 200 in 609ms
+
+[WebServer]  GET /api/bridge/providers 200 in 620ms
+
+[37/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 978ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 977ms
+
+[WebServer]  GET / 200 in 286ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT light/360x800/cowork: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Checking bridgeSurface: coworkTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/bots 200 in 1538ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1530ms
+
+[WebServer]  GET /api/bridge/library 200 in 1535ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1597ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1665ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1702ms
+
+[38/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 400ms
+
+[WebServer]  GET /api/bridge/bots 200 in 739ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT light/360x800/code: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Checking bridgeSurface: codeTheme: lightKeel ┬╖ local build"}
+
+[39/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/library 200 in 1439ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1413ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1345ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1444ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1480ms
+
+[WebServer]  GET / 200 in 389ms
+
+[WebServer]  GET /api/bridge/bots 200 in 892ms
+
+[WebServer]  GET /api/bridge/providers 200 in 903ms
+
+[WebServer]  GET /api/bridge/projects 200 in 913ms
+
+[WebServer]  GET /api/bridge/library 200 in 932ms
+
+[WebServer]  GET /api/bridge/usage 200 in 944ms
+
+[WebServer]  GET /api/bridge/providers 200 in 960ms
+
+[WebServer]  GET /api/bridge/projects 200 in 275ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT light/360x800/duet: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Bridge onlineSurface: duetTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/projects 200 in 393ms
+
+[WebServer]  GET / 200 in 432ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 428ms
+
+[40/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 1668ms
+
+[WebServer]  GET /api/bridge/bots 200 in 671ms
+
+[WebServer]  GET /api/bridge/projects 200 in 682ms
+
+[WebServer]  GET /api/bridge/providers 200 in 710ms
+
+[WebServer]  GET /api/bridge/library 200 in 759ms
+
+[WebServer]  GET /api/bridge/usage 200 in 816ms
+
+[WebServer]  GET /api/bridge/providers 200 in 835ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 537ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT light/360x800/fleet: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Bridge onlineSurface: fleetTheme: lightKeel ┬╖ local build"}
+
+[41/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/library 200 in 1679ms
+
+[WebServer]  GET /api/bridge/routines 200 in 1681ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1680ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1686ms
+
+[WebServer]  GET /api/bridge/groups 200 in 1686ms
+
+[WebServer]  GET / 200 in 378ms
+
+[WebServer]  GET /api/bridge/bots 200 in 2552ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2555ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2782ms
+
+[WebServer]  GET /api/bridge/library 200 in 3118ms
+
+[WebServer]  GET /api/bridge/usage 200 in 3410ms
+
+[WebServer]  GET /api/bridge/providers 200 in 3420ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT light/360x800/capabilities: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Checking bridgeSurface: capabilitiesTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/skills 200 in 1851ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 1067ms
+
+[42/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/skills 200 in 2162ms
+[WebServer]  GET / 200 in 1491ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 2235ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 2158ms
+
+[WebServer]  GET / 200 in 516ms
+
+[WebServer]  GET /api/bridge/bots 200 in 287ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 360x800 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT light/360x800/settings: {"scrollWidth":360,"innerWidth":360,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Checking bridgeSurface: settingsTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/providers 200 in 2837ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2853ms
+
+[WebServer]  GET /api/bridge/library 200 in 2865ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2882ms
+
+[43/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/providers 200 in 3116ms
+
+[WebServer]  GET / 200 in 720ms
+
+[WebServer]  GET /api/bridge/bots 200 in 986ms
+
+[WebServer]  GET /api/bridge/providers 200 in 978ms
+
+[WebServer]  GET /api/bridge/projects 200 in 980ms
+
+[WebServer]  GET /api/bridge/library 200 in 1002ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1046ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1169ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 199ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT light/390x844/cowork: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"light","surface":" Checking bridgeSurface: coworkTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET / 200 in 513ms
+
+[WebServer]  GET /api/bridge/events 200 in 630ms
+
+[44/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 315ms
+
+[WebServer]  GET /api/bridge/bots 200 in 190ms
+
+[WebServer]  GET /api/bridge/projects 200 in 451ms
+
+[WebServer]  GET /api/bridge/providers 200 in 486ms
+
+[WebServer]  GET /api/bridge/library 200 in 483ms
+
+[WebServer]  GET /api/bridge/usage 200 in 494ms
+
+[WebServer]  GET /api/bridge/providers 200 in 508ms
+
+[WebServer]  GET /api/bridge/events 200 in 322ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 427ms
+
+[WebServer]  GET /api/bridge/projects 200 in 682ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT light/390x844/code: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"light","surface":" Bridge onlineSurface: codeTheme: lightKeel ┬╖ local build"}
+
+[45/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 1161ms
+
+[WebServer]  GET /api/bridge/projects 200 in 984ms
+
+[WebServer]  GET / 200 in 307ms
+
+[WebServer]  GET /api/bridge/bots 200 in 433ms
+
+[WebServer]  GET /api/bridge/projects 200 in 441ms
+
+[WebServer]  GET /api/bridge/library 200 in 456ms
+
+[WebServer]  GET /api/bridge/providers 200 in 495ms
+
+[WebServer]  GET /api/bridge/usage 200 in 525ms
+
+[WebServer]  GET /api/bridge/providers 200 in 539ms
+
+[WebServer]  GET /api/bridge/projects 200 in 141ms
+
+[WebServer]  GET /api/bridge/projects 200 in 300ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 345ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT light/390x844/duet: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"light","surface":" Bridge onlineSurface: duetTheme: lightKeel ┬╖ local build"}
+
+[46/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 659ms
+
+[WebServer]  GET / 200 in 258ms
+
+[WebServer]  GET /api/bridge/bots 200 in 418ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1427ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1434ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1441ms
+
+[WebServer]  GET /api/bridge/library 200 in 1456ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1536ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT light/390x844/fleet: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"light","surface":" Checking bridgeSurface: fleetTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/tasks 200 in 458ms
+
+[WebServer]  GET /api/bridge/bots 200 in 587ms
+
+[WebServer]  GET /api/bridge/library 200 in 737ms
+
+[WebServer]  GET /api/bridge/routines 200 in 817ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 818ms
+
+[WebServer]  GET /api/bridge/groups 200 in 826ms
+
+[47/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 435ms
+
+[WebServer]  GET /api/bridge/bots 200 in 315ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1287ms
+
+[WebServer]  GET /api/bridge/library 200 in 1297ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1321ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1329ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1407ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT light/390x844/capabilities: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"light","surface":" Checking bridgeSurface: capabilitiesTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 261ms
+
+[WebServer]  GET /api/bridge/skills 200 in 302ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 274ms
+
+[WebServer]  GET /api/bridge/skills 200 in 276ms
+
+[48/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 684ms
+
+[WebServer]  GET /api/bridge/bots 200 in 452ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1667ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1738ms
+
+[WebServer]  GET /api/bridge/library 200 in 1772ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1787ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1825ms
+
+[WebServer]  GET /api/bridge/providers 200 in 506ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 261ms
+
+[WebServer]  GET /api/bridge/providers 200 in 577ms
+
+[WebServer]  GET / 200 in 626ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 390x844 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT light/390x844/settings: {"scrollWidth":390,"innerWidth":390,"scrollHeight":844,"innerHeight":844,"theme":"light","surface":" Bridge onlineSurface: settingsTheme: lightKeel ┬╖ local build"}
+
+[49/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 261ms
+
+[WebServer]  GET /api/bridge/bots 200 in 157ms
+
+[WebServer]  GET /api/bridge/projects 200 in 401ms
+
+[WebServer]  GET /api/bridge/library 200 in 410ms
+
+[WebServer]  GET /api/bridge/providers 200 in 426ms
+
+[WebServer]  GET /api/bridge/usage 200 in 440ms
+
+[WebServer]  GET /api/bridge/providers 200 in 459ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 269ms
+
+[WebServer]  GET / 200 in 545ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT light/768x1024/cowork: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"light","surface":" Bridge onlineSurface: coworkTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/events 200 in 964ms
+
+[50/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 229ms
+
+[WebServer]  GET /api/bridge/bots 200 in 129ms
+
+[WebServer]  GET /api/bridge/projects 200 in 450ms
+
+[WebServer]  GET /api/bridge/library 200 in 459ms
+
+[WebServer]  GET /api/bridge/providers 200 in 494ms
+
+[WebServer]  GET /api/bridge/usage 200 in 488ms
+
+[WebServer]  GET /api/bridge/providers 200 in 507ms
+
+[WebServer]  GET /api/bridge/events 200 in 451ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 279ms
+
+[WebServer]  GET /api/bridge/projects 200 in 823ms
+
+[WebServer]  GET /api/bridge/projects 200 in 831ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT light/768x1024/code: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"light","surface":" Bridge onlineSurface: codeTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET / 200 in 1064ms
+
+[51/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 394ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1279ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1187ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1187ms
+
+[WebServer]  GET /api/bridge/library 200 in 1198ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1243ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1241ms
+
+[WebServer]  GET /api/bridge/projects 200 in 238ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 328ms
+
+[WebServer]  GET /api/bridge/projects 200 in 421ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT light/768x1024/duet: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"light","surface":" Bridge onlineSurface: duetTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET / 200 in 882ms
+
+[52/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 305ms
+
+[WebServer]  GET /api/bridge/bots 200 in 626ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT light/768x1024/fleet: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"light","surface":" Checking bridgeSurface: fleetTheme: lightKeel ┬╖ local build"}
+
+[53/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/usage 200 in 2178ms
+
+[WebServer]  GET /api/bridge/library 200 in 2187ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2257ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2173ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2191ms
+
+[WebServer]  GET / 200 in 437ms
+
+[WebServer]  GET /api/bridge/bots 200 in 174ms
+
+[WebServer]  GET /api/bridge/projects 200 in 662ms
+
+[WebServer]  GET /api/bridge/providers 200 in 686ms
+
+[WebServer]  GET /api/bridge/library 200 in 681ms
+
+[WebServer]  GET /api/bridge/usage 200 in 688ms
+
+[WebServer]  GET /api/bridge/providers 200 in 721ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 106ms
+
+[WebServer]  GET / 200 in 443ms
+
+[WebServer]  GET /api/bridge/events 200 in 1085ms
+
+[WebServer]  GET /api/bridge/skills 200 in 631ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT light/768x1024/capabilities: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"light","surface":" Bridge onlineSurface: capabilitiesTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 813ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 822ms
+
+[WebServer]  GET /api/bridge/skills 200 in 895ms
+
+[54/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 266ms
+
+[WebServer]  GET /api/bridge/bots 200 in 231ms
+
+[WebServer]  GET /api/bridge/providers 200 in 484ms
+
+[WebServer]  GET /api/bridge/projects 200 in 631ms
+
+[WebServer]  GET /api/bridge/library 200 in 643ms
+
+[WebServer]  GET /api/bridge/usage 200 in 653ms
+
+[WebServer]  GET /api/bridge/providers 200 in 725ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 410ms
+
+[WebServer]  GET /api/bridge/events 200 in 1529ms
+
+[WebServer]  GET / 200 in 1648ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 768x1024 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT light/768x1024/settings: {"scrollWidth":768,"innerWidth":768,"scrollHeight":1024,"innerHeight":1024,"theme":"light","surface":" Bridge onlineSurface: settingsTheme: lightKeel ┬╖ local build"}
+
+[55/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/providers 200 in 1126ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1119ms
+
+[WebServer]  GET / 200 in 1431ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT light/1024x768/cowork: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"light","surface":" Checking bridgeSurface: coworkTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/bots 200 in 1681ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1748ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1770ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1778ms
+
+[WebServer]  GET /api/bridge/library 200 in 1780ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1775ms
+
+[56/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 1062ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1396ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT light/1024x768/code: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"light","surface":" Checking bridgeSurface: codeTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/projects 200 in 2115ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2136ms
+
+[WebServer]  GET /api/bridge/library 200 in 2133ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2142ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2281ms
+
+[WebServer]  GET /api/bridge/projects 200 in 163ms
+
+[WebServer]  GET /api/bridge/projects 200 in 233ms
+
+[57/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 427ms
+
+[WebServer]  GET /api/bridge/bots 200 in 586ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2459ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2531ms
+
+[WebServer]  GET /api/bridge/library 200 in 2607ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2615ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2700ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 273ms
+
+[WebServer]  GET / 200 in 801ms
+
+[WebServer]  GET /api/bridge/events 200 in 1811ms
+
+[WebServer]  GET /api/bridge/projects 200 in 196ms
+
+[WebServer]  GET /api/bridge/projects 200 in 278ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT light/1024x768/duet: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"light","surface":" Bridge onlineSurface: duetTheme: lightKeel ┬╖ local build"}
+
+[58/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 506ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1027ms
+
+[WebServer]  GET /api/bridge/projects 200 in 862ms
+
+[WebServer]  GET /api/bridge/library 200 in 873ms
+
+[WebServer]  GET /api/bridge/providers 200 in 907ms
+
+[WebServer]  GET /api/bridge/usage 200 in 918ms
+
+[WebServer]  GET /api/bridge/providers 200 in 940ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 305ms
+
+[WebServer]  GET /api/bridge/events 200 in 1273ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 233ms
+
+[WebServer]  GET / 200 in 1744ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1169ms
+
+[WebServer]  GET /api/bridge/groups 200 in 1255ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1267ms
+
+[WebServer]  GET /api/bridge/routines 200 in 1290ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT light/1024x768/fleet: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"light","surface":" Bridge onlineSurface: fleetTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/library 200 in 604ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 618ms
+
+[WebServer]  GET /api/bridge/bots 200 in 997ms
+
+[WebServer]  GET /api/bridge/groups 200 in 1007ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1091ms
+
+[WebServer]  GET /api/bridge/routines 200 in 1116ms
+
+[WebServer]  GET /api/bridge/library 200 in 388ms
+
+[WebServer]  GET /api/bridge/bots/cowork-task-1/rows 200 in 1011ms
+
+[WebServer]  GET /api/bridge/bots/cowork-task-1/rows 200 in 1168ms
+
+[WebServer]  GET /api/bridge/bots/cowork-task/rows 200 in 1184ms
+
+[WebServer]  GET /api/bridge/bots/new-task-11-24-2026-2-03-49-pm-fork/rows 200 in 1225ms
+
+[WebServer]  GET /api/bridge/bots/new-task-11-24-2026-2-03-49-pm/rows 200 in 1125ms
+
+[WebServer]  GET /api/bridge/bots/new-task-11-24-2026-1-55-48-am/rows 200 in 751ms
+
+[WebServer]  GET /api/bridge/bots/unitytechhub-backend-python-main/rows 200 in 844ms
+
+[WebServer]  GET /api/bridge/bots/new-chat-2/rows 200 in 921ms
+
+[WebServer]  GET /api/bridge/bots/new-chat-1/rows 200 in 950ms
+
+[59/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/bots/new-chat/rows 200 in 1332ms
+
+[WebServer]  GET /api/bridge/events 200 in 3353ms
+
+[WebServer]  GET / 200 in 710ms
+
+[WebServer]  GET /api/bridge/bots 200 in 705ms
+
+[WebServer]  GET /api/bridge/providers 200 in 702ms
+
+[WebServer]  GET /api/bridge/projects 200 in 742ms
+
+[WebServer]  GET /api/bridge/library 200 in 799ms
+
+[WebServer]  GET /api/bridge/usage 200 in 896ms
+
+[WebServer]  GET /api/bridge/providers 200 in 882ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 211ms
+
+[WebServer]  GET / 200 in 605ms
+
+[WebServer]  GET /api/bridge/events 200 in 1033ms
+
+[WebServer]  GET /api/bridge/skills 200 in 667ms
+
+[WebServer]  GET /api/bridge/skills 200 in 705ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT light/1024x768/capabilities: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"light","surface":" Bridge onlineSurface: capabilitiesTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 721ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 871ms
+
+[60/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 327ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1125ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1070ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1088ms
+
+[WebServer]  GET /api/bridge/library 200 in 1063ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1136ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1112ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 197ms
+
+[WebServer]  GET / 200 in 1887ms
+
+[WebServer]  GET /api/bridge/events 200 in 5422ms
+
+[WebServer]  GET /api/bridge/providers 200 in 971ms
+
+[WebServer]  GET /api/bridge/providers 200 in 913ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1024x768 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT light/1024x768/settings: {"scrollWidth":1024,"innerWidth":1024,"scrollHeight":768,"innerHeight":768,"theme":"light","surface":" Bridge onlineSurface: settingsTheme: lightKeel ┬╖ local build"}
+
+[61/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 486ms
+
+[WebServer]  GET /api/bridge/bots 200 in 929ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1087ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1083ms
+
+[WebServer]  GET /api/bridge/library 200 in 1136ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1224ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1255ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 161ms
+
+[WebServer]  GET / 200 in 668ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT light/1280x800/cowork: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Bridge onlineSurface: coworkTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/events 200 in 3656ms
+
+[62/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 384ms
+
+[WebServer]  GET /api/bridge/bots 200 in 791ms
+
+[WebServer]  GET /api/bridge/providers 200 in 803ms
+
+[WebServer]  GET /api/bridge/projects 200 in 802ms
+
+[WebServer]  GET /api/bridge/library 200 in 888ms
+
+[WebServer]  GET /api/bridge/usage 200 in 979ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1126ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 137ms
+
+[WebServer]  GET / 200 in 400ms
+
+[WebServer]  GET /api/bridge/events 200 in 1435ms
+
+[WebServer]  GET /api/bridge/projects 200 in 227ms
+
+[WebServer]  GET /api/bridge/projects 200 in 418ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT light/1280x800/code: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Bridge onlineSurface: codeTheme: lightKeel ┬╖ local build"}
+
+[63/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 417ms
+
+[WebServer]  GET /api/bridge/bots 200 in 410ms
+
+[WebServer]  GET /api/bridge/providers 200 in 784ms
+
+[WebServer]  GET /api/bridge/projects 200 in 763ms
+
+[WebServer]  GET /api/bridge/library 200 in 813ms
+
+[WebServer]  GET /api/bridge/usage 200 in 835ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1037ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 156ms
+
+[WebServer]  GET /api/bridge/events 200 in 806ms
+
+[WebServer]  GET / 200 in 756ms
+
+[WebServer]  GET /api/bridge/projects 200 in 209ms
+
+[WebServer]  GET /api/bridge/projects 200 in 251ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT light/1280x800/duet: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Bridge onlineSurface: duetTheme: lightKeel ┬╖ local build"}
+
+[64/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  Γ£ô Compiled in 3.3s (410 modules)
+
+[WebServer]  GET / 200 in 6041ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT light/1280x800/fleet: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Checking bridgeSurface: fleetTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/bots 200 in 1779ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1127ms
+
+[WebServer]  GET /api/bridge/library 200 in 1084ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1549ms
+
+[65/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/providers 200 in 1640ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1643ms
+
+[WebServer]  GET / 200 in 1096ms
+
+[WebServer]  GET /api/bridge/bots 200 in 486ms
+
+[WebServer]  GET /api/bridge/providers 200 in 525ms
+
+[WebServer]  GET /api/bridge/projects 200 in 597ms
+
+[WebServer]  GET /api/bridge/library 200 in 652ms
+
+[WebServer]  GET /api/bridge/usage 200 in 786ms
+
+[WebServer]  GET /api/bridge/providers 200 in 808ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 197ms
+
+[WebServer]  GET / 200 in 702ms
+
+[WebServer]  GET /api/bridge/events 200 in 1475ms
+
+[WebServer]  GET /api/bridge/skills 200 in 1381ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 1592ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT light/1280x800/capabilities: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Bridge onlineSurface: capabilitiesTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 2789ms
+
+[WebServer]  GET /api/bridge/skills 200 in 2929ms
+
+[66/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 631ms
+
+[WebServer]  GET /api/bridge/bots 200 in 544ms
+
+[WebServer]  GET /api/bridge/providers 200 in 545ms
+
+[WebServer]  GET /api/bridge/projects 200 in 606ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1015ms
+
+[WebServer]  GET /api/bridge/library 200 in 1031ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1050ms
+
+[WebServer]  GET /api/bridge/providers 200 in 677ms
+
+[WebServer]  GET /api/bridge/providers 200 in 678ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 253ms
+
+[WebServer]  GET / 200 in 565ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1280x800 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT light/1280x800/settings: {"scrollWidth":1280,"innerWidth":1280,"scrollHeight":800,"innerHeight":800,"theme":"light","surface":" Bridge onlineSurface: settingsTheme: lightKeel ┬╖ local build"}
+
+[67/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 445ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1714ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ cowork: fresh shot, no overflow, correct theme
+SHOT light/1440x900/cowork: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"light","surface":" Checking bridgeSurface: coworkTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/projects 200 in 1723ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1774ms
+
+[WebServer]  GET /api/bridge/library 200 in 1739ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1777ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1785ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 198ms
+
+[68/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ code: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 608ms
+
+[WebServer]  GET /api/bridge/events 200 in 856ms
+
+[WebServer]  GET / 200 in 469ms
+
+[WebServer]  GET /api/bridge/bots 200 in 775ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ code: fresh shot, no overflow, correct theme
+SHOT light/1440x900/code: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"light","surface":" Checking bridgeSurface: codeTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/projects 200 in 1259ms
+
+[WebServer]  GET /api/bridge/library 200 in 1292ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1320ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1319ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1305ms
+
+[69/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ duet: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/projects 200 in 613ms
+[WebServer]  GET /api/bridge/projects 200 in 737ms
+
+[WebServer]  GET / 200 in 1220ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ duet: fresh shot, no overflow, correct theme
+SHOT light/1440x900/duet: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"light","surface":" Checking bridgeSurface: duetTheme: lightKeel ┬╖ local build"}
+
+[70/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+[WebServer]  GET /api/bridge/providers 200 in 2805ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2806ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2816ms
+
+[WebServer]  GET /api/bridge/library 200 in 2817ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2823ms
+
+[WebServer]  GET /api/bridge/bots 200 in 3631ms
+
+[WebServer]  GET / 200 in 1774ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ fleet: fresh shot, no overflow, correct theme
+SHOT light/1440x900/fleet: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"light","surface":" Checking bridgeSurface: fleetTheme: lightKeel ┬╖ local build"}
+
+[71/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 1341ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2109ms
+
+[WebServer]  GET /api/bridge/bots 200 in 2040ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1954ms
+
+[WebServer]  GET /api/bridge/library 200 in 2016ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2090ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2102ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ capabilities: fresh shot, no overflow, correct theme
+SHOT light/1440x900/capabilities: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"light","surface":" Checking bridgeSurface: capabilitiesTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET / 200 in 96ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 95ms
+
+[WebServer]  GET /api/bridge/skills 200 in 784ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 731ms
+
+[WebServer]  GET /api/bridge/skills/manage 200 in 761ms
+
+[WebServer]  GET /api/bridge/skills 200 in 736ms
+
+[72/74] [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ settings: fresh shot, no overflow, correct theme
+[WebServer]  GET / 200 in 614ms
+
+[chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts:16:9 ΓÇ║ light @ 1440x900 ΓÇ║ settings: fresh shot, no overflow, correct theme
+SHOT light/1440x900/settings: {"scrollWidth":1440,"innerWidth":1440,"scrollHeight":900,"innerHeight":900,"theme":"light","surface":" Checking bridgeSurface: settingsTheme: lightKeel ┬╖ local build"}
+
+[WebServer]  GET /api/bridge/bots 200 in 2147ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2201ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2127ms
+
+[WebServer]  GET /api/bridge/library 200 in 2138ms
+
+[73/74] [chromium] ΓÇ║ tests\quality\03-shared-primitives.spec.ts:7:1 ΓÇ║ Settings: labelled TextField, visible focus ring and shared Dialog trap/Escape/restore
+[WebServer]  GET /api/bridge/providers 200 in 2925ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2927ms
+
+[WebServer]  GET / 200 in 703ms
+
+[WebServer]  GET /api/bridge/bots 200 in 216ms
+
+[WebServer]  GET /api/bridge/providers 200 in 724ms
+
+[WebServer]  GET /api/bridge/projects 200 in 784ms
+
+[WebServer]  GET /api/bridge/library 200 in 795ms
+
+[WebServer]  GET /api/bridge/usage 200 in 811ms
+
+[WebServer]  GET /api/bridge/providers 200 in 992ms
+
+[WebServer]  GET /api/bridge/events 200 in 538ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 663ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2142ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2152ms
+
+[WebServer]  GET / 200 in 2689ms
+
+  1) [chromium] ΓÇ║ tests\quality\03-shared-primitives.spec.ts:7:1 ΓÇ║ Settings: labelled TextField, visible focus ring and shared Dialog trap/Escape/restore 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('textbox', { name: 'Search settings' })
+    Expected: visible
+    Timeout: 12000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('textbox', { name: 'Search settings' }) with timeout 12000ms
+      - waiting for getByRole('textbox', { name: 'Search settings' })
+
+
+      10 |
+      11 |   const search = page.getByRole("textbox", { name: "Search settings" });
+    > 12 |   await expect(search).toBeVisible();
+         |                        ^
+      13 |   const labelInfo = await search.evaluate((el: HTMLInputElement) => ({
+      14 |     id: el.id,
+      15 |     htmlFor: !!document.querySelector(`label[for="${CSS.escape(el.id)}"]`),
+        at C:\Users\Admin\Desktop\keel-frontend-worktree\keel\fleet-next\tests\quality\03-shared-primitives.spec.ts:12:24
+
+    attachment #1: screenshot (image/png) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    tests\quality\test-results\03-shared-primitives-Setti-38b83--Dialog-trap-Escape-restore-chromium\test-failed-1.png
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+    Error Context: tests\quality\test-results\03-shared-primitives-Setti-38b83--Dialog-trap-Escape-restore-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    tests\quality\test-results\03-shared-primitives-Setti-38b83--Dialog-trap-Escape-restore-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace tests\quality\test-results\03-shared-primitives-Setti-38b83--Dialog-trap-Escape-restore-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+
+[74/74] [chromium] ΓÇ║ tests\quality\03-shared-primitives.spec.ts:50:1 ΓÇ║ Code: ResizeHandle is a keyboard-operable separator with live value
+[WebServer]  GET / 200 in 485ms
+
+[WebServer]  GET /api/bridge/bots 200 in 420ms
+
+[WebServer]  GET /api/bridge/providers 200 in 671ms
+
+[WebServer]  GET /api/bridge/projects 200 in 720ms
+
+[WebServer]  GET /api/bridge/library 200 in 754ms
+
+[WebServer]  GET /api/bridge/usage 200 in 792ms
+
+[WebServer]  GET /api/bridge/providers 200 in 811ms
+
+[WebServer]  GET /api/bridge/projects 200 in 267ms
+
+[WebServer]  GET /api/bridge/projects 200 in 271ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 288ms
+
+[WebServer]  GET / 200 in 570ms
+
+[chromium] ΓÇ║ tests\quality\03-shared-primitives.spec.ts:50:1 ΓÇ║ Code: ResizeHandle is a keyboard-operable separator with live value
+RESIZE HANDLE: 264 -> 272 -> 220 (range 220..440)
+
+  Slow test file: [chromium] ΓÇ║ tests\quality\02-responsive-shots.spec.ts (12.5m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    [chromium] ΓÇ║ tests\quality\03-shared-primitives.spec.ts:7:1 ΓÇ║ Settings: labelled TextField, visible focus ring and shared Dialog trap/Escape/restore 
+  73 passed (13.9m)

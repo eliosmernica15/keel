@@ -652,7 +652,16 @@ export function FileView({ projectId, path, onDirtyChange }: {
               </Button>
             </>
           )}
-          <IconButton label="Reload file from disk" onClick={() => setReload((n) => n + 1)}><Icon name="refresh" size={15} /></IconButton>
+          <IconButton
+            label="Reload file from disk"
+            onClick={() => {
+              // Prevent silent data loss: reloading discards the in-memory buffer.
+              if (dirty && !window.confirm("This file has unsaved edits. Reload from disk and discard them?")) return;
+              setReload((n) => n + 1);
+            }}
+          >
+            <Icon name="refresh" size={15} />
+          </IconButton>
         </div>
       </header>
       {truncated && <p className={s.note}>The bridge capped this read. Only the returned prefix is shown; editing and writing are disabled to avoid truncating the file on disk.</p>}

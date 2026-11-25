@@ -116,3 +116,67 @@ One more round is necessary only for packaging/renderer verification and externa
 - `npx playwright test --config tests/a11y/playwright.a11y.config.ts --workers=1` — **12 passed**; 0 contrast violations in both themes (light min 4.87:1).
 - `npm run test:features` — Cowork 28, Code+Duet 30, Fleet 20, Capabilities/Settings 17, Onboarding 13 (**108 passed**).
 - Temporary bridge started on :8739 for integration tests and stopped afterward; no credentials in commits.
+
+---
+
+## Final reconciliation (frontend finalization round, 2026-11-25)
+
+The two tables above (initial and end-of-round) are **retained as history**; their 150-criterion
+denominator is unchanged. This section re-derives the counts from the evidence actually on record
+after the finalization round. **No criterion was promoted to `verified` on the strength of source
+presence, a client helper, a real backend route, or an uncommitted change.**
+
+| Area | Total | Verified | Implemented, unverified | Partial | Not started | Blocked |
+|---|---:|---:|---:|---:|---:|---:|
+| Shared design system | 10 | 9 | 1 | 0 | 0 | 0 |
+| Application shell | 14 | 13 | 1 | 0 | 0 | 0 |
+| Cowork | 18 | 18 | 0 | 0 | 0 | 0 |
+| Code | 14 | 13 | 1 | 0 | 0 | 0 |
+| Duet | 12 | 11 | 1 | 0 | 0 | 0 |
+| Fleet | 18 | 17 | 1 | 0 | 0 | 0 |
+| Providers / models | 10 | 9 | 0 | 0 | 0 | 1 |
+| Capabilities | 8 | 7 | 1 | 0 | 0 | 0 |
+| Settings / security UX | 12 | 11 | 0 | 0 | 0 | 1 |
+| Onboarding | 10 | 10 | 0 | 0 | 0 | 0 |
+| Accessibility / performance | 14 | 12 | 1 | 0 | 0 | 1 |
+| Renderer / packaging | 10 | 0 | 0 | 2 | 2 | 6 |
+| **Total** | **150** | **131** | **6** | **2** | **2** | **9** |
+
+- Verified: **131/150 = 87.3 %** — unchanged from the end-of-round assessment.
+- Implemented but unverified: **6/150 = 4.0 %**.
+- Partial + not started: **4/150 = 2.7 %**; blocked: **9/150 = 6.0 %**.
+
+### Why the counts did not move
+
+The finalization evidence **confirms** the recorded counts rather than reclassifying criteria:
+
+- `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2 --reporter=line`
+  → **144 passed / 0 failed (3.1 m)**; Code+Duet and Fleet flows are covered here and in the
+  feature suites (Code+Duet 30, Fleet 20). These are the same flows already counted as verified.
+- Agent G's `npx playwright test --config tests/distribution-qa/playwright.config.ts`
+  → **42 passed / 0 failed (33.6 s)**, including the real-bridge desktop first-launch contract
+  (`03-desktop-first-launch.spec.ts`). This verifies **source + real bridge**, not a packaged
+  Electron GUI, so the renderer/packaging rows stay partial/not-started/blocked.
+- Accessibility **12 passed / 0 failed** and a **72/72** viewport re-run confirm the previously
+  verified automated checks; native browser zoom remains a manual step and NVDA/JAWS/VoiceOver
+  remain blocked, so no a11y row moves.
+- Whole-repo `python -m pytest -q -o faulthandler_timeout=120` → **4610 passed / 54 skipped /
+  3707 subtests / 0 failed (474.31 s)** is a regression result for the whole candidate, not a
+  150-criterion frontend verification count; it does not promote any frontend row.
+- The uncommitted `fleet-next/app/manifest.ts` shortcut/branding edit is **not committed and not
+  tested**; it is recorded as pending, not verified.
+
+### Items external to the 150-criterion matrix (status recorded, denominator unchanged)
+
+| Item | Evidence | Status |
+|---|---|---|
+| Fleet transcript rewind / restore rows | real routes + helpers; uncommitted `AgentDetails.tsx` UI and `tests/acceptance-final/01-fleet-recovery.spec.ts` / `fleet-transcript.spec.ts`; no passing run by 11:24 | **implemented, unverified** |
+| Fleet Markdown transcript export | real `bots/:id/export.md` + uncommitted `exportUrl()` probe; no passing run | **implemented, unverified** |
+| Fleet task undo delete | Fleet suite 20 passed, payload captured at browser boundary | verified |
+| In-app download entry (site) | Agent G PWA + a11y specs; one keyboard-reachable `#nav-download` link. Uncommitted `fleet-next` entry + 3-spec suite `.last-run.json status: passed` at 11:19 (exact count pending lead report) | verified on `site`; `fleet-next` suite reported passed |
+| PWA start URL / shortcut (site) | Agent G PWA journey; `site/manifest.webmanifest` `start_url /app` + one `Get Keel Desktop` shortcut. Uncommitted `fleet-next/app/manifest.ts` shortcut + 6-spec PWA suite, no recorded pass by 11:24 | verified on `site`; `fleet-next` **implemented, unverified** |
+| Optional dictation | legacy `desktop/ui` code (Python voice suite 13 passed); uncommitted `Composer.tsx` control + 8-spec `13-dictation.spec.ts`; 11:23 run recorded 3 failures | **not verified** |
+| Packaged Electron / Tauri, live provider, screen reader, public installer | no fresh package build, no credentials, no SR hardware, no published verified asset | external/owner blocked |
+
+No production-readiness claim is made: `FINAL-STABILIZATION-ACCEPTANCE.md` records
+`PASS_WITH_EXTERNAL_LIMITATIONS` with outstanding external/owner gates.

@@ -296,6 +296,22 @@ function Shell() {
           </nav>
           <div className="keel-sidebar__foot">
             <SetupChecklist onNavigate={goto} />
+            {/* The single contextual desktop entry point in the unified shell.
+                A native <a> keeps keyboard/Enter behaviour; Keel's shared
+                button classes and icon set keep it visually consistent. */}
+            <a
+              className="keel-btn keel-btn--ghost keel-btn--sm"
+              href="https://keel-desktop.vercel.app/download"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Get Keel Desktop"
+              title="Get Keel Desktop (opens in a new tab)"
+              style={{ width: "100%", justifyContent: "flex-start", textDecoration: "none" }}
+            >
+              <Icon name="download" size={15} />
+              <span style={{ flex: 1, textAlign: "left" }}>Get Keel Desktop</span>
+              <Icon name="external" size={13} />
+            </a>
           </div>
         </aside>
 

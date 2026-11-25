@@ -8,9 +8,10 @@ export { expect };
 
 /**
  * Only for the two specs that deliberately make the bridge return a real
- * 409/502. Chromium logs those HTTP statuses as `console.error` resource
- * messages even though the UI handles them correctly. Everything else is
- * still gated to zero console errors / zero page errors.
+ * real bridge error statuses (400/409/500/502). Chromium logs those HTTP
+ * statuses as `console.error` resource messages even though the UI handles
+ * them correctly. Everything else is still gated to zero console errors /
+ * zero page errors.
  */
 export const testWithExpectedHttpError = sharedTest.extend<{ consoleErrors: string[] }>({
   consoleErrors: async ({ page }, use) => {
@@ -19,7 +20,7 @@ export const testWithExpectedHttpError = sharedTest.extend<{ consoleErrors: stri
     page.on("console", (message) => {
       if (message.type() !== "error") return;
       const text = message.text();
-      if (/Failed to load resource: the server responded with a status of (409|502) \(/.test(text)) return;
+      if (/Failed to load resource: the server responded with a status of (400|409|500|502) \(/.test(text)) return;
       const loc = message.location();
       errors.push(`console.error: ${text} @ ${loc.url}:${loc.lineNumber + 1}:${loc.columnNumber + 1}`);
     });
@@ -163,6 +164,8 @@ export interface FleetBridgeFixture {
   groupRows: unknown[];
   groupMessageMode: "ok" | "conflict";
   runMode: "ok" | "conflict";
+  /** The live transcript ledger, mutated by the real rewind/restore routes. */
+  liveRows: Record<string, unknown[]>;
 }
 
 function json(route: import("@playwright/test").Route, body: unknown, status = 200) {
@@ -191,12 +194,23 @@ export async function routeFleetBridge(page: Page, options: {
   sseFrames?: string;
   /** Real-shaped task rows for the board. */
   tasks?: unknown[];
+  /** Markdown export probe: a real attachment, or a bridge-unavailable 502. */
+  exportMode?: "ok" | "unavailable";
+  /** Rewind: the bridge's real success envelope, or a 400 bad from_seq. */
+  rewindMode?: "ok" | "bad_seq" | "slow";
+  /** Restore: the bridge's real restored count, or a bridge failure. */
+  restoreMode?: "ok" | "failure";
 } = {}): Promise<FleetBridgeFixture> {
+  // Rewind/restore mutate this ledger exactly as delete_rows_from/restore_rows
+  // do in service.py, so the UI's post-mutation reload shows real bridge state.
+  const liveRows: Record<string, unknown[]> = {};
+  for (const [id, rows] of Object.entries(options.rows ?? ROWS)) liveRows[id] = [...rows];
   const fixture: FleetBridgeFixture = {
     calls: [],
     groupRows: [...INITIAL_GROUP_ROWS],
     groupMessageMode: options.groupMessageMode ?? "ok",
     runMode: options.runMode ?? "ok",
+    liveRows,
   };
   await page.route((url) => url.pathname.startsWith("/api/bridge/"), async (route) => {
     const path = route.request().url().split("/api/bridge/")[1]?.split("?")[0] ?? "";
@@ -217,6 +231,39 @@ export async function routeFleetBridge(page: Page, options: {
       fixture.calls.push({ method, path, body });
       if (path === "bots") return json(route, { bot: { id: "b_new", ...(body as object) } }, 201);
       if (/^bots\/[^/]+\/update$/.test(path)) return json(route, { bot: { id: path.split("/")[1] } });
+      const rewind = path.match(/^bots\/([^/]+)\/rewind$/);
+      if (rewind) {
+        const botId = rewind[1];
+        const seq = Number((body as { from_seq?: unknown }).from_seq);
+        if (!Number.isInteger(seq) || seq <= 0 || (options.rewindMode ?? "ok") === "bad_seq") {
+          return json(route, { error: "from_seq must be positive" }, 400);
+        }
+        const current = liveRows[botId] ?? [];
+        const deleted = current
+          .filter((r) => Number((r as Record<string, unknown>).seq) >= seq)
+          .map((r) => ({ bot_id: botId, ...(r as Record<string, unknown>) }));
+        liveRows[botId] = current.filter((r) => Number((r as Record<string, unknown>).seq) < seq);
+        if ((options.rewindMode ?? "ok") === "slow") {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+        // routes.py:1399-1400 → {"rows": deleted, "deleted": len(deleted)}
+        return json(route, { rows: deleted, deleted: deleted.length });
+      }
+      const restore = path.match(/^bots\/([^/]+)\/restore$/);
+      if (restore) {
+        const botId = restore[1];
+        const rows = (body as { rows?: unknown }).rows;
+        if (!Array.isArray(rows)) return json(route, { error: "rows must be a list" }, 400);
+        if ((options.restoreMode ?? "ok") === "failure") {
+          return json(route, { error: "restore_rows failed" }, 500);
+        }
+        // service.py:625-645 re-appends with fresh AUTOINCREMENT seq values.
+        let next = Math.max(0, ...(liveRows[botId] ?? []).map((r) => Number((r as Record<string, unknown>).seq) || 0));
+        const appended = rows.map((r) => ({ ...(r as Record<string, unknown>), seq: ++next, bot_id: botId }));
+        liveRows[botId] = [...(liveRows[botId] ?? []), ...appended];
+        // routes.py:1413-1414 → {"restored": count}
+        return json(route, { restored: appended.length });
+      }
       if (/^bots\/[^/]+\/policies\/revoke$/.test(path)) return json(route, { revoked: true });
       if (/^bots\/[^/]+\/(messages|cancel|approvals|asks)/.test(path)) return json(route, { queued: true, seq: 9 });
       if (path === "groups") return json(route, { group: { id: "g_new", name: "Ops", members: [] } }, 201);
@@ -250,8 +297,23 @@ export async function routeFleetBridge(page: Page, options: {
       return json(route, { error: "bridge_unavailable" }, 502);
     }
     if (path === "bots") return json(route, { bots: BOTS });
+    const botExport = path.match(/^bots\/([^/]+)\/export\.md$/);
+    if (botExport) {
+      // routes.py:344-357 serves a real Markdown attachment (no JSON envelope).
+      if ((options.exportMode ?? "ok") === "unavailable") {
+        return json(route, { error: "bridge_unavailable" }, 502);
+      }
+      const bot = BOTS.find((b) => b.id === botExport[1]);
+      const markdown = `# ${bot?.name ?? botExport[1]} transcript\n\nExported by the real bridge route.\n`;
+      return route.fulfill({
+        status: 200,
+        contentType: "text/markdown; charset=utf-8",
+        headers: { "Content-Disposition": `attachment; filename="${(bot?.name ?? "chat").replace(/\s+/g, "-")}.md"`, "X-Content-Type-Options": "nosniff" },
+        body: markdown,
+      });
+    }
     const botRows = path.match(/^bots\/([^/]+)\/rows$/);
-    if (botRows) return json(route, { bot_id: botRows[1], rows: (options.rows ?? ROWS)[botRows[1]] ?? [] });
+    if (botRows) return json(route, { bot_id: botRows[1], rows: liveRows[botRows[1]] ?? [] });
     const botPolicies = path.match(/^bots\/([^/]+)\/policies$/);
     if (botPolicies) return json(route, { bot_id: botPolicies[1], policies: POLICIES });
     const botAudit = path.match(/^bots\/([^/]+)\/audit$/);
