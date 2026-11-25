@@ -22,6 +22,8 @@
 
 Electron's `uiRoot()` preference (`site` over `desktop/ui`) conflicts with the local bridge default and Tauri's `frontendDist`. This is a **packaging** decision that must be resolved with a real package build and an assertion that the intended local entry point loads. This frontend branch deliberately does **not** change it: repointing Electron to `fleet-next` before the parity/verification gate would risk removing local agent, filesystem and trust behaviour from the shipped app.
 
+**2026-11-25 evidence update (Agent G, distribution QA — source + real bridge, not a packaged GUI run):** the current `desktop-app/main.js` `uiRoot()` prefers `resources/desktop/ui`, then legacy `resources/ui`; `resources/site` is reachable only behind `KEEL_UI_PROFILE=mirror`. `tests/distribution-qa/03-desktop-first-launch.spec.ts` verifies that source contract and, against a **real** `python -m keel serve --port 8742` with `KEEL_UI_DIR=desktop/ui`, that `GET /?t=…` returns the local-renderer title (not the `site/app.html` mirror) and `/api/fleet/bots` returns HTTP 200. The earlier `site`-first ambiguity is therefore **resolved in source and in a real-bridge round-trip**; a fresh packaged Electron GUI assertion (G4) is still not verified. No `fleet-next` default cutover is claimed.
+
 ## 2. Decision record
 
 1. **Canonical unified renderer:** `fleet-next` is the implementation target for the unified Cowork/Code/Duet/Fleet experience because it already models all four surfaces, talks to the real Python bridge through a same-origin BFF, and is buildable/testable on this host. It is **not** declared the default shipped renderer for Electron/Tauri by this branch.
@@ -79,3 +81,21 @@ fleet-next/
 | G6 | Rollback flag to `desktop/ui` retained | packaging workstream |
 
 Only after G1–G6 pass should the default renderer be changed, in a separate coordinated branch.
+
+## 6. Finalization evidence (2026-11-25)
+
+Gate status re-read against the current worktree. A source contract or a browser-only check is
+recorded as such and is **not** promoted to a packaged-build claim.
+
+| Gate | Evidence now available | Status |
+|---|---|---|
+| G1 — four surfaces + two destinations in one shell | browser walkthrough, `tests/e2e/` production suite **144 passed / 0 failed** after Agent G's integration | verified in browser |
+| G2 — Fleet parity vs classic | `tests/features/fleet/` **20 passed**; `UI-FEATURE-PARITY.md` finalization reconciliation (rewind/export remain gaps) | verified for the listed flows; parity gaps remain documented |
+| G3 — real bridge round-trip | Agent G `03-desktop-first-launch.spec.ts`: real `keel serve` on `:8742`, local renderer title, `/api/fleet/bots` HTTP 200; earlier 11 read-only endpoints HTTP 200 | verified for read-only/first-launch paths; live provider turn still blocked (no credentials) |
+| G4 — Electron/Tauri packaged entry assertion | source contract verified; packaged GUI and fresh build not run (no Electron build tools, Tauri linker `link.exe` absent) | **not verified / external gate** |
+| G5 — public `/app` stays browser-only and labelled | Agent G `02-pwa-journey.spec.ts` + `04-landing-regression.spec.ts`: start URL `/app` never `/download`, no `/app* → /download` rewrite, one contextual download link, landing/privacy/downloads pixel-identical | verified in browser on the site tree; no installed PWA window on a real OS |
+| G6 — rollback flag to `desktop/ui` | still owner-gated packaging decision; legacy `desktop/ui` and classic Fleet are present and unchanged | **owner gate** |
+
+Renderer decision is unchanged: `fleet-next` remains the candidate unified UI, `desktop/ui` the
+shipped local fallback, `site` a visibly constrained browser mirror. No production-readiness
+claim is made here; see `FINAL-STABILIZATION-ACCEPTANCE.md` (`PASS_WITH_EXTERNAL_LIMITATIONS`).

@@ -1418,3 +1418,25 @@ for provenance. Current authoritative certification:
 
 The gate remains a certification layer over tests and declarations; it does not claim
 native cross-platform or live-provider verification.
+
+---
+
+## Frontend finalization round (2026-11-25) — Agent H documentation ledger
+
+**Scope:** frontend documentation only. No generated artifact (`PLAN-INDEX.json`, `parity.json`, `Keel_Master_Plan_v6.md`, plan sources), `site/**`, feature code, or git commit/push was touched by this agent.
+
+**Deliverable 1 — uploaded plan:** `keel/docs/UI-UX-IMPLEMENTATION-PLAN.md` is a byte-exact copy of `KEEL-UI-UX-IMPLEMENTATION-PLAN (1).md`. Source and destination SHA-256 both `B2861E6FF36942D6F3E13242472C5BC60D56219498BA5FD43A42A579A6A7AD02`; 714 lines, 69,496 bytes each; no summary or edits.
+
+**Deliverable 2 — status updates from recorded evidence only:**
+- `UI-FEATURE-PARITY.md`: Fleet transcript rewind/restore and Markdown export are **implemented-unverified** in the working tree (real routes + `lib/api.ts` helpers, uncommitted `AgentDetails.tsx` controls and new specs, but no passing run by 11:24). Task undo delete remains verified (Fleet suite 20 passed, payload captured at the browser boundary).
+- `UI-ARCHITECTURE.md`: Agent G `03-desktop-first-launch.spec.ts` verifies the current `uiRoot()` source contract and a real-bridge first launch that loads `desktop/ui`, not the `site` mirror. Packaged GUI assertion (G4) is still **not verified**; renderer decision unchanged.
+- `UI-TEST-MATRIX.md` / `UI-REQUIREMENTS-MATRIX.md`: added the 2026-11-25 evidence ledger and a final reconciliation section. The 150-criterion history is preserved verbatim; evidence-derived counts remain **131 verified / 6 implemented-unverified / 2 partial / 2 not started / 9 blocked** — nothing was promoted without a passing test.
+- `UI-REFERENCE-PROVENANCE.md`: stale "pending subagent report" evidence replaced with recorded passing suites; in-flight PWA/dictation/Fleet-recovery code is recorded as implemented-unverified, not as adopted/verified patterns.
+
+**Evidence used (all recorded in this worktree):** Agent G `DISTRIBUTION-QA.md` — distribution QA **42/42**, production E2E **144/144**, a11y **12/12**, feature suites **108**, site tests **20**, release-Python subset **45**; single in-app download entry `#nav-download` in `site/app.html` (QA-G-D07 accepted); PWA start URL `/app` + one `Get Keel Desktop` shortcut in `site/manifest.webmanifest` verified by `02-pwa-journey.spec.ts`; Code+Duet **30/30** feature tests and a 72/72 viewport re-run with 0 contrast violations in both themes. Lead whole-repo final suite: **4610 passed / 54 skipped / 0 failed (474.31 s)** — regression evidence only, not a frontend-criterion promotion.
+
+**In-flight 2026-11-25 evidence (observed 11:19–11:24, not a final report):** uncommitted working-tree code adds a `fleet-next` download entry (`tests/features/download-entry/`, 3 specs, `.last-run.json status: passed` at 11:19 — exact count awaits the lead), a `fleet-next` PWA shortcut/identity (`tests/pwa/01-identity-and-launch.spec.ts`, 6 specs, no recorded pass), a unified-UI dictation control (`tests/features/cowork/13-dictation.spec.ts`, 8 specs; the 11:23 cowork run recorded 3 failures), and Fleet rewind/export controls (`tests/acceptance-final/01-fleet-recovery.spec.ts`, `fleet-transcript.spec.ts`, no recorded pass). All four remain **implemented-unverified** until a passing suite result is reported; legacy `desktop/ui` also retains SpeechRecognition code (`M6 Batch 18`, Python voice suite 13 passed). `UI-ZOOM-A11Y.md` §7 remains accurate for the committed state.
+
+**Remaining external/API-dependent gaps (precise):** no fresh packaged Electron build/tools; Tauri `link.exe` (MSVC Build Tools) absent; renderer switch/rollback is an owner decision; live provider turn blocked on credentials; NVDA/JAWS/VoiceOver hardware and the native zoom gesture not exercised; no published signed/verified installer; Fleet rewind/restore and Markdown export UI unsurfaced; dictation absent in unified UI; per-agent cost and parent/child hierarchy routes absent; tool catalogue and extension marketplace absent.
+
+**No production-readiness claim.** `FINAL-STABILIZATION-ACCEPTANCE.md` verdict is `PASS_WITH_EXTERNAL_LIMITATIONS` with outstanding external/owner gates.
