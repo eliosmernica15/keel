@@ -190,7 +190,11 @@ function addEndpoint(file, lineNo, raw, p, method = "GET") {
 }
 
 const endpointRe = /\bapi(?:<[^>]*>)?\(\s*["'`]([^"'`]+)["'`]/g;
-for (const f of sourceFiles) {
+const frontendCallSources = sourceFiles.filter((file) => {
+  const topLevel = path.relative(APP, file).split(path.sep)[0];
+  return ["app", "components", "features", "lib"].includes(topLevel);
+});
+for (const f of frontendCallSources) {
   const text = fs.readFileSync(f, "utf8");
   // api("bots") / api<Foo>("bots") / api(`bots/${id}`)
   let m;

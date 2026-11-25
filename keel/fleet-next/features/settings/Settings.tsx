@@ -6,25 +6,32 @@
 // in the main content area. "General" is selected by default.
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Card, EmptyState, Toggle } from "@/components/ui";
+import { Button, Card, EmptyState } from "@/components/ui";
 import { Icon } from "@/components/icons";
-import { useApp } from "@/lib/state";
 import s from "./settings.module.css";
 import { SETTINGS_SECTIONS, type SectionId } from "./settingsShared";
 import { AgentModelsPanel, CredentialsPanel, ProvidersPanel } from "./ProvidersSettings";
+import { AccessibilityPanel, AppearancePanel, ResetPanel } from "./PreferencesSettings";
+import { NetworkPanel, PermissionsPanel, TrustPanel } from "./SecuritySettings";
 import { DiagnosticsPanel, PrivacyPanel, UpdatesPanel } from "./SystemSettings";
 
 const CATEGORY_ORDER = ["SETTINGS", "THIS COMPUTER", "CUSTOMIZE"] as const;
 
-export default function Settings() {
-  const { notify } = useApp() as { notify: (message: string, kind?: "error" | "warning" | "info" | "success") => void };
+export default function Settings({ onClose }: { onClose: () => void }) {
   const [active, setActive] = useState<SectionId>("general");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     const applyHash = () => {
       const id = window.location.hash.replace(/^#settings-/, "");
-      if (SETTINGS_SECTIONS.some((section) => section.id === id)) setActive(id as SectionId);
+      const aliases: Record<string, SectionId> = {
+        diagnostics: "system",
+        trust: "admin",
+        permissions: "policies",
+      };
+      const target = aliases[id] ?? id;
+      const section = SETTINGS_SECTIONS.find((candidate) => candidate.id === target);
+      if (section) setActive(section.id);
     };
     applyHash();
     window.addEventListener("hashchange", applyHash);
@@ -55,13 +62,19 @@ export default function Settings() {
   function renderSection(id: SectionId) {
     switch (id) {
       case "providers": return <ProvidersPanel />;
+      case "agent-models": return <AgentModelsPanel />;
+      case "credentials": return <CredentialsPanel />;
       case "usage": return <UsagePanel />;
+      case "appearance": return <AppearancePanel />;
+      case "accessibility": return <AccessibilityPanel />;
+      case "reset": return <ResetPanel />;
       case "privacy": return <PrivacyPanel />;
       case "import-export": return <StubPanel title="Import & export" note="Import and export routes are not exposed by this bridge build." />;
       case "keel-code": return <StubPanel title="Keel Code" note="Keel Code settings are managed on the Code surface." />;
       case "keel-desktop": return <StubPanel title="Keel Desktop" note="Keel Desktop is a separate application; its settings live in the desktop shell." />;
-      case "policies": return <PoliciesPanel notify={notify} />;
-      case "admin": return <AdminPanel notify={notify} />;
+      case "policies": return <PermissionsPanel />;
+      case "admin": return <TrustPanel />;
+      case "network": return <NetworkPanel />;
       case "system": return (
         <>
           <DiagnosticsPanel />
@@ -87,6 +100,7 @@ export default function Settings() {
           <input
             className={s.searchInput}
             type="search"
+            aria-label="Search settings"
             placeholder="Search settings"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -120,43 +134,39 @@ export default function Settings() {
                 </section>
               );
             })}
-            <div className={s.navClose} onClick={() => {
-              /* Close handled by the shell. */
-            }}>
-              <Icon name="close" size={15} /> Close
-            </div>
+            <button type="button" className={s.navClose} onClick={onClose}>
+              <Icon name="close" size={15} /> Close settings
+            </button>
           </>
         )}
       </aside>
 
       <main className={s.main}>
         <header className={s.header}>
+          <nav className={s.breadcrumb} aria-label="Breadcrumb">
+            <span>{current.id === "providers" || current.id === "agent-models" || current.id === "credentials"
+              ? "Models & providers"
+              : current.category}</span>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{current.title}</span>
+          </nav>
           <h1>{current.title}</h1>
           <p>{current.description}</p>
         </header>
-        <div className={s.content} aria-label={current.title}>
+        <section className={s.content} aria-label={current.title}>
           {isGeneral && (
             <>
               <AccountCard />
-              <SectionHeader label="ACCESSIBILITY" title="Accessibility" />
-              <SettingCard title="Speak replies aloud (opt-in)" description="Uses this browser's speech synthesis; Keel sends no audio anywhere.">
-                <Toggle checked={false} onChange={() => {}} label="Spoken aloud through the browser." />
-              </SettingCard>
-              <SettingCard title="Announce streaming updates" description="Live-region announcements for new agent text.">
-                <select className={s.select} defaultValue="polite">
-                  <option value="polite">Polite</option>
-                  <option value="assertive">Assertive</option>
-                  <option value="off">Off</option>
-                </select>
-                <p className={s.muted}>Saved in local state.</p>
-              </SettingCard>
-              <SectionHeader label="COMPOSER & READABILITY" title="Composer & readability" />
-              <SettingCard title="High-legibility font" description="Work Sans (SIL OFL 1.1) — license included beside the font.">
-                <Toggle checked={false} onChange={() => {}} label="Use the high-legibility font in the composer." />
-              </SettingCard>
-              <SettingCard title="Vim keybindings in composer" description="Escape = normal, i/a = insert, h/j/k/l navigation, 0/$ line edges.">
-                <Toggle checked={false} onChange={() => {}} label="Vim navigation and editing in the composer." />
-              </SettingCard>
+              <SectionHeader label="LOCAL PREFERENCES" title="Make Keel yours" />
+              <Card className={s.settingCard}>
+                <h3>Appearance and accessibility</h3>
+                <p className={s.cardDesc}>These controls reflect preferences the app shell can apply. Unsupported controls are not shown.</p>
+                <div className={s.controls}>
+                  <Button size="sm" variant="secondary" onClick={() => select("appearance")}>Appearance</Button>
+                  <Button size="sm" variant="secondary" onClick={() => select("accessibility")}>Accessibility</Button>
+                  <Button size="sm" variant="ghost" onClick={() => select("reset")}>Reset preferences</Button>
+                </div>
+              </Card>
             </>
           )}
           {!isGeneral && matches.length > 0 && (
@@ -168,7 +178,7 @@ export default function Settings() {
           {matches.length === 0 && !isGeneral && (
             <EmptyState icon={<Icon name="search" />} title="No matching settings" description="Try another term, or clear the search to see every category." />
           )}
-        </div>
+        </section>
       </main>
     </div>
   );
@@ -198,19 +208,6 @@ function SectionHeader({ label, title }: { label: string; title: string }) {
   );
 }
 
-// A single settings card: title, description, controls.
-function SettingCard({ children, title, description }: { children: React.ReactNode; title: string; description?: string }) {
-  return (
-    <Card className={s.settingCard}>
-      <div className={s.settingHead}>
-        <h3 className={s.cardTitle}>{title}</h3>
-      </div>
-      {description && <p className={s.cardDesc}>{description}</p>}
-      <div className={s.controls}>{children}</div>
-    </Card>
-  );
-}
-
 function StubPanel({ title, note }: { title: string; note: string }) {
   return (
     <Card className={s.settingCard}>
@@ -219,52 +216,6 @@ function StubPanel({ title, note }: { title: string; note: string }) {
       </div>
       <p className={s.cardDesc}>{note}</p>
       <p className={s.muted}>No controls are rendered here until the bridge exposes a route for this section.</p>
-    </Card>
-  );
-}
-
-// Policies — permission mode (local preference).
-function PoliciesPanel({ notify }: { notify: (message: string, kind?: "error" | "warning" | "info" | "success") => void }) {
-  const [mode, setMode] = useState<"build" | "acceptEdits" | "plan" | "autopilot">("build");
-  const MODES: Array<{ value: string; label: string }> = [
-    { value: "build", label: "Build" },
-    { value: "acceptEdits", label: "Accept edits" },
-    { value: "plan", label: "Plan" },
-    { value: "autopilot", label: "Autopilot" },
-  ];
-  return (
-    <Card className={s.settingCard}>
-      <div className={s.settingHead}>
-        <h3 className={s.cardTitle}>Permission mode</h3>
-      </div>
-      <p className={s.cardDesc}>Choose how much the agent may do before asking you. A local preference; the bridge retains its own allow/ask/deny checks.</p>
-      <div className={s.controls}>
-        {MODES.map((m) => (
-          <button
-            key={m.value}
-            type="button"
-            className={`${s.modeChip} ${mode === m.value ? s.modeChipActive : ""}`}
-            onClick={() => { setMode(m.value as any); notify(`Permission mode set to ${m.label}.`, "success"); }}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
-// Admin — workspace trust placeholder.
-function AdminPanel({ notify }: { notify: (message: string, kind?: "error" | "warning" | "info" | "success") => void }) {
-  return (
-    <Card className={s.settingCard}>
-      <div className={s.settingHead}>
-        <h3 className={s.cardTitle}>Workspace trust</h3>
-      </div>
-      <p className={s.cardDesc}>Keel only reads and writes folders you have explicitly trusted. Trust is stored by the bridge and can be revoked here.</p>
-      <div className={s.controls}>
-        <Button size="sm" onClick={() => notify("Workspace trust is managed through the bridge's projects route.", "info")}>Manage trusted folders</Button>
-      </div>
     </Card>
   );
 }

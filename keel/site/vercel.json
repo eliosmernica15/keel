@@ -44,7 +44,10 @@
     { "source": "/eula", "destination": "/eula.html" },
     { "source": "/trademark", "destination": "/trademark.html" },
     { "source": "/requirements", "destination": "/requirements.html" },
-    { "source": "/product/cowork", "destination": "/product/cowork.html" }
+    { "source": "/product/cowork", "destination": "/product/cowork.html" },
+    { "source": "/resources/articles/introducing-keel-ship", "destination": "/resources/articles/introducing-keel-ship/index.html" },
+    { "source": "/resources/articles/introducing-keel-code", "destination": "/resources/articles/introducing-keel-code/index.html" },
+    { "source": "/resources/articles/keel-ship-session-format", "destination": "/resources/articles/keel-ship-session-format/index.html" }
   ],
   "redirects": [
     { "source": "/app.html", "destination": "/app", "permanent": false },

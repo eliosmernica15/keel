@@ -8,19 +8,19 @@ test("failed library upload is never claimed as sent; retry uploads for real", a
   await openSession(page);
 
   await page.locator('input[type="file"]').setInputFiles({
-    name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("hello world"),
+    name: "notes.zip", mimeType: "application/zip", buffer: Buffer.from("zip archive"),
   });
-  await expect(page.getByText("notes.txt")).toBeVisible();
+  await expect(page.getByText("notes.zip")).toBeVisible();
   await page.getByRole("textbox", { name: "Message Keel" }).fill("first attempt");
   await page.getByRole("button", { name: "Send message" }).click();
 
   // Real XHR progress is observable while the body is in flight.
-  await expect(page.getByRole("progressbar", { name: "Uploading notes.txt" })).toBeVisible();
+  await expect(page.getByRole("progressbar", { name: "Uploading notes.zip" })).toBeVisible();
   await expect(page.getByText("Quota exceeded")).toBeVisible();
   await expect(page.getByText("Failed", { exact: true })).toBeVisible();
 
   const firstSend = bridge.requests.find((r) => r.method === "POST" && /\/messages$/.test(r.path));
-  expect((firstSend?.body as { content: string }).content).not.toContain("notes.txt");
+  expect((firstSend?.body as { content: string }).content).not.toContain("notes.zip");
 
   await page.locator('[aria-label="Files for this message"]').getByRole("button", { name: "Retry" }).click();
   await expect(page.getByText("In library")).toBeVisible();
@@ -29,7 +29,7 @@ test("failed library upload is never claimed as sent; retry uploads for real", a
   await page.getByRole("button", { name: "Send message" }).click();
   const sends = bridge.requests.filter((r) => r.method === "POST" && /\/messages$/.test(r.path));
   expect(sends).toHaveLength(2);
-  expect((sends[1].body as { content: string }).content).toContain("notes.txt");
+  expect((sends[1].body as { content: string }).content).toContain("notes.zip");
   expect(bridge.count("POST", /^library$/)).toBe(2);
   expect(consoleErrors).toEqual([]);
 });

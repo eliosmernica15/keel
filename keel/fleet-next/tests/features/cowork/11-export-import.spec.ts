@@ -15,10 +15,9 @@ test("export points at the real export.md route; import is explicitly unavailabl
   await expect(link).toHaveAttribute("href", `/api/bridge/bots/${BOT.id}/export.md`);
   await expect(link).toHaveAttribute("download", "");
 
-  // No transcript import route exists in the bridge. The UI must say so,
-  // rather than presenting a disabled-looking but fake upload workflow.
-  await expect(page.getByRole("button", { name: "Import transcript unavailable" })).toBeDisabled();
-  await expect(page.getByRole("note")).toContainText("no bridge route accepts the exported Markdown");
+  // No transcript import route exists in the bridge, so the unsupported
+  // control must stay hidden rather than appearing as a fake workflow.
+  await expect(page.getByRole("button", { name: /import/i })).toHaveCount(0);
   expect(bridge.requests.filter((r) => /import/i.test(r.path))).toEqual([]);
   expect(consoleErrors).toEqual([]);
 });

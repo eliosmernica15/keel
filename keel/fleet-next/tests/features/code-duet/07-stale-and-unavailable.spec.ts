@@ -121,7 +121,7 @@ test("A 502 tree response shows an honest unavailable state with no fake files",
   await expect(banner).toBeVisible();
   await expect(banner.getByRole("button", { name: "Retry" })).toBeVisible();
   await expect(harness.page.locator("[data-tree-row]")).toHaveCount(0);
-  await expect(harness.page.getByText("The bridge returned no files for this project.")).toBeVisible();
+  await expect(harness.page.getByText("No files were found in this project.")).toBeVisible();
 
   const before = requests.filter((r) => r.method === "GET" && r.path.includes("/projects/p1/tree")).length;
   failing = false;

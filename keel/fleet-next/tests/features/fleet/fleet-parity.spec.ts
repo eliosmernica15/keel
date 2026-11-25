@@ -62,6 +62,20 @@ test("Fleet agent roster, creation, details config, policy revoke and audit filt
   await expect(drawer.getByText(/fingerprint fp1/)).toHaveCount(0);
   await drawer.getByLabel("Filter by result").selectOption("timeout");
   await expect(drawer.getByText("No matching decisions")).toBeVisible();
+
+  await page.getByRole("button", { name: "Close details" }).click();
+  await page.getByRole("button", { name: "Select Alpha" }).locator("..").getByRole("button", { name: "Delete" }).click();
+  const deleteDialog = page.getByRole("dialog", { name: "Delete Alpha?" });
+  const deleteButton = deleteDialog.getByRole("button", { name: "Delete agent" });
+  await expect(deleteDialog.getByText(/permanently removes the agent's conversation rows and Library files/i)).toBeVisible();
+  await expect(deleteButton).toBeDisabled();
+  await deleteDialog.getByLabel("Type agent name to confirm").fill("Alpha ");
+  await expect(deleteButton).toBeDisabled();
+  await deleteDialog.getByLabel("Type agent name to confirm").fill("Alpha");
+  await expect(deleteButton).toBeEnabled();
+  await deleteButton.click();
+  expect(callWithPath(fixture.calls, "POST bots/b_alpha/delete")?.body).toEqual({});
+  await expect(page.getByText("Agent Alpha deleted.")).toBeVisible();
 });
 
 testWithExpectedHttpError("Group creation posts bot_ids; a 409 round is honest and Send re-enables only after real terminal rows", async ({ page, consoleErrors }) => {

@@ -145,21 +145,10 @@ function CommandPalette({ open, onClose, commands }: { open: boolean; onClose: (
 
 function Shell() {
   const app = useApp();
-  // A hash deep link (e.g. /#settings-privacy) names a global destination in a
-  // freshly loaded desktop window, which has no persisted surface yet.
-  const deepLink = typeof window === "undefined" ? null
-    : /^#settings-/.test(window.location.hash) ? "settings"
-    : window.location.hash === "#capabilities" ? "capabilities" : null;
-  const [destination, setDestination] = useState<Destination>(deepLink ?? "cowork");
-  const deepLinkRef = useRef<Destination | null>(deepLink);
+  const [destination, setDestination] = useState<Destination>("cowork");
+  const deepLinkRef = useRef<Destination | null>(null);
   const surfaceRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const { status: bridgeStatus, detail: bridgeDetail, probe } = useBridgeStatus();
-
-  // AppProvider hydrates the persisted surface after mount. Mirror it here so
-  // reloading restores the work surface — unless a hash deep link won.
-  useEffect(() => {
-    if (!deepLinkRef.current) setDestination(app.surface);
-  }, [app.surface]);
 
   // Settings owns the section id; the shell only picks the destination.
   useEffect(() => {
@@ -173,13 +162,32 @@ function Shell() {
         setDestination("capabilities");
       }
     };
+    applyDeepLink();
     window.addEventListener("hashchange", applyDeepLink);
     return () => window.removeEventListener("hashchange", applyDeepLink);
   }, []);
 
+  // AppProvider hydrates the persisted surface after mount. Mirror it here so
+  // reloading restores the work surface — unless a hash deep link won.
+  useEffect(() => {
+    if (!deepLinkRef.current) setDestination(app.surface);
+  }, [app.surface]);
+
   const goto = useCallback((d: Destination) => {
     setDestination(d);
-    if (d !== "capabilities" && d !== "settings") app.setSurface(d);
+    if (d === "settings" || d === "capabilities") {
+      deepLinkRef.current = d;
+      if ((d === "settings" && window.location.hash === "#capabilities") ||
+          (d === "capabilities" && /^#settings-/.test(window.location.hash))) {
+        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      }
+    } else {
+      deepLinkRef.current = null;
+      if (/^#settings-/.test(window.location.hash) || window.location.hash === "#capabilities") {
+        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      }
+      app.setSurface(d);
+    }
     if (window.innerWidth <= 1100) app.setSidebarOpen(false);
   // Only stable setters belong here; depending on the whole `app` object made
   // this callback change on every context update and re-trigger the command
@@ -264,10 +272,10 @@ function Shell() {
       case "duet": return <Duet />;
       case "fleet": return <Fleet />;
       case "capabilities": return <Capabilities />;
-      case "settings": return <Settings />;
+      case "settings": return <Settings onClose={() => goto("cowork")} />;
       default: return <Cowork />;
     }
-  }, [destination]);
+  }, [destination, goto]);
 
   const bridgeTone = bridgeStatus === "online" ? "success" : bridgeStatus === "checking" ? "warning" : "danger";
   const bridgeLabel = bridgeStatus === "online" ? "Bridge online" : bridgeStatus === "checking" ? "Checking bridge" : bridgeStatus === "unconfigured" ? "Bridge not configured" : "Bridge offline";

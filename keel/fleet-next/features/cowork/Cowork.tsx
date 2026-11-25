@@ -9,7 +9,7 @@ import { Badge, Button, Skeleton, TextField } from "@/components/ui";
 import { bridge, errMessage, isBridgeUnavailable, subscribeEvents } from "@/lib/api";
 import { useApp } from "@/lib/state";
 import type { Bot, CatalogResponse, Notice, Provider, Usage } from "@/lib/types";
-import Composer, { type ComposerMode, type UploadedFile } from "./Composer";
+import Composer, { COMPOSER_MODES, type ComposerMode, type UploadedFile } from "./Composer";
 import Timeline from "./Timeline";
 import WorkLog from "./WorkLog";
 import SearchPanel from "./Search";
@@ -809,6 +809,19 @@ export default function Cowork() {
             </div>
 
             <div className={s.homeFoot}>
+              <label className={s.pickLabel}>
+                <span>Permission mode</span>
+                <select
+                  className={s.select}
+                  value={mode}
+                  onChange={(e) => changeMode(e.target.value as ComposerMode)}
+                  aria-label="Permission mode"
+                >
+                  {COMPOSER_MODES.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
               {bots.length > 0 && (
                 <label className={s.pickLabel}>
                   <span>Continue an existing task</span>

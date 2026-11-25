@@ -31,6 +31,7 @@ export default function Agents({ botsResource, events, streamError, onRetryStrea
   const [createOpen, setCreateOpen] = useState(false);
   const [forkBot, setForkBot] = useState<Bot | null>(null);
   const [deleteBot, setDeleteBot] = useState<Bot | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => { if (focusBotId) setSelectedId(focusBotId); }, [focusBotId]);
@@ -63,6 +64,17 @@ export default function Agents({ botsResource, events, streamError, onRetryStrea
   });
   const selected = bots.find((b) => b.id === selectedId) ?? filtered[0] ?? bots[0];
   const detailsBot = bots.find((b) => b.id === detailsId) ?? null;
+  const deleteName = deleteBot ? (deleteBot.name || deleteBot.id) : "";
+
+  function requestDelete(target: Bot) {
+    setDeleteConfirmation("");
+    setDeleteBot(target);
+  }
+
+  function closeDelete() {
+    setDeleteConfirmation("");
+    setDeleteBot(null);
+  }
 
   async function createAgent(name: string, role: string, engine: string, notes: string, hue: string) {
     setBusy(true);
@@ -98,7 +110,7 @@ export default function Agents({ botsResource, events, streamError, onRetryStrea
     try {
       await bridge.deleteBot(target.id);
       notify(`Agent ${target.name || target.id} deleted.`, "success");
-      setDeleteBot(null);
+      closeDelete();
       if (selectedId === target.id) setSelectedId(null);
       onChanged(); botsResource.reload();
     } catch (e) { notify(errMessage(e), "error"); }
@@ -152,7 +164,7 @@ export default function Agents({ botsResource, events, streamError, onRetryStrea
                       <div className={s.actions}>
                         <Button size="sm" variant="secondary" onClick={() => setDetailsId(b.id)}><Icon name="panel" size={14} /> Details</Button>
                         <Button size="sm" variant="ghost" onClick={() => setForkBot(b)}><Icon name="copy" size={14} /> Fork</Button>
-                        <Button size="sm" variant="ghost" onClick={() => setDeleteBot(b)}><Icon name="trash" size={14} /> Delete</Button>
+                        <Button size="sm" variant="ghost" onClick={() => requestDelete(b)}><Icon name="trash" size={14} /> Delete</Button>
                       </div>
                     </div>
                   );
@@ -196,9 +208,12 @@ export default function Agents({ botsResource, events, streamError, onRetryStrea
 
       <CreateAgentDialog open={createOpen} busy={busy} onClose={() => setCreateOpen(false)} onCreate={createAgent} />
       <ForkDialog bot={forkBot} busy={busy} onClose={() => setForkBot(null)} onFork={fork} />
-      <Dialog open={!!deleteBot} onClose={() => setDeleteBot(null)} title={`Delete ${deleteBot?.name || deleteBot?.id || "agent"}?`}
-        footer={<><Button variant="ghost" onClick={() => setDeleteBot(null)}>Cancel</Button><Button variant="danger" loading={busy} onClick={() => deleteBot && void remove(deleteBot)}>Delete agent</Button></>}>
-        <p className={s.hintNote}>This removes the agent and its stored rows from the bridge. This cannot be undone from this UI.</p>
+      <Dialog open={!!deleteBot} onClose={closeDelete} title={`Delete ${deleteName || "agent"}?`}
+        footer={<><Button variant="ghost" onClick={closeDelete}>Cancel</Button><Button variant="danger" loading={busy} disabled={deleteConfirmation !== deleteName} onClick={() => deleteBot && void remove(deleteBot)}>Delete agent</Button></>}>
+        <div className={s.stack}>
+          <p className={s.hintNote}>This permanently removes the agent&apos;s conversation rows and Library files. This action cannot be undone.</p>
+          <TextField label="Type agent name to confirm" value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} autoComplete="off" spellCheck={false} />
+        </div>
       </Dialog>
       {detailsBot && <AgentDetails bot={detailsBot} onClose={() => setDetailsId(null)} onChanged={() => { onChanged(); botsResource.reload(); }} />}
     </div>

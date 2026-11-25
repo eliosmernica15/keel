@@ -53,7 +53,7 @@ function CostContent({ bots, rows }: { bots: Bot[]; rows: BotRowsView[] }) {
         <div className={s.unavailable} role="status">
           <Icon name="info" size={18} />
           <div className={s.grow}>
-            <strong>Not reported</strong>
+            <strong>Not reported by bridge</strong>
             <p className={s.hintNote}>
               No provider-reported cost is available per agent. The bridge&apos;s <code>usage</code> rows
               carry token counts with <code>cost_basis: &quot;unknown (no provider-reported cost)&quot;</code>,

@@ -17,7 +17,7 @@ import s from "./cowork.module.css";
 
 export type ComposerMode = "build" | "plan" | "autopilot" | "acceptEdits";
 
-const MODES: Array<{ value: ComposerMode; label: string }> = [
+export const COMPOSER_MODES: Array<{ value: ComposerMode; label: string }> = [
   { value: "build", label: "Build" },
   { value: "plan", label: "Plan" },
   { value: "autopilot", label: "Auto-accept edits" },
@@ -672,7 +672,7 @@ export default function Composer({
             aria-label="Permission mode"
             title="Permission mode sent with the message"
           >
-            {MODES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+            {COMPOSER_MODES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select>
           {models && models.length > 0 && onModelChange ? (
             <label className={s.modelSelect} title="Model saved on this task by the bridge">
