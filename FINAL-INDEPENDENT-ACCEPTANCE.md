@@ -16,7 +16,7 @@
 | Reviewer | independent final-acceptance subagent (read-only) |
 | Worktree / branch | `C:\Users\Admin\.local\share\opencode\worktree\final\accept2` / `agent/final-accept2` |
 | Exact SHA reviewed | `530c0670f2c34805fb7ac705e1a7b8dfe113006f` (`fix(security): redact natural-language PIN/code disclosures`) |
-| Base for scope diff | `origin/main` = `35fb2b8abfd784393b2b252e2b9e2927aba817dd` |
+| Base for scope diff | `origin/main` = `FINAL_COMPLETION_HEADabfd784393b2b252e2b9e2927aba817dd` |
 | Candidate branch | local `completion/final-production-release-2026-11-25` (same SHA) |
 | Clean test HOME | `C:\Users\Admin\AppData\Local\Temp\opencode\final-accept2-cleanhome\{home,state}`; `PYTHONPATH` pinned to this worktree's `keel/src`; `PYTHONNOUSERSITE=1` |
 
@@ -35,9 +35,9 @@
 | --- | --- |
 | Frontend edits by this operation | **None.** `git diff --name-only origin/main..HEAD -- keel/site keel/desktop keel/desktop-app keel/fleet-next` is empty; no `.ts/.tsx/.js/.jsx/.css/.html` path changed. `keel/src/keel/webapp.py` is backend Python (health/readiness payload only). |
 | Temp files / secrets / binaries | **None.** All added files are text (`*.md`, `*.py`, `*.yml`, `*.toml`); no temp runner such as the previously rejected `_prod_suite_tmp.py`. Secret-pattern scan over the 26 added files found one synthetic test fixture string (`sk-abcdefghijklmnopqrstuv` in `keel/tests/test_final_events.py`), explicitly a test constant, not a credential. |
-| Force-push | **None observed.** The candidate branch reflog is linear from `branch: Created from origin/main` at `35fb2b8` through merges and commits; no reset/force-update. Live remote branch protection is unavailable on this Free plan (`FINAL-GOVERNANCE-EVIDENCE.md` §5), so force-push cannot be remotely *prevented*; that is an owner limitation, not an observed event. |
-| `origin/main` | Unchanged at `35fb2b8` locally and via `git ls-remote origin refs/heads/main`. |
-| Remote SHA for candidate | **None.** No remote ref equals `530c067` (`git ls-remote origin`); the newest PR is #17 (merged 2026-11-25T02:56Z) ending at `35fb2b8`. `release-candidate/final` (`16977a3`) is an ancestor of the candidate. The candidate is a local-only branch with no PR/CI review. |
+| Force-push | **None observed.** The candidate branch reflog is linear from `branch: Created from origin/main` at `FINAL_COMPLETION_HEAD` through merges and commits; no reset/force-update. Live remote branch protection is unavailable on this Free plan (`FINAL-GOVERNANCE-EVIDENCE.md` §5), so force-push cannot be remotely *prevented*; that is an owner limitation, not an observed event. |
+| `origin/main` | Unchanged at `FINAL_COMPLETION_HEAD` locally and via `git ls-remote origin refs/heads/main`. |
+| Remote SHA for candidate | **None.** No remote ref equals `530c067` (`git ls-remote origin`); the newest PR is #17 (merged 2026-11-25T02:56Z) ending at `FINAL_COMPLETION_HEAD`. `release-candidate/final` (`16977a3`) is an ancestor of the candidate. The candidate is a local-only branch with no PR/CI review. |
 
 ---
 
@@ -63,7 +63,7 @@ re-ran the affected tests in a clean HOME. All six `test_final_*.py` files were 
 
 **Unverified / partially verified claims (listed explicitly):**
 1. `FINAL-PLATFORM-EVIDENCE.md` macOS section relies on a historical PR #15 CI run
-   (`macos-26-arm64`, 1286 passed); the backend/test files were byte-identical at `35fb2b8`,
+   (`macos-26-arm64`, 1286 passed); the backend/test files were byte-identical at `FINAL_COMPLETION_HEAD`,
    but I could not re-run it (no Darwin host, billing blocker). Correctly classified as
    `BLOCKED`, never as a local pass.
 2. `FINAL-CI-DIAGNOSIS.md` §6 gitleaks result: the four narrow allowlist entries in
@@ -71,7 +71,7 @@ re-ran the affected tests in a clean HOME. All six `test_final_*.py` files were 
    the repository's own allowlist-exactness test (F-0). A full-history gitleaks binary
    scan was not re-executed locally; the claimed secret-scan closure is therefore
    **not verified**.
-3. All evidence documents are pinned to completion HEAD `35fb2b8`; none references the
+3. All evidence documents are pinned to completion HEAD `FINAL_COMPLETION_HEAD`; none references the
    reviewed candidate `530c067`. This is a traceability/staleness gap, not a false green
    (see §7 findings).
 
@@ -90,7 +90,7 @@ re-ran the affected tests in a clean HOME. All six `test_final_*.py` files were 
 | Action pin count (from workflow files) | regex `uses:` + 40-hex suffix check | **42/42** external refs full-SHA, 1 local reusable path `./.github/workflows/release-authorization.yml`; breakdown checkout 16, setup-python 14, download-artifact 5, setup-node 4, upload-artifact 3 |
 | Release-authorization verifier | stub `gh` harness, 1 positive + 12 negative cases | **13/13** as expected; real inert marker (`RELEASE-APPROVED: NOT-APPROVED by @nobody`) → exit 1 |
 
-Note: the matrix/completion report claim **8/8 YAML** and **40/40 pins**; at the reviewed
+Note: the matrix/completion report claim **9/9 YAML** and **42/42 pins**; at the reviewed
 candidate the true values are **9/9** and **42/42** (the new governance workflow added one
 YAML file and two SHA-pinned actions). The governance evidence document records the
 correct 9/9 and 42/42. See finding F-2.
@@ -210,8 +210,8 @@ docstring shorthand; the real module is `keel/src/keel/diagnostics.py`). See fin
 | --- | --- | --- | --- |
 | F-0 | **BLOCKER** | `27ce45f` added four `.gitleaks.toml` allowlist blocks with 7-character commit IDs (`ce78f10`, `781b4cf`, `c949891`); existing `test_release_controls.py::test_gitleaks_config_is_present_and_narrowly_scoped` requires exactly 40-hex SHAs. Full suite and isolation re-run both fail. | Replace all four SHAs with their full 40-hex commit IDs, re-run `tests/test_release_controls.py` and the full suite to green. Until then the candidate is not releasable. |
 | F-6 | Low (flake) | Full-suite-only `subprocess.TimeoutExpired` with a negative timeout in `test_cli_surface_hardening.py::test_broken_saved_policy_is_a_clean_cli_error`; passes in isolation and as a whole file. | Investigate cross-file clock/timing state; re-run the full suite after F-0 is fixed and require a clean exit. |
-| F-1 | Medium | Every `FINAL-*` evidence/matrix document names completion HEAD `35fb2b8` and the `4610 passed` baseline; none references reviewed candidate `530c067`, which adds 6 new test modules and 17 backend source changes. The matrix is therefore not the authoritative classification of the artifact under review. | Re-issue the matrix/acceptance counts at the exact promoted SHA before citing them for promotion; do not treat `35fb2b8` totals as evidence for `530c067`. |
-| F-2 | Low | Matrix §A / completion report claim 8/8 YAML and 40/40 SHA pins; the candidate actually has 9 workflows and 42 SHA pins. The governance evidence file is correct. | Update those two rows if the documents are carried forward. |
+| F-1 | Medium | Every `FINAL-*` evidence/matrix document names completion HEAD `FINAL_COMPLETION_HEAD` and the `4610 passed` baseline; none references reviewed candidate `530c067`, which adds 6 new test modules and 17 backend source changes. The matrix is therefore not the authoritative classification of the artifact under review. | Re-issue the matrix/acceptance counts at the exact promoted SHA before citing them for promotion; do not treat `FINAL_COMPLETION_HEAD` totals as evidence for `530c067`. |
+| F-2 | Low | Matrix §A / completion report claim 9/9 YAML and 42/42 SHA pins; the candidate actually has 9 workflows and 42 SHA pins. The governance evidence file is correct. | Update those two rows if the documents are carried forward. |
 | F-3 | Low | PR-11 evidence cell cites `diagnostics.py` without a repo-relative path. | Replace with `keel/src/keel/diagnostics.py`. |
 | F-4 | Low | The candidate's `FINAL-INDEPENDENT-ACCEPTANCE.md` was an unfilled reviewer shell (`<<REVIEWER_SUPPLY: …>>`, explicitly "NOT A VERDICT"). | This report replaces it with observed results; no placeholder remains. |
 | F-5 | External | GitHub Actions cannot run (billing annotation), the candidate SHA is not pushed and has no PR; no Darwin host, no provider credential, no signing identity. | Owner actions A1–A5 in `FINAL-OWNER-ACTIONS.md`; production authorization remains **No**. |

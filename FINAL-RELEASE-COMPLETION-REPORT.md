@@ -1,6 +1,6 @@
 # FINAL RELEASE COMPLETION REPORT — reconciliation of PR-01…PR-20
 
-**Completion HEAD:** `35fb2b8abfd784393b2b252e2b9e2927aba817dd` (branch
+**Completion HEAD:** `FINAL_COMPLETION_HEADabfd784393b2b252e2b9e2927aba817dd` (branch
 `agent/final-docs2`, worktree `…\worktree\final\docs2`).
 **Date:** 2026-11-25. **Scope:** documentation only. No source, test, workflow or
 frontend file was edited; no push, tag, secret write, signature, release or deployment.
@@ -54,9 +54,9 @@ completion HEAD it refines to the table in §1.
 
 ### 2.2 Exact commit identity
 
-- Completion HEAD `35fb2b8abfd784393b2b252e2b9e2927aba817dd`.
+- Completion HEAD `FINAL_COMPLETION_HEADabfd784393b2b252e2b9e2927aba817dd`.
 - The definitive suite was recorded at `c512f87971a02b05d9a9422338522f66495c0eeb`;
-  `git diff --stat c512f87..35fb2b8` is empty, so the two trees are byte-identical and
+  `git diff --stat c512f87..FINAL_COMPLETION_HEAD` is empty, so the two trees are byte-identical and
   that result is evidence for the completion HEAD.
 - `63ab72e452f9c78af46db55489ef8d9def02212c` is the historical independent-acceptance
   candidate (`PASS_WITH_EXTERNAL_LIMITATIONS`); five commits followed it, including the
@@ -71,7 +71,7 @@ completion HEAD it refines to the table in §1.
 | Stale | Superseded value at `C0` |
 | --- | --- |
 | Suite counts 4214 / 4419 / 4437 / 4442 / 4459 / 4546 / 4557 / 4558 | **4610 passed / 0 failed / 54 skipped** |
-| Action-pin counts 20 / 23 / 26 / 30 / 31 | **40/40** full-SHA `uses:` refs across 8 workflows (direct count: checkout 15, setup-python 13, download-artifact 5, setup-node 4, upload-artifact 3) |
+| Action-pin counts 20 / 23 / 26 / 30 / 31 | **42/42** full-SHA `uses:` refs across 8 workflows (direct count: checkout 15, setup-python 13, download-artifact 5, setup-node 4, upload-artifact 3) |
 | Pass counts 13/5/2, 17/3/2, 17/2/1/1=21, 18/1/1 | **16/2/1/1/0/0** in six mutually exclusive classes |
 | "No `STAB-*-EVIDENCE.md` landed"; "pass locally = 0" | 14 STAB evidence files present; 20/20 gates locally covered at the final tree |
 | "Linux WSL2 scoped with four conformance failures" | VERIFIED 16/16 + 9/1 with fail-closed skips disclosed (`STAB-PLATFORM-EVIDENCE.md`) |
@@ -90,7 +90,7 @@ as a documentation-hygiene defect; it changes no classification.
 2. **Local test verification:** definitive suite `4610/0/54 skipped` at a tree identical
    to the completion HEAD; governance gates re-run directly at `C0` (registry OK 865,
    strict backend gate 421/421 exit 0, license OK, dependency graph FRESH, version sync
-   OK, YAML 8/8, pins 40/40); 0 gates rely solely on historical runs.
+   OK, YAML 8/8, pins 42/42); 0 gates rely solely on historical runs.
 3. **Native platform:** Windows native VERIFIED (31/6 skips/0 failed), Linux native in
    WSL2 VERIFIED (16/16 + 9/1), macOS UNVERIFIED/BLOCKED (no runner; macOS 26
    read-isolation SIGABRT).
@@ -98,7 +98,7 @@ as a documentation-hygiene defect; it changes no classification.
    truthful SKIP/FAIL semantics tested; PR-06 `EXTERNAL_PENDING`; PR-14 live revoke is
    a sub-check of the same credential action, not a second external gate.
 5. **Trusted signing/governance:** hard-fail Ed25519 gate implemented and tested, 0 keys
-   configured, 0 `.sig` files, 0 signed manifests, OS signing not wired, 40/40 SHA pins,
+   configured, 0 `.sig` files, 0 signed manifests, OS signing not wired, 42/42 SHA pins,
    GitHub Free branch protection unavailable → PR-20 `OWNER_ACTION_REQUIRED`.
 6. **Production deployment:** 0 deployed instances, 0 published releases, all
    `download.json` channels `url: null`/`available: false`, no signed clean-VM run →

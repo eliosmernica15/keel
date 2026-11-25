@@ -1,6 +1,6 @@
 # FINAL OWNER ACTIONS — the only genuine external requirements
 
-> **Scope:** completion HEAD `35fb2b8abfd784393b2b252e2b9e2927aba817dd`, version `0.1.1` / tag `v0.1.1`.
+> **Scope:** completion HEAD `FINAL_COMPLETION_HEADabfd784393b2b252e2b9e2927aba817dd`, version `0.1.1` / tag `v0.1.1`.
 > This file lists **only** actions that engineering cannot perform: owner-controlled
 > credentials, an owner-provided Darwin host, an owner signing identity, an owner plan
 > entitlement, and owner deployment authorization. No engineering follow-up is listed
@@ -119,9 +119,9 @@ plan. Engineering cannot upgrade the plan or change repository governance.
 2. If upgrading, set required checks to the final-tree gates already green locally:
    registry consistency, `verify_backend_operation.py --strict` (421/421),
    dependency-graph freshness, license gate, version sync, workflow YAML parse and the
-   40/40 full-SHA `uses:` pin check.
+   42/42 full-SHA `uses:` pin check.
 3. Confirm the 40 pinned action refs are effective on the default branch after the
-   owner-authorized merge (the local final tree has 40/40; the live default branch may
+   owner-authorized merge (the local final tree has 42/42; the live default branch may
    still lag until that merge happens).
 
 **Unlocks:** the governance portion of PR-20 `OWNR`. A1/A2/A5 are still required.
