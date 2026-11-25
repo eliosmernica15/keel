@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" role="img" aria-labelledby="pa-app-1-title">
+  <title id="pa-app-1-title">App tile: serif H</title>
+  <rect x="1" y="1" width="42" height="42" rx="10" fill="#191919"/>
+  <text x="22" y="30" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#ffffff">H</text>
+</svg>

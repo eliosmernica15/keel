@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="pa-glyph-console-title">
+  <title id="pa-glyph-console-title">Hand cursor over a slider</title>
+  <g fill="none" stroke="#191919" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 13 H43"/>
+    <circle cx="30" cy="13" r="3"/>
+    <circle cx="40" cy="13" r="2"/>
+    <path d="M18 43 V29 C18 26 21 25 23 27 L27 31 V23 C27 20 30 19 32 22 L33 26 C35 25 37 27 36 30 L33 37 C32 40 30 41 27 41 H18 Z"/>
+    <path d="M23 27 V33"/>
+  </g>
+</svg>

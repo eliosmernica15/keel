@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="pa-glyph-bell-title">
+  <title id="pa-glyph-bell-title">Bell</title>
+  <g fill="none" stroke="#191919" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 7 C17 7 14 13 14 22 C14 28 11 31 8 33 H40 C37 31 34 28 34 22 C34 13 31 7 24 7 Z"/>
+    <path d="M24 4 V7"/>
+    <path d="M20 36 C20 39 28 39 28 36"/>
+  </g>
+</svg>

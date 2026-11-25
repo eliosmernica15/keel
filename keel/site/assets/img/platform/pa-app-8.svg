@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" role="img" aria-labelledby="pa-app-8-title">
+  <title id="pa-app-8-title">App tile: black rabbit on orange</title>
+  <rect x="1" y="1" width="42" height="42" rx="10" fill="#f26522"/>
+  <path d="M13 17 C13 11 16 8 19 8 C21 8 22 10 22 12 C22 10 23 8 25 8 C28 8 31 11 31 17 L31 28 C31 33 27 36 22 36 C17 36 13 33 13 28 Z" fill="#191919"/>
+  <path d="M25 24 C29 23 33 25 33 28 C33 31 29 33 25 31 Z" fill="#191919"/>
+  <circle cx="25.5" cy="25" r="1.2" fill="#f26522"/>
+</svg>

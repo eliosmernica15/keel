@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" role="img" aria-labelledby="pa-app-3-title">
+  <title id="pa-app-3-title">App tile: gradient flame</title>
+  <defs>
+    <linearGradient id="pa-app-3-grad" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#ff9d4d"/>
+      <stop offset="0.5" stop-color="#f0567a"/>
+      <stop offset="1" stop-color="#7b4ce0"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="42" height="42" rx="10" fill="#17171a"/>
+  <path d="M22 8 C28 12 33 18 33 25 C33 31 28 35 22 35 C16 35 11 31 11 25 C11 18 16 12 22 8 Z" fill="url(#pa-app-3-grad)"/>
+  <path d="M22 17 C25 20 27 23 27 26 C27 29 25 31 22 31 C19 31 17 29 17 26 C17 23 19 20 22 17 Z" fill="#ffffff" opacity=".22"/>
+</svg>

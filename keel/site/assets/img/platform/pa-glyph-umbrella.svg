@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="pa-glyph-umbrella-title">
+  <title id="pa-glyph-umbrella-title">Little parasol</title>
+  <g fill="none" stroke="#191919" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 29 C9 19 16 11 24 11 C32 11 39 19 40 29"/>
+    <path d="M8 29 C7 27.5 7 26 7.5 25"/>
+    <path d="M40 29 C41 27.5 41 26 40.5 25"/>
+    <path d="M24 11 V8"/>
+  </g>
+</svg>

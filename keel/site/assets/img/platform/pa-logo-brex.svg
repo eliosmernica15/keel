@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" role="img" aria-labelledby="pa-logo-brex-title">
+  <title id="pa-logo-brex-title">Brex</title>
+  <g fill="#191919">
+    <path d="M7 6 L22 14 L7 22 Z"/>
+    <path d="M7 20 L24 29 L7 36 Z" opacity=".85"/>
+    <text x="33" y="27" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="-1">Brex</text>
+  </g>
+</svg>

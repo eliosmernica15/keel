@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" role="img" aria-labelledby="pa-logo-atlassian-title">
+  <title id="pa-logo-atlassian-title">Atlassian</title>
+  <g fill="#2684ff">
+    <path d="M7 27 L14 9 L21 27 Z" opacity=".65"/>
+    <path d="M16 31 L23 13 L30 31 Z"/>
+    <text x="37" y="25" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="1">ATLASSIAN</text>
+  </g>
+</svg>

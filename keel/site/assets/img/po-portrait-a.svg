@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="po-pa-title">
+  <title id="po-pa-title">Abstract portrait</title>
+  <defs><clipPath id="po-pa-clip"><rect width="160" height="160" rx="18"/></clipPath></defs>
+  <g clip-path="url(#po-pa-clip)">
+    <rect width="160" height="160" fill="#e9ded1"/>
+    <circle cx="126" cy="30" r="34" fill="#dcc8b3" opacity=".55"/>
+    <path d="M18 160c2-30 22-47 62-47s60 17 62 47z" fill="#8c6b57"/>
+    <rect x="70" y="98" width="20" height="22" rx="9" fill="#c99474"/>
+    <ellipse cx="80" cy="72" rx="31" ry="36" fill="#d5a17e"/>
+    <path d="M48 70c-1-25 13-39 32-39s33 14 32 39c-3-9-8-13-12-15-6 7-29 10-40 3-5 3-9 7-12 12z" fill="#4a342b"/>
+    <circle cx="69" cy="72" r="2.4" fill="#3a2b24"/>
+    <circle cx="91" cy="72" r="2.4" fill="#3a2b24"/>
+    <path d="M73 88c4 3 10 3 14 0" fill="none" stroke="#8c5b45" stroke-width="2" stroke-linecap="round"/>
+    <path d="M18 160c2-30 22-47 62-47s60 17 62 47z" fill="#8c6b57"/>
+    <path d="M62 118c6 8 30 8 36 0" fill="none" stroke="#a98468" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

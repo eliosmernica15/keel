@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="t">
+  <title id="t">Keel Code subagent task graph</title>
+  <rect width="1200" height="700" fill="#f7f6f2"/>
+
+  <rect x="40" y="36" width="1120" height="628" rx="18" fill="#ffffff" stroke="#191919" stroke-width="2"/>
+  <path d="M40 86 H1160" stroke="#191919" stroke-width="0.6"/>
+  <circle cx="72" cy="61" r="7" fill="#191919"/>
+  <circle cx="96" cy="61" r="7" fill="#6b6b6b" opacity="0.5"/>
+  <circle cx="120" cy="61" r="7" fill="#6b6b6b" opacity="0.25"/>
+  <rect x="150" y="49" width="62" height="24" rx="6" fill="#e6d54c" stroke="#191919" stroke-width="1.5"/>
+  <text x="181" y="65" font-family="monospace" font-size="12" font-weight="bold" fill="#191919" text-anchor="middle">KEEL</text>
+  <text x="230" y="66" font-family="monospace" font-size="16" letter-spacing="1" fill="#191919">KEEL CODE · SUBAGENTS</text>
+  <rect x="1040" y="49" width="88" height="24" rx="6" fill="#f0c4a8" stroke="#191919" stroke-width="1.5"/>
+  <rect x="1054" y="58" width="60" height="6" rx="3" fill="#191919" opacity="0.6"/>
+
+  <!-- left rail -->
+  <rect x="40" y="86" width="80" height="578" fill="#f7f6f2"/>
+  <path d="M120 86 V664" stroke="#e6e4dc" stroke-width="2"/>
+  <g fill="none" stroke="#6b6b6b" stroke-width="2.5" stroke-linecap="round">
+    <rect x="34" y="112" width="20" height="20" rx="4"/>
+    <path d="M39 122 h10 M44 117 v10"/>
+    <rect x="34" y="162" width="20" height="20" rx="4"/>
+    <path d="M39 172 h10 M44 167 v10"/>
+    <rect x="34" y="212" width="20" height="20" rx="4"/>
+    <path d="M39 222 h10 M44 217 v10"/>
+  </g>
+  <rect x="34" y="262" width="20" height="20" rx="4" fill="#e6d54c" stroke="#191919" stroke-width="2"/>
+
+  <!-- canvas -->
+  <rect x="120" y="86" width="1040" height="578" fill="#f7f6f2"/>
+  <g stroke="#e6e4dc" stroke-width="1">
+    <path d="M160 126 V644 M320 126 V644 M480 126 V644 M640 126 V644 M800 126 V644 M960 126 V644 M1120 126 V644"/>
+    <path d="M120 166 H1160 M120 246 H1160 M120 326 H1160 M120 406 H1160 M120 486 H1160 M120 566 H1160 M120 646 H1160"/>
+  </g>
+
+  <!-- connectors -->
+  <g fill="none" stroke="#191919" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M330 375 H420 V251 H500"/>
+    <path d="M330 375 H420 V375 H500"/>
+    <path d="M330 375 H420 V499 H500"/>
+    <path d="M700 251 H770 V191 H840"/>
+    <path d="M700 251 H770 V311 H840"/>
+  </g>
+  <g fill="#191919">
+    <circle cx="420" cy="375" r="3.5"/>
+    <circle cx="770" cy="251" r="3.5"/>
+  </g>
+
+  <!-- root card -->
+  <g>
+    <rect x="150" y="327" width="180" height="96" rx="12" fill="#ffffff" stroke="#191919" stroke-width="2.5"/>
+    <rect x="150" y="327" width="6" height="96" rx="3" fill="#191919"/>
+    <circle cx="176" cy="352" r="6" fill="#191919"/>
+    <rect x="192" y="348" width="98" height="8" rx="4" fill="#191919"/>
+    <rect x="168" y="372" width="136" height="7" rx="3" fill="#6b6b6b" opacity="0.55"/>
+    <rect x="168" y="388" width="104" height="7" rx="3" fill="#6b6b6b" opacity="0.4"/>
+  </g>
+
+  <!-- child cards -->
+  <g>
+    <rect x="500" y="203" width="200" height="96" rx="12" fill="#ffffff" stroke="#191919" stroke-width="2.5"/>
+    <circle cx="526" cy="228" r="6" fill="#f0c4a8" stroke="#191919" stroke-width="1.5"/>
+    <rect x="542" y="224" width="112" height="8" rx="4" fill="#191919"/>
+    <rect x="518" y="248" width="156" height="7" rx="3" fill="#6b6b6b" opacity="0.55"/>
+    <rect x="518" y="264" width="120" height="7" rx="3" fill="#6b6b6b" opacity="0.4"/>
+  </g>
+  <g>
+    <rect x="500" y="327" width="200" height="96" rx="12" fill="#e6d54c" stroke="#191919" stroke-width="2.5"/>
+    <circle cx="526" cy="352" r="6" fill="#191919"/>
+    <rect x="542" y="348" width="130" height="8" rx="4" fill="#191919"/>
+    <rect x="518" y="372" width="156" height="7" rx="3" fill="#191919" opacity="0.65"/>
+    <rect x="518" y="388" width="104" height="7" rx="3" fill="#191919" opacity="0.45"/>
+    <rect x="648" y="343" width="38" height="16" rx="8" fill="#ffffff" stroke="#191919" stroke-width="1.5"/>
+  </g>
+  <g>
+    <rect x="500" y="451" width="200" height="96" rx="12" fill="#ffffff" stroke="#e6e4dc" stroke-width="2.5"/>
+    <circle cx="526" cy="476" r="6" fill="#e6e4dc" stroke="#6b6b6b" stroke-width="1.5"/>
+    <rect x="542" y="472" width="104" height="8" rx="4" fill="#6b6b6b" opacity="0.7"/>
+    <rect x="518" y="496" width="140" height="7" rx="3" fill="#6b6b6b" opacity="0.4"/>
+    <rect x="518" y="512" width="92" height="7" rx="3" fill="#6b6b6b" opacity="0.3"/>
+  </g>
+
+  <!-- grandchild cards -->
+  <g>
+    <rect x="840" y="143" width="180" height="96" rx="12" fill="#ffffff" stroke="#191919" stroke-width="2"/>
+    <circle cx="866" cy="168" r="6" fill="#e6d54c" stroke="#191919" stroke-width="1.5"/>
+    <rect x="882" y="164" width="96" height="8" rx="4" fill="#191919"/>
+    <rect x="858" y="188" width="136" height="7" rx="3" fill="#6b6b6b" opacity="0.5"/>
+    <rect x="858" y="204" width="100" height="7" rx="3" fill="#6b6b6b" opacity="0.35"/>
+  </g>
+  <g>
+    <rect x="840" y="263" width="180" height="96" rx="12" fill="#ffffff" stroke="#191919" stroke-width="2"/>
+    <circle cx="866" cy="288" r="6" fill="#e6d54c" stroke="#191919" stroke-width="1.5"/>
+    <rect x="882" y="284" width="88" height="8" rx="4" fill="#191919"/>
+    <rect x="858" y="308" width="128" height="7" rx="3" fill="#6b6b6b" opacity="0.5"/>
+    <rect x="858" y="324" width="112" height="7" rx="3" fill="#6b6b6b" opacity="0.35"/>
+  </g>
+
+  <!-- minimap / legend -->
+  <rect x="150" y="560" width="200" height="60" rx="10" fill="#ffffff" stroke="#e6e4dc" stroke-width="2"/>
+  <circle cx="174" cy="590" r="6" fill="#e6d54c" stroke="#191919" stroke-width="1.5"/>
+  <rect x="190" y="586" width="70" height="7" rx="3" fill="#6b6b6b" opacity="0.5"/>
+  <circle cx="288" cy="590" r="6" fill="#f0c4a8" stroke="#191919" stroke-width="1.5"/>
+  <rect x="304" y="586" width="30" height="7" rx="3" fill="#6b6b6b" opacity="0.5"/>
+</svg>

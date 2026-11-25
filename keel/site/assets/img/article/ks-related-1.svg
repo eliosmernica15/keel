@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" role="img" aria-labelledby="t">
+  <title id="t">Stacked code cards illustration</title>
+  <rect width="800" height="500" fill="#f0c4a8"/>
+  <rect x="10" y="10" width="780" height="480" rx="28" fill="none" stroke="#191919" stroke-width="2"/>
+
+  <!-- back card -->
+  <g transform="translate(150 60) rotate(-6 250 190)">
+    <rect x="0" y="0" width="500" height="380" rx="20" fill="#f7f6f2" stroke="#191919" stroke-width="3"/>
+    <path d="M0 56 H500" stroke="#191919" stroke-width="3"/>
+    <circle cx="34" cy="28" r="7" fill="#191919"/>
+    <circle cx="58" cy="28" r="7" fill="#191919" opacity="0.5"/>
+    <circle cx="82" cy="28" r="7" fill="#191919" opacity="0.25"/>
+    <g stroke="#6b6b6b" stroke-width="5" stroke-linecap="round">
+      <path d="M40 100 H210 M40 130 H300 M40 160 H160"/>
+    </g>
+  </g>
+
+  <!-- middle card -->
+  <g transform="translate(175 78) rotate(4 250 190)">
+    <rect x="0" y="0" width="500" height="380" rx="20" fill="#f7f6f2" stroke="#191919" stroke-width="3"/>
+    <path d="M0 56 H500" stroke="#191919" stroke-width="3"/>
+    <circle cx="34" cy="28" r="7" fill="#191919"/>
+    <circle cx="58" cy="28" r="7" fill="#191919" opacity="0.5"/>
+    <circle cx="82" cy="28" r="7" fill="#191919" opacity="0.25"/>
+    <g stroke="#6b6b6b" stroke-width="5" stroke-linecap="round">
+      <path d="M40 100 H260 M40 130 H180 M40 160 H320"/>
+    </g>
+  </g>
+
+  <!-- front card -->
+  <g transform="translate(160 96)">
+    <rect x="0" y="0" width="500" height="380" rx="20" fill="#ffffff" stroke="#191919" stroke-width="3.5"/>
+    <path d="M0 56 H500" stroke="#191919" stroke-width="3.5"/>
+    <circle cx="34" cy="28" r="7" fill="#191919"/>
+    <circle cx="58" cy="28" r="7" fill="#191919" opacity="0.5"/>
+    <circle cx="82" cy="28" r="7" fill="#191919" opacity="0.25"/>
+    <rect x="360" y="16" width="112" height="24" rx="6" fill="#e6d54c" stroke="#191919" stroke-width="2"/>
+    <g stroke="#191919" stroke-width="6" stroke-linecap="round">
+      <path d="M40 104 H200"/>
+      <path d="M40 136 H300"/>
+      <path d="M40 168 H150"/>
+    </g>
+    <g stroke="#6b6b6b" stroke-width="5" stroke-linecap="round">
+      <path d="M40 208 H260 M40 238 H200 M40 268 H320"/>
+    </g>
+    <path d="M40 316 H160" stroke="#e6d54c" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <!-- sparks -->
+  <g fill="#e6d54c" stroke="#191919" stroke-width="2">
+    <path d="M700 96 l7 -16 l7 16 l16 7 l-16 7 l-7 16 l-7 -16 l-16 -7 Z"/>
+  </g>
+  <circle cx="104" cy="410" r="8" fill="#e6d54c" stroke="#191919" stroke-width="2"/>
+  <circle cx="708" cy="404" r="6" fill="#191919"/>
+</svg>

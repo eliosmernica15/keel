@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" role="img" aria-labelledby="pa-logo-rakuten-title">
+  <title id="pa-logo-rakuten-title">Rakuten</title>
+  <g fill="#bf0000">
+    <path d="M8 22 L14 8 L20 22 L14 19 Z"/>
+    <text x="27" y="27" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" letter-spacing="-1">Rakuten</text>
+    <path d="M27 32 C55 29 87 30 113 32" fill="none" stroke="#bf0000" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

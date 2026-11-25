@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="pa-glyph-flag-title">
+  <title id="pa-glyph-flag-title">Flag on a hill</title>
+  <g fill="none" stroke="#191919" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 39 L17 24 L26 33 L33 23 L42 39"/>
+    <path d="M33 23 V8"/>
+    <path d="M33 9 L43 12 L33 16"/>
+  </g>
+</svg>

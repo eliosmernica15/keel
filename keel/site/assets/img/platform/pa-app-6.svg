@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" role="img" aria-labelledby="pa-app-6-title">
+  <title id="pa-app-6-title">App tile: orange sun with stripes</title>
+  <rect x="1" y="1" width="42" height="42" rx="10" fill="#ffffff"/>
+  <path d="M22 10 C30 10 36 16 36 23 L8 23 C8 16 14 10 22 10 Z" fill="#f4763c"/>
+  <g stroke="#f4763c" stroke-width="2" stroke-linecap="round">
+    <path d="M12 27 H32"/><path d="M14 31 H30"/><path d="M17 35 H27"/>
+  </g>
+</svg>

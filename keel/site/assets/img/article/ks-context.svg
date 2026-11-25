@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="t">
+  <title id="t">Keel context compaction into a summary chip</title>
+  <rect width="1200" height="700" fill="#f7f6f2"/>
+
+  <rect x="40" y="36" width="1120" height="628" rx="18" fill="#ffffff" stroke="#191919" stroke-width="2"/>
+  <path d="M40 86 H1160" stroke="#191919" stroke-width="0.6"/>
+  <circle cx="72" cy="61" r="7" fill="#191919"/>
+  <circle cx="96" cy="61" r="7" fill="#6b6b6b" opacity="0.5"/>
+  <circle cx="120" cy="61" r="7" fill="#6b6b6b" opacity="0.25"/>
+  <rect x="150" y="49" width="62" height="24" rx="6" fill="#e6d54c" stroke="#191919" stroke-width="1.5"/>
+  <text x="181" y="65" font-family="monospace" font-size="12" font-weight="bold" fill="#191919" text-anchor="middle">KEEL</text>
+  <text x="228" y="66" font-family="monospace" font-size="16" letter-spacing="1" fill="#191919">CONTEXT · COMPACTION</text>
+  <rect x="1020" y="49" width="108" height="24" rx="6" fill="#f0c4a8" stroke="#191919" stroke-width="1.5"/>
+  <rect x="1034" y="57" width="80" height="7" rx="3" fill="#191919" opacity="0.55"/>
+
+  <!-- left panel: conversation history -->
+  <rect x="64" y="112" width="470" height="524" rx="14" fill="#f7f6f2" stroke="#e6e4dc" stroke-width="2"/>
+  <text x="88" y="144" font-family="monospace" font-size="13" letter-spacing="1" fill="#6b6b6b">CONVERSATION · 42 MESSAGES</text>
+  <path d="M88 158 H510" stroke="#e6e4dc" stroke-width="2"/>
+
+  <g>
+    <rect x="88" y="176" width="330" height="10" rx="4" fill="#191919" opacity="0.7"/>
+    <rect x="88" y="194" width="380" height="8" rx="3" fill="#6b6b6b" opacity="0.4"/>
+    <rect x="88" y="210" width="290" height="8" rx="3" fill="#6b6b6b" opacity="0.4"/>
+    <rect x="88" y="234" width="360" height="10" rx="4" fill="#6b6b6b" opacity="0.6"/>
+    <rect x="88" y="252" width="410" height="8" rx="3" fill="#6b6b6b" opacity="0.35"/>
+    <rect x="88" y="268" width="340" height="8" rx="3" fill="#6b6b6b" opacity="0.35"/>
+    <rect x="88" y="292" width="300" height="10" rx="4" fill="#191919" opacity="0.7"/>
+    <rect x="88" y="310" width="390" height="8" rx="3" fill="#6b6b6b" opacity="0.4"/>
+    <rect x="88" y="326" width="260" height="8" rx="3" fill="#6b6b6b" opacity="0.4"/>
+    <rect x="88" y="350" width="380" height="10" rx="4" fill="#6b6b6b" opacity="0.6"/>
+    <rect x="88" y="368" width="330" height="8" rx="3" fill="#6b6b6b" opacity="0.35"/>
+    <rect x="88" y="384" width="400" height="8" rx="3" fill="#6b6b6b" opacity="0.35"/>
+    <rect x="88" y="408" width="280" height="10" rx="4" fill="#191919" opacity="0.7"/>
+    <rect x="88" y="426" width="350" height="8" rx="3" fill="#6b6b6b" opacity="0.4"/>
+    <rect x="88" y="442" width="300" height="8" rx="3" fill="#6b6b6b" opacity="0.4"/>
+    <rect x="88" y="466" width="370" height="10" rx="4" fill="#6b6b6b" opacity="0.6"/>
+    <rect x="88" y="484" width="410" height="8" rx="3" fill="#6b6b6b" opacity="0.35"/>
+    <rect x="88" y="500" width="250" height="8" rx="3" fill="#6b6b6b" opacity="0.35"/>
+    <rect x="88" y="524" width="340" height="10" rx="4" fill="#191919" opacity="0.7"/>
+    <rect x="88" y="542" width="390" height="8" rx="3" fill="#6b6b6b" opacity="0.4"/>
+    <rect x="88" y="558" width="280" height="8" rx="3" fill="#6b6b6b" opacity="0.4"/>
+    <rect x="88" y="582" width="330" height="10" rx="4" fill="#6b6b6b" opacity="0.6"/>
+    <rect x="88" y="600" width="360" height="8" rx="3" fill="#6b6b6b" opacity="0.35"/>
+  </g>
+  <!-- speaker color ticks -->
+  <g>
+    <rect x="78" y="176" width="4" height="10" rx="2" fill="#191919"/>
+    <rect x="78" y="234" width="4" height="10" rx="2" fill="#f0c4a8"/>
+    <rect x="78" y="292" width="4" height="10" rx="2" fill="#191919"/>
+    <rect x="78" y="350" width="4" height="10" rx="2" fill="#f0c4a8"/>
+    <rect x="78" y="408" width="4" height="10" rx="2" fill="#191919"/>
+    <rect x="78" y="466" width="4" height="10" rx="2" fill="#f0c4a8"/>
+    <rect x="78" y="524" width="4" height="10" rx="2" fill="#191919"/>
+    <rect x="78" y="582" width="4" height="10" rx="2" fill="#f0c4a8"/>
+  </g>
+
+  <!-- center connector -->
+  <g stroke="#191919" stroke-width="2" stroke-linecap="round">
+    <path d="M550 300 H620" stroke-dasharray="7 7"/>
+    <path d="M550 360 H620" stroke-dasharray="7 7"/>
+    <path d="M550 420 H620" stroke-dasharray="7 7"/>
+    <path d="M600 292 L620 300 L600 308" fill="none"/>
+    <path d="M600 352 L620 360 L600 368" fill="none"/>
+    <path d="M600 412 L620 420 L600 428" fill="none"/>
+  </g>
+  <circle cx="585" cy="360" r="34" fill="#e6d54c" stroke="#191919" stroke-width="2.5"/>
+  <path d="M574 360 h22 M585 349 v22" stroke="#191919" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- right panel: summary -->
+  <rect x="666" y="112" width="470" height="524" rx="14" fill="#ffffff" stroke="#191919" stroke-width="2"/>
+  <text x="690" y="144" font-family="monospace" font-size="13" letter-spacing="1" fill="#6b6b6b">COMPACTED SUMMARY</text>
+  <path d="M690 158 H1112" stroke="#e6e4dc" stroke-width="2"/>
+
+  <!-- summary chip highlighted -->
+  <rect x="690" y="180" width="422" height="132" rx="12" fill="#e6d54c" stroke="#191919" stroke-width="2.5"/>
+  <circle cx="718" cy="208" r="9" fill="#191919"/>
+  <path d="M714 208 l3 3 l5 -6" fill="none" stroke="#e6d54c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="738" y="203" width="180" height="10" rx="4" fill="#191919"/>
+  <rect x="706" y="234" width="366" height="8" rx="3" fill="#191919" opacity="0.6"/>
+  <rect x="706" y="252" width="330" height="8" rx="3" fill="#191919" opacity="0.6"/>
+  <rect x="706" y="270" width="280" height="8" rx="3" fill="#191919" opacity="0.5"/>
+  <rect x="706" y="288" width="200" height="8" rx="3" fill="#191919" opacity="0.4"/>
+
+  <!-- smaller chips -->
+  <g>
+    <rect x="690" y="334" width="200" height="76" rx="10" fill="#f7f6f2" stroke="#e6e4dc" stroke-width="2"/>
+    <circle cx="714" cy="358" r="6" fill="#f0c4a8" stroke="#191919" stroke-width="1.5"/>
+    <rect x="730" y="354" width="110" height="8" rx="4" fill="#191919" opacity="0.7"/>
+    <rect x="706" y="378" width="150" height="7" rx="3" fill="#6b6b6b" opacity="0.45"/>
+    <rect x="690" y="426" width="200" height="76" rx="10" fill="#f7f6f2" stroke="#e6e4dc" stroke-width="2"/>
+    <circle cx="714" cy="450" r="6" fill="#f0c4a8" stroke="#191919" stroke-width="1.5"/>
+    <rect x="730" y="446" width="128" height="8" rx="4" fill="#191919" opacity="0.7"/>
+    <rect x="706" y="470" width="140" height="7" rx="3" fill="#6b6b6b" opacity="0.45"/>
+  </g>
+
+  <!-- token meter -->
+  <rect x="912" y="334" width="200" height="168" rx="10" fill="#f7f6f2" stroke="#e6e4dc" stroke-width="2"/>
+  <rect x="934" y="358" width="90" height="8" rx="4" fill="#6b6b6b" opacity="0.5"/>
+  <rect x="934" y="384" width="156" height="12" rx="6" fill="#e6e4dc"/>
+  <rect x="934" y="384" width="46" height="12" rx="6" fill="#e6d54c" stroke="#191919" stroke-width="1.5"/>
+  <rect x="934" y="420" width="90" height="8" rx="4" fill="#6b6b6b" opacity="0.5"/>
+  <rect x="934" y="446" width="156" height="12" rx="6" fill="#e6e4dc"/>
+  <rect x="934" y="446" width="120" height="12" rx="6" fill="#191919"/>
+  <text x="934" y="486" font-family="monospace" font-size="12" fill="#191919">42 → 6</text>
+
+  <path d="M690 546 H1112" stroke="#e6e4dc" stroke-width="2"/>
+  <rect x="690" y="566" width="140" height="28" rx="8" fill="#191919"/>
+  <text x="760" y="584" font-family="monospace" font-size="12" fill="#f7f6f2" text-anchor="middle">COMPACT</text>
+  <rect x="846" y="566" width="120" height="28" rx="8" fill="#ffffff" stroke="#e6e4dc" stroke-width="2"/>
+</svg>

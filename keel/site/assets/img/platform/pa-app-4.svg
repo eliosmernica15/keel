@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" role="img" aria-labelledby="pa-app-4-title">
+  <title id="pa-app-4-title">App tile: orange fox</title>
+  <rect x="1" y="1" width="42" height="42" rx="10" fill="#171521"/>
+  <path d="M22 8 L35 16 L31 33 L22 38 L13 33 L9 16 Z" fill="#e85d26"/>
+  <path d="M22 8 L22 38 L13 33 L9 16 Z" fill="#fc6d26"/>
+  <path d="M22 8 L17 15 L22 18 L27 15 Z" fill="#ffffff" opacity=".18"/>
+</svg>

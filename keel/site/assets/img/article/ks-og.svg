@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-labelledby="t">
+  <title id="t">Introducing Keel Ship — Keel</title>
+  <defs>
+    <clipPath id="round"><rect width="1200" height="630" rx="24"/></clipPath>
+  </defs>
+  <g clip-path="url(#round)">
+    <rect width="1200" height="630" fill="#f7f6f2"/>
+    <g opacity=".5" stroke="#e6e4dc" stroke-width="1">
+      <path d="M0 100h1200M0 200h1200M0 300h1200M0 400h1200M0 500h1200M150 0v630M300 0v630M450 0v630M600 0v630M750 0v630M900 0v630M1050 0v630"/>
+    </g>
+    <rect x="0" y="0" width="14" height="630" fill="#e6d54c"/>
+
+    <g font-family="Georgia, 'Times New Roman', serif" fill="#191919">
+      <text x="84" y="118" font-size="22" letter-spacing="6" font-family="Inter, Arial, sans-serif" fill="#8a8279">KEEL  ·  PRODUCT</text>
+      <text x="80" y="238" font-size="82" font-weight="700">Introducing</text>
+      <text x="80" y="328" font-size="82" font-weight="700">Keel Ship</text>
+    </g>
+    <text x="84" y="392" font-family="Inter, Arial, sans-serif" font-size="27" fill="#6b6b6b">An agentic coding tool for your terminal.</text>
+    <rect x="84" y="436" width="300" height="58" rx="10" fill="#191919"/>
+    <text x="234" y="474" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600" fill="#f7f6f2">Read the announcement</text>
+    <text x="84" y="556" font-family="Inter, Arial, sans-serif" font-size="19" fill="#8a8279">keel-desktop.vercel.app</text>
+
+    <g transform="translate(735,105)">
+      <rect x="0" y="0" width="380" height="420" rx="34" fill="#f0c4a8"/>
+      <g transform="translate(40,42)">
+        <rect x="0" y="0" width="300" height="336" rx="16" fill="#191919"/>
+        <circle cx="20" cy="18" r="5" fill="#e6d54c"/><circle cx="38" cy="18" r="5" fill="#6b6b6b"/><circle cx="56" cy="18" r="5" fill="#6b6b6b"/>
+        <rect x="16" y="42" width="268" height="36" rx="8" fill="#2a2724"/>
+        <text x="30" y="66" font-family="'Courier New', monospace" font-size="15" fill="#e6d54c">$ keel ship start</text>
+        <g stroke="#3a3833" stroke-width="8" stroke-linecap="round">
+          <path d="M30 106h150M30 132h210M30 158h122M30 184h180M30 210h96M30 236h160"/>
+        </g>
+        <path d="M30 278h268" stroke="#4a4741" stroke-width="1"/>
+        <text x="30" y="308" font-family="'Courier New', monospace" font-size="14" fill="#6fe3b0">✓ session recorded · replay ready</text>
+        <g transform="translate(150,200)" fill="none" stroke="#e6d54c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M0 0v58M-34 24l34 34 34-34M-30 62h60"/>
+        </g>
+      </g>
+      <g fill="#e6d54c">
+        <path d="M338 40l6 16 16 6-16 6-6 16-6-16-16-6 16-6z"/>
+        <path d="M22 350l5 13 13 5-13 5-5 13-5-13-13-5 13-5z"/>
+      </g>
+    </g>
+  </g>
+</svg>

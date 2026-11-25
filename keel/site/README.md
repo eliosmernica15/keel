@@ -9,6 +9,9 @@
 | `/` | `/index.html` | The Keel landing page (marketing) |
 | `/app` | `/app.html` | The web mirror of the Keel app (BYOK chat, no agent, no disk) |
 | `/download` | `/download.html` | Platform download cards, rendered from the release manifest |
+| `/product/overview` | `/product-overview.html` | Static product overview page (editorial layout, all controls client-side) |
+| `/platform/api` | `/platform/api.html` | Static KEEL Platform page (models, agent SDK, console, enterprise, testimonials; all controls client-side) |
+| `/product/cowork` | `/product/cowork.html` | Static KEEL Cowork product page (capabilities, use cases, pricing, FAQ) |
 | `/api/download-manifest` | serverless function | Same-origin proxy for the latest GitHub Release manifest |
 | `/download.json` | static | Committed fallback manifest; the Windows .exe is verified and available this round, macOS/Linux stay unpublished until a verified release is published |
 
@@ -22,6 +25,35 @@ Desktop and web share the same design language: same tokens, fonts and icons.
 The desktop app (`desktop/ui/`) embeds the same mirror-family UI served by the
 local Python bridge; the landing page is static and makes no network calls
 beyond the static files themselves.
+
+### Static pages and friendly routes
+
+The marketing pages are plain static HTML/CSS/JS — no server-side rendering.
+`vercel.json` maps friendly paths to the `.html` files (`/download`, `/app`,
+`/product/overview`, …) and redirects direct `.html` requests back to the
+friendly path. The product overview ships its own assets (`assets/img/po-*.svg`),
+stylesheet (`ui/product-overview.css`) and script (`ui/product-overview.js`);
+every control runs in the browser with no network calls. Its “See plans”
+link resolves to the dedicated `/pricing` page. That page ships its own
+stylesheet (`ui/pricing.css`) and script (`ui/pricing.js`); the billing and
+plan toggles, plan CTAs, feature search, FAQ tabs and accordions, nav menus
+and the contact modal are all functional client-side.
+
+The KEEL Platform page (`platform/api.html`, `ui/platform-api.css`, `ui/platform-api.js`
+and local artwork in `assets/img/platform/`) reproduces the supplied full-resolution
+Claude Platform screenshot exactly, with KEEL branding. Its nav dropdowns, model explorer,
+capability hub, optimization tabs, console runner, testimonial carousel,
+footer search and auth/contact modals all run client-side with no network
+calls. `vercel.json` rewrites `/platform/api` to the HTML file and redirects
+direct `.html` requests back to the clean URL.
+
+The Cowork page is similarly self-contained: `product/cowork.html` ships with
+`ui/cowork.css`, `ui/cowork.js` and local artwork in `assets/img/cw-*.svg`. It
+uses no external requests, and every control (tabs, carousels, modals, forms,
+FAQ, cookie banner) runs client-side. `vercel.json` rewrites `/product/cowork`
+to the HTML file and redirects direct `.html` requests back to the clean URL;
+`serve_keel_site.mjs` mirrors the rewrite for local QA. See
+`product/README.md` for details.
 
 ## The web mirror (`/app`) — what it does
 

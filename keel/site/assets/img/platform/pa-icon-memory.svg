@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="pa-icon-memory-title">
+  <title id="pa-icon-memory-title">Memory</title>
+  <g fill="none" stroke="#191919" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 13c0-3.3 7.2-6 16-6s16 2.7 16 6-7.2 6-16 6S8 16.3 8 13Z"/>
+    <path d="M8 13v9c0 3.3 7.2 6 16 6s16-2.7 16-6v-9"/>
+    <path d="M8 22v9c0 3.3 7.2 6 16 6s16-2.7 16-6v-9"/>
+  </g>
+  <path d="M8 13c0-3.3 7.2-6 16-6s16 2.7 16 6" fill="none" stroke="#d97757" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="24" cy="13" r="2.6" fill="#d97757"/>
+</svg>
