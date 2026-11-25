@@ -40,17 +40,40 @@ frontend-only evidence are explicitly excluded.
 | `AUDIT-TESTING.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `BACKEND-COMPLETION-ACCOUNTING.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `BACKEND-COMPLETION-BACKLOG.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `BACKEND-DATABASE-RECOVERY.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `BACKEND-DEPLOYMENT.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `BACKEND-IMPLEMENTATION-DETAIL.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `BACKEND-INCIDENT-RESPONSE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `BACKEND-MONITORING.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `BACKEND-OPERATION-TASKBOARD.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `BACKEND-OPERATIONS-RUNBOOK.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `BACKEND-SECURITY-REVIEW.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `BACKLOG-traceability-failures.txt` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `DECISIONS.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `DEPENDENCY-GRAPH.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `FINAL-ENGINEERING-REPORT.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `FINAL-RELEASE-ACCEPTANCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `FREE-TIER-REGISTER.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `Keel_Master_Plan_v6.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `MODEL-AND-VOICE-LICENSES.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `P0-BATCHES.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `PLAN-INDEX.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROD-API-EVIDENCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROD-AUTH-EVIDENCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROD-MCP-EVIDENCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROD-OBSERVABILITY-EVIDENCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROD-PERFORMANCE-EVIDENCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROD-PLATFORM-EVIDENCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROD-PROVIDER-EVIDENCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROD-RELIABILITY-EVIDENCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROD-SUPPLY-CHAIN-EVIDENCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROD-TOOLS-EVIDENCE.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PRODUCTION-ARCHITECTURE-AUDIT.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PRODUCTION-PROMOTION-MANIFEST.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PRODUCTION-READINESS-MATRIX.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PRODUCTION-READINESS-REPORT.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PRODUCTION-REQUIREMENT-RECONCILIATION.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `PROMOTION-PATH-INVENTORY.txt` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `REGISTRY-EVIDENCE-INTEGRITY.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `REMAINING-BACKEND-ANALYSIS.txt` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `REMAINING-WORK-MATRIX.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
@@ -63,9 +86,7 @@ frontend-only evidence are explicitly excluded.
 | `backend-final-attribution.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `backend-module-id-coverage.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/README.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
-| `keel/desktop-app/main.js` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `keel/desktop/src-tauri/Cargo.toml` | REQUIRED_BACKEND_DEPENDENCY | Single version-string constant required by backend `test_signing_gate.py` / `validate_version()`; see explicit exception below | checkout from source SHA | full backend suite + strict gate |
-| `keel/desktop/sw.js` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
+| `keel/desktop/src-tauri/Cargo.toml` | REQUIRED_BACKEND_DEPENDENCY | One-line version constant required by backend version gate | checkout from source SHA | full backend suite + strict gate |
 | `keel/docs/CHECKLIST.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/docs/FINAL-RELEASE-OPERATIONS.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/docs/IMPLEMENTATION-PROGRESS.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
@@ -96,14 +117,12 @@ frontend-only evidence are explicitly excluded.
 | `keel/docs/research/remaining-work-matrix.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/docs/research/sandbox-conformance.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/docs/research/source-repository-register.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
+| `keel/requirements-sbom.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `keel/requirements.lock.txt` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/scripts/build_dependency_graph.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
 | `keel/scripts/build_plan_index.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
 | `keel/scripts/build_v6_plan.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
-| `keel/scripts/check_version_sync.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `keel/scripts/validate_desktop.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `keel/site/app.html` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `keel/site/ui/app.js` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `keel/site/ui/style.css` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
+| `keel/scripts/check_version_sync.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/agent_contracts.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/api_contracts.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/automation.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
@@ -139,6 +158,7 @@ frontend-only evidence are explicitly excluded.
 | `keel/src/keel/events.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/exec_guard.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/exec_policy.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
+| `keel/src/keel/fleet/service.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/gate_scheduler.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/hardware.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/identity_contracts.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
@@ -151,10 +171,12 @@ frontend-only evidence are explicitly excluded.
 | `keel/src/keel/os_sandbox.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/performance_budgets.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/permission_contracts.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
+| `keel/src/keel/permissions.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/plan_corrections.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/plugin_contracts.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/policy_enforcement.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/product_contracts.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
+| `keel/src/keel/provider_catalog.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/provider_contracts.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/redaction.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/release/__init__.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
@@ -170,7 +192,9 @@ frontend-only evidence are explicitly excluded.
 | `keel/src/keel/resource_caps.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/responsible_use.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/result_contracts.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
+| `keel/src/keel/runner.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/runtime_contracts.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
+| `keel/src/keel/safety.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/sandbox_macos.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/sandbox_windows.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/secret_providers.py` | REQUIRED_BACKEND_DEPENDENCY | Backend runtime dependency of the plan | checkout from source SHA | full backend suite + strict gate |
@@ -203,7 +227,6 @@ frontend-only evidence are explicitly excluded.
 | `keel/src/keel/y3_backend.py` | PLAN_BACKEND_IMPLEMENTATION | v6 backend module from this plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/y4_d4_x7_backend.py` | PLAN_BACKEND_IMPLEMENTATION | v6 backend module from this plan | checkout from source SHA | full backend suite + strict gate |
 | `keel/src/keel/z_backend.py` | PLAN_BACKEND_IMPLEMENTATION | v6 backend module from this plan | checkout from source SHA | full backend suite + strict gate |
-| `keel/tests/test_accessibility_hardening.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_agent_contracts.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_api_contracts.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_backend_contracts.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
@@ -226,7 +249,6 @@ frontend-only evidence are explicitly excluded.
 | `keel/tests/test_d7_workflow_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_db_persistence_hardening.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_desktop_contracts.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
-| `keel/tests/test_desktop_hardening.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_distribution_package.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_e3_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_e5_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
@@ -251,6 +273,17 @@ frontend-only evidence are explicitly excluded.
 | `keel/tests/test_plan_corrections.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_plan_index.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_plugin_contracts.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_api.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_auth_hardening.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_cap_gate.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_db_recovery.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_mcp.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_observe.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_perffix.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_provider.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_recovery.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_secfix.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_prod_tools.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_product_contracts.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_product_defects.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_provider_contracts.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
@@ -267,6 +300,7 @@ frontend-only evidence are explicitly excluded.
 | `keel/tests/test_sandbox_macos.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_sandbox_windows.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_secret_providers.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_secret_storage.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_secrets_policy_hardening.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_security_contracts.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_security_validation.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
@@ -284,8 +318,8 @@ frontend-only evidence are explicitly excluded.
 | `keel/tests/test_w1_security_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_w4_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_w7_x1_y5_d1_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
-| `keel/tests/test_web_surface_hardening.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_webhook_security.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
+| `keel/tests/test_website_download_only.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_win_network.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_x2_orchestration_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_x3_memory_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
@@ -295,13 +329,11 @@ frontend-only evidence are explicitly excluded.
 | `keel/tests/test_y3_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_y4_d4_x7_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
 | `keel/tests/test_z_backend.py` | BACKEND_TEST_OR_CI | Backend/acceptance test | checkout from source SHA | full backend suite + strict gate |
-| `master-plan-v6-accessibility-evidence.md` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
 | `master-plan-v6-agent-commit-index.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-agent-contracts-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-agent-execution.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-api-contracts-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-architecture-map.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
-| `master-plan-v6-browser-e2e-evidence.md` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
 | `master-plan-v6-builder-contracts-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-capability-seams-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-cli-surface-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
@@ -313,8 +345,6 @@ frontend-only evidence are explicitly excluded.
 | `master-plan-v6-d6-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-d7-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-db-persistence-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
-| `master-plan-v6-desktop-contracts-evidence.md` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `master-plan-v6-desktop-evidence.md` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
 | `master-plan-v6-dialects-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-e3-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-e5-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
@@ -367,7 +397,6 @@ frontend-only evidence are explicitly excluded.
 | `master-plan-v6-security-contracts-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-security-findings.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-session-contracts-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
-| `master-plan-v6-signing-evidence.md` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
 | `master-plan-v6-small-groups-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-steering-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-supply-chain-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
@@ -378,7 +407,6 @@ frontend-only evidence are explicitly excluded.
 | `master-plan-v6-w1-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-w4-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-w7-x1-y5-d1-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
-| `master-plan-v6-web-pwa-evidence.md` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
 | `master-plan-v6-webhooks-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-win-network-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-x2-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
@@ -390,19 +418,29 @@ frontend-only evidence are explicitly excluded.
 | `master-plan-v6-y4-d4-x7-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `master-plan-v6-z-backend-evidence.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `parity.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
-| `probe/check_collection.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_approval.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_events_race.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_head_crash.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_hub.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_observability.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_paths.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_race.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_race2.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_seal_race.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_status.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/probe_token_fallback.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
-| `probe/reverify_adapted.py` | UNRELATED_EXCLUDED | Frontend/desktop/research/review-probe scope | exclude | n/a (excluded) |
+| `perf-harness/README.md` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/bench_cap.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/bench_db.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/bench_http.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/bench_http_backlog.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/bench_resilience.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/bench_startup.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/benchcommon.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/child_startup.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/imp.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/import_breakdown.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/jsoncheck.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/memtest.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/per_module.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/probe.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/result_backlog.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/result_cap.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/result_db.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/result_http.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/result_resilience.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/result_startup.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
+| `perf-harness/sig.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
+| `promotion-classification.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `scripts/build_v6_audit_matrix.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
 | `scripts/check_model_licenses.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
 | `scripts/plan_p0_batches.py` | BACKEND_TEST_OR_CI | Registry/verification/build script | checkout from source SHA | full backend suite + strict gate |
@@ -430,7 +468,33 @@ defects:
 - keel/tests/test_desktop_hardening.py (Electron main.js invariants)
 - keel/tests/test_web_surface_hardening.py (site/PWA assets)
 - keel/tests/test_validation_script.py (desktop validation script)
+- keel/tests/test_website_download_only.py (public website content/policy)
 
 No backend test was removed or weakened. keel/scripts/check_version_sync.py is included
 as REQUIRED_BACKEND_DEPENDENCY because the backend release version gate
 (	est_version_sync.py) imports it.
+
+## Authoritative clean candidate — v2
+
+The first candidate branch `release/backend-production-readiness-2026-11-24` received an
+unrelated frontend commit (`6970867 feat(site): rebuild /download...`) from concurrent work
+sharing the checkout. To preserve that work without importing it, the authoritative candidate
+was rebuilt as `release/backend-production-readiness-2026-11-24-v2` from `origin/main` with
+only the backend paths listed in this manifest. The earlier branch and the frontend commit
+remain untouched. All backend fixes from the earlier candidate are present in v2.
+
+| Field | Value |
+|---|---|
+| Authoritative candidate branch | `release/backend-production-readiness-2026-11-24-v2` |
+| Authoritative candidate SHA | `CANDIDATE_HEADd0994986223dd802e47a078a0aeaf5203` |
+| Excluded unrelated commit | `6970867` (frontend `/download` rebuild) |
+| Frontend/desktop paths in v2 | only the documented one-line `Cargo.toml` version constant |
+
+## Latest main merge before promotion
+
+The repository owner advanced `origin/main` during this operation with frontend-only
+commits (`7d48236`, `b2d7403` — Keel-in-Chrome pages, Web Store clone, MV3 extension).
+Those changes were merged into the candidate so the final promotion is a clean
+fast-forward and no owner work is overwritten or discarded. They are **pre-existing on
+main**, not backend work imported by this plan. All backend paths in this manifest remain
+the only changes this plan contributes.

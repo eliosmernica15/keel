@@ -371,6 +371,17 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                                 HTTPStatus.BAD_REQUEST)
                 return None
             if length > limit:
+                # Drain (a bounded amount of) the oversized body before answering.
+                # Responding while the client is still writing can reset the connection.
+                try:
+                    remaining = length
+                    while remaining > 0:
+                        chunk = self.rfile.read(min(remaining, 65536))
+                        if not chunk:
+                            break
+                        remaining -= len(chunk)
+                except (OSError, ValueError):
+                    pass
                 self._send_json({"error": too_large},
                                 HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
                 return None
