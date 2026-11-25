@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
   <link rel="stylesheet" href="/ui/download-clone.css" />
+  <link rel="stylesheet" href="/ui/download-ux.css" />
 </head>
 <body class="download-clone">
 
@@ -226,17 +227,20 @@
         <h1 class="kp-hero-title" id="kp-hero-title">Download Keel</h1>
         <p class="kp-hero-sub">Think, hand off tasks, and code, all in one place.</p>
 
-        <div class="kp-hero-ctas">
-          <a class="kp-btn kp-btn-dark" id="hero-download" href="#windows">
+        <div class="kp-hero-ctas" id="kp-download-hero">
+          <a class="kp-btn kp-btn-dark kp-download-primary is-disabled" id="kp-download-primary"
+             aria-disabled="true" role="link" data-state="detecting"
+             title="Checking which verified installer matches this device">
             <svg class="kp-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2 4.5l8.5-1.2v7.8H2zM11.8 3.1L22 1.5v10.7h-10.2zM2 12.9h8.5v7.8L2 19.5zM11.8 12.2H22v10.6l-10.2-1.6z"/></svg>
-            <span>Download for Windows</span>
+            <span id="kp-download-primary-label">Detecting your device…</span>
           </a>
-          <a class="kp-btn kp-btn-outline" href="#windows-arm64">Windows (arm64)</a>
-          <a class="kp-btn kp-btn-outline" href="#windows">
-            <svg class="kp-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M2.5 3.2l8.8-1.2v8H2.5zm10.2-1.4L21.5 1v9H12.7zM2.5 11.7h8.8v8L2.5 18.5zm10.2 0h8.8v9l-8.8-1.3z"/></svg>
-            Download from the Microsoft Store
-          </a>
+          <details class="kp-other-platforms" id="kp-other-platforms">
+            <summary class="kp-btn kp-btn-outline">Other platforms</summary>
+            <div class="kp-other-options" id="kp-other-options" role="group" aria-label="Choose another platform"></div>
+          </details>
         </div>
+        <p class="kp-download-status" id="kp-download-status" role="status" aria-live="polite" data-state="detecting">Detecting your device…</p>
+        <p class="kp-signing-note">Keel verifies each installer's SHA-256 over HTTPS, and releases carry a Keel Ed25519 signature. That is not an operating-system code signature: these installers are unsigned, so macOS Gatekeeper and Windows SmartScreen may warn on first launch. Uninstalling never touches your <code>~/.keel</code> directory.</p>
       </div>
     </section>
 
@@ -253,9 +257,9 @@
               <h3 class="kp-card-title">Desktop</h3>
               <p class="kp-card-sub">Use Keel on your computer with your files and apps right from the menu bar.</p>
               <div class="kp-rows">
-                <div class="kp-row"><span class="kp-row-label">macOS</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" data-channel="macos" href="/download" aria-disabled="true" title="Not publicly available yet">Download</a></div>
-                <div class="kp-row"><span class="kp-row-label">Windows</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" data-channel="windows" href="/download" aria-disabled="true" title="Not publicly available yet">Download</a></div>
-                <div class="kp-row" id="windows-arm64"><span class="kp-row-label">Windows (arm64)</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" data-channel="windows-arm64" href="/download" aria-disabled="true" title="Not publicly available yet">Download</a></div>
+                <!-- Verified installer rows are rendered here by /ui/download.js
+                     from /api/download-manifest (fallback: /download.json). -->
+                <div class="kp-variants" id="kp-download-variants"></div>
                 <div class="kp-row"><span class="kp-row-label">Microsoft Store</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">Download from Store</a></div>
                 <div class="kp-row"><span class="kp-row-label">Flutter</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/requirements">See docs</a></div>
                 <div class="kp-row"><span class="kp-row-label">Slack</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download">See docs</a></div>
@@ -325,7 +329,7 @@
               <h3 class="kp-card-title">Keel Code environments</h3>
               <p class="kp-card-sub">Use Keel where you code, at home or on the go.</p>
               <div class="kp-rows">
-                <div class="kp-row"><span class="kp-row-label">Desktop</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" data-channel="windows" href="/download" aria-disabled="true" title="Not publicly available yet">Download</a></div>
+                <div class="kp-row"><span class="kp-row-label">Desktop</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/download" aria-disabled="true" title="Not publicly available yet">Download</a></div>
                 <div class="kp-row"><span class="kp-row-label">Terminal</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/app">Download</a></div>
                 <div class="kp-row"><span class="kp-row-label">VS Code</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/app">Install</a></div>
                 <div class="kp-row"><span class="kp-row-label">JetBrains</span><a class="kp-btn kp-btn-outline kp-btn-sm kp-row-action" href="/app">Install</a></div>
@@ -639,5 +643,6 @@
   </div>
 
   <script type="module" src="/ui/download-clone.js"></script>
+  <script type="module" src="/ui/download.js"></script>
 </body>
 </html>
