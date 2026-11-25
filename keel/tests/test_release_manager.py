@@ -25,6 +25,16 @@ from keel.release import common, verify
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "0.1.1"
+def _subprocess_env() -> dict:
+    """Pin child interpreters to THIS checkout, not an editable install elsewhere."""
+    import os
+    env = os.environ.copy()
+    src = str(Path(__file__).resolve().parents[1] / "src")
+    env["PYTHONPATH"] = os.pathsep.join(
+        [src, env["PYTHONPATH"]] if env.get("PYTHONPATH") else [src])
+    return env
+
+
 TAG = "v0.1.1"
 
 ARTIFACTS = {
@@ -183,7 +193,7 @@ def test_verify_manifest_mismatch(artifacts: Path) -> None:
 def test_verify_cli_help() -> None:
     result = subprocess.run(
         [sys.executable, "-m", "keel.release", "verify", "--help"],
-        cwd=ROOT, capture_output=True, text=True,
+        cwd=ROOT, capture_output=True, text=True, env=_subprocess_env(),
     )
     assert result.returncode == 0
     assert "--manifest" in result.stdout
@@ -196,7 +206,7 @@ def test_publish_dry_run(artifacts: Path) -> None:
     result = subprocess.run(
         [sys.executable, "-m", "keel.release", "publish",
          "--artifacts", str(artifacts), "--tag", TAG, "--dry-run", "--out", str(out)],
-        cwd=ROOT, capture_output=True, text=True,
+        cwd=ROOT, capture_output=True, text=True, env=_subprocess_env(),
     )
     assert result.returncode == 0, result.stderr
     manifest_path = out / "download.json"
@@ -209,7 +219,7 @@ def test_publish_dry_run(artifacts: Path) -> None:
 def test_cli_help() -> None:
     result = subprocess.run(
         [sys.executable, "-m", "keel.release", "--help"],
-        cwd=ROOT, capture_output=True, text=True,
+        cwd=ROOT, capture_output=True, text=True, env=_subprocess_env(),
     )
     assert result.returncode == 0
     assert "build" in result.stdout and "publish" in result.stdout and "verify" in result.stdout
