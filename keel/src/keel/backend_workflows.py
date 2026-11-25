@@ -1544,60 +1544,76 @@ WORKFLOWS: dict[str, Callable[[Mapping[str, Any]], dict]] = {
 }
 
 
-def run_workflow(name: str, params: Mapping[str, Any]) -> dict:
-    """Dispatch by workflow name with the authoritative policy boundary.
-
-    The HTTP and CLI workflow routes call this function directly rather than
-    ``capabilities.invoke``. They must therefore apply the same saved-policy
-    enforcement and audit record as every other capability surface; otherwise
-    a durable mutating workflow would bypass the backend permission floor.
-    """
-    if not isinstance(params, dict):
-        return {"workflow": str(name), "ok": False, "code": "bad_params",
-                "error": "params must be an object", "result": {}, "steps": [],
-                "persisted": None, "http_status": 400}
-    handler = WORKFLOWS.get(str(name))
-    if handler is None:
-        return {"workflow": str(name), "ok": False, "code": "unknown_workflow",
-                "error": f"unknown workflow {name!r}; expected one of {WORKFLOW_NAMES}",
-                "result": {}, "steps": [], "persisted": None, "http_status": 404}
-    try:
-        state_root = _state_root(params)
-    except WorkflowError as exc:
-        return {"workflow": str(name), "ok": False,
-                "code": getattr(exc, "code", "bad_state_root"),
-                "error": str(exc), "result": {}, "steps": [],
-                "persisted": None, "http_status": 400}
-
-    from .policy_enforcement import enforce as _enforce
-    try:
-        decision = _enforce(
-            "backend.workflow", {"workflow": str(name)},
-            state_root=state_root, interactive=False, confirmed=True)
-    except Exception as exc:
-        return {"workflow": str(name), "ok": False, "code": "policy_error",
-                "error": f"policy evaluation failed: {exc}",
-                "result": {}, "steps": [], "persisted": None,
-                "http_status": 400}
-    if decision is not None and decision.decision == "deny":
-        return {"workflow": str(name), "ok": False, "code": "policy_denied",
-                "error": f"execution policy denied backend.workflow: {decision.reason}",
-                "result": {}, "steps": [], "persisted": None, "http_status": 403}
-    if decision is not None and decision.decision == "ask":
-        return {"workflow": str(name), "ok": False, "code": "confirmation_required",
-                "error": f"execution policy requires confirmation: {decision.reason}",
-                "result": {}, "steps": [], "persisted": None, "http_status": 409}
-
-    result = handler(params)
-    # Audit is best-effort: a completed operation must still return its result,
-    # matching the web bridge's audit semantics.
+def _audit_workflow(state_root: Path | None, name: str, result: dict) -> None:
+    """Record every workflow outcome, including denials (best-effort)."""
+    if state_root is None:
+        return
     try:
         from .capabilities import record_audit
         record_audit(state_root, {
             "capability": "backend.workflow", "workflow": str(name),
-            "ok": bool(result.get("ok")), "surface": "workflow"})
+            "ok": bool(result.get("ok")),
+            "code": str(result.get("code") or ""),
+            "surface": "workflow"})
     except OSError:
         pass
+
+
+def run_workflow(name: str, params: Mapping[str, Any]) -> dict:
+    """Dispatch by workflow name with the authoritative policy boundary.
+
+    HTTP and CLI workflow routes call this function directly rather than
+    ``capabilities.invoke``. They must therefore apply the same saved-policy
+    enforcement and audit record as every other capability surface. Every
+    branch — including bad params, denials and policy failures — is audited.
+    """
+    state_root: Path | None = None
+    if not isinstance(params, dict):
+        result = {"workflow": str(name), "ok": False, "code": "bad_params",
+                  "error": "params must be an object", "result": {}, "steps": [],
+                  "persisted": None, "http_status": 400}
+    elif WORKFLOWS.get(str(name)) is None:
+        result = {"workflow": str(name), "ok": False, "code": "unknown_workflow",
+                  "error": f"unknown workflow {name!r}; expected one of {WORKFLOW_NAMES}",
+                  "result": {}, "steps": [], "persisted": None, "http_status": 404}
+    else:
+        try:
+            state_root = _state_root(params)
+        except WorkflowError as exc:
+            result = {"workflow": str(name), "ok": False,
+                      "code": getattr(exc, "code", "bad_state_root"),
+                      "error": str(exc), "result": {}, "steps": [],
+                      "persisted": None, "http_status": 400}
+        if state_root is not None:
+            from .policy_enforcement import enforce as _enforce
+            try:
+                decision = _enforce(
+                    "backend.workflow",
+                    {"command": "backend.workflow", "workflow": str(name)},
+                    state_root=state_root, interactive=False, confirmed=True)
+            except Exception as exc:
+                result = {"workflow": str(name), "ok": False, "code": "policy_error",
+                          "error": f"policy evaluation failed: {exc}",
+                          "result": {}, "steps": [], "persisted": None,
+                          "http_status": 400}
+            else:
+                if decision is not None and decision.decision == "deny":
+                    result = {"workflow": str(name), "ok": False,
+                              "code": "policy_denied",
+                              "error": "execution policy denied backend.workflow: "
+                                       + decision.reason,
+                              "result": {}, "steps": [], "persisted": None,
+                              "http_status": 403}
+                elif decision is not None and decision.decision == "ask":
+                    result = {"workflow": str(name), "ok": False,
+                              "code": "confirmation_required",
+                              "error": "execution policy requires confirmation: "
+                                       + decision.reason,
+                              "result": {}, "steps": [], "persisted": None,
+                              "http_status": 409}
+                else:
+                    result = WORKFLOWS[str(name)](params)
+    _audit_workflow(state_root, str(name), result)
     return result
 
 

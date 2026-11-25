@@ -86,7 +86,6 @@ frontend-only evidence are explicitly excluded.
 | `backend-final-attribution.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `backend-module-id-coverage.json` | BACKEND_DOCUMENTATION | Plan registry/evidence documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/README.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
-| `keel/_prod_suite_tmp.py` | REQUIRED_BACKEND_DEPENDENCY | Required local dependency | checkout from source SHA | full backend suite + strict gate |
 | `keel/desktop/src-tauri/Cargo.toml` | REQUIRED_BACKEND_DEPENDENCY | One-line version constant required by backend version gate | checkout from source SHA | full backend suite + strict gate |
 | `keel/docs/CHECKLIST.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
 | `keel/docs/FINAL-RELEASE-OPERATIONS.md` | BACKEND_DOCUMENTATION | Backend/plan documentation | checkout from source SHA | full backend suite + strict gate |
