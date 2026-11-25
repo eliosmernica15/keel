@@ -1,11 +1,18 @@
 # Backend Incident Response — Keel
 
-**Candidate:** `e57327378f56062db3b13d3db941ac2cf2a641a3`.
+**Branch:** `stabilization/post-promotion-production-2026-11-25`
+**Exact final stabilization SHA:** `<<LEAD_SUPPLIED_SHA — placeholder; see matrix §A>>`
 **Rule of this document:** containment first, evidence second, recovery third, and
 never invent a capability that does not exist. Commands below are real; limits are
 stated explicitly. Keel is machine-local, so "compromise" normally means a local
 integration, token, provider key, or an agent turn doing something unsafe — not a
 remote fleet of servers.
+
+**Readiness states (do not conflate):** backend implementation **complete**; backend
+locally verified **historical only**, not current; backend production-ready **no**;
+desktop release-ready **no**; production deployment completed **no**. Revocation
+primitives exist locally; the live revoke round-trip is PR-14
+`external_validation_pending` and the platform gates are PR-19 `blocked`.
 
 Evidence sources: `keel/src/keel/webapp.py`, `keel/src/keel/fleet/turn_core.py`,
 `keel/src/keel/cli/main.py`, `keel/src/keel/mcp.py`, `keel/src/keel/custom_tools.py`,
@@ -204,8 +211,11 @@ Evidence: `cli/main.py:807-877`, `capability_registry.py:177-190`.
    `release.revoke` (§2); approvals are recorded locally and replay is denied after
    revoke (`keel/src/keel/backend_workflows.py:888-947`).
 
-After rotation, re-run the readiness sequence in `BACKEND-DEPLOYMENT.md` §6 and record
-that live-provider verification remains **unverified** on this host.
+After rotation, re-run the readiness sequence in `BACKEND-DEPLOYMENT.md` §6 at the exact
+final stabilization SHA. **[HISTORICAL]** no live provider call was made on the candidate
+host (`PROD-PROVIDER-EVIDENCE.md`). **Current classification:** PR-06 and PR-14 are
+`external_validation_pending`; record the live revoke round-trip before claiming either
+closed. The Y3.9 descriptor gap G1 remains an owner decision (implement purge or waive).
 
 ---
 

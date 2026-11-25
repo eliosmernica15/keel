@@ -1,6 +1,7 @@
 # Backend Deployment — Keel
 
-**Candidate:** `e57327378f56062db3b13d3db941ac2cf2a641a3`.
+**Branch:** `stabilization/post-promotion-production-2026-11-25`
+**Exact final stabilization SHA:** `<<LEAD_SUPPLIED_SHA — placeholder; see matrix §A>>`
 **Scope:** deploying the **backend/harness** from source on an operator machine.
 This document deliberately distinguishes **backend deployment readiness** (what the
 code and tests prove locally) from **full desktop installer release** (unsigned,
@@ -9,6 +10,12 @@ owner-gated, and not performed). Source of truth:
 `keel/src/keel/release/cli.py`, `keel/src/keel/release/updater.py`,
 `keel/src/keel/fleet/db.py`, `keel/src/keel/settings.py`, `scripts/verify_backend_operation.py`.
 
+**Readiness states (do not conflate):** backend implementation **complete**; backend
+locally verified **historical only** — no evidence at the exact final SHA, and the
+stabilization baseline records six failing CI workflows on `origin/main` `9a63be92`;
+backend production-ready **no**; desktop release-ready **no**; production deployment
+completed **no**. Gate vocabulary and counts: `PRODUCTION-READINESS-MATRIX.md` §§B/D.
+
 ---
 
 ## 1. Two different readiness standards
@@ -16,12 +23,12 @@ owner-gated, and not performed). Source of truth:
 | | Backend deployment readiness | Full desktop installer release |
 | --- | --- | --- |
 | What it means | Source checks out, dependencies install, config validates, DB initializes, `keel serve` starts and stops, backend evidence gate passes | Signed, published, clean-VM-installed, upgrade/rollback-tested installers on each OS |
-| Evidence available | Local source + tests (e.g. 4214 passed / 48 skipped / 0 failed on a clean local HOME, `master-plan-v6-test-evidence.md:200-210`; `verify_backend_operation.py`) | Windows 0.1.1 installer rebuilt with 7/7 local integrity checks but **unsigned**; macOS/Linux installers **not built** (`FINAL-RELEASE-OPERATIONS.md:96-126`, `:168-178`) |
-| Blocking items | None for local backend use | Signing identity, provider credentials, clean-VM validation, native runners, push/publish authorization (`FINAL-RELEASE-OPERATIONS.md:262-273`) |
-| Claim allowed | "Backend deployable and locally verified" | **Not** "production-ready" |
+| Evidence available | **[HISTORICAL]** Local source + tests (e.g. 4214 passed / 48 skipped / 0 failed on a clean local HOME, `master-plan-v6-test-evidence.md`; `verify_backend_operation.py`). **[CURRENT]** no exact-SHA evidence; baseline CI red on `9a63be92`. | **[HISTORICAL]** Windows 0.1.1 installer rebuilt with 7/7 local integrity checks but **unsigned**; macOS/Linux installers **not built** (`FINAL-RELEASE-OPERATIONS.md`) |
+| Blocking items | Current-SHA re-verification; see matrix PR-01..PR-18 | Signing identity, provider credentials, clean-VM validation, native runners, push/publish authorization |
+| Claim allowed | "Backend implementation complete"; "**historically** locally verified" | **Not** "production-ready" and **not** "release-ready" |
 
 Do not use a passing backend suite or a 7/7 build-integrity report to claim release
-readiness (`master-plan-v6-final-report.md:158`).
+readiness (`master-plan-v6-final-report.md`).
 
 ---
 
@@ -152,14 +159,17 @@ Backend health/readiness signals: `GET /api/health` (liveness),
 chain health), `keel capability invoke release.health` (failed-start state)
 (`webapp.py:378`, `backend_observability.py:481-566`, `start_health.py`).
 
-Observed evidence for the candidate family: definitive clean-HOME suite
-**4214 passed, 48 skipped, 3707 subtests passed, 0 failed** in 571.95 s
-(`master-plan-v6-test-evidence.md:200-210`); earlier integrated-branch run
-1296 passed / 46 skipped (`FINAL-RELEASE-OPERATIONS.md:35-38`). Known limitation:
-the release audit records that a "definitive" suite was **not reproducible in a clean
-checkout** and that the shipped `python -m pytest -q` CI command was red on the audited
-HEAD (`master-plan-v6-release-audit.md:140`, `REVIEW-FINAL-QUALITY.md:134`). Treat a
-fresh run on the exact candidate as required, not assumed.
+**[HISTORICAL — candidate family, NOT current evidence]** Observed suite figures:
+definitive clean-HOME run **4214 passed, 48 skipped, 3707 subtests passed, 0 failed** in
+571.95 s (`master-plan-v6-test-evidence.md`); later pre-promotion run
+**4437 passed / 5 failed / 51 skipped** with 5 artifact-only failures
+(`POST-PROMOTION-STABILIZATION-BASELINE.md:22-25`); the promotion report also records
+4419 / 8 failed / 51 skipped at its stage. These disagree because they were taken at
+different commits. **[CURRENT]** the release audit records that a "definitive" suite was
+**not reproducible in a clean checkout** and the stabilization baseline records all six
+backend workflows failing on `origin/main` `9a63be92` with logs gone. A fresh run at the
+exact final stabilization SHA is **required**, not assumed; no gate moves to
+`pass locally` until it is attached.
 
 ---
 
@@ -200,9 +210,12 @@ a restore-on-failure path (`release/updater.py:143-159`); `updater.rollback(inst
 backup_dir)` restores it (`updater.py:162-167`). `e5_backend.py` health-gates the swap
 and journals the transaction with rollback retained (`e5_backend.py:300-369`).
 `start_health` advises rollback after three failed starts (`start_health.py:40-50`).
-The clean-VM `upgrade_and_rollback` check (install 0.1.0 then 0.1.1, force three failed
-starts, verify rollback) is **UNVERIFIED** and must be run on a disposable VM
-(`FINAL-RELEASE-OPERATIONS.md:227-249`).
+**[HISTORICAL]** `PROD-ROLLBACK-EVIDENCE.md` records a real-code, ephemeral-key drill with
+six passing tests at a pre-promotion candidate and classifies itself "pass locally /
+external validation pending; do not record `production_verified`". **[CURRENT]** the clean-VM
+`upgrade_and_rollback` check (install 0.1.0 then 0.1.1, force three failed starts, verify
+rollback) remains outstanding and must be run on a disposable VM at the exact final
+stabilization SHA. PR-09 and PR-17 are `external_validation_pending`.
 
 ---
 
@@ -232,5 +245,11 @@ See `BACKEND-INCIDENT-RESPONSE.md` for credential/integration revocation orderin
 | Push / publish authorization | Authorize merging the branch and publishing | BLOCKED |
 | Clean-VM + native runners | Run the six external checks and Linux/macOS native suites | UNVERIFIED / BLOCKED |
 
-No push, publication, signing, deployment or credential rotation was performed for
-this candidate (`FINAL-RELEASE-OPERATIONS.md:271-273`).
+**[HISTORICAL]** No push, publication, signing, deployment or credential rotation was
+performed for the pre-promotion candidate. **[CURRENT]** the later promotion landed as
+`779ff942fff9dd106af7d7b3b4b35f95bfc5d2a4`, an ancestor of `origin/main`
+`9a63be929d7b364411b856aaf61230817697c410`; stabilization work is isolated on
+`stabilization/post-promotion-production-2026-11-25`. These two statements describe
+different points in time and are reconciled in `PRODUCTION-READINESS-REPORT.md` §5.
+No push, publication, signing, deployment or credential rotation is part of this
+documentation reconciliation.

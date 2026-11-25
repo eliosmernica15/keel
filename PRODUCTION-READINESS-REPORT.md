@@ -1,196 +1,185 @@
-# Production Readiness Report — Keel backend candidate `CANDIDATE_HEAD`
+# Production Readiness Report — Keel backend, stabilization branch `stabilization/post-promotion-production-2026-11-25`
 
-**Candidate SHA:** `CANDIDATE_HEAD78f56062db3b13d3db941ac2cf2a641a3`
-**Branch:** `agent/prod-ops` (worktree `.../worktree/production/ops`)
-**Documents produced:** `BACKEND-OPERATIONS-RUNBOOK.md`, `BACKEND-DEPLOYMENT.md`,
-`BACKEND-MONITORING.md`, `BACKEND-INCIDENT-RESPONSE.md`,
-`PRODUCTION-READINESS-MATRIX.md` (this file + the matrix are the consolidated verdict).
-**Scope:** backend/harness operations only. No frontend, no source changes, no push.
+**Authoritative branch:** `stabilization/post-promotion-production-2026-11-25`
+**Current baseline tip (verified):** `f60b080a1c770608e1ddbf3d888a6e63a7c1b6bb`
+**Exact final stabilization SHA:** `<<LEAD_SUPPLIED_SHA — PLACEHOLDER, NOT YET FILLED>>` (see matrix §A)
+**Documents reconciled here:** `BACKEND-OPERATIONS-RUNBOOK.md`, `BACKEND-DEPLOYMENT.md`,
+`BACKEND-MONITORING.md`, `BACKEND-INCIDENT-RESPONSE.md`, `PRODUCTION-READINESS-MATRIX.md`,
+and this report. **Scope:** backend/harness operations only — no frontend, no source,
+test or workflow changes, no push.
 
----
-
-## 1. Honest verdict
-
-**The backend is deployable and locally verified on Windows; the candidate is NOT a
-production release.** There is no production deployment, no signed or published
-installer, no clean-VM install/upgrade/rollback evidence, no native Linux/macOS
-execution, and no live provider call. The authoritative project documents state this
-plainly: `keel/docs/FINAL-RELEASE-OPERATIONS.md:12-18` ("Not a production release") and
-`master-plan-v6-final-report.md:158` ("PRODUCTION RELEASE — BLOCKED").
-
-The matrix therefore records **0 `production_verified`** gates. A completed feature
-matrix or a 7/7 build-integrity report must not be used to claim release readiness
-(`master-plan-v6-final-report.md:158`).
+> **Historical SHAs are NOT current evidence.** `CANDIDATE_HEAD…`, `e573273…`,
+> `ac84fee…`, `fe6cdd…` and `ecba9d2b…` belong to the pre-promotion candidate family.
+> Results recorded at those commits are labelled **[HISTORICAL]** below and do not
+> certify the exact final stabilization SHA.
 
 ---
 
-## 2. Evidence links (consolidated)
+## 1. Honest verdict (provisional)
+
+**Backend implementation is complete; backend local verification is historical, not
+current; the backend is NOT production-ready; no desktop release is ready; no production
+deployment has been completed.** These five states are tracked separately in §2.
+
+There is no current evidence at the exact final stabilization SHA: no production
+deployment, no signed/published installer, no clean-VM install/upgrade/rollback drill, no
+native Linux/macOS run, and no live provider call. The stabilization baseline records all
+six backend CI workflows failing on `origin/main` `9a63be92` with step logs no longer
+retrievable (`POST-PROMOTION-STABILIZATION-BASELINE.md:9-20`). Consequently the matrix
+records **0 `production_verified`** and **0 `pass locally`** gates until evidence at the
+exact SHA is attached.
+
+This is a **provisional** status, not a regression finding. The implementation itself was
+completed and locally hardened in the prior candidate family; what is missing is current
+evidence, not necessarily code changes.
+
+---
+
+## 2. The five distinct readiness states
+
+| State | What it means | Current status | Evidence basis |
+| --- | --- | --- | --- |
+| **Backend implementation complete** | Source paths for the 20 mandatory gates exist and are wired | **YES** (code present at baseline tip) | Source anchors in `PRODUCTION-READINESS-MATRIX.md` §C; 865-ID registry unchanged |
+| **Backend locally verified** | Source + tests execute green at the exact final SHA | **NOT CURRENTLY PROVEN** | [HISTORICAL] only: clean-venv `pass` at `ac84fee`, clean-HOME suite figures; baseline CI red on `9a63be92`; no `STAB-*-EVIDENCE.md` landed |
+| **Backend production-ready** | All PR-01..PR-20 closed with current evidence | **NO** | 18 external_validation_pending, 1 owner_gated, 1 blocked (matrix §D) |
+| **Desktop release-ready** | Signed, published, clean-VM-tested installers per OS | **NO** | Unsigned installer; macOS/Linux not built; signing identity absent |
+| **Production deployment completed** | A live deployed instance / live provider call | **NO** | No deployment, push, publish or credential use in any evidence file |
+
+Never collapse these into "done" or "production-ready". A passing evidence gate or 7/7
+build integrity does not establish any of the last three states.
+
+---
+
+## 3. Matrix counts (authoritative, provisional)
+
+| Classification | Count | Gates |
+| --- | ---: | --- |
+| `production_verified` | 0 | none |
+| `pass locally` | 0 | none — exact final SHA not supplied; no current evidence |
+| `external_validation_pending` | 18 | PR-01..PR-18 |
+| `owner_gated` | 1 | PR-20 |
+| `blocked` | 1 | PR-19 |
+| **Total** | **20** | PR-01..PR-20 |
+
+Two earlier, mutually contradictory count sets are now **historical/superseded**:
+the matrix summary's "pass 17 / unverified 3 / blocked 2" (which listed only 13 pass IDs
+and counted PR-19 twice), and this report's earlier "pass 13 / unverified 5 / blocked 2".
+Both were keyed to historical candidate SHAs and disagreed with their own row verdicts.
+See matrix §D.
+
+---
+
+## 4. Reconciled evidence links
 
 ### Operational documents produced here
 
 | Document | What it establishes |
 | --- | --- |
-| `BACKEND-OPERATIONS-RUNBOOK.md` | Real start/stop, health, config, secrets, DB backup/restore/migration/rollback limits, log locations, diagnostic export, worker recovery, provider config, incident levers, common failures — every command traced to code. |
-| `BACKEND-DEPLOYMENT.md` | Clean setup, dependency install, config generation, env validation, DB init, startup, readiness, graceful shutdown, upgrade, recovery; explicit separation of backend deployment readiness from full installer release. |
-| `BACKEND-MONITORING.md` | Real signals, health vs readiness, alert-worthy conditions, redaction guarantees, bounded views; no invented exporter or dashboard. |
-| `BACKEND-INCIDENT-RESPONSE.md` | Credential revocation, integration disable, stopping unsafe execution, log preservation, DB recovery, secret rotation, with explicit limits. |
-| `PRODUCTION-READINESS-MATRIX.md` | 20 mandatory gates with source/code/test/operational/security/platform/status evidence. |
+| `BACKEND-OPERATIONS-RUNBOOK.md` | Real start/stop, health, config, secrets, DB backup/restore/migration limits, logs, diagnostic export, worker recovery, provider config, incident levers — commands checked against the stabilization-tip CLI. |
+| `BACKEND-DEPLOYMENT.md` | Clean setup, env validation, DB init, startup, readiness, shutdown, upgrade/recovery; separates backend deployment readiness from full installer release. |
+| `BACKEND-MONITORING.md` | Real emitted signals, health vs readiness, redaction guarantees, bounded views; no invented exporter/dashboard. |
+| `BACKEND-INCIDENT-RESPONSE.md` | Credential revocation, integration disable, unsafe-execution stop, log preservation, DB recovery, with explicit limits. |
+| `PRODUCTION-READINESS-MATRIX.md` | Rebuilt 20-gate matrix with the five-state vocabulary and explicit SHA placeholder. |
 
-### Authoritative evidence consumed
+### Evidence actually in the repo
 
-| Area | Link |
-| --- | --- |
-| Release operations, exact CI commands, signing/provider/owner gates | `keel/docs/FINAL-RELEASE-OPERATIONS.md` |
-| Final status vocabulary and overall verdicts | `master-plan-v6-final-report.md:108-158` |
-| Test evidence and definitive suite | `master-plan-v6-test-evidence.md:200-210` (4214 passed / 48 skipped / 3707 subtests / 0 failed, 571.95 s, clean local HOME) |
-| Release audit / reproducibility caveat | `master-plan-v6-release-audit.md:140`; `REVIEW-FINAL-QUALITY.md:134` |
-| Backend evidence gate | `scripts/verify_backend_operation.py:1-34`, `448-475` (20 modules, 421 attributed IDs, 865 features; reported-only unless `--strict`) |
-| Version consistency | `keel/scripts/check_version_sync.py`; `keel/pyproject.toml:7`; `keel/src/keel/__init__.py:3` (all `0.1.1`) |
-| Windows sandbox (adversarial, real processes) | `master-plan-v6-win-network-evidence.md`; `master-plan-v6-sandbox-verification.md`; `FINAL-RELEASE-OPERATIONS.md:172` |
-| Platform blockers | `master-plan-v6-platform-compatibility.md:13`; `FINAL-RELEASE-OPERATIONS.md:173-176` |
-| Provider credentials (names only) | `FINAL-RELEASE-OPERATIONS.md:181-201`; `keel/src/keel/provider_validation.py:40-58`, `106-132` |
-| Secrets policy | `master-plan-v6-secrets-policy-evidence.md`; `keel/src/keel/secret_store.py`; `keel/src/keel/secret_providers.py` |
-| DB persistence and recovery | `master-plan-v6-db-persistence-evidence.md`; `master-plan-v6-recovery-evidence.md`; `keel/src/keel/fleet/db.py:237-365`; `keel/src/keel/backups.py:119-235` |
-| Observability and redaction | `master-plan-v6-reliability-contracts-evidence.md`; `keel/src/keel/backend_observability.py`; `keel/src/keel/diagnostics.py`; `keel/src/keel/redaction.py` |
-| Config and execution policy | `master-plan-v6-config-contracts-evidence.md`; `keel/src/keel/settings.py`; `keel/src/keel/exec_policy.py`; `keel/src/keel/policy_enforcement.py` |
-
-### Matrix counts
-
-| Classification | Count |
-| --- | --- |
-| pass | 13 |
-| unverified | 5 |
-| blocked | 2 |
-| production_verified | 0 |
-| **Total mandatory gates** | **20** |
-
-Unverified: PR-06 (live providers), PR-09 (rollback drill), PR-14 (credential purge /
-live revoke), PR-16 (clean-checkout reproducibility), PR-17 (clean-VM upgrade/recovery).
-Blocked: PR-19 (native Linux/macOS), PR-20 (signing, live providers, governance/release
-authorization).
-
----
-
-## 3. Known limits (evidence-backed)
-
-1. **No production deployment.** No push, publish, signing, or deployment was performed
-   (`FINAL-RELEASE-OPERATIONS.md:271-273`).
-2. **Unsigned installer.** Windows 0.1.1 installer rebuilt from final source with 7/7
-   local integrity checks but unsigned; macOS/Linux installers not built
-   (`FINAL-RELEASE-OPERATIONS.md:96-126`, `168-178`).
-3. **No live provider evidence.** No `KEEL_*` key configured; `keel provider validate`
-   reports SKIP for live checks without `--live` plus credentials
-   (`master-plan-v6-final-report.md:143`; `provider_validation.py:106-132`).
-4. **Native platform gap.** Linux Landlock/seccomp and macOS Seatbelt backends are
-   integrated but not executed on this Windows host; macOS 26 read isolation is BLOCKED
-   by `sandbox-exec` SIGABRT (`FINAL-RELEASE-OPERATIONS.md:173-174`).
-5. **Clean-VM checks unrun.** All six external checks (install, startup, backend
-   shutdown, uninstall, upgrade+rollback, signed launch) are reported UNVERIFIED
-   (`FINAL-RELEASE-OPERATIONS.md:241-249`).
-6. **Suite reproducibility disputed.** The release audit records a genuine committed
-   defect and that `python -m pytest -q` on a clean checkout was red on the audited HEAD;
-   a "definitive final suite" is not reproducible there
-   (`master-plan-v6-release-audit.md:140`, `REVIEW-FINAL-QUALITY.md:134`).
-7. **DB migration is forward-only.** Schema versions 1..11 apply on connect; there is no
-   down-migration, and `SchemaApplySeam.apply()` is `NotImplementedError`
-   (`fleet/db.py:258-365`, `config_contracts.py:799-804`). Restoring an older DB over a
-   newer schema is unsafe.
-8. **Sign-out/disconnect is a descriptor, not a purge.** `build_revocation()` and
-   `RevocationLedger.apply()` are pure bookkeeping; they do not delete stored credentials
-   (`config_contracts.py:888-967`).
-9. **No secret rotation CLI.** Encryption/decryption helpers exist but there is no bulk
-   re-encryption command (`secret_store.py:111-131`); rotation requires provider-side
-   action and manual re-entry.
-10. **No alerting stack.** Signals exist (event log counts, chain status, failed-start
-    state, gateway ticks, provider checks) but no exporter, pager, or policy is
-    implemented (`BACKEND-MONITORING.md`).
-11. **Unbounded raw log.** `observability.jsonl` is append-only with no automatic
-    rotation; only the diagnostic view is bounded to 20 recent errors
-    (`backend_observability.py:45`, `551-566`).
-12. **State-root inconsistency.** Some CLI paths default to relative `.keel`, others to
-    `~/.keel`; an absolute `KEEL_STATE_DIR` is required for coherent operations
-    (`cli/main.py:286-287`, `827-847`, `893`; `settings.py:475-476`).
-13. **No service-management shutdown.** Ctrl+C is the graceful path; there is no
-    SIGTERM handler, `keel stop`, or systemd unit (`webapp.py:1321-1327`).
-14. **No `keel backup` CLI.** Backup/restore are capability or Python-API only
-    (`capability_registry.py:1798-1820`).
-15. **Owner gates remain open.** C11.2 repository security, signing identity, push/publish
-    authorization, 2FA, native runners (`FINAL-RELEASE-OPERATIONS.md:262-273`).
-
----
-
-## 4. Proposed operational targets — NOT owner-approved
-
-These are recommendations only. They are **not implemented, not default configuration,
-and not accepted service levels**; no owner has approved them.
-
-| Proposed target | Why | Requires |
+| Area | Evidence | Status of that evidence |
 | --- | --- | --- |
-| Liveness poll of `GET /api/health` every 30 s | Cheap token-gated check | Owner decision + a poller outside this codebase |
-| Alert on `verify_chain().ok == false` | Fail-closed integrity signal already in code | Owner decision |
-| Alert at 2 consecutive failed starts (code threshold 3) | Early warning before rollback advice | Owner decision |
-| Alert on `health_snapshot().healthy == false` | Real module import failure | Owner decision |
-| Hourly review of `diagnostic_report()` error counts | Bounded view is last 20 errors | Owner decision |
-| Rotate `KEEL_TOKEN` via `POST /api/kill-switch` on suspected client compromise | Real revocation lever | Owner decision + runbook adoption |
-| Define a retention window for `observability.jsonl` | No rotation exists | Owner decision + implementation |
-| Run clean-VM install/startup/shutdown/uninstall/upgrade/rollback per OS before any release | Six external checks are UNVERIFIED | Release owner + disposable VMs |
-| Execute Linux and macOS native sandbox and installer suites | Platform gates blocked | Platform owner + runners |
-| Provision signing identity and a CI sign job with missing-secret hard failure | Installers are unsigned | Owner |
-| Configure live provider credentials via masked secrets and re-run `keel provider validate --live` | No live provider evidence | Provider owner |
-| Implement or formally waive DB down-migration and real credential purge | Known limits 7 and 8 | Owner decision |
+| PR-06 providers | `PROD-PROVIDER-EVIDENCE.md` | [HISTORICAL] offline injection only; no live call; live gap open |
+| PR-09 / PR-17 rollback/upgrade | `PROD-ROLLBACK-EVIDENCE.md` | [HISTORICAL] six real-code drill tests; VM check 5 outstanding |
+| PR-14 revocation | `PROD-REVOCATION-EVIDENCE.md` | [HISTORICAL] seven local tests; negative gap G1 (descriptor ≠ purge) |
+| PR-16 clean setup | `PROD-CLEAN-SETUP-EVIDENCE.md` | [HISTORICAL] local `pass` at `ac84fee`; reproducibility disputed |
+| PR-19 platforms | `PROD-PLATFORM-EVIDENCE.md` | [HISTORICAL] Windows scoped verified; Linux WSL2 scoped; macOS blocked |
+| PR-20 supply chain | `PROD-SUPPLY-CHAIN-EVIDENCE.md` | Current pin count re-verified: 31/31 SHA refs; signing still absent |
+| Baseline / CI | `POST-PROMOTION-STABILIZATION-BASELINE.md` | [CURRENT] main `9a63be92`; six workflows failing; logs gone |
+| Other | `master-plan-v6-*.md`, `keel/docs/FINAL-RELEASE-OPERATIONS.md` | [HISTORICAL] candidate-family provenance |
+
+No `STAB-*-EVIDENCE.md` file existed at the baseline tip. `POST-PROMOTION-STABILIZATION-REPORT.md`
+is the structure for the lead to attach exact-SHA results as they land.
 
 ---
 
-## 5. Final statement
+## 5. Reconciled history (two statements that looked contradictory)
 
-Backend operations are **documented against real code**, and the local Windows
-candidate satisfies the 13 `pass` gates with source, test and operational evidence.
-The five `unverified` and two `blocked` gates are named with the exact artifact or
-owner action needed to close them. Nothing in these six documents should be read as a
-claim that Keel `CANDIDATE_HEAD` is a production-ready release: on the evidence available it
-is not.
+**[HISTORICAL — stage 1.]** An independent acceptance pass
+(`FINAL-RELEASE-ACCEPTANCE.md`) returned **BLOCK** for the pre-promotion candidate; the
+mission rule that an `unverified` or `blocked` gate forbids promotion was applied, and
+`main` was not modified by that operation. That verdict described the candidate at the
+time, not the current branch.
 
-## FINAL PROMOTION DECISION — NOT PROMOTED TO MAIN
+**[HISTORICAL — stage 2.]** A later note recorded that the repository owner explicitly
+authorized promotion after a final error sweep, with local gates PR-09, PR-14 and PR-16
+closed by real tests and PR-06/PR-17/PR-19/PR-20 still externally blocked. The promotion
+subsequently landed: commit `779ff942fff9dd106af7d7b3b4b35f95bfc5d2a4` is an ancestor of
+the current `origin/main` `9a63be929d7b364411b856aaf61230817697c410`
+(`POST-PROMOTION-STABILIZATION-BASELINE.md:4-5`).
 
-Authoritative candidate: `release/backend-production-readiness-2026-11-24-v2`
-(frontend from concurrent user work was excluded; the earlier candidate branch remains
-untouched). `origin/main` was not modified and remains `ecba9d2b9678ab7a3a744c62683eea28a1ce01ee`.
+**[CURRENT.]** Work now proceeds on `stabilization/post-promotion-production-2026-11-25`,
+created from exact main SHA `9a63be92`, with the backend docs maintained in an isolated
+worktree because the local main checkout has unrelated frontend work. No push, publish,
+signing, credential use or deployment is part of this documentation reconciliation.
 
-Independent release acceptance (`FINAL-RELEASE-ACCEPTANCE.md`) returned **BLOCK**. Its
-scope and temp-artifact findings were closed in v2; its matrix finding stands:
+The two historical statements are therefore a sequence, not a contradiction; neither is
+current evidence, and neither closes any gate in the matrix.
 
-| Classification | Count | Gates |
-|---|---:|---|
-| pass | 13 | PR-01..05, 07, 08, 10..13, 15, 18 |
-| unverified | 5 | PR-06 live providers, PR-09 rollback drill, PR-14 credential revocation, PR-16 clean setup, PR-17 upgrade/recovery |
-| blocked | 2 | PR-19 native Linux/macOS + macOS 26 read isolation, PR-20 governance/signing/release authorization |
-| production_verified | 0 | no deployed production instance or live evidence |
+---
 
-The mission rule says a gate marked `unverified` or `blocked` forbids promotion. Therefore
-**main was NOT modified**. No force-push, no visibility/license change, no paid service,
-no credentials, no history rewrite.
+## 6. Known limits (evidence-backed; historical unless marked current)
 
-Verdict: **IMPLEMENTATION PRODUCTION-HARDENED — PROMOTION BLOCKED BY UNVERIFIED MANDATORY GATES**.
+1. **[CURRENT]** Exact final stabilization SHA not supplied; all six backend CI workflows
+   fail on main `9a63be92` and step logs are unavailable.
+2. **[HISTORICAL]** No production deployment, push, publish or signing in the candidate evidence.
+3. **[HISTORICAL]** Windows 0.1.1 installer rebuilt with 7/7 local integrity checks but unsigned;
+   macOS/Linux installers not built.
+4. **[HISTORICAL]** No live provider evidence: no `KEEL_*` key configured, live checks SKIP.
+5. **[HISTORICAL]** Native Linux/macOS gap: Linux backend scoped-verified on WSL2 6.6.87.2 only;
+   macOS not run and read isolation BLOCKED by `sandbox-exec` SIGABRT.
+6. **[HISTORICAL]** Six clean-VM external checks unrun; clean-checkout suite reproducibility disputed.
+7. **[HISTORICAL]** DB migration forward-only (v1..v11); `SchemaApplySeam.apply()` is
+   `NotImplementedError`; restoring older DB over newer schema is unsafe.
+8. **[HISTORICAL]** Y3.9 sign-out/disconnect is descriptor + in-memory ledger, not a credential purge (gap G1).
+9. **[HISTORICAL]** No bulk secret re-encryption CLI; rotation is provider-side plus manual re-entry.
+10. **[HISTORICAL]** No alerting/exporter; proposed thresholds are unapproved.
+11. **[HISTORICAL]** Raw `observability.jsonl` grows unbounded; only the diagnostic view is bounded to 20 errors.
+12. **[HISTORICAL]** Some CLI paths default to relative `.keel`; set absolute `KEEL_STATE_DIR`.
+13. **[HISTORICAL]** No SIGTERM handler, `keel stop`, or systemd unit; Ctrl+C is the graceful path.
+14. **[HISTORICAL]** No `keel backup` CLI; backup/restore are capability or Python-API only.
+15. **[HISTORICAL]** Owner gates open: signing identity, CI sign job, provider credentials,
+    push/publish authorization, 2FA/branch protection, native runners.
+16. **[CURRENT]** Action pinning is 31/31 SHA refs across eight workflows (was reported as
+    30/30, 20 and 23 historically); pinning is necessary but not sufficient for release.
 
-Final full suite on candidate: 4419 passed / 8 failed / 51 skipped / 3707 subtests — 2 load-dependent tests pass in isolation; 6 require untracked generated release artifacts or downloaded plan docs. See `master-plan-v6-test-evidence.md`.
+---
 
-What remains to authorize promotion: free/native Linux and macOS runner execution (macOS
-read isolation currently blocked by `sandbox-exec` SIGABRT), a disposable free-tier provider
-credential for live smoke tests, a clean-VM upgrade/rollback drill, a real credential-revocation
-round trip, clean-environment setup evidence, a signed installer and owner release authorization,
-and remote branch protection on a plan that supports it (currently GitHub Free private repo
-cannot enforce it — documented owner exception, not bypassed).
+## 7. Proposed operational targets — NOT owner-approved
 
-All internally actionable HIGH/MEDIUM findings from the architecture, security, database,
-reliability, provider, tool, MCP, API, platform, performance, observability, supply-chain,
-and requirement audits were fixed with failing-then-passing regression tests and re-reviewed.
+Recommendations only; not implemented, not default configuration, not accepted service levels.
 
-## Owner-authorized promotion after final checks
+| Proposed target | Requires |
+| --- | --- |
+| Poll `GET /api/health` every 30 s | Owner decision + external poller |
+| Alert on `verify_chain().ok == false` | Owner decision |
+| Alert at 2 failed starts (code threshold 3) | Owner decision |
+| Alert on `health_snapshot().healthy == false` | Owner decision |
+| Hourly review of `diagnostic_report()` error counts | Owner decision |
+| Rotate `KEEL_TOKEN` via `POST /api/kill-switch` on suspected compromise | Owner decision + runbook adoption |
+| Define retention for `observability.jsonl` | Owner decision + implementation |
+| Run all six clean-VM checks per OS on exact SHA | Release owner + disposable VMs |
+| Execute native Linux/macOS suites | Platform owner + runners |
+| Provision signing identity + CI sign job with missing-secret hard failure | Owner |
+| Configure live credentials and run `keel provider validate --live` | Provider owner |
+| Implement or formally waive DB down-migration and credential purge | Owner decision |
 
-The repository owner explicitly authorized promotion to `main` after a final error sweep.
-Locally achievable gates PR-09 (rollback drill), PR-14 (local credential revocation),
-PR-16 (clean setup) and workflow-audit defects were closed with real tests. PR-06 (live
-providers), PR-17 (signed clean-VM upgrade), PR-19 (native macOS) and PR-20 (signing
-identity) remain externally blocked and are recorded, not concealed. Promotion proceeds
-under this explicit owner authorization; `main` is updated only after the final gates
-and remote SHA verification.
+---
+
+## 8. Final statement
+
+Backend operations are documented against real code at the stabilization tip, and the
+five readiness states are tracked separately in §2. The implementation is complete,
+local verification is historical rather than current, and the backend is **not**
+production-ready. The 18 external-validation, 1 owner-gated and 1 blocked gates are named
+with the exact artifact or owner action needed to close them. Nothing in these documents
+should be read as a claim that Keel is a production-ready release on the evidence
+available. When the lead supplies the exact final SHA and `STAB-*-EVIDENCE.md` files
+land, re-run §3 counts and update `POST-PROMOTION-STABILIZATION-REPORT.md` before any
+release decision.

@@ -253,3 +253,40 @@ native cross-platform or live-provider verification.
 - `verify_backend_operation.py --strict`: OK, 421/421 traceable, non-zero exit on any evidence failure.
 - Dependency graph FRESH; license gate OK; 8 workflow YAMLs parse; all `uses:` refs full-SHA pinned.
 - Registry unchanged: 854 verified / 9 not_started / 2 blocked; no status inflation.
+
+---
+
+# Production documentation reconciliation — stabilization addendum (2026-11-25)
+
+Branch: `agent/stab-docs` (docs only, from stabilization baseline `f60b080`).
+Authoritative branch for the gates: `stabilization/post-promotion-production-2026-11-25`.
+Exact final stabilization SHA: **placeholder** — to be supplied by the lead.
+No source, test or workflow file was edited; no frontend; no push.
+
+## Stale claims found and reconciled
+
+| Stale claim | Where | Reconciliation |
+| --- | --- | --- |
+| Candidate tokens `CANDIDATE_HEAD…`, `e573273…`, `ac84fee…`, `fe6cdd…`; branch `agent/prod-ops` | Both readiness docs + all four backend runbooks | Replaced by branch anchor + explicit exact-SHA placeholder; evidence at old hashes marked **[HISTORICAL]** |
+| Matrix "pass 17 / unverified 3 / blocked 2" listing only 13 pass IDs and counting PR-19 twice | `PRODUCTION-READINESS-MATRIX.md` summary | Replaced by five-state vocabulary and self-consistent counts |
+| Report "pass 13 / unverified 5 / blocked 2" | `PRODUCTION-READINESS-REPORT.md` | Superseded; marked historical |
+| "NOT PROMOTED TO MAIN" beside "owner-authorized promotion proceeds" | `PRODUCTION-READINESS-REPORT.md` | Reconciled as a two-stage historical sequence; current main `9a63be92`, promotion `779ff94` ancestor |
+| Path counts 383 / 422 | Earlier acceptance/audit docs | Historical candidate counts; current baseline diff is 1 path |
+| Action pin counts 20 / 23 / 30 | Earlier supply-chain/security docs | Current verified count is **31/31** SHA-pinned `uses:` refs across eight workflows |
+| Suite counts 4214 / 4419 / 4437 presented as definitive | Deployment, report, older evidence | Marked historical at their own commits; baseline CI red on `9a63be92` |
+| "No push performed" for the candidate beside later promotion | Deployment §10 | Marked historical; promotion recorded as separate current fact |
+
+## Authoritative matrix counts (provisional)
+
+`production_verified` **0** · `pass locally` **0** · `external_validation_pending` **18**
+(PR-01..PR-18) · `owner_gated` **1** (PR-20) · `blocked` **1** (PR-19) · total **20**.
+Zero `pass locally` is a consequence of the missing exact SHA and no landed
+`STAB-*-EVIDENCE.md`, not a regression finding.
+
+Seven gates reconciled against actual evidence: PR-06 (offline-only provider injection),
+PR-09/PR-17 (historical real-code rollback drill; VM check outstanding), PR-14 (seven
+local revocation tests plus negative descriptor gap G1), PR-16 (historical clean-venv
+`pass` with disputed reproducibility), PR-19 (Windows scoped, Linux WSL2 scoped, macOS
+blocked), PR-20 (31/31 SHA pins but signing and authorization absent). Full detail in
+`PRODUCTION-READINESS-MATRIX.md` §E; final results shell in
+`POST-PROMOTION-STABILIZATION-REPORT.md`.
