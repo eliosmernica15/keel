@@ -136,3 +136,43 @@ Whole-plan detail, registry sample and defect table are in `FULL-PLAN-QA.md`. Ra
 | Secret / artifact scan | `git grep -E <secret-marker regex>` + `keel.dev_tools.security_scan` | 0 secret markers in tracked files; scanner's 128 flagged lines are all synthetic redaction fixtures. No generated build/test output in the last 25 commits; tracked `results.json` / `viewport-results.json` remain a hygiene exception (QA-G-004). |
 
 New QA defects: QA-G-001 (transient prod-build block from an in-flight `tests/zoom-a11y/helpers.ts`, fixed by owner, verified), QA-G-002 (a11y fixture flake, open), QA-G-003 (bridge 504 console noise, open/environmental), QA-G-004 (tracked generated harness outputs, open). Retested and fixed: QA-F-013, QA-F-016/017/018.
+
+## Frontend finalization round (2026-11-25) — evidence ledger
+
+Sources: Agent G's `DISTRIBUTION-QA.md` (distribution journey, 2026-11-25) and the lead's
+reconciled suites recorded in `UI-REQUIREMENTS-MATRIX.md`, `master-plan-v6-test-evidence.md`
+and `FINAL-STABILIZATION-ACCEPTANCE.md`. Every row below is a **recorded command result**;
+`not run` / `pending` rows are not passes.
+
+| Check | Exact command / source | Real result |
+|---|---|---|
+| Distribution QA (Agent G) | `npx playwright test --config tests/distribution-qa/playwright.config.ts --reporter=list` (with `KEEL_E2E_BRIDGE_TOKEN`) | **42 passed / 0 failed (33.6 s)**, `PW_EXIT=0`; `npx tsc --noEmit --incremental false` exit 0. Raw log `qa-logs/final-acceptance-run.txt` |
+| Production E2E after integration | `npx playwright test --config tests/e2e/playwright.prod.config.ts --workers=2 --reporter=line` | **144 passed / 0 failed (3.1 m)**; no 504 console noise reproduced this round |
+| Accessibility | `npx playwright test --config tests/a11y/playwright.a11y.config.ts --workers=1 --reporter=line` | **12 passed / 0 failed (1.2 m)**; dark 0 violations (min 5.33:1), light 0 violations (min 4.87:1), reduced-motion 0.001 ms, 200 % zoom no overflow |
+| Feature suites | `npm run test:features` | Cowork 28 + Code/Duet 30 + Fleet 20 + Capabilities/Settings 17 + Onboarding 13 = **108 passed / 0 failed** |
+| Site download logic | `node --test keel/site/tests/*.test.mjs` | **20 passed / 0 failed** |
+| Distribution/release Python subset | `python -m pytest -q tests/verify_distribution_release.py tests/test_platform_targets.py tests/test_packaging_config.py tests/test_updater.py tests/test_release_verify_url_policy.py` | **45 passed in 9.13 s**, exit 0 |
+| Whole-repo regression (lead) | `python -m pytest -q -o faulthandler_timeout=120` from `keel/`, clean HOME | **4610 passed / 54 skipped / 3707 subtests / 0 failed (474.31 s)** — definitive stabilization result; not a frontend-criterion count |
+
+### Focus items from the finalization brief
+
+| Item | Passed evidence | Honest status |
+|---|---|---|
+| Fleet transcript rewind / restore rows | real routes + `lib/api.ts` helpers; uncommitted UI in `AgentDetails.tsx` and specs `tests/acceptance-final/01-fleet-recovery.spec.ts` / `tests/features/fleet/fleet-transcript.spec.ts`; no passing run recorded by 11:24 | **implemented, unverified** |
+| Fleet Markdown transcript export | real `bots/:id/export.md` + uncommitted `bridge.exportUrl()` probe in `AgentDetails.tsx`; no passing run recorded | **implemented, unverified** |
+| Fleet task undo delete | Fleet feature suite 20 passed, payload captured at browser boundary | **verified** |
+| In-app download entry | Agent G `02-pwa-journey.spec.ts` + `06-a11y.spec.ts`; one keyboard-reachable `#nav-download` link in `site/app.html` (QA-G-D07 accepted). In-flight `tests/features/download-entry/` (3 specs) `.last-run.json` status `passed` at 11:19; exact count awaits lead report | **verified on `site`**; `fleet-next` suite **reported passed**, count pending |
+| PWA shortcut / start URL | Agent G `02-pwa-journey.spec.ts`: `/app` opens app, never `/download`; routing clean; offline shell/SW PASS. `site/manifest.webmanifest` `start_url /app` + shortcut. Uncommitted `fleet-next/app/manifest.ts` shortcut/identity + `tests/pwa/01-identity-and-launch.spec.ts` (6 specs) exist, but no recorded pass by 11:24 | **verified on `site`**; `fleet-next` **implemented, unverified** |
+| Dictation | legacy `desktop/ui` SpeechRecognition code (`M6 Batch 18`, Python voice suite 13 passed); uncommitted control in `features/cowork/Composer.tsx` + `tests/features/cowork/13-dictation.spec.ts` (8 specs); the 11:23 cowork run recorded 3 failures, no pass by 11:24 | **not verified** |
+| Code / Duet | Code+Duet feature suite 30 passed; prod E2E 144/144; a11y 12/12 | **verified for tested flows** |
+| a11y / responsive | a11y 12/12; 72/72 viewport re-run (6 sizes × 6 destinations × 2 themes); distribution a11y 5/5 | **verified for automated checks**; native zoom gesture and screen-reader hardware remain manual/blocked |
+
+> In-flight 2026-11-25 working-tree changes (Fleet rewind/export UI, dictation control,
+> `fleet-next` PWA shortcut, download-entry/PWA/acceptance-final specs) are recorded at their
+> observed state between 11:19 and 11:24. Only a passing suite result can move them to
+> `verified`; the cowork run at 11:23 recorded 3 failures and the PWA run had no recorded pass.
+
+> No production-readiness claim: `FINAL-STABILIZATION-ACCEPTANCE.md` verdict is
+> `PASS_WITH_EXTERNAL_LIMITATIONS` with 18 `external_validation_pending`, 1 `owner_gated` and
+> 1 `blocked` gate; packaged Electron/Tauri, live provider turn, real screen reader and public
+> installer are still outside the passed evidence.

@@ -29,8 +29,8 @@ Fleet finalization round (see “Verification evidence”).
 | Audit / decision history with real filters | yes | `bots/:id/audit?limit=` `routes.py:334,341` | `Audit.tsx`, `AgentDetails.tsx` (filters match real event / decision / outcome values) | implemented |
 | Parent/child subagent presentation **where the row schema supports it** | partial | `delegated` on `send_to_bot` step rows `turn_core.py:438-446`; `delegated_from` on child user rows `delegation.py:34-44`; no parent/child table | `Activity.tsx`, `support.ts` (both directions, links only when target is in the roster) | implemented (row-derived only) |
 | Recoverable bot / group / routine / library delete | no | hard deletes: `service.py:454` (bot), `:921` (group), `:1484` (routine), `:1312` (library); no restore route | honest “permanent” wording in delete dialogs | **api-missing** (documented, not faked) |
-| Agent transcript rewind + restore rows | partial | `bots/:id/{rewind,restore}` `routes.py:1363,1382`; UI client methods exist in `lib/api.ts` | not surfaced in Fleet drawer | **gap** (client supports it; no UI control added in this round — see “Still blocked / gaps”) |
-| Markdown transcript export | partial | `bots/:id/export.md` `routes.py:344` | `bridge.exportUrl()` exists; no Fleet button | **gap** (route real, UI not added in this round) |
+| Agent transcript rewind + restore rows | partial | `bots/:id/{rewind,restore}` `routes.py:1363,1382`; UI client methods exist in `lib/api.ts` | 2026-11-25 finalization: uncommitted controls in `features/fleet/AgentDetails.tsx` (seq-gated rewind dialog, in-memory recovery snapshot, restore) + spec `tests/acceptance-final/01-fleet-recovery.spec.ts`; no passing run recorded | **implemented in working tree — not verified** (real routes + client methods + in-flight UI; no passing UI test yet) |
+| Markdown transcript export | partial | `bots/:id/export.md` `routes.py:344` | 2026-11-25 finalization: uncommitted `bridge.exportUrl()` probe in `AgentDetails.tsx` requires a genuine `text/markdown` attachment before showing a download link; no passing run recorded | **implemented in working tree — not verified** (real route + in-flight UI; no passing UI test yet) |
 | Full parent/child hierarchy tree | no | no `parent_id` / child-id columns; rows only | explicitly not invented (`Activity.tsx`) | **api-missing** (honest note shown) |
 
 ### Recoverable delete audit (explicit verification)
@@ -104,11 +104,30 @@ not shown as a successful turn.
    action is permanent. No trash UI was faked.
 2. **No parent/child hierarchy table** — only row fields exist; the UI shows those links and
    explicitly declines to draw a tree.
-3. **Rewind/restore rows and Markdown export are real routes but not surfaced in the Fleet
-   drawer** — left as a documented gap rather than adding a control in this round.
+3. **Rewind/restore rows and Markdown export are real routes** — as of 11:24 in the 2026-11-25
+   finalization round, uncommitted drawer controls and specs exist in the working tree, but no
+   passing run was recorded. They stay **implemented-unverified**, not verified features.
 4. **Live provider round-trip** — blocked on host (no provider credentials). Not faked.
 5. **Renderer/packaging gates** (Electron asset root, Tauri path, public mirror) remain outside
    this feature-parity matrix; see `UI-ARCHITECTURE.md`.
+
+## Finalization reconciliation (2026-11-25)
+
+Evidence re-check against the current worktree (`feat/frontend-finalization-2026-11-25`).
+No status in this matrix was upgraded without a passing test; a real backend route or a client
+helper is **not** treated as a working UI flow.
+
+| Item | Evidence actually available | Status |
+|---|---|---|
+| Fleet task undo/recoverable delete | `tests/features/fleet/` payload-capture spec; Fleet suite **20 passed** in the 2026-11-24 final run and again after Agent G's integration | **verified** (real `POST tasks/:id/undo`, payload asserted at browser boundary) |
+| Fleet transcript rewind / restore rows | real routes + `lib/api.ts` helpers; uncommitted UI in `features/fleet/AgentDetails.tsx` (seq-gated rewind dialog, in-memory recovery snapshot, restore) plus specs `tests/acceptance-final/01-fleet-recovery.spec.ts` and `tests/features/fleet/fleet-transcript.spec.ts`; no passing run recorded by 11:24 | **implemented, unverified** |
+| Fleet Markdown transcript export | real `bots/:id/export.md` + uncommitted `bridge.exportUrl()` probe in `AgentDetails.tsx` (shows a link only for a genuine Markdown attachment); no passing run recorded | **implemented, unverified** |
+| Full parent/child hierarchy | no schema columns/route; UI declines to draw the tree | **api-missing** (unchanged) |
+| In-app download entry | Agent G `02-pwa-journey.spec.ts` + `06-a11y.spec.ts`: exactly one contextual link in `site/app.html` (`#nav-download`), keyboard reachable (QA-G-D07 accepted). In-flight 2026-11-25: `tests/features/download-entry/` (3 spec definitions) recorded `status: passed` in `.last-run.json` at 11:19; exact count awaits lead report | **verified on `site`**; `fleet-next` suite **reported passed**, count pending |
+| PWA shortcut / start URL | Agent G `02-pwa-journey.spec.ts`: start URL opens `/app`, never `/download`; routing clean; offline shell + SW update PASS. Current `site/manifest.webmanifest`: `start_url /app` + one `Get Keel Desktop` shortcut. In-flight: uncommitted `fleet-next/app/manifest.ts` adds the same shortcut/identity and `tests/pwa/01-identity-and-launch.spec.ts` (6 tests) exists, but its run had no recorded pass by 11:24 | **verified for `site`**; `fleet-next` **implemented, unverified** |
+| Optional dictation | legacy `desktop/ui` SpeechRecognition code (`M6 Batch 18`, Python voice suite 13 passed); in-flight uncommitted control in `features/cowork/Composer.tsx` and `tests/features/cowork/13-dictation.spec.ts` (8 tests), but the spec run at 11:23 recorded 3 failures and no pass by 11:24 | **not verified** (implemented in working tree, unverified in unified UI) |
+| Code / Duet | `npm run test:features` Code+Duet **30 passed**; production E2E **144 passed / 0 failed** after Agent G's integration; 12/12 a11y | **verified for the tested flows**; see `UI-REQUIREMENTS-MATRIX.md` for the single still-unverified item per area |
+| a11y / responsive | a11y suite **12 pass / 0 fail**, 0 contrast violations in both themes (dark min 5.33:1, light min 4.87:1); viewport re-run **72/72** across 6 viewports × 6 destinations × 2 themes; Agent G distribution a11y 5/5 | **verified for the automated checks**; native browser zoom gesture and NVDA/JAWS/VoiceOver remain manual/blocked |
 
 ## Renderer parity gate
 

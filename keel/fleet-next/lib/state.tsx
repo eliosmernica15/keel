@@ -50,7 +50,8 @@ function readStored<T>(key: string, fallback: T, valid: (v: unknown) => v is T):
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [surface, setSurfaceState] = useState<Surface>("cowork");
-  const [theme, setThemeState] = useState<Theme>("dark");
+  // Match the pre-paint script: with no stored preference, follow the OS.
+  const [theme, setThemeState] = useState<Theme>("system");
   const [systemDark, setSystemDark] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
@@ -69,10 +70,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // hydrate persisted preferences after mount
   useEffect(() => {
     setSurfaceState(readStored("keel-surface", "cowork", (v): v is Surface => SURFACES.includes(v as Surface)));
-    setThemeState(readStored<Theme>("keel-theme-v2", "dark", (v): v is Theme => THEMES.includes(v as Theme)));
+    setThemeState(readStored<Theme>("keel-theme-v2", "system", (v): v is Theme => THEMES.includes(v as Theme)));
     const narrow = window.innerWidth <= 1100;
+    // On compact desktops the shell context panel plus Code/Duet's own right
+    // panel collapse the editor to ~42px. Keep the shell panel closed by
+    // default until there is enough width; users can still open it manually.
+    const compact = window.innerWidth <= 1440;
     setSidebarOpen(narrow ? false : readStored("keel-sidebar-open", true, (v): v is boolean => typeof v === "boolean"));
-    setRightPanelOpen(narrow ? false : readStored("keel-right-open", true, (v): v is boolean => typeof v === "boolean"));
+    setRightPanelOpen(compact ? false : readStored("keel-right-open", true, (v): v is boolean => typeof v === "boolean"));
     setSidebarWidth(readStored("keel-sidebar-width", 272, (v): v is number => typeof v === "number" && v >= 200 && v <= 460));
     setRightWidth(readStored("keel-right-width", 340, (v): v is number => typeof v === "number" && v >= 260 && v <= 620));
     setOnboardingDone(readStored("keel-onboarding-done", false, (v): v is boolean => typeof v === "boolean"));
@@ -120,7 +125,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Drawer state on narrow screens is session-only; only persist desktop
   // panel preferences so a mobile visit cannot close panels on desktop.
   useEffect(() => { if (window.innerWidth <= 1100) return; try { localStorage.setItem("keel-sidebar-open", JSON.stringify(sidebarOpen)); } catch {} }, [sidebarOpen]);
-  useEffect(() => { if (window.innerWidth <= 1100) return; try { localStorage.setItem("keel-right-open", JSON.stringify(rightPanelOpen)); } catch {} }, [rightPanelOpen]);
+  useEffect(() => { if (window.innerWidth <= 1440) return; try { localStorage.setItem("keel-right-open", JSON.stringify(rightPanelOpen)); } catch {} }, [rightPanelOpen]);
   useEffect(() => { try { localStorage.setItem("keel-sidebar-width", JSON.stringify(sidebarWidth)); } catch {} }, [sidebarWidth]);
   useEffect(() => { try { localStorage.setItem("keel-right-width", JSON.stringify(rightWidth)); } catch {} }, [rightWidth]);
 

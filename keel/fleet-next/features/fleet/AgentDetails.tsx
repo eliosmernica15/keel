@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
-import { Badge, Button, EmptyState, IconButton, Textarea, TextField } from "@/components/ui";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Badge, Button, Dialog, EmptyState, IconButton, Textarea, TextField } from "@/components/ui";
 import { Icon } from "@/components/icons";
 import { bridge, errMessage } from "@/lib/api";
 import { useApp } from "@/lib/state";
@@ -23,6 +23,27 @@ const SECTIONS: Array<{ value: Section; label: string }> = [
   { value: "history", label: "Activity / History" },
 ];
 
+/** Sequence numbers are the only stable history points the bridge exposes
+ *  (`rows.seq` — see db.py); a row without a positive integer seq is not a
+ *  usable rewind target and is deliberately not offered. */
+function seqOf(row: BotRow): number | null {
+  const raw = (row as Record<string, unknown>).seq;
+  const n = typeof raw === "number" ? raw : Number(raw);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+function safeFilename(name: string): string {
+  const cleaned = name.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "");
+  return cleaned || "transcript";
+}
+
+interface Recovery {
+  fromSeq: number;
+  rows: BotRow[];
+  deleted: number;
+}
+interface TranscriptNotice { tone: "ok" | "error"; text: string }
+
 export default function AgentDetails({ bot, onClose, onChanged }: {
   bot: Bot;
   onClose: () => void;
@@ -43,6 +64,17 @@ export default function AgentDetails({ bot, onClose, onChanged }: {
   const [reasoning, setReasoning] = useState(text((bot as Record<string, unknown>).reasoning_effort));
   const [notes, setNotes] = useState(text(bot.notes));
 
+  // Transcript controls. Deleted rows live only in this component's memory:
+  // agent data is never persisted by the frontend (UI-ARCHITECTURE §4).
+  const [rewindOpen, setRewindOpen] = useState(false);
+  const [rewindSeq, setRewindSeq] = useState("");
+  const [rewindBusy, setRewindBusy] = useState(false);
+  const [restoreBusy, setRestoreBusy] = useState(false);
+  const [recovery, setRecovery] = useState<Recovery | null>(null);
+  const [transcriptNotice, setTranscriptNotice] = useState<TranscriptNotice | null>(null);
+  const [exportState, setExportState] = useState<"checking" | "available" | "unavailable">("checking");
+  const mutationBusy = useRef(false);
+
   const tasksResource = useBridgeResource(
     useCallback(() => bridge.tasks().then((r) => wrapped<FleetTask>(r, "tasks")), []), [section === "tasks"],
   );
@@ -60,6 +92,136 @@ export default function AgentDetails({ bot, onClose, onChanged }: {
   );
 
   const changed = useCallback(() => { onChanged(); }, [onChanged]);
+
+  /* ------------------------------------------------ transcript: lifecycle */
+
+  // Closing the drawer unmounts this component, which discards the temporary
+  // recovery snapshot. Clearing it here as well makes the contract explicit
+  // (and also handles a drawer reused for a different agent id).
+  const closeDrawer = useCallback(() => {
+    setRewindOpen(false);
+    setRecovery(null);
+    setTranscriptNotice(null);
+    onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    setRewindOpen(false);
+    setRewindSeq("");
+    setRecovery(null);
+    setTranscriptNotice(null);
+    setExportState("checking");
+    mutationBusy.current = false;
+  }, [bot.id]);
+
+  // The confirmation dialog sits inside the drawer. Drawer's document-capture
+  // Escape handler would otherwise close the whole drawer first; a capture
+  // listener on `window` runs before it, so Escape cancels only the dialog.
+  useEffect(() => {
+    if (!rewindOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (!mutationBusy.current) { setRewindOpen(false); setTranscriptNotice(null); }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [rewindOpen]);
+
+  // Probe the real export route. Only a genuine Markdown attachment from the
+  // bridge earns a download link; anything else is reported as unavailable.
+  useEffect(() => {
+    let alive = true;
+    setExportState("checking");
+    fetch(bridge.exportUrl(bot.id), { cache: "no-store" })
+      .then((resp) => {
+        if (!alive) return;
+        const ct = (resp.headers.get("content-type") ?? "").toLowerCase();
+        const cd = resp.headers.get("content-disposition") ?? "";
+        setExportState(resp.ok && ct.includes("text/markdown") && /attachment/i.test(cd)
+          ? "available" : "unavailable");
+      })
+      .catch(() => { if (alive) setExportState("unavailable"); });
+    return () => { alive = false; };
+  }, [bot.id]);
+
+  const seqRows = useMemo(() => {
+    const out: Array<{ seq: number; row: BotRow }> = [];
+    for (const row of rowsResource.data ?? []) {
+      const seq = seqOf(row);
+      if (seq !== null) out.push({ seq, row });
+    }
+    return out.sort((a, b) => a.seq - b.seq);
+  }, [rowsResource.data]);
+
+  const selectedSeq = Number(rewindSeq);
+  const validSeq = Number.isInteger(selectedSeq) && selectedSeq > 0 ? selectedSeq : null;
+  const rowsToDelete = validSeq === null ? 0 : seqRows.filter(({ seq }) => seq >= validSeq).length;
+  const maxSeq = seqRows.length ? seqRows[seqRows.length - 1].seq : 0;
+
+  const openRewind = useCallback(() => {
+    // Default to the latest real sequence point: the smallest possible rewind.
+    setRewindSeq(seqRows.length ? String(seqRows[seqRows.length - 1].seq) : "");
+    setTranscriptNotice(null);
+    setRewindOpen(true);
+  }, [seqRows]);
+
+  async function confirmRewind() {
+    if (mutationBusy.current || validSeq === null) return;
+    mutationBusy.current = true;
+    setRewindBusy(true);
+    setTranscriptNotice(null);
+    try {
+      // The bridge returns the exact deleted rows: { rows, deleted }.
+      const res = await bridge.rewind(bot.id, { from_seq: validSeq }) as { rows?: BotRow[]; deleted?: number };
+      const rows = Array.isArray(res?.rows) ? res.rows : [];
+      if (rows.length === 0) {
+        // No fake success: without rows there is nothing to restore.
+        setTranscriptNotice({ tone: "error", text: `The bridge reported no deleted rows from sequence ${validSeq}. Nothing was rewound; there is nothing to restore.` });
+      } else {
+        const deleted = typeof res?.deleted === "number" ? res.deleted : rows.length;
+        setRecovery({ fromSeq: validSeq, rows, deleted });
+        setTranscriptNotice({ tone: "ok", text: `Deleted ${deleted} transcript row(s) from sequence ${validSeq}. The deleted rows are held in memory in this drawer and can be restored.` });
+      }
+      setRewindOpen(false);
+      rowsResource.reload();
+      changed();
+    } catch (e) {
+      setTranscriptNotice({ tone: "error", text: `Rewind failed: ${errMessage(e)}` });
+    } finally {
+      mutationBusy.current = false;
+      setRewindBusy(false);
+    }
+  }
+
+  async function restoreRows() {
+    if (mutationBusy.current || !recovery) return;
+    mutationBusy.current = true;
+    setRestoreBusy(true);
+    setTranscriptNotice(null);
+    const snapshot = recovery;
+    try {
+      // Capture the bridge's real count; restore re-appends rows with fresh
+      // sequence numbers (db.py: seq INTEGER PRIMARY KEY AUTOINCREMENT).
+      const res = await bridge.restore(bot.id, { rows: snapshot.rows }) as { restored?: number };
+      const restored = typeof res?.restored === "number" ? res.restored : null;
+      setTranscriptNotice({
+        tone: "ok",
+        text: restored === null
+          ? `Restored the transcript rows from sequence ${snapshot.fromSeq}. The bridge re-appends them with new sequence numbers.`
+          : `Restored ${restored} transcript row(s) from sequence ${snapshot.fromSeq}. The bridge re-appends them with new sequence numbers.`,
+      });
+      setRecovery(null);
+      rowsResource.reload();
+      changed();
+    } catch (e) {
+      setTranscriptNotice({ tone: "error", text: `Restore failed: ${errMessage(e)}` });
+    } finally {
+      mutationBusy.current = false;
+      setRestoreBusy(false);
+    }
+  }
 
   async function save(patch: Record<string, unknown>, label: string) {
     setSaving(true); setSaved(null); setError(null);
@@ -91,7 +253,7 @@ export default function AgentDetails({ bot, onClose, onChanged }: {
     <Drawer
       title={bot.name || bot.id}
       subtitle={<span className={s.muted}>Agent id <span className={s.mono}>{bot.id}</span> · {text(bot.engine) === "echo" ? "scripted Echo engine" : "provider engine"}</span>}
-      onClose={onClose}
+      onClose={closeDrawer}
       tabs={SECTIONS}
       active={section}
       onTab={(v) => { setSection(v as Section); setSaved(null); setError(null); }}
@@ -189,16 +351,83 @@ export default function AgentDetails({ bot, onClose, onChanged }: {
       )}
 
       {section === "history" && (
-        <HistorySection auditResource={auditResource} rowsResource={rowsResource} />
+        <HistorySection
+          botId={bot.id}
+          botName={text(bot.name) || bot.id}
+          auditResource={auditResource}
+          rowsResource={rowsResource}
+          seqRows={seqRows}
+          exportState={exportState}
+          recovery={recovery}
+          notice={transcriptNotice}
+          rewindBusy={rewindBusy}
+          restoreBusy={restoreBusy}
+          onOpenRewind={openRewind}
+          onRestore={() => void restoreRows()}
+          onDismissRecovery={() => { setRecovery(null); setTranscriptNotice(null); }}
+        />
       )}
+
+      <Dialog
+        open={rewindOpen}
+        onClose={() => { if (!mutationBusy.current) { setRewindOpen(false); setTranscriptNotice(null); } }}
+        title="Rewind transcript?"
+        footer={<>
+          <Button variant="ghost" disabled={rewindBusy} onClick={() => { setRewindOpen(false); setTranscriptNotice(null); }}>Cancel</Button>
+          <Button variant="danger" loading={rewindBusy} disabled={validSeq === null} onClick={() => void confirmRewind()}>
+            {validSeq === null ? "Delete rows" : `Delete rows from seq ${validSeq}`}
+          </Button>
+        </>}
+      >
+        <p className={s.hintNote}>
+          This sends <code>{'{ from_seq: N }'}</code> to the bridge. Every transcript row with sequence number <strong>N or higher</strong> is deleted. The bridge returns the deleted rows; they are kept only in this open drawer so you can restore them.
+        </p>
+        {seqRows.length === 0 ? (
+          <div className={s.errorText} role="status">No sequence-numbered rows were reported by the bridge. Nothing can be rewound.</div>
+        ) : (
+          <>
+            <div className={s.field}>
+              <label htmlFor="rewind-seq">Rewind from sequence</label>
+              <select id="rewind-seq" value={rewindSeq} disabled={rewindBusy} onChange={(e) => setRewindSeq(e.target.value)}>
+                {seqRows.map(({ seq, row }) => (
+                  <option key={seq} value={seq}>
+                    {seq} · {text(row.kind)} · {fmtDate(text((row as Record<string, unknown>).created_at ?? row.ts))}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <p className={s.itemMeta} role="status">
+              Exact history point: sequence <span className={s.mono}>{validSeq ?? "—"}</span>
+              {" · "}{rowsToDelete} row(s) deleted (seq {validSeq ?? "—"}–{maxSeq}).
+            </p>
+          </>
+        )}
+        {transcriptNotice && (
+          <div className={transcriptNotice.tone === "error" ? s.errorText : s.okText}
+            role={transcriptNotice.tone === "error" ? "alert" : "status"}>
+            {transcriptNotice.text}
+          </div>
+        )}
+      </Dialog>
     </Drawer>
   );
 }
 
 interface TinyResource<T> { data: T | null; error: unknown; loading: boolean; reload: () => void }
-function HistorySection({ auditResource, rowsResource }: {
+function HistorySection({ botId, botName, auditResource, rowsResource, seqRows, exportState, recovery, notice, rewindBusy, restoreBusy, onOpenRewind, onRestore, onDismissRecovery }: {
+  botId: string;
+  botName: string;
   auditResource: TinyResource<AuditEntry[]>;
   rowsResource: TinyResource<BotRow[]>;
+  seqRows: Array<{ seq: number; row: BotRow }>;
+  exportState: "checking" | "available" | "unavailable";
+  recovery: Recovery | null;
+  notice: TranscriptNotice | null;
+  rewindBusy: boolean;
+  restoreBusy: boolean;
+  onOpenRewind: () => void;
+  onRestore: () => void;
+  onDismissRecovery: () => void;
 }) {
   const [tool, setTool] = useState("");
   const [result, setResult] = useState("all");
@@ -212,6 +441,54 @@ function HistorySection({ auditResource, rowsResource }: {
   });
   return (
     <div className={s.stack}>
+      {/* Transcript export + guarded rewind/restore. Every value here comes
+          from the bridge; no success is shown until the bridge responds. */}
+      <div className={s.stack}>
+        <div className={s.panelHead}>
+          <h4 className={s.panelTitle}>Transcript</h4>
+          <Badge tone="neutral">{(rowsResource.data ?? []).length} rows</Badge>
+        </div>
+        <p className={s.hintNote}>
+          The bridge exports the full transcript as Markdown. Rewind deletes every row from a chosen sequence onward; the deleted rows can be restored only while this drawer stays open.
+        </p>
+        {exportState === "checking" ? (
+          <div className={s.itemMeta} role="status">Checking Markdown export…</div>
+        ) : exportState === "available" ? (
+          <div>
+            <a
+              className={s.linkBtn}
+              href={bridge.exportUrl(botId)}
+              download={`${safeFilename(botName)}.md`}
+              aria-label="Download Markdown transcript"
+            >Download Markdown transcript (.md)</a>
+          </div>
+        ) : (
+          <div className={s.errorText} role="status">Markdown export unavailable — the bridge did not return a downloadable file. No download link is shown.</div>
+        )}
+        {notice && (
+          <div className={notice.tone === "error" ? s.errorText : s.okText}
+            role={notice.tone === "error" ? "alert" : "status"}>
+            {notice.text}
+          </div>
+        )}
+        {recovery ? (
+          <div className={s.item} role="status">
+            <Icon name="info" size={16} />
+            <div className={s.grow}>
+              <div className={s.itemTitle}>Rewound from sequence {recovery.fromSeq} · {recovery.deleted} row(s) deleted</div>
+              <div className={s.itemMeta}>The deleted rows are held in memory in this drawer. Restore re-appends them with new sequence numbers assigned by the bridge.</div>
+            </div>
+            <Button size="sm" variant="secondary" loading={restoreBusy} disabled={rewindBusy} onClick={onRestore}>Restore rows</Button>
+            <IconButton label="Dismiss recovery" disabled={rewindBusy || restoreBusy} onClick={onDismissRecovery}><Icon name="close" size={14} /></IconButton>
+          </div>
+        ) : (
+          <div>
+            <Button size="sm" variant="secondary" disabled={seqRows.length === 0 || rewindBusy || restoreBusy} onClick={onOpenRewind}>Rewind transcript…</Button>
+            {seqRows.length === 0 && <div className={s.itemMeta}>No sequence-numbered rows reported by the bridge; rewind is unavailable.</div>}
+          </div>
+        )}
+      </div>
+
       <div className={s.panelHead}><h4 className={s.panelTitle}>Permission decisions &amp; audit</h4><Badge tone="neutral">{filtered.length}</Badge></div>
       <p className={s.hintNote}>Audit rows contain a tool name, event, decision and a fingerprint — never raw arguments or secrets. Row contents below are redacted defensively.</p>
       <div className={s.filters}>

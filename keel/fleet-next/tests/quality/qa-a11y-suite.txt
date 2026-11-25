@@ -1,0 +1,447 @@
+[WebServer]    Γû▓ Next.js 15.5.29
+
+[WebServer]    - Local:        http://127.0.0.1:3302
+[WebServer]    - Network:      http://127.0.0.1:3302
+[WebServer]    - Environments: .env.local
+[WebServer] 
+[WebServer]  Γ£ô Starting...
+
+[WebServer] 
+
+[WebServer]    We detected TypeScript in your project and reconfigured your tsconfig.json file for you.
+[WebServer]    The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+[WebServer] 
+[WebServer]    	- include was updated to add '.next-a11y/types/**/*.ts'
+[WebServer] 
+
+[WebServer]  Γ£ô Ready in 4.5s
+
+[WebServer]  Γùï Compiling / ...
+
+[WebServer]  Γ£ô Compiled / in 9.5s (689 modules)
+
+
+Running 12 tests using 1 worker
+
+[WebServer]  GET / 200 in 10961ms
+
+[1/12] [chromium] ΓÇ║ tests\a11y\01-contrast.spec.ts:9:3 ΓÇ║ dark theme: computed text contrast >= AA at all six destinations
+[WebServer]  GET / 200 in 280ms
+
+[WebServer]  Γùï Compiling /api/bridge/[...path] ...
+
+[WebServer]  Γ£ô Compiled /api/bridge/[...path] in 2.4s (681 modules)
+
+[chromium] ΓÇ║ tests\a11y\01-contrast.spec.ts:9:3 ΓÇ║ dark theme: computed text contrast >= AA at all six destinations
+CONTRAST dark: [{"destination":"cowork","checked":84,"unknown":0,"minRatio":5.33,"violations":0,"worst":[]},{"destination":"code","checked":65,"unknown":14,"minRatio":5.33,"violations":0,"worst":[]},{"destination":"duet","checked":65,"unknown":14,"minRatio":5.33,"violations":0,"worst":[]},{"destination":"fleet","checked":80,"unknown":0,"minRatio":5.33,"violations":0,"worst":[]},{"destination":"capabilities","checked":77,"unknown":0,"minRatio":5.33,"violations":0,"worst":[]},{"destination":"settings","checked":89,"unknown":0,"minRatio":5.33,"violations":0,"worst":[]}]
+
+[WebServer]  GET /api/bridge/providers 200 in 4294ms
+
+[WebServer]  GET /api/bridge/library 200 in 4327ms
+
+[WebServer]  GET /api/bridge/usage 200 in 4306ms
+
+[WebServer]  GET /api/bridge/projects 200 in 4330ms
+
+[WebServer]  GET /api/bridge/bots 200 in 4339ms
+
+[WebServer]  GET /api/bridge/providers 200 in 4335ms
+
+[2/12] [chromium] ΓÇ║ tests\a11y\01-contrast.spec.ts:9:3 ΓÇ║ light theme: computed text contrast >= AA at all six destinations
+[WebServer]  GET / 200 in 894ms
+
+[WebServer]  GET /api/bridge/bots 200 in 511ms
+
+[WebServer]  GET /api/bridge/projects 200 in 506ms
+
+[WebServer]  GET /api/bridge/library 200 in 510ms
+
+[WebServer]  GET /api/bridge/usage 200 in 519ms
+
+[WebServer]  GET /api/bridge/providers 200 in 546ms
+
+[WebServer]  GET /api/bridge/providers 200 in 550ms
+
+[WebServer]  GET /api/bridge/events 200 in 429ms
+
+[WebServer]  Γùï Compiling /manifest.webmanifest ...
+
+[WebServer]  Γ£ô Compiled /manifest.webmanifest in 2s (697 modules)
+
+[chromium] ΓÇ║ tests\a11y\01-contrast.spec.ts:9:3 ΓÇ║ light theme: computed text contrast >= AA at all six destinations
+CONTRAST light: [{"destination":"cowork","checked":87,"unknown":0,"minRatio":4.87,"violations":0,"worst":[]},{"destination":"code","checked":66,"unknown":14,"minRatio":5.01,"violations":0,"worst":[]},{"destination":"duet","checked":66,"unknown":14,"minRatio":5.01,"violations":0,"worst":[]},{"destination":"fleet","checked":81,"unknown":0,"minRatio":5.01,"violations":0,"worst":[]},{"destination":"capabilities","checked":78,"unknown":0,"minRatio":5.01,"violations":0,"worst":[]},{"destination":"settings","checked":90,"unknown":0,"minRatio":4.87,"violations":0,"worst":[]}]
+
+[WebServer]  GET /manifest.webmanifest 200 in 3221ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2458ms
+
+[WebServer]  GET /api/bridge/projects 200 in 3069ms
+[WebServer]  GET /api/bridge/projects 200 in 2469ms
+[WebServer]  GET /api/bridge/projects 200 in 3064ms
+[WebServer]  GET / 200 in 3478ms
+
+[3/12] [chromium] ΓÇ║ tests\a11y\02-focus-keyboard.spec.ts:4:1 ΓÇ║ skip link is the first tab stop and keyboard focus stays visible
+[WebServer]  GET / 200 in 232ms
+
+[WebServer]  GET /api/bridge/bots 200 in 131ms
+
+[WebServer]  GET /api/bridge/projects 200 in 351ms
+
+[WebServer]  GET /api/bridge/library 200 in 379ms
+
+[WebServer]  GET /api/bridge/providers 200 in 406ms
+
+[WebServer]  GET /api/bridge/usage 200 in 414ms
+
+[WebServer]  GET /api/bridge/providers 200 in 432ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 97ms
+
+[WebServer]  GET / 200 in 291ms
+
+[chromium] ΓÇ║ tests\a11y\02-focus-keyboard.spec.ts:4:1 ΓÇ║ skip link is the first tab stop and keyboard focus stays visible
+FOCUS ORDER: ["button:Toggle sidebar","button:Cowork","button:Command palette (Ctrl+K)","button:Toggle theme","button:Toggle context panel","button:New task","button:Cowork","button:Code","button:Duet","button:Fleet","button:Capabilities","button:Settings","button:Pick a starting surfaceRequired","button:Connect a providerRequired","button:Choose a workspaceRequired","button:Choose a permission modeRequired","button:Review skills & MCP (optional)Optional","button:Voice & channels (optional)Optional"]
+
+[WebServer]  GET /api/bridge/events 200 in 1599ms
+
+[4/12] [chromium] ΓÇ║ tests\a11y\02-focus-keyboard.spec.ts:37:1 ΓÇ║ command palette traps Tab in both directions, Escape closes and restores focus
+[WebServer]  GET / 200 in 193ms
+
+[WebServer]  GET /api/bridge/bots 200 in 850ms
+
+[WebServer]  GET /api/bridge/projects 200 in 788ms
+
+[WebServer]  GET /api/bridge/library 200 in 794ms
+
+[WebServer]  GET /api/bridge/providers 200 in 823ms
+
+[WebServer]  GET /api/bridge/usage 200 in 821ms
+
+[WebServer]  GET /api/bridge/providers 200 in 853ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 254ms
+
+[WebServer]  GET / 200 in 609ms
+
+[WebServer]  GET /api/bridge/events 200 in 6061ms
+
+[5/12] [chromium] ΓÇ║ tests\a11y\02-focus-keyboard.spec.ts:68:1 ΓÇ║ shared Dialog traps focus, Escape closes and restores focus (Fleet New agent)
+[WebServer]  GET / 200 in 189ms
+
+[WebServer]  GET /api/bridge/bots 200 in 144ms
+
+[WebServer]  GET /api/bridge/projects 200 in 527ms
+
+[WebServer]  GET /api/bridge/library 200 in 530ms
+
+[WebServer]  GET /api/bridge/usage 200 in 554ms
+
+[WebServer]  GET /api/bridge/providers 200 in 587ms
+
+[WebServer]  GET /api/bridge/providers 200 in 605ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 741ms
+
+[WebServer]  GET /api/bridge/bots 200 in 702ms
+
+[WebServer]  GET /api/bridge/groups 200 in 713ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 722ms
+
+[WebServer]  GET /api/bridge/routines 200 in 739ms
+
+[WebServer]  GET /api/bridge/library 200 in 760ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 496ms
+
+[WebServer]  GET /api/bridge/bots 200 in 504ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 509ms
+
+[WebServer]  GET /api/bridge/routines 200 in 521ms
+
+[WebServer]  GET /api/bridge/groups 200 in 534ms
+
+[WebServer]  GET /api/bridge/library 200 in 541ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 187ms
+
+[WebServer]  GET / 200 in 718ms
+
+[WebServer]  GET /api/bridge/bots/cowork-task-1/rows 200 in 149ms
+
+[WebServer]  GET /api/bridge/bots/cowork-task-1/rows 200 in 399ms
+
+[WebServer]  GET /api/bridge/bots/new-task-11-24-2026-2-03-49-pm-fork/rows 200 in 413ms
+
+[WebServer]  GET /api/bridge/bots/cowork-task/rows 200 in 439ms
+
+[WebServer]  GET /api/bridge/bots/new-task-11-24-2026-2-03-49-pm/rows 200 in 182ms
+
+[WebServer]  GET /api/bridge/bots/new-task-11-24-2026-1-55-48-am/rows 200 in 246ms
+
+[6/12] [chromium] ΓÇ║ tests\a11y\02-focus-keyboard.spec.ts:96:1 ΓÇ║ all destinations expose landmarks and programmatically named controls
+[WebServer]  GET /api/bridge/bots/new-chat-2/rows 200 in 352ms
+
+[WebServer]  GET /api/bridge/bots/unitytechhub-backend-python-main/rows 200 in 354ms
+
+[WebServer]  GET /api/bridge/bots/new-chat-1/rows 200 in 347ms
+
+[WebServer]  GET /api/bridge/events 200 in 1545ms
+
+[WebServer]  GET / 200 in 201ms
+
+[WebServer]  GET /api/bridge/bots 200 in 232ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2147ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2169ms
+
+[WebServer]  GET /api/bridge/library 200 in 2174ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2474ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2481ms
+
+[WebServer]  GET /api/bridge/projects 200 in 785ms
+
+[WebServer]  GET /api/bridge/projects 200 in 963ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1274ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1284ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 802ms
+
+[WebServer]  GET /api/bridge/bots 200 in 822ms
+
+[WebServer]  GET /api/bridge/groups 200 in 787ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 809ms
+
+[WebServer]  GET /api/bridge/routines 200 in 521ms
+
+[WebServer]  GET /api/bridge/library 200 in 646ms
+
+[7/12] [chromium] ΓÇ║ tests\a11y\03-motion-aria.spec.ts:4:1 ΓÇ║ prefers-reduced-motion: reduce collapses animations and is announced
+[WebServer]  GET /api/bridge/groups 200 in 535ms
+
+[WebServer]  GET /api/bridge/bots 200 in 804ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 819ms
+
+[WebServer]  GET / 200 in 314ms
+
+[chromium] ΓÇ║ tests\a11y\03-motion-aria.spec.ts:4:1 ΓÇ║ prefers-reduced-motion: reduce collapses animations and is announced
+REDUCED MOTION: {"matches":true,"worstAnimationMs":0.001,"worstTransitionMs":0.001,"scrollBehavior":"auto"}
+
+[8/12] [chromium] ΓÇ║ tests\a11y\03-motion-aria.spec.ts:34:1 ΓÇ║ normal motion is restored when the OS preference is no-preference
+[WebServer]  GET /api/bridge/providers 200 in 391ms
+
+[WebServer]  GET /api/bridge/providers 200 in 405ms
+
+[WebServer]  GET /api/bridge/bots 200 in 417ms
+
+[WebServer]  GET /api/bridge/projects 200 in 405ms
+
+[WebServer]  GET /api/bridge/usage 200 in 397ms
+
+[WebServer]  GET /api/bridge/library 200 in 402ms
+
+[WebServer]  GET / 200 in 392ms
+
+[WebServer]  GET /api/bridge/bots 200 in 176ms
+
+[WebServer]  GET /api/bridge/projects 200 in 530ms
+
+[WebServer]  GET /api/bridge/providers 200 in 548ms
+
+[WebServer]  GET /api/bridge/library 200 in 557ms
+
+[WebServer]  GET /api/bridge/usage 200 in 564ms
+
+[WebServer]  GET /api/bridge/providers 200 in 599ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 275ms
+
+[9/12] [chromium] ΓÇ║ tests\a11y\03-motion-aria.spec.ts:42:1 ΓÇ║ ARIA roles, states and live regions are present on every surface
+[WebServer]  GET / 200 in 668ms
+
+[WebServer]  GET /api/bridge/events 200 in 975ms
+
+[WebServer]  GET / 200 in 295ms
+
+[WebServer]  GET /api/bridge/bots 200 in 179ms
+
+[WebServer]  GET /api/bridge/projects 200 in 315ms
+
+[WebServer]  GET /api/bridge/library 200 in 326ms
+
+[WebServer]  GET /api/bridge/usage 200 in 336ms
+
+[WebServer]  GET /api/bridge/providers 200 in 379ms
+
+[WebServer]  GET /api/bridge/providers 200 in 446ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 127ms
+
+[WebServer]  GET / 200 in 364ms
+
+[WebServer]  GET /api/bridge/events 200 in 805ms
+
+[WebServer]  GET /api/bridge/projects 200 in 94ms
+
+[WebServer]  GET /api/bridge/projects 200 in 151ms
+
+[WebServer]  GET /api/bridge/projects 200 in 307ms
+
+[WebServer]  GET /api/bridge/projects 200 in 314ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1169ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1164ms
+
+[WebServer]  GET /api/bridge/groups 200 in 1161ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1165ms
+
+[WebServer]  GET /api/bridge/routines 200 in 1158ms
+
+[WebServer]  GET /api/bridge/library 200 in 1166ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 274ms
+
+[WebServer]  GET /api/bridge/bots 200 in 616ms
+
+[WebServer]  GET /api/bridge/groups 200 in 635ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 645ms
+
+[WebServer]  GET /api/bridge/routines 200 in 657ms
+
+[WebServer]  GET /api/bridge/library 200 in 679ms
+
+[10/12] [chromium] ΓÇ║ tests\a11y\04-zoom-keyboard-walkthrough.spec.ts:9:1 ΓÇ║ 200% zoom (720x450 CSS viewport): no horizontal overflow on any surface
+[WebServer]  GET / 200 in 283ms
+
+[WebServer]  GET /api/bridge/bots 200 in 635ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1610ms
+
+[WebServer]  GET /api/bridge/usage 200 in 1610ms
+
+[WebServer]  GET /api/bridge/library 200 in 1622ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1773ms
+
+[WebServer]  GET /api/bridge/providers 200 in 1641ms
+
+[WebServer]  GET /api/bridge/projects 200 in 248ms
+
+[WebServer]  GET /api/bridge/projects 200 in 369ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 399ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1143ms
+
+[WebServer]  GET /api/bridge/projects 200 in 1291ms
+
+[WebServer]  GET / 200 in 1918ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1153ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1177ms
+
+[WebServer]  GET /api/bridge/groups 200 in 1193ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1146ms
+
+[WebServer]  GET /api/bridge/routines 200 in 1176ms
+
+[WebServer]  GET /api/bridge/library 200 in 913ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1745ms
+
+[WebServer]  GET /api/bridge/bots 200 in 1430ms
+
+[WebServer]  GET /api/bridge/groups 200 in 1485ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 1535ms
+
+[WebServer]  GET /api/bridge/routines 200 in 1951ms
+
+[WebServer]  GET /api/bridge/library 200 in 1136ms
+
+[11/12] [chromium] ΓÇ║ tests\a11y\04-zoom-keyboard-walkthrough.spec.ts:27:1 ΓÇ║ 200% zoom keeps text contrast legible and controls operable
+[WebServer]  GET /api/bridge/skills/manage 200 in 1754ms
+
+[WebServer]  GET /api/bridge/skills 200 in 1756ms
+
+[WebServer]  GET /api/bridge/skills 200 in 1734ms
+
+[WebServer]  GET / 200 in 2888ms
+
+[WebServer]  GET /api/bridge/bots 200 in 243ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2068ms
+
+[WebServer]  GET /api/bridge/projects 200 in 2112ms
+
+[WebServer]  GET /api/bridge/library 200 in 2141ms
+
+[WebServer]  GET /api/bridge/usage 200 in 2159ms
+
+[WebServer]  GET /api/bridge/providers 200 in 2190ms
+
+[12/12] [chromium] ΓÇ║ tests\a11y\04-zoom-keyboard-walkthrough.spec.ts:40:1 ΓÇ║ keyboard-only walkthrough reaches all six destinations
+[WebServer]  GET / 200 in 826ms
+
+[WebServer]  GET /api/bridge/bots 200 in 328ms
+
+[WebServer]  GET /api/bridge/projects 200 in 518ms
+
+[WebServer]  GET /api/bridge/library 200 in 533ms
+
+[WebServer]  GET /api/bridge/providers 200 in 619ms
+
+[WebServer]  GET /api/bridge/usage 200 in 558ms
+
+[WebServer]  GET /api/bridge/providers 200 in 754ms
+
+[WebServer]  GET /api/bridge/projects 200 in 690ms
+
+[WebServer]  GET /api/bridge/projects 200 in 794ms
+
+[WebServer]  GET /manifest.webmanifest 200 in 718ms
+
+[WebServer]  GET /api/bridge/projects 200 in 731ms
+
+[WebServer]  GET /api/bridge/projects 200 in 737ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 461ms
+
+[WebServer]  GET /api/bridge/bots 200 in 585ms
+
+[WebServer]  GET /api/bridge/groups 200 in 964ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 872ms
+
+[WebServer]  GET /api/bridge/routines 200 in 757ms
+
+[WebServer]  GET / 200 in 2085ms
+
+[WebServer]  GET /api/bridge/library 200 in 921ms
+
+[WebServer]  GET /api/bridge/tasks 200 in 735ms
+
+[chromium] ΓÇ║ tests\a11y\04-zoom-keyboard-walkthrough.spec.ts:40:1 ΓÇ║ keyboard-only walkthrough reaches all six destinations
+KEYBOARD WALKTHROUGH: 1-4, palette, [, \ all reached their targets
+
+[WebServer]  GET /api/bridge/tasks 200 in 794ms
+
+[WebServer]  GET /api/bridge/groups 200 in 797ms
+[WebServer]  GET /api/bridge/bots 200 in 798ms
+
+[WebServer]  GET /api/bridge/routines 200 in 523ms
+
+  12 passed (2.0m)

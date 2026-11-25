@@ -3,6 +3,9 @@
 // Cowork composer: autosize, multiline, per-bot draft, real File chips that
 // are uploaded into the agent's library before the message is sent, paste/drop,
 // slash-command insertion, send/stop/retry. Upload state is never optimistic.
+// Optional browser-native dictation: the microphone is only touched after an
+// explicit click, final transcripts are inserted at the caret, and nothing is
+// ever auto-sent. There is no audio upload and no backend dependency.
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon, IconButton } from "@/components/icons";
@@ -47,6 +50,70 @@ const STATUS_CLASS: Record<ChipStatus, string> = {
 // The bridge reads this JSON body with a 6 MB limit.
 const MAX_BODY_BYTES = 6_000_000;
 const TEXT_EXT = /\.(txt|md|markdown|json|csv|log|py|js|jsx|ts|tsx|css|scss|html|htm|xml|ya?ml|toml|ini|sh|bat|sql|rst)$/i;
+
+// Structural types for the browser-native Web Speech API. lib.dom does not
+// ship these interfaces and adding a type package would be a new dependency,
+// so the small surface this composer consumes is described locally.
+interface SpeechAlternativeLike { transcript: string; }
+interface SpeechResultLike { isFinal: boolean; 0?: SpeechAlternativeLike; }
+interface SpeechResultListLike { length: number; [index: number]: SpeechResultLike | undefined; }
+interface SpeechResultEventLike { resultIndex: number; results: SpeechResultListLike; }
+interface SpeechErrorEventLike { error: string; }
+interface SpeechRecognitionLike {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechResultEventLike) => void) | null;
+  onerror: ((event: SpeechErrorEventLike) => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  stop(): void;
+  abort(): void;
+}
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+type DictationState = "idle" | "listening" | "processing" | "stopped" | "error";
+
+function getSpeechRecognitionConstructor(): SpeechRecognitionConstructor | null {
+  if (typeof window === "undefined") return null;
+  const scope = window as unknown as {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  };
+  // Standard name first, prefixed fallback for WebKit-based browsers.
+  return scope.SpeechRecognition ?? scope.webkitSpeechRecognition ?? null;
+}
+
+function dictationErrorMessage(code: string): string {
+  switch (code) {
+    case "not-allowed":
+    case "service-not-allowed":
+    case "permission-denied":
+      return "Microphone permission was denied. Allow microphone access for this page in your browser settings, then try again.";
+    case "no-speech":
+      return "No speech was detected. Try again and speak clearly into your microphone.";
+    case "audio-capture":
+      return "No microphone was found or it could not be used. Check your device and try again.";
+    case "network":
+      return "Speech recognition could not reach its service. Check your connection and try again.";
+    case "aborted":
+      return "Dictation was cancelled before a transcript was produced.";
+    default:
+      return `Dictation failed${code ? ` (${code})` : ""}. Nothing was inserted into your draft.`;
+  }
+}
+
+/** Original 24px line glyph, drawn in the same style as components/icons.tsx. */
+function MicIcon({ size = 17 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor"
+      strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="keel-icon">
+      <rect x="9" y="3" width="6" height="11" rx="3" />
+      <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6" />
+    </svg>
+  );
+}
 
 function readDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -152,6 +219,26 @@ export default function Composer({
   const chipsRef = useRef<Chip[]>([]);
   const sendingRef = useRef(false);
 
+  // Dictation support is detected after mount so server HTML and the first
+  // client render agree; no microphone is requested during that detection.
+  const [dictationSupported, setDictationSupported] = useState<boolean | null>(null);
+  const [dictationState, setDictationState] = useState<DictationState>("idle");
+  const [dictationMessage, setDictationMessage] = useState("");
+  const ctorRef = useRef<SpeechRecognitionConstructor | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const cursorRef = useRef<{ start: number; end: number } | null>(null);
+  const finalizedRef = useRef(false);
+  const insertedRef = useRef(false);
+  const tearingDownRef = useRef(false);
+  const dictationStateRef = useRef<DictationState>("idle");
+  const textRef = useRef(text);
+
+  const setDictation = useCallback((next: DictationState, message: string) => {
+    dictationStateRef.current = next;
+    setDictationState(next);
+    setDictationMessage(message);
+  }, []);
+
   const setChipsList = useCallback((next: Chip[]) => {
     chipsRef.current = next;
     setChips(next);
@@ -190,6 +277,160 @@ export default function Composer({
   useEffect(() => {
     if (focusSignal && focusSignal > 0) taRef.current?.focus();
   }, [focusSignal]);
+
+  useEffect(() => { textRef.current = text; }, [text]);
+
+  useEffect(() => {
+    const ctor = getSpeechRecognitionConstructor();
+    ctorRef.current = ctor;
+    setDictationSupported(Boolean(ctor));
+  }, []);
+
+  // The parent keys this composer by session, but stop explicitly here too so
+  // a bot switch or an unmount can never leave a live microphone behind.
+  useEffect(() => () => {
+    tearingDownRef.current = true;
+    const rec = recognitionRef.current;
+    recognitionRef.current = null;
+    if (rec) {
+      rec.onstart = null;
+      rec.onresult = null;
+      rec.onerror = null;
+      rec.onend = null;
+      try { rec.abort(); } catch { /* already ended */ }
+    }
+    cursorRef.current = null;
+  }, [botId]);
+
+  /** Insert recognized words into the existing draft at the caret captured
+   *  when dictation started. Sending is deliberately not part of this path. */
+  const insertTranscript = useCallback((transcript: string) => {
+    const ta = taRef.current;
+    const current = ta?.value ?? textRef.current;
+    const cursor = cursorRef.current;
+    const start = Math.min(Math.max(cursor?.start ?? current.length, 0), current.length);
+    const end = Math.min(Math.max(cursor?.end ?? start, start), current.length);
+    const before = current.slice(0, start);
+    const after = current.slice(end);
+    const needsSpace = before.length > 0 && !/\s$/.test(before) && !/^\s/.test(transcript);
+    const insertion = `${needsSpace ? " " : ""}${transcript}`;
+    const next = before + insertion + after;
+    textRef.current = next;
+    setText(next);
+    setSlashDismissed(false);
+    const caret = before.length + insertion.length;
+    requestAnimationFrame(() => {
+      const el = taRef.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(caret, caret);
+      resize();
+    });
+  }, [resize]);
+
+  const startDictation = useCallback(() => {
+    const Ctor = ctorRef.current;
+    if (!Ctor || recognitionRef.current) return;
+
+    // Capture the caret on the explicit click, before focus moves to the
+    // microphone button, so text on both sides of it is preserved.
+    const ta = taRef.current;
+    cursorRef.current = {
+      start: ta?.selectionStart ?? textRef.current.length,
+      end: ta?.selectionEnd ?? ta?.selectionStart ?? textRef.current.length,
+    };
+    finalizedRef.current = false;
+    insertedRef.current = false;
+    tearingDownRef.current = false;
+
+    let recognition: SpeechRecognitionLike;
+    try {
+      recognition = new Ctor();
+      recognition.lang = typeof navigator !== "undefined" && navigator.language ? navigator.language : "en-US";
+      recognition.continuous = false;
+      recognition.interimResults = false; // only final, confirmed words are inserted
+      recognition.maxAlternatives = 1;
+    } catch {
+      setDictation("error", "Dictation could not start in this browser.");
+      return;
+    }
+
+    recognition.onstart = () => {
+      if (tearingDownRef.current) return;
+      setDictation("listening", "Listening… speak now. Press Stop dictation when you are done.");
+    };
+
+    recognition.onresult = (event) => {
+      if (tearingDownRef.current || finalizedRef.current) return;
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result?.isFinal) transcript += result[0]?.transcript ?? "";
+      }
+      const words = transcript.trim();
+      finalizedRef.current = true;
+      if (words) {
+        insertTranscript(words);
+        insertedRef.current = true;
+        setDictation("processing", "Transcript received — adding it to your draft…");
+      } else {
+        setDictation("stopped", "Dictation stopped — no words were recognized.");
+      }
+      try { recognition.stop(); } catch { /* the browser will still emit end */ }
+    };
+
+    recognition.onerror = (event) => {
+      if (tearingDownRef.current) return;
+      finalizedRef.current = true;
+      recognitionRef.current = null;
+      const message = dictationErrorMessage(String(event?.error ?? ""));
+      setDictation("error", message);
+      notify(message, "error");
+    };
+
+    recognition.onend = () => {
+      if (tearingDownRef.current) return;
+      recognitionRef.current = null;
+      if (dictationStateRef.current === "error") return;
+      setDictation(
+        "stopped",
+        insertedRef.current
+          ? "Dictation stopped — transcript inserted at the cursor. Nothing was sent."
+          : "Dictation stopped — no transcript was inserted.",
+      );
+    };
+
+    recognitionRef.current = recognition;
+    try {
+      // The microphone is requested here and nowhere else: this function is
+      // only reachable from the mic button's click handler.
+      recognition.start();
+    } catch (err) {
+      recognitionRef.current = null;
+      finalizedRef.current = true;
+      const message = `Dictation could not start: ${errMessage(err)}`;
+      setDictation("error", message);
+      notify(message, "error");
+    }
+  }, [insertTranscript, notify, setDictation]);
+
+  const stopDictation = useCallback(() => {
+    const rec = recognitionRef.current;
+    if (!rec) return;
+    setDictation("processing", "Stopping dictation…");
+    try {
+      rec.stop();
+    } catch {
+      recognitionRef.current = null;
+      setDictation("stopped", "Dictation stopped — no transcript was inserted.");
+    }
+  }, [setDictation]);
+
+  const toggleDictation = useCallback(() => {
+    if (!ctorRef.current) return; // unsupported control is disabled, never a no-op start
+    if (recognitionRef.current) stopDictation();
+    else startDictation();
+  }, [startDictation, stopDictation]);
 
   const addFiles = useCallback((list: FileList | File[] | null) => {
     if (!list) return;
@@ -289,6 +530,7 @@ export default function Composer({
   };
 
   const working = busy || sending;
+  const dictating = dictationState === "listening" || dictationState === "processing";
 
   return (
     <div className={`${s.composer} ${large ? s.composerLarge : ""}`}>
@@ -371,12 +613,30 @@ export default function Composer({
           rows={1}
           placeholder={placeholder ?? (large ? "Describe a task, ask a question, or paste something to work on…" : "Message Keel…  (/ for commands)")}
           aria-label="Message Keel"
-          onChange={(e) => { setText(e.target.value); setSlashDismissed(false); }}
+          onChange={(e) => { textRef.current = e.target.value; setText(e.target.value); setSlashDismissed(false); }}
           onKeyDown={onKeyDown}
           onPaste={(e) => {
             if (e.clipboardData.files.length) { e.preventDefault(); addFiles(e.clipboardData.files); }
           }}
         />
+
+        {dictationSupported === false && (
+          <p className={`${s.dictationStatus} ${s.dictationUnavailable}`}>
+            <Icon name="info" size={13} />
+            <span>Dictation unavailable in this browser.</span>
+          </p>
+        )}
+        {dictationSupported === true && dictationState !== "idle" && (
+          <div
+            className={`${s.dictationStatus} ${dictationState === "error" ? s.dictationError : ""}`}
+            role={dictationState === "error" ? "alert" : "status"}
+            aria-live={dictationState === "error" ? "assertive" : "polite"}
+            aria-atomic="true"
+          >
+            <Icon name={dictationState === "error" ? "error" : dictationState === "stopped" ? "check" : "info"} size={13} />
+            <span>{dictationMessage}</span>
+          </div>
+        )}
 
         <div className={s.toolbar}>
           <input
@@ -386,6 +646,27 @@ export default function Composer({
           <IconButton label="Attach files" onClick={() => fileRef.current?.click()} title="Add files to the agent's library">
             <Icon name="attach" size={17} />
           </IconButton>
+          {dictationSupported === true && (
+            <IconButton
+              label={dictating ? "Stop dictation" : "Dictate message"}
+              className={`${s.micButton} ${dictationState === "listening" ? s.micActive : ""}`}
+              active={dictationState === "listening"}
+              title={dictating ? "Stop dictation" : "Dictate into the composer — nothing is sent automatically"}
+              onClick={toggleDictation}
+            >
+              {dictating ? <Icon name="stop" size={17} /> : <MicIcon size={17} />}
+            </IconButton>
+          )}
+          {dictationSupported === false && (
+            <IconButton
+              label="Dictation unavailable — speech recognition is not supported in this browser"
+              className={s.micButton}
+              title="Speech recognition is not supported in this browser"
+              disabled
+            >
+              <MicIcon size={17} />
+            </IconButton>
+          )}
           <span className={s.divider} aria-hidden="true" />
           <select
             className={s.select}
