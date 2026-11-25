@@ -1,0 +1,96 @@
+name: Release authorization gate
+
+# Workflow-level release authorization for Keel (GitHub Free compatible).
+#
+# This gate is a JOB, not a local hook. build-desktop.yml's signing and publish
+# jobs both depend on it, so a release cannot be published unless every check
+# below passes on the tagged commit. It fails closed: a missing gh lookup, an
+# unknown actor, a tag off the default branch, absent evidence or a missing /
+# mismatched approval marker blocks the release.
+#
+# What it verifies (see scripts/verify_release_authorization.py):
+#   - tag: valid vMAJOR.MINOR.PATCH and present in the repository;
+#   - head branch: default branch (or the tag itself) and the tagged commit is
+#     contained in the default branch;
+#   - actor trust: non-bot allowlisted owner, matching triggering_actor, and
+#     the repository is owned by an allowlisted account;
+#   - required evidence files: all present and non-empty;
+#   - explicit approval marker: exactly one `RELEASE-APPROVED: <tag> by @<owner>`
+#     line in FINAL-GOVERNANCE-EVIDENCE.md, outside a fenced code block.
+#
+# Reusable (`workflow_call`) so other privileged workflows can adopt the same
+# gate; also manually dispatchable by the owner for a pre-release dry run.
+# Local .githooks/pre-push is NOT remote branch protection — see the evidence
+# document for the exact Free-plan limitations.
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "Release tag to authorize (vMAJOR.MINOR.PATCH)"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to authorize (vMAJOR.MINOR.PATCH)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  authorize:
+    name: Fail-closed release authorization
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # Need the tagged commit's history for the containment check.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.11"
+
+      - name: Verify tag, head branch, actor, evidence and approval marker
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          REPOSITORY: ${{ github.repository }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch || github.event.base_ref || github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
+          KEEL_RELEASE_OWNERS: eliosmernica15
+        run: |
+          set -euo pipefail
+          python scripts/verify_release_authorization.py \
+            --tag "$RELEASE_TAG" \
+            --head-branch "$HEAD_BRANCH" \
+            --actor "$ACTOR" \
+            --triggering-actor "$TRIGGERING_ACTOR" \
+            --repository "$REPOSITORY" \
+            --default-branch "$DEFAULT_BRANCH" \
+            --owners "$KEEL_RELEASE_OWNERS" \
+            --evidence-root . \
+            --approval-file FINAL-GOVERNANCE-EVIDENCE.md
+
+      - name: Authorization summary
+        if: always()
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          OUTCOME: ${{ job.status }}
+        run: |
+          {
+            echo "## Release authorization: ${RELEASE_TAG}"
+            echo ""
+            echo "Gate job status: ${OUTCOME}"
+            echo "A release may publish only when this gate job succeeds."
+            echo "Evidence: FINAL-GOVERNANCE-EVIDENCE.md"
+          } >> "$GITHUB_STEP_SUMMARY"
