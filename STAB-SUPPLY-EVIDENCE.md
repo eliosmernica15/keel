@@ -99,7 +99,7 @@ and `AUDIT-MODULES-B.md:187` is a mock webhook payload with `url: https://exampl
 |---|---|---|---|---|
 | 0454836f, 64722bd3 | `keel/site/ui/artifacts.js` | generic-api-key | 2 | False positive — localStorage key identifier, not a credential |
 | d4b0288c | `AUDIT-SECURITY.md` | jwt | 2 | False positive — captured example JWT in a redaction-bug audit note |
-| cbdfc28d, e6e7efc5, 5fc5b985 | `keel/tests/test_composition_contracts.py` | aws-access-token | 3 | Synthetic fixture — `AKIAABCDEFGHIJKLMNOP` placeholder |
+| cbdfc28d, e6e7efc5, 5fc5b985 | `keel/tests/test_composition_contracts.py` | aws-access-token | 3 | Synthetic fixture — `AKIA<redacted-synthetic-placeholder>` placeholder |
 | cbdfc28d, e6e7efc5, d32dc16a | `keel/tests/test_config_contracts.py` | generic-api-key | 3 | Synthetic fixture — generated `config/secrets.env` test data |
 | b11cdf84, cbdfc28d, e6e7efc5 | `keel/tests/test_w1_security_backend.py` | generic-api-key | 3 | Synthetic fixture — redaction test string with `alice@example.com` |
 | b33ae3f8, cbdfc28d, e6e7efc5 | `keel/tests/test_w4_backend.py` | jwt | 3 | Synthetic fixture — example JWT `…sub=1234567890…abcdefghij` |

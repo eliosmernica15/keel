@@ -41,7 +41,9 @@ def test_c122_airgap_bundle_and_verification(tmp_path):
     assert doc["format"] == "Keel-Airgap-1.0"
     verdict = verify_sideload(tmp_path / "bundle")
     assert verdict["ok"] is True and verdict["checked"] >= 1
-    (tmp_path / "bundle" / "Keel-Setup-0.1.0.exe.blockmap").write_text("tampered")
+    # Use the canonical version from the generated bundle, not a hardcoded
+    # historic version that no longer matches the fixture.
+    (tmp_path / "bundle" / f"Keel-Setup-{bundle['version']}.exe.blockmap").write_text("tampered")
     assert verify_sideload(tmp_path / "bundle")["ok"] is False
 
 
