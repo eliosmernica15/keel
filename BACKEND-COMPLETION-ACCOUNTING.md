@@ -45,7 +45,7 @@ denominator.
 Reconciliation checks:
 - Verified rows: 421 + 426 + 7 (the three excluded classes contain 7 verified rows) = **854**.
 - Blocked rows: C11.1 + C11.2 = **2** (already counted in the owner-gated class, not double counted).
-- Not-started rows: **9** (W1.18 and Y6.4 are local_module/operational, not owner-gated or external;
+- Not-started rows: **9** (W1.18 and Y6.4 are local_module, not owner-gated or external;
   the 7 D6 rows are builder-convention rules, not backend code).
 - Excluded rows: 3 + 3 + 3 = **9**. None of the 9 appears in the 421 backend-attributed set.
 - Class sum: 421 + 426 + 3 + 3 + 3 + 9 = **865**. ✔
@@ -140,7 +140,7 @@ A later remediation batch (`agent/final-trace`, merged and pushed) added AST-vis
 `python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
 and `--strict` enforces the gate with a non-zero exit on any failure.
 
-All earlier figures of ****HISTORICAL** 361 / 421 (superseded: 421/421) traceable** and ****HISTORICAL** 60 failing (superseded: 421/421) IDs** in this document
+All earlier figures of ****HISTORICAL** **HISTORICAL** 361 / 421 (superseded: 421/421) (superseded: 421/421) traceable** and ****HISTORICAL** **HISTORICAL** 60 failing (superseded: 421/421) (superseded: 421/421) IDs** in this document
 are **historical** — they describe the state before that batch and are retained only
 for provenance. Current authoritative certification:
 

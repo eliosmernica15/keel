@@ -29,7 +29,7 @@ Date: 2026-11-24.
 
 ## Remaining
 - **All locally achievable P0 features are complete.** Registry: 433 verified / 430 not_started (all P1/P2) / 2 blocked.
-- The only 2 not-started P0 rows are owner-gated conflicts REJECTED via DECISIONS.md D-036/D-037: Y6.4 (public repo — violates private-source requirement), W1.18 (MIT license — violates proprietary requirement). Not implemented.
+- The only 2 not-started P0 rows are `not_started` rows rejected as written (licensing verification / external observation) REJECTED via DECISIONS.md D-036/D-037: Y6.4 (public repo — violates private-source requirement), W1.18 (MIT license — violates proprietary requirement). Not implemented.
 - Remaining P1/P2 work (430 rows) continues as capacity permits; no feature silently omitted.
 - Owner/external gates: C11.1/C11.2 posture, GitHub plan upgrade decision, 2FA, signing identity, provider credentials, phone hardware, clean-VM/native runners, push authorization.
 - No claim of production readiness; no push performed.
@@ -98,7 +98,7 @@ See `master-plan-v6-test-evidence.md` for exact commands and outputs.
 
 ## G. Remaining blockers
 - C11.1/C11.2: GitHub Free plan / owner security gates (owner + plan).
-- W1.18/Y6.4: owner-gated conflicts with private/proprietary requirements (owner decision).
+- W1.18/Y6.4: `not_started` rows rejected as written (licensing verification / external observation) with private/proprietary requirements (owner decision).
 - 7 D6 rows: human workflow conventions with no local runtime artifact (documentation/process).
 - Provider live validation: no configured `KEEL_*` credentials (external).
 - Phone companion: no device/emulator (external). Signing/release: no identity or push authorization (external/owner).
