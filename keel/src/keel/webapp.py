@@ -114,7 +114,7 @@ def _workflow_http_status(code: str, hinted=None) -> HTTPStatus:
     from .api_contracts import http_status_for_code
 
     if (isinstance(hinted, int) and not isinstance(hinted, bool)
-            and 400 <= hinted <= 599):
+            and 200 <= hinted <= 599):
         return HTTPStatus(hinted)
     status = _WORKFLOW_ERROR_STATUS.get(str(code))
     if status is None:
@@ -712,11 +712,18 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                         HTTPStatus.CONFLICT)
                     return
                 try:
+                    # Derive tiers from the authenticated caller's confirm
+                    # decision instead of relying on the hub's permissive
+                    # default: submit a real session permission set.
+                    confirmed = request.get("confirm") is True
+                    allowed_tiers = ({"read", "write", "execute"}
+                                     if confirmed else {"read"})
                     result = invoke(
                         cap_id, request.get("params", {}),
+                        allowed_permissions=allowed_tiers,
                         context={"state_root": state_root,
                                  "cwd": _WORKDIR or os.getcwd(),
-                                 "confirm": bool(request.get("confirm")),
+                                 "confirm": confirmed,
                                  "interactive": True})
                 except CapabilityError as exc:
                     _safe_record_audit(state_root, {
@@ -762,18 +769,45 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 request = self._json_body(256_000, too_large="params too large")
                 if request is None:
                     return
+                # Audit in the same root the workflow will use, even when the
+                # request is refused before a workflow result exists.
+                workflow_state_root = os.environ.get(
+                    "KEEL_STATE_DIR", str(Path.home() / ".keel"))
+                try:
+                    from .backend_workflows import _state_root as _wf_state_root
+                    hint = request.get("params")
+                    workflow_state_root = str(_wf_state_root(
+                        hint if isinstance(hint, dict) else {}))
+                except Exception:
+                    pass
                 if request.get("confirm") is not True:
-                    self._send_json({"error": "confirmation_required",
-                                     "workflow": name}, HTTPStatus.CONFLICT)
+                    _safe_record_audit(workflow_state_root, {
+                        "capability": "backend.workflow", "workflow": name,
+                        "ok": False, "code": "confirmation_required",
+                        "error": "workflow requires confirmation",
+                        "surface": "web"})
+                    self._send_json({
+                        "error": "confirmation_required", "workflow": name,
+                        "ok": False, "code": "confirmation_required",
+                        "result": {}, "steps": [], "persisted": None,
+                        "http_status": 409}, HTTPStatus.CONFLICT)
                     return
                 from . import backend_workflows as _workflows
                 if name not in _workflows.WORKFLOWS:
-                    self._send_json({"error": "unknown_workflow", "workflow": name},
-                                    HTTPStatus.NOT_FOUND)
+                    _safe_record_audit(workflow_state_root, {
+                        "capability": "backend.workflow", "workflow": name,
+                        "ok": False, "code": "unknown_workflow",
+                        "error": f"unknown workflow {name!r}", "surface": "web"})
+                    self._send_json({
+                        "error": "unknown_workflow", "workflow": name,
+                        "ok": False, "code": "unknown_workflow",
+                        "result": {}, "steps": [], "persisted": None,
+                        "http_status": 404}, HTTPStatus.NOT_FOUND)
                     return
                 try:
                     result = _workflows.run_workflow(
-                        name, request.get("params", {}))
+                        name, request.get("params", {}),
+                        confirmed=request.get("confirm") is True)
                 except Exception as exc:
                     # Typed workflow failures such as `lock_timeout` can be
                     # raised before a result dict exists (a stale or contended
@@ -782,6 +816,10 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     code = getattr(exc, "code", None) or (
                         f"{type(exc).__name__.lower()}_error")
                     status = _workflow_http_status(code)
+                    _safe_record_audit(workflow_state_root, {
+                        "capability": "backend.workflow", "workflow": name,
+                        "ok": False, "code": str(code),
+                        "error": str(exc)[:300], "surface": "web"})
                     self._send_json({
                         "workflow": name, "ok": False, "code": str(code),
                         "error": str(exc)[:300], "result": {}, "steps": [],
