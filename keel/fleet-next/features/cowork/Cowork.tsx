@@ -5,10 +5,10 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Icon, IconButton, KeelMark } from "@/components/icons";
-import { Badge, Button, Skeleton } from "@/components/ui";
+import { Badge, Button, Skeleton, TextField } from "@/components/ui";
 import { bridge, errMessage, isBridgeUnavailable, subscribeEvents } from "@/lib/api";
 import { useApp } from "@/lib/state";
-import type { Bot, Notice, Provider, Usage } from "@/lib/types";
+import type { Bot, CatalogResponse, Notice, Provider, Usage } from "@/lib/types";
 import Composer, { type ComposerMode, type UploadedFile } from "./Composer";
 import Timeline from "./Timeline";
 import WorkLog from "./WorkLog";
@@ -111,6 +111,13 @@ export default function Cowork() {
   const [answeredAsks, setAnsweredAsks] = useState<Set<string>>(new Set());
   const [models, setModels] = useState<string[]>([]);
   const [modelSaving, setModelSaving] = useState(false);
+
+  // Provider / model selection on the home page (before a task exists).
+  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [catalogModels, setCatalogModels] = useState<string[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
 
   // Permission mode is a user preference shared with Settings and Onboarding.
   // Read it after mount (localStorage is unavailable during prerender) and
@@ -243,6 +250,18 @@ export default function Cowork() {
     if (projectsResult.status === "fulfilled") setProjects(toProjects(projectsResult.value));
     if (libraryResult.status === "fulfilled") setLibrary(toLibrary(libraryResult.value));
     setMetaLoading(false);
+  }, []);
+
+  const loadCatalog = useCallback(async (providerId: string) => {
+    setCatalogLoading(true); setCatalogError(null); setCatalogModels([]); setSelectedModel(null);
+    try {
+      const result = await bridge.catalog({ name: providerId, source: "offline" }) as CatalogResponse;
+      const list = Array.isArray(result?.models) ? result.models.map((m) => m.id).filter((id): id is string => typeof id === "string") : [];
+      setCatalogModels(list);
+      if (list.length > 0) setSelectedModel(list[0]);
+    } catch (err) {
+      setCatalogError(errMessage(err));
+    } finally { setCatalogLoading(false); }
   }, []);
 
   useEffect(() => { void loadBots(); void loadMeta(); void loadUsage(); }, [loadBots, loadMeta, loadUsage]);
@@ -473,7 +492,13 @@ export default function Cowork() {
 
   const createTask = useCallback(async (): Promise<Bot | null> => {
     try {
-      const created = unwrapBot(await bridge.createBot({ name: "Cowork task", role: "General assistant", engine: "provider" }));
+      const created = unwrapBot(await bridge.createBot({
+        name: "Cowork task",
+        role: "General assistant",
+        engine: "provider",
+        provider: selectedProviderId ?? undefined,
+        model: selectedModel ?? undefined,
+      }));
       if (!created?.id) throw new Error("The bridge did not return a new task id.");
       setBots((prev) => [created, ...prev]);
       selectBot(created.id);
@@ -483,7 +508,7 @@ export default function Cowork() {
       notify(`Could not create a task: ${errMessage(err)}`, "error");
       return null;
     }
-  }, [notify, selectBot]);
+  }, [notify, selectBot, selectedProviderId, selectedModel]);
 
   // The composer ensures a real bot exists before uploading files to its library.
   const ensureBot = useCallback(async (): Promise<string | null> => {
@@ -705,17 +730,73 @@ export default function Cowork() {
         <div className={s.home}>
           <div className={s.homeInner}>
             <div className={s.homeMark}><KeelMark size={34} /></div>
-            <h1 className={s.homeTitle}>A calm place to <em>get work done.</em></h1>
-            <p className={s.homeSub}>Describe a task and Keel will work in your local workspace — visibly, step by step.</p>
+            <h1 className={s.homeTitle}>Chat with Keel</h1>
+            <p className={s.homeSub}>Choose your AI provider and model to start.</p>
 
-            <div className={s.contextRow}>
-              <Icon name="folder" size={15} />
-              {metaLoading ? <Skeleton width={190} /> : workspace
-                ? <span>Workspace: <b>{workspace.name ?? workspace.path ?? workspace.id}</b>{workspace.path && workspace.name ? ` — ${workspace.path}` : ""}{workspace.trusted ? " · trusted" : ""}</span>
-                : <span>No workspace selected — Keel uses your local folders when you grant access.</span>}
-            </div>
+            {metaLoading ? (
+              <div className={s.warnBanner} role="status">
+                <Icon name="refresh" size={15} className={s.loaderSpin} /> Loading providers…
+              </div>
+            ) : providers.length === 0 ? (
+              <div className={s.errorBanner} role="alert">
+                <Icon name="warning" size={15} />
+                <span>No providers configured yet. Add a provider in Settings to start chatting.</span>
+              </div>
+            ) : (
+              <div className={s.providerPicker}>
+                <label className={s.pickLabel}>
+                  <span>Provider</span>
+                  <select
+                    className={s.select}
+                    value={selectedProviderId ?? ""}
+                    onChange={(e) => {
+                      setSelectedProviderId(e.target.value);
+                      setSelectedModel(null);
+                      if (e.target.value) void loadCatalog(e.target.value);
+                    }}
+                    aria-label="AI provider"
+                  >
+                    <option value="">Choose provider…</option>
+                    {providers.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name ?? p.id} {p.configured ? "" : " · not configured"}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-            <div className={s.homeComposer}>{composer}</div>
+                {selectedProviderId && (
+                  <>
+                    <label className={s.pickLabel}>
+                      <span>Model</span>
+                      <select
+                        className={s.select}
+                        value={selectedModel ?? ""}
+                        disabled={catalogLoading || catalogModels.length === 0}
+                        onChange={(e) => setSelectedModel(e.target.value || null)}
+                        aria-label="Model"
+                      >
+                        <option value="">Choose model…</option>
+                        {catalogModels.map((m) => (
+                          <option key={m} value={m}>{m}</option>
+                        ))}
+                      </select>
+                      {catalogLoading && <span className={s.muted}>Loading models…</span>}
+                      {catalogError && <span className={s.muted} style={{ color: "var(--danger)" }}>{catalogError}</span>}
+                    </label>
+
+                    <Button
+                      variant="primary"
+                      size="md"
+                      disabled={!selectedModel || catalogLoading}
+                      onClick={() => { void createTask(); }}
+                    >
+                      <Icon name="spark" size={15} /> Start new chat
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
 
             <div className={s.quickHead}>Quick starts <span>— clicking puts the text in the composer</span></div>
             <div className={s.quickGrid}>
@@ -728,7 +809,6 @@ export default function Cowork() {
             </div>
 
             <div className={s.homeFoot}>
-              <Button variant="secondary" size="sm" onClick={() => { void createTask(); }}><Icon name="plus" size={14} /> New task</Button>
               {bots.length > 0 && (
                 <label className={s.pickLabel}>
                   <span>Continue an existing task</span>
