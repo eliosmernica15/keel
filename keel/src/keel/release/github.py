@@ -7,7 +7,19 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
+
+from .common import expected_filenames
+from .reconciliation import (
+    CHECKSUMS_NAME,
+    MANIFEST_NAME,
+    is_stale_asset_name,
+    parse_checksums,
+)
+
+RELEASE_METADATA_ASSETS = frozenset(
+    {MANIFEST_NAME, CHECKSUMS_NAME, "download.json"}
+)
 
 
 class GitHubError(RuntimeError):
@@ -135,22 +147,148 @@ class GitHubClient:
 
 
 def _content_type(name: str) -> str:
+    """Content type for supported release assets only.
+
+    DMG/ZIP/AppImage are deliberately absent: they are not release formats and
+    must not be uploaded by the release manager. The audit helpers below can
+    still recognise and report them on an already-published release.
+    """
     lower = name.lower()
-    if lower.endswith(".exe"):
-        return "application/octet-stream"
-    if lower.endswith(".dmg"):
-        return "application/x-apple-diskimage"
-    if lower.endswith(".zip"):
-        return "application/zip"
-    if lower.endswith(".appimage"):
-        return "application/octet-stream"
     if lower.endswith(".deb"):
         return "application/vnd.debian.binary-package"
+    if lower.endswith(".rpm"):
+        return "application/x-rpm"
     if lower.endswith(".json"):
         return "application/json"
     if lower.endswith(".txt"):
         return "text/plain"
+    # .exe, .pkg, .sig and any unexpected binary use the safe generic type.
     return "application/octet-stream"
+
+
+def release_asset_names(release: Mapping[str, Any]) -> list[str]:
+    """Names of all assets currently attached to a GitHub release."""
+    return sorted(
+        str(asset["name"])
+        for asset in (release.get("assets") or [])
+        if isinstance(asset, dict) and asset.get("name")
+    )
+
+
+def audit_release_assets(release: Mapping[str, Any], version: str) -> dict[str, Any]:
+    """Classify published assets against the configured native formats."""
+    names = release_asset_names(release)
+    name_set = set(names)
+    expected = set(expected_filenames(version))
+    metadata = name_set & RELEASE_METADATA_ASSETS
+    signatures = {name for name in name_set if name.endswith(".sig")}
+    stale = sorted(name for name in names if is_stale_asset_name(name))
+    return {
+        "names": names,
+        "expected_present": sorted(expected & name_set),
+        "expected_missing": sorted(expected - name_set),
+        "stale_assets": stale,
+        "metadata_assets": sorted(metadata),
+        "signature_assets": sorted(signatures),
+        "unexpected_assets": sorted(name_set - expected - metadata - signatures),
+    }
+
+
+def audit_checksums(
+    release: Mapping[str, Any], checksums_text: str,
+) -> dict[str, Any]:
+    """Compare a published checksum file with the release's real assets."""
+    parsed = parse_checksums(checksums_text)
+    assets = {
+        str(asset["name"]): asset
+        for asset in (release.get("assets") or [])
+        if isinstance(asset, dict) and asset.get("name")
+    }
+    installers = sorted(
+        name for name in assets
+        if name not in RELEASE_METADATA_ASSETS and not name.endswith(".sig")
+    )
+    digest_mismatches: list[str] = []
+    for name, digest in sorted(parsed.items()):
+        remote = str(assets.get(name, {}).get("digest") or "")
+        if remote and remote.lower() != f"sha256:{digest}":
+            digest_mismatches.append(name)
+    return {
+        "entries": sorted(parsed),
+        "installer_assets": installers,
+        "missing_coverage": sorted(set(installers) - set(parsed)),
+        "orphan_entries": sorted(set(parsed) - set(assets)),
+        "digest_mismatches": digest_mismatches,
+    }
+
+
+def audit_published_release(
+    release: Mapping[str, Any],
+    version: str,
+    *,
+    checksums_text: str | None = None,
+) -> dict[str, Any]:
+    """Honest, read-only audit of a published release.
+
+    No local or remote mutation is performed. ``status`` is ``stale`` when
+    removed archive formats are advertised, ``incomplete`` when native assets
+    or checksum coverage are missing, and ``consistent`` only when neither
+    problem exists. Signing is reported separately and never inferred from
+    publication.
+    """
+    assets = audit_release_assets(release, version)
+    reasons: list[str] = []
+    if assets["stale_assets"]:
+        reasons.append(
+            "stale archive assets published: " + ", ".join(assets["stale_assets"])
+        )
+    if assets["expected_missing"]:
+        reasons.append(
+            "configured native assets missing: " + ", ".join(assets["expected_missing"])
+        )
+
+    checksums: dict[str, Any] | None = None
+    if checksums_text is not None:
+        checksums = audit_checksums(release, checksums_text)
+        if checksums["missing_coverage"]:
+            reasons.append(
+                "published checksums omit assets: "
+                + ", ".join(checksums["missing_coverage"])
+            )
+        if checksums["orphan_entries"]:
+            reasons.append(
+                "checksums reference unpublished assets: "
+                + ", ".join(checksums["orphan_entries"])
+            )
+        if checksums["digest_mismatches"]:
+            reasons.append(
+                "checksum digests disagree with GitHub asset digests: "
+                + ", ".join(checksums["digest_mismatches"])
+            )
+
+    signing = (
+        "distribution-verified" if assets["signature_assets"]
+        else "unsigned"
+    )
+    if not assets["signature_assets"]:
+        reasons.append("no signature assets published")
+
+    if assets["stale_assets"]:
+        status = "stale"
+    elif assets["expected_missing"] or (checksums and (
+            checksums["missing_coverage"] or checksums["orphan_entries"]
+            or checksums["digest_mismatches"])):
+        status = "incomplete"
+    else:
+        status = "consistent"
+    return {
+        "tag": release.get("tag_name"),
+        "status": status,
+        "reasons": reasons,
+        "assets": assets,
+        "checksums": checksums,
+        "signing": signing,
+    }
 
 
 def token_from_env() -> str:
