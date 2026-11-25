@@ -124,3 +124,14 @@ the required credentials, Darwin host, signing identity, plan entitlement and
 deployment authorization are listed in `FINAL-OWNER-ACTIONS.md` and none was performed
 here. Until those actions are taken and a fresh acceptance review is written at the
 promoted SHA, promotion remains unauthorized.
+
+## Authoritative final full-suite run (completion branch)
+
+Command (clean local HOME, from `keel/`):
+`python -m pytest -q -o faulthandler_timeout=120`
+
+```
+4724 passed, 54 skipped, 3707 subtests passed in 801.99s (0:13:21)
+```
+
+0 failed. Prior figures (4610, 4628, 4630, 4722) are historical runs at earlier commits.
