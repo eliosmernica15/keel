@@ -1,0 +1,23 @@
+{
+  "steering_unbounded_retention": {
+    "submitted": 20000,
+    "elapsed_s": 0.769,
+    "all_messages": 20000,
+    "queued": 20000,
+    "boundary": 0,
+    "resume_pending": 0,
+    "delivered": 0,
+    "rss_before_bytes": 27779072,
+    "rss_after_bytes": 34107392,
+    "rss_delta_bytes": 6328320,
+    "tracemalloc_current_bytes": 5741386,
+    "tracemalloc_peak_bytes": 5741538,
+    "queue_is_bounded": false
+  },
+  "tool_arg_bounds": {
+    "depth_10": "accepted",
+    "depth_200": "ToolError:ARGS_RESOURCE_LIMIT",
+    "nodes_20000": "ToolError:ARGS_RESOURCE_LIMIT",
+    "string_100000": "accepted"
+  }
+}
