@@ -364,19 +364,16 @@ def test_cli_prompt_policy_confirm_is_the_explicit_approval(root: Path):
     assert refused.returncode == 1
     assert "--confirm" in refused.stderr
     assert not _ledger(root, "approval").exists()
-    # cli/main.py (outside this worktree's ownership) gates on --confirm but
-    # does not forward it to run_workflow.  The authoritative boundary still
-    # fails closed: even with --confirm a saved ask policy is denied, audited,
-    # and no handler runs.  Forwarding the flag is a CLI-side follow-up.
+    # The CLI forwards --confirm to the authoritative policy boundary, so an
+    # explicit approval satisfies the saved ask policy and the handler runs.
     confirmed = subprocess.run(
         [sys.executable, "-m", "keel", "backend-workflow", "approval",
          "--params", json.dumps({"idempotency_key": "cli-ask"}), "--confirm"],
         cwd=str(root), env=env, capture_output=True, text=True, timeout=120)
-    assert confirmed.returncode == 1
-    assert "confirmation_required" in confirmed.stdout
-    assert not _ledger(root, "approval").exists()
-    assert any(r["code"] == "confirmation_required"
-               for r in _workflow_rows(root)), _workflow_rows(root)
+    assert confirmed.returncode == 0, confirmed.stderr
+    assert json.loads(confirmed.stdout)["ok"] is True
+    assert _ledger(root, "approval").exists()
+    assert any(r["ok"] is True for r in _workflow_rows(root)), _workflow_rows(root)
 
 
 # ---------------------------------------------------------------------------

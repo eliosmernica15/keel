@@ -39,6 +39,13 @@ _DOCTOR_USAGE = (
 )
 
 
+def _state_root():
+    """The one authoritative state root for every CLI subcommand."""
+    from ..settings import default_state_root
+
+    return default_state_root()
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
 
@@ -138,10 +145,7 @@ def main(argv: list[str] | None = None) -> int:
             except ValueError:
                 sys.stderr.write("--port must be an integer\n")
                 return 1
-        from ..fleet import scheduler
-        scheduler.start_daemon()
-        serve(port)
-        return 0
+        return int(serve(port) or 0)
     if argv and argv[0] == "fleet":
         from ..webapp import serve
         port = 8739
@@ -161,10 +165,7 @@ def main(argv: list[str] | None = None) -> int:
             except ValueError:
                 sys.stderr.write("--port must be an integer\n")
                 return 1
-        from ..fleet import scheduler
-        scheduler.start_daemon()
-        serve(port)
-        return 0
+        return int(serve(port) or 0)
 
     try:
         plan = parse_argv(argv)
@@ -230,11 +231,11 @@ def _session_cmd(argv: list[str]) -> int:
 
 
 def _capability_cmd(argv: list[str]) -> int:
+    import os
+
     from .. import capability_registry  # noqa: F401
     from ..capabilities import (CapabilityError, audit_path, get, invoke,
                                 list_capabilities, record_audit)
-    import os
-    from pathlib import Path
 
     usage = ("usage: keel capability list [--surface S]\n"
              "       keel capability describe <id>\n"
@@ -283,8 +284,7 @@ def _capability_cmd(argv: list[str]) -> int:
             sys.stderr.write(
                 f"{cap_id} requires --confirm ({cap.permission})\n")
             return 1
-        state_root = os.environ.get("KEEL_STATE_DIR",
-                                    str(Path.home() / ".keel"))
+        state_root = str(_state_root())
         try:
             result = invoke(cap_id, params,
                             context={"state_root": state_root,
@@ -334,7 +334,8 @@ def _backend_workflow_cmd(argv: list[str]) -> int:
     if "--confirm" not in argv:
         sys.stderr.write(f"{name} requires --confirm (workflow writes durable state)\n")
         return 1
-    result = backend_workflows.run_workflow(name, params)
+    result = backend_workflows.run_workflow(
+        name, params, confirmed=("--confirm" in argv))
     sys.stdout.write(json.dumps(result, indent=2, default=str) + "\n")
     return 0 if result.get("ok") else 1
 
@@ -374,11 +375,9 @@ def _webhook_cmd(argv: list[str]) -> int:
     except json.JSONDecodeError:
         sys.stderr.write("--payload must be valid JSON\n")
         return 1
-    from .. import settings as settings_mod
     from ..message_state import MessageStates
 
-    state_root = os.environ.get(
-        "KEEL_STATE_DIR", str(settings_mod.default_state_root()))
+    state_root = str(_state_root())
     states = MessageStates(state_root)
     record = states.queue(channel="webhook", destination=argv[1],
                           size=len(payload_text))
@@ -476,9 +475,6 @@ def _model_cmd(argv: list[str]) -> int:
 
 
 def _costs_cmd(argv: list[str]) -> int:
-    import os
-
-    from .. import settings as settings_mod
     from ..cost_caps import CostCaps
 
     usage = ("usage: keel costs status\n"
@@ -486,8 +482,7 @@ def _costs_cmd(argv: list[str]) -> int:
     if not argv or argv[0] in ("-h", "--help", "help"):
         sys.stderr.write(usage)
         return 0
-    state = os.environ.get("KEEL_STATE_DIR",
-                           str(settings_mod.default_state_root()))
+    state = str(_state_root())
     manager = CostCaps(state)
     command = argv[0]
     if command == "status":
@@ -648,8 +643,7 @@ def _settings_cmd(argv: list[str]) -> int:
     cmd = argv[0]
     cwd = Path(os.getcwd())
     if cmd == "show":
-        resolved = settings_mod.resolve(state_root=settings_mod.default_state_root(),
-                                        cwd=cwd)
+        resolved = settings_mod.resolve(state_root=_state_root(), cwd=cwd)
         out = {"value": resolved.value,
                "provenance": resolved.provenance,
                "diagnostics": [d.__dict__ for d in resolved.diagnostics]}
@@ -704,8 +698,7 @@ def _mcp_cmd(argv: list[str]) -> int:
         return 0
     cmd = argv[0]
     cwd = Path(os.getcwd())
-    resolved = settings_mod.resolve(state_root=settings_mod.default_state_root(),
-                                    cwd=cwd)
+    resolved = settings_mod.resolve(state_root=_state_root(), cwd=cwd)
     servers = parse_servers(resolved.value.get("mcpServers", {}))
 
     if cmd == "list":
@@ -824,19 +817,19 @@ def _execpolicy_cmd(argv: list[str]) -> int:
     cmd = argv[0]
     try:
         if cmd == "list":
-            store = ExecPolicyStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+            store = ExecPolicyStore(str(_state_root()))
             sys.stdout.write(json.dumps(store.list()) + "\n")
             return 0
         if cmd == "active":
             from ..policy_enforcement import active_policy
 
-            policy = active_policy(os.environ.get("KEEL_STATE_DIR", ".keel"))
+            policy = active_policy(str(_state_root()))
             sys.stdout.write(json.dumps({"active": policy is not None,
                                          "fingerprint": policy.fingerprint()
                                          if policy else None}) + "\n")
             return 0
         if cmd == "activate":
-            store = ExecPolicyStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+            store = ExecPolicyStore(str(_state_root()))
             store.document(argv[1])
             (store.root / "default.json").write_bytes(
                 (store.root / f"{argv[1]}.json").read_bytes())
@@ -844,7 +837,7 @@ def _execpolicy_cmd(argv: list[str]) -> int:
             return 0
         if cmd == "save":
             doc = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
-            store = ExecPolicyStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+            store = ExecPolicyStore(str(_state_root()))
             store.save(argv[1], doc)
             sys.stdout.write(json.dumps({"name": argv[1], "saved": True}) + "\n")
             return 0
@@ -890,7 +883,7 @@ def _secrets_cmd(argv: list[str]) -> int:
             "       keel secrets get <KEY>   (reveals value to stdout)\n")
         return 0
     cmd = argv[0]
-    config = ProviderConfig(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+    config = ProviderConfig(str(_state_root()))
     try:
         if cmd == "providers":
             configured = config.load()
@@ -934,7 +927,7 @@ def _openapi_cmd(argv: list[str]) -> int:
             "       keel openapi list\n")
         return 0
     cmd = argv[0]
-    store = ToolRegistry(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+    store = ToolRegistry(str(_state_root()))
     try:
         if cmd == "generate":
             spec = json.loads(Path(argv[2]).read_text(encoding="utf-8"))
@@ -986,7 +979,7 @@ def _repoindex_cmd(argv: list[str]) -> int:
             "       keel repoindex list\n")
         return 0
     cmd = argv[0]
-    store = IndexStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+    store = IndexStore(str(_state_root()))
     try:
         if cmd == "build":
             exts = None
@@ -1067,7 +1060,7 @@ def _docpack_cmd(argv: list[str]) -> int:
             "       keel docpack list\n")
         return 0
     cmd = argv[0]
-    store = DocPackStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+    store = DocPackStore(str(_state_root()))
     try:
         if cmd == "build":
             pack = build_pack(argv[2], argv[1])
@@ -1112,7 +1105,7 @@ def _spec_cmd(argv: list[str]) -> int:
             "       keel spec status <name>       keel spec list\n")
         return 0
     cmd = argv[0]
-    store = SpecStore(str(os.environ.get("KEEL_STATE_DIR", ".keel")))
+    store = SpecStore(str(_state_root()))
     try:
         if cmd == "new":
             if len(argv) < 3:
@@ -1168,7 +1161,7 @@ def _notebook_cmd(argv: list[str]) -> int:
             "       keel notebook delete <name>\n")
         return 0
     cmd = argv[0]
-    state_root = str(os.environ.get("KEEL_STATE_DIR", ".keel"))
+    state_root = str(_state_root())
     try:
         if cmd == "run":
             if len(argv) < 2:

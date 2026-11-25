@@ -42,6 +42,7 @@ from __future__ import annotations
 import json
 import os
 import secrets
+import signal
 import subprocess
 import sys
 import threading
@@ -80,6 +81,164 @@ _TOKEN = os.environ.get("KEEL_TOKEN") or secrets.token_urlsafe(24)
 _LOCK = threading.Lock()
 _CURRENT_RUN: dict = {}
 _WORKDIR: Optional[str] = None
+_SHUTDOWN = threading.Event()
+_SHUTDOWN_DONE = threading.Event()
+_SERVER: Optional[ThreadingHTTPServer] = None
+_HTTP_THREAD: Optional[threading.Thread] = None
+_WORKER: Optional[threading.Thread] = None
+_WORKER_INTERVAL_S = 20.0
+
+
+def _state_root() -> Path:
+    """The one authoritative state root, shared with the CLI."""
+    from .settings import default_state_root
+
+    return default_state_root()
+
+
+def _shutdown_signals() -> list[int]:
+    """Signals that request a graceful stop (SIGTERM where supported)."""
+    found = []
+    for name in ("SIGINT", "SIGTERM", "SIGBREAK"):
+        value = getattr(signal, name, None)
+        if isinstance(value, int) and value not in found:
+            found.append(value)
+    return found
+
+
+def _record_lifecycle(action: str, **detail) -> None:
+    """Append a durable, fsynced audit event; never fail a lifecycle step."""
+    try:
+        from .backend_observability import record_audit_event
+
+        record_audit_event(action, actor="webapp", outcome="success",
+                           state_root=_state_root(), detail=detail)
+    except Exception:
+        pass
+
+
+def _readiness_dependencies() -> dict:
+    """Real DB / event-log / worker probes used by the readiness endpoints."""
+    from . import backend_observability as obs
+
+    def database() -> bool:
+        root = _state_root()
+        db = root / "fleet.db"
+        if not db.is_file():
+            return root.is_dir() and os.access(root, os.W_OK)
+        try:
+            import sqlite3
+
+            conn = sqlite3.connect(f"file:{db.as_posix()}?mode=ro", uri=True)
+            try:
+                return conn.execute("PRAGMA quick_check").fetchone()[0] == "ok"
+            finally:
+                conn.close()
+        except Exception:
+            return False
+
+    def events() -> bool:
+        return bool(obs.verify_chain(_state_root()).ok)
+
+    def workers() -> bool:
+        if _SHUTDOWN.is_set():
+            return False
+        if threading.active_count() < 1:
+            return False
+        if _WORKER is not None and not _WORKER.is_alive():
+            return False
+        return True
+
+    return {"database": database, "events": events, "workers": workers}
+
+
+def _health_payload() -> dict:
+    """Liveness plus real readiness, with no paths or raw error text."""
+    from . import backend_observability as obs
+
+    check = obs.health_check(
+        _state_root(), dependencies=_readiness_dependencies())
+    deps = check["readiness"]["dependencies"]["dependencies"]
+    return {
+        "ok": bool(check["running"]),
+        "ready": bool(check["ready"]),
+        "status": check["status"],
+        "dependencies": {
+            name: entry["status"] for name, entry in deps.items()},
+        "correlation_id": check["readiness"]["correlation_id"],
+    }
+
+
+def prepare_runtime() -> Path:
+    """Bind the web runtime to the authoritative state root (idempotent).
+
+    The Fleet DB, audit log and settings all live under the same root as the
+    CLI.  Workers are owned here, not by an unstoppable module-level daemon,
+    so shutdown can drain them before the DB is closed.
+    """
+    global _WORKER, _HTTP_THREAD
+    _SHUTDOWN.clear()
+    _SHUTDOWN_DONE.clear()
+    _HTTP_THREAD = None
+    root = _state_root()
+    root.mkdir(parents=True, exist_ok=True)
+    _fleet_routes.reset_store_for_tests(root / "fleet.db")
+    if _WORKER is None or not _WORKER.is_alive():
+        from .fleet import scheduler
+
+        def _worker_loop() -> None:
+            while not _SHUTDOWN.wait(_WORKER_INTERVAL_S):
+                try:
+                    scheduler.tick(_fleet_routes.store())
+                except Exception:
+                    pass
+
+        _WORKER = threading.Thread(target=_worker_loop,
+                                   name="keel-fleet-worker", daemon=True)
+        _WORKER.start()
+    _record_lifecycle("runtime_start", pid=os.getpid())
+    return root
+
+
+def shutdown_runtime(server=None) -> dict:
+    """Gracefully stop HTTP, workers, DB and events. Safe to call twice."""
+    global _SERVER, _WORKER, _HTTP_THREAD
+    if _SHUTDOWN_DONE.is_set():
+        return {"already_shutdown": True}
+    _SHUTDOWN.set()
+    report: dict = {"signalled": True}
+    try:
+        if server is not None and _HTTP_THREAD is not None \
+                and _HTTP_THREAD.is_alive():
+            server.shutdown()
+        if _WORKER is not None and _WORKER.is_alive():
+            _WORKER.join(timeout=2.0)
+        report["worker_stopped"] = _WORKER is None or not _WORKER.is_alive()
+
+        from .fleet import turn_core
+
+        report["cancelled_turns"] = turn_core.cancel_all_turns()
+        from .runner import cleanup_background_processes
+
+        report["killed_processes"] = cleanup_background_processes()
+
+        store = _fleet_routes._store
+        if store is not None:
+            store.close()
+            _fleet_routes._store = None
+        report["db_closed"] = True
+    except Exception:
+        report["worker_stopped"] = report.get("worker_stopped", False)
+        report["db_closed"] = False
+    finally:
+        # record_audit_event fsyncs: this is the durable event flush.
+        _record_lifecycle("runtime_shutdown", **report)
+        report["events_flushed"] = True
+        _SERVER = None
+        _WORKER = None
+        _HTTP_THREAD = None
+        _SHUTDOWN_DONE.set()
+    return report
 
 _FS_LIST_CAP = 400
 _UPLOAD_MAX_BYTES = 24 * 1024 * 1024  # 24 MB per file, kept in memory while decoding
@@ -471,7 +630,28 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 if not self._authorized():
                     self._refuse()
                     return
-                self._send_json({"ok": True, "version": __version__})
+                doc = {"ok": True, "version": __version__}
+                try:
+                    doc.update(_health_payload())
+                except Exception:
+                    # Liveness is still true, but readiness must never be
+                    # claimed when the probe itself could not complete.
+                    doc.update({"ready": False, "status": "running",
+                                "dependencies": {}})
+                self._send_json(doc)
+                return
+            if path == "/api/ready":
+                if not self._authorized():
+                    self._refuse()
+                    return
+                try:
+                    doc = _health_payload()
+                except Exception:
+                    doc = {"ready": False, "status": "running"}
+                status = (HTTPStatus.OK if doc["ready"]
+                          else HTTPStatus.SERVICE_UNAVAILABLE)
+                self._send_json({"ready": doc["ready"],
+                                 "status": doc["status"]}, status)
                 return
             if path == "/api/providers":
                 if not self._authorized():
@@ -602,8 +782,7 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     return
                 from .agent_profiles import AgentProfiles
 
-                state = os.environ.get("KEEL_STATE_DIR",
-                                       str(Path.home() / ".keel"))
+                state = str(_state_root())
                 manager = AgentProfiles(state)
                 self._send_json({"profiles": manager.list(),
                                  "active": manager.active()})
@@ -677,8 +856,7 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 cap_id = str(request.get("id", ""))
                 from .capabilities import get as get_capability
 
-                state_root = os.environ.get(
-                    "KEEL_STATE_DIR", str(Path.home() / ".keel"))
+                state_root = str(_state_root())
                 cap = get_capability(cap_id)
                 needs_confirm = bool(
                     cap and (cap.permission in ("write", "execute")
@@ -844,8 +1022,7 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     return
                 from .agent_profiles import AgentProfiles
 
-                state = os.environ.get("KEEL_STATE_DIR",
-                                       str(Path.home() / ".keel"))
+                state = str(_state_root())
                 manager = AgentProfiles(state)
                 name = str(request.get("name", ""))
                 if path.endswith("/create"):
@@ -1126,8 +1303,7 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
         def _backup_action(self, path: str, request: dict) -> dict:
             from .backups import create_backup, restore_backup
 
-            state_root = os.environ.get(
-                "KEEL_STATE_DIR", str(Path.home() / ".keel"))
+            state_root = str(_state_root())
             if path.endswith("/create"):
                 source = _resolve_workspace_path(str(request.get("source", "")))
                 if source is None or not source.is_dir():
@@ -1487,17 +1663,70 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
     return _KeelThreadingHTTPServer(("127.0.0.1", port), Handler)
 
 
-def serve(port: int = DEFAULT_PORT, *, start: bool = True) -> None:
-    server = make_server(port)
-    url = f"http://127.0.0.1:{server.server_address[1]}/?t={_TOKEN}"
-    fleet_url = f"http://127.0.0.1:{server.server_address[1]}/fleet?t={_TOKEN}"
+def serve(port: int = DEFAULT_PORT, *, start: bool = True) -> int:
+    """Serve until SIGINT/SIGTERM (SIGBREAK on Windows), then shut down cleanly.
+
+    Returns 0 after a graceful stop, 1 if a cleanup step failed. The HTTP
+    loop runs on its own thread so signal handlers only set an event and never
+    call ``server.shutdown()`` from inside ``serve_forever()`` (which deadlocks).
+    """
+    global _SERVER, _HTTP_THREAD
+    server = _SERVER = make_server(port)
+    prepare_runtime()
+    bound_port = server.server_address[1]
+    url = f"http://127.0.0.1:{bound_port}/?t={_TOKEN}"
+    fleet_url = f"http://127.0.0.1:{bound_port}/fleet?t={_TOKEN}"
     sys.stderr.write(f"keel webapp running at {url}\n")
     sys.stderr.write(f"Keel Fleet at {fleet_url}\n")
-    sys.stderr.write("Ctrl+C to stop\n")
+    sys.stderr.write("Ctrl+C (or SIGTERM) to stop\n")
+    sys.stderr.flush()
+
+    installed: dict[int, object] = {}
+
+    def _on_signal(signum, frame):
+        _SHUTDOWN.set()
+
+    try:
+        for sig in _shutdown_signals():
+            try:
+                installed[sig] = signal.signal(sig, _on_signal)
+            except (ValueError, OSError):
+                pass  # not the main thread — the event can still be set
+    except Exception:
+        pass
+
+    thread = None
+    exit_code = 0
     try:
         if start:
-            server.serve_forever()
+            thread = _HTTP_THREAD = threading.Thread(
+                target=server.serve_forever, name="keel-http", daemon=True)
+            thread.start()
+            while not _SHUTDOWN.wait(0.25):
+                pass
     except KeyboardInterrupt:
-        pass
+        _SHUTDOWN.set()
+    except Exception:
+        exit_code = 1
     finally:
-        server.server_close()
+        try:
+            report = shutdown_runtime(server)
+            if any(report.get(key) is False
+                   for key in ("worker_stopped", "db_closed", "events_flushed")):
+                exit_code = 1
+            sys.stderr.write("keel webapp stopped: "
+                             + json.dumps(report, sort_keys=True) + "\n")
+            sys.stderr.flush()
+        finally:
+            for sig, handler in installed.items():
+                try:
+                    signal.signal(sig, handler)  # type: ignore[arg-type]
+                except (ValueError, OSError):
+                    pass
+            try:
+                server.server_close()
+                if thread is not None:
+                    thread.join(timeout=5)
+            finally:
+                _SERVER = None
+    return exit_code

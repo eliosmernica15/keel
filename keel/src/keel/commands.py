@@ -70,8 +70,10 @@ def _builtin_commands() -> list[Command]:
 
 
 def custom_command_roots(project_root: Path) -> list[tuple[Path, str]]:
+    from .settings import default_state_root
+
     roots = [(Path(project_root) / ".keel" / "commands", "project"),
-             (Path.home() / ".keel" / "commands", "user")]
+             (default_state_root() / "commands", "user")]
     return roots
 
 
@@ -189,6 +191,8 @@ def _mask(value: str) -> str:
 def cmd_doctor(args: str, project_root: Path) -> str:
     import shutil
 
+    from .settings import default_state_root
+
     keys = {v: _mask(os.environ.get(v, ""))
             for v in ("KEEL_OPENROUTER_API_KEY", "KEEL_GOOGLE_API_KEY",
                       "KEEL_NVIDIA_API_KEY", "KEEL_ANTHROPIC_API_KEY",
@@ -207,7 +211,8 @@ def cmd_doctor(args: str, project_root: Path) -> str:
     for name, masked in keys.items():
         lines.append(f"  {name:<28} {masked}")
     lines.append("state dirs:")
-    lines.append(f"  ~/.keel exists  : {(Path.home() / '.keel').is_dir()}")
+    lines.append(f"  state root      : {default_state_root()}")
+    lines.append(f"  state root exists: {default_state_root().is_dir()}")
     lines.append(f"  project .keel   : {(project_root / '.keel').is_dir()}")
     return "\n".join(lines)
 
@@ -256,8 +261,9 @@ def cmd_compact(args: str, project_root: Path) -> str:
 
 
 def cmd_export(args: str, project_root: Path) -> str:
-    state = Path(os.environ.get(
-        "KEEL_STATE_DIR", str(Path.home() / ".keel")))
+    from .settings import default_state_root
+
+    state = default_state_root()
     transcripts = sorted(state.rglob("*.jsonl"))[:20] if state.is_dir() else []
     if not transcripts:
         return "export: no local transcripts found"
