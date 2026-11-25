@@ -3,6 +3,8 @@
 .settings { display: grid; grid-template-columns: minmax(190px, 236px) minmax(0, 1fr); gap: 20px; min-width: 0; min-height: 0; height: 100%; }
 
 .nav { min-width: 0; min-height: 0; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px; }
+.navClose { display: flex; align-items: center; justify-content: flex-start; gap: 8px; min-height: 38px; padding: 8px 10px; border-radius: 9px; color: var(--muted); font-size: 12px; text-align: left; }
+.navClose:hover, .navClose:focus-visible { color: var(--text); background: var(--cardb); outline: none; }
 .search { margin-bottom: 6px; }
 .noMatches { font-size: 12px; color: var(--muted); padding: 8px 10px; }
 .navGroup { display: flex; flex-direction: column; gap: 3px; }

@@ -68,6 +68,12 @@ const TONE: Record<string, "neutral" | "info" | "success" | "warning" | "danger"
   failed: "danger", cancelled: "danger",
 };
 
+function titleFromPrompt(prompt: string): string {
+  const firstLine = prompt.split(/\r?\n/, 1)[0]?.replace(/\s+/g, " ").trim() ?? "";
+  if (!firstLine) return "Untitled task";
+  return firstLine.length > 64 ? `${firstLine.slice(0, 61).trimEnd()}…` : firstLine;
+}
+
 function unwrapBot(input: unknown): Bot | null {
   if (!input || typeof input !== "object") return null;
   const obj = input as Record<string, unknown>;
@@ -235,7 +241,7 @@ export default function Cowork() {
   }, []);
 
   const loadUsage = useCallback(async () => {
-    try { setUsage(await bridge.usage()); } catch { /* usage is optional metadata */ }
+    try { setUsage((await bridge.usage()).usage ?? null); } catch { /* usage is optional metadata */ }
   }, []);
 
   const loadMeta = useCallback(async () => {
@@ -493,7 +499,7 @@ export default function Cowork() {
   const createTask = useCallback(async (): Promise<Bot | null> => {
     try {
       const created = unwrapBot(await bridge.createBot({
-        name: "Cowork task",
+        name: "Untitled task",
         role: "General assistant",
         engine: "provider",
         provider: selectedProviderId ?? undefined,
@@ -530,6 +536,8 @@ export default function Cowork() {
     lastAttempt.current = { text, uploaded, botId: id };
     setSendError(null);
     setBusy(true);
+    const currentBot = bots.find((item) => item.id === id);
+    const needsAutoTitle = !rowsLoading && rows.length === 0 && (!currentBot?.name || /^(?:untitled task|cowork task|new task(?:\s*[·.-].*)?)$/i.test(currentBot.name));
     try {
       const result = await bridge.sendMessage(id, { content, mode }) as { queued?: boolean; busy?: boolean } | null;
       if (result && result.queued === false) {
@@ -539,6 +547,14 @@ export default function Cowork() {
         return false;
       }
       stream.clear();
+      if (needsAutoTitle) {
+        try {
+          const updated = unwrapBot(await bridge.updateBot(id, { name: titleFromPrompt(text) }));
+          if (updated) setBots((prev) => prev.map((item) => item.id === id ? updated : item));
+        } catch {
+          notify("Your message was sent, but Keel could not save the task title.", "warning");
+        }
+      }
       await loadRows(id);
       setBusy(false);
       return true;
@@ -553,7 +569,7 @@ export default function Cowork() {
       notify(busyTurn ? "Agent is busy — message not queued." : `Message failed: ${msg}`, busyTurn ? "info" : "error");
       return false;
     }
-  }, [loadRows, mode, notify, stream]);
+  }, [bots, loadRows, mode, notify, rows.length, rowsLoading, stream]);
 
   const stop = useCallback(() => {
     const id = botIdRef.current;

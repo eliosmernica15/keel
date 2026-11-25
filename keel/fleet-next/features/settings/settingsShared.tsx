@@ -96,7 +96,7 @@ export function readRecord(value: unknown): Record<string, unknown> {
 
 export type SectionId =
   | "general" | "providers" | "usage" | "privacy" | "import-export" | "keel-code" | "keel-desktop"
-  | "policies" | "admin" | "system" | "developer"
+  | "policies" | "admin" | "system" | "developer" | "appearance" | "accessibility" | "reset"
   | "skills" | "commands" | "workflows" | "mcp-servers" | "plugins";
 
 export interface SectionDef {
@@ -124,6 +124,9 @@ export const SETTINGS_SECTIONS: SectionDef[] = [
   { id: "admin", title: "Admin", category: "THIS COMPUTER", description: "Admin and workspace trust settings.", keywords: "admin trust workspace", icon: "settings" },
   { id: "system", title: "System", category: "THIS COMPUTER", description: "System diagnostics and updates.", keywords: "system diagnostics updates health", icon: "info" },
   { id: "developer", title: "Developer", category: "THIS COMPUTER", description: "Developer tools and options.", keywords: "developer debug", icon: "terminal" },
+  { id: "appearance", title: "Appearance", category: "THIS COMPUTER", description: "Theme and display preferences.", keywords: "theme dark light system", icon: "sun" },
+  { id: "accessibility", title: "Accessibility", category: "THIS COMPUTER", description: "Motion, contrast and keyboard accessibility.", keywords: "accessibility motion contrast keyboard", icon: "info" },
+  { id: "reset", title: "Reset to defaults", category: "THIS COMPUTER", description: "Review and reset local interface preferences.", keywords: "reset defaults layout theme", icon: "refresh" },
   // CUSTOMIZE
   { id: "skills", title: "Skills", category: "CUSTOMIZE", description: "Skills and capabilities.", keywords: "skills capability", icon: "spark" },
   { id: "commands", title: "Commands", category: "CUSTOMIZE", description: "Slash commands.", keywords: "commands slash", icon: "command" },

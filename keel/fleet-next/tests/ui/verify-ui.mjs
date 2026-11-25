@@ -22,6 +22,10 @@ import { execFileSync } from "node:child_process";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const APP = path.resolve(HERE, "../.."); // fleet-next
 const KEEL = path.resolve(APP, ".."); // keel
+const configuredPython = process.env.KEEL_PYTHON || process.env.PYTHON || "python";
+const PYTHON = configuredPython.includes("/") || configuredPython.includes("\\")
+  ? path.resolve(configuredPython)
+  : configuredPython;
 
 const IGNORE_DIRS = new Set([
   "node_modules", ".next", ".git", "tests", "public", "out", "dist", ".turbo",
@@ -156,7 +160,7 @@ function extractTags(text, tagName) {
 // Backend vocabulary comes from route_scan.py, which READS the Python source.
 let vocab;
 try {
-  vocab = JSON.parse(execFileSync("python", [path.join(HERE, "route_scan.py")], {
+  vocab = JSON.parse(execFileSync(PYTHON, [path.join(HERE, "route_scan.py")], {
     cwd: KEEL, encoding: "utf8", timeout: 30000,
   }));
   check("API-00", "Backend route vocabulary extracted", "pass",
@@ -206,15 +210,15 @@ for (const f of sourceFiles) {
   }
   // Explicit URL builders (exportUrl / downloadUrl / previewUrl) and SSE.
   forEachMatch(text, /["'`](\/api\/bridge\/[^"'`]+)["'`]/, (mm, ln) => {
-    // Skip the generic BFF prefix template in client.ts — it is a URL builder,
-    // not a concrete endpoint. Concrete call sites are captured by the api()
-    // matcher above and by explicit exportUrl/downloadUrl/previewUrl builders.
-    if (/\$\{/.test(mm[1])) return;
+    // Skip generic BFF route templates: they describe the proxy surface, not a
+    // concrete backend endpoint. Concrete client calls are scanned above.
+    if (/\$\{|\[\.\.\.path\]/.test(mm[1])) return;
     let p = mm[1].replace(/\/api\/bridge\//, "/api/fleet/").replace(/\$\{[^}]+\}/g, "*");
     addEndpoint(f, ln, mm[1], p, "GET");
   });
   forEachMatch(text, /["'`](\/api\/fleet\/[^"'`]+)["'`]/, (mm, ln) => {
-    addEndpoint(f, ln, mm[1], mm[1].replace(/\$\{[^}]+\}/g, "*"), "GET");
+    const route = mm[1].replace(/\?.*$/, "");
+    addEndpoint(f, ln, mm[1], route.replace(/\$\{[^}]+\}/g, "*"), "GET");
   });
 }
 
@@ -443,7 +447,7 @@ const SAFE_GET = [
 ];
 let probe = null;
 try {
-  const out = execFileSync("python", [path.join(HERE, "probe_bridge.py")], {
+  const out = execFileSync(PYTHON, [path.join(HERE, "probe_bridge.py")], {
     cwd: KEEL, encoding: "utf8", timeout: 45000,
     input: JSON.stringify(SAFE_GET),
     env: { ...process.env, PYTHONPATH: path.join(KEEL, "src"), KEEL_TOKEN: "qa-static-probe-token" },
