@@ -1396,6 +1396,7 @@ const RECENT_KEY = "keel_recents_v1";
 const RECENT_CAP = 50;
 let recentFilter = "";
 let showArchived = false;
+let recentsExpanded = false;
 function loadRecents() {
   try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
 }
@@ -1633,7 +1634,7 @@ function renderRecents() {
     groupsBox.appendChild(box);
   }
   for (const item of pinned) pinnedList.appendChild(makeVisitRow(item));
-  for (const item of restAll.filter((i) => !i.section).slice(0, 20)) {
+  for (const item of restAll.filter((i) => !i.section).slice(0, recentsExpanded ? RECENT_CAP : 20)) {
     if (match(item)) recentsList.appendChild(makeVisitRow(item));
   }
   $("recents-empty").style.display = items.length === 0 ? "" : "none";
@@ -1644,12 +1645,7 @@ $("btn-clear-recents").addEventListener("click", () => {
   saveRecents([]);
   renderRecents();
 });
-$("btn-search-recents").addEventListener("click", () => {
-  const next = window.prompt("Filter recents (empty to clear filter):", recentFilter);
-  if (next === null) return;
-  recentFilter = next.trim().toLowerCase();
-  renderRecents();
-});
+$("btn-search-recents").addEventListener("click", promptRecentsFilter);
 
 /* ===================================================================== wiring */
 
@@ -1685,7 +1681,7 @@ function closeSettings() { settingsPanel.hidden = true; }
 $("nav-customize").addEventListener("click", () => openSettings("general"));
 $("settings-close").addEventListener("click", closeSettings);
 $("settings-backdrop").addEventListener("click", closeSettings);
-$("model-pill-chat").addEventListener("click", () => openSettings("general"));
+$("model-pill-chat").addEventListener("click", () => openSettings("providers"));
 
 function showPane(name) {
   els(".rail-item").forEach((b) => b.classList.toggle("on", b.dataset.section === name));
@@ -2840,11 +2836,12 @@ $("tip-dismiss")?.addEventListener("click", () => {
   try { localStorage.setItem(TIP_SEEN, "1"); } catch { /* private mode */ }
 });
 setTimeout(() => {
-  let tourSeen = false, newsSeen = false;
-  try { tourSeen = localStorage.getItem(TOUR_SEEN) === "1";
-        newsSeen = localStorage.getItem(WHATSNEW_SEEN) === "1"; } catch { /* private mode */ }
-  if (!newsSeen) openWhatsNew();
-  else if (!tourSeen) openTour();
+  /* The public mirror opens straight into the home state shown on the site.
+     The what's-new and tour dialogs stay reachable with ?whatsnew / ?tour
+     (and the tour is also in the header and on Ctrl+Shift+T). */
+  const params = new URLSearchParams(location.search);
+  if (params.has("whatsnew")) openWhatsNew();
+  else if (params.has("tour")) openTour();
   else showFirstTip();
 }, 600);
 
@@ -3011,10 +3008,13 @@ agentProbe().then(() => {
       .then((r) => (r.ok ? r.json() : null))
       .then((doc) => { if (doc && doc.path) setWorkdirUI(doc.path); })
       .catch(() => {});
-    systemNote("agent mode — this is the local Keel bridge. Prompts run the local agent on this machine; chats persist in ~/.keel/fleet.db and survive restarts. Set KEEL_OPENROUTER_API_KEY (or Google / NVIDIA) for real replies.", "system", state.surface);
+    // Keep the home state clean on the public mirror: mode information is
+    // shown in the dismissible tip banner, not as a thread message that would
+    // hide the “You're here!” greeting.
+    showFirstTip();
     return;
   }
-  systemNote("mirror mode — this page is running fully in your browser. Chat streams straight from your browser to your provider via the key in Settings → Providers (OpenRouter or Google AI Studio). No key yet? Replies here explain how to install the local app.", "system", state.surface);
+  showFirstTip();
 }).catch(() => {});
 
 /* The legacy mock-bridge event listeners are intentionally gone: the real
@@ -3270,4 +3270,108 @@ $("policy-test-run")?.addEventListener("click", async () => {
     if (out) { out.hidden = false; out.textContent = JSON.stringify(doc.result || doc, null, 2); }
     if (!ok) policyStatus("Evaluation failed: " + doc.error, true);
   } catch (err) { policyStatus("Evaluation error: " + err.message, true); }
+});
+
+/* ====================================================================
+   after-login home entry points — wired locally, Keel design untouched.
+   BYOK chat, settings persistence, permissions and safety rules unchanged.
+   ==================================================================== */
+
+/* Account chip reflects the flag the website sets when you log in. */
+function applyAccountChip() {
+  let loggedIn = false;
+  try {
+    const raw = localStorage.getItem("keel_logged_in");
+    loggedIn = !!raw && raw !== "0" && raw !== "false" && raw !== "null";
+  } catch { /* private mode */ }
+  const name = $("acct-name"), plan = $("acct-plan");
+  if (name) name.textContent = loggedIn ? "Elios" : "You";
+  if (plan) plan.textContent = loggedIn ? "· Free" : "local";
+}
+applyAccountChip();
+
+/* Keel-styled plans dialog — informational; full table lives at /#plans. */
+function openPlans() {
+  const overlay = $("plans-overlay");
+  if (overlay) overlay.hidden = false;
+}
+function closePlans() {
+  const overlay = $("plans-overlay");
+  if (overlay) overlay.hidden = true;
+}
+els("[data-upgrade]").forEach((btn) => btn.addEventListener("click", openPlans));
+$("plans-close")?.addEventListener("click", closePlans);
+els("[data-close-plans]").forEach((btn) => btn.addEventListener("click", closePlans));
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape" && $("plans-overlay") && !$("plans-overlay").hidden) closePlans();
+});
+
+function promptRecentsFilter() {
+  const next = window.prompt("Filter recents (empty to clear filter):", recentFilter);
+  if (next === null) return;
+  recentFilter = next.trim().toLowerCase();
+  renderRecents();
+}
+function showProjectsNote() {
+  systemNote("Projects are part of the local Keel app — they group chats and give the agent a folder to work inside. This browser mirror only keeps prompts locally.", "system", state.surface);
+}
+
+$("nav-search")?.addEventListener("click", promptRecentsFilter);
+$("nav-projects")?.addEventListener("click", showProjectsNote);
+$("home-project")?.addEventListener("click", showProjectsNote);
+$("nav-artifacts")?.addEventListener("click", () => {
+  const sec = $("recent-artifacts");
+  if (!sec) return;
+  try { sec.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch { /* older browsers */ }
+  sec.classList.add("attention");
+  setTimeout(() => sec.classList.remove("attention"), 1600);
+});
+$("nav-plugins")?.addEventListener("click", () => openSettings("plugins"));
+
+$("btn-recents-view-all")?.addEventListener("click", (ev) => {
+  recentsExpanded = !recentsExpanded;
+  ev.currentTarget.textContent = recentsExpanded ? "Show less" : "View all";
+  ev.currentTarget.title = recentsExpanded ? "Show fewer recents" : "Show all recents";
+  renderRecents();
+});
+
+$("home-model")?.addEventListener("click", () => openSettings("providers"));
+$("home-auto")?.addEventListener("click", async () => {
+  try { await saveSettingsPatch({ providerConfig: { preferred: "auto" } }); } catch { /* private mode */ }
+  syncModeUI();
+  refreshProviders();
+  setStatus("preferred provider: auto", "ok");
+});
+
+$("btn-artifacts-view-all")?.addEventListener("click", (ev) => {
+  const more = $("artifact-card-more");
+  if (!more) return;
+  more.hidden = !more.hidden;
+  ev.currentTarget.textContent = more.hidden ? "View all" : "Show less";
+});
+function prefillArtifact(button) {
+  if (!button) return;
+  setSurface("chat");
+  const input = prompts.chat;
+  if (!input) return;
+  input.value = button.dataset.prompt || "";
+  input.focus();
+  setStatus("prompt ready from artifact", "ok");
+}
+$("artifact-card")?.addEventListener("click", () => prefillArtifact($("artifact-card")));
+$("artifact-card-more")?.addEventListener("click", () => prefillArtifact($("artifact-card-more")));
+
+/* Voice-wave control: same opt-in dictation path as the microphone. */
+const voiceWaveBtn = $("voice-chat");
+let wavePoll = null;
+function syncVoiceWave() {
+  if (!voiceWaveBtn) return;
+  voiceWaveBtn.classList.toggle("on", !!voiceState.recognition);
+  if (!voiceState.recognition && wavePoll) { clearInterval(wavePoll); wavePoll = null; }
+}
+voiceWaveBtn?.addEventListener("click", () => {
+  if (voiceState.recognition) stopVoice();
+  else startVoice("chat", false);
+  if (!wavePoll) wavePoll = setInterval(syncVoiceWave, 300);
+  syncVoiceWave();
 });

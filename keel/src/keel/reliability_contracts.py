@@ -32,15 +32,23 @@ Design rules (shared by all four contracts):
   started; the provider suite imports keel adapters lazily; the matrixes are
   pure functions.
 
+X9.12 adds a *durable recovery contract* for production runtime lifecycle and
+task/worker recovery: deterministic idempotency keys, an append-only JSONL
+ledger that survives a mid-task process kill, bounded retry/backoff, a
+destructive-operation approval gate, worker drain/retire ordering and explicit
+orphan recovery.  It is stdlib-only and sleeps only through injected callables.
+
 Integration into live tests is described in
-``master-plan-v6-reliability-contracts-evidence.md``.  No existing file is
-modified by this module.
+``master-plan-v6-reliability-contracts-evidence.md`` and
+``PROD-RELIABILITY-EVIDENCE.md``.  No existing file is modified by this module.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import math
+import os
 import re
 import threading
 import time
@@ -48,9 +56,11 @@ import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass, field
+from contextlib import contextmanager
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Any, Callable, Iterable, Iterator, Mapping, Sequence
 
 __all__ = [
@@ -76,6 +86,13 @@ __all__ = [
     "MIGRATIONS", "RELEASED_VERSIONS", "CURRENT_SCHEMA_VERSION",
     "MigrationResult", "MigrationMatrix", "checksum_data", "payload_view",
     "build_version_fixture",
+    # X9.12 -- production runtime lifecycle and task/worker recovery
+    "MAX_RETRIES", "MAX_PARTIAL_BYTES", "DuplicateSubmissionError",
+    "InvalidTransitionError", "ApprovalRequiredError", "DestructiveRetryError",
+    "TaskPhase", "FailureKind", "WorkerPhase", "LifecycleStage",
+    "RetryPolicy", "DEFAULT_RETRY_POLICY", "make_idempotency_key",
+    "TaskRecord", "WorkerRecord", "TaskResult", "RetryDecision",
+    "RecoveryReport", "WorkerShutdown", "RecoveryLedger", "RuntimeLifecycle",
 ]
 
 #: Version of the contract descriptors defined here (not the product version).
@@ -1075,6 +1092,10 @@ class TrackingHTTPTransport:
             response = urllib.request.urlopen(req, timeout=request.get("timeout", 10))
         except urllib.error.HTTPError as exc:
             raw = exc.read()
+            # An HTTPError owns a live response socket too.  Close it before
+            # returning the buffered body so repeated provider errors cannot
+            # exhaust the descriptor table during a long contract run.
+            exc.close()
             return exc.code, dict(exc.headers.items()), iter((raw,))
         except urllib.error.URLError as exc:
             raise ReliabilityError(f"fixture connection failed: {exc.reason}") from None
@@ -1329,6 +1350,14 @@ class ProviderContractSuite:
                 return BehaviorResult(binding.name, case.name, False,
                                       f"unexpected {type(exc).__name__}: {exc}",
                                       (), transport.calls[0] if transport.calls else None)
+            if expected is None:
+                # A fixture may legally use any 4xx/5xx status, but the suite
+                # has no independent expectation for it.  Fail closed with an
+                # explicit result instead of crashing the whole run.
+                return BehaviorResult(
+                    binding.name, case.name, False,
+                    f"unmapped fixture error status {script.events[0].status}",
+                    (), transport.calls[0] if transport.calls else None)
             ok = (category == expected[0] and status == script.events[0].status
                   and getattr(exc, "retryable", None) is expected[1]
                   and transport.calls.__len__() == 1)
@@ -2098,3 +2127,1096 @@ class MigrationMatrix:
             results.append(self.upgrade(fixture, version,
                                         expected_checksum=checksum_data(fixture)))
         return tuple(results)
+
+
+# ---------------------------------------------------------------------------
+# X9.12 -- production runtime lifecycle and task/worker recovery
+# ---------------------------------------------------------------------------
+#
+# Design rules specific to recovery:
+#
+# * Durable state is an append-only JSONL log.  One canonical-JSON record is
+#   appended per commit with fsync; a process killed mid-write leaves at most
+#   one truncated tail line, which recovery skips instead of replaying.
+# * Every state change is a full, validated snapshot.  Replay is deterministic
+#   and terminal phases are immutable (no resurrection through a stale log).
+# * Idempotency keys admit exactly one task.  A repeated key returns the
+#   original admission; a key reused for a different task is a hard conflict.
+# * Destructive work is never retried blindly: approval is a persisted token,
+#   consumed on claim, and must be granted again after any interruption/failure.
+# * Retries are bounded by RetryPolicy and delays are computed, never slept by
+#   the ledger itself.  Callers inject the clock and the sleeper.
+
+MAX_RETRIES = 10
+MAX_PARTIAL_BYTES = 1 << 16
+_KEY_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$")
+
+
+class DuplicateSubmissionError(ReliabilityError):
+    """An idempotency key or task id was reused for a different task."""
+
+
+class InvalidTransitionError(ReliabilityError):
+    """A requested state change is not legal for the current phase."""
+
+
+class DestructiveRetryError(ReliabilityError):
+    """A destructive operation cannot be replayed without a new decision."""
+
+
+class ApprovalRequiredError(DestructiveRetryError):
+    """A destructive task needs a fresh, persisted approval token."""
+
+
+class TaskPhase(str, Enum):
+    QUEUED = "queued"
+    RUNNING = "running"
+    INTERRUPTED = "interrupted"
+    RETRY_WAIT = "retry_wait"
+    AWAITING_APPROVAL = "awaiting_approval"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    FAILED = "failed"
+    QUARANTINED = "quarantined"
+
+
+_TERMINAL_PHASES = frozenset((TaskPhase.COMPLETED, TaskPhase.CANCELLED,
+                              TaskPhase.FAILED, TaskPhase.QUARANTINED))
+_CLAIMABLE_PHASES = frozenset((TaskPhase.QUEUED, TaskPhase.INTERRUPTED,
+                               TaskPhase.RETRY_WAIT))
+
+
+class FailureKind(str, Enum):
+    TRANSIENT = "transient"
+    PARTIAL = "partial"
+    PROVIDER_TIMEOUT = "provider_timeout"
+    WORKER_CRASH = "worker_crash"
+    VALIDATION = "validation"
+
+
+_RETRYABLE_KINDS = frozenset((FailureKind.TRANSIENT, FailureKind.PARTIAL,
+                              FailureKind.PROVIDER_TIMEOUT,
+                              FailureKind.WORKER_CRASH))
+
+
+class WorkerPhase(str, Enum):
+    ACTIVE = "active"
+    DRAINING = "draining"
+    RETIRED = "retired"
+
+
+class LifecycleStage(str, Enum):
+    PREPARE = "prepare"
+    REGISTER = "register_services"
+    INITIALIZE = "initialize"
+    RECOVER = "recover"
+    SERVE = "serve"
+    DRAIN = "drain"
+    STOP_WORKERS = "stop_workers"
+    CLOSE_RESOURCES = "close_resources"
+    CLOSE_DB = "close_db"
+
+
+def _require_bool(value: Any, name: str) -> bool:
+    if not isinstance(value, bool):
+        raise ValidationError(f"{name} must be a bool")
+    return value
+
+
+def _require_finite(value: Any, name: str, *, minimum: float = 0.0) -> float:
+    if (isinstance(value, bool) or not isinstance(value, (int, float))
+            or not math.isfinite(float(value)) or float(value) < minimum):
+        raise ValidationError(f"{name} must be a finite number >= {minimum}")
+    return float(value)
+
+
+@dataclass(frozen=True)
+class RetryPolicy:
+    """Bounded, deterministic exponential backoff with an explicit cap."""
+
+    max_attempts: int = 3
+    base_delay: float = 0.05
+    factor: float = 2.0
+    max_delay: float = 5.0
+
+    def __post_init__(self) -> None:
+        _require_int(self.max_attempts, "max_attempts", minimum=1,
+                     maximum=MAX_RETRIES)
+        base = _require_finite(self.base_delay, "base_delay")
+        factor = _require_finite(self.factor, "factor", minimum=1.0)
+        cap = _require_finite(self.max_delay, "max_delay")
+        if cap < base:
+            raise ValidationError("max_delay must be >= base_delay")
+
+    def delay_for(self, attempt: int) -> float:
+        """Delay before attempt + 1; ``attempt`` starts at 1 after a failure."""
+        _require_int(attempt, "attempt", minimum=1)
+        return float(min(self.max_delay,
+                         self.base_delay * (self.factor ** (attempt - 1))))
+
+    def allows(self, attempt: int) -> bool:
+        """Whether another attempt is within the hard bound."""
+        _require_int(attempt, "attempt")
+        return attempt < self.max_attempts
+
+    def as_dict(self) -> dict:
+        return {"max_attempts": self.max_attempts,
+                "base_delay": self.base_delay, "factor": self.factor,
+                "max_delay": self.max_delay}
+
+    @classmethod
+    def from_dict(cls, data: Any) -> "RetryPolicy":
+        if not isinstance(data, Mapping):
+            raise ValidationError("retry policy must be a mapping")
+        try:
+            return cls(**dict(data))
+        except ValidationError:
+            raise
+        except (TypeError, ValueError) as exc:
+            raise ValidationError(f"invalid retry policy: {exc}") from None
+
+
+DEFAULT_RETRY_POLICY = RetryPolicy()
+
+
+def make_idempotency_key(scope: str, *, task_id: str = "",
+                         payload: Any = None, explicit: str | None = None) -> str:
+    """Derive a stable key from a canonical payload, or validate an explicit one.
+
+    The fingerprint (not a hash of Python repr) makes the key stable across
+    dict insertion order and process restarts.
+    """
+    _require_str(scope, "scope")
+    if not _KEY_RE.match(scope):
+        raise ValidationError("scope has invalid characters")
+    _require_str(task_id, "task_id", allow_empty=True)
+    if explicit is not None:
+        _require_str(explicit, "explicit")
+        if not _KEY_RE.match(explicit):
+            raise ValidationError("idempotency key has invalid characters")
+        return explicit
+    return f"{scope}:{fingerprint({'scope': scope, 'task_id': task_id, 'payload': payload})}"
+
+
+@dataclass(frozen=True)
+class TaskRecord:
+    """One durable task snapshot; full snapshots make replay unambiguous."""
+
+    task_id: str
+    idempotency_key: str
+    phase: TaskPhase
+    attempt: int = 0
+    parent_id: str | None = None
+    destructive: bool = False
+    approval_token: str = ""
+    partial_output: str = ""
+    output: str = ""
+    worker_id: str | None = None
+    next_delay: float = 0.0
+    ready_at: float = 0.0
+    last_error: str = ""
+    failure_kind: str = ""
+    policy: RetryPolicy = DEFAULT_RETRY_POLICY
+
+    def __post_init__(self) -> None:
+        _require_str(self.task_id, "task_id")
+        _require_str(self.idempotency_key, "idempotency_key")
+        if not isinstance(self.phase, TaskPhase):
+            raise ValidationError("phase must be a TaskPhase value")
+        _require_int(self.attempt, "attempt")
+        if self.parent_id is not None:
+            _require_str(self.parent_id, "parent_id")
+        _require_bool(self.destructive, "destructive")
+        for name in ("approval_token", "partial_output", "output",
+                     "last_error", "failure_kind"):
+            _require_str(getattr(self, name), name, allow_empty=True)
+        if self.worker_id is not None:
+            _require_str(self.worker_id, "worker_id")
+        _require_finite(self.next_delay, "next_delay")
+        _require_finite(self.ready_at, "ready_at")
+        if not isinstance(self.policy, RetryPolicy):
+            raise ValidationError("policy must be a RetryPolicy")
+        if self.attempt > self.policy.max_attempts:
+            raise ValidationError("attempt exceeds the retry policy bound")
+
+    def as_dict(self) -> dict:
+        return {"task_id": self.task_id,
+                "idempotency_key": self.idempotency_key,
+                "phase": self.phase.value, "attempt": self.attempt,
+                "parent_id": self.parent_id, "destructive": self.destructive,
+                "approval_token": self.approval_token,
+                "partial_output": self.partial_output, "output": self.output,
+                "worker_id": self.worker_id, "next_delay": self.next_delay,
+                "ready_at": self.ready_at, "last_error": self.last_error,
+                "failure_kind": self.failure_kind,
+                "policy": self.policy.as_dict()}
+
+    @classmethod
+    def from_dict(cls, data: Any) -> "TaskRecord":
+        if not isinstance(data, Mapping):
+            raise ValidationError("task record must be a mapping")
+        values = dict(data)
+        try:
+            values["phase"] = TaskPhase(values["phase"])
+            values["policy"] = RetryPolicy.from_dict(values["policy"])
+            return cls(**values)
+        except ValidationError:
+            raise
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValidationError(f"invalid task record: {exc}") from None
+
+
+@dataclass(frozen=True)
+class WorkerRecord:
+    """A process-scoped worker; ``run_id`` identifies its owning process."""
+
+    worker_id: str
+    run_id: str
+    phase: WorkerPhase
+    in_flight: tuple[str, ...] = ()
+    claims: int = 0
+    heartbeats: int = 0
+
+    def __post_init__(self) -> None:
+        _require_str(self.worker_id, "worker_id")
+        _require_str(self.run_id, "run_id")
+        if not isinstance(self.phase, WorkerPhase):
+            raise ValidationError("phase must be a WorkerPhase value")
+        if (not isinstance(self.in_flight, tuple)
+                or not all(isinstance(t, str) for t in self.in_flight)):
+            raise ValidationError("in_flight must be a tuple of task ids")
+        _require_int(self.claims, "claims")
+        _require_int(self.heartbeats, "heartbeats")
+
+    def as_dict(self) -> dict:
+        return {"worker_id": self.worker_id, "run_id": self.run_id,
+                "phase": self.phase.value, "in_flight": list(self.in_flight),
+                "claims": self.claims, "heartbeats": self.heartbeats}
+
+    @classmethod
+    def from_dict(cls, data: Any) -> "WorkerRecord":
+        if not isinstance(data, Mapping):
+            raise ValidationError("worker record must be a mapping")
+        values = dict(data)
+        try:
+            values["phase"] = WorkerPhase(values["phase"])
+            values["in_flight"] = tuple(values["in_flight"])
+            return cls(**values)
+        except ValidationError:
+            raise
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValidationError(f"invalid worker record: {exc}") from None
+
+
+@dataclass(frozen=True)
+class TaskResult:
+    """Task plus an explicit duplicate flag (never a silent second admission)."""
+
+    task: TaskRecord
+    duplicate: bool = False
+
+    def as_dict(self) -> dict:
+        return {"task": self.task.as_dict(), "duplicate": self.duplicate}
+
+
+@dataclass(frozen=True)
+class RetryDecision:
+    """Observed outcome of a failure: retry is a data field, not a side effect."""
+
+    task: TaskRecord
+    retry: bool
+    delay: float
+    reason: str
+
+    def as_dict(self) -> dict:
+        return {"task": self.task.as_dict(), "retry": self.retry,
+                "delay": self.delay, "reason": self.reason}
+
+
+@dataclass(frozen=True)
+class RecoveryReport:
+    """What restart recovery actually changed (all tuples are deterministic)."""
+
+    interrupted: tuple[str, ...] = ()
+    quarantined: tuple[str, ...] = ()
+    approval_resets: tuple[str, ...] = ()
+    workers_retired: tuple[str, ...] = ()
+    tail_recovered: int = 0
+
+    def as_dict(self) -> dict:
+        return {"interrupted": list(self.interrupted),
+                "quarantined": list(self.quarantined),
+                "approval_resets": list(self.approval_resets),
+                "workers_retired": list(self.workers_retired),
+                "tail_recovered": self.tail_recovered}
+
+
+@dataclass(frozen=True)
+class WorkerShutdown:
+    """Result of a bounded drain: forced work is reported, never disguised."""
+
+    worker_id: str
+    drained: tuple[str, ...] = ()
+    interrupted: tuple[str, ...] = ()
+    timed_out: bool = False
+
+    def as_dict(self) -> dict:
+        return {"worker_id": self.worker_id, "drained": list(self.drained),
+                "interrupted": list(self.interrupted),
+                "timed_out": self.timed_out}
+
+
+class RecoveryLedger:
+    """Durable, network-free ledger for tasks, approvals and worker lifecycles.
+
+    All public methods take a process-wide thread lock and a cross-process file
+    lock, reload the log, validate the requested transition, append one fsynced
+    canonical-JSON record and then apply it in memory.  A process that dies
+    mid-task leaves RUNNING snapshots and partial output; a new instance with
+    the same state root calls :meth:`recover` to reconstruct safe state.
+    """
+
+    def __init__(self, state_root: str | Path, *, run_id: str = "main",
+                 clock: Callable[[], float] | None = None,
+                 log_name: str = "recovery.jsonl") -> None:
+        _require_str(run_id, "run_id")
+        if not _KEY_RE.match(run_id):
+            raise ValidationError("run_id has invalid characters")
+        _require_str(log_name, "log_name")
+        if not _NAME_RE.match(log_name.replace(".jsonl", "")):
+            raise ValidationError("log_name has invalid characters")
+        self.state_root = Path(state_root)
+        self.state_root.mkdir(parents=True, exist_ok=True)
+        self.path = self.state_root / log_name
+        self._lock_path = self.state_root / (log_name + ".lock")
+        self.run_id = run_id
+        self._clock = clock if clock is not None else time.time
+        if not callable(self._clock):
+            raise ValidationError("clock must be callable")
+        self._lock = threading.RLock()
+        self._tasks: dict[str, TaskRecord] = {}
+        self._workers: dict[str, WorkerRecord] = {}
+        self._events: dict[str, Any] = {}
+        self._ops = 0
+        self._tail_recovered = 0
+        with self._exclusive():
+            self._reload()
+
+    # -- persistence primitives ---------------------------------------------
+
+    @contextmanager
+    def _exclusive(self) -> Iterator[None]:
+        with self._lock:
+            handle = open(self._lock_path, "a+b")
+            acquired = False
+            try:
+                if os.name == "nt":
+                    import msvcrt  # stdlib, Windows-only
+                    handle.seek(0, os.SEEK_END)
+                    if handle.tell() == 0:
+                        handle.write(b"\0")
+                        handle.flush()
+                    handle.seek(0)
+                    for _ in range(200):
+                        try:
+                            msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                            acquired = True
+                            break
+                        except OSError:
+                            time.sleep(0.005)
+                else:  # pragma: no cover - exercised on POSIX runners
+                    import fcntl  # stdlib, POSIX-only
+                    for _ in range(200):
+                        try:
+                            fcntl.flock(handle.fileno(),
+                                        fcntl.LOCK_EX | fcntl.LOCK_NB)
+                            acquired = True
+                            break
+                        except OSError:
+                            time.sleep(0.005)
+                if not acquired:
+                    raise ReliabilityError("timed out acquiring recovery ledger lock")
+                try:
+                    yield
+                finally:
+                    if os.name == "nt":
+                        import msvcrt
+                        msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                    else:  # pragma: no cover
+                        import fcntl
+                        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            finally:
+                handle.close()
+
+    def _apply(self, record: Mapping[str, Any]) -> None:
+        op = record.get("op")
+        if not isinstance(op, str):
+            raise ReliabilityError("recovery log record has no op")
+        if op == "batch":
+            children = record.get("records")
+            if not isinstance(children, list):
+                raise ReliabilityError("recovery batch needs a record list")
+            for child in children:
+                self._apply(child)
+            return
+        if op == "task":
+            try:
+                task = TaskRecord.from_dict(record.get("task"))
+            except ValidationError as exc:
+                raise ReliabilityError(f"corrupt task snapshot: {exc}") from None
+            previous = self._tasks.get(task.task_id)
+            # A human approval decision may deliberately lift a quarantine;
+            # that single transition is logged explicitly.  No other terminal
+            # phase can ever be rewritten by a stale or racing record.
+            approved_lift = (previous is not None
+                             and previous.phase is TaskPhase.QUARANTINED
+                             and task.phase is TaskPhase.AWAITING_APPROVAL)
+            if (previous is not None and previous.phase in _TERMINAL_PHASES
+                    and previous.phase is not task.phase and not approved_lift):
+                raise ReliabilityError("a terminal task was mutated in the log")
+            for other in self._tasks.values():
+                if (other.task_id != task.task_id
+                        and other.idempotency_key == task.idempotency_key):
+                    raise ReliabilityError("idempotency key collision in the log")
+            self._tasks[task.task_id] = task
+            return
+        if op == "worker":
+            try:
+                worker = WorkerRecord.from_dict(record.get("worker"))
+            except ValidationError as exc:
+                raise ReliabilityError(f"corrupt worker snapshot: {exc}") from None
+            self._workers[worker.worker_id] = worker
+            return
+        if op == "event":
+            event_id = record.get("event_id")
+            payload = record.get("payload")
+            if not isinstance(event_id, str) or not event_id:
+                raise ReliabilityError("event record needs an event_id")
+            prior = self._events.get(event_id)
+            if prior is not None and canonical_bytes(prior) != canonical_bytes(payload):
+                raise ReliabilityError("event id reused with a different payload")
+            self._events[event_id] = payload
+            return
+        raise ReliabilityError(f"unknown recovery log op {op!r}")
+
+    def _reload(self) -> None:
+        self._tasks.clear()
+        self._workers.clear()
+        self._events.clear()
+        self._tail_recovered = 0
+        if not self.path.exists():
+            return
+        raw = self.path.read_bytes()
+        if not raw:
+            return
+        pieces = raw.split(b"\n")
+        if not raw.endswith(b"\n"):
+            # A killed writer can leave one partial record.  It was never
+            # fsynced as a complete line, so it is skipped, never replayed.
+            self._tail_recovered = 1
+            pieces = pieces[:-1]
+        for lineno, line in enumerate(pieces, 1):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line.decode("utf-8"))
+            except (UnicodeDecodeError, ValueError) as exc:
+                raise ReliabilityError(
+                    f"corrupt recovery log line {lineno}: {exc}") from None
+            try:
+                self._apply(record)
+            except ReliabilityError as exc:
+                raise ReliabilityError(
+                    f"invalid recovery log line {lineno}: {exc}") from None
+        self._ops = sum(1 for line in pieces if line.strip())
+
+    def _commit_unlocked(self, record: Mapping[str, Any]) -> None:
+        line = canonical_bytes(record) + b"\n"
+        with open(self.path, "ab") as handle:
+            handle.write(line)
+            handle.flush()
+            os.fsync(handle.fileno())
+        self._apply(record)
+        self._ops += 1
+
+    def _one(self, task_id: str, allowed: frozenset[TaskPhase],
+             action: str) -> TaskRecord:
+        _require_str(task_id, "task_id")
+        task = self._tasks.get(task_id)
+        if task is None:
+            raise InvalidTransitionError(f"unknown task {task_id!r}")
+        if task.phase not in allowed:
+            raise InvalidTransitionError(
+                f"cannot {action} a {task.phase.value} task {task_id!r}")
+        return task
+
+    def _detach_worker(self, worker_id: str | None, task_id: str) -> list[dict]:
+        if worker_id is None:
+            return []
+        worker = self._workers.get(worker_id)
+        if worker is None or task_id not in worker.in_flight:
+            return []
+        remaining = tuple(t for t in worker.in_flight if t != task_id)
+        return [{"op": "worker",
+                 "worker": replace(worker, in_flight=remaining).as_dict()}]
+
+    # -- task lifecycle ------------------------------------------------------
+
+    def submit(self, task_id: str, *, scope: str = "task",
+               idempotency_key: str | None = None, payload: Any = None,
+               parent_id: str | None = None, destructive: bool = False,
+               policy: RetryPolicy | None = None) -> TaskResult:
+        """Admit a task at most once per idempotency key."""
+        _require_str(task_id, "task_id")
+        if parent_id is not None:
+            _require_str(parent_id, "parent_id")
+        _require_bool(destructive, "destructive")
+        chosen = policy if policy is not None else DEFAULT_RETRY_POLICY
+        if not isinstance(chosen, RetryPolicy):
+            raise ValidationError("policy must be a RetryPolicy")
+        key = make_idempotency_key(scope, task_id=task_id, payload=payload,
+                                   explicit=idempotency_key)
+        with self._exclusive():
+            self._reload()
+            for existing in self._tasks.values():
+                if existing.idempotency_key == key:
+                    if existing.task_id != task_id:
+                        raise DuplicateSubmissionError(
+                            f"idempotency key {key!r} belongs to "
+                            f"{existing.task_id!r}")
+                    return TaskResult(existing, duplicate=True)
+            if task_id in self._tasks:
+                raise DuplicateSubmissionError(f"task {task_id!r} already exists")
+            phase = (TaskPhase.AWAITING_APPROVAL if destructive
+                     else TaskPhase.QUEUED)
+            task = TaskRecord(task_id=task_id, idempotency_key=key, phase=phase,
+                              parent_id=parent_id, destructive=destructive,
+                              policy=chosen)
+            self._commit_unlocked({"op": "task", "task": task.as_dict()})
+            return TaskResult(task)
+
+    def claim(self, task_id: str, worker_id: str) -> TaskRecord:
+        """Atomically assign a task to an active worker and consume approval."""
+        _require_str(worker_id, "worker_id")
+        with self._exclusive():
+            self._reload()
+            task = self._tasks.get(task_id)
+            if task is None:
+                raise InvalidTransitionError(f"unknown task {task_id!r}")
+            # Approval is a distinct, typed requirement: an unapproved
+            # destructive task is never reported as a generic phase error.
+            if task.destructive and not task.approval_token:
+                raise ApprovalRequiredError(
+                    f"destructive task {task_id!r} has no approval token")
+            if task.phase not in _CLAIMABLE_PHASES:
+                raise InvalidTransitionError(
+                    f"cannot claim a {task.phase.value} task {task_id!r}")
+            worker = self._workers.get(worker_id)
+            if worker is None or worker.phase is not WorkerPhase.ACTIVE:
+                raise InvalidTransitionError(
+                    f"worker {worker_id!r} is not active")
+            if not task.policy.allows(task.attempt):
+                raise InvalidTransitionError(f"task {task_id!r} exhausted its retries")
+            if task.phase is TaskPhase.RETRY_WAIT and self._clock() < task.ready_at:
+                raise InvalidTransitionError(f"task {task_id!r} is not due yet")
+            claimed = replace(task, phase=TaskPhase.RUNNING,
+                              attempt=task.attempt + 1, worker_id=worker_id,
+                              approval_token="", failure_kind="",
+                              last_error="", next_delay=0.0, ready_at=0.0)
+            next_worker = replace(worker,
+                                  in_flight=worker.in_flight + (task_id,),
+                                  claims=worker.claims + 1)
+            self._commit_unlocked({"op": "batch", "records": [
+                {"op": "task", "task": claimed.as_dict()},
+                {"op": "worker", "worker": next_worker.as_dict()},
+            ]})
+            return claimed
+
+    def record_partial(self, task_id: str, worker_id: str, text: str) -> TaskRecord:
+        """Append observed partial output; it survives interruption and retries."""
+        _require_str(text, "text", allow_empty=True)
+        if len(text.encode("utf-8")) > MAX_PARTIAL_BYTES:
+            raise ValidationError("partial output exceeds the size bound")
+        with self._exclusive():
+            self._reload()
+            task = self._one(task_id, frozenset((TaskPhase.RUNNING,)),
+                             "record partial output")
+            if task.worker_id != worker_id:
+                raise InvalidTransitionError(f"worker {worker_id!r} does not own the task")
+            combined = task.partial_output + text
+            if len(combined.encode("utf-8")) > MAX_PARTIAL_BYTES:
+                raise ValidationError("partial output exceeds the size bound")
+            updated = replace(task, partial_output=combined)
+            self._commit_unlocked({"op": "task", "task": updated.as_dict()})
+            return updated
+
+    def fail(self, task_id: str, worker_id: str, *, error: str = "",
+             kind: FailureKind | str = FailureKind.TRANSIENT) -> RetryDecision:
+        """Classify a failure; destructive work is quarantined, never retried."""
+        _require_str(error, "error", allow_empty=True)
+        try:
+            failure = FailureKind(kind)
+        except ValueError:
+            raise ValidationError("unknown failure kind") from None
+        with self._exclusive():
+            self._reload()
+            task = self._one(task_id, frozenset((TaskPhase.RUNNING,)), "fail")
+            if task.worker_id != worker_id:
+                raise InvalidTransitionError(f"worker {worker_id!r} does not own the task")
+            common = {"failure_kind": failure.value, "last_error": error[:300],
+                      "worker_id": None}
+            if task.destructive:
+                updated = replace(task, phase=TaskPhase.QUARANTINED,
+                                  approval_token="", **common)
+                decision = RetryDecision(
+                    updated, False, 0.0,
+                    "destructive work requires fresh approval; no blind retry")
+            elif failure not in _RETRYABLE_KINDS or not task.policy.allows(task.attempt):
+                updated = replace(task, phase=TaskPhase.FAILED, **common)
+                decision = RetryDecision(updated, False, 0.0,
+                                         "non-retryable failure or retry budget exhausted")
+            else:
+                delay = task.policy.delay_for(task.attempt)
+                updated = replace(task, phase=TaskPhase.RETRY_WAIT,
+                                  next_delay=delay, ready_at=self._clock() + delay,
+                                  **common)
+                decision = RetryDecision(updated, True, delay,
+                                         "bounded retry scheduled")
+            records = [{"op": "task", "task": updated.as_dict()}]
+            records.extend(self._detach_worker(worker_id, task_id))
+            self._commit_unlocked({"op": "batch", "records": records})
+            return decision
+
+    def complete(self, task_id: str, worker_id: str, output: str) -> TaskResult:
+        """A repeated completion with the same output is an observed duplicate."""
+        _require_str(output, "output", allow_empty=True)
+        with self._exclusive():
+            self._reload()
+            task = self._one(task_id,
+                             frozenset((TaskPhase.RUNNING, TaskPhase.COMPLETED)),
+                             "complete")
+            if task.phase is TaskPhase.COMPLETED:
+                if task.output != output:
+                    raise ReliabilityError(
+                        f"conflicting completion for task {task_id!r}")
+                return TaskResult(task, duplicate=True)
+            if task.worker_id != worker_id:
+                raise InvalidTransitionError(f"worker {worker_id!r} does not own the task")
+            done = replace(task, phase=TaskPhase.COMPLETED, output=output,
+                           worker_id=None, next_delay=0.0, ready_at=0.0)
+            records = [{"op": "task", "task": done.as_dict()}]
+            records.extend(self._detach_worker(worker_id, task_id))
+            self._commit_unlocked({"op": "batch", "records": records})
+            return TaskResult(done)
+
+    def interrupt(self, task_id: str, worker_id: str, *, error: str = "",
+                  kind: FailureKind | str = FailureKind.WORKER_CRASH) -> TaskRecord:
+        """Move a RUNNING task to INTERRUPTED without discarding partial output."""
+        _require_str(error, "error", allow_empty=True)
+        try:
+            failure = FailureKind(kind)
+        except ValueError:
+            raise ValidationError("unknown failure kind") from None
+        with self._exclusive():
+            self._reload()
+            task = self._one(task_id, frozenset((TaskPhase.RUNNING,)),
+                             "interrupt")
+            if task.worker_id != worker_id:
+                raise InvalidTransitionError(f"worker {worker_id!r} does not own the task")
+            interrupted = replace(task, phase=TaskPhase.INTERRUPTED,
+                                  worker_id=None, failure_kind=failure.value,
+                                  last_error=error[:300])
+            records = [{"op": "task", "task": interrupted.as_dict()}]
+            records.extend(self._detach_worker(worker_id, task_id))
+            self._commit_unlocked({"op": "batch", "records": records})
+            return interrupted
+
+    def cancel(self, task_id: str, *, reason: str = "",
+               cascade: bool = False) -> TaskResult:
+        """Cancel a task; children are cancelled explicitly, never by assumption."""
+        _require_str(reason, "reason", allow_empty=True)
+        _require_bool(cascade, "cascade")
+        with self._exclusive():
+            self._reload()
+            task = self._one(task_id,
+                             frozenset((TaskPhase.QUEUED, TaskPhase.RUNNING,
+                                        TaskPhase.INTERRUPTED,
+                                        TaskPhase.RETRY_WAIT,
+                                        TaskPhase.AWAITING_APPROVAL)),
+                             "cancel")
+            targets = [task]
+            if cascade:
+                targets.extend(sorted(
+                    (t for t in self._tasks.values()
+                     if t.parent_id == task_id and t.phase not in _TERMINAL_PHASES),
+                    key=lambda t: t.task_id))
+            records: list[dict] = []
+            updated = task
+            for target in targets:
+                cancelled = replace(target, phase=TaskPhase.CANCELLED,
+                                    worker_id=None, last_error=reason[:300],
+                                    approval_token="", ready_at=0.0)
+                if target.task_id == task_id:
+                    updated = cancelled
+                records.append({"op": "task", "task": cancelled.as_dict()})
+                records.extend(self._detach_worker(target.worker_id, target.task_id))
+            self._commit_unlocked({"op": "batch", "records": records})
+            return TaskResult(updated)
+
+    def approve(self, task_id: str, token: str) -> TaskRecord:
+        """Persist a fresh approval token for a destructive task."""
+        _require_str(token, "token")
+        if not _KEY_RE.match(token):
+            raise ValidationError("approval token has invalid characters")
+        with self._exclusive():
+            self._reload()
+            task = self._one(task_id,
+                             frozenset((TaskPhase.AWAITING_APPROVAL,
+                                        TaskPhase.QUARANTINED,
+                                        TaskPhase.INTERRUPTED)),
+                             "approve")
+            if not task.destructive:
+                raise ValidationError("only destructive tasks require approval")
+            approved = replace(task, phase=TaskPhase.AWAITING_APPROVAL,
+                               approval_token=token, last_error="")
+            self._commit_unlocked({"op": "task", "task": approved.as_dict()})
+            return approved
+
+    def requeue(self, task_id: str) -> TaskRecord:
+        """Make a safely recoverable task claimable again."""
+        with self._exclusive():
+            self._reload()
+            allowed = frozenset((TaskPhase.INTERRUPTED, TaskPhase.RETRY_WAIT,
+                                 TaskPhase.AWAITING_APPROVAL))
+            task = self._one(task_id, allowed, "requeue")
+            if task.phase is TaskPhase.RETRY_WAIT and self._clock() < task.ready_at:
+                raise InvalidTransitionError(f"task {task_id!r} is not due yet")
+            if task.phase is not TaskPhase.RETRY_WAIT and task.destructive \
+                    and not task.approval_token:
+                raise ApprovalRequiredError(
+                    f"destructive task {task_id!r} needs a fresh approval token")
+            ready = replace(task, phase=TaskPhase.QUEUED, next_delay=0.0,
+                            ready_at=0.0)
+            self._commit_unlocked({"op": "task", "task": ready.as_dict()})
+            return ready
+
+    def due(self, task_id: str) -> bool:
+        """Whether a RETRY_WAIT task's backoff has elapsed."""
+        with self._exclusive():
+            self._reload()
+            task = self._one(task_id, frozenset((TaskPhase.RETRY_WAIT,)), "check")
+            return self._clock() >= task.ready_at
+
+    def record_event(self, event_id: str, payload: Any) -> tuple[Any, bool]:
+        """Idempotent event delivery: one event id, one accepted payload."""
+        _require_str(event_id, "event_id")
+        if not _KEY_RE.match(event_id):
+            raise ValidationError("event_id has invalid characters")
+        with self._exclusive():
+            self._reload()
+            if event_id in self._events:
+                prior = self._events[event_id]
+                if canonical_bytes(prior) != canonical_bytes(_jsonable(payload)):
+                    raise ReliabilityError(
+                        f"event {event_id!r} was redelivered with a different payload")
+                return prior, False
+            stored = _jsonable(payload)
+            self._commit_unlocked({"op": "event", "event_id": event_id,
+                                   "payload": stored})
+            return stored, True
+
+    # -- worker lifecycle ----------------------------------------------------
+
+    def register_worker(self, worker_id: str, *, heartbeat: bool = False) -> WorkerRecord:
+        """Register (or heartbeat) a worker; stale owners require recover()."""
+        _require_str(worker_id, "worker_id")
+        with self._exclusive():
+            self._reload()
+            existing = self._workers.get(worker_id)
+            if existing is not None:
+                if existing.phase is WorkerPhase.RETIRED:
+                    worker = replace(existing, run_id=self.run_id,
+                                     phase=WorkerPhase.ACTIVE, in_flight=(),
+                                     claims=0, heartbeats=0)
+                elif existing.run_id != self.run_id:
+                    raise ReliabilityError(
+                        f"worker {worker_id!r} belongs to another run; call recover()")
+                elif heartbeat and existing.phase is WorkerPhase.ACTIVE:
+                    worker = replace(existing, heartbeats=existing.heartbeats + 1)
+                else:
+                    return existing
+            else:
+                worker = WorkerRecord(worker_id, self.run_id, WorkerPhase.ACTIVE)
+            self._commit_unlocked({"op": "worker", "worker": worker.as_dict()})
+            return worker
+
+    def heartbeat(self, worker_id: str) -> WorkerRecord:
+        return self.register_worker(worker_id, heartbeat=True)
+
+    def worker(self, worker_id: str) -> WorkerRecord | None:
+        with self._exclusive():
+            self._reload()
+            return self._workers.get(worker_id)
+
+    def begin_shutdown(self, worker_id: str) -> WorkerRecord:
+        """Stop new claims from this worker; in-flight work is left untouched."""
+        with self._exclusive():
+            self._reload()
+            worker = self._workers.get(worker_id)
+            if worker is None:
+                raise InvalidTransitionError(f"unknown worker {worker_id!r}")
+            if worker.phase is not WorkerPhase.ACTIVE:
+                return worker
+            draining = replace(worker, phase=WorkerPhase.DRAINING)
+            self._commit_unlocked({"op": "worker", "worker": draining.as_dict()})
+            return draining
+
+    def finish_shutdown(self, worker_id: str) -> WorkerShutdown:
+        """Retire a worker and explicitly interrupt anything still in flight."""
+        with self._exclusive():
+            self._reload()
+            worker = self._workers.get(worker_id)
+            if worker is None:
+                raise InvalidTransitionError(f"unknown worker {worker_id!r}")
+            if worker.phase is WorkerPhase.RETIRED:
+                return WorkerShutdown(worker_id)
+            records: list[dict] = []
+            interrupted: list[str] = []
+            for task_id in sorted(worker.in_flight):
+                task = self._tasks.get(task_id)
+                if task is not None and task.phase is TaskPhase.RUNNING \
+                        and task.worker_id == worker_id:
+                    stopped = replace(task, phase=TaskPhase.INTERRUPTED,
+                                      worker_id=None,
+                                      failure_kind=FailureKind.WORKER_CRASH.value,
+                                      last_error="worker shutdown")
+                    records.append({"op": "task", "task": stopped.as_dict()})
+                    interrupted.append(task_id)
+            retired = replace(worker, phase=WorkerPhase.RETIRED, in_flight=())
+            records.append({"op": "worker", "worker": retired.as_dict()})
+            self._commit_unlocked({"op": "batch", "records": records})
+            return WorkerShutdown(worker_id, interrupted=tuple(interrupted))
+
+    def shutdown_worker(self, worker_id: str, *, timeout: float = 1.0,
+                        sleeper: Callable[[float], None] | None = None
+                        ) -> WorkerShutdown:
+        """Bounded drain: wait for in-flight work, then report forced interrupts."""
+        timeout = _require_finite(timeout, "timeout")
+        sleep = sleeper if sleeper is not None else time.sleep
+        if not callable(sleep):
+            raise ValidationError("sleeper must be callable")
+        deadline = self._clock() + timeout
+        self.begin_shutdown(worker_id)
+        while True:
+            worker = self.worker(worker_id)
+            if worker is None or not worker.in_flight or self._clock() >= deadline:
+                break
+            sleep(min(0.01, max(0.0, deadline - self._clock())))
+        pending = tuple(self.worker(worker_id).in_flight) if self.worker(worker_id) else ()
+        report = self.finish_shutdown(worker_id)
+        return replace(report, drained=tuple(
+            t for t in pending if t not in report.interrupted),
+            timed_out=bool(report.interrupted))
+
+    # -- restart reconstruction ---------------------------------------------
+
+    def recover(self) -> RecoveryReport:
+        """Reconstruct safe state after a process restart or lost worker.
+
+        * Non-current workers are retired and their RUNNING tasks interrupted.
+        * Destructive tasks whose approval was consumed return to
+          AWAITING_APPROVAL; no approval survives a crash implicitly.
+        * Children of blocked (FAILED/QUARANTINED) parents are quarantined.
+        """
+        with self._exclusive():
+            self._reload()
+            planned = dict(self._tasks)
+            records: list[dict] = []
+            interrupted: list[str] = []
+            quarantined: list[str] = []
+            resets: list[str] = []
+            retired: list[str] = []
+            live = {w.worker_id for w in self._workers.values()
+                    if w.run_id == self.run_id and w.phase is WorkerPhase.ACTIVE}
+            for worker_id, worker in sorted(self._workers.items()):
+                if worker.phase is WorkerPhase.RETIRED or worker_id in live:
+                    continue
+                records.append({"op": "worker",
+                                "worker": replace(worker, phase=WorkerPhase.RETIRED,
+                                                  in_flight=()).as_dict()})
+                retired.append(worker_id)
+            for task_id, task in sorted(planned.items()):
+                if task.phase is not TaskPhase.RUNNING or task.worker_id in live:
+                    continue
+                stopped = replace(task, phase=TaskPhase.INTERRUPTED,
+                                  worker_id=None,
+                                  failure_kind=FailureKind.WORKER_CRASH.value,
+                                  last_error="worker process lost")
+                planned[task_id] = stopped
+                records.append({"op": "task", "task": stopped.as_dict()})
+                interrupted.append(task_id)
+            for task_id, task in sorted(planned.items()):
+                if task.destructive and task.phase is TaskPhase.INTERRUPTED \
+                        and not task.approval_token:
+                    reset = replace(task, phase=TaskPhase.AWAITING_APPROVAL)
+                    planned[task_id] = reset
+                    records.append({"op": "task", "task": reset.as_dict()})
+                    resets.append(task_id)
+            blocked = {t.task_id for t in planned.values()
+                       if t.phase in (TaskPhase.FAILED, TaskPhase.QUARANTINED)}
+            for task_id, task in sorted(planned.items()):
+                if task.parent_id in blocked and task.phase in (
+                        TaskPhase.QUEUED, TaskPhase.INTERRUPTED,
+                        TaskPhase.RETRY_WAIT):
+                    held = replace(task, phase=TaskPhase.QUARANTINED,
+                                   worker_id=None,
+                                   last_error="parent task is blocked")
+                    planned[task_id] = held
+                    records.append({"op": "task", "task": held.as_dict()})
+                    quarantined.append(task_id)
+            if records:
+                self._commit_unlocked({"op": "batch", "records": records})
+            return RecoveryReport(tuple(interrupted), tuple(quarantined),
+                                  tuple(resets), tuple(retired),
+                                  self._tail_recovered)
+
+    # -- introspection -------------------------------------------------------
+
+    def task(self, task_id: str) -> TaskRecord | None:
+        with self._exclusive():
+            self._reload()
+            return self._tasks.get(task_id)
+
+    def tasks(self, phase: TaskPhase | None = None) -> tuple[TaskRecord, ...]:
+        with self._exclusive():
+            self._reload()
+            return tuple(t for _, t in sorted(self._tasks.items())
+                         if phase is None or t.phase is phase)
+
+    def active_workers(self) -> tuple[WorkerRecord, ...]:
+        with self._exclusive():
+            self._reload()
+            return tuple(w for _, w in sorted(self._workers.items())
+                         if w.phase is WorkerPhase.ACTIVE)
+
+    @property
+    def ops(self) -> int:
+        with self._exclusive():
+            self._reload()
+            return self._ops
+
+    @property
+    def tail_recovered(self) -> int:
+        with self._exclusive():
+            self._reload()
+            return self._tail_recovered
+
+    def as_dict(self) -> dict:
+        with self._exclusive():
+            self._reload()
+            return {"tasks": [t.as_dict() for _, t in sorted(self._tasks.items())],
+                    "workers": [w.as_dict() for _, w in sorted(self._workers.items())],
+                    "events": [[k, self._events[k]]
+                               for k in sorted(self._events)],
+                    "ops": self._ops,
+                    "tail_recovered": self._tail_recovered}
+
+
+class RuntimeLifecycle:
+    """Ordered startup/teardown with fail-closed cleanup on initialization errors.
+
+    Services are registered and initialized in declaration order; teardown
+    closes them in reverse order, drains workers before closing resources, and
+    closes databases last.  A shutdown is idempotent and every step is traced.
+    """
+
+    def __init__(self, services: Mapping[str, Callable[[], Any]], *,
+                 cleanup: Mapping[str, Callable[[], None]] | None = None,
+                 ledger: RecoveryLedger | None = None,
+                 worker_ids: Sequence[str] = (),
+                 db_names: Sequence[str] = ()) -> None:
+        if not isinstance(services, Mapping) or not services:
+            raise ValidationError("services must be a non-empty mapping")
+        for name, init in services.items():
+            _require_str(name, "service name")
+            if not callable(init):
+                raise ValidationError(f"service {name!r} must be callable")
+        closes = dict(cleanup or {})
+        for name, close in closes.items():
+            if name not in services or not callable(close):
+                raise ValidationError("cleanup must map known services to callables")
+        names = tuple(worker_ids)
+        if len(set(names)) != len(names):
+            raise ValidationError("worker ids must be unique")
+        self._services = dict(services)
+        self._cleanup = closes
+        self._ledger = ledger
+        self._worker_ids = names
+        self._db_names = frozenset(db_names)
+        self._started: list[str] = []
+        self._trace: list[tuple[str, str]] = []
+        self._stopped = False
+        self._recovery: RecoveryReport | None = None
+
+    @property
+    def trace(self) -> tuple[tuple[str, str], ...]:
+        return tuple(self._trace)
+
+    @property
+    def recovery(self) -> RecoveryReport | None:
+        return self._recovery
+
+    def startup(self) -> "RuntimeLifecycle":
+        try:
+            for name, init in self._services.items():
+                self._trace.append((LifecycleStage.REGISTER.value, name))
+                self._started.append(name)
+                self._trace.append((LifecycleStage.INITIALIZE.value, name))
+                init()
+            if self._ledger is not None:
+                self._trace.append((LifecycleStage.RECOVER.value, "ledger"))
+                self._recovery = self._ledger.recover()
+                for worker_id in self._worker_ids:
+                    self._ledger.register_worker(worker_id)
+            self._trace.append((LifecycleStage.SERVE.value, "runtime"))
+        except Exception as exc:
+            try:
+                self.shutdown()
+            except Exception:  # the original failure is the root cause
+                pass
+            raise ReliabilityError("runtime startup failed and was cleaned up") from exc
+        return self
+
+    def shutdown(self) -> tuple[tuple[str, str], ...]:
+        if self._stopped:
+            return self.trace
+        self._stopped = True
+        errors: list[str] = []
+        self._trace.append((LifecycleStage.DRAIN.value, "runtime"))
+        if self._ledger is not None:
+            for worker_id in reversed(self._worker_ids):
+                try:
+                    self._ledger.begin_shutdown(worker_id)
+                except ReliabilityError as exc:
+                    errors.append(str(exc))
+        self._trace.append((LifecycleStage.STOP_WORKERS.value, "runtime"))
+        if self._ledger is not None:
+            for worker_id in reversed(self._worker_ids):
+                try:
+                    self._ledger.finish_shutdown(worker_id)
+                except ReliabilityError as exc:
+                    errors.append(str(exc))
+        for name in reversed(self._started):
+            close = self._cleanup.get(name)
+            if close is None:
+                continue
+            stage = (LifecycleStage.CLOSE_DB if name in self._db_names
+                     else LifecycleStage.CLOSE_RESOURCES)
+            try:
+                close()
+                self._trace.append((stage.value, name))
+            except Exception as exc:
+                errors.append(f"{name}: {exc}")
+        if errors:
+            raise ReliabilityError("shutdown errors: " + "; ".join(errors))
+        return self.trace

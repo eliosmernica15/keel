@@ -59,7 +59,7 @@ Headline results, from `AUDIT-REMEDIATION-SUMMARY.md`:
   The capability surface is the intended integration path while the
   workflow integration is completed in parallel by a separate workstream; this document
   makes no claim that such integration is finished.
-- **Certification limitation:** the strengthened per-ID gate certifies **361 / 421**
+- **Certification limitation:** the strengthened per-ID gate certifies ****HISTORICAL** 361 / 421 (superseded: 421/421)**
   backend IDs; **60** are `verified with certification limitation` (prose-only ID
   mentions or module-level evidence docs without per-ID rows). No registry status was
   changed. See `REGISTRY-EVIDENCE-INTEGRITY.md` §4 and `REMAINING-WORK-MATRIX.md` §5.
@@ -80,7 +80,7 @@ A later remediation batch (`agent/final-trace`, merged and pushed) added AST-vis
 `python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
 and `--strict` enforces the gate with a non-zero exit on any failure.
 
-All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+All earlier figures of ****HISTORICAL** 361 / 421 (superseded: 421/421) traceable** and ****HISTORICAL** 60 failing (superseded: 421/421) IDs** in this document
 are **historical** — they describe the state before that batch and are retained only
 for provenance. Current authoritative certification:
 

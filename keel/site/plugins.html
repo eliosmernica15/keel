@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel — Plugins</title>
+  <meta name="description" content="Browse the Keel plugin directory: connectors, skills and MCP servers for the tools you already use." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/plugins" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="stylesheet" href="/ui/plugins.css" />
+  <link rel="stylesheet" href="/ui/search-palette.css" />
+</head>
+<body class="p-page">
+
+  <!-- Keel icon set. Same starburst mark as the landing page and /new. -->
+  <svg class="p-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="p-starburst" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/>
+      </symbol>
+      <symbol id="p-plus" viewBox="0 0 20 20"><path d="M10 4v12M4 10h12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="p-ico-search" viewBox="0 0 20 20"><circle cx="8.6" cy="8.6" r="5.4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12.6 12.6L17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+      <symbol id="p-layers" viewBox="0 0 20 20"><path d="M10 2.5 2.8 6l7.2 3.5L17.2 6 10 2.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="m2.8 10 7.2 3.5L17.2 10M2.8 14l7.2 3.5L17.2 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+      <symbol id="p-artifact" viewBox="0 0 20 20"><rect x="4" y="2.5" width="12" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7.2 6.5h5.6M7.2 9.5h5.6M7.2 12.5h3.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+      <symbol id="p-puzzle" viewBox="0 0 20 20"><path d="M3 3h5v2.2a1.6 1.6 0 1 0 3.2 0V3h5.8v5.8H15a1.6 1.6 0 1 0 0 3.2h1.8V17H11v-1.8a1.6 1.6 0 1 0-3.2 0V17H3v-5h1.8a1.6 1.6 0 1 0 0-3.2H3V3Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+      <symbol id="p-panel" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 3.5v13" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+      <symbol id="p-question" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7.8 7.8a2.3 2.3 0 1 1 3.1 2.2c-.6.3-.9.7-.9 1.3M10 14h.01" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+      <symbol id="p-doc" viewBox="0 0 16 16"><path d="M4 2h5l3 3v9H4V2Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M9 2v3h3M6 8h4M6 10.5h4" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
+      <symbol id="p-chat" viewBox="0 0 16 16"><path d="M8 2.5c-3.3 0-6 2.2-6 4.9 0 1.6.9 3 2.3 3.9l-.5 2.2 2.3-1.2c.6.1 1.2.2 1.9.2 3.3 0 6-2.2 6-4.9s-2.7-5.1-6-5.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+      <symbol id="p-more" viewBox="0 0 20 20"><circle cx="4.2" cy="10" r="1.35" fill="currentColor"/><circle cx="10" cy="10" r="1.35" fill="currentColor"/><circle cx="15.8" cy="10" r="1.35" fill="currentColor"/></symbol>
+      <symbol id="p-sliders" viewBox="0 0 20 20"><path d="M3 6h14M3 14h14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="6" r="2" fill="#fff" stroke="currentColor" stroke-width="1.4"/><circle cx="13" cy="14" r="2" fill="#fff" stroke="currentColor" stroke-width="1.4"/></symbol>
+      <symbol id="p-verified" viewBox="0 0 16 16"><path d="M8 1.1l1.75 1.2 2.12-.1.62 2.02 1.72 1.3-.72 2.02.72 2.02-1.72 1.3-.62 2.02-2.12-.1L8 14.9 6.25 13.7l-2.12.1-.62-2.02-1.72-1.3.72-2.02-.72-2.02 1.72-1.3.62-2.02 2.12.1z" fill="currentColor"/><path d="m5.4 8.1 1.7 1.7 3.5-3.6" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+      <!-- small category icons -->
+      <symbol id="p-cat-spark" viewBox="0 0 16 16"><path d="M8 1.5l1.4 4.1 4.1 1.4-4.1 1.4L8 12.5 6.6 8.4 2.5 7l4.1-1.4z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+      <symbol id="p-cat-users" viewBox="0 0 16 16"><circle cx="6" cy="5.5" r="2.3" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2.2 13c.4-2.3 1.9-3.4 3.8-3.4s3.4 1.1 3.8 3.4M10.4 3.6a2.2 2.2 0 0 1 0 4.2M11 9.9c1.6.2 2.6 1.2 2.9 3.1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+      <symbol id="p-cat-file" viewBox="0 0 16 16"><path d="M4 1.8h5l3 3v9.4H4z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M9 1.8v3h3M6 8h4M6 10.5h4" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
+      <symbol id="p-cat-book" viewBox="0 0 16 16"><path d="M3 2.5h4a2 2 0 0 1 2 2v9a1.7 1.7 0 0 0-1.7-1.7H3zM13 2.5H9a2 2 0 0 0-2 2v9a1.7 1.7 0 0 1 1.7-1.7H13z" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></symbol>
+      <symbol id="p-cat-code" viewBox="0 0 16 16"><path d="m5.8 4.5-3 3.5 3 3.5M10.2 4.5l3 3.5-3 3.5M9 3l-2 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="p-cat-db" viewBox="0 0 16 16"><ellipse cx="8" cy="3.6" rx="5" ry="2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M3 3.6v4c0 1.1 2.2 2 5 2s5-.9 5-2v-4M3 7.6v4c0 1.1 2.2 2 5 2s5-.9 5-2v-4" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
+      <symbol id="p-cat-coin" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.8" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M10.2 5.8c-.5-.7-1.3-1-2.2-1-1.3 0-2.1.6-2.1 1.5 0 2 4.2.9 4.2 3 0 1-.9 1.7-2.2 1.7-1 0-1.9-.4-2.4-1.2M8 3.6v8.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
+      <symbol id="p-cat-bolt" viewBox="0 0 16 16"><path d="M9 1.5 3.8 8.8h3.4L7 14.5l5.2-7.3H8.8z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+      <symbol id="p-cat-image" viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="11" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="6" cy="6.2" r="1.2" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="m2.6 11.8 3.3-3 2.3 2 2-1.7 3.2 3" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></symbol>
+      <symbol id="p-cat-bug" viewBox="0 0 16 16"><rect x="4.6" y="5" width="6.8" height="8" rx="3.4" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6 5V3.6M10 5V3.6M2.8 7.4h1.8M11.4 7.4h1.8M3.1 11h1.6M11.3 11h1.6M6.4 8.6h.7M9.6 8.6h.7" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
+      <symbol id="p-cat-server" viewBox="0 0 16 16"><rect x="2.2" y="2.5" width="11.6" height="4.4" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="2.2" y="9.1" width="11.6" height="4.4" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4.8 4.7h.01M4.8 11.3h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="p-cat-clock" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.8" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.5V8l2.4 1.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+      <symbol id="p-cat-mail" viewBox="0 0 16 16"><rect x="2" y="3.5" width="12" height="9" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="m2.5 4.5 5.5 4 5.5-4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+      <symbol id="p-cat-megaphone" viewBox="0 0 16 16"><path d="M3 7v2a1 1 0 0 0 1 1h1l1.5 3h1.8L7 10h1l5 3V4L8 7H4a1 1 0 0 0-1 1Z" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></symbol>
+      <symbol id="p-cat-ticket" viewBox="0 0 16 16"><path d="M2 4.5h12v2a1.5 1.5 0 0 0 0 3v2H2v-2a1.5 1.5 0 0 0 0-3z" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 5v1.2M8 9v1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+      <symbol id="p-cat-note" viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M5.3 5.8h5.4M5.3 8h5.4M5.3 10.2h3.2" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
+      <symbol id="p-cat-globe" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.8" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2.2 8h11.6M8 2.2c1.6 1.6 2.3 3.5 2.3 5.8S9.6 12.2 8 13.8C6.4 12.2 5.7 10.3 5.7 8S6.4 3.8 8 2.2Z" fill="none" stroke="currentColor" stroke-width="1.1"/></symbol>
+      <symbol id="p-ico-grid" viewBox="0 0 16 16"><rect x="2.4" y="2.4" width="4.6" height="4.6" rx="1" fill="none" stroke="currentColor" stroke-width="1.1"/><rect x="9" y="2.4" width="4.6" height="4.6" rx="1" fill="none" stroke="currentColor" stroke-width="1.1"/><rect x="2.4" y="9" width="4.6" height="4.6" rx="1" fill="none" stroke="currentColor" stroke-width="1.1"/><rect x="9" y="9" width="4.6" height="4.6" rx="1" fill="none" stroke="currentColor" stroke-width="1.1"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="p-app" id="p-app">
+    <!-- ===================== top bar ===================== -->
+    <header class="p-topbar">
+      <div class="p-topbar-left">
+        <button class="p-icon-btn p-topbar-toggle" id="p-sidebar-toggle" type="button" aria-label="Toggle sidebar" aria-controls="p-sidebar" aria-expanded="true">
+          <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-panel"/></svg>
+        </button>
+        <a class="p-wordmark" href="/" aria-label="Keel home">
+          <svg class="p-brand-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#p-starburst"/></svg>
+          <span>Keel</span>
+        </a>
+      </div>
+      <button class="p-icon-btn p-help" id="p-help" type="button" aria-label="Help with Keel">
+        <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-question"/></svg>
+      </button>
+    </header>
+
+    <div class="p-shell">
+      <!-- ===================== sidebar ===================== -->
+      <aside class="p-sidebar" id="p-sidebar" aria-label="Keel sidebar">
+        <nav class="p-side-nav" aria-label="Keel">
+          <a class="p-nav-item" id="p-nav-new" href="/new">
+            <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-plus"/></svg><span>New</span>
+          </a>
+          <button class="p-nav-item" id="p-nav-search" type="button" data-search-trigger aria-expanded="false">
+            <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-ico-search"/></svg><span>Search</span>
+          </button>
+          <a class="p-nav-item" id="p-nav-projects" href="/projects">
+            <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-layers"/></svg><span>Projects</span>
+          </a>
+          <a class="p-nav-item" id="p-nav-artifacts" href="/artifacts">
+            <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-artifact"/></svg><span>Artifacts</span>
+          </a>
+          <a class="p-nav-item is-active" id="p-nav-plugins" href="/plugins" aria-current="page">
+            <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-puzzle"/></svg><span>Plugins</span>
+          </a>
+        </nav>
+
+        <div class="p-recents-head">
+          <button class="p-section-toggle" id="p-recents-toggle" type="button" aria-expanded="true" aria-controls="p-recents-list">
+            <span>Recents</span><span class="p-chev" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="p-recents-scroll" id="p-recents-scroll">
+          <ul class="p-recents" id="p-recents-list" aria-label="Recent chats"></ul>
+          <p class="p-recents-empty" id="p-recents-empty" role="status">No recent chats yet</p>
+        </div>
+        <button class="p-view-all p-recents-view-all" id="p-recents-view-all" type="button" aria-expanded="false" aria-label="Show all recent chats" hidden>View all</button>
+
+        <div class="p-account-wrap" id="p-account-wrap">
+          <button class="p-account" id="p-account" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="p-account-menu">
+            <span class="p-avatar" aria-hidden="true">E</span>
+            <span class="p-account-name">Elios <span aria-hidden="true">·</span> Free</span>
+            <span class="p-chev" aria-hidden="true"></span>
+          </button>
+          <button class="p-icon-btn p-collapse" id="p-collapse" type="button" aria-label="Collapse sidebar" aria-controls="p-sidebar" aria-expanded="true">
+            <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-panel"/></svg>
+          </button>
+          <div class="p-menu p-account-menu" id="p-account-menu" role="menu" aria-label="Account" hidden>
+            <a role="menuitem" href="/#plans">Upgrade</a>
+            <a role="menuitem" href="/app">Settings</a>
+            <a role="menuitem" href="/download">Download apps</a>
+          </div>
+        </div>
+      </aside>
+
+      <div class="p-scrim" id="p-scrim" aria-hidden="true"></div>
+
+      <!-- ===================== main ===================== -->
+      <main class="p-main">
+        <div class="p-content">
+          <div class="p-page-head">
+            <h1 id="p-title">Plugins</h1>
+            <div class="p-wrap">
+              <button class="p-icon-btn p-head-more" id="p-head-more" type="button" aria-label="More plugin options" aria-haspopup="menu" aria-expanded="false" aria-controls="p-head-menu">
+                <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-more"/></svg>
+              </button>
+              <div class="p-menu p-popover p-menu-right" id="p-head-menu" role="menu" aria-label="Plugin options" hidden>
+                <button type="button" role="menuitem" data-action="refresh">Refresh directory</button>
+                <button type="button" role="menuitem" data-action="submit">Submit a plugin</button>
+                <button type="button" role="menuitem" data-action="copy">Copy page link</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-toolbar">
+            <div class="p-search-box">
+              <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-ico-search"/></svg>
+              <label class="p-sr-only" for="p-search">Search plugins</label>
+              <input id="p-search" type="search" placeholder="Search" autocomplete="off" />
+              <button class="p-search-clear" id="p-search-clear" type="button" aria-label="Clear search" hidden>&times;</button>
+            </div>
+            <div class="p-filters" role="group" aria-label="Filter by plugin type">
+              <button class="p-filter is-active" type="button" data-filter="all" aria-pressed="true">All</button>
+              <button class="p-filter" type="button" data-filter="connector" aria-pressed="false">Connectors</button>
+              <button class="p-filter" type="button" data-filter="skill" aria-pressed="false">Skills</button>
+            </div>
+            <div class="p-wrap">
+              <button class="p-icon-btn p-filter-btn" id="p-sort-btn" type="button" aria-label="Filter and sort options" aria-haspopup="menu" aria-expanded="false" aria-controls="p-sort-menu">
+                <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-sliders"/></svg>
+              </button>
+              <div class="p-menu p-popover p-menu-right" id="p-sort-menu" role="menu" aria-label="Sort and filter" hidden>
+                <div class="p-menu-label">Sort by</div>
+                <button type="button" role="menuitemradio" aria-checked="true" data-sort="default">Default order</button>
+                <button type="button" role="menuitemradio" aria-checked="false" data-sort="name-asc">Name A–Z</button>
+                <button type="button" role="menuitemradio" aria-checked="false" data-sort="name-desc">Name Z–A</button>
+                <div class="p-menu-sep" role="separator"></div>
+                <button type="button" role="menuitemcheckbox" aria-checked="false" data-flag="verified">Verified only</button>
+              </div>
+            </div>
+            <div class="p-wrap">
+              <button class="p-add" id="p-add-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="p-add-menu">Add <span class="p-chev" aria-hidden="true"></span></button>
+              <div class="p-menu p-popover p-menu-right" id="p-add-menu" role="menu" aria-label="Add" hidden>
+                <button type="button" role="menuitem" data-action="add-plugin">Add plugin</button>
+                <button type="button" role="menuitem" data-action="browse-categories">Browse categories</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-category-banner" id="p-category-banner" role="status" hidden>
+            <span>Showing plugins in <strong id="p-category-banner-name"></strong></span>
+            <button type="button" id="p-category-clear" aria-label="Clear category filter">&times;</button>
+          </div>
+          <p class="p-no-results" id="p-no-results" role="status" hidden>
+            No plugins match your filters. <button type="button" id="p-clear-filters">Clear filters</button>
+          </p>
+
+          <!-- ===================== Your plugins ===================== -->
+          <section class="p-section" id="p-section-your" data-section="your" aria-labelledby="p-heading-your">
+            <div class="p-section-head">
+              <h2 id="p-heading-your">Your plugins</h2>
+              <button class="p-show-all" type="button" data-section-toggle="your" aria-expanded="true" aria-controls="p-grid-your">Show all <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="p-grid p-grid--single" id="p-grid-your">
+              <div class="p-plugin-row p-plugin-row--installed" data-name="GitHub" data-desc="Built-in integration · By Keel" data-meta="Built-in integration · By Keel" data-type="connector" data-categories="Code|Engineering" data-verified="true" data-order="0">
+                <button class="p-plugin-main" type="button" aria-label="View GitHub plugin details">
+                  <span class="p-tile p-tile--github" aria-hidden="true">GH</span>
+                  <span class="p-plugin-text">
+                    <span class="p-plugin-name">GitHub <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span>
+                    <span class="p-plugin-desc">Built-in integration · By Keel</span>
+                  </span>
+                </button>
+                <div class="p-wrap p-row-wrap">
+                  <button class="p-icon-btn p-row-more" id="p-github-more" type="button" aria-label="More GitHub options" aria-haspopup="menu" aria-expanded="false" aria-controls="p-github-menu">
+                    <svg class="p-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#p-more"/></svg>
+                  </button>
+                  <div class="p-menu p-popover p-menu-right" id="p-github-menu" role="menu" aria-label="GitHub options" hidden>
+                    <button type="button" role="menuitem" data-action="plugin-info" data-plugin="GitHub">Plugin details</button>
+                    <button type="button" role="menuitem" data-action="manage-connection" data-plugin="GitHub">Manage connection</button>
+                    <button type="button" role="menuitem" data-action="remove-plugin" data-plugin="GitHub">Remove from Keel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================== Most used ===================== -->
+          <section class="p-section" id="p-section-most" data-section="most" aria-labelledby="p-heading-most">
+            <div class="p-section-head">
+              <h2 id="p-heading-most">Most used</h2>
+              <button class="p-show-all" type="button" data-section-toggle="most" aria-expanded="true" aria-controls="p-grid-most">Show all <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="p-grid" id="p-grid-most">
+              <div class="p-plugin-row" data-name="Google Drive" data-desc="Search, read, and upload files instantly" data-meta="Connector · By Google" data-type="connector" data-categories="Files &amp; documents|Servers &amp; cloud" data-verified="true" data-order="0">
+                <button class="p-plugin-main" type="button" aria-label="View Google Drive plugin details"><span class="p-tile p-tile--google" aria-hidden="true">D</span><span class="p-plugin-text"><span class="p-plugin-name">Google Drive <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Search, read, and upload files instantly</span><span class="p-plugin-meta">Connector · By Google</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Gmail" data-desc="Draft replies, summarize threads, &amp; search your inbox" data-meta="Connector · By Google" data-type="connector" data-categories="Email &amp; messages|Contacts &amp; leads" data-verified="true" data-order="1">
+                <button class="p-plugin-main" type="button" aria-label="View Gmail plugin details"><span class="p-tile p-tile--gmail" aria-hidden="true">M</span><span class="p-plugin-text"><span class="p-plugin-name">Gmail <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Draft replies, summarize threads, &amp; search your inbox</span><span class="p-plugin-meta">Connector · By Google</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Google Calendar" data-desc="Manage your schedule and coordinate meetings effortlessly" data-meta="Connector · By Google" data-type="connector" data-categories="Tickets &amp; tasks|Automation &amp; workflows" data-verified="true" data-order="2">
+                <button class="p-plugin-main" type="button" aria-label="View Google Calendar plugin details"><span class="p-tile p-tile--calendar" aria-hidden="true">C</span><span class="p-plugin-text"><span class="p-plugin-name">Google Calendar <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Manage your schedule and coordinate meetings effortlessly</span><span class="p-plugin-meta">Connector · By Google</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Microsoft 365" data-desc="Connect your Outlook mail, calendar, and files to Keel" data-meta="Connector · By Keel" data-type="connector" data-categories="Files &amp; documents|Email &amp; messages" data-verified="true" data-order="3">
+                <button class="p-plugin-main" type="button" aria-label="View Microsoft 365 plugin details"><span class="p-tile p-tile--microsoft" aria-hidden="true">M</span><span class="p-plugin-text"><span class="p-plugin-name">Microsoft 365 <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Connect your Outlook mail, calendar, and files to Keel</span><span class="p-plugin-meta">Connector · By Keel</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Canva" data-desc="Search, create, autofill, and export Canva designs" data-meta="Connector · By Canva" data-type="connector" data-categories="Designs &amp; media|Marketing" data-verified="true" data-order="4">
+                <button class="p-plugin-main" type="button" aria-label="View Canva plugin details"><span class="p-tile p-tile--canva" aria-hidden="true">C</span><span class="p-plugin-text"><span class="p-plugin-name">Canva <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Search, create, autofill, and export Canva designs</span><span class="p-plugin-meta">Connector · By Canva</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Google Sheets" data-desc="Read, analyze, and update your spreadsheets" data-meta="Connector · By Google" data-type="connector" data-categories="Files &amp; documents|Databases" data-verified="true" data-order="5">
+                <button class="p-plugin-main" type="button" aria-label="View Google Sheets plugin details"><span class="p-tile p-tile--sheets" aria-hidden="true">S</span><span class="p-plugin-text"><span class="p-plugin-name">Google Sheets <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Read, analyze, and update your spreadsheets</span><span class="p-plugin-meta">Connector · By Google</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Slack" data-desc="Send messages, create canvases, and fetch Slack data" data-meta="Connector · By Slack" data-type="connector" data-categories="Email &amp; messages|Tickets &amp; tasks" data-verified="true" data-order="6">
+                <button class="p-plugin-main" type="button" aria-label="View Slack plugin details"><span class="p-tile p-tile--slack" aria-hidden="true">S</span><span class="p-plugin-text"><span class="p-plugin-name">Slack <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Send messages, create canvases, and fetch Slack data</span><span class="p-plugin-meta">Connector · By Slack</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Notion" data-desc="Connect your Notion workspace to search, update, and…" data-meta="Connector · By Notion" data-type="connector" data-categories="Notes &amp; memory|Files &amp; documents" data-verified="true" data-order="7">
+                <button class="p-plugin-main" type="button" aria-label="View Notion plugin details"><span class="p-tile p-tile--notion" aria-hidden="true">N</span><span class="p-plugin-text"><span class="p-plugin-name">Notion <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Connect your Notion workspace to search, update, and…</span><span class="p-plugin-meta">Connector · By Notion</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Atlassian MCP" data-desc="Search, read and update Jira, Confluence, Bitbucket, Loo…" data-meta="Connector · By Atlassian" data-type="connector" data-categories="Tickets &amp; tasks|Engineering" data-verified="true" data-order="8">
+                <button class="p-plugin-main" type="button" aria-label="View Atlassian MCP plugin details"><span class="p-tile p-tile--atlassian" aria-hidden="true">A</span><span class="p-plugin-text"><span class="p-plugin-name">Atlassian MCP <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Search, read and update Jira, Confluence, Bitbucket, Loo…</span><span class="p-plugin-meta">Connector · By Atlassian</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Google Docs" data-desc="Edit, comment on, and summarize your documents" data-meta="Connector · By Google" data-type="connector" data-categories="Files &amp; documents" data-verified="true" data-order="9">
+                <button class="p-plugin-main" type="button" aria-label="View Google Docs plugin details"><span class="p-tile p-tile--docs" aria-hidden="true">D</span><span class="p-plugin-text"><span class="p-plugin-name">Google Docs <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Edit, comment on, and summarize your documents</span><span class="p-plugin-meta">Connector · By Google</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Figma" data-desc="Generate diagrams and better code from Figma context" data-meta="Connector · By Figma" data-type="connector" data-categories="Designs &amp; media|Code" data-verified="true" data-order="10">
+                <button class="p-plugin-main" type="button" aria-label="View Figma plugin details"><span class="p-tile p-tile--figma" aria-hidden="true">F</span><span class="p-plugin-text"><span class="p-plugin-name">Figma <span class="p-verified" role="img" aria-label="Verified"><svg viewBox="0 0 16 16" aria-hidden="true"><use href="#p-verified"/></svg></span></span><span class="p-plugin-desc">Generate diagrams and better code from Figma context</span><span class="p-plugin-meta">Connector · By Figma</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Superpowers" data-desc="Core skills library for Keel Code: TDD, debugging,…" data-meta="Hook &amp; skills · obra/superpowers" data-type="skill" data-categories="Code|Engineering" data-verified="false" data-order="11">
+                <button class="p-plugin-main" type="button" aria-label="View Superpowers plugin details"><span class="p-tile p-tile--superpowers" aria-hidden="true">S</span><span class="p-plugin-text"><span class="p-plugin-name">Superpowers</span><span class="p-plugin-desc">Core skills library for Keel Code: TDD, debugging,…</span><span class="p-plugin-meta">Hook &amp; skills · obra/superpowers</span></span></button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================== Popular workflows ===================== -->
+          <section class="p-section" id="p-section-popular" data-section="popular" aria-labelledby="p-heading-popular">
+            <div class="p-section-head">
+              <h2 id="p-heading-popular">Popular workflows</h2>
+              <button class="p-show-all" type="button" data-section-toggle="popular" aria-expanded="true" aria-controls="p-grid-popular">Show all <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="p-grid" id="p-grid-popular">
+              <div class="p-plugin-row" data-name="Unreal Engine Skills" data-desc="Control Unreal Editor directly from Keel Code via MCP…" data-meta="Hook &amp; skills · epigames/unreal-engine-skills-for-cla…" data-type="skill" data-categories="Engineering|Designs &amp; media|Code" data-verified="false" data-order="0">
+                <button class="p-plugin-main" type="button" aria-label="View Unreal Engine Skills plugin details"><span class="p-tile p-tile--unreal" aria-hidden="true">U</span><span class="p-plugin-text"><span class="p-plugin-name">Unreal Engine Skills</span><span class="p-plugin-desc">Control Unreal Editor directly from Keel Code via MCP…</span><span class="p-plugin-meta">Hook &amp; skills · epigames/unreal-engine-skills-for-cla…</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Meshy" data-desc="Generate 3D models, textures, and images, rig and animat…" data-meta="Skills · meshy-dev/meshy-3d-agent" data-type="skill" data-categories="Designs &amp; media|AI models &amp; agents" data-verified="false" data-order="1">
+                <button class="p-plugin-main" type="button" aria-label="View Meshy plugin details"><span class="p-tile p-tile--meshy" aria-hidden="true">M</span><span class="p-plugin-text"><span class="p-plugin-name">Meshy</span><span class="p-plugin-desc">Generate 3D models, textures, and images, rig and animat…</span><span class="p-plugin-meta">Skills · meshy-dev/meshy-3d-agent</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="frontend-design" data-desc="Frontend design skill for UI/UX implementation" data-meta="Skill · keel/plugins-official" data-type="skill" data-categories="Designs &amp; media|Code" data-verified="false" data-order="2">
+                <button class="p-plugin-main" type="button" aria-label="View frontend-design plugin details"><span class="p-tile p-tile--frontend" aria-hidden="true">f</span><span class="p-plugin-text"><span class="p-plugin-name">frontend-design</span><span class="p-plugin-desc">Frontend design skill for UI/UX implementation</span><span class="p-plugin-meta">Skill · keel/plugins-official</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Unity" data-desc="Unity's official plugin for Keel Code, with curated skills f…" data-meta="Skills · unity-technologies/unity-agent-plugin" data-type="skill" data-categories="Engineering|Code|Designs &amp; media" data-verified="false" data-order="3">
+                <button class="p-plugin-main" type="button" aria-label="View Unity plugin details"><span class="p-tile p-tile--unity" aria-hidden="true">U</span><span class="p-plugin-text"><span class="p-plugin-name">Unity</span><span class="p-plugin-desc">Unity's official plugin for Keel Code, with curated skills f…</span><span class="p-plugin-meta">Skills · unity-technologies/unity-agent-plugin</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="telegram" data-desc="Telegram channel for Keel Code — messaging bridge wi…" data-meta="Local MCP server &amp; skills · keel/plugins-…" data-type="skill" data-categories="Email &amp; messages|Automation &amp; workflows" data-verified="false" data-order="4">
+                <button class="p-plugin-main" type="button" aria-label="View telegram plugin details"><span class="p-tile p-tile--telegram" aria-hidden="true">T</span><span class="p-plugin-text"><span class="p-plugin-name">telegram</span><span class="p-plugin-desc">Telegram channel for Keel Code — messaging bridge wi…</span><span class="p-plugin-meta">Local MCP server &amp; skills · keel/plugins-…</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="databricks" data-desc="Databricks skills for the CLI, Apps, Lakebase, Model Servi…" data-meta="Hooks, commands &amp; skills · databricks/…" data-type="skill" data-categories="Databases|Engineering|AI models &amp; agents" data-verified="false" data-order="5">
+                <button class="p-plugin-main" type="button" aria-label="View databricks plugin details"><span class="p-tile p-tile--databricks" aria-hidden="true">D</span><span class="p-plugin-text"><span class="p-plugin-name">databricks</span><span class="p-plugin-desc">Databricks skills for the CLI, Apps, Lakebase, Model Servi…</span><span class="p-plugin-meta">Hooks, commands &amp; skills · databricks/…</span></span></button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================== Trending ===================== -->
+          <section class="p-section" id="p-section-trending" data-section="trending" aria-labelledby="p-heading-trending">
+            <div class="p-section-head">
+              <h2 id="p-heading-trending">Trending</h2>
+              <button class="p-show-all" type="button" data-section-toggle="trending" aria-expanded="true" aria-controls="p-grid-trending">Show all <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="p-grid" id="p-grid-trending">
+              <div class="p-plugin-row" data-name="Zoho Mail" data-desc="Send, read, and organize email with your Zoho Mail account" data-meta="Connector · By Zoho Corporation" data-type="connector" data-categories="Email &amp; messages|Contacts &amp; leads" data-verified="false" data-order="0">
+                <button class="p-plugin-main" type="button" aria-label="View Zoho Mail plugin details"><span class="p-tile p-tile--zoho" aria-hidden="true">Z</span><span class="p-plugin-text"><span class="p-plugin-name">Zoho Mail</span><span class="p-plugin-desc">Send, read, and organize email with your Zoho Mail account</span><span class="p-plugin-meta">Connector · By Zoho Corporation</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Lena" data-desc="Bring Lena's AI assistance into your Keel workspace" data-meta="Connector · By Exutitive, Inc." data-type="connector" data-categories="AI models &amp; agents|Contacts &amp; leads" data-verified="false" data-order="1">
+                <button class="p-plugin-main" type="button" aria-label="View Lena plugin details"><span class="p-tile p-tile--lena" aria-hidden="true">L</span><span class="p-plugin-text"><span class="p-plugin-name">Lena</span><span class="p-plugin-desc">Bring Lena's AI assistance into your Keel workspace</span><span class="p-plugin-meta">Connector · By Exutitive, Inc.</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="VistaPrint" data-desc="Design and order print marketing materials from VistaPrint" data-meta="Connector · By VistaPrint" data-type="connector" data-categories="Designs &amp; media|Marketing" data-verified="false" data-order="2">
+                <button class="p-plugin-main" type="button" aria-label="View VistaPrint plugin details"><span class="p-tile p-tile--vistaprint" aria-hidden="true">V</span><span class="p-plugin-text"><span class="p-plugin-name">VistaPrint</span><span class="p-plugin-desc">Design and order print marketing materials from VistaPrint</span><span class="p-plugin-meta">Connector · By VistaPrint</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Arca FDA, Trials &amp; PubMed" data-desc="Search regulatory, clinical trial, and medical literature" data-meta="Connector · By Arca" data-type="connector" data-categories="Reference docs|Databases" data-verified="false" data-order="3">
+                <button class="p-plugin-main" type="button" aria-label="View Arca FDA, Trials &amp; PubMed plugin details"><span class="p-tile p-tile--arca" aria-hidden="true">A</span><span class="p-plugin-text"><span class="p-plugin-name">Arca FDA, Trials &amp; PubMed</span><span class="p-plugin-desc">Search regulatory, clinical trial, and medical literature</span><span class="p-plugin-meta">Connector · By Arca</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="ThunderPhone" data-desc="Make and manage calls from your ThunderPhone account" data-meta="Connector · By ThunderPhone" data-type="connector" data-categories="Contacts &amp; leads|Email &amp; messages" data-verified="false" data-order="4">
+                <button class="p-plugin-main" type="button" aria-label="View ThunderPhone plugin details"><span class="p-tile p-tile--thunderphone" aria-hidden="true">T</span><span class="p-plugin-text"><span class="p-plugin-name">ThunderPhone</span><span class="p-plugin-desc">Make and manage calls from your ThunderPhone account</span><span class="p-plugin-meta">Connector · By ThunderPhone</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Zoho Books" data-desc="Manage invoices, expenses, and accounting in Zoho Books" data-meta="Connector · By Zoho Corporation" data-type="connector" data-categories="Finances|Sales" data-verified="false" data-order="5">
+                <button class="p-plugin-main" type="button" aria-label="View Zoho Books plugin details"><span class="p-tile p-tile--zoho" aria-hidden="true">Z</span><span class="p-plugin-text"><span class="p-plugin-name">Zoho Books</span><span class="p-plugin-desc">Manage invoices, expenses, and accounting in Zoho Books</span><span class="p-plugin-meta">Connector · By Zoho Corporation</span></span></button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================== New ===================== -->
+          <section class="p-section" id="p-section-new" data-section="new" aria-labelledby="p-heading-new">
+            <div class="p-section-head">
+              <h2 id="p-heading-new">New</h2>
+              <button class="p-show-all" type="button" data-section-toggle="new" aria-expanded="true" aria-controls="p-grid-new">Show all <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="p-grid" id="p-grid-new">
+              <div class="p-plugin-row" data-name="aws-context" data-desc="Bring AWS account context and documentation into Keel" data-meta="Commands, connector &amp; skills · By Amazon Web Services" data-type="connector|skill" data-categories="Servers &amp; cloud|Code|Engineering" data-verified="false" data-order="0">
+                <button class="p-plugin-main" type="button" aria-label="View aws-context plugin details"><span class="p-tile p-tile--aws" aria-hidden="true">a</span><span class="p-plugin-text"><span class="p-plugin-name">aws-context</span><span class="p-plugin-desc">Bring AWS account context and documentation into Keel</span><span class="p-plugin-meta">Commands, connector &amp; skills · By Amazon Web Services</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Slideworks" data-desc="Create and manage presentation decks with Slideworks" data-meta="Connector · By Slideworks" data-type="connector" data-categories="Designs &amp; media|Files &amp; documents" data-verified="false" data-order="1">
+                <button class="p-plugin-main" type="button" aria-label="View Slideworks plugin details"><span class="p-tile p-tile--slideworks" aria-hidden="true">S</span><span class="p-plugin-text"><span class="p-plugin-name">Slideworks</span><span class="p-plugin-desc">Create and manage presentation decks with Slideworks</span><span class="p-plugin-meta">Connector · By Slideworks</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="AI Producer by OpusClip" data-desc="Turn long videos into short clips with AI" data-meta="Connector &amp; skills · By OpusClip" data-type="connector|skill" data-categories="Designs &amp; media|AI models &amp; agents|Marketing" data-verified="false" data-order="2">
+                <button class="p-plugin-main" type="button" aria-label="View AI Producer by OpusClip plugin details"><span class="p-tile p-tile--opusclip" aria-hidden="true">AI</span><span class="p-plugin-text"><span class="p-plugin-name">AI Producer by OpusClip</span><span class="p-plugin-desc">Turn long videos into short clips with AI</span><span class="p-plugin-meta">Connector &amp; skills · By OpusClip</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Make" data-desc="Build automations across your apps with Make" data-meta="Connector · By Make" data-type="connector" data-categories="Automation &amp; workflows|APIs" data-verified="false" data-order="3">
+                <button class="p-plugin-main" type="button" aria-label="View Make plugin details"><span class="p-tile p-tile--make" aria-hidden="true">M</span><span class="p-plugin-text"><span class="p-plugin-name">Make</span><span class="p-plugin-desc">Build automations across your apps with Make</span><span class="p-plugin-meta">Connector · By Make</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="aws-continuum" data-desc="Access AWS documentation and continuum skills in Keel Code" data-meta="Commands &amp; skills · By Amazon Web Services" data-type="skill" data-categories="Servers &amp; cloud|Engineering|Reference docs" data-verified="false" data-order="4">
+                <button class="p-plugin-main" type="button" aria-label="View aws-continuum plugin details"><span class="p-tile p-tile--aws" aria-hidden="true">a</span><span class="p-plugin-text"><span class="p-plugin-name">aws-continuum</span><span class="p-plugin-desc">Access AWS documentation and continuum skills in Keel Code</span><span class="p-plugin-meta">Commands &amp; skills · By Amazon Web Services</span></span></button>
+              </div>
+              <div class="p-plugin-row" data-name="Harvest" data-desc="Track time and manage projects with Harvest" data-meta="Connector · By Harvest" data-type="connector" data-categories="Finances|Tickets &amp; tasks" data-verified="false" data-order="5">
+                <button class="p-plugin-main" type="button" aria-label="View Harvest plugin details"><span class="p-tile p-tile--harvest" aria-hidden="true">H</span><span class="p-plugin-text"><span class="p-plugin-name">Harvest</span><span class="p-plugin-desc">Track time and manage projects with Harvest</span><span class="p-plugin-meta">Connector · By Harvest</span></span></button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================== Categories ===================== -->
+          <section class="p-section p-categories" id="p-section-categories" data-section="categories" aria-labelledby="p-heading-categories">
+            <div class="p-section-head">
+              <h2 id="p-heading-categories">Categories</h2>
+              <button class="p-show-all" type="button" id="p-categories-toggle" data-section-toggle="categories" aria-expanded="true" aria-controls="p-cat-grid">Show all <span aria-hidden="true">→</span></button>
+            </div>
+            <div class="p-cat-grid" id="p-cat-grid">
+              <button class="p-category" type="button" data-category="AI models &amp; agents" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-spark"/></svg><span>AI models &amp; agents</span></button>
+              <button class="p-category" type="button" data-category="Contacts &amp; leads" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-users"/></svg><span>Contacts &amp; leads</span></button>
+              <button class="p-category" type="button" data-category="Files &amp; documents" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-file"/></svg><span>Files &amp; documents</span></button>
+              <button class="p-category" type="button" data-category="Reference docs" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-book"/></svg><span>Reference docs</span></button>
+              <button class="p-category" type="button" data-category="APIs" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-code"/></svg><span>APIs</span></button>
+              <button class="p-category" type="button" data-category="Databases" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-db"/></svg><span>Databases</span></button>
+              <button class="p-category" type="button" data-category="Finances" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-coin"/></svg><span>Finances</span></button>
+              <button class="p-category" type="button" data-category="Sales" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-megaphone"/></svg><span>Sales</span></button>
+              <button class="p-category" type="button" data-category="Automation &amp; workflows" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-bolt"/></svg><span>Automation &amp; workflows</span></button>
+              <button class="p-category" type="button" data-category="Designs &amp; media" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-image"/></svg><span>Designs &amp; media</span></button>
+              <button class="p-category" type="button" data-category="Logs &amp; errors" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-bug"/></svg><span>Logs &amp; errors</span></button>
+              <button class="p-category" type="button" data-category="Servers &amp; cloud" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-server"/></svg><span>Servers &amp; cloud</span></button>
+              <button class="p-category" type="button" data-category="Keel history" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-clock"/></svg><span>Keel history</span></button>
+              <button class="p-category" type="button" data-category="Email &amp; messages" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-mail"/></svg><span>Email &amp; messages</span></button>
+              <button class="p-category" type="button" data-category="Marketing" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-megaphone"/></svg><span>Marketing</span></button>
+              <button class="p-category" type="button" data-category="Tickets &amp; tasks" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-ticket"/></svg><span>Tickets &amp; tasks</span></button>
+              <button class="p-category" type="button" data-category="Code" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-code"/></svg><span>Code</span></button>
+              <button class="p-category" type="button" data-category="Engineering" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-ico-grid"/></svg><span>Engineering</span></button>
+              <button class="p-category" type="button" data-category="Notes &amp; memory" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-note"/></svg><span>Notes &amp; memory</span></button>
+              <button class="p-category" type="button" data-category="Websites" aria-pressed="false"><svg class="p-cat-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#p-cat-globe"/></svg><span>Websites</span></button>
+            </div>
+          </section>
+
+          <footer class="p-footer">
+            Submission to the Directory is governed by the <a href="/terms">Software Directory Terms</a>; use of Connectors is governed by your relevant terms.
+          </footer>
+        </div>
+
+        <div class="p-info-panel" id="p-info-panel" role="status" aria-live="polite" hidden>
+          <button class="p-info-close" id="p-info-close" type="button" aria-label="Dismiss note">&times;</button>
+          <h2 id="p-info-title"></h2>
+          <p id="p-info-text"></p>
+          <a id="p-info-link" href="/app" hidden>Open in Keel</a>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================== plugin detail dialog ===================== -->
+  <div class="p-modal" id="p-modal" hidden>
+    <div class="p-modal-backdrop" id="p-modal-backdrop"></div>
+    <div class="p-modal-card" role="dialog" aria-modal="true" aria-labelledby="p-modal-title" aria-describedby="p-modal-desc">
+      <button class="p-modal-close" id="p-modal-close" type="button" aria-label="Close dialog">&times;</button>
+      <div class="p-modal-head">
+        <span class="p-tile p-tile--github" id="p-modal-tile" aria-hidden="true">GH</span>
+        <div class="p-modal-heading">
+          <h2 id="p-modal-title"></h2>
+          <p id="p-modal-meta"></p>
+        </div>
+      </div>
+      <p class="p-modal-description" id="p-modal-desc"></p>
+      <p class="p-modal-confirm" id="p-modal-confirm" role="status" hidden></p>
+      <div class="p-modal-actions">
+        <button class="p-btn-ghost" id="p-modal-cancel" type="button">Close</button>
+        <button class="p-btn-primary" id="p-add-to-keel" type="button">Add to Keel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== add plugin dialog ===================== -->
+  <div class="p-modal" id="p-add-modal" hidden>
+    <div class="p-modal-backdrop" id="p-add-backdrop"></div>
+    <div class="p-modal-card" role="dialog" aria-modal="true" aria-labelledby="p-add-title" aria-describedby="p-add-desc">
+      <button class="p-modal-close" id="p-add-close" type="button" aria-label="Close dialog">&times;</button>
+      <h2 id="p-add-title">Add a plugin</h2>
+      <p class="p-modal-description" id="p-add-desc">Connectors, skills and MCP servers are installed from the Keel desktop app. Search the directory here, then add a plugin in Keel.</p>
+      <div class="p-modal-actions">
+        <button class="p-btn-ghost" id="p-add-cancel" type="button">Close</button>
+        <a class="p-btn-primary p-btn-link" href="/download">Download Keel</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-toast" id="p-toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="/ui/search-palette.js" defer></script>
+  <script src="/ui/plugins.js" defer></script>
+</body>
+</html>

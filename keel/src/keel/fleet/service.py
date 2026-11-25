@@ -183,11 +183,6 @@ class FleetStore:
             slug = bot_id
         else:
             slug = _slugify(name)
-        base = slug
-        suffix = 0
-        while self._bot_exists(base):
-            suffix += 1
-            base = f"{slug}-{suffix}"
         name = name.strip()
         if not name:
             raise ValueError("name must not be empty")
@@ -199,7 +194,15 @@ class FleetStore:
         avatar_hue = (int(avatar_hue) % 360 if avatar_hue is not None
                       else int.from_bytes(os.urandom(2), "big") % 360)
         now = _utcnow()
+        # Slug selection and INSERT must be one atomic critical section. Two
+        # threads that both see ``slug`` free before either inserts would
+        # otherwise race into the bots(id) UNIQUE constraint (IntegrityError).
         with self._lock:
+            base = slug
+            suffix = 0
+            while self._bot_exists(base):
+                suffix += 1
+                base = f"{slug}-{suffix}"
             self._conn.execute(
                 "INSERT INTO bots(id, name, role, engine, provider, model,\n"
                 "                 notes, avatar_hue, created_at, updated_at,\n"
@@ -479,19 +482,22 @@ class FleetStore:
         proj = self.get_project(project_id)
         if proj is None:
             return None
+        # Hold the lock across the ownership re-check AND creation: the inner
+        # create_bot() re-enters this RLock, so no other thread can observe a
+        # missing project bot and create a second one for the same project.
         with self._lock:
             row = self._conn.execute(
                 "SELECT * FROM bots WHERE project_id = ? ORDER BY created_at ASC LIMIT 1",
                 (project_id,)).fetchone()
-        if row is not None:
-            return self.get_bot(row["id"])
-        return self.create_bot(
-            name=proj["name"],
-            role=f"project · {proj['path']}",
-            engine="provider",
-            notes=f"Dedicated chat for {proj['path']}",
-            avatar_hue=int(project_id[:4], 16) % 360,
-            project_id=project_id)
+            if row is not None:
+                return self.get_bot(row["id"])
+            return self.create_bot(
+                name=proj["name"],
+                role=f"project · {proj['path']}",
+                engine="provider",
+                notes=f"Dedicated chat for {proj['path']}",
+                avatar_hue=int(project_id[:4], 16) % 360,
+                project_id=project_id)
 
     def project_id_of(self, bot_id: str):
         with self._lock:

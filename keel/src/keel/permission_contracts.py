@@ -642,6 +642,11 @@ class ApprovalStoreError(RuntimeError):
 _APPROVAL_VERSION = 1
 _LOCK_TIMEOUT_S = 5.0
 _LOCK_STALE_S = 30.0
+#: Bounded retry budget for transient Windows sharing violations on the lock
+#: file and on ``os.replace``. Never treat a transient IO failure as an empty
+#: store (that would silently clobber previously saved approvals).
+_IO_RETRIES = 8
+_IO_RETRY_S = 0.01
 
 # Cross-instance correctness: several ApprovalStore objects in the same process
 # may target one approval file.  A file lock alone is fragile under load (a
@@ -711,11 +716,30 @@ class ApprovalStore:
             "rejections": [],
         }
 
-    def _load(self) -> dict:
-        try:
-            raw = self.path.read_bytes()
-        except (FileNotFoundError, OSError):
-            return self._empty_doc()
+    def _load(self, *, strict: bool = False) -> dict:
+        """Load the on-disk document.
+
+        ``strict=True`` is used by mutations: a transient OS error (Windows
+        raises ``PermissionError`` while another process replaces the file)
+        must never be mistaken for an empty store, because the subsequent
+        read-modify-write would erase every earlier approval. Such failures
+        are retried and then raised; only a genuine missing file yields the
+        empty document.
+        """
+        raw: Optional[bytes] = None
+        for attempt in range(_IO_RETRIES):
+            try:
+                raw = self.path.read_bytes()
+                break
+            except FileNotFoundError:
+                return self._empty_doc()
+            except OSError:
+                if attempt + 1 < _IO_RETRIES:
+                    time.sleep(_IO_RETRY_S * (attempt + 1))
+        if raw is None:
+            if strict:
+                raise ApprovalStoreError("failed to read approval store")
+            return self._empty_doc()  # fail closed for read-only queries
         try:
             doc = json.loads(raw.decode("utf-8"))
         except Exception:
@@ -737,7 +761,17 @@ class ApprovalStore:
                 json.dump(doc, handle, indent=2, ensure_ascii=False)
                 handle.flush()
                 os.fsync(handle.fileno())
-            os.replace(tmp, self.path)
+            for attempt in range(_IO_RETRIES):
+                try:
+                    os.replace(tmp, self.path)
+                    break
+                except OSError:
+                    # Windows can refuse replacing a file that a concurrent
+                    # reader still has open. Retry instead of dropping the
+                    # approval; the on-disk lock excludes other writers.
+                    if attempt + 1 >= _IO_RETRIES:
+                        raise
+                    time.sleep(_IO_RETRY_S * (attempt + 1))
         except BaseException:
             try:
                 tmp.unlink()
@@ -754,7 +788,11 @@ class ApprovalStore:
         while fd is None:
             try:
                 fd = os.open(str(lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-            except FileExistsError:
+            except OSError:
+                # POSIX reports FileExistsError; Windows reports
+                # PermissionError for the same O_EXCL race while the previous
+                # holder is unlinking. Both mean "contended": retry to the
+                # deadline instead of losing the approval write.
                 try:
                     age = time.time() - lock_path.stat().st_mtime
                 except OSError:
@@ -808,7 +846,7 @@ class ApprovalStore:
             return ""
 
     def _has_saved_allow(self, request: ApprovalRequest) -> bool:
-        for entry in self._load()["allow_patterns"]:
+        for entry in self._load(strict=True)["allow_patterns"]:
             if not isinstance(entry, dict):
                 continue
             if (wildcard_match(str(entry.get("action", "")), request.action,
@@ -839,8 +877,8 @@ class ApprovalStore:
 
     def add_pending(self, request: ApprovalRequest) -> None:
         with self._lock:
-            with self._file_lock():
-                doc = self._load()
+            with _path_lock(self.path), self._file_lock():
+                doc = self._load(strict=True)
                 doc["pending"].append(_request_to_dict(request))
                 self._write_atomic(doc)
             self._doc = doc
@@ -848,8 +886,8 @@ class ApprovalStore:
     def reject_pending(self, session_id: str, feedback: str = "") -> tuple[ApprovalRequest, ...]:
         """Reject every pending request in the session (W3.9 ``reject``)."""
         with self._lock:
-            with self._file_lock():
-                doc = self._load()
+            with _path_lock(self.path), self._file_lock():
+                doc = self._load(strict=True)
                 kept, rejected = [], []
                 for entry in doc["pending"]:
                     if isinstance(entry, dict) and entry.get("session_id") == session_id:
@@ -874,6 +912,12 @@ class ApprovalStore:
         Precedence: configured deny (hard floor) -> saved ``always`` pattern ->
         non-interactive fail-closed deny -> the user's ``once``/``always``/
         ``reject`` reply. ``always`` records only ``request.proposed_pattern``.
+
+        An explicit ``always`` reply records its *exact* proposed pattern even
+        when a broader saved approval already covers the request. Otherwise a
+        broad earlier pattern (e.g. ``cmd1*``) would suppress the record of a
+        later, explicitly approved pattern (e.g. ``cmd10*``), making durable
+        approval state depend on thread scheduling.
         """
         rules = tuple(configured_rules)
         try:
@@ -889,12 +933,16 @@ class ApprovalStore:
                                reason="configured deny rule; approval cannot grant"),
                     reply_enum)
 
-            if self._has_saved_allow(request):
+            saved = self._has_saved_allow(request)
+            if saved and reply_enum is not ApprovalReply.ALWAYS:
                 return ApprovalOutcome(
                     Evaluation(Effect.ALLOW, reason="saved always-approval "
                                                   "(project-scoped pattern)"),
                     reply_enum)
 
+            # The saved-allow short-circuit above already covers an approved
+            # request. Every other reply is new and must fail closed when no
+            # interactive responder exists.
             if non_interactive:
                 return ApprovalOutcome(
                     Evaluation(Effect.DENY,
@@ -908,6 +956,11 @@ class ApprovalStore:
 
             pattern = request.proposed_pattern.strip()
             if reply_enum is ApprovalReply.ONCE or not pattern:
+                if saved:
+                    return ApprovalOutcome(
+                        Evaluation(Effect.ALLOW, reason="saved always-approval "
+                                                      "(project-scoped pattern)"),
+                        reply_enum)
                 reason = ("allowed once" if reply_enum is ApprovalReply.ONCE
                           else "always reply had no tool-proposed pattern; "
                                "allowed once, nothing persisted")
@@ -923,7 +976,7 @@ class ApprovalStore:
                     reply_enum)
 
             with _path_lock(self.path), self._file_lock():
-                doc = self._load()
+                doc = self._load(strict=True)
                 key = (request.action, pattern)
                 already = any(
                     isinstance(e, dict) and (e.get("action"), e.get("pattern")) == key

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="cw-cap1-title">
+  <title id="cw-cap1-title">Tasks in your folders</title>
+  <rect width="96" height="96" rx="18" fill="#f1efe8"/>
+  <path d="M18 34a6 6 0 0 1 6-6h16l6 7h26a6 6 0 0 1 6 6v27a6 6 0 0 1-6 6H24a6 6 0 0 1-6-6V34Z" fill="#ffffff" stroke="#d97757" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="m30 55 5 5 9-10M30 70l5 5 9-10" fill="none" stroke="#d97757" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M57 57h12M57 72h12" stroke="#cfc9bd" stroke-width="3" stroke-linecap="round"/>
+</svg>

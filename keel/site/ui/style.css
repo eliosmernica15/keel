@@ -979,3 +979,80 @@ body.vim-mode #prompt-chat:focus,body.vim-mode #prompt-code:focus{
   .tour-card h3{font-size:17px}
   .tour-remember{display:none}
 }
+
+/* ---------------- after-login home: Keel design, added entry points ---------------- */
+.side-brand { display: flex; align-items: center; gap: 9px; height: 34px; padding: 0 11px;
+  margin-bottom: 6px; color: var(--text); font-family: var(--display); font-size: 14px; letter-spacing: .01em; }
+.side-brand .logo { width: 17px; height: 17px; color: var(--accent);
+  filter: drop-shadow(0 0 6px rgba(230,213,76,.4)); }
+
+.lbl .lbl-actions button.lbl-view { width: auto; height: auto; padding: 2px 5px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .03em; color: var(--muted); }
+.lbl .lbl-actions button.lbl-view:hover { color: var(--accent); background: var(--panel-2); }
+
+.acct-upgrade { margin-left: auto; flex: none; height: 22px; padding: 0 9px; border-radius: 999px;
+  border: 1px solid var(--accent-dim); background: rgba(230,213,76,.08); color: var(--accent);
+  font: 600 10.5px var(--mono); letter-spacing: .04em; }
+.acct-upgrade:hover { background: var(--accent); color: var(--on-accent); }
+
+.head .right > button.plan-pill { width: auto; height: 26px; padding: 0 12px; border-radius: 999px;
+  border: 1px solid var(--edge); background: var(--panel-2); color: var(--text);
+  font: 500 11.5px var(--mono); letter-spacing: .02em; white-space: nowrap; }
+.head .right > button.plan-pill:hover { color: var(--accent); border-color: var(--accent-dim); }
+
+.composer .voice-wave { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px;
+  border: 1px solid var(--edge-dim); background: var(--panel-2); color: var(--muted); padding: 0; }
+.composer .voice-wave:hover { color: var(--accent); }
+.composer .voice-wave.on { color: var(--accent); border-color: var(--accent-dim); }
+.composer .voice-wave svg { width: 15px; height: 15px; fill: none; stroke: currentColor;
+  stroke-width: 1.3; stroke-linecap: round; }
+
+.home-chips { flex: none; width: min(720px, calc(100% - 40px)); margin: -6px auto 6px;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; }
+.home-chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 11px;
+  border-radius: 999px; border: 1px solid var(--edge-dim); background: var(--panel-3);
+  color: var(--muted); font: 11.5px var(--mono); letter-spacing: .02em; }
+.home-chip:hover { color: var(--accent); border-color: var(--accent-dim); background: var(--panel-2); }
+.home-chip svg { width: 12px; height: 12px; fill: none; stroke: currentColor;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.artifacts { flex: none; width: min(720px, calc(100% - 40px)); margin: 0 auto 12px;
+  padding-top: 10px; border-top: 1px solid var(--edge-dim); border-radius: 12px; }
+.artifacts.attention { outline: 1px solid var(--accent-dim); outline-offset: 4px; }
+.artifacts-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.artifacts-head h3 { margin: 0; font: 10px var(--mono); letter-spacing: .16em;
+  text-transform: uppercase; color: var(--muted); }
+.artifacts-head button { padding: 2px 4px; border-radius: 5px; color: var(--muted);
+  font: 10.5px var(--mono); letter-spacing: .03em; }
+.artifacts-head button:hover { color: var(--accent); background: var(--panel-2); }
+.artifacts-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.artifact-card { display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  width: min(240px, 100%); padding: 11px 12px; border-radius: 12px;
+  border: 1px solid var(--edge-dim); background: var(--panel-3); text-align: left; }
+.artifact-card:hover { background: var(--panel-2); border-color: var(--accent-dim); }
+.artifact-ic { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 6px;
+  background: var(--panel-2); color: var(--accent); }
+.artifact-ic svg { width: 13px; height: 13px; fill: none; stroke: currentColor;
+  stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.artifact-title { font-size: 12.5px; color: var(--text); }
+.artifact-meta { font: 10px var(--mono); color: var(--muted); }
+
+.plans-overlay { position: fixed; inset: 0; z-index: 9700; display: flex;
+  align-items: center; justify-content: center; padding: 16px; }
+.plans-overlay[hidden] { display: none; }
+.plans-backdrop { position: absolute; inset: 0; background: rgba(6,4,2,.62);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.plans-card { position: relative; width: min(480px, calc(100vw - 32px));
+  max-height: calc(100vh - 40px); overflow-y: auto; padding: 18px 20px 16px;
+  border: 1px solid var(--edge); border-radius: 16px; background: var(--pop);
+  -webkit-backdrop-filter: blur(36px) saturate(1.5); backdrop-filter: blur(36px) saturate(1.5);
+  box-shadow: var(--shadow); }
+.plans-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.plans-card h3 { margin: 0 0 8px; font-family: var(--display); font-weight: 500; font-size: 20px; }
+.plans-card .lead { margin-bottom: 10px; }
+.plans-card .fact-list li { font-size: 12px; }
+.plans-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+@media (max-width: 900px) {
+  .home-chips, .artifacts { width: calc(100% - 24px); }
+}

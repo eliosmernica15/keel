@@ -20,10 +20,33 @@
     }
   ],
   "rewrites": [
-    { "source": "/download", "destination": "/download.html" }
+    { "source": "/download", "destination": "/download.html" },
+    { "source": "/downloads", "destination": "/downloads.html" },
+    { "source": "/app", "destination": "/app.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/new", "destination": "/new.html" },
+    { "source": "/plugins", "destination": "/plugins.html" },
+    { "source": "/projects", "destination": "/projects.html" },
+    { "source": "/artifacts", "destination": "/artifacts.html" },
+    { "source": "/keel-in-chrome", "destination": "/keel-in-chrome.html" },
+    { "source": "/chrome-web-store", "destination": "/chrome-web-store.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/notices", "destination": "/notices.html" },
+    { "source": "/roadmap", "destination": "/roadmap.html" },
+    { "source": "/eula", "destination": "/eula.html" },
+    { "source": "/trademark", "destination": "/trademark.html" },
+    { "source": "/requirements", "destination": "/requirements.html" },
+    { "source": "/product/cowork", "destination": "/product/cowork.html" }
   ],
   "redirects": [
-    { "source": "/app", "destination": "/download", "permanent": false },
-    { "source": "/app.html", "destination": "/download", "permanent": false }
+    { "source": "/app.html", "destination": "/app", "permanent": false },
+    { "source": "/login.html", "destination": "/login", "permanent": false },
+    { "source": "/new.html", "destination": "/new", "permanent": false },
+    { "source": "/plugins.html", "destination": "/plugins", "permanent": false },
+    { "source": "/projects.html", "destination": "/projects", "permanent": false },
+    { "source": "/artifacts.html", "destination": "/artifacts", "permanent": false },
+    { "source": "/product/cowork.html", "destination": "/product/cowork", "permanent": false },
+    { "source": "/downloads.html", "destination": "/downloads", "permanent": false }
   ]
 }

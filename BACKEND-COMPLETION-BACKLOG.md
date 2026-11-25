@@ -23,7 +23,7 @@ Registry: 865 IDs — 854 verified / 9 not_started / 2 blocked.
 | 8 | Typed backend event union + durable EventBus + DeliveryTracker | `keel/src/keel/backend_events.py` | `agent/final-events` | **integrated + pushed** (52 tests) |
 
 ## Non-actionable / external (documented, not worked)
-- W1.18 (MIT license), Y6.4 (public repo): owner-gated conflicts D-036/D-037.
+- W1.18 (MIT license), Y6.4 (public repo): canonical `not_started` rows, rejected as written per D-036/D-037; NOT owner-gated and NOT backend-attributed.
 - C11.1/C11.2: GitHub Free plan + owner security gates.
 - 7 D6 human-workflow conventions: process/documentation, no local runtime artifact.
 - Native Linux/macOS sandbox execution, provider credentials, phone hardware, signing identity, clean-VM runners.

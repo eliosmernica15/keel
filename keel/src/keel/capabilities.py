@@ -96,15 +96,30 @@ def invoke(cap_id: str, params: dict | None = None, *,
     # carrying a command or URL is checked before its handler runs.
     from .policy_enforcement import enforce as _enforce_policy
 
-    enforced = _enforce_policy(
-        cap_id, params,
-        state_root=context.get("state_root"),
-        interactive=bool(context.get("interactive")),
-        confirmed=bool(context.get("confirm")))
+    try:
+        enforced = _enforce_policy(
+            cap_id, params,
+            state_root=context.get("state_root"),
+            interactive=bool(context.get("interactive")),
+            confirmed=bool(context.get("confirm")))
+    except CapabilityError:
+        raise
+    except Exception as exc:
+        # A corrupt policy file must never surface as a raw JSON/OS error or
+        # bypass the typed CapabilityError boundary used by every transport.
+        raise CapabilityError(
+            f"policy evaluation failed for {cap_id}: "
+            f"{type(exc).__name__}: {exc}"[:500], code="policy_error") from exc
     if enforced is not None and enforced.decision == "deny":
         raise CapabilityError(
             f"execution policy denied {cap_id}: {enforced.reason}",
             code="policy_denied")
+    if (enforced is not None and enforced.decision == "ask"
+            and context.get("confirm") is not True):
+        # An unconfirmed `ask` must fail closed on every transport.
+        raise CapabilityError(
+            f"execution policy requires confirmation for {cap_id}: {enforced.reason}",
+            code="confirmation_required")
     started = time.monotonic()
     try:
         result = cap.handler(params, context)

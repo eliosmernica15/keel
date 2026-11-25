@@ -791,14 +791,21 @@ class _LogLock:
                 break
             except FileExistsError:
                 if self._lock_is_stale():
-                    try:
-                        self.lock_path.unlink()
-                    except FileNotFoundError:
-                        pass
-                    except OSError as exc:
-                        raise EventBusLockError(
-                            f"cannot clear stale event log lock "
-                            f"{self.lock_path}: {exc}") from exc
+                    # Windows can report WinError 32 while the previous owner
+                    # is still closing the lock file. Retry until the deadline
+                    # rather than failing a legitimate concurrent publisher.
+                    while True:
+                        try:
+                            self.lock_path.unlink()
+                            break
+                        except FileNotFoundError:
+                            break
+                        except OSError as exc:
+                            if time.monotonic() >= deadline:
+                                raise EventBusLockError(
+                                    f"cannot clear stale event log lock "
+                                    f"{self.lock_path}: {exc}") from exc
+                            time.sleep(0.005)
                     continue
                 if time.monotonic() >= deadline:
                     raise EventBusLockError(

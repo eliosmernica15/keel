@@ -54,19 +54,21 @@ def test_registry_entries_have_required_fields():
 
 
 def test_authoritative_source_hashes_unchanged():
+    """Pin the canonical source copies committed in `keel/docs/plan-sources/`.
+
+    These hashes were refreshed when the 865-row registry reconciliation added
+    the canonical copies; the files themselves are unchanged at this commit.
+    """
     expected = {
         "Keel_Master_Plan_v5.md":
-            "da1dd5dc81d7f85fadbc5e10143c937e7fc63fd34b86f0f0d3659f7af67d427f",
+            "47b346bc9b7ee26a51e5fe2576e9a9fa5cc6e75e339ab554e90aa2bfd79c1f13",
         "Keel_Plan_v5_Addendum_Missed_Features.md":
-            "e4e314a5a0c31f78",
+            "014d8375fb1682bbbc8ac57f891fb17f8cead68dcaff26b6b1d0ffc2cbc43b9b",
         "Keel_Plan_v5_Addendum_2_More_Features.md":
-            "b42219150271fa9e",
+            "c5778cff08f6a0b6039283a31ffee921fe29820f50ef1b95a74ed327a334368f",
     }
     for name, prefix in expected.items():
-        # Git may check these out with CRLF on Windows; hash normalized bytes
-        # so the assertion tests content, not the checkout's EOL policy.
-        content = (DOWNLOADS / name).read_bytes().replace(b"\r\n", b"\n")
-        digest = hashlib.sha256(content).hexdigest()
+        digest = hashlib.sha256((DOWNLOADS / name).read_bytes()).hexdigest()
         assert digest.startswith(prefix), f"{name} changed: {digest}"
 
 

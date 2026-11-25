@@ -33,8 +33,9 @@ jobs:
         working-directory: keel
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          pip install -e . pytest
+          # All runtime/test deps are hash-pinned in requirements.lock.txt.
+          python -m pip install --require-hashes -r requirements.lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
 
       - name: Deterministic fixture validation (no network, no credentials)
         working-directory: keel

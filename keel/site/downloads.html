@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Apps and extensions — Keel</title>
+  <meta name="description" content="Do more with Keel, everywhere you work. Get the desktop app, Microsoft 365 add-ins, Keel Code, the Chrome extension and the mobile app." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/downloads" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#faf9f6" />
+  <link rel="stylesheet" href="/ui/downloads.css" />
+</head>
+<body class="dl-page">
+
+  <!-- Shared Keel marks. Inline so the page needs no image requests. -->
+  <svg class="dl-svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="dl-starburst" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/>
+      </symbol>
+      <symbol id="dl-windows" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M2 4.5l8.5-1.2v7.8H2zM11.8 3.1L22 1.5v10.7h-10.2zM2 12.9h8.5v7.8L2 19.5zM11.8 12.2H22v10.6l-10.2-1.6z"/>
+      </symbol>
+      <symbol id="dl-chat" viewBox="0 0 20 20">
+        <path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" d="M10 2.6c-3.8 0-6.8 2.5-6.8 5.6 0 1.8 1 3.4 2.6 4.4l-.5 2.5 2.6-1.3c.7.1 1.4.2 2.1.2 3.8 0 6.8-2.5 6.8-5.8s-3-5.6-6.8-5.6Z"/>
+      </symbol>
+      <symbol id="dl-robot" viewBox="0 0 32 32">
+        <path d="M16 2v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="16" cy="2.6" r="1.7" fill="currentColor"/>
+        <rect x="5" y="7" width="22" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <circle cx="11.5" cy="15" r="1.8" fill="currentColor"/>
+        <circle cx="20.5" cy="15" r="1.8" fill="currentColor"/>
+        <path d="M12 20h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M2 13v5M30 13v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M9 24v3M23 24v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="dl-headphones" viewBox="0 0 32 32">
+        <path d="M6 18v-3a10 10 0 0 1 20 0v3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <rect x="4" y="16" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/>
+        <rect x="22" y="16" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/>
+      </symbol>
+      <symbol id="dl-apple" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 6c.8-2 2.4-3 4.3-2.8.2 1.7-.7 3-2.2 3.7C15.9 6 17 5.2 18.5 5c1.3 1.9.7 4.3-.8 5.8-1.6 1.6-3.2 2.2-4.6 2.1-.5 1.2-1.5 3.4-3 5.1-1.6 1.9-3.4 2.7-5.2 2.7-2.1 0-3.7-1.4-3.7-3.2 0-2.6 2.9-4.4 5.8-4.3-.4-1.9.5-3.9 2.3-5.2Z"/>
+      </symbol>
+      <symbol id="dl-bread" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M3 10c0-3 2.7-5 6-5h6c3.3 0 6 2 6 5v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9Zm3 1.5v6.5h3v-6.5c0-1-.7-1.8-1.5-1.8S6 10.5 6 11.5Zm5.5 0v6.5h3v-6.5c0-1-.7-1.8-1.5-1.8s-1.5.8-1.5 1.8Z"/>
+      </symbol>
+      <symbol id="dl-milk" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M9 2h6v3h2l1.5 4v12a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1V9L7 5h2V2Zm0 2v1h6V4H9Zm-1 8v7h2v-7H8Zm4 0v7h2v-7h-2Z"/>
+      </symbol>
+      <symbol id="dl-eggs" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M7.5 2c2.3 0 4 4.4 4 9.2S9.8 20 7.5 20 3.5 15.9 3.5 11.2 5.2 2 7.5 2Zm9 0c2.3 0 4 4.4 4 9.2S18.8 20 16.5 20s-4-4.1-4-8.8S14.2 2 16.5 2Z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="dl-topbar">
+    <button class="dl-back" id="dl-back" type="button" aria-label="Go back — Apps and extensions">
+      <svg class="dl-back-arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">
+        <path d="M16 10H4m0 0 5.2-5.2M4 10l5.2 5.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Apps and extensions</span>
+    </button>
+  </header>
+
+  <main class="dl-main">
+    <h1 class="dl-heading">Do more with Keel, everywhere you work</h1>
+
+    <div class="dl-wrap">
+      <!-- ============ Desktop (full width) ============ -->
+      <article class="dl-card dl-card--desktop" tabindex="0" aria-labelledby="dl-desktop-title">
+        <div class="dl-card-copy">
+          <h2 class="dl-card-title" id="dl-desktop-title">Desktop</h2>
+          <p class="dl-card-desc">Chat, cowork, and code in one app.<br />Keel works with your files, apps, and browser tabs.</p>
+          <a class="dl-btn dl-btn--dark dl-download" id="dl-download" href="/download" data-channel="windows"
+             aria-label="Download Keel for Windows" aria-disabled="true"
+             title="No verified installer published yet — see the download page for details">
+            <svg class="dl-btn-ico" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><use href="#dl-windows" /></svg>
+            <span>Download for Windows</span>
+          </a>
+          <p class="dl-note" id="dl-download-note" data-channel-note="windows" role="status" aria-live="polite">No verified Windows installer is published yet. The download page lists every platform and its verification status.</p>
+        </div>
+
+        <div class="dl-art dl-art--desktop" aria-hidden="true">
+          <span class="dl-glow"></span>
+          <div class="dl-bubble dl-bubble--a">
+            <span class="dl-avatar"><svg viewBox="0 0 24 24" width="12" height="12"><use href="#dl-starburst" /></svg></span>
+            <p>My downloads folder is a mess! Can you clean it up?</p>
+          </div>
+          <div class="dl-bubble dl-bubble--b">
+            <p>Turn these receipts into an expense report</p>
+          </div>
+          <div class="dl-bubble dl-bubble--c">
+            <span class="dl-avatar"><svg viewBox="0 0 24 24" width="12" height="12"><use href="#dl-starburst" /></svg></span>
+            <p>Create a shopping list, go on Chrome, and make an order</p>
+          </div>
+          <div class="dl-window dl-window--shop">
+            <div class="dl-window-bar">
+              <span class="dl-dots"><i></i><i></i><i></i></span>
+              <span class="dl-window-url">shop.example / list</span>
+            </div>
+            <div class="dl-shop">
+              <div class="dl-shop-title">Shopping list <span>4 items</span></div>
+              <div class="dl-groceries">
+                <span class="dl-grocery dl-grocery--apple"><svg viewBox="0 0 24 24" width="17" height="17"><use href="#dl-apple" /></svg></span>
+                <span class="dl-grocery dl-grocery--bread"><svg viewBox="0 0 24 24" width="17" height="17"><use href="#dl-bread" /></svg></span>
+                <span class="dl-grocery dl-grocery--milk"><svg viewBox="0 0 24 24" width="17" height="17"><use href="#dl-milk" /></svg></span>
+                <span class="dl-grocery dl-grocery--eggs"><svg viewBox="0 0 24 24" width="17" height="17"><use href="#dl-eggs" /></svg></span>
+              </div>
+              <div class="dl-shop-foot"><span>$18.42</span><span class="dl-shop-cta">Add to cart</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="dl-grid">
+        <!-- ============ Microsoft 365 ============ -->
+        <article class="dl-card" tabindex="0" aria-labelledby="dl-ms-title">
+          <div class="dl-card-head">
+            <h2 class="dl-card-title" id="dl-ms-title">Microsoft 365</h2>
+            <button class="dl-pill" type="button" data-upgrade="Microsoft 365" aria-label="Upgrade to use Keel with Microsoft 365">Upgrade</button>
+          </div>
+          <p class="dl-card-desc">Analyze data, build presentations, draft documents, and triage your inbox with Keel alongside you.</p>
+          <div class="dl-integrations">
+            <button class="dl-integration" type="button" data-integration="excel" data-title="Keel for Excel" data-link="/plugins"
+                    data-desc="Ask questions about a spreadsheet, build formulas and summarize results directly in Excel."
+                    aria-label="Keel for Excel — learn more">
+              <span class="dl-ico dl-ico--excel" aria-hidden="true">X</span><span class="dl-integration-name">Excel</span><span class="dl-ext" aria-hidden="true">↗</span>
+            </button>
+            <button class="dl-integration" type="button" data-integration="powerpoint" data-title="Keel for PowerPoint" data-link="/plugins"
+                    data-desc="Draft slides, rewrite bullets and build a deck from an outline without leaving PowerPoint."
+                    aria-label="Keel for PowerPoint — learn more">
+              <span class="dl-ico dl-ico--powerpoint" aria-hidden="true">P</span><span class="dl-integration-name">PowerPoint</span><span class="dl-ext" aria-hidden="true">↗</span>
+            </button>
+            <button class="dl-integration" type="button" data-integration="word" data-title="Keel for Word" data-link="/plugins"
+                    data-desc="Write, edit and summarize documents in Word with Keel in the sidebar."
+                    aria-label="Keel for Word — learn more">
+              <span class="dl-ico dl-ico--word" aria-hidden="true">W</span><span class="dl-integration-name">Word</span><span class="dl-ext" aria-hidden="true">↗</span>
+            </button>
+            <button class="dl-integration" type="button" data-integration="outlook" data-title="Keel for Outlook" data-link="/plugins"
+                    data-desc="Triage your inbox, draft replies and pull out action items from Outlook."
+                    aria-label="Keel for Outlook — learn more">
+              <span class="dl-ico dl-ico--outlook" aria-hidden="true">O</span><span class="dl-integration-name">Outlook</span><span class="dl-ext" aria-hidden="true">↗</span>
+            </button>
+          </div>
+          <div class="dl-art dl-art--sheet" aria-hidden="true">
+            <div class="dl-sheet">
+              <div class="dl-sheet-head"><strong>Portfolio</strong><span>Q3 · live</span></div>
+              <div class="dl-sheet-row dl-sheet-row--head"><span>Name</span><span>Value</span><span>Δ</span></div>
+              <div class="dl-sheet-row"><span>Northwind</span><span>$1,240</span><span class="up">+8.2%</span></div>
+              <div class="dl-sheet-row"><span>Acme Labs</span><span>$980</span><span class="up">+5.6%</span></div>
+              <div class="dl-sheet-row"><span>Union Co.</span><span>$744</span><span class="down">−1.4%</span></div>
+              <div class="dl-sheet-row"><span>Bluebird</span><span>$612</span><span class="up">+3.1%</span></div>
+            </div>
+            <div class="dl-sheet-bubble">
+              <span class="dl-avatar"><svg viewBox="0 0 24 24" width="11" height="11"><use href="#dl-starburst" /></svg></span>
+              <p>Which names are the top movers in my portfolio and why?</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- ============ Keel Code ============ -->
+        <article class="dl-card" tabindex="0" aria-labelledby="dl-code-title">
+          <div class="dl-card-head">
+            <h2 class="dl-card-title" id="dl-code-title">Keel Code</h2>
+            <button class="dl-pill" type="button" data-upgrade="Keel Code" aria-label="Upgrade to Keel Code">Upgrade</button>
+          </div>
+          <p class="dl-card-desc">Build, debug, and ship from the desktop app, your terminal, or your IDE.</p>
+          <div class="dl-integrations">
+            <button class="dl-integration" type="button" data-integration="desktop-app" data-title="Keel Code desktop app" data-link="/download"
+                    data-desc="Work in a dedicated desktop app with your projects, files and terminal in one place."
+                    aria-label="Keel Code desktop app — learn more">
+              <span class="dl-ico dl-ico--desktop" aria-hidden="true"><svg viewBox="0 0 24 24" width="13" height="13"><use href="#dl-starburst" /></svg></span><span class="dl-integration-name">Desktop app</span><span class="dl-ext" aria-hidden="true">↗</span>
+            </button>
+            <button class="dl-integration" type="button" data-integration="terminal" data-title="Keel Code in your terminal" data-link="/app"
+                    data-desc="Run Keel from the command line to edit files, run tests and review changes in place."
+                    aria-label="Keel Code in your terminal — learn more">
+              <span class="dl-ico dl-ico--terminal" aria-hidden="true">&gt;_</span><span class="dl-integration-name">Terminal</span><span class="dl-ext" aria-hidden="true">↗</span>
+            </button>
+            <button class="dl-integration" type="button" data-integration="vscode" data-title="Keel Code for VS Code" data-link="/plugins"
+                    data-desc="Add Keel to VS Code for inline edits, explanations and code review inside your editor."
+                    aria-label="Keel Code for VS Code — learn more">
+              <span class="dl-ico dl-ico--vscode" aria-hidden="true">V</span><span class="dl-integration-name">VS Code</span><span class="dl-ext" aria-hidden="true">↗</span>
+            </button>
+            <button class="dl-integration" type="button" data-integration="jetbrains" data-title="Keel Code for JetBrains" data-link="/plugins"
+                    data-desc="Bring Keel into JetBrains IDEs to generate, refactor and debug code in your project."
+                    aria-label="Keel Code for JetBrains — learn more">
+              <span class="dl-ico dl-ico--jetbrains" aria-hidden="true">J</span><span class="dl-integration-name">JetBrains</span><span class="dl-ext" aria-hidden="true">↗</span>
+            </button>
+            <button class="dl-integration" type="button" data-integration="slack" data-title="Keel in Slack" data-link="/plugins"
+                    data-desc="Mention Keel in a channel to delegate a task and get the result back in the thread."
+                    aria-label="Keel in Slack — learn more">
+              <span class="dl-ico dl-ico--slack" aria-hidden="true">S</span><span class="dl-integration-name">Slack</span><span class="dl-ext" aria-hidden="true">↗</span>
+            </button>
+          </div>
+          <div class="dl-art dl-art--terminal" aria-hidden="true">
+            <div class="dl-terminal">
+              <div class="dl-terminal-bar"><span class="dl-dots"><i></i><i></i><i></i></span><span>keel — zsh</span></div>
+              <div class="dl-terminal-body">
+                <svg class="dl-robot" viewBox="0 0 32 32" width="26" height="26"><use href="#dl-robot" /></svg>
+                <p class="dl-terminal-cmd"><span class="dl-prompt">&gt;</span> Fix the auth bug in signup flow</p>
+                <p class="dl-terminal-out">Reading signup.ts<br />Patched token refresh · 1 file changed</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ============ Chrome ============ -->
+        <article class="dl-card" tabindex="0" aria-labelledby="dl-chrome-title">
+          <div class="dl-card-head">
+            <h2 class="dl-card-title" id="dl-chrome-title">Chrome</h2>
+            <button class="dl-pill" type="button" data-upgrade="Chrome" aria-label="Upgrade to use Keel in Chrome">Upgrade</button>
+          </div>
+          <p class="dl-card-desc">Keel navigates, clicks buttons, and fills forms in your browser. Works in Cowork.</p>
+          <div class="dl-art dl-art--browser" aria-hidden="true">
+            <div class="dl-window dl-window--returns">
+              <div class="dl-window-bar">
+                <span class="dl-dots"><i></i><i></i><i></i></span>
+                <span class="dl-window-url">shop.example / returns</span>
+              </div>
+              <div class="dl-returns">
+                <div class="dl-returns-head"><strong>Returns</strong><span>Order #KL-2049</span></div>
+                <div class="dl-product">
+                  <span class="dl-product-ico"><svg viewBox="0 0 32 32" width="24" height="24"><use href="#dl-headphones" /></svg></span>
+                  <span class="dl-product-info"><strong>Wireless Headphones Pro</strong><span>$79.99</span></span>
+                </div>
+                <span class="dl-return-btn">Start return</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ============ Mobile ============ -->
+        <article class="dl-card" tabindex="0" aria-labelledby="dl-mobile-title">
+          <div class="dl-card-head">
+            <h2 class="dl-card-title" id="dl-mobile-title">Mobile</h2>
+          </div>
+          <p class="dl-card-desc">Chat hands-free, connect Keel to your favorite apps, and kick off tasks on the go.</p>
+          <div class="dl-qr-wrap">
+            <a class="dl-qr" href="/download" aria-label="Download the Keel app on your phone">
+              <svg viewBox="0 0 29 29" width="116" height="116" aria-hidden="true" focusable="false" shape-rendering="crispEdges">
+                <rect width="29" height="29" fill="#ffffff" />
+                <path fill="#1c1b19" d="M2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM2 3h1v1h-1zM8 3h1v1h-1zM2 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM2 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM2 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM18 2h1v1h-1zM19 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM23 2h1v1h-1zM24 2h1v1h-1zM18 3h1v1h-1zM24 3h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM18 5h1v1h-1zM20 5h1v1h-1zM21 5h1v1h-1zM22 5h1v1h-1zM24 5h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM18 7h1v1h-1zM24 7h1v1h-1zM18 8h1v1h-1zM19 8h1v1h-1zM20 8h1v1h-1zM21 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM7 18h1v1h-1zM8 18h1v1h-1zM2 19h1v1h-1zM8 19h1v1h-1zM2 20h1v1h-1zM4 20h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM5 21h1v1h-1zM6 21h1v1h-1zM8 21h1v1h-1zM2 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM2 23h1v1h-1zM8 23h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM7 24h1v1h-1zM8 24h1v1h-1zM9 8h1v1h-1zM8 9h1v1h-1zM10 8h1v1h-1zM8 10h1v1h-1zM11 8h1v1h-1zM8 11h1v1h-1zM12 8h1v1h-1zM8 12h1v1h-1zM13 8h1v1h-1zM8 13h1v1h-1zM14 8h1v1h-1zM8 14h1v1h-1zM15 8h1v1h-1zM8 15h1v1h-1zM16 8h1v1h-1zM8 16h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM16 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM12 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM17 3h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM17 4h1v1h-1zM14 5h1v1h-1zM15 5h1v1h-1zM12 6h1v1h-1zM13 6h1v1h-1zM15 6h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM15 7h1v1h-1zM17 8h1v1h-1zM14 9h1v1h-1zM15 9h1v1h-1zM17 9h1v1h-1zM12 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM12 12h1v1h-1zM15 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM20 12h1v1h-1zM21 12h1v1h-1zM22 12h1v1h-1zM2 13h1v1h-1zM5 13h1v1h-1zM6 13h1v1h-1zM7 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM18 13h1v1h-1zM20 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM3 14h1v1h-1zM6 14h1v1h-1zM9 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM14 14h1v1h-1zM16 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM2 15h1v1h-1zM5 15h1v1h-1zM7 15h1v1h-1zM9 15h1v1h-1zM15 15h1v1h-1zM21 15h1v1h-1zM25 15h1v1h-1zM3 16h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM12 16h1v1h-1zM18 16h1v1h-1zM20 16h1v1h-1zM22 16h1v1h-1zM23 16h1v1h-1zM24 16h1v1h-1zM26 16h1v1h-1zM2 17h1v1h-1zM3 17h1v1h-1zM4 17h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1zM14 17h1v1h-1zM16 17h1v1h-1zM20 17h1v1h-1zM23 17h1v1h-1zM26 17h1v1h-1zM9 18h1v1h-1zM11 18h1v1h-1zM15 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM24 18h1v1h-1zM25 18h1v1h-1zM26 18h1v1h-1zM14 19h1v1h-1zM17 19h1v1h-1zM19 19h1v1h-1zM22 19h1v1h-1zM23 19h1v1h-1zM26 19h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM17 20h1v1h-1zM19 20h1v1h-1zM21 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM14 21h1v1h-1zM19 21h1v1h-1zM24 21h1v1h-1zM13 22h1v1h-1zM16 22h1v1h-1zM17 22h1v1h-1zM18 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM25 22h1v1h-1zM14 23h1v1h-1zM15 23h1v1h-1zM17 23h1v1h-1zM19 23h1v1h-1zM21 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM12 24h1v1h-1zM15 24h1v1h-1zM17 24h1v1h-1zM18 24h1v1h-1zM19 24h1v1h-1zM23 24h1v1h-1zM2 25h1v1h-1zM14 25h1v1h-1zM15 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM22 25h1v1h-1zM12 26h1v1h-1zM14 26h1v1h-1zM18 26h1v1h-1zM19 26h1v1h-1zM20 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1z" />
+              </svg>
+            </a>
+            <p class="dl-qr-caption">Scan with your phone to get the Keel app</p>
+            <p class="dl-qr-sub">Or visit <a href="/download" aria-label="Get the Keel mobile app at keel.ai/mobile">keel.ai/mobile</a></p>
+          </div>
+          <div class="dl-art dl-art--mobile" aria-hidden="true">
+            <div class="dl-bubble dl-bubble--m1">
+              <span class="dl-avatar"><svg viewBox="0 0 24 24" width="11" height="11"><use href="#dl-starburst" /></svg></span>
+              <p>Let's look at your latest runs and make a plan to trim some time.</p>
+            </div>
+            <div class="dl-bubble dl-bubble--m2">Read health data</div>
+            <div class="dl-chart">
+              <div class="dl-chart-head"><span>Runs</span><span>Last 30 days</span></div>
+              <div class="dl-bars">
+                <span class="dl-bar"></span><span class="dl-bar"></span><span class="dl-bar"></span><span class="dl-bar"></span><span class="dl-bar"></span><span class="dl-bar"></span><span class="dl-bar"></span>
+              </div>
+              <div class="dl-months"><span>Dec</span><span>7</span><span>11</span><span>15</span><span>19</span><span>23</span><span>27</span><span>31</span></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ Upgrade dialog ============ -->
+  <div class="dl-modal" id="dl-upgrade-modal" hidden>
+    <div class="dl-backdrop" data-dl-close></div>
+    <div class="dl-dialog" role="dialog" aria-modal="true" aria-labelledby="dl-upgrade-title" aria-describedby="dl-upgrade-desc">
+      <button class="dl-dialog-close" type="button" data-dl-close aria-label="Close upgrade dialog">×</button>
+      <span class="dl-dialog-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><use href="#dl-starburst" /></svg></span>
+      <h2 class="dl-dialog-title" id="dl-upgrade-title">Upgrade your Keel plan</h2>
+      <p class="dl-dialog-desc" id="dl-upgrade-desc">This integration is available on a paid Keel plan. Compare plans or create an account to get started.</p>
+      <div class="dl-dialog-actions">
+        <a class="dl-btn dl-btn--dark" href="/#plans" data-dl-initial-focus aria-label="Compare Keel plans">View plans</a>
+        <a class="dl-btn dl-btn--outline" href="/login?intent=signup" aria-label="Create a Keel account">Create an account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Integration detail dialog ============ -->
+  <div class="dl-modal" id="dl-integration-modal" hidden>
+    <div class="dl-backdrop" data-dl-close></div>
+    <div class="dl-dialog" role="dialog" aria-modal="true" aria-labelledby="dl-integration-title" aria-describedby="dl-integration-desc">
+      <button class="dl-dialog-close" type="button" data-dl-close aria-label="Close integration dialog">×</button>
+      <span class="dl-dialog-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><use href="#dl-starburst" /></svg></span>
+      <h2 class="dl-dialog-title" id="dl-integration-title">Keel integration</h2>
+      <p class="dl-dialog-desc" id="dl-integration-desc">Use Keel alongside your tools.</p>
+      <div class="dl-dialog-actions">
+        <a class="dl-btn dl-btn--dark" id="dl-integration-link" href="/plugins" data-dl-initial-focus aria-label="Open the Keel integration">Open integration</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/ui/downloads.js" defer></script>
+</body>
+</html>
