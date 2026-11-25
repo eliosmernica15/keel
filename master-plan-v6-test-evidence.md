@@ -263,7 +263,7 @@ Command (clean local HOME, from `keel/`):
 `python -m pytest -q -o faulthandler_timeout=120`
 
 ```
-4558 passed, 52 skipped, 3707 subtests passed in 474.79s (0:07:54)
+4610 passed, 54 skipped, 3707 subtests passed in 474.31s (0:07:54)
 ```
 
 0 failed. This is the definitive result at the final stabilization candidate, after all
