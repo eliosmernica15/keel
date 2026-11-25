@@ -14,11 +14,11 @@
       "version": "0.1.1",
       "file": "Keel-Setup-0.1.1.exe",
       "size": 315612855,
-      "sha256": "877E33BF16171CD896AFDA5A67FC543C13537879428ECBDCAFAB427003CC0280",
+      "sha256": "DD585D898E00A5E1621821D18BA2A6E846392C6178E49A78B356D0ECFC549604",
       "url": "https://github.com/eliosmernica15/keel/releases/download/v0.1.1/Keel-Setup-0.1.1.exe",
       "available": true,
       "verified": true,
-      "verified_at": "2026-11-25T19:25:43Z",
+      "verified_at": "2026-11-25T19:37:24Z",
       "notes": "Built from feat/unified-renderer-electron-2026-11-25: unified renderer default, Privacy & data screen, Settings updates panel, Cowork chat with provider/model selection, zip file attachments.",
       "installation": "Run Keel-Setup-0.1.1.exe. Accept the installer prompts. Launch from the Start Menu shortcut or Desktop shortcut. Your ~/.keel data is preserved on uninstall.",
       "alternatives": []
