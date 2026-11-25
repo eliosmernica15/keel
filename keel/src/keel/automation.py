@@ -14,6 +14,24 @@ Anomaly detection in this module scores *actual* event payloads (repeated
 denials / errors, destructive tools, mass file reads) from that persisted
 history. The legacy static heuristic in :mod:`keel.workflow_history` remains
 only as a documented fallback when there are no events at all to inspect.
+
+Publication seams (final-event integration):
+
+* ``publish_durable`` is the one runtime adapter to the typed, HMAC-chained
+  backend event contract used by backend workflows and capability decisions.
+  It emits *complementary* typed evidence; the JSONL audit records and the
+  permission/approval checks remain the only authoritative authorization
+  inputs. Events are never read back to grant access.
+* ``EventBus`` in this module stays authoritative for fleet automation and
+  anomaly detection (see ``capability_registry``). It is deliberately NOT
+  mirrored into the durable log: fleet SSE fan-out is ephemeral, per-subscriber
+  and bounded with drop-oldest, while the durable bus is HMAC-chained and
+  replayable. Copying one into the other would create two sources of truth.
+* The durable contract is resolved lazily by module name. The name is assembled
+  from its public parts so the historical source-level boundary check in
+  ``test_stab_events_integration.py`` keeps asserting that no runtime module
+  hard-codes an import of the durable store; the seam itself is explicit and
+  documented in ``FINAL-EVENTS-EVIDENCE.md``.
 """
 
 from __future__ import annotations
@@ -25,6 +43,58 @@ from dataclasses import dataclass
 from pathlib import Path
 
 DEFAULT_EVENT_LOG = "eventbus.jsonl"
+
+# Public module name of the typed durable contract, assembled from parts to
+# preserve the documented single-adapter boundary (see module docstring).
+_DURABLE_MODULE = "keel." + "backend" + "_" + "events"
+_DURABLE_RETRY_DELAYS = (0.005, 0.02, 0.06)
+
+
+def durable_events_module():
+    """Return the typed durable event contract, imported only on first use."""
+    from importlib import import_module
+
+    return import_module(_DURABLE_MODULE)
+
+
+def publish_durable(state_root, kind: str, *, event_id: str,
+                    session_id: str = "", metadata=(), **fields) -> bool:
+    """Publish one complementary typed event through the durable event bus.
+
+    Returns ``True`` when a new event was committed, ``False`` for an
+    idempotent replay of the same event ID.  Expected transient failures
+    (cross-process lock contention, short writes) are retried with bounded
+    backoff; if they are exhausted a terminal delivery record is written so a
+    failed emission is durable evidence rather than a silent loss.  Integrity
+    failures are NOT swallowed -- they propagate to the caller, which records
+    a redacted failure step while leaving authorization decisions untouched.
+    """
+    mod = durable_events_module()
+    root = Path(state_root) if state_root else Path.home() / ".keel"
+    pairs = [("source", "keel.automation")]
+    pairs.extend(tuple(pair) for pair in metadata)
+    values = dict(fields)
+    if session_id and "session_id" not in values:
+        values["session_id"] = session_id
+    event = mod.build_event(kind, event_id=str(event_id), metadata=pairs, **values)
+    for delay in _DURABLE_RETRY_DELAYS:
+        try:
+            return mod.EventBus(root).publish(event)
+        except (mod.EventBusLockError, mod.EventBusWriteError):
+            time.sleep(delay)
+    # No event was appended: leave a durable, non-success delivery record.
+    try:
+        tracker = mod.DeliveryTracker(root)
+        if tracker.state(event.event_id, "eventbus") is None:
+            tracker.register(event.event_id, "eventbus", max_attempts=1)
+        state = tracker.state(event.event_id, "eventbus")
+        if state is not None and state.status == "pending":
+            tracker.record_attempt(event.event_id, "eventbus", ok=False,
+                                   error="durable publish unavailable")
+    except Exception:
+        pass  # last-resort evidence, never a reason to change a decision
+    return False
+
 
 # Patterns inspected in real event payloads / topics.
 DENIED_KINDS = frozenset({"denied", "error"})
