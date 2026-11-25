@@ -240,3 +240,33 @@ commits = [
   "d4b0288cbd6ea61cbe1da2e2aa25db65a41b012d",
 ]
 paths = ['''(?:^|/)probes/probe_redaction\.py$''']
+# Final release follow-up: four full-history findings classified as synthetic
+# fixtures / evidence-doc examples by independent CI diagnosis. Each entry is
+# scoped to ONE commit, ONE exact path and ONE rule; no value is recorded.
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic distribution provider fixture (commit ce78f10)"
+commits = ["ce78f10"]
+paths = ['''(?:^|/)keel/tests/verify_distribution_provider_hardening\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic distribution onboarding fixture (commit ce78f10)"
+commits = ["ce78f10"]
+paths = ['''(?:^|/)keel/tests/verify_distribution_provider_onboarding\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["aws-access-token"]
+description = "Reviewed synthetic evidence example in CI diagnosis (commit 781b4cf)"
+commits = ["781b4cf"]
+paths = ['''(?:^|/)STAB-CI-EVIDENCE\.md$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["aws-access-token"]
+description = "Reviewed synthetic evidence example in supply evidence (commit c949891)"
+commits = ["c949891"]
+paths = ['''(?:^|/)STAB-SUPPLY-EVIDENCE\.md$''']
