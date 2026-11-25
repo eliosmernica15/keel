@@ -12,12 +12,18 @@ This module is deliberately self-contained and stdlib-only.  It provides:
   no sleeping happen here -- success is only ever recorded from an explicit
   ``ok=True`` attempt.
 
-Every persisted record carries a sequence number and a SHA-256 digest that
-commits to its predecessor.  A truncated, reordered, edited or unparseable
-log raises :class:`CorruptRecordError` instead of silently losing events.
-A crash between appending a record and committing its ``.head`` marker is the
-one exception: the verified tail is rolled forward (or a partial tail is
-trimmed) under the same lock, and surfaced as a :class:`LogRecovery` value.
+Every persisted record carries a sequence number and an HMAC-SHA256 digest
+that commits to its predecessor, the canonical record bytes and a secret key
+held outside the log (0600 key file, or ``KEEL_EVENT_HMAC_KEY``).  The commit
+head is MAC-protected too, so a forged record or a truncated log with a
+recomputed unkeyed head is rejected.  A truncated, reordered, edited or
+unparseable log raises :class:`CorruptRecordError` instead of silently losing
+events.  A crash between appending a record and committing its ``.head``
+marker is the one exception: the verified tail is rolled forward (or a partial
+tail is trimmed) under the same lock, and surfaced as a :class:`LogRecovery`
+value.  Pre-key (unkeyed) logs are *not* trusted implicitly: they require an
+explicit ``legacy_mode=True`` and are verified with the documented legacy
+plain SHA-256 chain; otherwise they fail closed with a typed error.
 
 Durability uses only the standard library: a re-entrant in-process lock is
 combined with an ``O_CREAT|O_EXCL`` lock file next to the log, so readers and
@@ -31,8 +37,10 @@ sharing mutable state.
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import os
+import secrets
 import tempfile
 import threading
 import time
@@ -97,6 +105,8 @@ SCHEMA_ID = "keel.backend_events"
 SCHEMA_VERSION = 1
 GENESIS_DIGEST = "0" * 64
 _METADATA_TYPE = tuple[tuple[str, str], ...]
+_EVENT_KEY_NAME = ".keel-event.key"
+_EVENT_KEY_ENV = "KEEL_EVENT_HMAC_KEY"
 
 
 # ---------------------------------------------------------------------------
@@ -792,7 +802,10 @@ class _LogLock:
                 fd = os.open(str(self.lock_path),
                              os.O_CREAT | os.O_EXCL | os.O_WRONLY | _O_BINARY, 0o600)
                 break
-            except FileExistsError:
+            except (FileExistsError, PermissionError):
+                # Windows reports PermissionError (WinError 5/32) while the
+                # previous owner still has the lock file open: contention,
+                # not a hard failure.
                 if self._lock_is_stale():
                     # Windows can report WinError 32 while the previous owner
                     # is still closing the lock file. Retry until the deadline
@@ -842,7 +855,7 @@ class _LogLock:
         # Windows can briefly refuse unlink while another contender reads the
         # lock marker.  Retry instead of abandoning a file that would then
         # look like a live lock to everyone else.
-        deadline = time.monotonic() + 0.5
+        deadline = time.monotonic() + _LOCK_TIMEOUT_SECONDS
         while True:
             try:
                 self.lock_path.unlink()
@@ -892,21 +905,100 @@ def _log_lock(path: str | Path) -> _LogLock:
         return lock
 
 
-def _record_digest(record: Mapping[str, Any]) -> str:
-    body = json.dumps(
-        {"seq": record["seq"], "prev": record["prev"], "data": record["data"]},
-        sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    return hashlib.sha256(body.encode("utf-8")).hexdigest()
+def _canonical_bytes(payload: Mapping[str, Any]) -> bytes:
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False).encode("utf-8")
 
 
-def _append_line(path: Path, record: Mapping[str, Any]) -> None:
+def _existing_key(directory: Path) -> bytes | None:
+    """Read an existing HMAC key without creating one; env wins when set."""
+    raw = os.environ.get(_EVENT_KEY_ENV)
+    if raw:
+        return raw.encode("utf-8")
+    try:
+        return (Path(directory) / _EVENT_KEY_NAME).read_bytes()
+    except OSError:
+        return None
+
+
+def _event_key(directory: Path) -> bytes:
+    """Return the process-wide event HMAC key, creating it once if needed.
+
+    The key lives in a 0600 file beside the logs (never inside them), is
+    created under the path-keyed cross-process lock, and can be supplied by
+    ``KEEL_EVENT_HMAC_KEY`` for orchestrated deployments.
+    """
+    raw = os.environ.get(_EVENT_KEY_ENV)
+    if raw:
+        return raw.encode("utf-8")
+    directory = Path(directory)
+    key_path = directory / _EVENT_KEY_NAME
+    with _log_lock(key_path):
+        try:
+            key = key_path.read_bytes()
+        except FileNotFoundError:
+            key = secrets.token_bytes(32)
+            try:
+                descriptor = os.open(str(key_path),
+                                     os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                                     | _O_BINARY, 0o600)
+            except FileExistsError:
+                key = key_path.read_bytes()
+            else:
+                with os.fdopen(descriptor, "wb") as handle:
+                    handle.write(key)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                try:
+                    os.chmod(key_path, 0o600)
+                except OSError:
+                    pass
+        if len(key) < 16:
+            raise CorruptRecordError(key_path, 0, "invalid event HMAC key file")
+        return key
+
+
+def _record_digest(record: Mapping[str, Any], key: bytes | None = None) -> str:
+    """Keyed chain MAC over seq, previous MAC and canonical record bytes.
+
+    With ``key=None`` the documented legacy plain SHA-256 digest is computed;
+    callers that want legacy verification must opt in explicitly.
+    """
+    body = _canonical_bytes(
+        {"seq": record["seq"], "prev": record["prev"], "data": record["data"]})
+    if key is None:
+        return hashlib.sha256(body).hexdigest()
+    return hmac.new(key, body, hashlib.sha256).hexdigest()
+
+
+def _head_body(count: int, digest: str) -> bytes:
+    return _canonical_bytes({"count": count, "digest": digest})
+
+
+def _head_mac(head: Mapping[str, Any], key: bytes) -> str:
+    return hmac.new(key, _head_body(head["count"], head["digest"]),
+                    hashlib.sha256).hexdigest()
+
+
+_NO_KEY = object()
+
+
+def _append_line(path: Path, record: Mapping[str, Any],
+                 key: bytes | object = _NO_KEY) -> None:
     """Append one complete record with a single durable write.
 
-    Called only while holding the log's exclusive lock.  A short write is
-    rolled back to the exact prior size, so a partial record can never become
-    visible to a reader (or wedge recovery).
+    Called only while holding the log's exclusive lock.  With the default
+    sentinel and a key file present, a caller-supplied unkeyed digest is
+    upgraded to the keyed MAC so a hand-appended recovery record cannot
+    silently downgrade the chain.  An explicit ``key=None`` is the documented
+    legacy mode and leaves the plain digest untouched.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
+    if key is _NO_KEY:
+        key = _existing_key(path.parent)
+    if key is not None and "digest" in record:
+        record = dict(record)
+        record["digest"] = _record_digest(record, key)
     line = json.dumps(record, sort_keys=True, separators=(",", ":"),
                       ensure_ascii=False)
     payload = (line + "\n").encode("utf-8")
@@ -925,11 +1017,14 @@ def _append_line(path: Path, record: Mapping[str, Any]) -> None:
         os.close(fd)
 
 
-def _write_head(path: Path, count: int, digest: str) -> None:
-    """Atomically commit the committed record count and chain head."""
+def _write_head(path: Path, count: int, digest: str,
+                key: bytes | None = None) -> None:
+    """Atomically commit the count and chain head, MAC-protected when keyed."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    body = json.dumps({"count": count, "digest": digest}, sort_keys=True,
-                      separators=(",", ":"))
+    payload: dict[str, Any] = {"count": count, "digest": digest}
+    if key is not None:
+        payload["mac"] = _head_mac(payload, key)
+    body = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp",
                                     dir=str(path.parent))
     tmp = Path(tmp_name)
@@ -947,6 +1042,32 @@ def _write_head(path: Path, count: int, digest: str) -> None:
         raise
 
 
+def _read_head(path: Path, key: bytes | None) -> dict[str, Any]:
+    """Parse and authenticate the commit head; reject unkeyed heads in keyed mode."""
+    try:
+        head = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError) as exc:
+        raise CorruptRecordError(path, 0, f"unreadable commit head: {exc}") from exc
+    if (not isinstance(head, dict) or not {"count", "digest"}.issubset(head)
+            or set(head) not in ({"count", "digest"}, {"count", "digest", "mac"})
+            or not isinstance(head["count"], int)
+            or isinstance(head["count"], bool)
+            or not isinstance(head["digest"], str)):
+        raise CorruptRecordError(path, 0, "invalid commit head")
+    if "mac" in head:
+        if key is None:
+            raise CorruptRecordError(path, 0,
+                                     "keyed commit head requires an HMAC key")
+        if not isinstance(head["mac"], str) or not hmac.compare_digest(
+                head["mac"], _head_mac(head, key)):
+            raise CorruptRecordError(path, 0, "commit head MAC mismatch")
+    elif key is not None:
+        raise CorruptRecordError(
+            path, 0, "unkeyed commit head in keyed log "
+                     "(legacy log requires legacy_mode=True)")
+    return head
+
+
 class _JsonlStore:
     """Append-only, digest-chained JSONL store with a cross-process lock.
 
@@ -956,10 +1077,14 @@ class _JsonlStore:
     under the same exclusive lock file next to the log.
     """
 
-    def __init__(self, path: Path, *, validator: Any = None):
+    def __init__(self, path: Path, *, validator: Any = None,
+                 key: bytes | None = None, legacy: bool = False):
         self.path = Path(path)
         self.head_path = Path(str(path) + ".head")
         self.validator = validator
+        self.legacy = bool(legacy)
+        self.key = None if self.legacy else (
+            key if key is not None else _event_key(self.path.parent))
         self.lock = _log_lock(self.path)
         self.records: list[dict[str, Any]] = []
         self.last_recovery: LogRecovery | None = None
@@ -970,17 +1095,7 @@ class _JsonlStore:
             self.records = self._read()
 
     def _read_head(self) -> dict[str, Any]:
-        try:
-            head = json.loads(self.head_path.read_text(encoding="utf-8"))
-        except (OSError, ValueError, TypeError) as exc:
-            raise CorruptRecordError(
-                self.path, 0, f"unreadable commit head: {exc}") from exc
-        if (not isinstance(head, dict) or set(head) != {"count", "digest"}
-                or not isinstance(head["count"], int)
-                or isinstance(head["count"], bool)
-                or not isinstance(head["digest"], str)):
-            raise CorruptRecordError(self.path, 0, "invalid commit head")
-        return head
+        return _read_head(self.head_path, self.key)
 
     @staticmethod
     def _is_uncommitted_tail(head: dict[str, Any] | None, count: int,
@@ -1009,8 +1124,15 @@ class _JsonlStore:
             raise CorruptRecordError(self.path, lineno, f"bad sequence: {seq!r}")
         if obj["prev"] != prev:
             raise CorruptRecordError(self.path, lineno, "broken digest chain")
-        if obj["digest"] != _record_digest(obj):
-            raise CorruptRecordError(self.path, lineno, "digest mismatch")
+        expected = _record_digest(obj, self.key)
+        if not isinstance(obj["digest"], str) or not hmac.compare_digest(
+                obj["digest"], expected):
+            reason = "record HMAC mismatch"
+            if self.key is not None and isinstance(obj["digest"], str) \
+                    and hmac.compare_digest(obj["digest"],
+                                            _record_digest(obj)):
+                reason += " (unkeyed legacy record requires legacy_mode=True)"
+            raise CorruptRecordError(self.path, lineno, reason)
         if self.validator is not None:
             self.validator(obj["data"], lineno)
         return obj
@@ -1070,7 +1192,7 @@ class _JsonlStore:
             # prefix.  The lock guarantees no writer can observe the short log.
             keep = line_ends[tail_index - 1] if tail_index else 0
             self._truncate_tail(keep)
-            _write_head(self.head_path, len(records), prev)
+            _write_head(self.head_path, len(records), prev, self.key)
             self.last_recovery = LogRecovery(
                 path=str(self.path), action="truncated_tail", count=1,
                 seq=len(records), digest=prev)
@@ -1088,7 +1210,7 @@ class _JsonlStore:
         if head["count"] < len(records):
             # Crash after the record was fsynced but before the head was
             # replaced: every extra record passed the full chain validation.
-            _write_head(self.head_path, len(records), prev)
+            _write_head(self.head_path, len(records), prev, self.key)
             self.last_recovery = LogRecovery(
                 path=str(self.path), action="committed_tail",
                 count=len(records) - head["count"], seq=len(records), digest=prev)
@@ -1105,11 +1227,11 @@ class _JsonlStore:
             seq = len(self.records) + 1
             prev = self.records[-1]["digest"] if self.records else GENESIS_DIGEST
             record = {"seq": seq, "prev": prev, "data": data}
-            record["digest"] = _record_digest(record)
+            record["digest"] = _record_digest(record, self.key)
             if self.validator is not None:
                 self.validator(data, seq)
-            _append_line(self.path, record)
-            _write_head(self.head_path, seq, record["digest"])
+            _append_line(self.path, record, self.key)
+            _write_head(self.head_path, seq, record["digest"], self.key)
             self.records.append(record)
             return record
 
@@ -1153,10 +1275,12 @@ class EventBus:
     """
 
     def __init__(self, state_root: str | Path, *,
-                 log_name: str = "backend-events.jsonl"):
+                 log_name: str = "backend-events.jsonl",
+                 legacy_mode: bool = False):
         self.state_root = Path(state_root)
         self.log_path = self.state_root / log_name
-        self._store = _JsonlStore(self.log_path, validator=self._validate_record)
+        self._store = _JsonlStore(self.log_path, validator=self._validate_record,
+                                  legacy=legacy_mode)
         self._events: list[BackendEvent] = []
         self._by_id: dict[str, dict[str, Any]] = {}
         key = os.path.normcase(str(self.log_path.resolve()))
@@ -1366,10 +1490,12 @@ class DeliveryTracker:
     """
 
     def __init__(self, state_root: str | Path, *,
-                 log_name: str = "backend-delivery.jsonl"):
+                 log_name: str = "backend-delivery.jsonl",
+                 legacy_mode: bool = False):
         self.state_root = Path(state_root)
         self.log_path = self.state_root / log_name
-        self._store = _JsonlStore(self.log_path, validator=self._validate_record)
+        self._store = _JsonlStore(self.log_path, validator=self._validate_record,
+                                  legacy=legacy_mode)
         self._states: dict[tuple[str, str], DeliveryState] = {}
         self._rebuild()
 

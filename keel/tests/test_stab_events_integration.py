@@ -244,3 +244,130 @@ def test_secrets_are_absent_from_events_audit_diagnostics_and_export(
                                     modules=["d3_backend"])
     _assert_no_secrets(export.read_text(encoding="utf-8"))
     assert obs.verify_chain(tmp_path).ok is True
+
+
+# ---------------------------------------------------------------------------
+# 6. HMAC tamper evidence (M-4): forged records, head recomputation, replay
+# ---------------------------------------------------------------------------
+
+_KEYED_WORKER = r"""
+import sys
+sys.path.insert(0, sys.argv[1])
+from keel.backend_events import DeliveryTracker, EventBus, SessionStarted
+root, index = sys.argv[2], sys.argv[3]
+event = SessionStarted(event_id=f"keyed-{index}", session_id=f"s-{index}")
+assert EventBus(root).publish(event) is True
+DeliveryTracker(root).register(event.event_id, "sink")
+"""
+
+
+def test_forged_record_with_recomputed_plain_digest_is_rejected(
+        tmp_path: Path) -> None:
+    bus = be.EventBus(tmp_path)
+    assert bus.publish(be.SessionStarted(event_id="REAL-1", session_id="s1"))
+    log = tmp_path / "backend-events.jsonl"
+    head = tmp_path / "backend-events.jsonl.head"
+    key = be._existing_key(tmp_path)
+    assert key is not None
+
+    # An attacker appends a second record and recomputes an *unkeyed* digest.
+    forged = {
+        "seq": 2,
+        "prev": bus._store.records[-1]["digest"],
+        "data": {"event": be.SessionStarted(
+            event_id="FORGED-2", session_id="s2").to_dict()},
+    }
+    forged["digest"] = be._record_digest(forged)  # legacy SHA-256, forgeable
+    with log.open("ab") as handle:
+        handle.write((json.dumps(forged, sort_keys=True, separators=(",", ":"))
+                      + "\n").encode("utf-8"))
+    # The attacker even supplies a correctly MACed head for the forged digest.
+    be._write_head(head, 2, forged["digest"], key)
+
+    with pytest.raises(be.CorruptRecordError, match="HMAC mismatch"):
+        be.EventBus(tmp_path)
+    with pytest.raises(be.CorruptRecordError):
+        be.EventBus(tmp_path).replay()
+    with pytest.raises(be.CorruptRecordError):
+        bus.publish(be.SessionStarted(event_id="AFTER", session_id="s9"))
+
+
+def test_truncated_log_with_recomputed_head_is_rejected(tmp_path: Path) -> None:
+    bus = be.EventBus(tmp_path)
+    for index in range(3):
+        assert bus.publish(be.SessionStarted(
+            event_id=f"real-{index}", session_id="s"))
+    log = tmp_path / "backend-events.jsonl"
+    head = tmp_path / "backend-events.jsonl.head"
+    lines = log.read_text(encoding="utf-8").splitlines()
+    log.write_text("\n".join(lines[:2]) + "\n", encoding="utf-8")
+    # Recompute a plain, unkeyed head to match the truncated log.
+    trunc_digest = json.loads(lines[1])["digest"]
+    head.write_text(json.dumps({"count": 2, "digest": trunc_digest}) + "\n",
+                    encoding="utf-8")
+
+    with pytest.raises(be.CorruptRecordError, match="unkeyed commit head"):
+        be.EventBus(tmp_path)
+    with pytest.raises(be.CorruptRecordError):
+        be.EventBus(tmp_path).replay()
+
+
+def test_keyed_chain_and_delivery_state_survive_32_processes(tmp_path: Path) -> None:
+    from concurrent.futures import ThreadPoolExecutor
+
+    workers = 32
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        results = list(pool.map(
+            lambda index: subprocess.run(
+                [sys.executable, "-c", _KEYED_WORKER, str(SRC), str(tmp_path),
+                 str(index)],
+                capture_output=True, text=True, timeout=120),
+            range(workers),
+        ))
+    for result in results:
+        assert result.returncode == 0, result.stderr
+
+    key = be._existing_key(tmp_path)
+    assert key is not None and len(key) == 32
+    assert (tmp_path / ".keel-event.key").is_file()
+
+    bus = be.EventBus(tmp_path)
+    events = bus.replay()
+    assert {event.event_id for event in events} == {
+        f"keyed-{index}" for index in range(workers)}
+    assert len(events) == workers
+    # Sequence order is deterministic even though process scheduling is not.
+    assert [record["seq"] for record in bus._store.records] == list(
+        range(1, workers + 1))
+    assert bus.replay() == tuple(events)
+    assert all(record["digest"] == be._record_digest(record, key)
+               for record in bus._store.records)
+    head = json.loads((tmp_path / "backend-events.jsonl.head").read_text())
+    assert head["count"] == workers
+    assert head["mac"] == be._head_mac(head, key)
+    assert len(be.DeliveryTracker(tmp_path).pending()) == workers
+
+
+def test_unkeyed_legacy_log_fails_closed_unless_explicitly_enabled(
+        tmp_path: Path) -> None:
+    log = tmp_path / "backend-events.jsonl"
+    head = tmp_path / "backend-events.jsonl.head"
+    event = be.SessionStarted(event_id="legacy-1", session_id="s")
+    record = {
+        "seq": 1,
+        "prev": be.GENESIS_DIGEST,
+        "data": {"event": event.to_dict()},
+    }
+    record["digest"] = be._record_digest(record)  # documented legacy format
+    log.write_text(json.dumps(record, sort_keys=True, separators=(",", ":"))
+                   + "\n", encoding="utf-8")
+    be._write_head(head, 1, record["digest"])  # unkeyed legacy head
+
+    with pytest.raises(be.CorruptRecordError, match="legacy_mode"):
+        be.EventBus(tmp_path)
+
+    legacy = be.EventBus(tmp_path, legacy_mode=True)
+    assert legacy.replay() == (event,)
+    assert legacy.publish(be.SessionStarted(
+        event_id="legacy-2", session_id="s")) is True
+    assert len(legacy.events) == 2
