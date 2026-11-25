@@ -11,7 +11,7 @@ import s from "./settings.module.css";
 import { SETTINGS_SECTIONS, type SectionId } from "./settingsShared";
 import { AgentModelsPanel, CredentialsPanel, ProvidersPanel } from "./ProvidersSettings";
 import { NetworkPanel, PermissionsPanel, TrustPanel } from "./SecuritySettings";
-import { DiagnosticsPanel, PrivacyPanel } from "./SystemSettings";
+import { DiagnosticsPanel, PrivacyPanel, UpdatesPanel } from "./SystemSettings";
 import { AccessibilityPanel, AppearancePanel, ResetPanel } from "./PreferencesSettings";
 
 const CATEGORY_ORDER = ["Models & providers", "Security & trust", "Privacy & system", "Preferences"];
@@ -74,6 +74,7 @@ export default function Settings() {
       case "network": return <NetworkPanel />;
       case "privacy": return <PrivacyPanel />;
       case "diagnostics": return <DiagnosticsPanel />;
+      case "updates": return <UpdatesPanel />;
       case "appearance": return <AppearancePanel />;
       case "accessibility": return <AccessibilityPanel />;
       case "reset": return <ResetPanel />;
