@@ -49,7 +49,8 @@ const STATUS_CLASS: Record<ChipStatus, string> = {
 
 // The bridge reads this JSON body with a 6 MB limit.
 const MAX_BODY_BYTES = 6_000_000;
-const TEXT_EXT = /\.(txt|md|markdown|json|csv|log|py|js|jsx|ts|tsx|css|scss|html|htm|xml|ya?ml|toml|ini|sh|bat|sql|rst)$/i;
+// Only zip archives are accepted as file attachments; no folders or loose text files.
+const ZIP_EXT = /\.zip$/i;
 
 // Structural types for the browser-native Web Speech API. lib.dom does not
 // ship these interfaces and adding a type package would be a new dependency,
@@ -153,21 +154,17 @@ function postLibrary(payload: Record<string, string>, onProgress: (percent: numb
 }
 
 async function buildUploadPayload(file: File, botId: string): Promise<Record<string, string>> {
-  const isText = file.type.startsWith("text/") || TEXT_EXT.test(file.name);
-  if (isText) {
-    const content = await file.text();
-    if (content.length + file.name.length + botId.length + 256 > MAX_BODY_BYTES) {
-      throw new Error("File exceeds the bridge's 6 MB request limit.");
-    }
-    return { filename: file.name, bot_id: botId, content, mime: file.type || "text/plain" };
+  // Only zip archives may be attached; no folders or loose text files.
+  if (!ZIP_EXT.test(file.name)) {
+    throw new Error("Only .zip files can be attached. Select a zip archive instead.");
   }
   const dataUrl = await readDataUrl(file);
   const comma = dataUrl.indexOf(",");
   const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
   if (base64.length + file.name.length + botId.length + 256 > MAX_BODY_BYTES) {
-    throw new Error("File is too large for the bridge's 6 MB request limit (base64 adds about 33%).");
+    throw new Error("Zip file is too large for the bridge's 6 MB request limit (base64 adds about 33%).");
   }
-  return { filename: file.name, bot_id: botId, content_base64: base64, mime: file.type || "application/octet-stream" };
+  return { filename: file.name, bot_id: botId, content_base64: base64, mime: "application/zip" };
 }
 
 export interface ComposerProps {
@@ -601,7 +598,7 @@ export default function Composer({
               ))}
             </div>
             <p className={s.attachNote} role="note">
-              Files are uploaded to this agent&apos;s library before the message is sent and referenced by name. They are not attached directly to the model prompt.
+              Only .zip files may be attached. Zip contents are uploaded to this agent&apos;s library before the message is sent and referenced by name — folders are not supported.
             </p>
           </div>
         )}
@@ -640,7 +637,7 @@ export default function Composer({
 
         <div className={s.toolbar}>
           <input
-            ref={fileRef} type="file" multiple hidden tabIndex={-1}
+            ref={fileRef} type="file" multiple hidden tabIndex={-1} accept=".zip"
             onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
           />
           <IconButton label="Attach files" onClick={() => fileRef.current?.click()} title="Add files to the agent's library">

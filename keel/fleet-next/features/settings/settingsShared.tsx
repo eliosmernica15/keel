@@ -2,6 +2,10 @@
 
 // Shared settings helpers: a single bridge loader with honest error states and
 // the canonical section registry used by both navigation and search.
+//
+// The registry mirrors the settings screenshot: a left sidebar grouped into
+// SETTINGS, THIS COMPUTER and CUSTOMIZE, each section rendered as a card in
+// the main content area.
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Skeleton } from "@/components/ui";
@@ -91,8 +95,9 @@ export function readRecord(value: unknown): Record<string, unknown> {
 }
 
 export type SectionId =
-  | "providers" | "agent-models" | "credentials" | "permissions" | "trust" | "network"
-  | "privacy" | "diagnostics" | "appearance" | "accessibility" | "reset";
+  | "general" | "providers" | "usage" | "privacy" | "import-export" | "keel-code" | "keel-desktop"
+  | "policies" | "admin" | "system" | "developer"
+  | "skills" | "commands" | "workflows" | "mcp-servers" | "plugins";
 
 export interface SectionDef {
   id: SectionId;
@@ -103,16 +108,26 @@ export interface SectionDef {
   icon: IconName;
 }
 
+// Canonical registry, grouped into the screenshot's sidebar categories:
+// SETTINGS · THIS COMPUTER · CUSTOMIZE
 export const SETTINGS_SECTIONS: SectionDef[] = [
-  { id: "providers", title: "Providers & models", category: "Models & providers", description: "Configured providers, model catalogue and real model metadata.", keywords: "model catalog catalogue api key provider default", icon: "spark" },
-  { id: "agent-models", title: "Agent models", category: "Models & providers", description: "Set each agent's model through the real agent-update route, or clear it to use the provider default.", keywords: "agent model default per agent bots update provider catalog select", icon: "spark" },
-  { id: "credentials", title: "Credentials", category: "Models & providers", description: "Session-only and persisted keys — never stored in this browser.", keywords: "secret key password credential token save remove secure", icon: "shield" },
-  { id: "permissions", title: "Permission mode", category: "Security & trust", description: "Choose how much the agent may do before asking you.", keywords: "mode build plan autopilot accept edits approval policy", icon: "shield" },
-  { id: "trust", title: "Workspace trust", category: "Security & trust", description: "Folders Keel may read and write, with explicit trust decisions.", keywords: "project folder path symlink revoke trusted workspace", icon: "folder" },
-  { id: "network", title: "Network & egress", category: "Security & trust", description: "What the bridge exposes about network rules.", keywords: "egress firewall domains allowed network rules", icon: "link" },
-  { id: "privacy", title: "Privacy & data", category: "Privacy & system", description: "Real usage totals and local-first storage facts.", keywords: "usage tokens transcripts retention export privacy data", icon: "user" },
-  { id: "diagnostics", title: "System diagnostics", category: "Privacy & system", description: "Bridge health probe and what this build can report.", keywords: "health version startup logs diagnostics bridge bundle", icon: "info" },
-  { id: "appearance", title: "Appearance", category: "Preferences", description: "Dark, light or system theme, applied everywhere by the app shell.", keywords: "theme dark light system color appearance", icon: "moon" },
-  { id: "accessibility", title: "Accessibility", category: "Preferences", description: "Motion state, keyboard access and supported display options.", keywords: "reduced motion text scale font contrast screen reader keyboard", icon: "user" },
-  { id: "reset", title: "Reset to defaults", category: "Preferences", description: "Preview and confirm resets for settings this UI owns.", keywords: "reset defaults theme panels restore", icon: "refresh" },
+  // SETTINGS
+  { id: "general", title: "General", category: "SETTINGS", description: "Your account, this device and general preferences.", keywords: "account device general preferences local", icon: "user" },
+  { id: "providers", title: "Providers", category: "SETTINGS", description: "Configured providers and the model catalogue.", keywords: "provider model api key catalogue", icon: "spark" },
+  { id: "usage", title: "Usage", category: "SETTINGS", description: "Usage totals reported by the bridge.", keywords: "usage tokens requests cost", icon: "clock" },
+  { id: "privacy", title: "Privacy", category: "SETTINGS", description: "Privacy and local-first data handling.", keywords: "privacy data retention storage", icon: "shield" },
+  { id: "import-export", title: "Import & export", category: "SETTINGS", description: "Import and export settings and data.", keywords: "import export backup restore", icon: "download" },
+  { id: "keel-code", title: "Keel Code", category: "SETTINGS", description: "Keel Code integration settings.", keywords: "keel code", icon: "code" },
+  { id: "keel-desktop", title: "Keel Desktop", category: "SETTINGS", description: "Keel Desktop application settings.", keywords: "keel desktop electron", icon: "panel" },
+  // THIS COMPUTER
+  { id: "policies", title: "Policies", category: "THIS COMPUTER", description: "Permission and tool policies for this machine.", keywords: "policy permission mode", icon: "shield" },
+  { id: "admin", title: "Admin", category: "THIS COMPUTER", description: "Admin and workspace trust settings.", keywords: "admin trust workspace", icon: "settings" },
+  { id: "system", title: "System", category: "THIS COMPUTER", description: "System diagnostics and updates.", keywords: "system diagnostics updates health", icon: "info" },
+  { id: "developer", title: "Developer", category: "THIS COMPUTER", description: "Developer tools and options.", keywords: "developer debug", icon: "terminal" },
+  // CUSTOMIZE
+  { id: "skills", title: "Skills", category: "CUSTOMIZE", description: "Skills and capabilities.", keywords: "skills capability", icon: "spark" },
+  { id: "commands", title: "Commands", category: "CUSTOMIZE", description: "Slash commands.", keywords: "commands slash", icon: "command" },
+  { id: "workflows", title: "Workflows", category: "CUSTOMIZE", description: "Workflows and routines.", keywords: "workflow routine", icon: "routine" },
+  { id: "mcp-servers", title: "MCP Servers", category: "CUSTOMIZE", description: "MCP server connections.", keywords: "mcp server connector", icon: "link" },
+  { id: "plugins", title: "Plugins", category: "CUSTOMIZE", description: "Plugins.", keywords: "plugin", icon: "more" },
 ];
