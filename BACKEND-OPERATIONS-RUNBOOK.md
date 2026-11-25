@@ -1,10 +1,17 @@
 # Backend Operations Runbook — Keel
 
-**Candidate:** `e57327378f56062db3b13d3db941ac2cf2a641a3` (branch `agent/prod-ops`).
+**Branch:** `stabilization/post-promotion-production-2026-11-25`
+**Exact final stabilization SHA:** `<<LEAD_SUPPLIED_SHA — placeholder; see matrix §A>>`
 **Status of this document:** descriptive, not a promise of production readiness. Every
-command below is taken from the repository; paths and line numbers are given so an
-operator can re-check them. Where the code only provides a Python API / capability,
-this document says so instead of inventing a CLI command.
+command below was checked against the CLI/release source at the stabilization baseline
+tip; line numbers from historical candidate commits are deliberately omitted. Where the
+code only provides a Python API / capability, this document says so instead of inventing
+a CLI command.
+
+**Readiness states (do not conflate):** backend implementation **complete**; backend
+locally verified **historical only** (no evidence at the exact final SHA yet); backend
+production-ready **no**; desktop release-ready **no**; production deployment completed
+**no**. Gate vocabulary and counts: `PRODUCTION-READINESS-MATRIX.md` §§B/D.
 
 ## 0. Scope and hard boundaries
 
@@ -15,13 +22,15 @@ this document says so instead of inventing a CLI command.
   (`webapp.py:79`, `webapp.py:1316-1319`); `KEEL_TOKEN` overrides it. Every `/api/*`
   route is token-gated and non-GET requests must have a matching `Origin`
   (`webapp.py:253-280`).
-- This candidate is **not a production release**: installers are unsigned, no live
-  provider credentials exist, no clean-VM or native Linux/macOS validation was
-  performed, and nothing was pushed/published
-  (`keel/docs/FINAL-RELEASE-OPERATIONS.md:12-18`, `master-plan-v6-final-report.md:158`).
-- Windows sandbox enforcement is adversarial-verified; Linux native (Landlock/seccomp)
-  and macOS native (Seatbelt; read isolation BLOCKED on macOS 26) require external
-  runners (`keel/docs/FINAL-RELEASE-OPERATIONS.md:168-178`).
+- **[HISTORICAL — pre-promotion candidate]** The candidate evidence records installers
+  unsigned, no live provider credentials, no clean-VM or native Linux/macOS validation,
+  and no push/publish (`keel/docs/FINAL-RELEASE-OPERATIONS.md`,
+  `master-plan-v6-final-report.md`). The current stabilization baseline instead records
+  six failing CI workflows on `origin/main` `9a63be92` with logs unavailable
+  (`POST-PROMOTION-STABILIZATION-BASELINE.md:9-20`). Neither establishes production readiness.
+- **[HISTORICAL]** Windows sandbox enforcement was adversarial-verified; Linux native
+  (Landlock/seccomp) was scoped-verified on WSL2 only, and macOS native execution was not
+  run with read isolation BLOCKED on macOS 26. Native runners remain PR-19 `blocked`.
 
 **Authoritative sources for this runbook:** `keel/src/keel/cli/main.py`,
 `keel/src/keel/webapp.py`, `keel/src/keel/start_health.py`,
@@ -303,8 +312,10 @@ and only attempts live calls with `--live` plus a configured credential
 (`keel/src/keel/provider_validation.py:23-58`, `106-132`). It explicitly never
 fabricates success. Provider credentials and model overrides are listed in
 `keel/docs/FINAL-RELEASE-OPERATIONS.md:181-201`; `anthropic` is **opt-in only, never a
-default**. No `KEEL_*` key is configured on the candidate host and no live call was
-made, so all live-provider behavior remains **unverified**.
+default**. **[HISTORICAL]** No `KEEL_*` key was configured on the candidate host and no
+live call was made (`PROD-PROVIDER-EVIDENCE.md`). **Current classification:** PR-06 is
+`external_validation_pending` — a disposable credential plus a live round-trip must be
+executed and recorded at the exact final stabilization SHA; never report SKIP as a pass.
 
 ---
 

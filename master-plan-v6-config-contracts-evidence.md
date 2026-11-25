@@ -2,7 +2,7 @@
 
 Branch: `agent/a6-y3` (worktree `.../worktree/addenda/a6-y3`)
 Baseline: `4f64b8e`, read-only.
-Source of requirements: `master-plan-v6-final-matrix.json` (865-row registry) →
+Source of requirements: `master-plan-v6-final-matrix.json` (historical 228-row view; canonical is PLAN-INDEX.json) →
 the seven **not_started P0** Y3.x rows: Y3.2, Y3.4, Y3.6, Y3.9, Y3.10, Y3.11,
 Y3.13 (milestones M2/M3/M4).  They are corroborated by `P0-BATCHES.md` and
 `REMAINING-WORK-MATRIX.md`.  All seven are implemented in one additive module.

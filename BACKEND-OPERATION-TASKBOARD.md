@@ -19,7 +19,7 @@ Scope: all locally achievable BACKEND requirements from the 865-ID Master Plan v
 - **Real-runtime integration**: `keel/src/keel/backend_hub.py` + 4 capabilities in `keel/capabilities.py` — the authenticated permission-aware surface used by web bridge, CLI, TUI and desktop shell. 8 integration tests in `test_backend_hub_integration.py`.
 
 ## Registry reconciliation
-- 430 not_started classified: 421 backend features implemented, 7 D6 human-workflow conventions excluded with reasons, 2 owner-gated conflicts (W1.18/Y6.4) documented but not implemented.
+- 430 not_started classified: 421 backend features implemented, 7 D6 human-workflow conventions excluded with reasons, 2 `not_started` rows rejected as written (licensing verification / external observation) (W1.18/Y6.4) documented but not implemented.
 - Attributed by module-declared registries (cross-references to other modules excluded).
 - Generator `build_plan_index.py` extended with `BACKEND_EVIDENCE` (source module + test + evidence doc per ID).
 - Final: **854 verified / 9 not_started / 2 blocked** (865 total; P0 share 27.7%).

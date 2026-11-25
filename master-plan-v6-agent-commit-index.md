@@ -43,7 +43,7 @@ Final integration branch: `final/v6-production` (created from `cc6240e`, local o
 
 **Final summary (2026-11-24): 42 specialist/reviewer subagent branches created across 10 waves (a2–a10); all produced commits; all content merged into `integration/v6-addenda-complete`.** 3 branch tips show "not merged" only because they were amended after the earlier merge or came from the prior squashed snapshot — their implementation content is verified present in HEAD. No agent failed to launch. Lead created ~20 additional evidence/docs files.
 
-**Final registry state: 433 verified / 430 not_started (all P1/P2) / 2 blocked. All locally achievable P0 features complete.** 2 remaining P0 rows (W1.18 MIT license, Y6.4 public repo) are owner-gated conflicts rejected via DECISIONS.md D-036/D-037.
+**Final registry state: 433 verified / 430 not_started (all P1/P2) / 2 blocked. All locally achievable P0 features complete.** 2 remaining P0 rows (W1.18 MIT license, Y6.4 public repo) are `not_started` rows rejected as written (licensing verification / external observation) rejected via DECISIONS.md D-036/D-037.
 
 Also: DB Windows rename retry follow-up merged (`e37017b`); Windows obsolete-test update committed by lead (`d4a24d6`).
 

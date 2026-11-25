@@ -17,11 +17,11 @@ from keel.release_gaps import (StatusConfig, airgap_bundle, check_status,
                                package_manager_manifests, render_status_html,
                                verify_sideload)
 
-ROOT = Path(__file__).resolve().parents[1]
+from fixtures.release_tree import build_release_tree
 
 
 def test_c12_package_manager_manifests(tmp_path):
-    release = ROOT / "release"
+    release, _ = build_release_tree(tmp_path)
     result = package_manager_manifests(release, tmp_path / "pkgs")
     assert set(result["generated"]) == {
         "scoop.json", "chocolatey.nuspec", "keel.desktop",
@@ -34,7 +34,8 @@ def test_c12_package_manager_manifests(tmp_path):
 
 
 def test_c122_airgap_bundle_and_verification(tmp_path):
-    bundle = airgap_bundle(ROOT / "release", tmp_path / "bundle")
+    release, _ = build_release_tree(tmp_path)
+    bundle = airgap_bundle(release, tmp_path / "bundle")
     assert bundle["version"] and "RELEASE-SHA256SUMS.txt" in bundle["files"]
     doc = json.loads((tmp_path / "bundle" / "AIRGAP-MANIFEST.json").read_text())
     assert doc["format"] == "Keel-Airgap-1.0"

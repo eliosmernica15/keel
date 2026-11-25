@@ -142,21 +142,49 @@ def download_update(plan: UpdatePlan, destination: Path, *,
 
 def atomic_install(staged_dir: Path, install_dir: Path,
                    backup_dir: Path) -> None:
-    """Swap a staged installation into place, preserving the old one."""
+    """Swap a staged installation into place, preserving the old one.
+
+    An existing backup is moved aside rather than deleted: it stays available
+    until the new backup and the new install are both in place. On any failure
+    the pre-call state (including the older backup) is restored, so a failed or
+    interrupted upgrade can never destroy the last known-good fallback.
+    """
     if not staged_dir.is_dir():
         raise UpdateError("staged update is not a directory")
     if not install_dir.is_dir():
         raise UpdateError("installation directory does not exist")
 
+    prior_backup: Path | None = None
     if backup_dir.exists():
-        shutil.rmtree(backup_dir)
-    install_dir.rename(backup_dir)
+        prior_backup = backup_dir.with_name(
+            f".{backup_dir.name}.prior.{uuid.uuid4().hex}")
+        backup_dir.rename(prior_backup)
+
+    try:
+        install_dir.rename(backup_dir)
+    except Exception:
+        if (prior_backup is not None and prior_backup.exists()
+                and not backup_dir.exists()):
+            prior_backup.rename(backup_dir)
+        raise
+
     try:
         staged_dir.rename(install_dir)
     except Exception:
         if backup_dir.exists() and not install_dir.exists():
             backup_dir.rename(install_dir)
+        if (prior_backup is not None and prior_backup.exists()
+                and not backup_dir.exists()):
+            prior_backup.rename(backup_dir)
         raise
+
+    if prior_backup is not None and prior_backup.exists():
+        # The new install is already live; stale-backup cleanup must never turn
+        # a successful upgrade into a reported failure.
+        try:
+            shutil.rmtree(prior_backup)
+        except OSError:
+            pass
 
 
 def rollback(install_dir: Path, backup_dir: Path) -> None:

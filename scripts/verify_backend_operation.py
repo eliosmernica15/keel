@@ -28,7 +28,7 @@ Evidence-based gate (REPORTED by default; ENFORCED with --strict):
       ID, which necessarily mentions it).
 
 Per the lead's instruction, failures of this gate are printed as a per-ID list
-with counts but do NOT change any status and do NOT fail the script; the lead
+with counts but do NOT change any status; failures cause exit 1 only with --strict; the lead
 decides what to do with them. This is deliberately a certification layer over
 unit tests, not a claim of native/production verification.
 """

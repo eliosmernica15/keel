@@ -1,14 +1,22 @@
 """keel.fleet.db — fleet.db schema + connection helpers.
 
 Schema is versioned via schema_version (INTEGER PRIMARY KEY). Migrations are
-idempotent: each runs at most once per DB and is recorded.
+**forward-only**: on a healthy database each version runs at most once and is
+recorded, so repeated opens are harmless. There are no down migrations and no
+automatic rollback. Versions are not applied as one transaction, so a process
+killed mid-migration can leave a partially upgraded schema (for example the
+V10 ``ALTER TABLE`` applied but its version row not yet recorded); a blind
+retry then fails. Recovery is an explicit restore of a pre-migration snapshot
+taken with ``keel.backups.backup_database``. See BACKEND-DATABASE-RECOVERY.md.
 """
 
 from __future__ import annotations
 
+import os
 import sqlite3
 import threading
 import time
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -232,6 +240,70 @@ CREATE INDEX IF NOT EXISTS idx_fleet_audit_bot ON fleet_audit(bot_id, id);
 """
 
 _connection_lock = threading.Lock()
+_migration_lock = threading.RLock()
+_MIGRATION_LOCK_ATTEMPTS = 600
+_MIGRATION_LOCK_WAIT_S = 0.05
+
+if os.name == "nt":  # pragma: no cover - platform branch
+    import msvcrt as _file_lock
+else:  # pragma: no cover - exercised on POSIX runners
+    import fcntl as _file_lock
+
+
+@contextmanager
+def _migration_exclusive(db_path: Path):
+    """Serialize schema upgrades across threads and separate OS processes.
+
+    Migrations here are intentionally forward-only and are not one atomic
+    transaction (see BACKEND-DATABASE-RECOVERY.md). Without a cross-process
+    lock, two processes can both read schema version N and then both attempt
+    the same non-idempotent ``ALTER TABLE``, producing "duplicate column name"
+    or "database is locked" on a perfectly healthy first open. The OS drops
+    the file lock automatically if a process dies mid-migration; the next
+    opener then observes the partial schema exactly as before.
+    """
+    with _migration_lock:
+        lock_path = Path(str(db_path) + "-migrate.lock")
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        handle = open(lock_path, "a+b")
+        acquired = False
+        try:
+            if os.name == "nt":  # pragma: no cover - platform branch
+                handle.seek(0, os.SEEK_END)
+                if handle.tell() == 0:
+                    handle.write(b"\0")
+                    handle.flush()
+                handle.seek(0)
+
+            def try_lock() -> None:
+                if os.name == "nt":  # pragma: no cover - platform branch
+                    _file_lock.locking(handle.fileno(), _file_lock.LK_NBLCK, 1)
+                else:  # pragma: no cover - exercised on POSIX runners
+                    _file_lock.flock(handle.fileno(),
+                                     _file_lock.LOCK_EX | _file_lock.LOCK_NB)
+
+            def unlock() -> None:
+                if os.name == "nt":  # pragma: no cover - platform branch
+                    _file_lock.locking(handle.fileno(), _file_lock.LK_UNLCK, 1)
+                else:  # pragma: no cover - exercised on POSIX runners
+                    _file_lock.flock(handle.fileno(), _file_lock.LOCK_UN)
+
+            for _ in range(_MIGRATION_LOCK_ATTEMPTS):
+                try:
+                    try_lock()
+                    acquired = True
+                    break
+                except OSError:
+                    time.sleep(_MIGRATION_LOCK_WAIT_S)
+            if not acquired:
+                raise sqlite3.OperationalError(
+                    "timed out acquiring database migration lock")
+            try:
+                yield
+            finally:
+                unlock()
+        finally:
+            handle.close()
 
 
 def default_db_path() -> Path:
@@ -248,10 +320,17 @@ def connect(path: Path | None = None) -> sqlite3.Connection:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with _connection_lock:
         conn = sqlite3.connect(str(db_path), timeout=30, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA foreign_keys=ON")
-    _migrate(conn)
+    try:
+        conn.row_factory = sqlite3.Row
+        # One serialized critical section for PRAGMAs + migration: the version
+        # read in _migrate() must not race another process's DDL.
+        with _migration_exclusive(db_path):
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA foreign_keys=ON")
+            _migrate(conn)
+    except BaseException:
+        conn.close()  # a failed open must not leak a live connection
+        raise
     return conn
 
 
