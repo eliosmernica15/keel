@@ -16,7 +16,12 @@ from pathlib import Path
 
 from . import __version__
 
-SENSITIVE = ("KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL")
+# Names whose *values* are never exported, whatever they contain. Kept broad
+# enough for common credential spellings (passphrase/private key/API key /
+# Authorization header / session cookie) so a diagnostics bundle cannot carry
+# a live secret even when the value has no recognisable credential format.
+SENSITIVE = ("KEY", "TOKEN", "SECRET", "PASSWORD", "PASSPHRASE",
+             "CREDENTIAL", "PRIVATE", "APIKEY", "AUTHORIZATION", "COOKIE")
 
 
 def mask(value: str) -> str:
