@@ -388,3 +388,162 @@ def _register_backend_capabilities() -> None:
 
 
 _register_backend_capabilities()
+# --- Cowork/Code/Duet/Fleet surface services (Master Plan surface spec) ----
+def _register_surface_services() -> None:
+    def _bad(exc: Exception) -> CapabilityError:
+        return CapabilityError(str(exc), code="bad_request")
+    from . import surface_services_backend as _s
+
+    @capability("surface.deliverables.record", "surface_services", "core", "read",
+               "Build a per-turn deliverable record with previews",
+               schema={"type": "object", "properties": {
+                   "turn_id": {"type": "string"}, "files": {"type": "array"}}},
+               mutates=False)
+    def _surface_deliverables(params, context):
+        try:
+            return _s.deliverable_record(params.get("turn_id", ""),
+                                         params.get("files") or [])
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.checkpoint.create", "surface_services", "core", "execute",
+               "Snapshot files into a per-turn checkpoint",
+               schema={"type": "object", "properties": {
+                   "state_root": {"type": "string"}, "turn_id": {"type": "string"},
+                   "files": {"type": "object"}}, "required": ["state_root", "turn_id"]},
+               mutates=True)
+    def _surface_checkpoint_create(params, context):
+        try:
+            return _s.create_checkpoint(Path(params["state_root"]), params["turn_id"],
+                                        params.get("files") or {})
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.checkpoint.restore", "surface_services", "core", "read",
+               "Restore a per-turn checkpoint",
+               schema={"type": "object", "properties": {
+                   "state_root": {"type": "string"}, "turn_id": {"type": "string"}},
+                   "required": ["state_root", "turn_id"]})
+    def _surface_checkpoint_restore(params, context):
+        try:
+            return _s.restore_checkpoint(Path(params["state_root"]), params["turn_id"])
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.trash", "surface_services", "core", "execute",
+               "Move a file to the recoverable Keel trash",
+               schema={"type": "object", "properties": {
+                   "state_root": {"type": "string"}, "target": {"type": "string"}},
+                   "required": ["state_root", "target"]}, mutates=True)
+    def _surface_trash(params, context):
+        try:
+            return {"trash_path": str(_s.trash_path(
+                Path(params["state_root"]), Path(params["target"])))}
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.context.inspect", "surface_services", "core", "read",
+               "Account prompt sources and token totals",
+               schema={"type": "object", "properties": {
+                   "sources": {"type": "array"}}})
+    def _surface_context(params, context):
+        return _s.context_inspector(params.get("sources") or [])
+
+    @capability("surface.git.status", "surface_services", "core", "read",
+               "Git working-tree status",
+               schema={"type": "object", "properties": {
+                   "repo": {"type": "string"}}, "required": ["repo"]})
+    def _surface_git_status(params, context):
+        try:
+            return {"changes": _s.git_status(params["repo"])}
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.git.diff", "surface_services", "core", "read",
+               "Git diff (optionally scoped to a path)",
+               schema={"type": "object", "properties": {
+                   "repo": {"type": "string"}, "path": {"type": "string"}},
+                   "required": ["repo"]})
+    def _surface_git_diff(params, context):
+        try:
+            return {"diff": _s.git_diff(params["repo"], path=params.get("path"))}
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.git.init", "surface_services", "core", "execute",
+               "Initialize a git repository",
+               schema={"type": "object", "properties": {
+                   "repo": {"type": "string"}}, "required": ["repo"]}, mutates=True)
+    def _surface_git_init(params, context):
+        try:
+            return {"output": _s.git_init(params["repo"])}
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.git.commit", "surface_services", "core", "execute",
+               "Create a commit (requires allow_write)",
+               schema={"type": "object", "properties": {
+                   "repo": {"type": "string"}, "message": {"type": "string"}},
+                   "required": ["repo", "message"]}, mutates=True)
+    def _surface_git_commit(params, context):
+        try:
+            return {"output": _s.git_commit(
+                params["repo"], params["message"], allow_write=True)}
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.notifications.push", "surface_services", "core", "write",
+               "Queue a notification",
+               schema={"type": "object", "properties": {
+                   "state_root": {"type": "string"}, "kind": {"type": "string"},
+                   "title": {"type": "string"}, "body": {"type": "string"}},
+                   "required": ["state_root", "kind", "title", "body"]}, mutates=True)
+    def _surface_notify_push(params, context):
+        try:
+            n = _s.NotificationQueue(Path(params["state_root"])).push(
+                params["kind"], params["title"], params["body"])
+            return {"kind": n.kind, "title": n.title, "body": n.body}
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.notifications.list", "surface_services", "core", "read",
+               "List queued notifications",
+               schema={"type": "object", "properties": {
+                   "state_root": {"type": "string"}}, "required": ["state_root"]})
+    def _surface_notify_list(params, context):
+        try:
+            return {"notifications": [
+                {"kind": n.kind, "title": n.title, "body": n.body,
+                 "acknowledged": n.acknowledged}
+                for n in _s.NotificationQueue(Path(params["state_root"])).list()]}
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.terminal.run", "surface_services", "core", "execute",
+               "Run a command in a real PTY and capture output",
+               schema={"type": "object", "properties": {
+                   "command": {"type": "array"}, "timeout": {"type": "number"}},
+                   "required": ["command"]}, mutates=False)
+    def _surface_terminal_run(params, context):
+        try:
+            session = _s.TerminalSession(params["command"])
+            code, out = session.run_sync(timeout=float(params.get("timeout", 10.0)))
+            return {"exit_code": code, "output": out.decode("utf-8", errors="replace")}
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+    @capability("surface.deliverables.export", "surface_services", "core", "write",
+               "Export deliverables to a zip archive",
+               schema={"type": "object", "properties": {
+                   "turn_id": {"type": "string"}, "files": {"type": "object"},
+                   "dest": {"type": "string"}}, "required": ["turn_id", "files", "dest"]},
+               mutates=True)
+    def _surface_deliverables_export(params, context):
+        try:
+            return {"path": str(_s.export_deliverables_zip(
+                params["turn_id"], params["files"], Path(params["dest"])))}
+        except _s.SurfaceError as exc:
+            raise _bad(exc) from exc
+
+
+_register_surface_services()
