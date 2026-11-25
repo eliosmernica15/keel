@@ -1,5 +1,12 @@
 # FINAL RELEASE ACCEPTANCE — INDEPENDENT REVIEW
 
+> **[HISTORICAL — 2026-11-25]** This is the pre-promotion candidate review (stale
+> `CANDIDATE_HEAD` SHA, 13 pass / 5 unverified / 2 blocked, `BLOCK` verdict). It is
+> retained as audit history and must not be cited as the verdict for completion HEAD
+> `35fb2b8abfd784393b2b252e2b9e2927aba817dd`. The current accounting is in
+> `FINAL-PRODUCTION-READINESS-MATRIX.md`; the reviewer shell is
+> `FINAL-INDEPENDENT-ACCEPTANCE.md`. Production authorization is still **not** granted.
+>
 **VERDICT: BLOCK. Promotion of candidate `CANDIDATE_HEAD` to `main` is NOT authorized.**
 
 Reviewer: independent final-acceptance subagent (`agent/prod-accept`). No candidate source was authored by this review; the only file added is this report.

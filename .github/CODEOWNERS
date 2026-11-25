@@ -1,0 +1,20 @@
+# Keel is owned and operated by a single account (eliosmernica15), which is the
+# only collaborator on this private repository. No teams or other owners are
+# invented here: a team handle would never resolve and would silently disable
+# review routing for these paths.
+#
+# GitHub Free private repositories do not support branch protection, so these
+# entries are ADVISORY until protection is enabled. They record intent and are
+# consumed automatically if the repository is later moved to a plan/org that
+# supports required reviews. They do not themselves block a merge or a push.
+
+* @eliosmernica15
+
+# Release-critical paths. Owner review is required by policy; on this plan it
+# is documented intent, not an enforced GitHub rule.
+/.github/ @eliosmernica15
+/.github/workflows/ @eliosmernica15
+/.github/CODEOWNERS @eliosmernica15
+/.github/PULL_REQUEST_TEMPLATE.md @eliosmernica15
+/scripts/verify_release_authorization.py @eliosmernica15
+/FINAL-GOVERNANCE-EVIDENCE.md @eliosmernica15

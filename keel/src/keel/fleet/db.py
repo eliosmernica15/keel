@@ -20,6 +20,8 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
+from ..settings import default_state_root
+
 SCHEMA_VERSION = 11
 
 _DDL = """
@@ -307,7 +309,14 @@ def _migration_exclusive(db_path: Path):
 
 
 def default_db_path() -> Path:
-    return Path.home() / ".keel" / "fleet.db"
+    """The fleet database lives in the one authoritative state root.
+
+    Deriving from ``keel.settings.default_state_root`` keeps the CLI, web
+    runtime, settings store and database on the same absolute path. A prior
+    implementation hardcoded ``~/.keel/fleet.db`` and silently ignored
+    ``KEEL_STATE_DIR``.
+    """
+    return default_state_root() / "fleet.db"
 
 
 def _now() -> str:
@@ -316,7 +325,9 @@ def _now() -> str:
 
 
 def connect(path: Path | None = None) -> sqlite3.Connection:
-    db_path = Path(path) if path else default_db_path()
+    # Normalise to an absolute path so a caller can never create an accidental
+    # relative database file (the same guarantee default_state_root provides).
+    db_path = Path(os.path.abspath(path)) if path else default_db_path()
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with _connection_lock:
         conn = sqlite3.connect(str(db_path), timeout=30, check_same_thread=False)

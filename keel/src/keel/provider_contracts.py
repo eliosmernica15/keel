@@ -1163,7 +1163,17 @@ def classify_status(status: Any, *, payload: Any = None, headers: Any = None,
 
 def classify_exception(exc: Any, *, secrets: Iterable[str] = ()) -> ProviderFailure:
     """Classify any injected failure without ever echoing the raw exception."""
-    if isinstance(exc, ProviderCancelled):
+    # The policy layer has its own cancellation signal, but a production
+    # transport may surface the adapter-level one instead (see
+    # keel.providers.base.TurnCancelled). Both are normal operator stops, never
+    # provider failures; a misclassification here would make a user-initiated
+    # stop look like a retryable error. Import lazily to keep this module
+    # dependency-free at import time.
+    try:
+        from .providers.base import TurnCancelled
+    except ImportError:  # pragma: no cover - the runtime package is always present
+        TurnCancelled = ()  # type: ignore[assignment,misc]
+    if isinstance(exc, (ProviderCancelled, TurnCancelled)):
         return ProviderFailure(CATEGORY_CANCELLED, "operation cancelled", None, False)
     if isinstance(exc, ProviderTransportError):
         return ProviderFailure(

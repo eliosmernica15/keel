@@ -1,5 +1,13 @@
 # Post-promotion stabilization — final report
 
+> **[SUPERSEDED — 2026-11-25]** Section F's `17 local + 2 external (PR-06, PR-17) +
+> 1 owner (PR-20) + 1 blocked (PR-19) = 21` double-counted the two external gates and
+> omitted PR-18. Section C's 4557-pass count and 31-pin count are also historical.
+> At completion HEAD `35fb2b8abfd784393b2b252e2b9e2927aba817dd` the authoritative
+> figures are 16 + 2 + 1 + 1 = 20, 4610 passed / 0 failed, and 40/40 SHA pins — see
+> `FINAL-PRODUCTION-READINESS-MATRIX.md` §E/§F and
+> `FINAL-RELEASE-COMPLETION-REPORT.md` §2. Retained unchanged as audit history.
+>
 ## A. Executive status
 
 - **CI:** all six previously failing workflows were root-caused. Their original GitHub runs died at runner assignment (`runner_id: 0`, no steps executed), so all workflow commands were reproduced locally; latent defects (offline namespace, provider env isolation, trusted trigger, supply-chain step) were fixed. No workflow was disabled and no test skipped.

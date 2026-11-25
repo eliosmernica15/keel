@@ -216,6 +216,21 @@ class Decision:
             },
         }
 
+    def event_fields(self, tool_use_id: str, *, session_id: str = "") -> dict:
+        """Typed-event projection of this decision (emit-only, never read back).
+
+        The authoritative decision and its reason remain here and in the
+        session/audit records. Consumers may publish this projection as
+        complementary evidence; no authorization code may consume an event to
+        widen a deny or to bypass a policy check.
+        """
+        return {
+            "session_id": session_id,
+            "tool_use_id": tool_use_id,
+            "decision": "allow" if self.decision == "allow" else "deny",
+            "reason": self.reason,
+        }
+
 
 _MODE_TABLE = {
     MODE_DEFAULT:      {READ: "allow", MUTATE_LOCAL: "ask", EXECUTE: "ask",

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import contextlib
 import errno
+import hashlib
 import json
 import os
 import threading
@@ -137,9 +138,12 @@ def invoke(cap_id: str, params: dict | None = None, *,
     else:
         allowed = set(allowed_permissions)
     if cap.permission not in allowed:
-        raise CapabilityError(
-            f"permission {cap.permission!r} required for {cap_id}",
-            code="permission_denied")
+        reason = f"permission {cap.permission!r} required for {cap_id}"
+        _emit_capability_event(
+            cap_id, params, context, outcome="denied", kind="permission_decided",
+            tool_use_id=_safe_error(reason)[:200], decision="deny",
+            reason=_safe_error(reason))
+        raise CapabilityError(reason, code="permission_denied")
     # Saved execution policies bind the capability surface too: a capability
     # carrying a command or URL is checked before its handler runs.
     from .policy_enforcement import enforce as _enforce_policy
@@ -159,18 +163,27 @@ def invoke(cap_id: str, params: dict | None = None, *,
             f"policy evaluation failed for {cap_id}: "
             f"{type(exc).__name__}: {exc}"), code="policy_error") from exc
     if enforced is not None and enforced.decision == "deny":
-        raise CapabilityError(
-            f"execution policy denied {cap_id}: {enforced.reason}",
-            code="policy_denied")
+        reason = f"execution policy denied {cap_id}: {enforced.reason}"
+        _emit_capability_event(
+            cap_id, params, context, outcome="denied", kind="permission_decided",
+            tool_use_id=_safe_error(reason)[:200], decision="deny",
+            reason=_safe_error(reason))
+        raise CapabilityError(reason, code="policy_denied")
     if (enforced is not None and enforced.decision == "ask"
             and context.get("confirm") is not True):
         # An unconfirmed `ask` must fail closed on every transport.
-        raise CapabilityError(
-            f"execution policy requires confirmation for {cap_id}: {enforced.reason}",
-            code="confirmation_required")
+        reason = f"execution policy requires confirmation for {cap_id}: {enforced.reason}"
+        _emit_capability_event(
+            cap_id, params, context, outcome="denied", kind="permission_decided",
+            tool_use_id=_safe_error(reason)[:200], decision="deny",
+            reason=_safe_error(reason))
+        raise CapabilityError(reason, code="confirmation_required")
     started = time.monotonic()
     try:
         result = cap.handler(params, context)
+        _emit_capability_event(
+            cap_id, params, context, outcome="ok", kind="job_completed",
+            job_id=_safe_error(cap_id)[:200], status="completed")
         return {
             "ok": True, "capability": cap_id, "result": result,
             "elapsed_ms": round((time.monotonic() - started) * 1000, 3),
@@ -178,9 +191,12 @@ def invoke(cap_id: str, params: dict | None = None, *,
     except CapabilityError:
         raise
     except Exception as exc:  # handlers must surface real errors, not fake success
-        raise CapabilityError(
-            _safe_error(f"{type(exc).__name__}: {exc}"),
-            code="handler_error") from exc
+        reason = _safe_error(f"{type(exc).__name__}: {exc}")
+        _emit_capability_event(
+            cap_id, params, context, outcome="error", kind="error_recorded",
+            error_id=_safe_error(cap_id)[:200], severity="error",
+            message=reason)
+        raise CapabilityError(reason, code="handler_error") from exc
 
 
 def audit_path(state_root: str | Path) -> Path:
@@ -249,6 +265,35 @@ def _audit_lock(path: Path):
 def _safe_error(text: Any) -> str:
     """Never echo a raw handler/policy exception: it may contain credentials."""
     return redact_text(str(text))[0][:500]
+
+
+def _emit_capability_event(cap_id: str, params: dict, context: dict, *,
+                           outcome: str, kind: str, **fields: Any) -> None:
+    """Publish complementary typed evidence for a capability decision.
+
+    This is a post-decision emit only. Permission/policy verdicts above are the
+    sole authorization authority; nothing reads these events back. Emission
+    failures are deliberately non-fatal to the capability call, but are
+    redacted and never reported as success through the event stream.
+    """
+    try:
+        from .automation import publish_durable
+        from .settings import default_state_root
+
+        correlation = hashlib.sha256(json.dumps(
+            [cap_id, params], sort_keys=True, default=str,
+            ensure_ascii=False).encode("utf-8")).hexdigest()
+        event_id = "cap-" + hashlib.sha256(
+            f"{cap_id}:{outcome}:{correlation}".encode("utf-8")
+        ).hexdigest()[:24]
+        session_id = str(context.get("session_id") or "capability")
+        metadata = [("source", "capabilities"), ("correlation_id", correlation),
+                    ("outcome", outcome)]
+        publish_durable(
+            context.get("state_root") or default_state_root(), kind,
+            event_id=event_id, session_id=session_id, metadata=metadata, **fields)
+    except Exception:
+        pass  # complementary evidence must never change the decision
 
 
 def _redact_value(node: Any) -> Any:

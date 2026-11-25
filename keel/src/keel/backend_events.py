@@ -7,6 +7,8 @@ This module is deliberately self-contained and stdlib-only.  It provides:
 * :class:`EventBus`, a publish/subscribe bus with per-subscriber cursors,
   idempotent event IDs, replay from a digest-chained JSONL log keyed by
   ``state_root``, and a cross-process exclusive lock so appends are atomic;
+  every published string is DLP-redacted first, and a bounded hot log rolls
+  older records into MAC-verified forensic archives instead of deleting them;
 * :class:`DeliveryTracker`, which records outgoing delivery *attempts* with
   deterministic backoff, terminal failure and cancellation.  No network and
   no sleeping happen here -- success is only ever recorded from an explicit
@@ -36,6 +38,7 @@ sharing mutable state.
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import hmac
 import json
@@ -92,6 +95,7 @@ __all__ = [
     "get_event_class",
     "build_event",
     "event_from_dict",
+    "redact_event",
     "describe_event",
     "describe_event_schema",
     "EventBus",
@@ -639,6 +643,45 @@ def event_from_dict(payload: Mapping[str, Any]) -> BackendEvent:
     return _decode_event(payload)
 
 
+def _redact_node(value: Any, redact: Any) -> Any:
+    """Apply the shared DLP vocabulary to every string in an event envelope."""
+    if isinstance(value, str):
+        return redact(value)[0]
+    if isinstance(value, dict):
+        return {key: _redact_node(item, redact) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_redact_node(item, redact) for item in value]
+    return value
+
+
+def redact_event(event: BackendEvent) -> BackendEvent:
+    """Return a typed event with every string passed through ``redaction``.
+
+    This is the producer-boundary guard: ``EventBus.publish`` redacts before
+    persistence, so credentials in a reason/message/prompt can never enter the
+    HMAC-chained log (or a subscriber callback). The original event is never
+    mutated, and an already-clean event is returned unchanged.
+    """
+    if not isinstance(event, BackendEvent):
+        raise TypeError("redact_event expects a BackendEvent")
+    from .redaction import redact_text
+
+    envelope = event.to_dict()
+    cleaned = _redact_node(envelope, redact_text)
+    if cleaned == envelope:
+        return event
+    return event_from_dict(cleaned)
+
+
+def _safe_text(value: Any) -> str:
+    """Redact a diagnostic string before it enters a delivery record."""
+    if not isinstance(value, str):
+        value = str(value)
+    from .redaction import redact_text
+
+    return redact_text(value)[0]
+
+
 def build_event(kind: str, **values: Any) -> BackendEvent:
     """Factory helper: build a typed event from a kind name and field values."""
     cls = get_event_class(kind)
@@ -971,13 +1014,17 @@ def _record_digest(record: Mapping[str, Any], key: bytes | None = None) -> str:
     return hmac.new(key, body, hashlib.sha256).hexdigest()
 
 
-def _head_body(count: int, digest: str) -> bytes:
-    return _canonical_bytes({"count": count, "digest": digest})
+def _head_body(head: Mapping[str, Any]) -> bytes:
+    """Canonical authenticated bytes: every head field except the MAC itself.
+
+    Non-rotated heads still contain only ``count``/``digest``, so their MAC is
+    byte-identical to the pre-retention format.
+    """
+    return _canonical_bytes({k: v for k, v in head.items() if k != "mac"})
 
 
 def _head_mac(head: Mapping[str, Any], key: bytes) -> str:
-    return hmac.new(key, _head_body(head["count"], head["digest"]),
-                    hashlib.sha256).hexdigest()
+    return hmac.new(key, _head_body(head), hashlib.sha256).hexdigest()
 
 
 _NO_KEY = object()
@@ -1018,10 +1065,18 @@ def _append_line(path: Path, record: Mapping[str, Any],
 
 
 def _write_head(path: Path, count: int, digest: str,
-                key: bytes | None = None) -> None:
-    """Atomically commit the count and chain head, MAC-protected when keyed."""
+                key: bytes | None = None, *, base: int = 0,
+                base_digest: str = GENESIS_DIGEST) -> None:
+    """Atomically commit the count and chain head, MAC-protected when keyed.
+
+    ``count`` is the global sequence count.  After rotation, ``base`` and
+    ``base_digest`` pin the first retained record to the last archived digest.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     payload: dict[str, Any] = {"count": count, "digest": digest}
+    if base:
+        payload["base"] = base
+        payload["base_digest"] = base_digest
     if key is not None:
         payload["mac"] = _head_mac(payload, key)
     body = json.dumps(payload, sort_keys=True, separators=(",", ":"))
@@ -1049,11 +1104,20 @@ def _read_head(path: Path, key: bytes | None) -> dict[str, Any]:
     except (OSError, ValueError, TypeError) as exc:
         raise CorruptRecordError(path, 0, f"unreadable commit head: {exc}") from exc
     if (not isinstance(head, dict) or not {"count", "digest"}.issubset(head)
-            or set(head) not in ({"count", "digest"}, {"count", "digest", "mac"})
             or not isinstance(head["count"], int)
             or isinstance(head["count"], bool)
             or not isinstance(head["digest"], str)):
         raise CorruptRecordError(path, 0, "invalid commit head")
+    extra = set(head) - {"count", "digest", "mac"}
+    if extra not in (set(), {"base", "base_digest"}):
+        raise CorruptRecordError(path, 0, "invalid commit head")
+    if extra:
+        base, base_digest = head["base"], head["base_digest"]
+        if (not isinstance(base, int) or isinstance(base, bool) or base < 0
+                or not isinstance(base_digest, str)):
+            raise CorruptRecordError(path, 0, "invalid rotation anchor")
+    elif "base" in head or "base_digest" in head:
+        raise CorruptRecordError(path, 0, "incomplete rotation anchor")
     if "mac" in head:
         if key is None:
             raise CorruptRecordError(path, 0,
@@ -1078,7 +1142,8 @@ class _JsonlStore:
     """
 
     def __init__(self, path: Path, *, validator: Any = None,
-                 key: bytes | None = None, legacy: bool = False):
+                 key: bytes | None = None, legacy: bool = False,
+                 max_records: int | None = None, max_archives: int = 0):
         self.path = Path(path)
         self.head_path = Path(str(path) + ".head")
         self.validator = validator
@@ -1086,6 +1151,14 @@ class _JsonlStore:
         self.key = None if self.legacy else (
             key if key is not None else _event_key(self.path.parent))
         self.lock = _log_lock(self.path)
+        self.max_records = max_records
+        self.max_archives = max(0, int(max_archives))
+        self.archive_dir = self.path.parent / (self.path.name + ".forensic")
+        self.manifest_path = self.archive_dir / "manifest.json"
+        self.archives: list[dict[str, Any]] = []
+        self.archive_records: list[dict[str, Any]] = []
+        self.base_seq = 0
+        self.base_digest = GENESIS_DIGEST
         self.records: list[dict[str, Any]] = []
         self.last_recovery: LogRecovery | None = None
         self.reload()
@@ -1093,6 +1166,182 @@ class _JsonlStore:
     def reload(self) -> None:
         with self.lock:
             self.records = self._read()
+
+    # -- bounded retention: forensic archives, never silent deletion ---------
+
+    def _atomic_write(self, path: Path, payload: str) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp",
+                                        dir=str(path.parent))
+        tmp = Path(tmp_name)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
+                handle.write(payload)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(tmp, path)
+        except BaseException:
+            with contextlib.suppress(OSError):
+                tmp.unlink()
+            raise
+
+    def _manifest_body(self, archives: list[dict[str, Any]]) -> dict[str, Any]:
+        return {"archives": archives}
+
+    def _write_manifest(self) -> None:
+        body = self._manifest_body(self.archives)
+        if self.key is not None:
+            body["mac"] = hmac.new(
+                self.key, _canonical_bytes(body), hashlib.sha256).hexdigest()
+        self._atomic_write(self.manifest_path,
+                           json.dumps(body, sort_keys=True,
+                                      separators=(",", ":")) + "\n")
+
+    def _decode_record(self, obj: Any, expected_seq: int, expected_prev: str,
+                       lineno: int, path: Path) -> dict[str, Any]:
+        """Full structural and keyed-chain verification of one stored record."""
+        if not isinstance(obj, dict) or set(obj) != {"seq", "prev", "data", "digest"}:
+            raise CorruptRecordError(path, lineno, "unexpected record shape")
+        seq = obj["seq"]
+        if not isinstance(seq, int) or isinstance(seq, bool) or seq != expected_seq:
+            raise CorruptRecordError(path, lineno, f"bad sequence: {seq!r}")
+        if obj["prev"] != expected_prev:
+            raise CorruptRecordError(path, lineno, "broken digest chain")
+        expected = _record_digest(obj, self.key)
+        if not isinstance(obj["digest"], str) or not hmac.compare_digest(
+                obj["digest"], expected):
+            reason = "record HMAC mismatch"
+            if self.key is not None and isinstance(obj["digest"], str) \
+                    and hmac.compare_digest(obj["digest"], _record_digest(obj)):
+                reason += " (unkeyed legacy record requires legacy_mode=True)"
+            raise CorruptRecordError(path, lineno, reason)
+        if self.validator is not None:
+            self.validator(obj["data"], lineno)
+        return obj
+
+    def _read_archive(self, entry: dict[str, Any], expected_seq: int,
+                      expected_prev: str) -> tuple[list[dict[str, Any]], int, str]:
+        path = self.archive_dir / str(entry["file"])
+        try:
+            raw = path.read_bytes()
+        except OSError as exc:
+            raise CorruptRecordError(path, 0, f"unreadable archive: {exc}") from exc
+        if hashlib.sha256(raw).hexdigest() != entry["sha256"]:
+            raise CorruptRecordError(path, 0, "archive SHA-256 mismatch")
+        lines = raw.decode("utf-8", "strict").splitlines() if raw else []
+        records: list[dict[str, Any]] = []
+        seq, prev = expected_seq, expected_prev
+        for lineno, line in enumerate(lines, 1):
+            try:
+                obj = json.loads(line)
+            except (ValueError, TypeError) as exc:
+                raise CorruptRecordError(path, lineno,
+                                         f"unparseable archive record: {exc}") from exc
+            records.append(self._decode_record(obj, seq, prev, lineno, path))
+            seq += 1
+            prev = obj["digest"]
+        if (len(records) != entry["count"] or seq - 1 != entry["last_seq"]
+                or records[0]["prev"] != entry["first_prev"]
+                or prev != entry["last_digest"]):
+            raise CorruptRecordError(path, 0, "archive manifest mismatch")
+        return records, seq, prev
+
+    def _read_manifest(self) -> None:
+        """Verify archived chain segments and expose their records for replay."""
+        self.archives, self.archive_records = [], []
+        self.base_seq, self.base_digest = 0, GENESIS_DIGEST
+        try:
+            body = json.loads(self.manifest_path.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            return
+        except (OSError, ValueError, TypeError) as exc:
+            raise CorruptRecordError(
+                self.manifest_path, 0, f"unreadable retention manifest: {exc}") from exc
+        if not isinstance(body, dict) or not isinstance(body.get("archives"), list):
+            raise CorruptRecordError(self.manifest_path, 0, "invalid retention manifest")
+        if self.key is not None:
+            expected_mac = hmac.new(
+                self.key, _canonical_bytes(self._manifest_body(body["archives"])),
+                hashlib.sha256).hexdigest()
+            if not isinstance(body.get("mac"), str) or not hmac.compare_digest(
+                    body["mac"], expected_mac):
+                raise CorruptRecordError(self.manifest_path, 0,
+                                         "retention manifest MAC mismatch")
+        elif "mac" in body:
+            raise CorruptRecordError(self.manifest_path, 0,
+                                     "keyed retention manifest requires an HMAC key")
+        seq, prev = 1, GENESIS_DIGEST
+        for position, entry in enumerate(body["archives"]):
+            if not isinstance(entry, dict) or set(entry) != {
+                    "file", "sha256", "count", "first_seq", "last_seq",
+                    "first_prev", "last_digest"}:
+                raise CorruptRecordError(
+                    self.manifest_path, position + 1, "invalid archive entry")
+            if not isinstance(entry["count"], int) or entry["count"] < 1 \
+                    or entry["first_seq"] != seq or entry["first_prev"] != prev:
+                raise CorruptRecordError(
+                    self.manifest_path, position + 1, "broken archive chain")
+            records, seq, prev = self._read_archive(entry, seq, prev)
+            self.archive_records.extend(records)
+            self.archives.append(dict(entry))
+        self.base_seq, self.base_digest = seq - 1, prev
+
+    def _rotate(self) -> None:
+        """Move the oldest records into a verified archive and shrink the hot log.
+
+        Called only under the exclusive lock after a successful append.  The
+        manifest is MAC-protected with the same key as the record chain, and
+        archives are merged (never deleted) when the file budget is exceeded.
+        """
+        if not self.max_records or len(self.records) <= self.max_records:
+            return
+        count = len(self.records) - self.max_records
+        archived = self.records[:count]
+        self.records = self.records[count:]
+        first, last = archived[0]["seq"], archived[-1]["seq"]
+        name = f"events-{first:012d}-{last:012d}.jsonl"
+        path = self.archive_dir / name
+        body = "".join(json.dumps(r, sort_keys=True, separators=(",", ":"),
+                                  ensure_ascii=False) + "\n" for r in archived)
+        self._atomic_write(path, body)
+        digest_bytes = hashlib.sha256(body.encode("utf-8")).hexdigest()
+        self.archives.append({
+            "file": name, "sha256": digest_bytes, "count": count,
+            "first_seq": first, "last_seq": last,
+            "first_prev": archived[0]["prev"],
+            "last_digest": archived[-1]["digest"],
+        })
+        while self.max_archives and len(self.archives) > self.max_archives:
+            older, newer = self.archives[0], self.archives[1]
+            old_path = self.archive_dir / str(older["file"])
+            new_path = self.archive_dir / str(newer["file"])
+            merged = old_path.read_bytes() + new_path.read_bytes()
+            merged_name = (f"events-{older['first_seq']:012d}-"
+                           f"{newer['last_seq']:012d}.jsonl")
+            merged_path = self.archive_dir / merged_name
+            self._atomic_write(merged_path, merged.decode("utf-8"))
+            with contextlib.suppress(OSError):
+                old_path.unlink()
+            with contextlib.suppress(OSError):
+                new_path.unlink()
+            self.archives[:2] = [{
+                "file": merged_name,
+                "sha256": hashlib.sha256(merged).hexdigest(),
+                "count": older["count"] + newer["count"],
+                "first_seq": older["first_seq"], "last_seq": newer["last_seq"],
+                "first_prev": older["first_prev"],
+                "last_digest": newer["last_digest"],
+            }]
+        self.archive_records.extend(archived)
+        self.base_seq, self.base_digest = last, archived[-1]["digest"]
+        self._write_manifest()
+        hot_body = "".join(json.dumps(r, sort_keys=True, separators=(",", ":"),
+                                      ensure_ascii=False) + "\n"
+                           for r in self.records)
+        self._atomic_write(self.path, hot_body)
+        head_digest = self.records[-1]["digest"] if self.records else self.base_digest
+        _write_head(self.head_path, self.base_seq + len(self.records), head_digest,
+                    self.key, base=self.base_seq, base_digest=self.base_digest)
 
     def _read_head(self) -> dict[str, Any]:
         return _read_head(self.head_path, self.key)
@@ -1104,7 +1353,8 @@ class _JsonlStore:
         return head is not None and count >= head["count"] and lineno == total
 
     def _parse_line(self, raw: bytes, lineno: int,
-                    records: list[dict[str, Any]], prev: str) -> dict[str, Any]:
+                    records: list[dict[str, Any]], prev: str,
+                    base_seq: int = 0) -> dict[str, Any]:
         try:
             text = raw.decode("utf-8")
         except UnicodeDecodeError:
@@ -1117,25 +1367,8 @@ class _JsonlStore:
         except (ValueError, TypeError):
             raise CorruptRecordError(
                 self.path, lineno, "unparseable JSON record") from None
-        if not isinstance(obj, dict) or set(obj) != {"seq", "prev", "data", "digest"}:
-            raise CorruptRecordError(self.path, lineno, "unexpected record shape")
-        seq = obj["seq"]
-        if not isinstance(seq, int) or isinstance(seq, bool) or seq != len(records) + 1:
-            raise CorruptRecordError(self.path, lineno, f"bad sequence: {seq!r}")
-        if obj["prev"] != prev:
-            raise CorruptRecordError(self.path, lineno, "broken digest chain")
-        expected = _record_digest(obj, self.key)
-        if not isinstance(obj["digest"], str) or not hmac.compare_digest(
-                obj["digest"], expected):
-            reason = "record HMAC mismatch"
-            if self.key is not None and isinstance(obj["digest"], str) \
-                    and hmac.compare_digest(obj["digest"],
-                                            _record_digest(obj)):
-                reason += " (unkeyed legacy record requires legacy_mode=True)"
-            raise CorruptRecordError(self.path, lineno, reason)
-        if self.validator is not None:
-            self.validator(obj["data"], lineno)
-        return obj
+        return self._decode_record(obj, base_seq + len(records) + 1, prev,
+                                   lineno, self.path)
 
     def _truncate_tail(self, keep_bytes: int) -> None:
         fd = os.open(str(self.path), os.O_WRONLY, 0o600)
@@ -1153,10 +1386,11 @@ class _JsonlStore:
         while a trailing incomplete line is trimmed.  Any other mismatch is
         genuine corruption and still fails closed.
         """
+        self._read_manifest()
         has_log = self.path.is_file()
         has_head = self.head_path.is_file()
         if not has_log:
-            if has_head and self._read_head()["count"] != 0:
+            if has_head and self._read_head()["count"] != self.base_seq:
                 raise CorruptRecordError(
                     self.path, 0, "log is missing but commit head has records")
             return []
@@ -1167,6 +1401,13 @@ class _JsonlStore:
         if lines and lines[-1] == b"":
             lines.pop()
         head = self._read_head() if has_head else None
+        if head is not None:
+            anchored = "base" in head
+            if anchored != bool(self.base_seq):
+                raise CorruptRecordError(self.path, 0, "rotation anchor mismatch")
+            if anchored and (head["base"] != self.base_seq
+                             or head["base_digest"] != self.base_digest):
+                raise CorruptRecordError(self.path, 0, "rotation anchor mismatch")
         line_ends: list[int] = []
         cursor = 0
         for line in lines:
@@ -1174,13 +1415,14 @@ class _JsonlStore:
             line_ends.append(cursor)
 
         records: list[dict[str, Any]] = []
-        prev = GENESIS_DIGEST
+        prev = self.base_digest
         tail_index: int | None = None
         for lineno, raw in enumerate(lines, 1):
             try:
-                obj = self._parse_line(raw, lineno, records, prev)
+                obj = self._parse_line(raw, lineno, records, prev, self.base_seq)
             except CorruptRecordError:
-                if self._is_uncommitted_tail(head, len(records), lineno, len(lines)):
+                if self._is_uncommitted_tail(
+                        head, self.base_seq + len(records), lineno, len(lines)):
                     tail_index = lineno - 1
                     break
                 raise
@@ -1192,10 +1434,11 @@ class _JsonlStore:
             # prefix.  The lock guarantees no writer can observe the short log.
             keep = line_ends[tail_index - 1] if tail_index else 0
             self._truncate_tail(keep)
-            _write_head(self.head_path, len(records), prev, self.key)
+            _write_head(self.head_path, self.base_seq + len(records), prev,
+                        self.key, base=self.base_seq, base_digest=self.base_digest)
             self.last_recovery = LogRecovery(
                 path=str(self.path), action="truncated_tail", count=1,
-                seq=len(records), digest=prev)
+                seq=self.base_seq + len(records), digest=prev)
             return records
 
         if head is None:
@@ -1203,36 +1446,41 @@ class _JsonlStore:
                 raise CorruptRecordError(
                     self.path, len(records), "missing commit head for non-empty log")
             return records
-        if head["count"] > len(records):
+        total = self.base_seq + len(records)
+        if head["count"] > total:
             raise CorruptRecordError(
-                self.path, len(records) + 1,
+                self.path, total + 1,
                 "commit head claims more records than the log contains")
-        if head["count"] < len(records):
+        if head["count"] < total:
             # Crash after the record was fsynced but before the head was
             # replaced: every extra record passed the full chain validation.
-            _write_head(self.head_path, len(records), prev, self.key)
+            _write_head(self.head_path, total, prev, self.key, base=self.base_seq,
+                        base_digest=self.base_digest)
             self.last_recovery = LogRecovery(
                 path=str(self.path), action="committed_tail",
-                count=len(records) - head["count"], seq=len(records), digest=prev)
+                count=total - head["count"], seq=total, digest=prev)
             return records
         if head["digest"] != prev:
             raise CorruptRecordError(
-                self.path, len(records) + 1,
+                self.path, total + 1,
                 f"commit head mismatch: expected digest={prev}")
         return records
 
     def append(self, data: dict[str, Any]) -> dict[str, Any]:
         with self.lock:
             self.records = self._read()
-            seq = len(self.records) + 1
-            prev = self.records[-1]["digest"] if self.records else GENESIS_DIGEST
+            seq = self.base_seq + len(self.records) + 1
+            prev = (self.records[-1]["digest"] if self.records
+                    else self.base_digest)
             record = {"seq": seq, "prev": prev, "data": data}
             record["digest"] = _record_digest(record, self.key)
             if self.validator is not None:
                 self.validator(data, seq)
             _append_line(self.path, record, self.key)
-            _write_head(self.head_path, seq, record["digest"], self.key)
+            _write_head(self.head_path, seq, record["digest"], self.key,
+                        base=self.base_seq, base_digest=self.base_digest)
             self.records.append(record)
+            self._rotate()
             return record
 
 
@@ -1271,16 +1519,20 @@ class EventBus:
     lock file, so subscribers always observe events in sequence order even
     with many concurrent publishers in separate processes.
     A handler that raises leaves its subscription cursor unchanged, giving
-    at-least-once delivery rather than silent loss.
+    at-least-once delivery rather than silent loss.  The hot log is bounded by
+    ``max_events``; rotated records stay replayable from forensic archives and
+    their IDs remain reserved for duplicate suppression.
     """
 
     def __init__(self, state_root: str | Path, *,
                  log_name: str = "backend-events.jsonl",
-                 legacy_mode: bool = False):
+                 legacy_mode: bool = False, max_events: int | None = 10_000,
+                 max_archives: int = 4):
         self.state_root = Path(state_root)
         self.log_path = self.state_root / log_name
         self._store = _JsonlStore(self.log_path, validator=self._validate_record,
-                                  legacy=legacy_mode)
+                                  legacy=legacy_mode, max_records=max_events,
+                                  max_archives=max_archives)
         self._events: list[BackendEvent] = []
         self._by_id: dict[str, dict[str, Any]] = {}
         key = os.path.normcase(str(self.log_path.resolve()))
@@ -1306,7 +1558,7 @@ class EventBus:
     def _reindex(self) -> None:
         events: list[BackendEvent] = []
         by_id: dict[str, dict[str, Any]] = {}
-        for record in self._store.records:
+        for record in self._store.archive_records + self._store.records:
             envelope = record["data"]["event"]
             event = event_from_dict(envelope)
             if event.event_id in by_id:
@@ -1382,10 +1634,13 @@ class EventBus:
 
         Returns ``True`` for a new event, ``False`` for an idempotent retry of
         an identical event ID.  A reused ID with a different payload raises
-        :class:`DuplicateEventError`.
+        :class:`DuplicateEventError`.  Every string is redacted with the shared
+        DLP vocabulary *before* the event ID is checked or the record is
+        appended, so neither the log nor a subscriber can receive credentials.
         """
         if not isinstance(event, BackendEvent):
             raise TypeError("publish expects a BackendEvent")
+        event = redact_event(event)
         envelope = event.to_dict()
         with self._store.lock:
             self._refresh()
@@ -1610,7 +1865,7 @@ class DeliveryTracker:
                 state = DeliveryState(
                     **{**previous.to_dict(), "status": "terminal",
                        "attempts": attempt, "next_delay": 0.0,
-                       "error": error[:300]})
+                       "error": _safe_text(error)[:300]})
             else:
                 state = DeliveryState(
                     **{**previous.to_dict(), "status": "pending",
@@ -1620,7 +1875,7 @@ class DeliveryTracker:
                            attempt, base_delay=previous.base_delay,
                            backoff_factor=previous.backoff_factor,
                            max_delay=previous.max_delay),
-                       "error": error[:300]})
+                       "error": _safe_text(error)[:300]})
             self._store.append({"op": "attempt", "state": state.to_dict()})
             self._rebuild()
             return state
@@ -1639,7 +1894,7 @@ class DeliveryTracker:
                     f"cannot cancel a {previous.status} delivery: {key!r}")
             state = DeliveryState(
                 **{**previous.to_dict(), "status": "cancelled",
-                   "next_delay": 0.0, "reason": reason[:300]})
+                   "next_delay": 0.0, "reason": _safe_text(reason)[:300]})
             self._store.append({"op": "cancel", "state": state.to_dict()})
             self._rebuild()
             return state

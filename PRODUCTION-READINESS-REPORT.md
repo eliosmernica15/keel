@@ -1,5 +1,12 @@
 # Production Readiness Report — Keel backend, stabilization branch `stabilization/post-promotion-production-2026-11-25`
 
+> **[SUPERSEDED — 2026-11-25]** The `<<CANDIDATE_HEAD_REFERENCE>>` placeholder,
+> `f60b080` baseline and `18 external_validation_pending / 1 owner / 1 blocked`
+> counts below are historical. At completion HEAD
+> `35fb2b8abfd784393b2b252e2b9e2927aba817dd`, see
+> `FINAL-PRODUCTION-READINESS-MATRIX.md` and `FINAL-RELEASE-COMPLETION-REPORT.md`.
+> Retained unchanged as audit history; nothing was deleted.
+>
 **Authoritative branch:** `stabilization/post-promotion-production-2026-11-25`
 **Current baseline tip (verified):** `f60b080a1c770608e1ddbf3d888a6e63a7c1b6bb`
 **Exact final stabilization SHA:** `<<CANDIDATE_HEAD_REFERENCE — PLACEHOLDER, NOT YET FILLED>>` (see matrix §A)
