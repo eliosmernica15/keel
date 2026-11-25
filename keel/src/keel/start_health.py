@@ -29,7 +29,14 @@ def _load(state_root: str) -> dict:
         doc = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
-    return doc if isinstance(doc, dict) else {}
+    if not isinstance(doc, dict):
+        return {}
+    # A parseable file can still hold wrong-shaped entries (manual edit, a
+    # partial write that happened to leave valid JSON, or a downgraded
+    # writer). Dropping them here keeps ``record_start`` from raising a
+    # ValueError on ``dict(value)``: a launcher that crashes while recording
+    # a failed start could never reach the three-strike auto-rollback.
+    return {key: value for key, value in doc.items() if isinstance(value, dict)}
 
 
 def _save(state_root: str, doc: dict) -> None:
