@@ -352,8 +352,33 @@ def _db_aad(doc: dict) -> bytes:
     return json.dumps(header, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
+_SQLITE_HEADER = b"SQLite format 3\x00"
+_MIN_SQLITE_BYTES = 512  # smallest legal SQLite page
+
+
+def _assert_sqlite_image(source: Path) -> None:
+    """Reject truncated/empty files before SQLite can treat them as empty DBs.
+
+    SQLite considers a zero-byte file a valid empty database, so integrity_check
+    alone cannot detect a truncated source. Backing one up would silently
+    replace a real database's last good snapshot with an empty one.
+    """
+    try:
+        size = source.stat().st_size
+        with source.open("rb") as handle:
+            header = handle.read(len(_SQLITE_HEADER))
+    except OSError as exc:
+        raise DatabaseCorruptionError(
+            f"cannot read source database {source.name}: {exc}") from None
+    if size < _MIN_SQLITE_BYTES or header != _SQLITE_HEADER:
+        raise DatabaseCorruptionError(
+            f"source database {source.name} is not a valid SQLite image "
+            f"({size} bytes); refusing to back up a truncated file")
+
+
 def _snapshot_database(source: Path, staging: Path) -> dict:
     """Copy a consistent, validated snapshot of *source* into *staging*."""
+    _assert_sqlite_image(source)
     src = sqlite3.connect(_sqlite_uri(source, read_only=True), uri=True)
     try:
         _db_busy_timeout(src)
