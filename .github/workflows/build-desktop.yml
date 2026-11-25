@@ -55,6 +55,18 @@ jobs:
             python scripts/check_version_sync.py
           fi
 
+  # Workflow-level release authorization gate. Both the signing gate and the
+  # publish job depend on this job, so an unauthorized release cannot publish
+  # regardless of how the tag was created. Fails closed (see the called workflow).
+  release-authorization:
+    name: Release authorization gate (fail closed)
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: ./.github/workflows/release-authorization.yml
+    with:
+      tag: ${{ github.ref_name }}
+    permissions:
+      contents: read
+
   build-windows:
     needs: validate-versions
     runs-on: windows-latest
@@ -424,7 +436,7 @@ jobs:
 
   verify-release-signatures:
     name: Fail-closed release signing gate
-    needs: [verify-windows, verify-macos, verify-linux]
+    needs: [verify-windows, verify-macos, verify-linux, release-authorization]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
@@ -475,7 +487,7 @@ jobs:
 
   publish:
     name: Publish verified release (GitHub Releases)
-    needs: [verify-windows, verify-macos, verify-linux, verify-release-signatures]
+    needs: [verify-windows, verify-macos, verify-linux, verify-release-signatures, release-authorization]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
