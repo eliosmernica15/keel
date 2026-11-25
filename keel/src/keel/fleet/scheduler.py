@@ -25,6 +25,7 @@ from __future__ import annotations
 import logging
 import os
 import threading
+import time
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
@@ -35,6 +36,67 @@ _log = logging.getLogger(__name__)
 _DAEMON_INTERVAL_S = 20
 _daemon_started = False
 _daemon_lock = threading.Lock()
+
+# Routine turns run on worker threads because execute_turn is a blocking call.
+# An ignored timeout used to leave one live daemon thread per slow provider
+# (1 -> 2 -> 3 -> 4 live workers after five timeouts). Work is now admitted
+# through a bounded gate, timed-out workers are asked to stop through the
+# real cooperative cancellation primitive (turn_core.cancel_active_turn), and
+# are joined for a short grace period before the timeout outcome is returned.
+# A provider that ignores cooperative cancellation still cannot create more
+# than ``routine_worker_limit()`` concurrent workers.
+_DEFAULT_MAX_WORKERS = 8
+_MAX_WORKERS_CEILING = 64
+_DEFAULT_CANCEL_GRACE_S = 1.0
+_MAX_CANCEL_GRACE_S = 5.0
+
+_worker_gate_lock = threading.Lock()
+_worker_gate: tuple[int, threading.BoundedSemaphore] | None = None
+_active_workers: set[threading.Thread] = set()
+_active_workers_lock = threading.Lock()
+
+
+def routine_worker_limit() -> int:
+    """Configured maximum number of concurrent routine worker threads."""
+    try:
+        value = int(os.environ.get("KEEL_FLEET_ROUTINE_MAX_WORKERS",
+                                   _DEFAULT_MAX_WORKERS))
+    except (TypeError, ValueError):
+        return _DEFAULT_MAX_WORKERS
+    return max(1, min(value, _MAX_WORKERS_CEILING))
+
+
+def cancel_grace_s() -> float:
+    """How long to join a timed-out worker after requesting cancellation."""
+    try:
+        value = float(os.environ.get("KEEL_FLEET_ROUTINE_CANCEL_GRACE_S",
+                                     _DEFAULT_CANCEL_GRACE_S))
+    except (TypeError, ValueError):
+        return _DEFAULT_CANCEL_GRACE_S
+    if value < 0 or value > _MAX_CANCEL_GRACE_S:
+        return _DEFAULT_CANCEL_GRACE_S
+    return value
+
+
+def active_worker_count() -> int:
+    """Number of routine worker threads currently alive (for diagnostics)."""
+    with _active_workers_lock:
+        return len(_active_workers)
+
+
+def reset_workers_for_tests() -> None:
+    """Drop cached gate state; tests call this between scenarios."""
+    global _worker_gate
+    with _worker_gate_lock:
+        _worker_gate = None
+
+
+def _worker_gate_for(limit: int) -> threading.BoundedSemaphore:
+    global _worker_gate
+    with _worker_gate_lock:
+        if _worker_gate is None or _worker_gate[0] != limit:
+            _worker_gate = (limit, threading.BoundedSemaphore(limit))
+        return _worker_gate[1]
 
 
 def routine_timeout_s() -> float:
@@ -193,16 +255,36 @@ def execute_routine(store, routine: dict, *, scheduled_at: str | None = None,
 
 def _execute_turn_phase(store, routine, agent, task, run_id, agent_id,
                         timeout: float) -> dict:
+    """Run one turn in a bounded worker with cooperative timeout cancellation.
+
+    ``execute_turn`` is blocking and cannot be forcibly killed. On timeout the
+    worker's stop flag is set, the real turn loop is asked to cancel via
+    ``turn_core.cancel_active_turn``, and the worker is joined for a bounded
+    grace period. A provider that ignores cancellation still counts against
+    the worker cap, so live workers cannot accumulate without bound.
+    """
     from .runtime import mark_routine_run, clear_routine_run
     from .turn_core import execute_turn
 
     routine_id = routine["id"]
     result_box: dict[str, dict] = {}
+    stop = threading.Event()
+    limit = routine_worker_limit()
+    gate = _worker_gate_for(limit)
+    timeout = max(0.0, float(timeout))
+    grace = cancel_grace_s()
+    # Bounded admission: an ignored timeout must never create unbounded
+    # workers. Callers wait for a slot, then fail closed explicitly.
+    admission_wait = min(max(timeout, 1.0) * 4, 30.0) + grace
+    if not gate.acquire(timeout=admission_wait):
+        return {"ok": False,
+                "error": f"routine worker limit reached ({limit})",
+                "terminal_reason": "worker_limit"}
 
     def _work():
         try:
             mark_routine_run(run_id, agent_id)
-            result_box["result"] = execute_turn(
+            result = execute_turn(
                 store, agent,
                 f"[Routine “{routine['name']}” · task {task['id']}]\n"
                 f"{routine['prompt']}",
@@ -216,26 +298,65 @@ def _execute_turn_phase(store, routine, agent, task, run_id, agent_id,
                                                     run_id),
                 include_history=True,
                 exclude_last_from_history=True)
+            if not stop.is_set():  # late results must not overwrite a timeout
+                result_box["result"] = result
         except Exception as exc:  # never strand the scheduler
-            result_box["result"] = {"ok": False,
-                                    "assistant_text": "",
-                                    "terminal_reason": "internal_error",
-                                    "permission_denials": 0,
-                                    "approval_denials": [],
-                                    "error": str(exc)}
+            if not stop.is_set():
+                result_box["result"] = {"ok": False,
+                                        "assistant_text": "",
+                                        "terminal_reason": "internal_error",
+                                        "permission_denials": 0,
+                                        "approval_denials": [],
+                                        "error": str(exc)}
         finally:
             clear_routine_run()
+            with _active_workers_lock:
+                _active_workers.discard(worker)
+            stop.set()
+            gate.release()
 
     worker = threading.Thread(target=_work,
                               name=f"fleet-routine-{routine_id}",
                               daemon=True)
-    worker.start()
+    with _active_workers_lock:
+        _active_workers.add(worker)
+    started = time.monotonic()
+    try:
+        worker.start()
+    except Exception:
+        with _active_workers_lock:
+            _active_workers.discard(worker)
+        gate.release()
+        raise
     worker.join(timeout=timeout)
-    if worker.is_alive():
-        return {"ok": False,
-                "error": f"routine timed out after {int(timeout)}s",
-                "terminal_reason": "timeout"}
-    return result_box.get("result") or {"ok": False, "error": "no result"}
+    if not worker.is_alive():
+        return result_box.get("result") or {"ok": False, "error": "no result"}
+    elapsed = time.monotonic() - started
+    stop.set()
+    cancelled = False
+    try:
+        if worker.is_alive():  # do not cancel a newer turn of the same agent
+            from . import turn_core as _turn_core
+            cancelled = bool(_turn_core.cancel_active_turn(agent_id))
+    except Exception:
+        _log.exception("failed to request cancellation for routine %s", routine_id)
+    if grace > 0:
+        worker.join(grace)
+    still_alive = worker.is_alive()
+    if still_alive:
+        _log.warning("routine %s worker still alive after %.2fs cancel grace",
+                     routine_id, grace)
+    # Report the real elapsed wait, not int(configured_timeout) (which
+    # rendered a 0.4 s timeout as "after 0s").
+    return {
+        "ok": False,
+        "error": (f"routine timed out after {elapsed:.2f}s "
+                  f"(limit {timeout:.2f}s)"),
+        "terminal_reason": "timeout",
+        "elapsed_s": round(elapsed, 3),
+        "cancel_requested": bool(cancelled or stop.is_set()),
+        "worker_stopped": not still_alive,
+    }
 
 
 def _finalize_routine_run(store, routine, agent_id, task, run_id,

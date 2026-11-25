@@ -1,0 +1,108 @@
+{
+  "duplicate_submission_race": {
+    "threads": 16,
+    "elapsed_s": 0.829,
+    "codes": {
+      "dry_run": 1,
+      "replay_denied": 15
+    },
+    "exceptions": 0,
+    "error_samples": [],
+    "ledger_records": 1,
+    "single_winner": true
+  },
+  "bot_create_race_32": {
+    "threads": 32,
+    "succeeded": 32,
+    "errors": 0,
+    "error_samples": [],
+    "distinct_bots": 32,
+    "ids": [
+      "same",
+      "same-1",
+      "same-10",
+      "same-11",
+      "same-12",
+      "same-13",
+      "same-14",
+      "same-15",
+      "same-16",
+      "same-17",
+      "same-18",
+      "same-19",
+      "same-2",
+      "same-20",
+      "same-21",
+      "same-22",
+      "same-23",
+      "same-24",
+      "same-25",
+      "same-26",
+      "same-27",
+      "same-28",
+      "same-29",
+      "same-3",
+      "same-30",
+      "same-31",
+      "same-4",
+      "same-5",
+      "same-6",
+      "same-7",
+      "same-8",
+      "same-9"
+    ]
+  },
+  "cancellation_race": {
+    "cases": 5,
+    "results": [
+      {
+        "elapsed_ms": 1421.1,
+        "error": "routine timed out after 0.39s (limit 0.40s)",
+        "terminal_reason": "timeout",
+        "live_routine_workers_right_after_timeout": 1
+      },
+      {
+        "elapsed_ms": 1419.1,
+        "error": "routine timed out after 0.41s (limit 0.40s)",
+        "terminal_reason": "timeout",
+        "live_routine_workers_right_after_timeout": 1
+      },
+      {
+        "elapsed_ms": 1432.9,
+        "error": "routine timed out after 0.41s (limit 0.40s)",
+        "terminal_reason": "timeout",
+        "live_routine_workers_right_after_timeout": 1
+      },
+      {
+        "elapsed_ms": 1433.0,
+        "error": "routine timed out after 0.41s (limit 0.40s)",
+        "terminal_reason": "timeout",
+        "live_routine_workers_right_after_timeout": 1
+      },
+      {
+        "elapsed_ms": 1431.6,
+        "error": "routine timed out after 0.41s (limit 0.40s)",
+        "terminal_reason": "timeout",
+        "live_routine_workers_right_after_timeout": 1
+      }
+    ],
+    "live_workers_after_2_3s": 0,
+    "workers_stranded": true
+  },
+  "steering_cancel_race": {
+    "threads": 8,
+    "submitted": 1600,
+    "all_messages": 1600,
+    "retained_in_queues": 1600,
+    "abort_count": 1,
+    "cancelled": true,
+    "exceptions": 0,
+    "error_samples": []
+  },
+  "recursion_bounds": {
+    "10": "accepted",
+    "50": "ToolError: ARGS_RESOURCE_LIMIT",
+    "200": "ToolError: ARGS_RESOURCE_LIMIT",
+    "1000": "ToolError: ARGS_RESOURCE_LIMIT"
+  }
+}
