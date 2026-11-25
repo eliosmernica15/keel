@@ -59,7 +59,6 @@ was timing-sensitive in that loaded run and passes in isolation (`1 passed in
 13.65 s`) in the clean-HOME environment. None of these files were edited by
 this branch.
 
->>>>>>> agent/stab-provider
 ## 1. Provider validation workflow
 
 Verified in `keel/tests/test_stab_provider.py` (24 original + 3 follow-up tests)
