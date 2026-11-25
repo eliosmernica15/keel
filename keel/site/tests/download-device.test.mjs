@@ -130,14 +130,14 @@ test("committed manifest: Windows .exe is the verified channel (fixture-based)",
   assert.ok(/^\d{4}-\d{2}-\d{2}/.test(String(win.verified_at)), "windows.verified_at must be a date");
   assert.ok(Number.isFinite(Number(win.size)) && Number(win.size) > 0, "windows.size must be positive");
   assert.match(String(win.sha256), /^[0-9a-f]{64}$/i, "windows.sha256 must be a full hash");
-  assert.match(win.url, /^\/downloads\/Keel-Setup-0\.1\.1\.exe$/);
+  assert.match(win.url, /^https:\/\/github\.com\/eliosmernica15\/keel\/releases\/download\/v0\.1\.1\/Keel-Setup-0\.1\.1\.exe$/);
 });
 
 test("Windows device: primary enabled → .exe URL, status reflects device, size + SHA-256 shown", async () => {
   const { context, page, errors } = await openDownload(WIN);
   await waitState(page, "ready");
   const primary = page.locator("#kp-download-primary");
-  assert.equal(await primary.getAttribute("href"), `${base}/downloads/Keel-Setup-0.1.1.exe`);
+  assert.equal(await primary.getAttribute("href"), "https://github.com/eliosmernica15/keel/releases/download/v0.1.1/Keel-Setup-0.1.1.exe");
   assert.equal(await primary.getAttribute("download"), "Keel-Setup-0.1.1.exe");
   assert.equal(await primary.getAttribute("aria-disabled"), null);
   assert.equal(await primary.evaluate((el) => !el.hasAttribute("aria-disabled") && el.hasAttribute("href")), true);
