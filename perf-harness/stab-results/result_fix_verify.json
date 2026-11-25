@@ -1,0 +1,45 @@
+{
+  "lazy_hub_import": {
+    "backends_after_capabilities_import": [],
+    "backends_after_first_invoke": [
+      "keel.d3_backend",
+      "keel.d6_reliability_backend",
+      "keel.d7_workflow_backend",
+      "keel.e3_backend",
+      "keel.e5_backend",
+      "keel.e6_x5_x6_backend",
+      "keel.e7_runtime_backend",
+      "keel.small_groups_backend",
+      "keel.v_series_backend",
+      "keel.w1_security_backend",
+      "keel.w4_backend",
+      "keel.w7_x1_y5_d1_backend",
+      "keel.x2_orchestration_backend",
+      "keel.x3_memory_backend",
+      "keel.x8_backend",
+      "keel.y1_config_backend",
+      "keel.y2_backend",
+      "keel.y3_backend",
+      "keel.y4_d4_x7_backend",
+      "keel.z_backend"
+    ],
+    "modules_after_import": 220
+  },
+  "lazy_hub_init": {
+    "backends_after_hub_import": 0,
+    "backends_after_first_public_call": 20,
+    "initialized": true
+  },
+  "ask_expiry_direct": {
+    "expired": 1,
+    "ask_rows": [
+      "{\"status\": \"interrupted\", \"question\": \"q\"}"
+    ]
+  },
+  "source_evidence": {
+    "hub_lazy_call_line": 385,
+    "bot_lock_comment_line": 197,
+    "ask_expiry_line": 106,
+    "backlog_line": 287
+  }
+}

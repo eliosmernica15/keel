@@ -1,0 +1,62 @@
+{
+  "server_class": "_KeelThreadingHTTPServer",
+  "current_request_queue_size": 128,
+  "current_daemon_threads": true,
+  "control_queue_5": {
+    "threads": 100,
+    "requests": 2000,
+    "ok": 1978,
+    "failed": 22,
+    "elapsed_s": 8.629,
+    "rps": 231.8,
+    "latency_ms": {
+      "n": 1978,
+      "min": 2.6755,
+      "p50": 17.999,
+      "p90": 552.6523,
+      "p95": 1045.6527,
+      "p99": 1698.1346,
+      "max": 2086.8253,
+      "mean": 200.6657
+    },
+    "request_queue_size": 5
+  },
+  "current_make_server": {
+    "threads": 100,
+    "requests": 2000,
+    "ok": 2000,
+    "failed": 0,
+    "elapsed_s": 12.193,
+    "rps": 164.0,
+    "latency_ms": {
+      "n": 2000,
+      "min": 9.2055,
+      "p50": 496.4959,
+      "p90": 1070.5551,
+      "p95": 1119.947,
+      "p99": 1194.8852,
+      "max": 1241.3388,
+      "mean": 581.6479
+    },
+    "request_queue_size": 128
+  },
+  "explicit_queue_128": {
+    "threads": 100,
+    "requests": 2000,
+    "ok": 2000,
+    "failed": 0,
+    "elapsed_s": 9.952,
+    "rps": 201.0,
+    "latency_ms": {
+      "n": 2000,
+      "min": 7.9077,
+      "p50": 417.8692,
+      "p90": 824.0097,
+      "p95": 864.518,
+      "p99": 1022.0013,
+      "max": 1055.9616,
+      "mean": 477.5306
+    },
+    "request_queue_size": 128
+  }
+}

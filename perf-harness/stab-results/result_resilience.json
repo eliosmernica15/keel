@@ -1,0 +1,135 @@
+{
+  "resource_cap_concurrency": {
+    "threads": 8,
+    "attempts_each": 200,
+    "cap": 4,
+    "granted": 4,
+    "final_used": 4,
+    "cap_respected": true,
+    "elapsed_s": 0.0792
+  },
+  "resource_acquire_latency_ms": {
+    "n": 20000,
+    "min": 0.0009,
+    "p50": 0.002,
+    "p90": 0.0025,
+    "p95": 0.0026,
+    "p99": 0.0032,
+    "max": 3.142,
+    "mean": 0.0025
+  },
+  "resource_manager_limits": {
+    "threads": 16,
+    "tabs_opened": 8,
+    "status": {
+      "tabs": 8,
+      "tab_limit": 8,
+      "workspace_bytes": 1000000,
+      "workspace_limit": 1048576,
+      "resource_limit": 4194304
+    },
+    "tab_limit_respected": true,
+    "workspace_limit_respected": true,
+    "workspace_denials": 11
+  },
+  "concurrent_sessions_tasks": {
+    "threads": 16,
+    "bots_created": 320,
+    "tasks_created": 320,
+    "expected_bots": 320,
+    "expected_tasks": 320,
+    "errors": 0,
+    "error_samples": [],
+    "elapsed_s": 2.527,
+    "ops_s": 253.2
+  },
+  "bot_name_collision_race": {
+    "threads": 16,
+    "succeeded": 16,
+    "errors": 0,
+    "error_samples": [],
+    "distinct_bot_ids": 16,
+    "ids": [
+      "same",
+      "same-1",
+      "same-10",
+      "same-11",
+      "same-12",
+      "same-13",
+      "same-14",
+      "same-15",
+      "same-2",
+      "same-3",
+      "same-4",
+      "same-5",
+      "same-6",
+      "same-7",
+      "same-8",
+      "same-9"
+    ]
+  },
+  "chat_for_project_race": {
+    "threads": 8,
+    "succeeded": 8,
+    "errors": 0,
+    "error_samples": [],
+    "bots_for_project": 1,
+    "exactly_one_bot": true
+  },
+  "recovery_after_restart_1": {
+    "pending_items": 1,
+    "recovery_ms": 24.552,
+    "approvals_expired": 1,
+    "asks_interrupted": 1,
+    "asks_still_pending": 0,
+    "runs_failed": 1,
+    "runs_with_restart_error": 1,
+    "routines_released": 1,
+    "tasks_failed": 1
+  },
+  "recovery_after_restart_100": {
+    "pending_items": 100,
+    "recovery_ms": 660.338,
+    "approvals_expired": 100,
+    "asks_interrupted": 100,
+    "asks_still_pending": 0,
+    "runs_failed": 100,
+    "runs_with_restart_error": 100,
+    "routines_released": 100,
+    "tasks_failed": 100
+  },
+  "slow_provider_timeout": {
+    "elapsed_ms": 428.3,
+    "outcome": {
+      "ok": false,
+      "error": "routine timed out after 0s",
+      "terminal_reason": "timeout",
+      "task_id": "t_bf782b666d26",
+      "run_id": 1
+    },
+    "run_status": "failed",
+    "task_status": "failed",
+    "routine_running": 0
+  },
+  "worker_failure": {
+    "elapsed_ms": 26.3,
+    "outcome": {
+      "ok": false,
+      "assistant_text": "",
+      "terminal_reason": "internal_error",
+      "permission_denials": 0,
+      "approval_denials": [],
+      "error": "provider exploded",
+      "task_id": "t_009a0275fab1",
+      "run_id": 1
+    },
+    "run_status": "failed",
+    "task_status": "failed",
+    "routine_running": 0
+  },
+  "db_write_blocking_exclusive": {
+    "hold_s": 0.3,
+    "write_latency_ms": 259.3,
+    "blocked_ms_approx": 259.3
+  }
+}
