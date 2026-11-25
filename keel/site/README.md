@@ -40,8 +40,8 @@ plan toggles, plan CTAs, feature search, FAQ tabs and accordions, nav menus
 and the contact modal are all functional client-side.
 
 The KEEL Platform page (`platform/api.html`, `ui/platform-api.css`, `ui/platform-api.js`
-and local artwork in `assets/img/platform/`) reproduces the Claude Platform
-marketing layout with KEEL branding. Its nav dropdowns, model explorer,
+and local artwork in `assets/img/platform/`) reproduces the supplied full-resolution
+Claude Platform screenshot exactly, with KEEL branding. Its nav dropdowns, model explorer,
 capability hub, optimization tabs, console runner, testimonial carousel,
 footer search and auth/contact modals all run client-side with no network
 calls. `vercel.json` rewrites `/platform/api` to the HTML file and redirects
