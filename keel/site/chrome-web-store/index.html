@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel - Chrome Web Store</title>
+  <meta name="description" content="Add Keel to Chrome — read pages, click, type and fill forms across your tabs, with approval controls." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/chrome-web-store" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#202124" />
+  <link rel="stylesheet" href="/ui/chrome-web-store.css" />
+</head>
+<body class="cws-page">
+
+  <!-- ==================== faux Chrome browser chrome ==================== -->
+  <div class="cws-browser" aria-hidden="true">
+    <div class="cws-tabstrip">
+      <div class="cws-tabstrip-drag">
+        <div class="cws-tab cws-tab-active">
+          <span class="cws-tab-favicon">
+            <svg viewBox="0 0 24 24" width="14" height="14" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+          <span class="cws-tab-title">Keel - Chrome Web Store</span>
+          <span class="cws-tab-close">
+            <svg viewBox="0 0 24 24" width="12" height="12" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+          </span>
+        </div>
+        <span class="cws-newtab">
+          <svg viewBox="0 0 24 24" width="14" height="14" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+        </span>
+      </div>
+      <div class="cws-wincontrols">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="cws-toolbar">
+      <div class="cws-navbtns">
+        <span class="cws-navbtn">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg>
+        </span>
+        <span class="cws-navbtn cws-navbtn-dim">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg>
+        </span>
+        <span class="cws-navbtn">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>
+        </span>
+      </div>
+      <div class="cws-omnibox">
+        <svg viewBox="0 0 24 24" width="14" height="14" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm-1-13h2v7h-2zm0 9h2v2h-2z"/></svg>
+        <span class="cws-omnibox-text">chromewebstore.google.com/detail/keel/keel-in-chrome</span>
+        <span class="cws-omnibox-star">
+          <svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.8l6.5-.9z"/></svg>
+        </span>
+      </div>
+      <div class="cws-toolicons">
+        <span class="cws-navbtn">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M14.5 9.5V7a2.5 2.5 0 0 0-5 0v2.5M7 9.5h10l1 11H6z"/></svg>
+        </span>
+        <span class="cws-navbtn">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M4 4h5v5H4zM10 4h5v5h-5zM16 4h4v5h-4zM4 10h5v10H4zM10 10h5v10h-5zM16 10h4v10h-4z"/></svg>
+        </span>
+        <span class="cws-navbtn cws-browser-avatar">E</span>
+        <span class="cws-navbtn">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path fill="currentColor" d="M12 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== store header ==================== -->
+  <header class="cws-storehead">
+    <div class="cws-storehead-inner">
+      <a class="cws-brand" href="/" aria-label="Keel home">
+        <span class="cws-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" width="30" height="30" focusable="false">
+            <path fill="#ea4335" d="M20 2a18 18 0 0 1 15.6 9L20 20z"/>
+            <path fill="#34a853" d="M2 20a18 18 0 0 1 9-15.6L20 20z"/>
+            <path fill="#fbbc05" d="M20 38A18 18 0 0 1 4.4 29L20 20z"/>
+            <path fill="#4285f4" d="M38 20a18 18 0 0 1-9 15.6L20 20z"/>
+            <circle cx="20" cy="20" r="7" fill="#fff"/>
+            <circle cx="20" cy="20" r="5" fill="#4285f4"/>
+          </svg>
+        </span>
+        <span class="cws-brand-text">chrome <span>web store</span></span>
+      </a>
+
+      <div class="cws-search" role="search">
+        <svg class="cws-search-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM16 16l5 5"/></svg>
+        <input id="cws-search-input" type="search" autocomplete="off" placeholder="Search extensions and themes" aria-label="Search extensions and themes" />
+        <button id="cws-search-clear" class="cws-search-clear" type="button" aria-label="Clear search" hidden>
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+        <button id="cws-search-btn" class="cws-search-btn" type="button" aria-label="Search">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM16 16l5 5"/></svg>
+        </button>
+      </div>
+
+      <div class="cws-head-actions">
+        <div class="cws-pop-wrap">
+          <button id="cws-store-menu-btn" class="cws-icon-btn" type="button" aria-label="More options" aria-haspopup="menu" aria-expanded="false" aria-controls="cws-store-menu">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
+          </button>
+          <div id="cws-store-menu" class="cws-menu" role="menu" hidden>
+            <a class="cws-menu-item" role="menuitem" href="/keel-in-chrome">All extensions</a>
+            <a class="cws-menu-item" role="menuitem" href="/roadmap">Get help</a>
+            <a class="cws-menu-item" role="menuitem" href="/roadmap">Send feedback</a>
+          </div>
+        </div>
+        <div class="cws-pop-wrap">
+          <button id="cws-apps-btn" class="cws-icon-btn" type="button" aria-label="Keel apps" aria-haspopup="true" aria-expanded="false" aria-controls="cws-apps-pop">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
+          </button>
+          <div id="cws-apps-pop" class="cws-pop cws-apps-pop" hidden>
+            <p class="cws-pop-title">Keel apps</p>
+            <a class="cws-app-link" href="/"><span class="cws-app-ico" aria-hidden="true">✦</span>Keel home</a>
+            <a class="cws-app-link" href="/download"><span class="cws-app-ico" aria-hidden="true">↓</span>Download</a>
+            <a class="cws-app-link" href="/app"><span class="cws-app-ico" aria-hidden="true">▤</span>Web app</a>
+            <a class="cws-app-link" href="/keel-in-chrome"><span class="cws-app-ico" aria-hidden="true">◇</span>Keel in Chrome</a>
+          </div>
+        </div>
+        <div class="cws-pop-wrap">
+          <button id="cws-avatar-btn" class="cws-avatar" type="button" aria-label="Account menu" aria-haspopup="menu" aria-expanded="false" aria-controls="cws-avatar-menu">E</button>
+          <div id="cws-avatar-menu" class="cws-menu cws-avatar-menu" role="menu" hidden>
+            <p class="cws-menu-head">Signed in as E</p>
+            <a class="cws-menu-item" role="menuitem" href="/keel-in-chrome">Keel account</a>
+            <button class="cws-menu-item" role="menuitem" type="button" data-toast="Account switched (demo)">Switch account</button>
+            <button class="cws-menu-item" role="menuitem" type="button" data-toast="Signed out (demo)">Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cws-tabs" role="tablist" aria-label="Chrome Web Store categories">
+      <button class="cws-tab-item" type="button" role="tab" id="tab-discover" aria-controls="panel-discover" aria-selected="false" tabindex="-1" data-tab="discover">Discover</button>
+      <button class="cws-tab-item is-active" type="button" role="tab" id="tab-extensions" aria-controls="panel-extensions" aria-selected="true" tabindex="0" data-tab="extensions">Extensions</button>
+      <button class="cws-tab-item" type="button" role="tab" id="tab-themes" aria-controls="panel-themes" aria-selected="false" tabindex="-1" data-tab="themes">Themes</button>
+    </div>
+  </header>
+
+  <main class="cws-main">
+    <!-- ==================== Extensions panel ==================== -->
+    <section id="panel-extensions" class="cws-panel" role="tabpanel" aria-labelledby="tab-extensions" tabindex="0">
+      <div id="cws-listing">
+        <div class="cws-listing-head">
+          <div class="cws-app-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="58" height="58" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </div>
+          <h1 class="cws-app-title">Keel</h1>
+          <button id="cws-add-btn" class="cws-primary-btn cws-add-btn" type="button">Add to KEEL</button>
+        </div>
+
+        <div class="cws-meta">
+          <a class="cws-site-link" href="/keel-in-chrome">keel.com</a>
+          <span class="cws-meta-sep" aria-hidden="true">·</span>
+          <span class="cws-rating" aria-label="Rated 3.6 out of 5 stars">
+            <span class="cws-stars" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2l3 6.2 6.8 1-5 4.8 1.2 6.8L12 17.8 6 20.8l1.2-6.8-5-4.8 6.8-1z"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2l3 6.2 6.8 1-5 4.8 1.2 6.8L12 17.8 6 20.8l1.2-6.8-5-4.8 6.8-1z"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2l3 6.2 6.8 1-5 4.8 1.2 6.8L12 17.8 6 20.8l1.2-6.8-5-4.8 6.8-1z"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2l3 6.2 6.8 1-5 4.8 1.2 6.8L12 17.8 6 20.8l1.2-6.8-5-4.8 6.8-1z"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" class="cws-star-half"><path fill="currentColor" d="M12 2l3 6.2 6.8 1-5 4.8 1.2 6.8L12 17.8 6 20.8l1.2-6.8-5-4.8 6.8-1z"/></svg>
+            </span>
+            <span class="cws-rating-num">3.6</span>
+          </span>
+          <span class="cws-meta-sep" aria-hidden="true">·</span>
+          <span class="cws-rating-wrap">
+            <button id="cws-ratings-info" class="cws-link-btn" type="button" aria-describedby="cws-ratings-tip" aria-expanded="false">(2K ratings)</button>
+            <span id="cws-ratings-tip" class="cws-tooltip" role="tooltip" hidden>Ratings and reviews are verified and reflect feedback from Chrome users across all versions of this extension.</span>
+          </span>
+          <span class="cws-meta-sep" aria-hidden="true">·</span>
+          <button id="cws-share-btn" class="cws-link-btn cws-share" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 16V3m0 0L7 8m5-5l5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>
+            Share
+          </button>
+        </div>
+
+        <div class="cws-chips" aria-label="Categories and users">
+          <span class="cws-chip">Extension</span>
+          <span class="cws-chip">Tools</span>
+          <span class="cws-chip">24,000,000 users</span>
+        </div>
+
+        <!-- ==================== media carousel ==================== -->
+        <div class="cws-carousel" aria-roledescription="carousel" aria-label="Keel screenshots">
+          <div class="cws-carousel-stage">
+            <button id="cws-prev" class="cws-arrow cws-arrow-prev" type="button" aria-label="Previous screenshot">
+              <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/></svg>
+            </button>
+
+            <div class="cws-slides" id="cws-slides">
+              <!-- slide 1 -->
+              <div class="cws-slide is-active" role="group" aria-roledescription="slide" aria-label="1 of 3: Keel reads the page" aria-hidden="false">
+                <div class="cws-shot">
+                  <div class="cws-shot-bar">
+                    <span class="cws-shot-dots"><i></i><i></i><i></i></span>
+                    <span class="cws-shot-url">keel.com/doc/quarterly-plan</span>
+                    <span class="cws-shot-badge">◇ Keel</span>
+                  </div>
+                  <div class="cws-shot-body">
+                    <aside class="cws-shot-side">
+                      <div class="cws-shot-logo">✦ Keel</div>
+                      <div class="cws-shot-navitem is-sel">✳ &nbsp;New chat</div>
+                      <div class="cws-shot-navitem">▤ &nbsp;Chats</div>
+                      <div class="cws-shot-navitem">⌁ &nbsp;Projects</div>
+                      <div class="cws-shot-navitem">◈ &nbsp;Artifacts</div>
+                      <div class="cws-shot-navitem">⚙ &nbsp;Settings</div>
+                    </aside>
+                    <div class="cws-shot-doc">
+                      <div class="cws-shot-doc-h">Quarterly plan — Q3</div>
+                      <div class="cws-line w90"></div>
+                      <div class="cws-line w70"></div>
+                      <div class="cws-line mark w95"></div>
+                      <div class="cws-line mark w60"></div>
+                      <div class="cws-line w80"></div>
+                      <div class="cws-line w45"></div>
+                      <div class="cws-line w85"></div>
+                      <div class="cws-line w65"></div>
+                      <div class="cws-shot-subh">Goals for the quarter</div>
+                      <div class="cws-line w75"></div>
+                      <div class="cws-line w90"></div>
+                      <div class="cws-line mark w50"></div>
+                      <div class="cws-line w70"></div>
+                      <div class="cws-line w85"></div>
+                      <div class="cws-line w60"></div>
+                    </div>
+                    <aside class="cws-shot-panel">
+                      <div class="cws-panel-h">✦ Keel in Chrome</div>
+                      <div class="cws-bubble cws-bubble-user">Summarize this page</div>
+                      <div class="cws-bubble">Keel has read the open tab. This plan covers three priorities: growth, reliability and hiring. Want a short brief?</div>
+                      <div class="cws-panel-foot">Reading this tab <span class="cws-live"></span></div>
+                    </aside>
+                  </div>
+                </div>
+              </div>
+
+              <!-- slide 2 -->
+              <div class="cws-slide" role="group" aria-roledescription="slide" aria-label="2 of 3: Keel clicks, types and fills forms" aria-hidden="true">
+                <div class="cws-shot">
+                  <div class="cws-shot-bar">
+                    <span class="cws-shot-dots"><i></i><i></i><i></i></span>
+                    <span class="cws-shot-url">example.com/signup</span>
+                    <span class="cws-shot-badge">◇ Keel</span>
+                  </div>
+                  <div class="cws-shot-body">
+                    <aside class="cws-shot-side">
+                      <div class="cws-shot-logo">✦ Keel</div>
+                      <div class="cws-shot-navitem is-sel">✳ &nbsp;New chat</div>
+                      <div class="cws-shot-navitem">▤ &nbsp;Chats</div>
+                      <div class="cws-shot-navitem">⌁ &nbsp;Projects</div>
+                      <div class="cws-shot-navitem">◈ &nbsp;Artifacts</div>
+                      <div class="cws-shot-navitem">⚙ &nbsp;Settings</div>
+                    </aside>
+                    <div class="cws-shot-doc">
+                      <div class="cws-shot-doc-h">Create your account</div>
+                      <div class="cws-field"><span>Full name</span><b>Keel Demo</b></div>
+                      <div class="cws-field"><span>Email address</span><b>hello@keel.com</b></div>
+                      <div class="cws-field"><span>Company</span><b>Keel Labs</b></div>
+                      <div class="cws-field cws-field-cta"><span>Continue</span></div>
+                      <div class="cws-line w55"></div>
+                      <div class="cws-line w80"></div>
+                      <div class="cws-line w65"></div>
+                      <div class="cws-line w45"></div>
+                    </div>
+                    <aside class="cws-shot-panel">
+                      <div class="cws-panel-h">✦ Keel in Chrome</div>
+                      <div class="cws-bubble cws-bubble-user">Fill this form for me</div>
+                      <div class="cws-bubble">Done — I filled the name, email and company fields from your profile. Review them, then click Continue.</div>
+                      <div class="cws-panel-foot">Typing across tabs <span class="cws-live"></span></div>
+                    </aside>
+                  </div>
+                </div>
+              </div>
+
+              <!-- slide 3 -->
+              <div class="cws-slide" role="group" aria-roledescription="slide" aria-label="3 of 3: You approve every action" aria-hidden="true">
+                <div class="cws-shot">
+                  <div class="cws-shot-bar">
+                    <span class="cws-shot-dots"><i></i><i></i><i></i></span>
+                    <span class="cws-shot-url">mail.example.com/compose</span>
+                    <span class="cws-shot-badge">◇ Keel</span>
+                  </div>
+                  <div class="cws-shot-body">
+                    <aside class="cws-shot-side">
+                      <div class="cws-shot-logo">✦ Keel</div>
+                      <div class="cws-shot-navitem is-sel">✳ &nbsp;New chat</div>
+                      <div class="cws-shot-navitem">▤ &nbsp;Chats</div>
+                      <div class="cws-shot-navitem">⌁ &nbsp;Projects</div>
+                      <div class="cws-shot-navitem">◈ &nbsp;Artifacts</div>
+                      <div class="cws-shot-navitem">⚙ &nbsp;Settings</div>
+                    </aside>
+                    <div class="cws-shot-doc">
+                      <div class="cws-shot-doc-h">New message</div>
+                      <div class="cws-line w80"></div>
+                      <div class="cws-line w95"></div>
+                      <div class="cws-line w60"></div>
+                      <div class="cws-line w85"></div>
+                      <div class="cws-line w70"></div>
+                      <div class="cws-line w50"></div>
+                      <div class="cws-approval">
+                        <div class="cws-approval-h">Keel is asking permission</div>
+                        <div class="cws-line w70"></div>
+                        <div class="cws-approval-btns"><span>Approve</span><span>Reject</span></div>
+                      </div>
+                    </div>
+                    <aside class="cws-shot-panel">
+                      <div class="cws-panel-h">✦ Keel in Chrome</div>
+                      <div class="cws-bubble cws-bubble-user">Draft a reply to this thread</div>
+                      <div class="cws-bubble">I prepared a reply. Nothing is sent until you approve it.</div>
+                      <div class="cws-panel-foot">Waiting for approval <span class="cws-live cws-live-wait"></span></div>
+                    </aside>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button id="cws-next" class="cws-arrow cws-arrow-next" type="button" aria-label="Next screenshot">
+              <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg>
+            </button>
+            <button id="cws-play" class="cws-play" type="button" aria-label="Play Keel demo video">
+              <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
+          <div class="cws-dots" id="cws-dots" aria-label="Choose screenshot">
+            <button class="cws-dot is-active" type="button" data-slide="0" aria-label="Go to screenshot 1" aria-current="true"></button>
+            <button class="cws-dot" type="button" data-slide="1" aria-label="Go to screenshot 2"></button>
+            <button class="cws-dot" type="button" data-slide="2" aria-label="Go to screenshot 3"></button>
+          </div>
+        </div>
+
+        <!-- ==================== description ==================== -->
+        <div class="cws-content">
+          <h2 class="cws-h2">About Keel in Chrome</h2>
+          <p>Keel is a browser companion that works in the tabs you already have open. Ask it to read a page, fill in a form or click through a workflow — it does the work while you stay in charge of every action.</p>
+          <ul class="cws-features">
+            <li><span class="cws-feature-ico" aria-hidden="true">✦</span><span><b>Reads the page.</b> Keel understands the document, table or article in front of you and answers questions about it without leaving the tab.</span></li>
+            <li><span class="cws-feature-ico" aria-hidden="true">▸</span><span><b>Clicks, types and fills forms.</b> Hand off repetitive steps — Keel navigates, enters data and completes multi-step tasks across sites.</span></li>
+            <li><span class="cws-feature-ico" aria-hidden="true">◇</span><span><b>You approve what happens.</b> Nothing is submitted, sent or changed until you review and approve the action.</span></li>
+            <li><span class="cws-feature-ico" aria-hidden="true">⇄</span><span><b>Works across tabs.</b> Keep context as you move between pages, and continue a task wherever you left off.</span></li>
+          </ul>
+
+          <div class="cws-detail-grid">
+            <div class="cws-detail-card">
+              <h3 class="cws-h3">Ratings and reviews</h3>
+              <div class="cws-rating-breakdown">
+                <div class="cws-rating-sum"><b>3.6</b><span>out of 5</span><small>2K ratings</small></div>
+                <div class="cws-bars" aria-hidden="true">
+                  <div class="cws-bar-row"><span>5</span><i><b style="width:58%"></b></i></div>
+                  <div class="cws-bar-row"><span>4</span><i><b style="width:22%"></b></i></div>
+                  <div class="cws-bar-row"><span>3</span><i><b style="width:11%"></b></i></div>
+                  <div class="cws-bar-row"><span>2</span><i><b style="width:5%"></b></i></div>
+                  <div class="cws-bar-row"><span>1</span><i><b style="width:4%"></b></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="cws-detail-card">
+              <h3 class="cws-h3">Additional information</h3>
+              <dl class="cws-info-rows">
+                <div><dt>Version</dt><dd>1.0.0</dd></div>
+                <div><dt>Updated</dt><dd>November 2026</dd></div>
+                <div><dt>Size</dt><dd>2.4 MiB</dd></div>
+                <div><dt>Developer</dt><dd><a href="/keel-in-chrome">Keel</a></dd></div>
+                <div><dt>Latest release</dt><dd><a href="/download">Download</a></dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- real "no results" state -->
+      <div id="cws-no-results" class="cws-empty" hidden>
+        <div class="cws-empty-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="36" height="36"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM16 16l5 5"/></svg>
+        </div>
+        <h2>No results found</h2>
+        <p id="cws-no-results-text">We couldn't find anything matching your search.</p>
+        <button id="cws-clear-search" class="cws-primary-btn" type="button">Clear search</button>
+      </div>
+    </section>
+
+    <!-- ==================== Discover panel ==================== -->
+    <section id="panel-discover" class="cws-panel" role="tabpanel" aria-labelledby="tab-discover" tabindex="0" hidden>
+      <h2 class="cws-h2">Discover</h2>
+      <p class="cws-panel-intro">Hand-picked Keel extensions and tools for your browser.</p>
+      <div class="cws-cards">
+        <button class="cws-card" type="button" data-goto="extensions">
+          <span class="cws-card-ico cws-ico-terra" aria-hidden="true">✦</span>
+          <span class="cws-card-title">Keel</span>
+          <span class="cws-card-sub">Extension · Tools</span>
+          <span class="cws-card-cta">View details</span>
+        </button>
+        <a class="cws-card" href="/app">
+          <span class="cws-card-ico cws-ico-blue" aria-hidden="true">▤</span>
+          <span class="cws-card-title">Keel Web App</span>
+          <span class="cws-card-sub">Chat with your files</span>
+          <span class="cws-card-cta">Open app</span>
+        </a>
+        <a class="cws-card" href="/download">
+          <span class="cws-card-ico cws-ico-dark" aria-hidden="true">↓</span>
+          <span class="cws-card-title">Keel Desktop</span>
+          <span class="cws-card-sub">For macOS, Windows &amp; Linux</span>
+          <span class="cws-card-cta">Download</span>
+        </a>
+        <a class="cws-card" href="/keel-in-chrome">
+          <span class="cws-card-ico cws-ico-terra" aria-hidden="true">◇</span>
+          <span class="cws-card-title">Keel in Chrome</span>
+          <span class="cws-card-sub">Learn more</span>
+          <span class="cws-card-cta">Read more</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ==================== Themes panel ==================== -->
+    <section id="panel-themes" class="cws-panel" role="tabpanel" aria-labelledby="tab-themes" tabindex="0" hidden>
+      <div class="cws-empty">
+        <div class="cws-empty-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="36" height="36"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg>
+        </div>
+        <h2>No themes available in this demo</h2>
+        <p>Keel themes aren't offered here yet. Browse extensions instead.</p>
+        <button class="cws-primary-btn" type="button" data-goto="extensions">Back to Extensions</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="cws-footer">
+    <nav aria-label="Footer">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="/keel-in-chrome">About</a>
+      <a href="/roadmap">Support</a>
+    </nav>
+    <span class="cws-footer-note">Keel — question what's next.</span>
+  </footer>
+
+  <!-- ==================== install modal ==================== -->
+  <div id="cws-install-modal" class="cws-overlay" hidden>
+    <div class="cws-modal" role="dialog" aria-modal="true" aria-labelledby="cws-install-title">
+      <button class="cws-modal-x" type="button" data-close="cws-install-modal" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cws-modal-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="30" height="30" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+      </div>
+      <h2 id="cws-install-title">Add Keel to Chrome</h2>
+      <p class="cws-modal-intro">Install the unpacked extension in a few steps. It's local-first — no account required.</p>
+      <ol class="cws-steps">
+        <li><span class="cws-step-num">1</span><div>Download the extension zip from the link below.</div></li>
+        <li><span class="cws-step-num">2</span><div>Unzip the archive into a folder you can find again.</div></li>
+        <li><span class="cws-step-num">3</span><div>Open <code>chrome://extensions</code> and enable <b>Developer mode</b> (top right).</div></li>
+        <li><span class="cws-step-num">4</span><div>Choose <b>Load unpacked</b> and select the unzipped folder.</div></li>
+      </ol>
+      <div class="cws-modal-actions">
+        <a class="cws-primary-btn" href="/keel-extension.zip" download>Download extension (.zip)</a>
+        <a class="cws-secondary-btn" href="/extension/manifest.json">View source / manifest</a>
+        <button class="cws-text-btn" type="button" data-close="cws-install-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== demo video modal ==================== -->
+  <div id="cws-video-modal" class="cws-overlay" hidden>
+    <div class="cws-modal cws-video-modal" role="dialog" aria-modal="true" aria-labelledby="cws-video-title">
+      <button class="cws-modal-x" type="button" data-close="cws-video-modal" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cws-video-stage" aria-hidden="true">
+        <span class="cws-video-play">▶</span>
+        <span class="cws-video-caption">Keel in Chrome · product demo</span>
+      </div>
+      <h2 id="cws-video-title">Keel in Chrome — demo</h2>
+      <p class="cws-modal-intro">This is a text-based demo of the listing media. In the video, Keel reads an open document, fills a sign-up form, and asks for your approval before sending a message. Explore the three screenshots above, or install the extension to try it yourself.</p>
+      <div class="cws-modal-actions">
+        <button class="cws-primary-btn" type="button" data-close="cws-video-modal">Got it</button>
+        <button class="cws-text-btn" type="button" data-close="cws-video-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cws-toast" class="cws-toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="/ui/chrome-web-store.js"></script>
+</body>
+</html>

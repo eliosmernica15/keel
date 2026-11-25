@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/ui/new.css" />
   <link rel="stylesheet" href="/ui/search-palette.css" />
 </head>
-<body class="n-page">
+<body class="n-page" data-n-font="body">
 
   <!-- Keel icon set. The starburst is the same mark used on the landing page. -->
   <svg class="n-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
@@ -27,10 +27,12 @@
       <symbol id="n-puzzle" viewBox="0 0 20 20"><path d="M3 3h5v2.2a1.6 1.6 0 1 0 3.2 0V3h5.8v5.8H15a1.6 1.6 0 1 0 0 3.2h1.8V17H11v-1.8a1.6 1.6 0 1 0-3.2 0V17H3v-5h1.8a1.6 1.6 0 1 0 0-3.2H3V3Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
       <symbol id="n-panel" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 3.5v13" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
       <symbol id="n-question" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7.8 7.8a2.3 2.3 0 1 1 3.1 2.2c-.6.3-.9.7-.9 1.3M10 14h.01" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 20 20"><path d="M3 6h8M15 6h2M3 14h2M9 14h8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="14" r="2" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
       <symbol id="n-doc" viewBox="0 0 16 16"><path d="M4 2h5l3 3v9H4V2Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M9 2v3h3M6 8h4M6 10.5h4" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
       <symbol id="n-chat" viewBox="0 0 16 16"><path d="M8 2.5c-3.3 0-6 2.2-6 4.9 0 1.6.9 3 2.3 3.9l-.5 2.2 2.3-1.2c.6.1 1.2.2 1.9.2 3.3 0 6-2.2 6-4.9s-2.7-5.1-6-5.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
-      <symbol id="n-mic" viewBox="0 0 20 20"><rect x="7.4" y="2.5" width="5.2" height="9.5" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4.8 9.2a5.2 5.2 0 0 0 10.4 0M10 14.4v3M7.5 17.4h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+      <symbol id="i-mic" viewBox="0 0 20 20"><rect x="7.4" y="2.5" width="5.2" height="9.5" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4.8 9.2a5.2 5.2 0 0 0 10.4 0M10 14.4v3M7.5 17.4h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
       <symbol id="n-wave" viewBox="0 0 20 20"><path d="M2.5 8v4M6 5.5v9M9.5 3v14M13 6.5v7M16.5 8.5v3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+      <symbol id="i-send" viewBox="0 0 20 20"><path d="M3 10 17 3l-4 14-3.2-5.3L3 10Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="m9.8 11.7 3.3-3.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
     </defs>
   </svg>
 
@@ -46,35 +48,43 @@
           <span>Keel</span>
         </a>
       </div>
-      <button class="n-icon-btn n-help" id="n-help" type="button" aria-label="Help with Keel" aria-haspopup="dialog">
-        <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-question"/></svg>
-      </button>
+      <div class="n-topbar-right">
+        <button class="n-icon-btn n-settings-btn" id="n-settings" type="button" aria-label="Settings" aria-haspopup="dialog">
+          <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-settings"/></svg>
+        </button>
+        <button class="n-icon-btn n-help" id="n-help" type="button" aria-label="Help with Keel" aria-haspopup="dialog">
+          <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-question"/></svg>
+        </button>
+      </div>
     </header>
 
     <div class="n-shell">
       <!-- ===================== sidebar ===================== -->
       <aside class="n-sidebar" id="n-sidebar" aria-label="Keel sidebar">
         <nav class="n-side-nav" aria-label="Keel">
-          <button class="n-nav-item is-active" id="n-nav-new" type="button" aria-current="page">
+          <a class="n-nav-item is-active" id="n-nav-new" href="/new" aria-current="page">
             <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-plus"/></svg><span>New</span>
-          </button>
-          <button class="n-nav-item" id="n-nav-search" type="button" aria-expanded="false" aria-controls="n-recents-search-wrap">
+          </a>
+          <button class="n-nav-item" id="n-nav-search" type="button" data-search-trigger aria-haspopup="dialog" aria-expanded="false">
             <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-search"/></svg><span>Search</span>
           </button>
-          <button class="n-nav-item" type="button" data-info-panel="projects">
+          <a class="n-nav-item" id="n-nav-projects" href="/projects">
             <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-layers"/></svg><span>Projects</span>
-          </button>
-          <button class="n-nav-item" type="button" data-info-panel="artifacts">
+          </a>
+          <a class="n-nav-item" id="n-nav-artifacts" href="/artifacts">
             <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-artifact"/></svg><span>Artifacts</span>
-          </button>
-          <button class="n-nav-item" type="button" data-info-panel="plugins">
+          </a>
+          <a class="n-nav-item" id="n-nav-plugins" href="/plugins">
             <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-puzzle"/></svg><span>Plugins</span>
-          </button>
+          </a>
         </nav>
 
         <div class="n-recents-head">
           <button class="n-section-toggle" id="n-recents-toggle" type="button" aria-expanded="true" aria-controls="n-recents-list">
             <span>Recents</span><span class="n-chev" aria-hidden="true"></span>
+          </button>
+          <button class="n-recents-filter" id="n-recents-filter" type="button" aria-label="Filter recent chats" aria-controls="n-recents-search-wrap" aria-expanded="false">
+            <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-search"/></svg>
           </button>
         </div>
 
@@ -86,25 +96,14 @@
         </div>
 
         <div class="n-recents-scroll" id="n-recents-scroll">
-          <ul class="n-recents" id="n-recents-list" aria-label="Recent chats">
-            <li><button class="n-recent" type="button" data-title="Keel harness build plan"><svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#n-chat"/></svg><span>Keel harness build plan</span></button></li>
-            <li><button class="n-recent" type="button" data-title="Keel project review and plan"><svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#n-chat"/></svg><span>Keel project review and plan</span></button></li>
-            <li><button class="n-recent" type="button" data-title="Keel project plan review"><svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#n-chat"/></svg><span>Keel project plan review</span></button></li>
-            <li><button class="n-recent" type="button" data-title="Test exercise answers"><svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#n-chat"/></svg><span>Test exercise answers</span></button></li>
-            <li><button class="n-recent" type="button" data-title="Team member project reports"><svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#n-doc"/></svg><span>Team member project reports</span></button></li>
-            <li data-extra="true"><button class="n-recent" type="button" data-title="Connecting AutoCAD with MCP"><svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#n-chat"/></svg><span>Connecting AutoCAD with MCP</span></button></li>
-            <li data-extra="true"><button class="n-recent" type="button" data-title="Golden Gate Bridge PowerPoint"><svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#n-chat"/></svg><span>Golden Gate Bridge PowerPoint</span></button></li>
-            <li data-extra="true"><button class="n-recent" type="button" data-title="Base quantities and SI units"><svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#n-chat"/></svg><span>Base quantities and SI units</span></button></li>
-            <li data-extra="true"><button class="n-recent" type="button" data-title="AutoCAD seminar document with cust…"><svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#n-doc"/></svg><span>AutoCAD seminar document with cust…</span></button></li>
-            <li data-extra="true"><button class="n-recent" type="button" data-title="Exam answers request declined"><svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#n-chat"/></svg><span>Exam answers request declined</span></button></li>
-          </ul>
-          <p class="n-recents-empty" id="n-recents-empty" role="status" hidden>No matching chats.</p>
+          <ul class="n-recents" id="n-recents-list" aria-label="Recent chats"></ul>
+          <p class="n-recents-empty" id="n-recents-empty" role="status">No recent chats yet</p>
         </div>
-        <button class="n-view-all n-recents-view-all" id="n-recents-view-all" type="button" aria-expanded="true" aria-label="Show fewer recent chats">View all</button>
+        <button class="n-view-all n-recents-view-all" id="n-recents-view-all" type="button" aria-expanded="false" aria-label="Show all recent chats" hidden>View all</button>
 
         <div class="n-account-wrap" id="n-account-wrap">
           <button class="n-account" id="n-account" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="n-account-menu">
-            <span class="n-avatar" aria-hidden="true">E</span>
+            <span class="n-avatar" aria-hidden="true">K</span>
             <span class="n-account-name">Elios <span aria-hidden="true">·</span> Free</span>
             <span class="n-chev" aria-hidden="true"></span>
           </button>
@@ -112,8 +111,8 @@
             <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-panel"/></svg>
           </button>
           <div class="n-menu n-account-menu" id="n-account-menu" role="menu" aria-label="Account" hidden>
-            <a role="menuitem" href="/#plans">Upgrade</a>
-            <a role="menuitem" href="/app">Settings</a>
+            <button type="button" role="menuitem" id="n-account-upgrade">Upgrade</button>
+            <button type="button" role="menuitem" id="n-account-settings">Settings</button>
             <a role="menuitem" href="/download">Download apps</a>
           </div>
         </div>
@@ -138,24 +137,41 @@
           <div class="n-conversation" id="n-conversation" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions"></div>
 
           <div class="n-composer-wrap">
+            <div class="n-chat-error" id="n-chat-error" role="alert" hidden>
+              <span id="n-chat-error-text"></span>
+              <button type="button" id="n-chat-error-action" hidden>Open Settings</button>
+            </div>
+
             <div class="n-composer" id="n-composer">
               <label class="n-sr-only" for="n-input">Message Keel</label>
               <textarea id="n-input" rows="1" placeholder="How can I help you today?" aria-describedby="n-composer-hint"></textarea>
               <p class="n-sr-only" id="n-composer-hint">Press Enter to send a message. Press Shift plus Enter for a new line.</p>
 
+              <div class="n-attachments" id="n-attachments" aria-label="Attached files" hidden></div>
+              <input class="n-sr-only" id="n-file-input" type="file" multiple tabindex="-1" accept=".txt,.md,.markdown,.rst,.csv,.json,.jsonl,.js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.h,.hpp,.cs,.go,.rs,.rb,.php,.html,.htm,.css,.scss,.xml,.yaml,.yml,.toml,.ini,.log,.sh,.bash,.sql,.env,.zip,image/*,text/*" />
+
               <div class="n-composer-bar">
-                <button class="n-icon-btn n-attach" id="n-attach" type="button" aria-label="Attach a file">
+                <button class="n-icon-btn n-attach" id="n-attach" type="button" aria-label="Attach files" aria-controls="n-file-input">
                   <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-plus"/></svg>
                 </button>
                 <div class="n-composer-right">
                   <button class="n-icon-btn" id="n-mic" type="button" aria-label="Toggle microphone" aria-pressed="false">
-                    <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-mic"/></svg>
+                    <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-mic"/></svg>
                   </button>
                   <button class="n-icon-btn n-voice-chevron" id="n-voice-chevron" type="button" aria-label="Voice options" aria-expanded="false">
                     <span class="n-chev" aria-hidden="true"></span>
                   </button>
                   <button class="n-icon-btn" id="n-voice-wave" type="button" aria-label="Toggle voice mode" aria-pressed="false">
                     <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#n-wave"/></svg>
+                  </button>
+                  <button class="n-icon-btn n-clear" id="n-clear" type="button" aria-label="Clear this chat" title="Clear this chat">
+                    <svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4h10M6 4V2.8h4V4M5 4l.5 9h5L11 4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <button class="n-icon-btn n-stop" id="n-stop" type="button" aria-label="Stop reply" title="Stop reply" hidden>
+                    <svg class="n-ico" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1.5" fill="currentColor"/></svg>
+                  </button>
+                  <button class="n-icon-btn n-send" id="n-send" type="button" aria-label="Send message" title="Send message">
+                    <svg class="n-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#i-send"/></svg>
                   </button>
                 </div>
               </div>
@@ -168,36 +184,18 @@
 
             <div class="n-options">
               <div class="n-option-wrap">
-                <button class="n-option" id="n-project-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="n-project-menu">
-                  <span class="n-option-label" id="n-project-label">Project</span><span class="n-chev" aria-hidden="true"></span>
+                <button class="n-option" id="n-provider-btn" type="button" aria-haspopup="dialog">
+                  <span class="n-provider-dot" id="n-provider-dot" aria-hidden="true"></span>
+                  <span class="n-option-label" id="n-provider-name">Set up a provider</span>
                 </button>
-                <div class="n-menu n-popover" id="n-project-menu" role="menu" aria-label="Project" hidden>
-                  <button type="button" role="menuitemradio" aria-checked="true">No project</button>
-                  <button type="button" role="menuitemradio" aria-checked="false">Keel harness build</button>
-                  <button type="button" role="menuitemradio" aria-checked="false">Keel project review</button>
-                </div>
               </div>
 
               <div class="n-options-right">
+                <span class="n-usage" id="n-usage" aria-label="Usage this session">0 prompts · 0 tokens</span>
                 <div class="n-option-wrap">
-                  <button class="n-option" id="n-model-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="n-model-menu">
-                    <span id="n-model-name">Sonnet 5.5</span> <span class="n-model-weight" id="n-model-weight">Medium</span><span class="n-chev" aria-hidden="true"></span>
+                  <button class="n-option" id="n-model-btn" type="button" aria-haspopup="dialog">
+                    <span id="n-model-name">Choose a model</span> <span class="n-model-weight" id="n-model-weight">Settings</span><span class="n-chev" aria-hidden="true"></span>
                   </button>
-                  <div class="n-menu n-popover n-menu-right" id="n-model-menu" role="menu" aria-label="Model" hidden>
-                    <button type="button" role="menuitemradio" aria-checked="true" data-name="Sonnet 5.5" data-weight="Medium">Sonnet 5.5 <span>Medium</span></button>
-                    <button type="button" role="menuitemradio" aria-checked="false" data-name="Sonnet 5.5" data-weight="Fast">Sonnet 5.5 <span>Fast</span></button>
-                    <button type="button" role="menuitemradio" aria-checked="false" data-name="Opus 4.1" data-weight="Medium">Opus 4.1 <span>Medium</span></button>
-                  </div>
-                </div>
-                <div class="n-option-wrap">
-                  <button class="n-option" id="n-auto-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="n-auto-menu">
-                    <span id="n-auto-label">Auto</span><span class="n-chev" aria-hidden="true"></span>
-                  </button>
-                  <div class="n-menu n-popover n-menu-right" id="n-auto-menu" role="menu" aria-label="Effort" hidden>
-                    <button type="button" role="menuitemradio" aria-checked="true">Auto</button>
-                    <button type="button" role="menuitemradio" aria-checked="false">Low</button>
-                    <button type="button" role="menuitemradio" aria-checked="false">High</button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -242,21 +240,70 @@
   <!-- ===================== shared dialog ===================== -->
   <div class="n-modal" id="n-dialog" hidden>
     <div class="n-modal-backdrop" id="n-dialog-backdrop"></div>
-    <div class="n-modal-card" role="dialog" aria-modal="true" aria-labelledby="n-dialog-title">
+    <div class="n-modal-card" id="n-dialog-card" role="dialog" aria-modal="true" aria-labelledby="n-dialog-title">
       <button class="n-modal-close" id="n-dialog-close" type="button" aria-label="Close dialog">&times;</button>
       <h2 id="n-dialog-title"></h2>
+      <div class="n-dialog-tabs" id="n-dialog-tabs" role="tablist" aria-label="Settings sections" hidden>
+        <button class="n-dialog-tab" type="button" role="tab" data-view="providers" aria-selected="false">Providers</button>
+        <button class="n-dialog-tab" type="button" role="tab" data-view="general" aria-selected="false">General</button>
+        <button class="n-dialog-tab" type="button" role="tab" data-view="account" aria-selected="false">Account</button>
+      </div>
+
       <div class="n-dialog-view" data-view="plans" hidden>
         <p>You're on the Free plan. Move up when the work gets bigger — Pro, Max, Ultra and Team all add room to think, create and hand off work.</p>
         <a class="n-dialog-link" href="/#plans">See all Keel plans</a>
       </div>
       <div class="n-dialog-view" data-view="help" hidden>
-        <p>Ask a question in the composer and press Enter. Use Search to filter your recent chats, and open the local app for files, projects and plugins.</p>
-        <p><a class="n-dialog-link" href="/download">Download the Keel app</a> or <a class="n-dialog-link" href="mailto:hello@keel.software">email Keel</a>.</p>
+        <p>Type a message and press Enter to send it to your chosen provider. Press Shift plus Enter for a new line, and use + to attach text files, images or a .zip. Your API keys stay in this browser.</p>
+        <p><button class="n-link-btn" type="button" id="n-help-settings">Open settings</button> or <a class="n-dialog-link" href="/download">download the Keel app</a>.</p>
+      </div>
+
+      <div class="n-dialog-view n-settings-view" data-view="providers" hidden>
+        <p class="n-setting-note">Keys stay in this browser (localStorage) and are sent only to the provider you choose. Keel never uploads them to a server.</p>
+        <div id="n-provider-cards"></div>
+        <div class="n-setting-field">
+          <label for="n-preferred">Preferred provider</label>
+          <select id="n-preferred">
+            <option value="auto">Auto — first configured provider</option>
+            <option value="openrouter">OpenRouter</option>
+            <option value="google">Google AI Studio</option>
+          </select>
+          <p class="n-field-hint">Auto uses OpenRouter first, then Google AI Studio.</p>
+        </div>
+        <p class="n-settings-status" id="n-settings-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="n-dialog-view n-settings-view" data-view="general" hidden>
+        <div class="n-setting-field">
+          <label for="n-instructions">System instructions</label>
+          <textarea id="n-instructions" rows="4" placeholder="e.g. Answer concisely and show your reasoning."></textarea>
+          <p class="n-field-hint" id="n-instructions-meta">0 characters</p>
+          <button class="n-btn n-btn-primary" id="n-save-instructions" type="button">Save instructions</button>
+        </div>
+        <div class="n-setting-field">
+          <span class="n-field-label" id="n-font-label">Font</span>
+          <div class="n-seg" id="n-font-seg" role="group" aria-labelledby="n-font-label">
+            <button type="button" data-font="body" aria-pressed="true">Body</button>
+            <button type="button" data-font="serif" aria-pressed="false">Serif</button>
+          </div>
+        </div>
+        <p class="n-field-hint">These settings are shared with the Keel app at <a href="/app">/app</a>.</p>
+        <p class="n-settings-status" id="n-general-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="n-dialog-view" data-view="account" hidden>
+        <p>You're on the Free plan. Upgrade when the work gets bigger, or open the local app for projects, plugins and your full artifact library.</p>
+        <button class="n-link-btn" type="button" id="n-account-dialog-upgrade">See plans</button>
+        <div class="n-dialog-actions">
+          <a class="n-dialog-link" href="/app">Open Keel app</a>
+          <a class="n-dialog-link" href="/download">Download apps</a>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="/ui/search-palette.js" defer></script>
+  <script src="/ui/keel-chat.js" defer></script>
   <script src="/ui/new.js" defer></script>
 </body>
 </html>

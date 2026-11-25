@@ -19,16 +19,11 @@
   var sidebarToggle = $('pr-sidebar-toggle');
   var collapse = $('pr-collapse');
   var scrim = $('pr-scrim');
-  var navNew = $('pr-nav-new');
   var navSearch = $('pr-nav-search');
-  var navProjects = $('pr-nav-projects');
   var recentsToggle = $('pr-recents-toggle');
   var recentsList = $('pr-recents-list');
   var recentsEmpty = $('pr-recents-empty');
   var recentsViewAll = $('pr-recents-view-all');
-  var recentsSearchWrap = $('pr-recents-search-wrap');
-  var recentsSearch = $('pr-recents-search');
-  var recentsSearchClose = $('pr-recents-search-close');
   var accountBtn = $('pr-account');
   var accountMenu = $('pr-account-menu');
   var helpBtn = $('pr-help');
@@ -89,7 +84,9 @@
   var dialogState = null;
   var lastFocused = null;
   var openMenu = null;
-  var allRecents = true;
+  var allRecents = false;
+  var RECENTS_KEY = 'keel_new_recents_v1';
+  var RECENTS_PREVIEW = 5;
 
   function uid() {
     return 'p-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -187,21 +184,33 @@
     collapse.setAttribute('aria-label', open ? 'Collapse sidebar' : 'Expand sidebar');
   }
 
+  /* One authoritative state class on the app root at a time: `sidebar-open`
+     on small screens, `sidebar-collapsed` on wide screens, none otherwise. */
   function setSidebar(open) {
+    app.classList.remove('sidebar-open', 'sidebar-collapsed');
     if (mobileQuery.matches) {
-      app.classList.remove('sidebar-collapsed');
-      app.classList.toggle('sidebar-open', open);
-    } else {
-      app.classList.remove('sidebar-open');
-      app.classList.toggle('sidebar-collapsed', !open);
+      if (open) app.classList.add('sidebar-open');
+    } else if (!open) {
+      app.classList.add('sidebar-collapsed');
     }
     syncSidebarToggles();
   }
 
   function onViewportChange() {
-    app.classList.remove('sidebar-open');
-    app.classList.remove('sidebar-collapsed');
+    app.classList.remove('sidebar-open', 'sidebar-collapsed');
     syncSidebarToggles();
+  }
+
+  function paletteOpen() {
+    return !!(window.KeelSearchPalette &&
+      typeof window.KeelSearchPalette.isOpen === 'function' &&
+      window.KeelSearchPalette.isOpen());
+  }
+
+  function openSearchPalette() {
+    if (window.KeelSearchPalette && typeof window.KeelSearchPalette.open === 'function') {
+      window.KeelSearchPalette.open(navSearch);
+    }
   }
 
   sidebarToggle.addEventListener('click', function () { setSidebar(!isSidebarOpen()); });
@@ -214,97 +223,84 @@
     mobileQuery.addListener(onViewportChange);
   }
 
-  var recentItems = $$('li', recentsList);
+  /* Recents are empty until Keel saves real chats in keel_new_recents_v1. */
+  function loadRecents() {
+    try {
+      var raw = window.localStorage.getItem(RECENTS_KEY);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      var titles = [];
+      parsed.forEach(function (entry) {
+        var title = '';
+        if (typeof entry === 'string') {
+          title = entry;
+        } else if (entry && typeof entry === 'object') {
+          title = typeof entry.title === 'string' ? entry.title
+            : typeof entry.prompt === 'string' ? entry.prompt
+            : typeof entry.text === 'string' ? entry.text
+            : typeof entry.label === 'string' ? entry.label : '';
+        }
+        title = String(title).replace(/\s+/g, ' ').trim();
+        if (title && titles.indexOf(title) === -1) titles.push(title.slice(0, 90));
+      });
+      return titles;
+    } catch (error) {
+      return [];
+    }
+  }
+
+  var recentItems = [];
+
+  function buildRecentItem(title) {
+    var li = document.createElement('li');
+    var button = document.createElement('button');
+    button.className = 'pr-recent';
+    button.type = 'button';
+    button.setAttribute('data-title', title);
+    button.innerHTML = '<svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg>';
+    var label = document.createElement('span');
+    label.textContent = title;
+    button.appendChild(label);
+    button.addEventListener('click', function () { window.location.assign('/new'); });
+    li.appendChild(button);
+    recentsList.appendChild(li);
+    return li;
+  }
+
+  loadRecents().forEach(function (title) { recentItems.push(buildRecentItem(title)); });
 
   function applyRecents() {
-    var query = recentsSearch.value.trim().toLowerCase();
-    var visible = 0;
-    recentItems.forEach(function (item) {
-      var button = $('.pr-recent', item);
-      if (!button) { item.hidden = true; return; }
-      var title = (button.getAttribute('data-title') || '').toLowerCase();
-      var isExtra = item.getAttribute('data-extra') === 'true';
-      var show = (!query || title.indexOf(query) !== -1) && (allRecents || !isExtra);
-      item.hidden = !show;
-      if (show) visible += 1;
+    recentItems.forEach(function (li, index) {
+      li.hidden = !allRecents && index >= RECENTS_PREVIEW;
     });
-    recentsEmpty.hidden = !(query && visible === 0);
-  }
-
-  function openRecentsSearch() {
-    recentsSearchWrap.hidden = false;
-    navSearch.setAttribute('aria-expanded', 'true');
-    recentsSearch.focus();
-  }
-
-  function closeRecentsSearch(restoreFocus) {
-    recentsSearchWrap.hidden = true;
-    navSearch.setAttribute('aria-expanded', 'false');
-    recentsSearch.value = '';
-    applyRecents();
-    if (restoreFocus) navSearch.focus();
-  }
-
-  function hasSharedPalette() {
-    return !!(window.KeelSearchPalette && typeof window.KeelSearchPalette.open === 'function');
+    recentsEmpty.hidden = recentItems.length > 0;
+    var showAll = recentItems.length > RECENTS_PREVIEW;
+    recentsViewAll.hidden = !showAll || recentsList.hidden;
+    recentsViewAll.setAttribute('aria-expanded', String(allRecents));
+    recentsViewAll.setAttribute('aria-label', allRecents ? 'Show fewer recent chats' : 'Show all recent chats');
   }
 
   navSearch.addEventListener('click', function () {
-    /* The shared palette auto-binds [data-search-trigger] and owns this click. */
-    if (hasSharedPalette()) return;
-    if (recentsSearchWrap.hidden) openRecentsSearch(); else closeRecentsSearch(true);
+    if (mobileQuery.matches) setSidebar(false);
+    openSearchPalette();
   });
-  recentsSearchClose.addEventListener('click', function () { closeRecentsSearch(true); });
-  recentsSearch.addEventListener('input', applyRecents);
 
   recentsToggle.addEventListener('click', function () {
     var willShow = recentsList.hidden;
     recentsList.hidden = !willShow;
-    recentsViewAll.hidden = !willShow;
-    if (!willShow) closeRecentsSearch(false);
+    if (willShow) {
+      applyRecents();
+    } else {
+      recentsEmpty.hidden = true;
+      recentsViewAll.hidden = true;
+    }
     recentsToggle.setAttribute('aria-expanded', String(willShow));
   });
 
   recentsViewAll.addEventListener('click', function () {
     allRecents = !allRecents;
-    recentsViewAll.setAttribute('aria-expanded', String(allRecents));
-    recentsViewAll.setAttribute('aria-label', allRecents ? 'Show fewer recent chats' : 'Show all recent chats');
     applyRecents();
-  });
-
-  recentItems.forEach(function (item) {
-    var button = $('.pr-recent', item);
-    if (!button) return;
-    button.addEventListener('click', function () {
-      var title = button.getAttribute('data-title') || '';
-      showInfo('Recent chat', 'This static mirror does not reopen chats. "' + title + '" is shown here for reference.', '/app');
-    });
-  });
-
-  navNew.addEventListener('click', function () {
-    showInfo('New chat', 'Start a fresh conversation in Keel.', '/new', 'Go to new chat');
-  });
-  navProjects.addEventListener('click', function () {
-    showInfo('Projects', 'You are viewing your projects. Create one to keep related sessions together.', null);
-  });
-
-  var panelMessages = {
-    artifacts: [
-      'Artifacts',
-      'Artifacts are the documents and designs Keel creates for you. Browse the full set in the app.',
-      '/app'
-    ],
-    plugins: [
-      'Plugins',
-      'Plugins extend Keel with the tools you already use. Add them from the local Keel app.',
-      '/download'
-    ]
-  };
-  $$('[data-info-panel]').forEach(function (button) {
-    button.addEventListener('click', function () {
-      var message = panelMessages[button.getAttribute('data-info-panel')];
-      if (message) showInfo(message[0], message[1], message[2]);
-    });
   });
 
   /* ------------------------------ menus ------------------------------ */
@@ -774,6 +770,7 @@
 
   document.addEventListener('keydown', function (event) {
     if (event.key !== 'Escape') return;
+    if (paletteOpen()) return;
 
     if (!dialog.hidden) {
       event.preventDefault();
@@ -799,15 +796,13 @@
       toggleProjectSearch();
       return;
     }
-    if (!recentsSearchWrap.hidden && document.activeElement === recentsSearch) {
-      event.preventDefault();
-      closeRecentsSearch(true);
-    }
+    if (mobileQuery.matches && isSidebarOpen()) setSidebar(false);
   });
 
   /* ------------------------------ init ------------------------------ */
 
   projects = loadProjects();
   render();
+  applyRecents();
   syncSidebarToggles();
 })();

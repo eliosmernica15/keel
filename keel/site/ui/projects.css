@@ -191,6 +191,7 @@ body.pr-page .pr-nav-item {
   font-size: 13px;
   font-weight: 400;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
   transition: background .15s ease;
 }

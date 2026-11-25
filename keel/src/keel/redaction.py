@@ -50,7 +50,21 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [
         r")")),
     ("bearer_token", re.compile(
         r"(?i)\b(?:Bearer|Basic)\s+[^\s,;'\"\r\n]{4,}")),
+    # Natural-language disclosures ("The password is Harbor Seal42 Tango Mike")
+    # have no assignment operator and previously evaded both redaction paths.
+    ("natural_secret", re.compile(
+        r"(?i)\b(?:password|passphrase|secret)\s+(?:is|was)\s+"
+        r"[A-Za-z0-9][^\r\n.!?]{3,}")),
 ]
+
+# Most patterns replace the entire match; natural_secret keeps its leading
+# "password is " words so the redacted text remains readable/auditable.
+_REPLACERS = {
+    "natural_secret": lambda m: m.group(0)[:m.group(0).lower().find(" is ") + 4]
+                       + "[REDACTED]" if " is " in m.group(0).lower()
+                       else m.group(0)[:m.group(0).lower().find(" was ") + 5]
+                       + "[REDACTED]",
+}
 
 
 def _merge(counts: dict, extra: dict) -> None:
@@ -68,7 +82,7 @@ def redact_text(text: str, *, placeholder: str = "[REDACTED]") -> tuple[str, dic
         found = len(pattern.findall(out))
         if found:
             counts[kind] = counts.get(kind, 0) + found
-            out = pattern.sub(placeholder, out)
+            out = pattern.sub(_REPLACERS.get(kind, placeholder), out)
     return out, counts
 
 

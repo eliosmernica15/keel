@@ -65,21 +65,21 @@
       <!-- ===================== sidebar ===================== -->
       <aside class="ar-sidebar" id="ar-sidebar" aria-label="Keel sidebar">
         <nav class="ar-side-nav" aria-label="Keel">
-          <button class="ar-nav-item" id="ar-nav-new" type="button">
+          <a class="ar-nav-item" id="ar-nav-new" href="/new">
             <svg class="ar-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#ar-plus"/></svg><span>New</span>
-          </button>
-          <button class="ar-nav-item" id="ar-nav-search" type="button" aria-expanded="false" aria-controls="ar-recents-search-wrap">
+          </a>
+          <button class="ar-nav-item" id="ar-nav-search" type="button" data-search-trigger aria-expanded="false">
             <svg class="ar-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#ar-search"/></svg><span>Search</span>
           </button>
-          <button class="ar-nav-item" type="button" data-info-panel="projects">
+          <a class="ar-nav-item" id="ar-nav-projects" href="/projects">
             <svg class="ar-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#ar-layers"/></svg><span>Projects</span>
-          </button>
-          <button class="ar-nav-item is-active" id="ar-nav-artifacts" type="button" aria-current="page">
+          </a>
+          <a class="ar-nav-item is-active" id="ar-nav-artifacts" href="/artifacts" aria-current="page">
             <svg class="ar-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#ar-artifact"/></svg><span>Artifacts</span>
-          </button>
-          <button class="ar-nav-item" type="button" data-info-panel="plugins">
+          </a>
+          <a class="ar-nav-item" id="ar-nav-plugins" href="/plugins">
             <svg class="ar-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#ar-puzzle"/></svg><span>Plugins</span>
-          </button>
+          </a>
         </nav>
 
         <div class="ar-recents-head">
@@ -88,29 +88,11 @@
           </button>
         </div>
 
-        <div class="ar-search-wrap" id="ar-recents-search-wrap" hidden>
-          <svg class="ar-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#ar-search"/></svg>
-          <label class="ar-sr-only" for="ar-recents-search">Filter recent chats</label>
-          <input id="ar-recents-search" type="search" placeholder="Filter recents" autocomplete="off" />
-          <button class="ar-search-close" id="ar-recents-search-close" type="button" aria-label="Close recent chat filter">&times;</button>
-        </div>
-
         <div class="ar-recents-scroll" id="ar-recents-scroll">
-          <ul class="ar-recents" id="ar-recents-list" aria-label="Recent chats">
-            <li><button class="ar-recent" type="button" data-title="Keel harness build plan"><svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-chat"/></svg><span>Keel harness build plan</span></button></li>
-            <li><button class="ar-recent" type="button" data-title="Keel project review and plan"><svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-chat"/></svg><span>Keel project review and plan</span></button></li>
-            <li><button class="ar-recent" type="button" data-title="Keel project plan review"><svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-chat"/></svg><span>Keel project plan review</span></button></li>
-            <li><button class="ar-recent" type="button" data-title="Test exercise answers"><svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-chat"/></svg><span>Test exercise answers</span></button></li>
-            <li><button class="ar-recent" type="button" data-title="Team member project reports"><svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-doc"/></svg><span>Team member project reports</span></button></li>
-            <li data-extra="true"><button class="ar-recent" type="button" data-title="Connecting AutoCAD with MCP"><svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-chat"/></svg><span>Connecting AutoCAD with MCP</span></button></li>
-            <li data-extra="true"><button class="ar-recent" type="button" data-title="Golden Gate Bridge PowerPoint"><svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-chat"/></svg><span>Golden Gate Bridge PowerPoint</span></button></li>
-            <li data-extra="true"><button class="ar-recent" type="button" data-title="Base quantities and SI units"><svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-chat"/></svg><span>Base quantities and SI units</span></button></li>
-            <li data-extra="true"><button class="ar-recent" type="button" data-title="AutoCAD seminar document with cust…"><svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-doc"/></svg><span>AutoCAD seminar document with cust…</span></button></li>
-            <li data-extra="true"><button class="ar-recent" type="button" data-title="Exam answers request declined"><svg class="ar-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#ar-chat"/></svg><span>Exam answers request declined</span></button></li>
-          </ul>
-          <p class="ar-recents-empty" id="ar-recents-empty" role="status" hidden>No matching chats.</p>
+          <ul class="ar-recents" id="ar-recents-list" aria-label="Recent chats"></ul>
+          <p class="ar-recents-empty" id="ar-recents-empty" role="status">No recent chats yet</p>
         </div>
-        <button class="ar-view-all ar-recents-view-all" id="ar-recents-view-all" type="button" aria-expanded="true" aria-label="Show fewer recent chats">View all</button>
+        <button class="ar-view-all ar-recents-view-all" id="ar-recents-view-all" type="button" aria-expanded="false" aria-label="Show all recent chats" hidden>View all</button>
 
         <div class="ar-account-wrap" id="ar-account-wrap">
           <button class="ar-account" id="ar-account" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="ar-account-menu">
