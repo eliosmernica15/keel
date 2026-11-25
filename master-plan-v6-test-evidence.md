@@ -240,3 +240,19 @@ The 8 failures are accounted for:
   and `keel/downloads/Keel_Master_Plan_v5.md` (1 pinned-hash test). These are pre-existing
   release-artifact gates, not backend code defects. No test was deleted, weakened, skipped
   or altered to obtain this result; the same 6 failures are documented on earlier baselines.
+
+## Final full suite before main promotion
+
+Command (clean local HOME, from `keel/`): `python -m pytest -q -o faulthandler_timeout=120`
+
+```
+5 failed, 4437 passed, 51 skipped, 3707 subtests passed in 446.15s (0:07:26)
+```
+
+The 5 failures are exclusively artifact-dependent release checks:
+`test_distribution_package.py` (2), `test_gap_closure.py` (2),
+`test_release_integrity.py` (1). They require `keel/release/RELEASE-MANIFEST.json`,
+`RELEASE-SHA256SUMS.txt` and `keel/dist/` — generated/untracked artifacts absent in a
+clean checkout and gated by owner signing. They are not backend code defects. All 11
+previously observed load/pollution failures were fixed (workflow audit, event lock,
+413 drain, source hash pins, provider env isolation) and no test was weakened.
