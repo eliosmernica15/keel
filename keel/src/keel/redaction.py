@@ -53,7 +53,7 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [
     # Natural-language disclosures ("The password is Harbor Seal42 Tango Mike")
     # have no assignment operator and previously evaded both redaction paths.
     ("natural_secret", re.compile(
-        r"(?i)\b(?:password|passphrase|secret)\s+(?:is|was)\s+"
+        r"(?i)\b(?:password|passphrase|secret|pin|code)\s+(?:is|was)\s+"
         r"[A-Za-z0-9][^\r\n.!?]{3,}")),
 ]
 
