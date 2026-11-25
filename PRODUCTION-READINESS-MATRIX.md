@@ -14,7 +14,7 @@
 | --- | --- |
 | Authoritative branch | `stabilization/post-promotion-production-2026-11-25` |
 | Current baseline tip (verified in this worktree) | `f60b080a1c770608e1ddbf3d888a6e63a7c1b6bb` — `docs(stabilization): record verified baseline and failing CI workflows` |
-| **Exact final stabilization SHA** | **`<<LEAD_SUPPLIED_SHA — PLACEHOLDER, NOT YET FILLED>>`** |
+| **Exact final stabilization SHA** | **`<<CANDIDATE_HEAD_REFERENCE — PLACEHOLDER, NOT YET FILLED>>`** |
 | `origin/main` (verified) | `9a63be929d7b364411b856aaf61230817697c410` |
 | Prior backend promotion | `779ff942fff9dd106af7d7b3b4b35f95bfc5d2a4` (ancestor of `origin/main`) |
 | Stabilization diff vs `origin/main` at baseline | 1 path (`POST-PROMOTION-STABILIZATION-BASELINE.md`) |

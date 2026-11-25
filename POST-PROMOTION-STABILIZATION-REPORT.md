@@ -24,7 +24,7 @@
 
 | Field | Value |
 | --- | --- |
-| Exact final stabilization SHA | `<<LEAD_SUPPLIED_SHA — PLACEHOLDER>>` |
+| Exact final stabilization SHA | `<<CANDIDATE_HEAD_REFERENCE — PLACEHOLDER>>` |
 | Stabilization branch | `stabilization/post-promotion-production-2026-11-25` |
 | Baseline tip recorded at start | `f60b080a1c770608e1ddbf3d888a6e63a7c1b6bb` |
 | `origin/main` | `9a63be929d7b364411b856aaf61230817697c410` (verified at baseline; re-verify at finalization) |
@@ -121,3 +121,14 @@ evidence is already summarized in matrix §E; it does not close the gate.
 > `owner_gated`, or `blocked`, unless the owner records an explicit, reviewable
 > authorization that names each waived gate. Historical authorizations apply to their
 > own commits and do not waive gates at the exact final stabilization SHA.
+
+## Final verified results (lead-filled)
+
+- Full suite: **4557 passed / 52 skipped / 3707 subtests / 0 failed** in 493.28s.
+- Governance: registry CONSISTENCY OK; strict backend gate 421/421 OK; dependency graph
+  FRESH; license gate OK; version sync OK; 8 workflows parse; 31/31 action refs full-SHA pinned.
+- Independent acceptance: see `FINAL-STABILIZATION-ACCEPTANCE.md`.
+- Native verification: Windows VERIFIED; Linux WSL2 VERIFIED (16/16 sandbox tests);
+  macOS UNVERIFIED (no Darwin host; macOS 26 read isolation blocked by `sandbox-exec` SIGABRT).
+- Remaining external: live provider credentials, signed clean-VM upgrade/rollback,
+  production signing identity, remote branch protection (GitHub Free), Vercel build quota.

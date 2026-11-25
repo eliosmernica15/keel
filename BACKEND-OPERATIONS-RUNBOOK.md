@@ -1,7 +1,7 @@
 # Backend Operations Runbook — Keel
 
 **Branch:** `stabilization/post-promotion-production-2026-11-25`
-**Exact final stabilization SHA:** `<<LEAD_SUPPLIED_SHA — placeholder; see matrix §A>>`
+**Exact final stabilization SHA:** `<<CANDIDATE_HEAD_REFERENCE — placeholder; see matrix §A>>`
 **Status of this document:** descriptive, not a promise of production readiness. Every
 command below was checked against the CLI/release source at the stabilization baseline
 tip; line numbers from historical candidate commits are deliberately omitted. Where the

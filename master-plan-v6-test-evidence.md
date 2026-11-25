@@ -256,3 +256,19 @@ The 5 failures are exclusively artifact-dependent release checks:
 clean checkout and gated by owner signing. They are not backend code defects. All 11
 previously observed load/pollution failures were fixed (workflow audit, event lock,
 413 drain, source hash pins, provider env isolation) and no test was weakened.
+
+## FINAL stabilization full suite (post-promotion, authoritative)
+
+Command (clean local HOME, from `keel/`):
+`python -m pytest -q -o faulthandler_timeout=120`
+
+```
+4557 passed, 52 skipped, 3707 subtests passed in 493.28s (0:08:13)
+```
+
+0 failed. This is the definitive result at the final stabilization candidate, after all
+CI, test, security, workflow, database, runtime, events, provider, platform, installation,
+performance, supply-chain and documentation fixes. Earlier baselines (4437/5, 4442/0,
+4459/7, 4546/0) are historical runs at their own commits.
+
+52 skips are platform/credential gates; no test was weakened or removed.

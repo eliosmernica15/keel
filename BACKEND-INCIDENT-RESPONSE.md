@@ -1,7 +1,7 @@
 # Backend Incident Response — Keel
 
 **Branch:** `stabilization/post-promotion-production-2026-11-25`
-**Exact final stabilization SHA:** `<<LEAD_SUPPLIED_SHA — placeholder; see matrix §A>>`
+**Exact final stabilization SHA:** `<<CANDIDATE_HEAD_REFERENCE — placeholder; see matrix §A>>`
 **Rule of this document:** containment first, evidence second, recovery third, and
 never invent a capability that does not exist. Commands below are real; limits are
 stated explicitly. Keel is machine-local, so "compromise" normally means a local

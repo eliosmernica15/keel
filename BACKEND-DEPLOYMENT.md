@@ -1,7 +1,7 @@
 # Backend Deployment — Keel
 
 **Branch:** `stabilization/post-promotion-production-2026-11-25`
-**Exact final stabilization SHA:** `<<LEAD_SUPPLIED_SHA — placeholder; see matrix §A>>`
+**Exact final stabilization SHA:** `<<CANDIDATE_HEAD_REFERENCE — placeholder; see matrix §A>>`
 **Scope:** deploying the **backend/harness** from source on an operator machine.
 This document deliberately distinguishes **backend deployment readiness** (what the
 code and tests prove locally) from **full desktop installer release** (unsigned,

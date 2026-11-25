@@ -1,7 +1,7 @@
 # Backend Monitoring — Keel
 
 **Branch:** `stabilization/post-promotion-production-2026-11-25`
-**Exact final stabilization SHA:** `<<LEAD_SUPPLIED_SHA — placeholder; see matrix §A>>`
+**Exact final stabilization SHA:** `<<CANDIDATE_HEAD_REFERENCE — placeholder; see matrix §A>>`
 This document describes the signals the code **actually emits** and how to read them.
 It does not invent metrics, exporters, dashboards, or alert rules that do not exist in
 the repository. Proposed thresholds at the end are explicitly **proposed, not

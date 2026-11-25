@@ -2,7 +2,7 @@
 
 **Authoritative branch:** `stabilization/post-promotion-production-2026-11-25`
 **Current baseline tip (verified):** `f60b080a1c770608e1ddbf3d888a6e63a7c1b6bb`
-**Exact final stabilization SHA:** `<<LEAD_SUPPLIED_SHA — PLACEHOLDER, NOT YET FILLED>>` (see matrix §A)
+**Exact final stabilization SHA:** `<<CANDIDATE_HEAD_REFERENCE — PLACEHOLDER, NOT YET FILLED>>` (see matrix §A)
 **Documents reconciled here:** `BACKEND-OPERATIONS-RUNBOOK.md`, `BACKEND-DEPLOYMENT.md`,
 `BACKEND-MONITORING.md`, `BACKEND-INCIDENT-RESPONSE.md`, `PRODUCTION-READINESS-MATRIX.md`,
 and this report. **Scope:** backend/harness operations only — no frontend, no source,
