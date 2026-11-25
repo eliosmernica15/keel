@@ -283,3 +283,14 @@ Command (clean local HOME, from `keel/`):
 ```
 
 0 failed. Prior figures (4610, 4628, 4630, 4722) are historical runs at earlier commits.
+
+## FINAL full suite on exact final main SHA (authoritative)
+
+Command (clean local HOME, from `keel/`): `python -m pytest -q -o faulthandler_timeout=120`
+
+```
+4766 passed, 54 skipped, 3707 subtests passed in 522.73s (0:08:42)
+```
+
+0 failed, exit 0. Commit SHA: `a518cb1f6895c823cf2f697578443bc8cf6fa3a9` (`origin/main`).
+54 skips are platform/credential gates; no test deleted, weakened, or converted to fake success.
