@@ -687,6 +687,9 @@ def describe_event_schema() -> dict[str, Any]:
 # their owning PID is provably gone (or has aged out with no readable PID).
 _LOCK_TIMEOUT_SECONDS = 10.0
 _STALE_LOCK_SECONDS = 30.0
+# os.open() is text mode on Windows unless O_BINARY is requested; a byte-exact
+# append must not expand each "\n" into "\r\n".
+_O_BINARY = getattr(os, "O_BINARY", 0)
 
 _LOCKS_GUARD = threading.Lock()
 _PATH_LOCKS: dict[str, Any] = {}
@@ -787,7 +790,7 @@ class _LogLock:
         while True:
             try:
                 fd = os.open(str(self.lock_path),
-                             os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+                             os.O_CREAT | os.O_EXCL | os.O_WRONLY | _O_BINARY, 0o600)
                 break
             except FileExistsError:
                 if self._lock_is_stale():
@@ -907,7 +910,8 @@ def _append_line(path: Path, record: Mapping[str, Any]) -> None:
     line = json.dumps(record, sort_keys=True, separators=(",", ":"),
                       ensure_ascii=False)
     payload = (line + "\n").encode("utf-8")
-    fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    fd = os.open(str(path),
+                 os.O_WRONLY | os.O_CREAT | os.O_APPEND | _O_BINARY, 0o600)
     try:
         before = os.fstat(fd).st_size
         written = os.write(fd, payload)
