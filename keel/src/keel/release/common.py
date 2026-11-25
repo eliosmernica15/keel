@@ -434,16 +434,13 @@ def _alternative_label(filename: str) -> str:
     if suffix == ".pkg":
         arch = arch_for_artifact(filename, "")
         return "Intel (PKG)" if arch == "x64" else "Apple Silicon (PKG)"
-    if suffix == ".zip":
-        return "ZIP archive"
-    if suffix == ".dmg":
-        return "macOS disk image (.dmg)"
     if suffix == ".deb":
         return "Debian/Ubuntu package (.deb)"
     if suffix == ".rpm":
         return "Fedora/RHEL package (.rpm)"
-    if suffix == ".appimage":
-        return "Linux AppImage (legacy)"
+    # DMG/ZIP/AppImage are no longer release formats. They deliberately get no
+    # human-friendly label: a stale archive must never be advertised as an
+    # alternative. See release/reconciliation.py for the strict gate.
     return filename
 
 
