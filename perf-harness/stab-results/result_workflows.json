@@ -1,0 +1,233 @@
+{
+  "state_base": "C:\\Users\\Admin\\AppData\\Local\\Temp\\stabwf_3y3_6r_0",
+  "workflow_names": [
+    "request",
+    "approval",
+    "delegation",
+    "mcp",
+    "recovery"
+  ],
+  "single_request": {
+    "elapsed_ms": 511.78,
+    "ok": true,
+    "code": "ok",
+    "result_keys": [
+      "code",
+      "http_status",
+      "idempotency_key",
+      "ok",
+      "persisted",
+      "result",
+      "steps",
+      "workflow"
+    ]
+  },
+  "single_approval": {
+    "elapsed_ms": 296.63,
+    "ok": true,
+    "code": "ok",
+    "result_keys": [
+      "code",
+      "http_status",
+      "idempotency_key",
+      "ok",
+      "persisted",
+      "result",
+      "steps",
+      "workflow"
+    ]
+  },
+  "single_delegation": {
+    "elapsed_ms": 780.03,
+    "ok": true,
+    "code": "ok",
+    "result_keys": [
+      "code",
+      "http_status",
+      "idempotency_key",
+      "ok",
+      "persisted",
+      "result",
+      "steps",
+      "workflow"
+    ]
+  },
+  "single_mcp": {
+    "elapsed_ms": 395.82,
+    "ok": false,
+    "code": "dry_run",
+    "result_keys": [
+      "code",
+      "http_status",
+      "idempotency_key",
+      "ok",
+      "persisted",
+      "result",
+      "steps",
+      "workflow"
+    ]
+  },
+  "single_recovery": {
+    "elapsed_ms": 169.09,
+    "ok": true,
+    "code": "ok",
+    "result_keys": [
+      "code",
+      "http_status",
+      "idempotency_key",
+      "ok",
+      "persisted",
+      "result",
+      "steps",
+      "workflow"
+    ]
+  },
+  "concurrent_request": {
+    "threads": 8,
+    "calls_each": 2,
+    "calls": 16,
+    "elapsed_s": 0.655,
+    "calls_s": 24.4,
+    "codes": {
+      "ok": 16
+    },
+    "exceptions": 0,
+    "error_samples": [],
+    "latency_ms": {
+      "n": 16,
+      "min": 149.9026,
+      "p50": 237.3187,
+      "p90": 398.1796,
+      "p95": 444.3848,
+      "p99": 451.9468,
+      "max": 453.8373,
+      "mean": 262.1797
+    }
+  },
+  "concurrent_approval": {
+    "threads": 8,
+    "calls_each": 2,
+    "calls": 16,
+    "elapsed_s": 1.111,
+    "calls_s": 14.4,
+    "codes": {
+      "ok": 16
+    },
+    "exceptions": 0,
+    "error_samples": [],
+    "latency_ms": {
+      "n": 16,
+      "min": 392.6479,
+      "p50": 444.9406,
+      "p90": 540.6442,
+      "p95": 569.6896,
+      "p99": 588.7842,
+      "max": 593.5579,
+      "mean": 466.2897
+    }
+  },
+  "concurrent_delegation": {
+    "threads": 8,
+    "calls_each": 2,
+    "calls": 16,
+    "elapsed_s": 1.832,
+    "calls_s": 8.7,
+    "codes": {
+      "ok": 16
+    },
+    "exceptions": 0,
+    "error_samples": [],
+    "latency_ms": {
+      "n": 16,
+      "min": 800.7267,
+      "p50": 893.1152,
+      "p90": 943.9081,
+      "p95": 952.7743,
+      "p99": 958.9302,
+      "max": 960.4692,
+      "mean": 894.2369
+    }
+  },
+  "concurrent_mcp": {
+    "threads": 8,
+    "calls_each": 2,
+    "calls": 16,
+    "elapsed_s": 1.041,
+    "calls_s": 15.4,
+    "codes": {
+      "dry_run": 16
+    },
+    "exceptions": 0,
+    "error_samples": [],
+    "latency_ms": {
+      "n": 16,
+      "min": 445.6199,
+      "p50": 491.9136,
+      "p90": 558.4042,
+      "p95": 567.2214,
+      "p99": 569.5375,
+      "max": 570.1165,
+      "mean": 505.6153
+    }
+  },
+  "concurrent_recovery": {
+    "threads": 8,
+    "calls_each": 2,
+    "calls": 16,
+    "elapsed_s": 0.783,
+    "calls_s": 20.4,
+    "codes": {
+      "ok": 16
+    },
+    "exceptions": 0,
+    "error_samples": [],
+    "latency_ms": {
+      "n": 16,
+      "min": 347.6188,
+      "p50": 371.9501,
+      "p90": 396.3642,
+      "p95": 402.4719,
+      "p99": 413.2162,
+      "max": 415.9023,
+      "mean": 373.8841
+    }
+  },
+  "worker_budget_effective": {
+    "local_16cpus_cap8": {
+      "budget": {
+        "hardware_cpus": 16,
+        "is_ci": false,
+        "local_cap": 8,
+        "cgroup_cpus": null
+      },
+      "effective_workers": 8
+    },
+    "ci_16cpus_cap8": {
+      "budget": {
+        "hardware_cpus": 16,
+        "is_ci": true,
+        "local_cap": 8,
+        "cgroup_cpus": null
+      },
+      "effective_workers": 16
+    },
+    "ci_16cpus_cgroup2_5": {
+      "budget": {
+        "hardware_cpus": 16,
+        "is_ci": true,
+        "local_cap": 8,
+        "cgroup_cpus": 2.5
+      },
+      "effective_workers": 2
+    },
+    "local_1cpu_cgroup0_5": {
+      "budget": {
+        "hardware_cpus": 1,
+        "is_ci": false,
+        "local_cap": 8,
+        "cgroup_cpus": 0.5
+      },
+      "effective_workers": 1
+    }
+  }
+}

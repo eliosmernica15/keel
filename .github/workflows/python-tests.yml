@@ -108,6 +108,25 @@ jobs:
           # pyinstaller/pillow already installed from requirements.lock.txt.
           python -m keel.release build --platform auto --out release
           python -m keel.release licenses --out release
+      - name: Regenerate update manifest for integrity tests
+        shell: bash
+        working-directory: keel
+        run: |
+          # electron-builder does not emit latest.yml without a publish target;
+          # regenerate it from the verified manifest and the real artifact, as
+          # documented in keel/docs/FINAL-RELEASE-OPERATIONS.md.
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from keel.release_integrity import regenerate_latest_yml
+
+          doc = json.loads(Path("release/RELEASE-MANIFEST.json").read_text(encoding="utf-8"))
+          if any(f.get("platform") == "windows" for f in doc.get("files", [])):
+              regenerate_latest_yml("dist", "release")
+              print("latest.yml regenerated from verified Windows artifact")
+          else:
+              print("no Windows artifact on this platform; latest.yml not applicable")
+          PY
       - name: Run the suite
         working-directory: keel
         run: python -m pytest -q

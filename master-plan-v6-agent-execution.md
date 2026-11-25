@@ -95,7 +95,7 @@ Branch: `integration/v6-backend-complete` (local only). Baseline: `0865817`.
 
 ## Honest notes
 - Several agents reported P0 rows already implemented under other IDs; those were verified/documented, never reimplemented or falsely attributed.
-- W1.18 and Y6.4 were documented as owner-gated conflicts (DECISIONS D-036/D-037) and were NOT implemented.
+- W1.18 and Y6.4 were documented as `not_started` rows rejected as written (licensing verification / external observation) (DECISIONS D-036/D-037) and were NOT implemented.
 - 7 D6 human-workflow rows have no honest local runtime artifact and remain `not_started`.
 - New modules were integrated into the real authenticated capability surface (`keel.capabilities`) via `backend_hub.py`; 8 real-runtime integration tests exercise discovery, permission enforcement and real function invocation.
 - No agent push, no visibility change, no credential rotation, no history rewrite.

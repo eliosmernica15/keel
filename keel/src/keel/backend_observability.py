@@ -43,12 +43,19 @@ LOG_FILENAME = "observability.jsonl"
 STATE_FILENAME = "observability.state.json"
 GENESIS_HASH = "0" * 64
 AUDIT_KIND = "audit"
+# Forensics: retired hot generations are archived here, never deleted.
+FORENSIC_DIR_SUFFIX = ".forensic"
+FORENSIC_MANIFEST_FILENAME = "manifest.jsonl"
 
 Clock = Callable[[], float | int | datetime]
 
 _LOCK_TIMEOUT_SECONDS = 10.0
 _STALE_LOCK_SECONDS = 30.0
 _RECENT_ERROR_LIMIT = 20
+# os.open() uses text mode on Windows unless O_BINARY is requested. Without it
+# every byte write expands "\n" to "\r\n", so archived copies are no longer
+# byte-identical to the original evidence.
+_O_BINARY = getattr(os, "O_BINARY", 0)
 
 # Bounded retention.  The active log is capped at DEFAULT_MAX_EVENTS; when a
 # write would exceed it the current generation is archived and a fresh active
@@ -132,21 +139,93 @@ def _thread_lock(key: str) -> threading.RLock:
         return lock
 
 
+def _pid_alive(pid: int) -> bool:
+    """Best-effort liveness check; unknown outcomes are treated as alive.
+
+    A live lock is never stolen. Windows is queried with the real exit code
+    rather than ``os.kill(pid, 0)``, which can report success for an already
+    exited process and leave an abandoned lock unwedgeable.
+    """
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
+        handle = kernel32.OpenProcess(0x1000, False, pid)
+        if not handle:
+            return False
+        try:
+            code = wintypes.DWORD()
+            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
+                return True  # cannot tell: fail closed
+            return code.value == 259  # STILL_ACTIVE
+        finally:
+            kernel32.CloseHandle(handle)
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError as exc:
+        return False if exc.errno == 3 else True  # ESRCH; else fail closed
+
+
+def _lock_is_stale(path: Path) -> bool:
+    try:
+        marker = path.read_bytes().decode("ascii").strip()
+    except FileNotFoundError:
+        return True
+    except (OSError, UnicodeDecodeError):
+        return False  # unreadable marker: fail closed
+    try:
+        pid = int(marker.split(" ", 1)[0])
+    except (ValueError, IndexError):
+        pid = -1
+    if pid == os.getpid():
+        # A lock left by a dead thread in this process: fail closed.
+        return False
+    if pid > 0:
+        return not _pid_alive(pid)
+    try:
+        age = time.time() - path.stat().st_mtime
+    except OSError:
+        return False
+    return age > _STALE_LOCK_SECONDS
+
+
+def _unlink_with_retry(path: Path, *, seconds: float = 2.0) -> bool:
+    """Bounded retry for Windows' transient refusal to unlink an open file."""
+    deadline = time.monotonic() + seconds
+    while True:
+        try:
+            path.unlink()
+            return True
+        except FileNotFoundError:
+            return True
+        except OSError:
+            if time.monotonic() >= deadline:
+                return False
+            time.sleep(0.002)
+
+
 def _acquire_lock(path: Path) -> int:
-    """Create an exclusive lock file; retry with a bounded deadline."""
+    """Create an exclusive lock file; retry contention with a bounded deadline."""
     deadline = time.monotonic() + _LOCK_TIMEOUT_SECONDS
     while True:
         try:
-            fd = os.open(str(path), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+            fd = os.open(str(path),
+                         os.O_CREAT | os.O_EXCL | os.O_WRONLY | _O_BINARY, 0o600)
             break
-        except FileExistsError:
-            try:
-                age = time.time() - path.stat().st_mtime
-            except OSError:
-                age = 0.0
-            if age > _STALE_LOCK_SECONDS:
-                with contextlib.suppress(OSError):
-                    path.unlink()
+        except (FileExistsError, PermissionError):
+            # Windows reports PermissionError (WinError 5/32) while another
+            # process still holds the lock file open. Treat it as contention
+            # instead of failing a legitimate concurrent writer.
+            if _lock_is_stale(path):
+                _unlink_with_retry(path, seconds=1.0)
                 continue
             if time.monotonic() >= deadline:
                 raise ObservabilityStorageError(
@@ -162,8 +241,7 @@ def _acquire_lock(path: Path) -> int:
     except OSError as exc:
         with contextlib.suppress(OSError):
             os.close(fd)
-        with contextlib.suppress(OSError):
-            path.unlink()
+        _unlink_with_retry(path)
         raise ObservabilityStorageError(
             _safe_text(f"cannot write observability lock {path}: {exc}")) from exc
     return fd
@@ -172,8 +250,9 @@ def _acquire_lock(path: Path) -> int:
 def _release_lock(path: Path, fd: int) -> None:
     with contextlib.suppress(OSError):
         os.close(fd)
-    with contextlib.suppress(OSError):
-        path.unlink()
+    # Never abandon a lock file: a subsequent acquirer would see a live PID
+    # and wait for the full timeout instead of entering the critical section.
+    _unlink_with_retry(path, seconds=_LOCK_TIMEOUT_SECONDS)
 
 
 @contextlib.contextmanager
@@ -388,6 +467,50 @@ def _archive_generations(log_path: Path) -> list[int]:
     return sorted(generations)
 
 
+# Retention never destroys evidence. A generation that ages out of the bounded
+# *hot* window is moved byte-for-byte into a cold forensic directory with a
+# manifest that pins its SHA-256, chain bounds and anchor. The hot window stays
+# small for fast verification; retired generations remain available for
+# incident response via verify_forensic_archives()/read_forensic_archives().
+def _forensic_dir(log_path: Path) -> Path:
+    return log_path.with_name(log_path.name + FORENSIC_DIR_SUFFIX)
+
+
+def _forensic_manifest_path(log_path: Path) -> Path:
+    return _forensic_dir(log_path) / FORENSIC_MANIFEST_FILENAME
+
+
+def _archive_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _load_forensic_manifest(log_path: Path) -> tuple[list[dict[str, Any]], str | None]:
+    path = _forensic_manifest_path(log_path)
+    if not path.is_file():
+        return [], None
+    records: list[dict[str, Any]] = []
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError as exc:
+        return records, _safe_text(f"cannot read forensic manifest: {exc}")
+    for lineno, line in enumerate(lines, 1):
+        if not line.strip():
+            continue
+        try:
+            record = json.loads(line)
+        except (ValueError, TypeError):
+            return records, _safe_text(f"forensic manifest line {lineno}: invalid JSON")
+        if not isinstance(record, dict) or "generation" not in record \
+                or "sha256" not in record or "archive" not in record:
+            return records, _safe_text(f"forensic manifest line {lineno}: invalid record")
+        records.append(record)
+    return records, None
+
+
 def _load_state(root: Path) -> dict[str, Any]:
     """Read the retention sidecar; fail closed on malformed content."""
     path = _state_path(root)
@@ -410,6 +533,11 @@ def _anchor(log_path: Path) -> tuple[int, str, str | None]:
     """
     state = _load_state(log_path.parent)
     if not state:
+        if _archive_generations(log_path) or _forensic_dir(log_path).is_dir():
+            # A missing sidecar next to archived evidence would silently start
+            # a fresh genesis chain and forge a clean history. Fail closed.
+            return 1, GENESIS_HASH, (
+                "retention state is missing while archived generations exist")
         return 1, GENESIS_HASH, None
     generation = _optional_int(state.get("generation"))
     base_seq = _optional_int(state.get("base_seq"))
@@ -448,7 +576,8 @@ def _anchor(log_path: Path) -> tuple[int, str, str | None]:
 
 def _atomic_write(path: Path, data: bytes) -> None:
     temporary = path.with_name(path.name + ".tmp")
-    fd = os.open(str(temporary), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    fd = os.open(str(temporary),
+                 os.O_WRONLY | os.O_CREAT | os.O_TRUNC | _O_BINARY, 0o600)
     try:
         view = memoryview(data)
         while view:
@@ -461,6 +590,148 @@ def _atomic_write(path: Path, data: bytes) -> None:
         with contextlib.suppress(OSError):
             os.close(fd)
     os.replace(temporary, path)
+
+
+def _retire_archives(log_path: Path, *, generation: int, max_archives: int) -> None:
+    """Move hot generations past the retention window into forensic storage.
+
+    The hot archive is only removed after an identical cold copy and its
+    manifest record are durable. An existing cold copy with the same SHA-256
+    is re-used (a crash between those steps is safe); a differing copy is a
+    collision and fails closed rather than overwriting evidence.
+    """
+    cutoff = generation - max_archives + 1
+    old_generations = [item for item in _archive_generations(log_path)
+                       if item < cutoff]
+    if not old_generations:
+        return
+    cold_dir = _forensic_dir(log_path)
+    try:
+        cold_dir.mkdir(parents=True, exist_ok=True)
+        manifest = _forensic_manifest_path(log_path)
+        for old in old_generations:
+            hot = _archive_path(log_path, old)
+            payload = hot.read_bytes()
+            digest = hashlib.sha256(payload).hexdigest()
+            name = f"gen-{old:06d}.jsonl"
+            cold = cold_dir / name
+            if cold.is_file() and _archive_sha256(cold) != digest:
+                # Never overwrite an existing forensic record with different
+                # bytes: that would destroy evidence.
+                raise ObservabilityStorageError(
+                    _safe_text(f"forensic archive collision for generation {old}"))
+            archived_events, parse_error = _load(hot)
+            first = archived_events[0].get("seq") if archived_events else None
+            last = archived_events[-1] if archived_events else {}
+            record = {
+                "generation": old,
+                "archive": name,
+                "first_seq": first,
+                "last_seq": last.get("seq"),
+                "last_hash": last.get("hash"),
+                "prev_hash": archived_events[0].get("prev_hash")
+                if archived_events else GENESIS_HASH,
+                "event_count": len(archived_events),
+                "sha256": digest,
+                "bytes": len(payload),
+                "parse_error": parse_error,
+                "retired_at": _utc_timestamp(None),
+            }
+            if not cold.is_file():
+                _atomic_write(cold, payload)
+                if _archive_sha256(cold) != digest:
+                    raise ObservabilityStorageError(
+                        _safe_text(f"forensic copy of generation {old} failed verification"))
+            existing, _error = _load_forensic_manifest(log_path)
+            if not any(item.get("generation") == old
+                       and item.get("sha256") == digest for item in existing):
+                _append(manifest, json.dumps(
+                    record, sort_keys=True, separators=(",", ":"),
+                    ensure_ascii=True) + "\n")
+            # Only now is it safe to drop the generation from the hot window.
+            _unlink_with_retry(hot, seconds=_LOCK_TIMEOUT_SECONDS)
+    except ObservabilityStorageError:
+        raise
+    except OSError as exc:
+        raise ObservabilityStorageError(
+            _safe_text(f"cannot retire observability archive: {exc}")) from exc
+
+
+def _forensic_report(log_path: Path) -> dict[str, Any]:
+    """Verify every retired generation; caller must hold the log lock."""
+    records, manifest_error = _load_forensic_manifest(log_path)
+    cold_dir = _forensic_dir(log_path)
+    archives: list[dict[str, Any]] = []
+    event_count = 0
+    for record in records:
+        generation = _optional_int(record.get("generation"))
+        name = record.get("archive")
+        expected = record.get("sha256")
+        item: dict[str, Any] = {
+            "generation": generation,
+            "archive": name if isinstance(name, str) else "",
+            "sha256": expected if isinstance(expected, str) else "",
+            "event_count": _optional_int(record.get("event_count")) or 0,
+            "ok": False,
+            "error": None,
+        }
+        path = cold_dir / name if isinstance(name, str) else cold_dir
+        error: str | None = None
+        if not isinstance(name, str) or not name or not path.is_file():
+            error = "forensic archive is missing"
+        elif not isinstance(expected, str) or _archive_sha256(path) != expected:
+            error = "forensic archive SHA-256 mismatch"
+        else:
+            events, parse_error = _load(path)
+            first = _optional_int(record.get("first_seq"))
+            anchor = record.get("prev_hash")
+            checked = _verify(
+                events, parse_error,
+                first_expected_seq=first if first else 1,
+                anchor_hash=anchor if isinstance(anchor, str) else GENESIS_HASH,
+            )
+            if not checked.ok:
+                error = checked.error
+            elif checked.last_seq != _optional_int(record.get("last_seq")):
+                error = "forensic archive last_seq does not match manifest"
+            elif events and events[-1].get("hash") != record.get("last_hash"):
+                error = "forensic archive last_hash does not match manifest"
+            else:
+                item["ok"] = True
+                event_count += len(events)
+        item["error"] = _safe_text(error) if error else None
+        archives.append(item)
+    ok = manifest_error is None and all(item["ok"] for item in archives)
+    return {
+        "ok": ok,
+        "manifest_error": manifest_error,
+        "archive_count": len(records),
+        "event_count": event_count,
+        "error": manifest_error or next(
+            (item["error"] for item in archives if item["error"]), None),
+        "archives": archives,
+    }
+
+
+def verify_forensic_archives(state_root: str | os.PathLike[str]) -> dict[str, Any]:
+    """Verify retired generations that aged out of the hot retention window."""
+    with _locked(state_root, create=False) as log_path:
+        return _forensic_report(log_path)
+
+
+def read_forensic_archives(state_root: str | os.PathLike[str]) -> list[dict[str, Any]]:
+    """Return verified events from cold forensic archives, oldest first."""
+    with _locked(state_root, create=False) as log_path:
+        report = _forensic_report(log_path)
+        if not report["ok"]:
+            raise ChainIntegrityError(
+                _safe_text(f"forensic archive is corrupt: {report['error']}"))
+        events: list[dict[str, Any]] = []
+        for item in report["archives"]:
+            path = _forensic_dir(log_path) / item["archive"]
+            loaded, _error = _load(path)
+            events.extend(loaded)
+        return events
 
 
 def _rotate(
@@ -478,18 +749,21 @@ def _rotate(
     entries = [entry for entry in entries if isinstance(entry, dict)] \
         if isinstance(entries, list) else []
 
-    # Archive the completed generation atomically, then prune anything older
-    # than the retention bound.
+    # Archive the completed generation atomically, then retire anything past
+    # the hot retention bound into forensic storage (never delete evidence).
     current = _archive_path(log_path, generation)
-    try:
-        _atomic_write(current, log_path.read_bytes())
-    except OSError as exc:
+    existing_bytes = log_path.read_bytes()
+    if current.is_file() and _archive_sha256(current) != hashlib.sha256(
+            existing_bytes).hexdigest():
         raise ObservabilityStorageError(
-            _safe_text(f"cannot rotate observability log: {exc}")) from exc
-    for old_generation in _archive_generations(log_path):
-        if old_generation < generation - max_archives + 1:
-            with contextlib.suppress(OSError):
-                _archive_path(log_path, old_generation).unlink()
+            _safe_text(f"rotation archive collision for generation {generation}"))
+    if not current.is_file():
+        try:
+            _atomic_write(current, existing_bytes)
+        except OSError as exc:
+            raise ObservabilityStorageError(
+                _safe_text(f"cannot rotate observability log: {exc}")) from exc
+    _retire_archives(log_path, generation=generation, max_archives=max_archives)
 
     first_seq = _optional_int(state.get("base_seq")) or 1
     anchor_hash = state.get("base_hash")
@@ -512,7 +786,8 @@ def _rotate(
         "generations": entries,
     }
     try:
-        fd = os.open(str(log_path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        fd = os.open(str(log_path),
+                     os.O_WRONLY | os.O_CREAT | os.O_TRUNC | _O_BINARY, 0o600)
         with contextlib.suppress(OSError):
             os.fsync(fd)
         os.close(fd)
@@ -558,7 +833,8 @@ def _optional_text(name: str, value: Any) -> str | None:
 
 def _append(log_path: Path, line: str) -> None:
     try:
-        fd = os.open(str(log_path), os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+        fd = os.open(str(log_path),
+                     os.O_WRONLY | os.O_CREAT | os.O_APPEND | _O_BINARY, 0o600)
     except OSError as exc:
         raise ObservabilityStorageError(
             _safe_text(f"cannot open observability log {log_path}: {exc}")) from exc
@@ -836,6 +1112,7 @@ def diagnostic_report(state_root: str | os.PathLike[str]) -> dict[str, Any]:
     ][-_RECENT_ERROR_LIMIT:]
 
     root = Path(state_root)
+    forensic = verify_forensic_archives(root)
     with _locked(root, create=False) as log_path:
         state = _load_state(log_path.parent)
         generations = _archive_generations(log_path)
@@ -865,6 +1142,7 @@ def diagnostic_report(state_root: str | os.PathLike[str]) -> dict[str, Any]:
         "recent_errors": recent_errors,
         "recent_error_count": len(recent_errors),
         "retention": retention,
+        "forensic": forensic,
     }
 
 
@@ -1063,6 +1341,26 @@ def liveness_probe() -> dict[str, Any]:
     }
 
 
+def initialization_probe(state_root: str | os.PathLike[str]) -> dict[str, Any]:
+    """Report whether the observability event log has been initialized.
+
+    Initialized means the state root holds a usable log (an active JSONL file
+    or a retention sidecar) and its chain verifies. This is a third, distinct
+    signal from liveness and readiness: a fresh install can legitimately be
+    live and ready before its first event has been recorded.
+    """
+    root = Path(state_root)
+    chain = verify_chain(root)
+    active = (root / LOG_FILENAME).is_file()
+    sidecar = _state_path(root).is_file()
+    return {
+        "initialized": bool(chain.ok and (active or sidecar)),
+        "event_log_present": active,
+        "retention_state_present": sidecar,
+        "chain_ok": bool(chain.ok),
+    }
+
+
 def readiness_probe(
     state_root: str | os.PathLike[str],
     modules: Iterable[str] = (),
@@ -1080,17 +1378,21 @@ def readiness_probe(
     deps = dependency_health(
         default_dependency_probes(state_root) if dependencies is None else dependencies,
     )
+    initialization = initialization_probe(state_root)
     checks = {
         "chain_ok": bool(snapshot["chain_ok"]),
         "modules_ok": all(entry["healthy"] for entry in snapshot["modules"].values()),
         "dependencies_ok": deps["healthy"],
         "module_count": snapshot["module_count"],
+        "initialized": initialization["initialized"],
     }
     ready = bool(checks["chain_ok"] and checks["modules_ok"]
                  and checks["dependencies_ok"])
     return {
         "status": "ready" if ready else "running",
         "ready": ready,
+        "initialized": initialization["initialized"],
+        "initialization": initialization,
         "checks": checks,
         "chain_status": "ok" if snapshot["chain_ok"] else "corrupt",
         "correlation_id": correlation_id or uuid.uuid4().hex,
@@ -1112,6 +1414,7 @@ def health_check(
     return {
         "status": ready["status"],
         "running": live["alive"],
+        "initialized": ready["initialized"],
         "ready": ready["ready"],
         "liveness": live,
         "readiness": ready,
@@ -1136,6 +1439,7 @@ def health_http_payload(
     payload = {
         "status": check["status"],
         "running": check["running"],
+        "initialized": check["initialized"],
         "ready": check["ready"],
         "chain_status": report["chain_status"],
         "module_count": check["readiness"]["checks"]["module_count"],

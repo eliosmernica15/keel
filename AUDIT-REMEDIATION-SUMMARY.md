@@ -10,7 +10,7 @@ Reports: `AUDIT-{HUB-INTEGRATION,REAL-PATHWAYS,MODULES-A,MODULES-B,CROSSMODULE,S
 - **All 20 modules perform genuine backend operations** (no descriptor-only modules). 5 end-to-end multi-module workflows passed 102/102 steps through real modules.
 - **Reachability: YES** — the 4 `backend.*` capabilities are reachable via real HTTP (`/api/capabilities/invoke`), CLI (`capability invoke`) and TUI (`/invoke`) paths, with auth + explicit confirm gates. The shipped UI exposes a capability browser.
 - **Consumption: PARTIAL** — no normal product workflow imports or calls the modules directly; they are reachable but peripheral (an intentional capability boundary, not a coherent end-to-end pipeline). The previous "fully integrated" wording overstated this; corrected in documentation.
-- **Registry integrity**: strengthened from dict-membership certification to an AST + evidence-doc symbol/test cross-check. 361/421 traced IDs pass; 60 fail traceability (not status-downgraded — their modules/tests exist; documented as a certification-layer limitation).
+- **Registry integrity**: strengthened from dict-membership certification to an AST + evidence-doc symbol/test cross-check. **HISTORICAL** 361/421 (superseded: 421/421) traced IDs pass; 60 fail traceability (not status-downgraded — their modules/tests exist; documented as a certification-layer limitation).
 
 ## Confirmed defects fixed (fail-before/pass-after regression tests)
 | Area | Defects | Fix branch |
@@ -42,7 +42,7 @@ suites) and merged with `--no-ff` onto `integration/v6-backend-complete`:
 | `agent/auditfix-concurrency` (hub) | broken dispatch entries, text-only verify, duplicate feature ownership | 15 hub tests; canonical map now 0 duplicates, 421 IDs exactly |
 | `agent/auditfix-logic` | fail-open signature gate, tar traversal, SQL key-only check, fake success, timestamp | 5 new tests; 273 targeted pass |
 | `agent/auditfix-races` | budget TOCTOU, JSONL corruption, LocalSync/DriftStore/W7 races, negative charge | 7 new tests; 135 targeted pass |
-| `agent/auditfix-docs` | 93 derived criteria, AST + evidence cross-check | 361/421 IDs now traceable (was 231) |
+| `agent/auditfix-docs` | 93 derived criteria, AST + evidence cross-check | **HISTORICAL** 361/421 (superseded: 421/421) IDs now traceable (was 231) |
 
 One over-broad capability confirm gate from the hub fix was **reverted on the integration
 branch** because it fired before saved-policy enforcement and broke an existing security
@@ -64,7 +64,7 @@ A later remediation batch (`agent/final-trace`, merged and pushed) added AST-vis
 `python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
 and `--strict` enforces the gate with a non-zero exit on any failure.
 
-All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+All earlier figures of ****HISTORICAL** 361 / 421 (superseded: 421/421) traceable** and ****HISTORICAL** 60 failing (superseded: 421/421) IDs** in this document
 are **historical** — they describe the state before that batch and are retained only
 for provenance. Current authoritative certification:
 

@@ -70,13 +70,20 @@ _STALE_LOCK_SECONDS = 60.0
 # HTTP status hints for the web layer.  webapp.py owns the actual mapping; these
 # hints let it stop guessing without this module importing the web stack.
 _HTTP_STATUS_HINTS = {
+    # Successful workflows and the honest MCP dry run must not advertise a
+    # server error in their response body (the web layer keys off this hint).
+    200: frozenset({"ok", "dry_run", "dry_run_descriptor"}),
     403: frozenset({"operation_denied", "csrf_denied", "permission_denied",
-                    "revoked", "missing_token", "invalid_token"}),
+                    "revoked", "missing_token", "invalid_token",
+                     "policy_denied"}),
     400: frozenset({"bad_params", "bad_state_root", "bad_ttl", "bad_manifest",
                     "manifest_invalid", "unknown_action", "path_escape",
                     "bound_exceeded", "replay_denied", "unknown_request",
                     "missing_request_id", "bad_project", "bad_rules",
-                    "no_allowed_tools", "lock_timeout", "ledger_integrity"}),
+                    "no_allowed_tools", "lock_timeout", "ledger_integrity",
+                     "policy_error"}),
+     409: frozenset({"confirmation_required"}),
+     404: frozenset({"unknown_workflow", "not_found"}),
 }
 
 
@@ -391,10 +398,27 @@ def _record_digest(record: dict, key: bytes) -> str:
     return hmac.new(key, _canonical(body).encode("utf-8"), hashlib.sha256).hexdigest()
 
 
+# Stat-validated ledger cache. Verifying a 1 MB HMAC chain on every workflow
+# call grew latency linearly with deployment age (perf audit 9.1). A cache hit
+# requires the same (mtime_ns, size) signature; any cross-process append changes
+# it and forces a full re-verification, so integrity is never weakened.
+_LEDGER_CACHE: dict[str, tuple[tuple[int, int], list[dict]]] = {}
+
+
+def _ledger_stat(target: Path) -> tuple[int, int]:
+    st = target.stat()
+    return (st.st_mtime_ns, st.st_size)
+
+
 def _read_jsonl(path: str | Path) -> list[dict]:
     target = Path(path)
     if not target.is_file():
+        _LEDGER_CACHE.pop(str(target), None)
         return []
+    signature = _ledger_stat(target)
+    cached = _LEDGER_CACHE.get(str(target))
+    if cached is not None and cached[0] == signature:
+        return list(cached[1])
     records: list[dict] = []
     with _locked_path(target):
         lines = target.read_text(encoding="utf-8").splitlines()
@@ -434,6 +458,7 @@ def _read_jsonl(path: str | Path) -> list[dict]:
             expected_seq += 1
             records.append(record)
         _verify_chain_head(target, records, key)
+        _LEDGER_CACHE[str(target)] = (_ledger_stat(target), list(records))
     return records
 
 
@@ -459,6 +484,9 @@ def _append_jsonl(path: str | Path, record: dict) -> int:
             handle.flush()
             os.fsync(handle.fileno())
         _write_chain_head(target, seq, safe["hash"], key)
+        # Refresh the verified cache so the next call is O(1) while still
+        # re-verifying whenever another process changes the file.
+        _LEDGER_CACHE[str(target)] = (_ledger_stat(target), records + [safe])
         with contextlib.suppress(OSError):
             os.chmod(target, 0o600)
         return seq
@@ -1545,74 +1573,112 @@ WORKFLOWS: dict[str, Callable[[Mapping[str, Any]], dict]] = {
 
 
 def _audit_workflow(state_root: Path | None, name: str, result: dict) -> None:
-    """Record every workflow outcome, including denials (best-effort)."""
-    if state_root is None:
-        return
+    """Record every workflow outcome exactly once, including early failures."""
+    # Even bad params / unknown workflow / rejected state roots are outcomes:
+    # fall back to the trusted base so they are never silently un-audited.
+    target = state_root or _trusted_state_base()
     try:
         from .capabilities import record_audit
-        record_audit(state_root, {
+        entry = {
             "capability": "backend.workflow", "workflow": str(name),
             "ok": bool(result.get("ok")),
             "code": str(result.get("code") or ""),
-            "surface": "workflow"})
-    except OSError:
+            "surface": "workflow",
+        }
+        error = result.get("error")
+        if error:
+            entry["error"] = _redact(str(error))[:300]
+        record_audit(target, entry)
+    except Exception:
+        # Auditing is best-effort: it must never turn a completed call into a
+        # transport failure (the same rule webapp._safe_record_audit applies).
         pass
 
 
-def run_workflow(name: str, params: Mapping[str, Any]) -> dict:
-    """Dispatch by workflow name with the authoritative policy boundary.
+def _failure(name: str, code: str, error: str, status: int) -> dict:
+    """One canonical structured failure for every workflow transport."""
+    return {
+        "workflow": str(name), "ok": False, "code": code,
+        "error": _redact(str(error))[:300], "result": {}, "steps": [],
+        "persisted": None, "http_status": status,
+    }
+
+
+def run_workflow(name: str, params: Mapping[str, Any], *,
+                 confirmed: bool = False) -> dict:
+    """Dispatch by name through the authoritative policy boundary.
 
     HTTP and CLI workflow routes call this function directly rather than
-    ``capabilities.invoke``. They must therefore apply the same saved-policy
-    enforcement and audit record as every other capability surface. Every
-    branch — including bad params, denials and policy failures — is audited.
+    ``capabilities.invoke``.  They must therefore apply the same saved-policy
+    enforcement as every other capability surface.  ``confirmed`` is the
+    explicit user approval for a policy ``ask``; it defaults to False so an
+    unconfirmed direct call fails closed (HTTP requires a strict
+    ``confirm is True`` and CLI requires ``--confirm`` before reaching here).
+    Every outcome — including early returns — is audited exactly once.
     """
     state_root: Path | None = None
-    if not isinstance(params, dict):
-        result = {"workflow": str(name), "ok": False, "code": "bad_params",
-                  "error": "params must be an object", "result": {}, "steps": [],
-                  "persisted": None, "http_status": 400}
+    if not isinstance(params, Mapping):
+        result = _failure(name, "bad_params", "params must be an object", 400)
     elif WORKFLOWS.get(str(name)) is None:
-        result = {"workflow": str(name), "ok": False, "code": "unknown_workflow",
-                  "error": f"unknown workflow {name!r}; expected one of {WORKFLOW_NAMES}",
-                  "result": {}, "steps": [], "persisted": None, "http_status": 404}
+        result = _failure(
+            name, "unknown_workflow",
+            f"unknown workflow {name!r}; expected one of {WORKFLOW_NAMES}", 404)
+        # Audit in the caller's (validated) root when one was supplied.
+        try:
+            state_root = _state_root(dict(params))
+        except (WorkflowError, OSError, ValueError):
+            state_root = None
     else:
         try:
-            state_root = _state_root(params)
+            state_root = _state_root(dict(params))
         except WorkflowError as exc:
-            result = {"workflow": str(name), "ok": False,
-                      "code": getattr(exc, "code", "bad_state_root"),
-                      "error": str(exc), "result": {}, "steps": [],
-                      "persisted": None, "http_status": 400}
+            result = _failure(name, getattr(exc, "code", "bad_state_root"),
+                              str(exc), _http_status(getattr(exc, "code", "")))
+        except (OSError, ValueError) as exc:
+            result = _failure(name, "bad_state_root", str(exc), 400)
         if state_root is not None:
-            from .policy_enforcement import enforce as _enforce
+            from .policy_enforcement import enforce_workflow as _enforce_workflow
             try:
-                decision = _enforce(
-                    "backend.workflow",
-                    {"command": "backend.workflow", "workflow": str(name)},
-                    state_root=state_root, interactive=False, confirmed=True)
+                decision = _enforce_workflow(
+                    str(name), (state_root, _trusted_state_base()),
+                    confirmed=bool(confirmed))
+            except WorkflowError as exc:
+                # A typed failure (e.g. lock_timeout) keeps its own code and
+                # status instead of being mislabelled as a policy error.
+                result = _failure(name, exc.code, str(exc),
+                                  _http_status(exc.code))
             except Exception as exc:
-                result = {"workflow": str(name), "ok": False, "code": "policy_error",
-                          "error": f"policy evaluation failed: {exc}",
-                          "result": {}, "steps": [], "persisted": None,
-                          "http_status": 400}
+                result = _failure(
+                    name, "policy_error",
+                    f"policy evaluation failed: {type(exc).__name__}: {exc}", 400)
             else:
-                if decision is not None and decision.decision == "deny":
-                    result = {"workflow": str(name), "ok": False,
-                              "code": "policy_denied",
-                              "error": "execution policy denied backend.workflow: "
-                                       + decision.reason,
-                              "result": {}, "steps": [], "persisted": None,
-                              "http_status": 403}
-                elif decision is not None and decision.decision == "ask":
-                    result = {"workflow": str(name), "ok": False,
-                              "code": "confirmation_required",
-                              "error": "execution policy requires confirmation: "
-                                       + decision.reason,
-                              "result": {}, "steps": [], "persisted": None,
-                              "http_status": 409}
+                verdict = getattr(decision, "decision", None)
+                reason = str(getattr(decision, "reason", ""))
+                if verdict == "deny":
+                    result = _failure(
+                        name, "policy_denied",
+                        "execution policy denied backend.workflow: " + reason, 403)
+                elif verdict == "ask":
+                    result = _failure(
+                        name, "confirmation_required",
+                        "execution policy requires confirmation: " + reason, 409)
                 else:
-                    result = WORKFLOWS[str(name)](params)
+                    try:
+                        dispatched = WORKFLOWS[str(name)](dict(params))
+                        if not isinstance(dispatched, dict):
+                            raise WorkflowError(
+                                "bad_result", "implementation returned a non-object")
+                        result = dispatched
+                    except WorkflowError as exc:
+                        result = _failure(name, exc.code, str(exc),
+                                          _http_status(exc.code))
+                    except Exception as exc:
+                        code = f"{type(exc).__name__.lower()}_error"
+                        result = _failure(
+                            name, code,
+                            f"{type(exc).__name__}: {exc}", _http_status(code))
+    result.setdefault("workflow", str(name))
+    result.setdefault("http_status", _http_status(str(result.get("code") or "")))
     _audit_workflow(state_root, str(name), result)
     return result
 

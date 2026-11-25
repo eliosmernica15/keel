@@ -147,7 +147,7 @@ Under 15 concurrent agents an earlier reproduction gave 4027 passed / 2 failed /
 not product defects (verified: they pass in 4-6s with isolated HOME).
 
 Governance gates after final integration:
-`verify_v6_audit.py` CONSISTENCY OK; `verify_backend_operation.py` OK (361/421 traceable IDs);
+`verify_v6_audit.py` CONSISTENCY OK; `verify_backend_operation.py` OK (**HISTORICAL** 361/421 (superseded: 421/421) traceable IDs);
 dependency graph FRESH; license gate OK; 8 workflow YAMLs parse; 30 `uses:` full-SHA pinned.
 
 ## Additive cross-reference — docsync reconciliation (2026-11-24, no result changed)
@@ -158,7 +158,7 @@ remain authoritative.
 - Registry state at reconciliation: `PLAN-INDEX.json` SHA-256
   `62fd5c6ac2d166e8cb1f5752c168d22d56d767c7e6a5bf9384696756a4a5b2f6` — 865 rows,
   854 verified / 9 not_started / 2 blocked. No status was altered.
-- The `361/421` traceable-ID figure above is restated as **361 / 421 fully traceable + 60
+- The `**HISTORICAL** 361/421 (superseded: 421/421)` traceable-ID figure above is restated as ****HISTORICAL** 361 / 421 (superseded: 421/421) fully traceable + 60
   verified with certification limitation = 421 backend-attributed IDs**; the 60 are
   evidence-layer gaps, not test failures or status downgrades
   (`REGISTRY-EVIDENCE-INTEGRITY.md` §4, `REMAINING-WORK-MATRIX.md` §5).
@@ -175,7 +175,7 @@ A later remediation batch (`agent/final-trace`, merged and pushed) added AST-vis
 `python scripts/verify_backend_operation.py` now reports **421 passing / 0 failing**,
 and `--strict` enforces the gate with a non-zero exit on any failure.
 
-All earlier figures of **361 / 421 traceable** and **60 failing IDs** in this document
+All earlier figures of ****HISTORICAL** 361 / 421 (superseded: 421/421) traceable** and ****HISTORICAL** 60 failing (superseded: 421/421) IDs** in this document
 are **historical** — they describe the state before that batch and are retained only
 for provenance. Current authoritative certification:
 
@@ -256,3 +256,19 @@ The 5 failures are exclusively artifact-dependent release checks:
 clean checkout and gated by owner signing. They are not backend code defects. All 11
 previously observed load/pollution failures were fixed (workflow audit, event lock,
 413 drain, source hash pins, provider env isolation) and no test was weakened.
+
+## FINAL stabilization full suite (post-promotion, authoritative)
+
+Command (clean local HOME, from `keel/`):
+`python -m pytest -q -o faulthandler_timeout=120`
+
+```
+4610 passed, 54 skipped, 3707 subtests passed in 474.31s (0:07:54)
+```
+
+0 failed. This is the definitive result at the final stabilization candidate, after all
+CI, test, security, workflow, database, runtime, events, provider, platform, installation,
+performance, supply-chain and documentation fixes. Earlier baselines (4437/5, 4442/0,
+4459/7, 4546/0) are historical runs at their own commits.
+
+52 skips are platform/credential gates; no test was weakened or removed.

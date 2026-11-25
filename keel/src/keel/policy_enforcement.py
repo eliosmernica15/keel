@@ -164,3 +164,38 @@ def enforce(tool_name: str, tool_input: dict, *,
                              f"egress policy allows host {host!r}",
                              matched)
     return None
+
+
+def enforce_workflow(name: str, state_roots, *, confirmed: bool = False):
+    """Authoritative policy decision for one backend workflow invocation.
+
+    Callers may select a project subdirectory of the trusted state root.  A
+    policy saved at the trusted base must still bind that call, so check every
+    supplied root and keep the *strictest* decision (deny > ask > allow).  This
+    closes the "point state_root at a policy-free subdirectory" bypass while
+    leaving installs with no saved policy completely unaffected.
+    """
+    # The workflow name is part of the enforced command so an administrator
+    # can target one workflow (`backend.workflow approval`) or all of them
+    # (`backend.workflow`) with a saved rule.
+    tool_input = {"command": f"backend.workflow {name}", "workflow": str(name)}
+    roots: list[Path] = []
+    for raw in state_roots:
+        if raw is None:
+            continue
+        path = Path(raw)
+        if path not in roots:
+            roots.append(path)
+    # Workflows have an explicit confirm gate at the HTTP/CLI boundary, so an
+    # unconfirmed `prompt` is reported as a confirmation requirement (409)
+    # rather than being collapsed into a generic non-interactive denial.
+    decisions = [
+        enforce("backend.workflow", tool_input, state_root=root,
+                interactive=True, confirmed=bool(confirmed))
+        for root in roots
+    ]
+    ranks = {"deny": 3, "ask": 2, "allow": 1, None: 0}
+    if not decisions:
+        return None
+    return max(decisions, key=lambda d: ranks.get(
+        getattr(d, "decision", None), 0))

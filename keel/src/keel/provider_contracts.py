@@ -1821,9 +1821,18 @@ def sanitize_event(event: Any, secrets: Iterable[str] = ()) -> dict:
                 "stop_reason": safe_code(event.get("stop_reason")
                                          or event.get("finish_reason"))}
     if kind == "error":
-        from_payload = classify_payload(
-            event.get("error") if isinstance(event.get("error"), Mapping) else event,
-            secrets=secrets)
+        raw_error = event.get("error")
+        if isinstance(raw_error, Mapping):
+            # Streamed frames wrap the provider error body as {"error": {...}}
+            # and put the human-readable text inside it. classify_payload()
+            # expects that wrapper; passing the inner mapping directly would
+            # classify every such frame as "unknown" and drop its message.
+            classified: Any = {"error": raw_error}
+            message = raw_error.get("message") or event.get("message")
+        else:
+            classified = event
+            message = event.get("message")
+        from_payload = classify_payload(classified, secrets=secrets)
         category = safe_code(event.get("category"))
         if category not in CATEGORIES:
             category = from_payload.category if from_payload else CATEGORY_UNKNOWN
@@ -1833,7 +1842,7 @@ def sanitize_event(event: Any, secrets: Iterable[str] = ()) -> dict:
         return {
             "kind": "error",
             "category": category,
-            "message": redact_message(event.get("message", "stream error"), secrets),
+            "message": redact_message(message or "stream error", secrets),
             "status": event.get("status") if isinstance(event.get("status"), int)
             else None,
             "retryable": retryable,
@@ -1940,17 +1949,22 @@ def execute_stream(
                                               failure.status, failure.retryable,
                                               failure.message))
                 last_failure = failure
+                # Cancellation is a normal stop, never a provider failure —
+                # even when delivered as a streamed error frame after content.
+                # It must be checked before the partial-failure path or a
+                # user-initiated stop would be mislabelled as a failure.
+                if failure.category == CATEGORY_CANCELLED:
+                    return ProviderResult(status="cancelled", provider=provider,
+                                          model=chosen_model, response=partial,
+                                          attempts=tuple(attempts),
+                                          fallbacks_used=tuple(fallbacks),
+                                          backoff_seconds=tuple(delays))
                 if emitted:
                     return ProviderResult(
                         status="partial_failed", provider=provider,
                         model=chosen_model, response=partial, error=failure,
                         attempts=tuple(attempts), fallbacks_used=tuple(fallbacks),
                         backoff_seconds=tuple(delays))
-                if failure.category == CATEGORY_CANCELLED:
-                    return ProviderResult(status="cancelled", provider=provider,
-                                          model=chosen_model, attempts=tuple(attempts),
-                                          fallbacks_used=tuple(fallbacks),
-                                          backoff_seconds=tuple(delays))
                 decision = retry_schedule(config, failure, attempt)
                 if decision.retry:
                     delays.append(decision.delay_seconds)

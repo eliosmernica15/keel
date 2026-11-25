@@ -29,11 +29,16 @@ concurrency:
 jobs:
   trust-gate:
     name: Trusted trigger guard (fail closed)
+    # A failed or untrusted upstream build must not produce a second red run
+    # here. This does not weaken the gate: every run allowed to install
+    # artifacts still has to pass the assertions below.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Assert trusted workflow_run source
         shell: bash
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EVENT_NAME: ${{ github.event_name }}
           SOURCE_EVENT: ${{ github.event.workflow_run.event }}
           SOURCE_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
@@ -41,23 +46,45 @@ jobs:
           THIS_REPO: ${{ github.repository }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
         run: |
           set -euo pipefail
           echo "event=$EVENT_NAME source_event=$SOURCE_EVENT repo=$SOURCE_REPO branch=$SOURCE_BRANCH"
-          # Manual dispatch is an authorized, explicit operator action.
+          assert_trusted_run() {
+            # $1 = event, $2 = repo, $3 = branch, $4 = conclusion
+            if [ "$4" != "success" ] \
+               || [ "$1" != "push" ] \
+               || [ "$2" != "$THIS_REPO" ] \
+               || [ "$3" != "$DEFAULT_BRANCH" ]; then
+              echo "BLOCKED: source is not a successful push to this repository's default branch" >&2
+              echo "Refusing to execute artifacts from a fork/PR/untrusted run." >&2
+              exit 1
+            fi
+          }
+
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            echo "TRUSTED: manual dispatch"
+            # An explicit operator action is trusted only when the run_id it
+            # names also passes the trust checks. Without this lookup a manual
+            # dispatch could execute artifacts from a fork/PR run.
+            if ! [[ "${RUN_ID:-}" =~ ^[0-9]+$ ]]; then
+              echo "BLOCKED: workflow_dispatch requires a numeric run_id" >&2
+              exit 1
+            fi
+            meta=$(gh api "repos/${THIS_REPO}/actions/runs/${RUN_ID}" \
+              --jq '[.event, .head_repository.full_name, .head_branch, .conclusion, .name] | @tsv')
+            IFS=$'\t' read -r run_event run_repo run_branch run_conclusion run_name <<< "$meta"
+            echo "dispatch run $RUN_ID: workflow=$run_name event=$run_event repo=$run_repo branch=$run_branch conclusion=$run_conclusion"
+            if [ "$run_name" != "Build desktop installers" ]; then
+              echo "BLOCKED: run_id does not reference Build desktop installers" >&2
+              exit 1
+            fi
+            assert_trusted_run "$run_event" "$run_repo" "$run_branch" "$run_conclusion"
+            echo "TRUSTED: manual dispatch references verified run $RUN_ID"
             exit 0
           fi
+
           # workflow_run artifacts from a PR/fork are untrusted: fail closed.
-          if [ "$CONCLUSION" != "success" ] \
-             || [ "$SOURCE_EVENT" != "push" ] \
-             || [ "$SOURCE_REPO" != "$THIS_REPO" ] \
-             || [ "$SOURCE_BRANCH" != "$DEFAULT_BRANCH" ]; then
-            echo "BLOCKED: source is not a successful push to this repository's default branch" >&2
-            echo "Refusing to execute artifacts from a fork/PR/untrusted run." >&2
-            exit 1
-          fi
+          assert_trusted_run "$SOURCE_EVENT" "$SOURCE_REPO" "$SOURCE_BRANCH" "$CONCLUSION"
           echo "TRUSTED: push from $SOURCE_REPO@$SOURCE_BRANCH"
 
   windows-install:
@@ -70,7 +97,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
-        run: gh run download "$env:RUN_ID" -n keel-windows -D artifacts
+        run: gh run download "$env:RUN_ID" --repo "$env:GITHUB_REPOSITORY" -n keel-windows -D artifacts
       - name: Install silently
         shell: powershell
         run: |
@@ -129,7 +156,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
-        run: gh run download "$RUN_ID" -n keel-macos -D artifacts
+        run: gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" -n keel-macos -D artifacts
+      - name: Mount DMG and inspect app bundle
+        run: |
+          set -euo pipefail
+          DMG=$(find artifacts -name "*.dmg" | head -1)
+          if [ -z "$DMG" ]; then echo "no dmg found"; exit 1; fi
+          hdiutil attach "$DMG" -mountpoint /tmp/keel-dmg -nobrowse
+          APP=$(find /tmp/keel-dmg -name "Keel.app" -maxdepth 2 | head -1)
+          test -n "$APP"
+          test -x "$APP/Contents/MacOS/Keel"
+          SIDECAR=$(find "$APP" -type f -name keel -print -quit)
+          test -n "$SIDECAR"
+          "$SIDECAR" --version
+          hdiutil detach /tmp/keel-dmg
       - name: Expand PKG and inspect native installer payload
         run: |
           set -euo pipefail
@@ -156,7 +196,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
-        run: gh run download "$RUN_ID" -n keel-linux -D artifacts
+        run: gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" -n keel-linux -D artifacts
       - name: Validate native DEB and RPM contents
         run: |
           set -euo pipefail

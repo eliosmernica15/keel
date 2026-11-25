@@ -1,0 +1,74 @@
+{
+  "steering_default": {
+    "submitted": 20000,
+    "cap": 4096,
+    "retained": 4096,
+    "overflow": 15904,
+    "elapsed_s": 1.187,
+    "rss_delta_bytes": 3317760,
+    "tracemalloc_current_bytes": 2945264,
+    "tracemalloc_peak_bytes": 3240296
+  },
+  "steering_cap_256": {
+    "submitted": 20000,
+    "cap": 256,
+    "retained": 256,
+    "overflow": 19744,
+    "elapsed_s": 1.102,
+    "rss_delta_bytes": 188416,
+    "tracemalloc_current_bytes": 204608,
+    "tracemalloc_peak_bytes": 223160
+  },
+  "cooperative_timeouts": {
+    "cases": 5,
+    "results": [
+      {
+        "elapsed_ms": 436.2,
+        "error": "routine timed out after 0.42s (limit 0.40s)",
+        "elapsed_s_field": 0.422,
+        "worker_stopped": true,
+        "live_workers_after_timeout": 0,
+        "active_workers": 0
+      },
+      {
+        "elapsed_ms": 434.6,
+        "error": "routine timed out after 0.41s (limit 0.40s)",
+        "elapsed_s_field": 0.406,
+        "worker_stopped": true,
+        "live_workers_after_timeout": 0,
+        "active_workers": 0
+      },
+      {
+        "elapsed_ms": 434.8,
+        "error": "routine timed out after 0.41s (limit 0.40s)",
+        "elapsed_s_field": 0.406,
+        "worker_stopped": true,
+        "live_workers_after_timeout": 0,
+        "active_workers": 0
+      },
+      {
+        "elapsed_ms": 419.4,
+        "error": "routine timed out after 0.41s (limit 0.40s)",
+        "elapsed_s_field": 0.406,
+        "worker_stopped": true,
+        "live_workers_after_timeout": 0,
+        "active_workers": 0
+      },
+      {
+        "elapsed_ms": 420.2,
+        "error": "routine timed out after 0.41s (limit 0.40s)",
+        "elapsed_s_field": 0.406,
+        "worker_stopped": true,
+        "live_workers_after_timeout": 0,
+        "active_workers": 0
+      }
+    ],
+    "live_workers_after_all": 0
+  },
+  "worker_cap": {
+    "configured_limit": 2,
+    "peak_active_workers": 2,
+    "live_workers_after_drain": 0,
+    "active_workers_after_drain": 0
+  }
+}

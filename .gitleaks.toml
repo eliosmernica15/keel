@@ -83,3 +83,160 @@ targetRules = ["generic-api-key"]
 description = "Reviewed historical demo UI strings (commit 5443b4b2)"
 commits = ["5443b4b2477b257bda236992d77a3cc0299d0efd"]
 paths = ['''(?:^|/)keel/site/index\.html$''']
+
+# Stabilization re-scan (gitleaks 8.30.1, full reachable history, 36 findings):
+# every finding was re-read at its exact commit/path with the value masked.
+# Result: 0 real secrets; 32 synthetic fixture findings in 14 commit/path/rule
+# groups, 4 false-positive findings in 2 groups (a localStorage key identifier
+# and a documented example JWT).
+# Each block below stays scoped to exact commit(s) + exact path + exact rule.
+# No directory-wide or commit-wide allowlist is used. No secret value is stored.
+# A fixture reused in a NEW commit is reported until reviewed and added here.
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (AUDIT-MODULES-B.md)"
+commits = [
+  "12020801b19a715d2c4eb0d8ee403e91ecc1237f",
+]
+paths = ['''(?:^|/)AUDIT\-MODULES\-B\.md$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["jwt"]
+description = "Reviewed false positive: documentation example of JWT redaction bug (AUDIT-SECURITY.md)"
+commits = [
+  "d4b0288cbd6ea61cbe1da2e2aa25db65a41b012d",
+]
+paths = ['''(?:^|/)AUDIT\-SECURITY\.md$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed false positive: localStorage key identifier, not a credential (keel/site/ui/artifacts.js)"
+commits = [
+  "0454836f511cf2a4e9e3a9bcc491f22066c24017",
+  "64722bd3b90c951c0bb3450566b74f02e272d7ee",
+]
+paths = ['''(?:^|/)keel/site/ui/artifacts\.js$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["aws-access-token"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (keel/tests/test_composition_contracts.py)"
+commits = [
+  "5fc5b9852c994dbc99fa277b0ef2ec7fc02096b1",
+  "cbdfc28d0994986223dd802e47a078a0aeaf5203",
+  "e6e7efc50d098aaf55b80c5b35e799c0c2e25a86",
+]
+paths = ['''(?:^|/)keel/tests/test_composition_contracts\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (keel/tests/test_config_contracts.py)"
+commits = [
+  "cbdfc28d0994986223dd802e47a078a0aeaf5203",
+  "d32dc16aa1d2b61ffa2036630650f9f666012c97",
+  "e6e7efc50d098aaf55b80c5b35e799c0c2e25a86",
+]
+paths = ['''(?:^|/)keel/tests/test_config_contracts\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (keel/tests/test_redaction.py)"
+commits = [
+  "902f87180827f05967130775051ed2f7d58fc7ff",
+]
+paths = ['''(?:^|/)keel/tests/test_redaction\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (keel/tests/test_release_no_secrets.py)"
+commits = [
+  "13799853aca307915093d414421642355c96035d",
+]
+paths = ['''(?:^|/)keel/tests/test_release_no_secrets\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (keel/tests/test_secret_storage.py)"
+commits = [
+  "840cd5d6f4251e38fa6be22c21d5f94b2e1aa393",
+]
+paths = ['''(?:^|/)keel/tests/test_secret_storage\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (keel/tests/test_w1_security_backend.py)"
+commits = [
+  "b11cdf840977c8840e90a3d2a68c3ddaf8791893",
+  "cbdfc28d0994986223dd802e47a078a0aeaf5203",
+  "e6e7efc50d098aaf55b80c5b35e799c0c2e25a86",
+]
+paths = ['''(?:^|/)keel/tests/test_w1_security_backend\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["jwt"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (keel/tests/test_w4_backend.py)"
+commits = [
+  "b33ae3f888e04927669f0bbd84b37fe51b7bb31d",
+  "cbdfc28d0994986223dd802e47a078a0aeaf5203",
+  "e6e7efc50d098aaf55b80c5b35e799c0c2e25a86",
+]
+paths = ['''(?:^|/)keel/tests/test_w4_backend\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (keel/tests/test_z_backend.py)"
+commits = [
+  "244e07104b97a8017329dc1673719cc380469df6",
+  "b33ae3f888e04927669f0bbd84b37fe51b7bb31d",
+  "cbdfc28d0994986223dd802e47a078a0aeaf5203",
+  "e6e7efc50d098aaf55b80c5b35e799c0c2e25a86",
+  "f29dbeb752613077ee642d4533ce9909edb51460",
+]
+paths = ['''(?:^|/)keel/tests/test_z_backend\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (keel/tests/verify_local_provider_credentials.py)"
+commits = [
+  "7a5cd22e2ce5142ff3ed7808188b16e1f0e0843d",
+]
+paths = ['''(?:^|/)keel/tests/verify_local_provider_credentials\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (probes/probe_reach_and_dispatch.py)"
+commits = [
+  "d4b0288cbd6ea61cbe1da2e2aa25db65a41b012d",
+]
+paths = ['''(?:^|/)probes/probe_reach_and_dispatch\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["generic-api-key"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (probes/probe_redaction.py)"
+commits = [
+  "d4b0288cbd6ea61cbe1da2e2aa25db65a41b012d",
+]
+paths = ['''(?:^|/)probes/probe_redaction\.py$''']
+
+[[allowlists]]
+condition = "AND"
+targetRules = ["jwt"]
+description = "Reviewed synthetic fixture: test/probe/document placeholder (probes/probe_redaction.py)"
+commits = [
+  "d4b0288cbd6ea61cbe1da2e2aa25db65a41b012d",
+]
+paths = ['''(?:^|/)probes/probe_redaction\.py$''']

@@ -473,4 +473,14 @@ def as_rule_lists(resolved: Resolved) -> tuple[list[str], list[str], list[str]]:
 
 
 def default_state_root() -> Path:
-    return Path(os.path.expanduser("~")) / ".keel"
+    """The one authoritative local state root.
+
+    ``KEEL_STATE_DIR`` wins over the home default; a relative value is
+    normalised against the process CWD so callers can never create an
+    accidental relative ``.keel`` directory. The returned path is always
+    absolute, even when the variable is unset or empty.
+    """
+    raw = os.environ.get("KEEL_STATE_DIR", "").strip()
+    if raw:
+        return Path(os.path.abspath(os.path.expanduser(raw)))
+    return Path(os.path.abspath(os.path.expanduser("~"))) / ".keel"

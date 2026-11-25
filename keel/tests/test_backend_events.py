@@ -427,13 +427,17 @@ def test_concurrent_publish_from_separate_processes(tmp_path: Path) -> None:
     ids = [r["data"]["event"]["data"]["event_id"] for r in records]
     assert set(ids) == {f"evt-{i}" for i in range(workers)}
     assert len(ids) == len(set(ids))
-    # Digest chain and the commit head agree with the durable records.
+    # Keyed digest chain and MAC-protected head agree with durable records.
+    key = be._existing_key(tmp_path)
+    assert key is not None
     for expected_prev, record in zip(
             [GENESIS_DIGEST] + [r["digest"] for r in records], records):
         assert record["prev"] == expected_prev
-        assert record["digest"] == be._record_digest(record)
-    assert json.loads(head_path.read_text(encoding="utf-8")) == {
-        "count": workers, "digest": records[-1]["digest"]}
+        assert record["digest"] == be._record_digest(record, key)
+    head = json.loads(head_path.read_text(encoding="utf-8"))
+    assert head["count"] == workers
+    assert head["digest"] == records[-1]["digest"]
+    assert head["mac"] == be._head_mac(head, key)
 
     reopened = EventBus(tmp_path)
     assert len(reopened.events) == workers
@@ -448,8 +452,8 @@ def test_interrupted_head_commit_rolls_forward_with_typed_recovery(
     bus.publish(sample("session_started"))
     head = tmp_path / "backend-events.jsonl.head"
     # Simulate a crash after the record was fsynced but before the head moved.
-    head.write_text(json.dumps({"count": 0, "digest": GENESIS_DIGEST}) + "\n",
-                    encoding="utf-8")
+    # The stale head is still authenticated with the same key.
+    be._write_head(head, 0, GENESIS_DIGEST, bus._store.key)
 
     reopened = EventBus(tmp_path)
     assert [e.event_id for e in reopened.events] == ["ev-session_started"]
@@ -496,7 +500,8 @@ import os
 import sys
 sys.path.insert(0, sys.argv[1])
 from keel.backend_events import (
-    GENESIS_DIGEST, EventBus, SessionStarted, _append_line, _record_digest)
+    GENESIS_DIGEST, EventBus, SessionStarted, _append_line, _existing_key,
+    _record_digest)
 bus = EventBus(sys.argv[2])
 bus.publish(SessionStarted(event_id="evt-1", session_id="s1"))
 store = bus._store
@@ -508,7 +513,7 @@ with store.lock:
         "data": {"event": SessionStarted(
             event_id="evt-2", session_id="s2").to_dict()},
     }
-    record["digest"] = _record_digest(record)
+    record["digest"] = _record_digest(record, _existing_key(store.path.parent))
     _append_line(store.path, record)
     # Hard crash: the record is durable, the head is not, and the lock file
     # is abandoned by a process that is no longer alive.
@@ -530,8 +535,11 @@ def test_real_subprocess_crash_between_append_and_head(tmp_path: Path) -> None:
     assert isinstance(recovery, LogRecovery)
     assert (recovery.action, recovery.count, recovery.seq) == (
         "committed_tail", 1, 2)
-    assert json.loads((tmp_path / "backend-events.jsonl.head").read_text()) == {
-        "count": 2, "digest": reopened._store.records[-1]["digest"]}
+    head = json.loads((tmp_path / "backend-events.jsonl.head").read_text())
+    key = be._existing_key(tmp_path)
+    assert head["count"] == 2
+    assert head["digest"] == reopened._store.records[-1]["digest"]
+    assert head["mac"] == be._head_mac(head, key)
     assert not (tmp_path / "backend-events.jsonl.lock").exists()
 
 

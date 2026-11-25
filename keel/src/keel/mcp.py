@@ -490,7 +490,12 @@ class HttpMcpServer:
                     self._session_id = sid
                 raw = resp.read()
         except urllib.error.HTTPError as exc:
-            raise McpError(f"http {exc.code}: {exc.read().decode('utf-8', 'replace')[:200]}") from None
+            # An upstream error body may echo an Authorization header or a
+            # token back at us. Redact common token shapes before the text can
+            # reach a log, a result or an error message.
+            from .provider_contracts import redact_message
+            body = exc.read().decode("utf-8", "replace")[:200]
+            raise McpError(f"http {exc.code}: {redact_message(body)}") from None
         except Exception as exc:
             raise McpError(str(exc)) from None
         if notify or not raw:

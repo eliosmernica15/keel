@@ -1,0 +1,81 @@
+{
+  "repeats": 7,
+  "runs": [
+    {
+      "import_ms": 126.045,
+      "first_call_ms": {
+        "backend.modules": 2187.385,
+        "backend.describe": 2.783,
+        "backend.invoke": 6.815
+      }
+    },
+    {
+      "import_ms": 125.69,
+      "first_call_ms": {
+        "backend.modules": 1572.161,
+        "backend.describe": 0.696,
+        "backend.invoke": 0.737
+      }
+    },
+    {
+      "import_ms": 80.37,
+      "first_call_ms": {
+        "backend.modules": 1658.063,
+        "backend.describe": 0.482,
+        "backend.invoke": 0.524
+      }
+    },
+    {
+      "import_ms": 92.687,
+      "first_call_ms": {
+        "backend.modules": 1411.023,
+        "backend.describe": 0.608,
+        "backend.invoke": 0.838
+      }
+    },
+    {
+      "import_ms": 104.002,
+      "first_call_ms": {
+        "backend.modules": 1260.174,
+        "backend.describe": 1.152,
+        "backend.invoke": 0.956
+      }
+    },
+    {
+      "import_ms": 101.513,
+      "first_call_ms": {
+        "backend.modules": 1569.684,
+        "backend.describe": 0.661,
+        "backend.invoke": 0.707
+      }
+    },
+    {
+      "import_ms": 80.802,
+      "first_call_ms": {
+        "backend.modules": 1567.972,
+        "backend.describe": 0.672,
+        "backend.invoke": 0.893
+      }
+    }
+  ],
+  "import_ms": {
+    "p50": 101.513,
+    "min": 80.37,
+    "max": 126.045
+  },
+  "backend.modules": {
+    "p50": 1569.684,
+    "min": 1260.174,
+    "max": 2187.385
+  },
+  "backend.describe": {
+    "p50": 0.672,
+    "min": 0.482,
+    "max": 2.783
+  },
+  "backend.invoke": {
+    "p50": 0.838,
+    "min": 0.524,
+    "max": 6.815
+  }
+}
