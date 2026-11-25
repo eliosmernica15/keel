@@ -149,7 +149,23 @@ def _readiness_dependencies() -> dict:
             return False
         return True
 
-    return {"database": database, "events": events, "workers": workers}
+    def providers() -> bool:
+        """Exercise the provider registry/adapters without keys or network.
+
+        A configured API key is NOT required for readiness: a fresh install is
+        still operationally ready. What matters is that the provider subsystem
+        can be imported, enumerated and used to construct an adapter.
+        """
+        from .providers import registry
+
+        rows = registry.list_providers()
+        if not rows:
+            return False
+        registry.build_adapter(rows[0]["name"], api_key="readiness-probe-placeholder")
+        return True
+
+    return {"database": database, "events": events, "workers": workers,
+            "providers": providers}
 
 
 def _health_payload() -> dict:
@@ -163,6 +179,8 @@ def _health_payload() -> dict:
         "ok": bool(check["running"]),
         "ready": bool(check["ready"]),
         "status": check["status"],
+        "initialized": bool(check["initialized"]),
+        "chain_status": check["readiness"]["chain_status"],
         "dependencies": {
             name: entry["status"] for name, entry in deps.items()},
         "correlation_id": check["readiness"]["correlation_id"],

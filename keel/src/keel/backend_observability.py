@@ -586,10 +586,21 @@ def _atomic_write(path: Path, data: bytes) -> None:
                 raise OSError("short write")
             view = view[written:]
         os.fsync(fd)
-    finally:
+    except BaseException:
+        # A disk-full/short write must not leave a half-written temporary file
+        # behind: cleanup is part of the atomic-write contract, otherwise a
+        # later (successful) write could inherit stale bytes or leave debris.
         with contextlib.suppress(OSError):
             os.close(fd)
-    os.replace(temporary, path)
+        _unlink_with_retry(temporary)
+        raise
+    with contextlib.suppress(OSError):
+        os.close(fd)
+    try:
+        os.replace(temporary, path)
+    except OSError:
+        _unlink_with_retry(temporary)
+        raise
 
 
 def _retire_archives(log_path: Path, *, generation: int, max_archives: int) -> None:
@@ -1215,9 +1226,20 @@ def default_dependency_probes(
         return True
 
     def provider() -> bool:
-        import importlib.util
+        """Exercise the provider subsystem without keys or network access.
 
-        return importlib.util.find_spec("keel.providers") is not None
+        A module-presence check is not a readiness signal: the registry must
+        enumerate providers and construct an adapter for one of them. Adapters
+        are local objects; no request is sent and no credential is required.
+        """
+        from .providers import registry
+
+        providers = registry.list_providers()
+        if not providers:
+            return False
+        registry.build_adapter(
+            providers[0]["name"], api_key="readiness-probe-placeholder")
+        return True
 
     def worker() -> bool:
         return threading.active_count() >= 1
@@ -1241,6 +1263,15 @@ def dependency_health(
     """Execute dependency probes with timing; never expose a raw error value."""
     if probes is None:
         probes = default_dependency_probes(state_root) if state_root is not None else {}
+    if not probes:
+        # Reporting "healthy" after checking nothing would make readiness lie.
+        return {
+            "checked_at": _utc_timestamp(None),
+            "healthy": False,
+            "dependency_count": 0,
+            "dependencies": {},
+            "error": "no dependency probes configured",
+        }
     results: dict[str, Any] = {}
     for raw_name, probe in sorted(probes.items(), key=lambda item: str(item[0])):
         name = str(raw_name)
