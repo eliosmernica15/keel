@@ -40,10 +40,9 @@ type BridgeStatus = "checking" | "online" | "offline" | "unconfigured";
 const SURFACE_ITEMS: Array<{ value: Surface; label: string; icon: IconName }> = [
   { value: "cowork", label: "Cowork", icon: "cowork" },
   { value: "code", label: "Code", icon: "code" },
+  { value: "duet", label: "Duet", icon: "duet" },
   { value: "fleet", label: "Fleet", icon: "fleet" },
 ];
-// Duet is hidden until it is differentiated from Code (surface fix plan D1).
-// Re-enable by adding { value: "duet", label: "Duet", icon: "duet" } above.
 
 const GLOBAL_ITEMS: Array<{ value: Destination; label: string; icon: IconName }> = [
   { value: "capabilities", label: "Capabilities", icon: "capabilities" },
