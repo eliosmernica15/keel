@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel — Projects</title>
+  <meta name="description" content="Organize your Keel sessions, materials and instructions into projects." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/projects" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="stylesheet" href="/ui/projects.css" />
+  <link rel="stylesheet" href="/ui/search-palette.css" />
+</head>
+<body class="pr-page">
+
+  <!-- Keel icon set. Same marks as /new and /plugins. -->
+  <svg class="pr-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="pr-starburst" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/>
+      </symbol>
+      <symbol id="pr-plus" viewBox="0 0 20 20"><path d="M10 4v12M4 10h12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="pr-search" viewBox="0 0 20 20"><circle cx="8.6" cy="8.6" r="5.4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12.6 12.6L17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+      <symbol id="pr-layers" viewBox="0 0 20 20"><path d="M10 2.5 2.8 6l7.2 3.5L17.2 6 10 2.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="m2.8 10 7.2 3.5L17.2 10M2.8 14l7.2 3.5L17.2 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+      <symbol id="pr-artifact" viewBox="0 0 20 20"><rect x="4" y="2.5" width="12" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7.2 6.5h5.6M7.2 9.5h5.6M7.2 12.5h3.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+      <symbol id="pr-puzzle" viewBox="0 0 20 20"><path d="M3 3h5v2.2a1.6 1.6 0 1 0 3.2 0V3h5.8v5.8H15a1.6 1.6 0 1 0 0 3.2h1.8V17H11v-1.8a1.6 1.6 0 1 0-3.2 0V17H3v-5h1.8a1.6 1.6 0 1 0 0-3.2H3V3Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+      <symbol id="pr-panel" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 3.5v13" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+      <symbol id="pr-question" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7.8 7.8a2.3 2.3 0 1 1 3.1 2.2c-.6.3-.9.7-.9 1.3M10 14h.01" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+      <symbol id="pr-doc" viewBox="0 0 16 16"><path d="M4 2h5l3 3v9H4V2Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M9 2v3h3M6 8h4M6 10.5h4" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
+      <symbol id="pr-chat" viewBox="0 0 16 16"><path d="M8 2.5c-3.3 0-6 2.2-6 4.9 0 1.6.9 3 2.3 3.9l-.5 2.2 2.3-1.2c.6.1 1.2.2 1.9.2 3.3 0 6-2.2 6-4.9s-2.7-5.1-6-5.1Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+      <symbol id="pr-more" viewBox="0 0 20 20"><circle cx="4.2" cy="10" r="1.4" fill="currentColor"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/><circle cx="15.8" cy="10" r="1.4" fill="currentColor"/></symbol>
+      <symbol id="pr-sort" viewBox="0 0 20 20"><path d="M6.5 15.5V4.5m0 0L3.6 7.4M6.5 4.5l2.9 2.9M13.5 4.5v11m0 0 2.9-2.9m-2.9 2.9-2.9-2.9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="pr-upload" viewBox="0 0 20 20"><path d="M10 13V3.5m0 0L6.8 6.7M10 3.5l3.2 3.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12.5v2.7a1.3 1.3 0 0 0 1.3 1.3h10.4a1.3 1.3 0 0 0 1.3-1.3v-2.7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="pr-app" id="pr-app">
+    <!-- ===================== top bar ===================== -->
+    <header class="pr-topbar">
+      <div class="pr-topbar-left">
+        <button class="pr-icon-btn pr-topbar-toggle" id="pr-sidebar-toggle" type="button" aria-label="Toggle sidebar" aria-controls="pr-sidebar" aria-expanded="true">
+          <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-panel"/></svg>
+        </button>
+        <a class="pr-wordmark" href="/" aria-label="Keel home">
+          <svg class="pr-brand-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#pr-starburst"/></svg>
+          <span>Keel</span>
+        </a>
+      </div>
+      <button class="pr-icon-btn pr-help" id="pr-help" type="button" aria-label="Help with Keel" aria-haspopup="dialog">
+        <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-question"/></svg>
+      </button>
+    </header>
+
+    <div class="pr-shell">
+      <!-- ===================== sidebar ===================== -->
+      <aside class="pr-sidebar" id="pr-sidebar" aria-label="Keel sidebar">
+        <nav class="pr-side-nav" aria-label="Keel">
+          <button class="pr-nav-item" id="pr-nav-new" type="button">
+            <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-plus"/></svg><span>New</span>
+          </button>
+          <button class="pr-nav-item" id="pr-nav-search" type="button" data-search-trigger aria-expanded="false" aria-controls="pr-recents-search-wrap">
+            <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-search"/></svg><span>Search</span>
+          </button>
+          <button class="pr-nav-item is-active" id="pr-nav-projects" type="button" aria-current="page">
+            <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-layers"/></svg><span>Projects</span>
+          </button>
+          <button class="pr-nav-item" type="button" data-info-panel="artifacts">
+            <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-artifact"/></svg><span>Artifacts</span>
+          </button>
+          <button class="pr-nav-item" type="button" data-info-panel="plugins">
+            <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-puzzle"/></svg><span>Plugins</span>
+          </button>
+        </nav>
+
+        <div class="pr-recents-head">
+          <button class="pr-section-toggle" id="pr-recents-toggle" type="button" aria-expanded="true" aria-controls="pr-recents-list">
+            <span>Recents</span><span class="pr-chev" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="pr-search-wrap" id="pr-recents-search-wrap" hidden>
+          <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-search"/></svg>
+          <label class="pr-sr-only" for="pr-recents-search">Filter recent chats</label>
+          <input id="pr-recents-search" type="search" placeholder="Filter recents" autocomplete="off" />
+          <button class="pr-search-close" id="pr-recents-search-close" type="button" aria-label="Close recent chat filter">&times;</button>
+        </div>
+
+        <div class="pr-recents-scroll" id="pr-recents-scroll">
+          <ul class="pr-recents" id="pr-recents-list" aria-label="Recent chats">
+            <li><button class="pr-recent" type="button" data-title="Keel harness build plan"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Keel harness build plan</span></button></li>
+            <li><button class="pr-recent" type="button" data-title="Keel project review and plan"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Keel project review and plan</span></button></li>
+            <li><button class="pr-recent" type="button" data-title="Keel project plan review"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Keel project plan review</span></button></li>
+            <li><button class="pr-recent" type="button" data-title="Test exercise answers"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Test exercise answers</span></button></li>
+            <li><button class="pr-recent" type="button" data-title="Team member project reports"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-doc"/></svg><span>Team member project reports</span></button></li>
+            <li data-extra="true"><button class="pr-recent" type="button" data-title="Connecting AutoCAD with MCP"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Connecting AutoCAD with MCP</span></button></li>
+            <li data-extra="true"><button class="pr-recent" type="button" data-title="Golden Gate Bridge PowerPoint"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Golden Gate Bridge PowerPoint</span></button></li>
+            <li data-extra="true"><button class="pr-recent" type="button" data-title="Base quantities and SI units"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Base quantities and SI units</span></button></li>
+            <li data-extra="true"><button class="pr-recent" type="button" data-title="AutoCAD seminar document with cust…"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-doc"/></svg><span>AutoCAD seminar document with cust…</span></button></li>
+            <li data-extra="true"><button class="pr-recent" type="button" data-title="Exam answers request declined"><svg class="pr-ico" viewBox="0 0 16 16" aria-hidden="true"><use href="#pr-chat"/></svg><span>Exam answers request declined</span></button></li>
+          </ul>
+          <p class="pr-recents-empty" id="pr-recents-empty" role="status" hidden>No matching chats.</p>
+        </div>
+        <button class="pr-view-all pr-recents-view-all" id="pr-recents-view-all" type="button" aria-expanded="true" aria-label="Show fewer recent chats">View all</button>
+
+        <div class="pr-account-wrap" id="pr-account-wrap">
+          <button class="pr-account" id="pr-account" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="pr-account-menu">
+            <span class="pr-avatar" aria-hidden="true">E</span>
+            <span class="pr-account-name">Elios <span aria-hidden="true">·</span> Free</span>
+            <span class="pr-chev" aria-hidden="true"></span>
+          </button>
+          <button class="pr-icon-btn pr-collapse" id="pr-collapse" type="button" aria-label="Collapse sidebar" aria-controls="pr-sidebar" aria-expanded="true">
+            <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-panel"/></svg>
+          </button>
+          <div class="pr-menu pr-account-menu" id="pr-account-menu" role="menu" aria-label="Account" hidden>
+            <a role="menuitem" href="/#plans">Upgrade</a>
+            <a role="menuitem" href="/app">Settings</a>
+            <a role="menuitem" href="/download">Download apps</a>
+          </div>
+        </div>
+      </aside>
+
+      <div class="pr-scrim" id="pr-scrim" aria-hidden="true"></div>
+
+      <!-- ===================== main ===================== -->
+      <main class="pr-main" id="pr-main">
+        <div class="pr-content">
+          <div class="pr-page-head">
+            <h1 id="pr-title">Projects</h1>
+            <div class="pr-head-actions">
+              <button class="pr-icon-btn pr-head-search" id="pr-search-btn" type="button" aria-label="Search projects" aria-expanded="false" aria-controls="pr-search-row">
+                <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-search"/></svg>
+              </button>
+              <div class="pr-wrap">
+                <button class="pr-icon-btn pr-sort-btn" id="pr-sort-btn" type="button" aria-label="Sort projects" aria-haspopup="menu" aria-expanded="false" aria-controls="pr-sort-menu">
+                  <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-sort"/></svg>
+                </button>
+                <div class="pr-menu pr-popover pr-menu-right pr-sort-menu" id="pr-sort-menu" role="menu" aria-label="Sort projects" hidden>
+                  <div class="pr-menu-label">Sort by</div>
+                  <button type="button" role="menuitemradio" aria-checked="false" data-sort="name-asc">Name A–Z</button>
+                  <button type="button" role="menuitemradio" aria-checked="false" data-sort="name-desc">Name Z–A</button>
+                  <button type="button" role="menuitemradio" aria-checked="true" data-sort="newest">Newest</button>
+                  <button type="button" role="menuitemradio" aria-checked="false" data-sort="oldest">Oldest</button>
+                </div>
+              </div>
+              <button class="pr-primary" id="pr-new-btn" type="button">New project</button>
+            </div>
+          </div>
+
+          <div class="pr-search-row" id="pr-search-row" hidden>
+            <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-search"/></svg>
+            <label class="pr-sr-only" for="pr-project-search">Search projects</label>
+            <input id="pr-project-search" type="search" placeholder="Search projects" autocomplete="off" />
+            <button class="pr-search-clear" id="pr-search-clear" type="button" aria-label="Clear project search" hidden>&times;</button>
+          </div>
+
+          <!-- centred empty state -->
+          <section class="pr-empty" id="pr-empty" aria-labelledby="pr-empty-title">
+            <svg class="pr-empty-art" viewBox="0 0 84 76" aria-hidden="true" focusable="false">
+              <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <!-- lower box -->
+                <path d="M20 36 46 41v22l-26-5z"/>
+                <path d="M46 41 65 33v21l-19 9z"/>
+                <path d="M20 36 38 28l27 5-19 8z"/>
+                <!-- upper box -->
+                <path d="M29 14 53 18v19l-24-4z"/>
+                <path d="M53 18 67 12v18l-14 7z"/>
+                <path d="M29 14 43 8l24 4-14 6z"/>
+                <!-- hand cradling the boxes -->
+                <path d="M13 62c6 7 17 11 29 11 12 0 23-4 29-11"/>
+                <path d="M13 62c-3-2-4-6-2-9 1-2 4-2 5 0l4 6"/>
+                <path d="M71 62c3-2 5 0 4 2"/>
+              </g>
+            </svg>
+            <h2 id="pr-empty-title">Looking to start a project?</h2>
+            <p>Upload materials, set custom instructions, and organize sessions in one space.</p>
+            <button class="pr-secondary" id="pr-empty-new" type="button">New project</button>
+          </section>
+
+          <!-- project cards (rendered by projects.js) -->
+          <section class="pr-grid-section" id="pr-grid-section" aria-label="Projects" hidden>
+            <div class="pr-grid" id="pr-grid"></div>
+            <p class="pr-no-results" id="pr-no-results" role="status" hidden>
+              No projects match your search. <button type="button" id="pr-clear-search">Clear search</button>
+            </p>
+          </section>
+        </div>
+
+        <!-- in-page note / toast -->
+        <div class="pr-info-panel" id="pr-info-panel" role="status" aria-live="polite" hidden>
+          <button class="pr-info-close" id="pr-info-close" type="button" aria-label="Dismiss note">&times;</button>
+          <h2 id="pr-info-title"></h2>
+          <p id="pr-info-text"></p>
+          <a id="pr-info-link" href="/app" hidden>Open in Keel</a>
+        </div>
+      </main>
+
+      <!-- ===================== detail drawer ===================== -->
+      <div class="pr-detail-layer" id="pr-detail-layer" hidden>
+        <div class="pr-detail-backdrop" id="pr-detail-backdrop"></div>
+        <aside class="pr-detail" id="pr-detail" role="dialog" aria-modal="true" aria-labelledby="pr-detail-name">
+          <div class="pr-detail-head">
+            <span class="pr-detail-kicker">Project</span>
+            <button class="pr-icon-btn pr-detail-close" id="pr-detail-close" type="button" aria-label="Close project details">&times;</button>
+          </div>
+          <h2 id="pr-detail-name"></h2>
+          <p class="pr-detail-desc" id="pr-detail-desc"></p>
+          <p class="pr-detail-date" id="pr-detail-date"></p>
+          <div class="pr-detail-section">
+            <div class="pr-detail-section-head">
+              <h3>Linked sessions</h3>
+              <button class="pr-text-btn" id="pr-add-session" type="button">New session</button>
+            </div>
+            <ul class="pr-sessions" id="pr-sessions"></ul>
+            <p class="pr-sessions-empty" id="pr-sessions-empty" hidden>No linked sessions yet.</p>
+          </div>
+          <p class="pr-detail-note">Materials and custom instructions are managed in the local Keel app.</p>
+          <a class="pr-detail-link" href="/download">Open Keel</a>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== shared dialog ===================== -->
+  <div class="pr-modal" id="pr-dialog" hidden>
+    <div class="pr-modal-backdrop" id="pr-dialog-backdrop"></div>
+    <div class="pr-modal-card" id="pr-dialog-card" role="dialog" aria-modal="true" aria-labelledby="pr-dialog-title">
+      <button class="pr-modal-close" id="pr-dialog-close" type="button" aria-label="Close dialog">&times;</button>
+      <h2 id="pr-dialog-title"></h2>
+
+      <div class="pr-dialog-view" data-view="create" hidden>
+        <label class="pr-field-label" for="pr-field-name">Project name</label>
+        <input class="pr-field" id="pr-field-name" type="text" maxlength="80" placeholder="e.g. Bridge redesign" autocomplete="off" />
+        <label class="pr-field-label" for="pr-field-desc">Description <span>(optional)</span></label>
+        <textarea class="pr-field pr-field-area" id="pr-field-desc" rows="3" maxlength="300" placeholder="What is this project for?"></textarea>
+        <div class="pr-materials">
+          <button class="pr-materials-btn" id="pr-add-materials" type="button">
+            <svg class="pr-ico" viewBox="0 0 20 20" aria-hidden="true"><use href="#pr-upload"/></svg>
+            Add materials
+          </button>
+          <p id="pr-materials-note">File upload belongs to the local Keel desktop app. This page keeps project details in your browser.</p>
+        </div>
+        <p class="pr-field-error" id="pr-field-error" role="alert" hidden>Enter a project name.</p>
+      </div>
+
+      <div class="pr-dialog-view" data-view="rename" hidden>
+        <label class="pr-field-label" for="pr-rename-name">Project name</label>
+        <input class="pr-field" id="pr-rename-name" type="text" maxlength="80" autocomplete="off" />
+        <p class="pr-field-error" id="pr-rename-error" role="alert" hidden>Enter a project name.</p>
+      </div>
+
+      <div class="pr-dialog-view" data-view="delete" hidden>
+        <p class="pr-dialog-text" id="pr-delete-text"></p>
+      </div>
+
+      <div class="pr-dialog-view" data-view="help" hidden>
+        <p class="pr-dialog-text">Create a project to keep related chats, materials and instructions together. Use the search and sort controls to find projects, and the <strong>…</strong> menu on a card to rename, duplicate or delete it.</p>
+        <p class="pr-dialog-text"><a class="pr-dialog-link" href="/download">Download the Keel app</a> or <a class="pr-dialog-link" href="mailto:hello@keel.software">email Keel</a>.</p>
+      </div>
+
+      <div class="pr-dialog-footer">
+        <button class="pr-secondary" id="pr-dialog-cancel" type="button">Cancel</button>
+        <button class="pr-primary" id="pr-dialog-confirm" type="button">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/ui/search-palette.js" defer></script>
+  <script src="/ui/projects.js" defer></script>
+</body>
+</html>

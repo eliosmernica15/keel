@@ -1,0 +1,383 @@
+/* ===========================================================================
+   Keel — reusable sidebar Search palette.
+   Dependency-free, scoped to .ksp-root. Loaded alongside the light app pages.
+   =========================================================================== */
+
+.ksp-root {
+  --ksp-ink: #1f1e1c;
+  --ksp-muted: #77736d;
+  --ksp-faint: #a8a49d;
+  --ksp-line: #e8e5df;
+  --ksp-soft: #f1efeb;
+  --ksp-soft-2: #f7f6f3;
+  --ksp-accent: #d97757;
+  --ksp-blue: #2f6fed;
+
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding: 5vh 16px 16px;
+  color: var(--ksp-ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.ksp-root[hidden] { display: none !important; }
+.ksp-root *,
+.ksp-root *::before,
+.ksp-root *::after { box-sizing: border-box; }
+.ksp-root [hidden] { display: none !important; }
+.ksp-root button { font-family: inherit; }
+
+.ksp-root .ksp-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================== backdrop ============================== */
+.ksp-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 19, 18, .44);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  animation: ksp-fade .16s ease-out;
+}
+
+/* ================================ dialog ============================== */
+.ksp-dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(650px, 100%);
+  max-height: 80vh;
+  max-height: 80dvh;
+  overflow: hidden;
+  border: 1px solid #ece9e3;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 26px 80px rgba(22, 21, 20, .26), 0 2px 8px rgba(22, 21, 20, .05);
+  animation: ksp-pop .18s cubic-bezier(.2, .8, .2, 1);
+}
+
+/* search input */
+.ksp-search {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 16px 54px 14px 22px;
+}
+.ksp-input {
+  width: 100%;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ksp-ink);
+  font-size: 16px;
+  line-height: 1.4;
+}
+.ksp-input::placeholder { color: var(--ksp-faint); }
+.ksp-input::-webkit-search-cancel-button { display: none; }
+.ksp-close {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ksp-muted);
+  font-size: 21px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .14s ease, color .14s ease;
+}
+.ksp-close:hover { background: var(--ksp-soft); color: var(--ksp-ink); }
+.ksp-close:focus-visible { outline: 2px solid var(--ksp-accent); outline-offset: 1px; }
+
+/* tabs */
+.ksp-tabs {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 16px 10px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--ksp-line);
+  scrollbar-width: none;
+}
+.ksp-tabs::-webkit-scrollbar { display: none; }
+.ksp-tab {
+  flex: 0 0 auto;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ksp-muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .14s ease, color .14s ease;
+}
+.ksp-tab:hover { background: var(--ksp-soft-2); color: var(--ksp-ink); }
+.ksp-tab.is-active {
+  background: var(--ksp-soft);
+  color: var(--ksp-ink);
+  font-weight: 600;
+}
+.ksp-tab:focus-visible { outline: 2px solid var(--ksp-accent); outline-offset: 1px; }
+
+/* results */
+.ksp-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 4px 10px 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d9d6cf transparent;
+}
+.ksp-body::-webkit-scrollbar { width: 6px; }
+.ksp-body::-webkit-scrollbar-thumb { background: #d9d6cf; border-radius: 6px; }
+.ksp-section + .ksp-section { margin-top: 6px; }
+.ksp-label {
+  padding: 8px 12px 4px;
+  color: var(--ksp-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+.ksp-rows { display: flex; flex-direction: column; gap: 1px; }
+
+.ksp-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: #4d4a45;
+  font-size: 13px;
+  outline: 0;
+  cursor: pointer;
+  transition: background .12s ease;
+}
+.ksp-row:hover { background: var(--ksp-soft-2); }
+.ksp-row.is-selected { background: var(--ksp-soft); color: var(--ksp-ink); }
+.ksp-row:focus-visible { box-shadow: inset 0 0 0 2px rgba(217, 119, 87, .5); }
+.ksp-row-ico {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  color: #9a968e;
+}
+.ksp-row-ico.is-doc { color: var(--ksp-blue); }
+.ksp-row-ico svg { width: 16px; height: 16px; }
+.ksp-row-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ksp-row-note {
+  flex: 0 0 auto;
+  max-width: 42%;
+  overflow: hidden;
+  color: var(--ksp-faint);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ksp-row-tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+.ksp-tool {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ksp-muted);
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity .12s ease, background .12s ease;
+}
+.ksp-row.is-selected .ksp-tool,
+.ksp-row:hover .ksp-tool,
+.ksp-row:focus-within .ksp-tool { opacity: 1; }
+.ksp-tool:hover { background: #e7e4de; color: var(--ksp-ink); }
+.ksp-tool:focus-visible { opacity: 1; outline: 2px solid var(--ksp-accent); outline-offset: 1px; }
+.ksp-tool-return { font-size: 17px; }
+
+/* row menu */
+.ksp-menu {
+  position: absolute;
+  z-index: 5;
+  min-width: 156px;
+  padding: 5px;
+  border: 1px solid var(--ksp-line);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 12px 34px rgba(25, 24, 22, .16);
+}
+.ksp-menu button {
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ksp-ink);
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.ksp-menu button:hover { background: var(--ksp-soft); }
+.ksp-menu button:focus-visible { outline: 2px solid var(--ksp-accent); outline-offset: -1px; }
+
+.ksp-empty {
+  padding: 18px 12px 24px;
+  color: var(--ksp-muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* transient note */
+.ksp-note {
+  position: absolute;
+  left: 50%;
+  bottom: 54px;
+  z-index: 6;
+  max-width: min(440px, calc(100% - 32px));
+  padding: 8px 14px;
+  overflow: hidden;
+  transform: translateX(-50%);
+  border-radius: 8px;
+  background: #292825;
+  color: #fff;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+  pointer-events: none;
+  animation: ksp-note-in .16s ease-out;
+}
+
+/* footer shortcuts */
+.ksp-footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  padding: 0 20px;
+  border-top: 1px solid var(--ksp-line);
+  background: #fdfcfb;
+}
+.ksp-hints {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.ksp-hints-right { margin-left: auto; }
+.ksp-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ksp-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.ksp-key {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border: 1px solid var(--ksp-line);
+  border-radius: 5px;
+  background: #fff;
+  color: #5f5b54;
+  font-family: inherit;
+  font-size: 10.5px;
+  line-height: 1;
+}
+
+/* ============================== animation ============================= */
+@keyframes ksp-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ksp-pop {
+  from { opacity: 0; transform: translateY(8px) scale(.99); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ksp-note-in {
+  from { opacity: 0; transform: translate(-50%, 5px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ============================== responsive ============================ */
+@media (max-width: 600px) {
+  .ksp-root { padding: 4vh 8px 8px; }
+  .ksp-dialog {
+    width: 100%;
+    max-height: 92vh;
+    max-height: 92dvh;
+    border-radius: 12px;
+  }
+  .ksp-search { padding: 14px 48px 12px 16px; }
+  .ksp-tabs { padding: 0 10px 8px; }
+  .ksp-body { padding: 2px 6px 8px; }
+  .ksp-row { padding: 0 10px; }
+  .ksp-row-note { max-width: 34%; }
+  .ksp-footer { padding: 0 12px; min-height: 40px; }
+  .ksp-hints { gap: 10px; }
+  .ksp-hint--wide { display: none; }
+}
+@media (max-width: 390px) {
+  .ksp-hint--mid { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ksp-root *,
+  .ksp-root *::before,
+  .ksp-root *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

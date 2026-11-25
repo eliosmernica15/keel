@@ -1,6 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" role="img" aria-labelledby="pa-logo-notion-title">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" role="img" aria-labelledby="pa-logo-notion-title">
   <title id="pa-logo-notion-title">Notion</title>
-  <rect x="3" y="4" width="26" height="28" rx="3" fill="none" stroke="#191919" stroke-width="2"/>
-  <path d="M9 25V11l14 14V11" fill="none" stroke="#191919" stroke-width="2.2" stroke-linejoin="round"/>
-  <text x="37" y="25" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="600" letter-spacing=".4" fill="#191919">Notion</text>
+  <g fill="#191919">
+    <rect x="7" y="5" width="25" height="30" rx="3" fill="none" stroke="#191919" stroke-width="2.6"/>
+    <text x="19.5" y="27" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="19" font-weight="700">N</text>
+    <text x="40" y="27" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="-0.7">Notion</text>
+  </g>
 </svg>

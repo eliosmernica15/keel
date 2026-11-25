@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="pa-glyph-building-title">
+  <title id="pa-glyph-building-title">Building outline</title>
+  <g fill="none" stroke="#191919" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 42 V13 L22 6 V42"/>
+    <path d="M22 18 H38 V42"/>
+    <path d="M38 24 H43 V42"/>
+    <path d="M5 42 H45"/>
+    <path d="M13 42 V33 H18 V42"/>
+    <path d="M27 24 H33 M27 29 H33 M27 34 H33"/>
+  </g>
+</svg>

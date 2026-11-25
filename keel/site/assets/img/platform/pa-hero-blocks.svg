@@ -1,63 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 520" role="img" aria-labelledby="pa-hero-title">
-  <title id="pa-hero-title">An open hand supporting a stack of model blocks</title>
-  <defs>
-    <g id="pa-cube">
-      <path d="M0 -29 L50 0 L0 29 L-50 0 Z" fill="#ffffff" stroke="#191919" stroke-width="1.6" stroke-linejoin="round"/>
-      <path d="M-50 0 L0 29 L0 81 L-50 52 Z" fill="#f1efe8" stroke="#191919" stroke-width="1.6" stroke-linejoin="round"/>
-      <path d="M50 0 L0 29 L0 81 L50 52 Z" fill="#f7f6f2" stroke="#191919" stroke-width="1.6" stroke-linejoin="round"/>
-    </g>
-    <filter id="pa-glow" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="3.6" result="pa-blur"/>
-      <feMerge><feMergeNode in="pa-blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
+  <title id="pa-hero-title">A hand placing a terracotta block onto a stack of five outlined cubes</title>
 
-  <!-- faint architectural construction lines -->
-  <g fill="none" stroke="#dedcd6" stroke-width="1" stroke-dasharray="3 6">
-    <path d="M324 60V452M138 152h372M168 360h304"/>
-  </g>
-  <g fill="none" stroke="#191919" stroke-width="1" opacity=".55">
-    <path d="M104 152h18M104 360h18M97 152v208M92 152h10M92 360h10"/>
+  <!-- five rough, empty outline cubes: three below, two above -->
+  <g fill="none" stroke="#191919" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M186 228 C240 225 300 232 352 234 C355 270 357 315 359 347 C300 345 245 344 192 347 C190 305 186 262 186 228 Z"/>
+    <path d="M364 233 C420 230 470 229 510 227 C513 265 511 312 514 345 C470 348 412 350 365 352 C363 314 363 268 364 233 Z"/>
+    <path d="M90 349 C140 346 190 353 227 355 C229 395 226 445 224 481 C175 484 126 487 88 485 C86 446 90 392 90 349 Z"/>
+    <path d="M232 356 C290 353 350 357 400 358 C402 396 401 448 403 481 C350 483 290 480 230 479 C231 444 233 393 232 356 Z"/>
+    <path d="M408 359 C445 356 480 354 507 355 C509 392 505 448 507 476 C470 478 440 476 407 481 C407 445 406 393 408 359 Z"/>
   </g>
 
-  <!-- stack of five isometric blocks -->
-  <use href="#pa-cube" transform="translate(320 360)"/>
-  <use href="#pa-cube" transform="translate(312 308)"/>
-  <use href="#pa-cube" transform="translate(326 256)"/>
-  <use href="#pa-cube" transform="translate(318 204)"/>
-  <use href="#pa-cube" transform="translate(324 152)"/>
+  <!-- single terracotta block, tilted, held above the stack -->
+  <path d="M285 82 C340 96 405 112 462 125 C450 160 440 198 431 226 C375 212 310 195 256 180 Z" fill="#d97757"/>
 
-  <!-- terracotta glowing edges -->
-  <g fill="none" stroke="#d97757" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#pa-glow)">
-    <path d="M374 152 L324 181 L274 152"/>
-    <path d="M376 256 L326 285 L326 337"/>
-    <path d="M262 360 L312 389 L362 360"/>
+  <!-- loose sketch outline of a hand gripping the block -->
+  <g transform="translate(92 22) scale(0.275)" fill="none" stroke="#191919" stroke-width="29" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M150 40
+             C250 -12 430 -2 560 48
+             C690 96 795 140 812 176
+             C828 212 772 226 710 204
+             C648 182 568 164 520 182
+             C492 193 512 224 566 256
+             C636 298 726 312 792 338
+             C852 362 862 408 820 432
+             C776 456 712 424 652 396
+             C600 372 556 360 534 386
+             C512 412 556 452 620 482
+             C688 514 744 526 776 552
+             C804 576 782 606 738 606
+             C692 606 640 574 582 544
+             C524 514 480 508 466 534
+             C452 560 492 604 556 644
+             C620 684 678 710 706 736
+             C730 758 714 786 678 784
+             C640 782 600 752 556 726
+             C470 676 340 608 250 558
+             C205 533 178 520 170 515"/>
   </g>
-  <g fill="none" stroke="#a94e32" stroke-width="1" stroke-linecap="round" opacity=".85">
-    <path d="M374 152 L324 181 L274 152"/>
-  </g>
-
-  <!-- small sparks -->
-  <g fill="#d97757">
-    <circle cx="392" cy="118" r="2.6"/><circle cx="240" cy="140" r="2"/>
-    <circle cx="404" cy="204" r="1.8"/><circle cx="228" cy="232" r="2.4"/>
-  </g>
-  <g fill="none" stroke="#d97757" stroke-width="1.6" stroke-linecap="round">
-    <path d="M400 96v10M395 101h10M214 210v8M210 214h8"/>
-  </g>
-
-  <!-- open hand, palm up -->
-  <g fill="#f7f6f2" stroke="#191919" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M190 470 C 214 452 248 446 282 450 C 306 453 324 462 336 474 C 344 482 342 492 332 496 C 306 506 268 504 238 496 C 214 490 194 482 190 470 Z"/>
-    <path d="M320 462 C 348 450 388 442 428 440 C 442 439 450 444 450 451 C 450 458 442 463 428 465 L 348 478 Z"/>
-    <path d="M326 476 C 356 466 394 460 430 460 C 442 460 448 465 448 471 C 448 477 442 482 430 483 L 352 492 Z"/>
-    <path d="M324 488 C 352 480 384 476 414 476 C 426 476 432 480 432 486 C 432 492 426 496 414 497 L 346 504 Z"/>
-    <path d="M310 498 C 334 492 360 490 382 492 C 392 493 397 497 396 502 C 395 507 389 510 380 510 L 330 512 Z"/>
-    <path d="M196 468 C 178 458 156 454 138 458 C 128 460 124 467 128 473 C 132 479 142 481 154 480 L 190 480 Z"/>
-  </g>
-  <g fill="none" stroke="#191919" stroke-width="2" stroke-linecap="round">
-    <path d="M46 520 C 96 506 142 486 190 470"/>
-    <path d="M120 520 C 156 506 186 492 222 488 C 248 485 270 488 288 496"/>
-  </g>
-  <path d="M214 466 C 236 460 262 460 284 466" fill="none" stroke="#d97757" stroke-width="2" stroke-linecap="round" opacity=".9"/>
 </svg>

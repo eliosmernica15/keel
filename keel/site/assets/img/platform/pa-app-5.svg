@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" role="img" aria-labelledby="pa-app-5-title">
+  <title id="pa-app-5-title">App tile: blue window grid</title>
+  <rect x="1" y="1" width="42" height="42" rx="10" fill="#4b5be8"/>
+  <g fill="#ffffff">
+    <rect x="9" y="9" width="11" height="11" rx="1.5"/>
+    <rect x="24" y="9" width="11" height="11" rx="1.5"/>
+    <rect x="9" y="24" width="11" height="11" rx="1.5"/>
+    <rect x="24" y="24" width="11" height="11" rx="1.5"/>
+  </g>
+  <g fill="#4b5be8">
+    <rect x="11" y="11" width="7" height="7"/>
+    <rect x="26" y="26" width="7" height="7"/>
+  </g>
+</svg>

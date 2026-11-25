@@ -1,5 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" role="img" aria-labelledby="pa-logo-lovable-title">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" role="img" aria-labelledby="pa-logo-lovable-title">
   <title id="pa-logo-lovable-title">Lovable</title>
-  <path d="M14 29 C2 22 0 13 6 9 C10 6 14 8 14 12 C14 8 19 6 23 9 C29 13 26 22 14 29Z" fill="none" stroke="#191919" stroke-width="2.2" stroke-linejoin="round"/>
-  <text x="36" y="25" font-family="Inter, Arial, sans-serif" font-size="19" font-weight="600" letter-spacing=".6" fill="#191919">Lovable</text>
+  <g fill="#191919">
+    <path d="M19 32C19 32 6 24 6 15C6 9 10 6 14 6C16 6 18 7.5 19 9C20 7.5 22 6 24 6C28 6 32 9 32 15C32 24 19 32 19 32Z"/>
+    <text x="39" y="27" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="-0.6">Lovable</text>
+  </g>
 </svg>

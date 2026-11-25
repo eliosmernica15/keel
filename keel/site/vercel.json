@@ -35,7 +35,8 @@
     { "source": "/eula", "destination": "/eula.html" },
     { "source": "/trademark", "destination": "/trademark.html" },
     { "source": "/requirements", "destination": "/requirements.html" },
-    { "source": "/product/keel-duet", "destination": "/product/keel-duet.html" }
+    { "source": "/product/keel-duet", "destination": "/product/keel-duet.html" },
+    { "source": "/platform/api", "destination": "/platform/api.html" }
   ],
   "redirects": [
     { "source": "/app.html", "destination": "/app", "permanent": false },
@@ -44,6 +45,7 @@
     { "source": "/plugins.html", "destination": "/plugins", "permanent": false },
     { "source": "/projects.html", "destination": "/projects", "permanent": false },
     { "source": "/artifacts.html", "destination": "/artifacts", "permanent": false },
-    { "source": "/product/keel-duet.html", "destination": "/product/keel-duet", "permanent": false }
+    { "source": "/product/keel-duet.html", "destination": "/product/keel-duet", "permanent": false },
+    { "source": "/platform/api.html", "destination": "/platform/api", "permanent": false }
   ]
 }
