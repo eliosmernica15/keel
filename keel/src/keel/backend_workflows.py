@@ -414,6 +414,10 @@ def _read_jsonl(path: str | Path) -> list[dict]:
     target = Path(path)
     if not target.is_file():
         _LEDGER_CACHE.pop(str(target), None)
+        # A missing log with a committed non-genesis head is a deleted ledger,
+        # not a fresh one. Fail closed before any append can rewrite the head.
+        if _head_path(target).is_file():
+            _verify_chain_head(target, [], _ledger_key(target))
         return []
     signature = _ledger_stat(target)
     cached = _LEDGER_CACHE.get(str(target))
@@ -422,9 +426,14 @@ def _read_jsonl(path: str | Path) -> list[dict]:
     records: list[dict] = []
     with _locked_path(target):
         lines = target.read_text(encoding="utf-8").splitlines()
-        if not any(line.strip() for line in lines):
-            return []
         key = _ledger_key(target)
+        if not any(line.strip() for line in lines):
+            # M-1: an empty/whitespace-only file still has to agree with the
+            # committed head. Otherwise truncation to zero bytes resets the
+            # chain and the next append launders the head at seq=1.
+            _verify_chain_head(target, [], key)
+            _LEDGER_CACHE[str(target)] = (signature, [])
+            return []
         expected_prev = _GENESIS_HASH
         expected_seq = 1
         for number, line in enumerate(lines, 1):
@@ -631,6 +640,14 @@ def _finalize(name: str, params: Mapping[str, Any],
               impl: Callable[[dict, Path, dict], dict]) -> dict:
     """Wrap ``_execute`` and attach the ledger location to the response."""
     response = _execute(name, params, impl)
+    # Direct run_* entry points bypass ``run_workflow``; emit the outcome here
+    # too. The deterministic event ID makes the two paths idempotent, not
+    # duplicate, when a caller went through the policy boundary.
+    try:
+        outcome_root = _state_root(dict(params)) if isinstance(params, Mapping) else None
+    except (WorkflowError, OSError, ValueError):
+        outcome_root = None
+    _emit_workflow_outcome(None, outcome_root, name, response, params)
     if isinstance(params, Mapping):
         try:
             state_root = _state_root(dict(params))
@@ -731,6 +748,10 @@ def _request_impl(params: dict, state_root: Path, ctx: dict) -> dict:
     journal.set_system_prompt(f"Backend workflow session {session_id}")
     _step(steps, "session_resolved", session_id=session_id,
           project_id=directory.project_id, project_root=str(project_root))
+    _emit_typed(ctx, state_root, "session_started",
+                f"sess-{_digest((ctx['key'], session_id))[:24]}",
+                correlation=ctx["key"], session_id=session_id,
+                cwd=str(project_root))
     _step(steps, "model_context_assembled", working_dir=directory.working_dir,
           execution_path=directory.execution_path("."))
 
@@ -748,6 +769,11 @@ def _request_impl(params: dict, state_root: Path, ctx: dict) -> dict:
                           (eligible[0].id if eligible else ""))
         provider = registry.get(provider_id)
     except (ValueError, TypeError, KeyError) as exc:
+        _emit_typed(ctx, state_root, "provider_failed",
+                    f"prov-{_digest((ctx['key'], 'selection'))[:24]}",
+                    correlation=ctx["key"], session_id=session_id,
+                    provider_id=str(params.get("provider_id") or "unknown"),
+                    error_code="provider_unavailable", retryable=False)
         _fail(steps, "provider_unavailable", f"provider selection failed: {exc}")
     model = str(params.get("model") or provider.models[0])
     if model not in provider.models:
@@ -802,6 +828,10 @@ def _request_impl(params: dict, state_root: Path, ctx: dict) -> dict:
     journal.add_tool_call("wf-tool-1", tool_name, tool_input)
     _step(steps, "permission_evaluated", decision=decision.decision,
           reason=decision.reason, operation_class=decision.operation_class)
+    _emit_typed(ctx, state_root, "permission_decided",
+                f"perm-{_digest((ctx['key'], 'wf-tool-1'))[:24]}",
+                correlation=ctx["key"],
+                **decision.event_fields("wf-tool-1", session_id=session_id))
     if decision.decision != "allow":
         journal.add_tool_result("wf-tool-1", "[denied]", synthetic=True,
                                 reason=decision.reason)
@@ -1000,6 +1030,12 @@ def _approval_request(params: dict, state_root: Path, ctx: dict) -> dict:
                      digest=_digest(token.to_dict()))
     _step(steps, "approval_persisted", request_id=request_id,
           token_id=token.token_id, expires_at=token.expires_at)
+    _emit_typed(ctx, state_root, "approval_requested",
+                f"appr-{_digest((request_id, 'request'))[:24]}",
+                correlation=request_id,
+                session_id=str(params.get("session_id") or request_id),
+                approval_id=request_id, tool_use_id="approval",
+                prompt=_redact(operation)[:200])
     return {"request_id": request_id, "token": sealed,
             "token_id": token.token_id, "scope": scope,
             "operation": operation, "expires_at": token.expires_at}
@@ -1067,6 +1103,11 @@ def _approval_resolve(params: dict, state_root: Path, ctx: dict) -> dict:
                          request_digest=request.get("digest"))
         _step(steps, "grant_consumed", grant_id=grant.grant_id,
               reason=decision.reason, remaining_seconds=decision.remaining_seconds)
+        _emit_typed(ctx, state_root, "approval_consumed",
+                    f"appr-{_digest((request_id, 'consume'))[:24]}",
+                    correlation=request_id,
+                    session_id=str(params.get("session_id") or request_id),
+                    approval_id=request_id)
         audit_events = len(_approval_events(state_root, request_id))
     return {"request_id": request_id, "grant": decision.to_dict(),
             "grant_id": grant.grant_id,
@@ -1090,6 +1131,12 @@ def _approval_revoke(params: dict, state_root: Path, ctx: dict) -> dict:
                          now=_now(), request_digest=request.get("digest"))
         _step(steps, "approval_revoked", request_id=request_id,
               capability_id=request.get("capability_id"))
+        _emit_typed(ctx, state_root, "approval_revoked",
+                    f"appr-{_digest((request_id, 'revoke'))[:24]}",
+                    correlation=request_id,
+                    session_id=str(params.get("session_id") or request_id),
+                    approval_id=request_id,
+                    reason=_redact(str(params.get("reason") or "revoked"))[:200])
         audit_events = len(_approval_events(state_root, request_id))
     return {"request_id": request_id, "revoked": True,
             "token_id": request.get("capability_id"),
@@ -1224,6 +1271,9 @@ def _delegation_impl(params: dict, state_root: Path, ctx: dict) -> dict:
             "fork_tokens": list(manager.activations[activation_id].fork_seed.tokens)
             if manager.activations[activation_id].fork_seed else [],
         })
+        _emit_typed(ctx, state_root, "task_delegated",
+                    f"task-{_digest((ctx['key'], child_id))[:24]}",
+                    correlation=ctx["key"], task_id=child_id, agent_id=parent_id)
     _step(steps, "children_executed", count=len(children),
           completed=sum(1 for c in children if c["outcome"]["ok"]))
 
@@ -1572,6 +1622,63 @@ WORKFLOWS: dict[str, Callable[[Mapping[str, Any]], dict]] = {
 }
 
 
+def _emit_typed(ctx: dict | None, state_root: str | Path | None, kind: str,
+                event_id: str, *, correlation: str = "", session_id: str = "",
+                **fields: Any) -> bool:
+    """Emit complementary typed evidence through the single durable seam.
+
+    Publication is strictly emit-only: no workflow decision reads an event.
+    A failed emission is recorded in the workflow steps, and the authoritative
+    audit/permission records are never weakened by it.
+    """
+    try:
+        from .automation import publish_durable
+
+        return publish_durable(
+            state_root or _trusted_state_base(), kind, event_id=event_id,
+            session_id=session_id,
+            metadata=[("source", "backend.workflow"),
+                      ("correlation_id", str(correlation)[:200])],
+            **fields)
+    except Exception as exc:
+        steps = ctx.get("steps") if isinstance(ctx, dict) else None
+        if isinstance(steps, list):
+            _step(steps, "event_emit_failed", ok=False,
+                  error=_redact(f"{type(exc).__name__}: {exc}")[:300])
+        return False
+
+
+def _emit_workflow_outcome(ctx: dict | None, state_root: Path | None,
+                           name: str, result: dict, params: Any) -> bool:
+    """One typed event per workflow outcome, keyed by its idempotency key.
+
+    Denials and failures are emitted as redacted ``error_recorded`` events;
+    successes as ``job_completed``.  Replaying a workflow produces the same
+    event ID, which the bus suppresses instead of duplicating history.
+    """
+    correlation = str(result.get("idempotency_key") or
+                      _digest((name, params, result.get("code"))))
+    code = str(result.get("code") or "")
+    ok = bool(result.get("ok"))
+    fingerprint = _digest((correlation, code, ok))[:24]
+    payload = result.get("result") if isinstance(result.get("result"), dict) else {}
+    session_id = str(payload.get("session_id") or "")
+    if ok:
+        kind = "job_completed"
+        fields: dict[str, Any] = {"job_id": correlation, "status": "completed"}
+    else:
+        detail = result.get("error") or payload.get("error") or ""
+        kind = "error_recorded"
+        fields = {
+            "error_id": correlation,
+            "severity": "denied" if _http_status(code) in (403, 409) else "error",
+            "message": _redact(str(detail))[:300],
+        }
+    return _emit_typed(ctx, state_root, kind,
+                       f"wf-{_slug(name)}-{fingerprint}",
+                       correlation=correlation, session_id=session_id, **fields)
+
+
 def _audit_workflow(state_root: Path | None, name: str, result: dict) -> None:
     """Record every workflow outcome exactly once, including early failures."""
     # Even bad params / unknown workflow / rejected state roots are outcomes:
@@ -1680,6 +1787,7 @@ def run_workflow(name: str, params: Mapping[str, Any], *,
     result.setdefault("workflow", str(name))
     result.setdefault("http_status", _http_status(str(result.get("code") or "")))
     _audit_workflow(state_root, str(name), result)
+    _emit_workflow_outcome(None, state_root, str(name), result, params)
     return result
 
 

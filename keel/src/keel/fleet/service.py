@@ -4,6 +4,25 @@ Thread model: the fleet worker (per turn) writes rows through a single
 FleetStore; SSE subscribers read-only via /api/fleet/events with a cursor
 (after_seq). The store hands each subscriber a private queue; publishing
 must never block a turn on a slow client (drop-oldest, bounded).
+
+Event-system boundary (kept deliberately separate from the durable backend
+event bus): this fan-out is the authoritative mechanism for *live fleet SSE
+frames*. Exact technical reason for not replacing it:
+
+* delivery is per-subscriber and ephemeral. ``publish`` must return without
+  waiting on a client, and a slow subscriber drops its oldest queued frame
+  (``_SUBSCRIBER_QUEUE``). A digest-chained, cross-process locked, fsynced
+  append would block every turn on every SSE consumer and invert that contract;
+* the SQLite ``rows`` table (and the approval/task tables) is the durable
+  authority for fleet history and is read with ``after_seq`` cursors. A second
+  durable log would create two replay sources that can disagree;
+* live token streams are intentionally not persisted (see ``publish``). Writing
+  them to a forensic log would retain full model output indefinitely.
+
+The typed backend event bus is therefore used only for backend workflow,
+lifecycle, provider and security-decision evidence, and never for fleet SSE
+fan-out or anomaly scoring. Fleet automation's local ``EventBus`` remains the
+authoritative source for ``fleet.anomaly`` / ``capability_registry``.
 """
 
 from __future__ import annotations
