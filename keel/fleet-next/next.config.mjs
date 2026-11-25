@@ -31,7 +31,7 @@ const nextConfig = {
               "default-src 'self'; script-src 'self' 'unsafe-inline'" +
               (process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'") + "; " +
               "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; " +
-              "connect-src 'self'; font-src 'self' data:; " +
+              "connect-src 'self' https://api.github.com; font-src 'self' data:; " +
               "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
           },
         ],

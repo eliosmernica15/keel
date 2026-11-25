@@ -149,3 +149,77 @@ export function DiagnosticsPanel() {
     </div>
   );
 }
+
+export function UpdatesPanel() {
+  const [status, setStatus] = useState<"idle" | "checking" | "up-to-date" | "available" | "error">("idle");
+  const [latest, setLatest] = useState<{ tag: string; url: string; name: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function check() {
+    setStatus("checking");
+    setError(null);
+    try {
+      const res = await fetch("https://api.github.com/repos/eliosmernica15/keel/releases/latest", {
+        headers: { Accept: "application/vnd.github+json" },
+      });
+      if (!res.ok) throw new Error(`GitHub returned ${res.status}`);
+      const data = await res.json();
+      const current = "0.1.1";
+      const latestTag = String(data.tag_name || "").replace(/^v/, "");
+      if (latestTag && latestTag !== current) {
+        const asset = Array.isArray(data.assets)
+          ? data.assets.find((a: { name?: string }) => /Keel-Setup.*\.exe$/i.test(String(a?.name || "")))
+          : null;
+        setLatest({
+          tag: latestTag,
+          url: asset?.browser_download_url || data.html_url || "https://github.com/eliosmernica15/keel/releases/latest",
+          name: asset?.name || "Keel installer",
+        });
+        setStatus("available");
+      } else {
+        setStatus("up-to-date");
+      }
+    } catch (e) {
+      setError(errMessage(e));
+      setStatus("error");
+    }
+  }
+
+  return (
+    <div className={s.panel}>
+      <div className={s.sectionHead}>
+        <div>
+          <h2>Updates</h2>
+          <p className={s.muted}>Check for new Keel releases and download them directly.</p>
+        </div>
+        <Button onClick={check} disabled={status === "checking"}>
+          <Icon name="refresh" size={14} /> {status === "checking" ? "Checking\u2026" : "Check for updates"}
+        </Button>
+      </div>
+
+      {status === "up-to-date" && (
+        <Card className={s.noteCard}>
+          <div className={s.noteTitle}><Icon name="check" size={16} /> Up to date</div>
+          <p>You are running the latest version of Keel.</p>
+        </Card>
+      )}
+
+      {status === "available" && latest && (
+        <Card className={s.noteCard}>
+          <div className={s.noteTitle}><Icon name="download" size={16} /> Update available: v{latest.tag}</div>
+          <p>A new version of Keel is available. Download the installer and run it to update.</p>
+          <a className={s.exportLink} href={latest.url} target="_blank" rel="noopener noreferrer">
+            <Icon name="download" size={15} /> <span>Download {latest.name}</span>
+          </a>
+        </Card>
+      )}
+
+      {status === "error" && (
+        <Card className={s.noteCard}>
+          <div className={s.noteTitle}><Icon name="info" size={16} /> Could not check for updates</div>
+          <p>{error}</p>
+        </Card>
+      )}
+    </div>
+  );
+}
