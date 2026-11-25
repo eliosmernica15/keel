@@ -247,26 +247,26 @@ paths = ['''(?:^|/)probes/probe_redaction\.py$''']
 condition = "AND"
 targetRules = ["generic-api-key"]
 description = "Reviewed synthetic distribution provider fixture (commit ce78f10)"
-commits = ["ce78f10"]
+commits = ["ce78f101329646c8ed6f7b5cef0db1642d51c798"]
 paths = ['''(?:^|/)keel/tests/verify_distribution_provider_hardening\.py$''']
 
 [[allowlists]]
 condition = "AND"
 targetRules = ["generic-api-key"]
 description = "Reviewed synthetic distribution onboarding fixture (commit ce78f10)"
-commits = ["ce78f10"]
+commits = ["ce78f101329646c8ed6f7b5cef0db1642d51c798"]
 paths = ['''(?:^|/)keel/tests/verify_distribution_provider_onboarding\.py$''']
 
 [[allowlists]]
 condition = "AND"
 targetRules = ["aws-access-token"]
 description = "Reviewed synthetic evidence example in CI diagnosis (commit 781b4cf)"
-commits = ["781b4cf"]
+commits = ["781b4cf9a694dbb37f80886bb47cf637eef7e7d7"]
 paths = ['''(?:^|/)STAB-CI-EVIDENCE\.md$''']
 
 [[allowlists]]
 condition = "AND"
 targetRules = ["aws-access-token"]
 description = "Reviewed synthetic evidence example in supply evidence (commit c949891)"
-commits = ["c949891"]
+commits = ["c9498911ac99e36d2ea0b770f774a077db2fc6e0"]
 paths = ['''(?:^|/)STAB-SUPPLY-EVIDENCE\.md$''']
