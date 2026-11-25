@@ -1,4 +1,4 @@
-# FINAL PRODUCTION-READINESS MATRIX — Keel, completion HEAD `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)`
+# FINAL PRODUCTION-READINESS MATRIX — Keel, final execution branch `release/final-execution-2026-11-25` (HEAD `d5a50c0ad3d9cdf3f53a5b9c49d145d2f43849dd` at reconciliation; resolve exactly with `git rev-parse HEAD`)
 
 > **Authoritative reconciliation of PR-01…PR-20.** This document replaces the
 > provisional classifications in `PRODUCTION-READINESS-MATRIX.md` §D, the
@@ -8,27 +8,40 @@
 >
 > **Scope:** documentation only. No source, test, workflow or frontend file was
 > edited by this reconciliation; no push, tag, secret write, signing or publish.
+>
+> **Reconciled at the final execution branch** `release/final-execution-2026-11-25`
+> (HEAD `d5a50c0ad3d9cdf3f53a5b9c49d145d2f43849dd`; `origin/main` =
+> `bcc91230fee72d41b7f267155156b6528e22a1c8`). Current counts: **9 workflow files,
+> 42 full-SHA `uses:` pins + 1 local reusable path**, authoritative suite **4724
+> passed / 0 failed / 54 skipped** at completion-branch commit `060a281…`; the
+> full-suite re-run at the final execution SHA is **pending** (R-19). Historical
+> SHAs and counts are retained as **[HISTORICAL]** audit history in §F; the exact
+> safe owner steps are in `docs/FINAL-OWNER-ACTION-RUNBOOK.md`.
 
 ## A. Authority and exact commit identity
 
 | Field | Exact value |
 | --- | --- |
-| Completion HEAD (authoritative) | `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd784393b2b252e2b9e2927aba817dd` (`agent/final-docs2`, worktree `…\worktree\final\docs2`) |
-| Definitive full-suite commit | `c512f87971a02b05d9a9422338522f66495c0eeb` — `git diff --stat c512f87..completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)` is **empty**; the two trees are byte-identical, so the recorded suite result is evidence for the completion HEAD |
-| Authoritative full suite at that tree | `4610 passed, 54 skipped, 3707 subtests, 0 failed` in `474.31 s` (`master-plan-v6-test-evidence.md:260-274`) |
-| Independent-acceptance candidate (historical) | `63ab72e452f9c78af46db55489ef8d9def02212c` — `PASS_WITH_EXTERNAL_LIMITATIONS`; five later commits changed the tree |
-| Prior baseline (historical) | `f60b080a1c770608e1ddbf3d888a6e63a7c1b6bb` |
-| Plan registry (recomputed at completion HEAD) | `PLAN-INDEX.json` / `parity.json` SHA-256 `62fd5c6ac2d166e8cb1f5752c168d22d56d767c7e6a5bf9384696756a4a5b2f6`; 865 rows = 854 verified / 9 not_started / 2 blocked |
-| Version | `0.1.1` / tag `v0.1.1`; `python keel/scripts/check_version_sync.py` re-run at completion HEAD → `OK - all sources agree on version 0.1.1 (tag v0.1.1)` |
-| Governance gates re-run at completion HEAD | `verify_v6_audit.py` CONSISTENCY OK (865); `verify_backend_operation.py --strict` 421/421, 0 failing, exit 0; license gate OK; dependency graph FRESH; 8/8 workflow YAMLs parse; **42/42** `uses:` refs full-SHA pinned (direct count: checkout 15, setup-python 13, download-artifact 5, setup-node 4, upload-artifact 3) |
+| Final execution HEAD (authoritative branch reference) | `release/final-execution-2026-11-25` HEAD = `d5a50c0ad3d9cdf3f53a5b9c49d145d2f43849dd` (`agent/exec-docs2`, worktree `…\worktree\execution\docs2`; `origin/release/final-execution-2026-11-25` resolves to the same SHA). Resolve with `git rev-parse HEAD` at promotion |
+| Base and delta | `origin/main` = `bcc91230fee72d41b7f267155156b6528e22a1c8`; `git diff --name-status origin/main..HEAD` adds only `docs/FINAL-RELEASE-EXECUTION-PLAN.md` — no source/test/workflow/frontend change |
+| Definitive full-suite commit (completion branch) | `060a281102dbb85bbcef710a0cd03604bdf7c703` (`060a281`), an ancestor of the final execution HEAD; suite recorded there |
+| Authoritative full suite at that tree | `4724 passed, 0 failed, 54 skipped, 3707 subtests` in `801.99 s` (`master-plan-v6-test-evidence.md:276-285`; `FINAL-RELEASE-COMPLETION-REPORT.md` "Authoritative final full-suite run") |
+| Full suite at final execution SHA | **PENDING** — not re-run by this documentation-only workstream (R-19); earlier 4610 / 4628 / 4630 / 4722 figures are historical |
+| Historical completion HEAD (superseded reference) | `abfd784393b2b252e2b9e2927aba817dd` on the historical `completion/final-production-release-2026-11-25` lineage — **[HISTORICAL]**, retained for provenance only |
+| Prior definitive suite tree (historical) | `c512f87971a02b05d9a9422338522f66495c0eeb` — 4610/0 suite at an earlier lineage — **[HISTORICAL]** |
+| Independent-acceptance candidates (historical) | `530c0670f2c34805fb7ac705e1a7b8dfe113006f` (`BLOCK`, F-0 allowlist exactness; fixed by `efd16d4`) and `63ab72e452f9c78af46db55489ef8d9def02212c` (`PASS_WITH_EXTERNAL_LIMITATIONS`) — both **[HISTORICAL]** |
+| Prior baseline (historical) | `f60b080a1c770608e1ddbf3d888a6e63a7c1b6bb` — **[HISTORICAL]** |
+| Plan registry (recomputed at final execution HEAD) | `PLAN-INDEX.json` / `parity.json` SHA-256 `62fd5c6ac2d166e8cb1f5752c168d22d56d767c7e6a5bf9384696756a4a5b2f6`; `verify_v6_audit.py` CONSISTENCY OK, 865 rows = 854 verified / 9 not_started / 2 blocked |
+| Version | `0.1.1` / tag `v0.1.1`; `python keel/scripts/check_version_sync.py` re-run at final execution HEAD → `OK - all sources agree on version 0.1.1 (tag v0.1.1)` |
+| Governance gates re-run at final execution HEAD | `verify_v6_audit.py` CONSISTENCY OK (865); `verify_backend_operation.py --strict` 421/421, 0 failing, exit 0; license gate OK (11 entries, 0 bundled); dependency graph FRESH; **9/9** workflow YAMLs parse; **42/42** external `uses:` refs full-SHA pinned + 1 local reusable path (direct count: checkout 16, setup-python 14, download-artifact 5, setup-node 4, upload-artifact 3) |
 | Production deployment | **None.** No deployed instance, no published release, no signed artifact, no distribution URL |
 
-### Commit key (resolves every `C` reference in §B to an exact commit)
+### Commit key (resolves every `C` reference in §C to a branch reference or exact commit)
 
-| Key | Full SHA | Role |
+| Key | Full SHA / branch reference | Role |
 | --- | --- | --- |
-| `C0` | `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd784393b2b252e2b9e2927aba817dd` | Completion HEAD; final merge of PR #17 |
-| `C1` | `c512f87971a02b05d9a9422338522f66495c0eeb` | Definitive 4610/0 full suite; tree = `C0` |
+| `C0` | `release/final-execution-2026-11-25` HEAD (`d5a50c0ad3d9cdf3f53a5b9c49d145d2f43849dd` at reconciliation; resolve exactly with `git rev-parse HEAD`) | Authoritative final execution tree; replaces the historical completion HEAD `abfd784393b2b252e2b9e2927aba817dd` |
+| `C1` | `060a281102dbb85bbcef710a0cd03604bdf7c703` | Definitive 4724/0 full suite (completion branch, ancestor of `C0`); the `C0` code tree differs only by later documentation/frontend additions, so re-run at `C0` is pending (R-19) |
 | `C2` | `50e5be0ecc902c53b7d5f441001c26facc175942` | O(1) verified-ledger cache (perf §9.1); stabilization report finalize |
 | `C3` | `788090ca327e5a6ee76c749884519ba6a0502641` | Owner-main merge: frontend/distribution/signing code and docs |
 | `C4` | `63ab72e452f9c78af46db55489ef8d9def02212c` | Independent final-acceptance candidate — **historical** |
@@ -57,30 +70,30 @@ A gate with an owner dependency *used by* another gate is not thereby owner-gate
 
 ## C. Authoritative 20-row matrix
 
-Legend: `FULL` = mechanism present in tracked source at `C0`; `PARTIAL` = present on a subset of required surfaces; `NONE` = absent. `FINAL` = covered by the definitive `C0`/`C1` tree suite (4610/0) plus the named targeted suite; `HIST` = only at a historical commit. `Win`/`WSL2` = native verification on those hosts; `mac none` = no Darwin host. Owner actions `A1`–`A5` are the only genuine external requirements and are specified in `FINAL-OWNER-ACTIONS.md`.
+Legend: `FULL` = mechanism present in tracked source at `C0` (the final execution branch reference, not a fixed SHA); `PARTIAL` = present on a subset of required surfaces; `NONE` = absent. `FINAL` = covered by the definitive completion-branch suite (4724/0 at `C1`) plus the named targeted suite; a fresh full-suite re-run at `C0` is **pending** (R-19). `HIST` = only at a historical commit. `Win`/`WSL2` = native verification on those hosts; `mac none` = no Darwin host. Owner actions `A1`–`A5` are the only genuine external requirements, specified in `FINAL-OWNER-ACTIONS.md` with exact safe steps in `docs/FINAL-OWNER-ACTION-RUNBOOK.md`.
 
 | ID | Requirement | Implementation @ `C0` | Local test verification | Native platform | Live external status | Evidence path | Commit ref | Owner action | Final class |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PR-01 | Start/stop Keel deterministically | FULL — `cli/main.py` serve/fleet/web, `webapp.py` Ctrl+C + SIGTERM, `scheduler.start_daemon` | FINAL — 4610/0; graceful shutdown + connection-refused post-shutdown probe | Win + WSL2 native shutdown observed | n/a — no production service exercised | `STAB-RUNTIME-EVIDENCE.md`; `STAB-INSTALL-EVIDENCE.md` §2; `BACKEND-OPERATIONS-RUNBOOK.md` §1; `master-plan-v6-test-evidence.md` | `C0=C1`, `C13` | — | PINV |
-| PR-02 | Liveness distinct from readiness | FULL — `/api/health` 200 with version, token gating 403, `doctor`, diagnostics; no false `/api/ready` claim | FINAL — 4610/0; `STAB-INSTALL-EVIDENCE.md` §2 health probes (8/8) | Win + WSL2 | n/a | `STAB-INSTALL-EVIDENCE.md` §2; `STAB-RUNTIME-EVIDENCE.md`; `master-plan-v6-cli-surface-evidence.md` | `C0=C1`, `C13` | — | PINV |
-| PR-03 | Module health and release evidence | FULL — `backend_observability.health_snapshot`, root `verify_backend_operation.py` | FINAL — re-run at `C0`: CONSISTENCY OK (865), strict gate 421/421 exit 0; 4610/0 | n/a | n/a | `master-plan-v6-release-acceptance.md`; `FINAL-ERROR-SWEEP.md` §1 [HISTORICAL]; `master-plan-v6-test-evidence.md` | `C0=C1` | — | PINV |
-| PR-04 | Scoped config and env validation | FULL — `settings.py`, `cli/main.py` settings/execpolicy, `admin_ops.py`; authoritative state-root precedence | FINAL — 4610/0; config suites + runtime state-root checks | Win + WSL2 | n/a | `STAB-RUNTIME-EVIDENCE.md`; `master-plan-v6-config-contracts-evidence.md` | `C0=C1`, `C13` | — | PINV |
-| PR-05 | Encrypted secrets, presence-only diagnostics | FULL — `secret_store.py`, `secret_providers.py`, `secrets` CLI | FINAL — 4610/0; provider/secret suite 128 passed at `C5`; no plaintext after removal | Win + WSL2 | n/a — synthetic fixtures only | `STAB-PROVIDER-EVIDENCE.md` §3; `master-plan-v6-secrets-policy-evidence.md` | `C0=C1`, `C5` | — | PINV |
-| PR-06 | Provider configuration/validation without fabricated success | FULL — truthful SKIP/FAIL, no live call without `--live`, redaction, SSRF guard | FINAL — 4610/0; `test_stab_provider.py` + 5 companion files → 128 passed; pre-fix control 117/7 failed | n/a | **NO LIVE CALL** — all credentials synthetic/absent; `live_provider=SKIP` | `STAB-PROVIDER-EVIDENCE.md`; `PROD-PROVIDER-EVIDENCE.md` [HISTORICAL]; `.github/workflows/provider-validation.yml` | `C0=C1`, `C5`, `C11` | `A1` | EXTP |
-| PR-07 | Verified encrypted backup/restore | FULL — `backups.py` AES-GCM + AAD, manifest hash, `python -m keel.backups` db-backup/verify/list/restore/prune | FINAL — 4610/0; 64/64 DB gate + 275-test sweep | Win + WSL2 | n/a — no production DB | `STAB-DB-EVIDENCE.md` §0/§5; `master-plan-v6-db-persistence-evidence.md`; `master-plan-v6-recovery-evidence.md` | `C0=C1`, `C6` | — | PINV |
-| PR-08 | Forward migration, honest rollback limits | FULL — `fleet/db.py` v1→v11, no down-migration, explicit pre-migration snapshot restore | FINAL — 4610/0; migration/concurrency tests in 64/64 + 275 sweep | Win + WSL2 | n/a | `STAB-DB-EVIDENCE.md` §5/§6; `BACKEND-DATABASE-RECOVERY.md` | `C0=C1`, `C6` | — | PINV |
-| PR-09 | Installer rollback / failed-start auto-rollback | FULL — `updater.atomic_install`/`rollback`, `start_health`, 3-failed-start decision | FINAL — 4610/0; STAB-INSTALL local rollback drill 6/6, defect regressions 7/7 | Win local installer; WSL2 scoped | **NO VM RUN** — disposable-VM check 5 folded into PR-17 | `STAB-INSTALL-EVIDENCE.md` §4/§8; `PROD-ROLLBACK-EVIDENCE.md` [HISTORICAL] | `C0=C1`, `C8` | — (VM action is `A5`) | PINV |
-| PR-10 | Locatable, tamper-evident, redacted log | FULL as library — `backend_observability.verify_chain`, `redaction.py`; runtime wiring deferred (integration M-4), documented, not claimed as active runtime logging | FINAL — 4610/0; chain/redaction suites in `test_backend_events.py`, `test_redaction.py`, `test_diagnostics.py` | Win + WSL2 | n/a | `STAB-EVENTS-EVIDENCE.md`; `master-plan-v6-reliability-contracts-evidence.md`; `FINAL-STABILIZATION-ACCEPTANCE.md` §4.4 | `C0=C1` | — (M-4 is an engineering decision, not external) | PINV |
-| PR-11 | Redacted diagnostic export | FULL — `diagnostics.py`, `doctor --bundle` | FINAL — 4610/0; diagnostics/redaction suite | Win + WSL2 | n/a | `STAB-EVENTS-EVIDENCE.md` §6; `STAB-INTEGRATION-EVIDENCE.md`; `diagnostics.py` docstring | `C0=C1` | — | PINV |
-| PR-12 | Scheduler/gateway recovery | FULL — `fleet/scheduler.py`, `gateway.py`, durable `EventBus`/`DeliveryTracker`; no multi-day soak claimed | FINAL — 4610/0; 128 passing integration tests | Win + WSL2 | n/a | `STAB-EVENTS-EVIDENCE.md`; `master-plan-v6-gate-scheduler-evidence.md`; `master-plan-v6-fleet-events-evidence.md` | `C0=C1` | — | PINV |
-| PR-13 | Stop unsafe execution / change posture | FULL — workflow confirmation, per-workflow policy, policy-free subroot closed, HMAC ledger; residual M-2: CLI/TUI do not forward permission tiers (transport confirm gates strict) | FINAL — 4610/0; `test_stab_workflow_auth.py` + boundary probes; independent reviewer reproduced H-1 fix | Win + WSL2 native enforcement; macOS under PR-19 | n/a | `STAB-WORKFLOW-EVIDENCE.md`; `STAB-SECURITY-REVIEW.md`; `FINAL-STABILIZATION-ACCEPTANCE.md` §6 | `C0=C1`, `C7`, `C13` | — (M-2 is an engineering follow-up) | PINV |
-| PR-14 | Revoke credentials / disable integration | FULL locally — env+store key removal, MCP/approval/pairing/token revoke, redacted audit chain; gap G1: Y3.9 sign-out descriptor does not purge stored credentials | FINAL — 4610/0; 7 real local tests + 170 neighbours at `PROD-REVOCATION-EVIDENCE.md` [HISTORICAL], reconfirmed by 128-test provider suite and 4610/0 at `C0` | Win + WSL2 | NO LIVE REVOKE — round-trip needs the PR-06 credential; recorded as a sub-check of `A1`, not a separate gate | `STAB-PROVIDER-EVIDENCE.md` §3/§4; `PROD-REVOCATION-EVIDENCE.md` [HISTORICAL] | `C0=C1`, `C5` | `A1` (shared credential) | PINV |
-| PR-15 | Preserve forensic evidence | FULL as library — `verify_chain`, forensic retention archives with SHA-256 manifest; runtime adoption deferred (M-4) | FINAL — 4610/0; forensic retention/chain tests pass | Win + WSL2 | n/a | `STAB-EVENTS-EVIDENCE.md` §5/F5-F6; `master-plan-v6-recovery-evidence.md`; `FINAL-STABILIZATION-ACCEPTANCE.md` §4.4 | `C0=C1` | — (M-4 is an engineering decision) | PINV |
-| PR-16 | Clean setup and dependency install | FULL — hash-pinned `--require-hashes` install, editable install, version sync, `check_version_sync.py` | FINAL — 4610/0; 8/8 clean-checkout harness checks; governance gates re-run at `C0` | Win + WSL2 | n/a | `STAB-CI-EVIDENCE.md`; `STAB-INSTALL-EVIDENCE.md` §2; `PROD-CLEAN-SETUP-EVIDENCE.md` [HISTORICAL] | `C0=C1`, `C11` | — | PINV |
-| PR-17 | Upgrade and recovery path | FULL locally — signed loopback manifest, atomic swap, SQLite preservation, interrupted-swap recovery, O(1) ledger cache | FINAL — 4610/0; install/upgrade local gate `pass`; 6/6 drill + 7/7 defect regression | Win local, WSL2 scoped, mac none | **NO SIGNED CLEAN-VM RUN** — no disposable VM, no signed installer, no published release | `STAB-INSTALL-EVIDENCE.md` §3-§4/§8; `PROD-ROLLBACK-EVIDENCE.md` [HISTORICAL]; `master-plan-v6-signing-evidence.md` | `C0=C1`, `C8`, `C2` | `A2` + `A5` | EXTP |
-| PR-18 | Real signals, redaction, bounded views | FULL — `diagnostic_report`, `admin_page`, `circuit_breaker`, `costs status`, bounded retention/steering; no exporter/pager (scope note, not a gate requirement) | FINAL — 4610/0; bounded retention and worker-cancel regressions (7 tests) | Win + WSL2 | n/a | `STAB-PERFORMANCE-EVIDENCE.md` §11; `master-plan-v6-reliability-contracts-evidence.md` | `C0=C1` | — (thresholds are a product decision, not external) | PINV |
-| PR-19 | Native Linux/macOS execution and installers | PARTIAL — Windows native and Linux Landlock+seccomp implemented and verified; macOS library present but unverified; no DMG/ZIP/AppImage/deb verified on native runners | Win 31 passed/6 skipped/0 failed; WSL2 16/16 sandbox + 9/1 os-sandbox; **macOS 14 tests all platform-gated skips** | Win VERIFIED; WSL2 kernel 6.6.87.2 VERIFIED; **mac none**, macOS 26 `sandbox-exec` SIGABRT | n/a — cannot attempt without a runner | `STAB-PLATFORM-EVIDENCE.md` §1-§5; `PROD-PLATFORM-EVIDENCE.md` [HISTORICAL] | `C0=C1` | `A3` (+ `A2` for Apple trust) | BLCK |
-| PR-20 | Live providers, signing, release authorization | FULL code — `signing.py` hard-fail gate, `publish.py` always gated for real publish, `build-desktop.yml` verify-release-signatures job, `signing-readiness.yml`; 42/42 SHA-pinned actions | FINAL — 4610/0; 10 signing-gate tests + 36 combined at `C9`, governance gates re-run at `C0` | n/a | **NO KEYS, NO `.sig`, NO PUBLISH** — `signing-readiness.yml` reports MISSING; branch protection unavailable on GitHub Free | `master-plan-v6-signing-evidence.md`; `keel/docs/release/SIGNING-PREPARATION.md`; `PROD-SUPPLY-CHAIN-EVIDENCE.md` [HISTORICAL for 30/31 pins] | `C0=C1`, `C3`, `C9`, `C10` | `A1`, `A2`, `A4`, `A5` | OWNR |
+| PR-01 | Start/stop Keel deterministically | FULL — `cli/main.py` serve/fleet/web, `webapp.py` Ctrl+C + SIGTERM, `scheduler.start_daemon` | FINAL — 4724/0 @ `C1`; graceful shutdown + connection-refused post-shutdown probe | Win + WSL2 native shutdown observed | n/a — no production service exercised | `STAB-RUNTIME-EVIDENCE.md`; `STAB-INSTALL-EVIDENCE.md` §2; `BACKEND-OPERATIONS-RUNBOOK.md` §1; `master-plan-v6-test-evidence.md` | `C0`, `C13` | — | PINV |
+| PR-02 | Liveness distinct from readiness | FULL — `/api/health` 200 with version, token gating 403, `doctor`, diagnostics; no false `/api/ready` claim | FINAL — 4724/0 @ `C1`; `STAB-INSTALL-EVIDENCE.md` §2 health probes (8/8) | Win + WSL2 | n/a | `STAB-INSTALL-EVIDENCE.md` §2; `STAB-RUNTIME-EVIDENCE.md`; `master-plan-v6-cli-surface-evidence.md` | `C0`, `C13` | — | PINV |
+| PR-03 | Module health and release evidence | FULL — `backend_observability.health_snapshot`, root `verify_backend_operation.py` | FINAL — re-run at `C0`: CONSISTENCY OK (865), strict gate 421/421 exit 0; 4724/0 @ `C1` (C0 re-run pending) | n/a | n/a | `master-plan-v6-release-acceptance.md`; `FINAL-ERROR-SWEEP.md` §1 [HISTORICAL]; `master-plan-v6-test-evidence.md` | `C0` | — | PINV |
+| PR-04 | Scoped config and env validation | FULL — `settings.py`, `cli/main.py` settings/execpolicy, `admin_ops.py`; authoritative state-root precedence | FINAL — 4724/0 @ `C1`; config suites + runtime state-root checks | Win + WSL2 | n/a | `STAB-RUNTIME-EVIDENCE.md`; `master-plan-v6-config-contracts-evidence.md` | `C0`, `C13` | — | PINV |
+| PR-05 | Encrypted secrets, presence-only diagnostics | FULL — `secret_store.py`, `secret_providers.py`, `secrets` CLI | FINAL — 4724/0 @ `C1`; provider/secret suite 128 passed at `C5`; no plaintext after removal | Win + WSL2 | n/a — synthetic fixtures only | `STAB-PROVIDER-EVIDENCE.md` §3; `master-plan-v6-secrets-policy-evidence.md` | `C0`, `C5` | — | PINV |
+| PR-06 | Provider configuration/validation without fabricated success | FULL — truthful SKIP/FAIL, no live call without `--live`, redaction, SSRF guard | FINAL — 4724/0 @ `C1`; `test_stab_provider.py` + 5 companion files → 128 passed; pre-fix control 117/7 failed | n/a | **NO LIVE CALL** — all credentials synthetic/absent; `live_provider=SKIP` | `STAB-PROVIDER-EVIDENCE.md`; `PROD-PROVIDER-EVIDENCE.md` [HISTORICAL]; `.github/workflows/provider-validation.yml` | `C0`, `C5`, `C11` | `A1` | EXTP |
+| PR-07 | Verified encrypted backup/restore | FULL — `backups.py` AES-GCM + AAD, manifest hash, `python -m keel.backups` db-backup/verify/list/restore/prune | FINAL — 4724/0 @ `C1`; 64/64 DB gate + 275-test sweep | Win + WSL2 | n/a — no production DB | `STAB-DB-EVIDENCE.md` §0/§5; `master-plan-v6-db-persistence-evidence.md`; `master-plan-v6-recovery-evidence.md` | `C0`, `C6` | — | PINV |
+| PR-08 | Forward migration, honest rollback limits | FULL — `fleet/db.py` v1→v11, no down-migration, explicit pre-migration snapshot restore | FINAL — 4724/0 @ `C1`; migration/concurrency tests in 64/64 + 275 sweep | Win + WSL2 | n/a | `STAB-DB-EVIDENCE.md` §5/§6; `BACKEND-DATABASE-RECOVERY.md` | `C0`, `C6` | — | PINV |
+| PR-09 | Installer rollback / failed-start auto-rollback | FULL — `updater.atomic_install`/`rollback`, `start_health`, 3-failed-start decision | FINAL — 4724/0 @ `C1`; STAB-INSTALL local rollback drill 6/6, defect regressions 7/7 | Win local installer; WSL2 scoped | **NO VM RUN** — disposable-VM check 5 folded into PR-17 | `STAB-INSTALL-EVIDENCE.md` §4/§8; `PROD-ROLLBACK-EVIDENCE.md` [HISTORICAL] | `C0`, `C8` | — (VM action is `A5`) | PINV |
+| PR-10 | Locatable, tamper-evident, redacted log | FULL as library — `backend_observability.verify_chain`, `redaction.py`; runtime wiring deferred (integration M-4), documented, not claimed as active runtime logging | FINAL — 4724/0 @ `C1`; chain/redaction suites in `test_backend_events.py`, `test_redaction.py`, `test_diagnostics.py` | Win + WSL2 | n/a | `STAB-EVENTS-EVIDENCE.md`; `master-plan-v6-reliability-contracts-evidence.md`; `FINAL-STABILIZATION-ACCEPTANCE.md` §4.4 | `C0` | — (M-4 is an engineering decision, not external) | PINV |
+| PR-11 | Redacted diagnostic export | FULL — `diagnostics.py`, `doctor --bundle` | FINAL — 4724/0 @ `C1`; diagnostics/redaction suite | Win + WSL2 | n/a | `STAB-EVENTS-EVIDENCE.md` §6; `STAB-INTEGRATION-EVIDENCE.md`; `diagnostics.py` docstring | `C0` | — | PINV |
+| PR-12 | Scheduler/gateway recovery | FULL — `fleet/scheduler.py`, `gateway.py`, durable `EventBus`/`DeliveryTracker`; no multi-day soak claimed | FINAL — 4724/0 @ `C1`; 128 passing integration tests | Win + WSL2 | n/a | `STAB-EVENTS-EVIDENCE.md`; `master-plan-v6-gate-scheduler-evidence.md`; `master-plan-v6-fleet-events-evidence.md` | `C0` | — | PINV |
+| PR-13 | Stop unsafe execution / change posture | FULL — workflow confirmation, per-workflow policy, policy-free subroot closed, HMAC ledger; residual M-2: CLI/TUI do not forward permission tiers (transport confirm gates strict) | FINAL — 4724/0 @ `C1`; `test_stab_workflow_auth.py` + boundary probes; independent reviewer reproduced H-1 fix | Win + WSL2 native enforcement; macOS under PR-19 | n/a | `STAB-WORKFLOW-EVIDENCE.md`; `STAB-SECURITY-REVIEW.md`; `FINAL-STABILIZATION-ACCEPTANCE.md` §6 | `C0`, `C7`, `C13` | — (M-2 is an engineering follow-up) | PINV |
+| PR-14 | Revoke credentials / disable integration | FULL locally — env+store key removal, MCP/approval/pairing/token revoke, redacted audit chain; gap G1: Y3.9 sign-out descriptor does not purge stored credentials | FINAL — 4724/0 @ `C1`; 7 real local tests + 170 neighbours at `PROD-REVOCATION-EVIDENCE.md` [HISTORICAL], reconfirmed by 128-test provider suite and 4724/0 @ `C1` (C0 re-run pending) | Win + WSL2 | NO LIVE REVOKE — round-trip needs the PR-06 credential; recorded as a sub-check of `A1`, not a separate gate | `STAB-PROVIDER-EVIDENCE.md` §3/§4; `PROD-REVOCATION-EVIDENCE.md` [HISTORICAL] | `C0`, `C5` | `A1` (shared credential) | PINV |
+| PR-15 | Preserve forensic evidence | FULL as library — `verify_chain`, forensic retention archives with SHA-256 manifest; runtime adoption deferred (M-4) | FINAL — 4724/0 @ `C1`; forensic retention/chain tests pass | Win + WSL2 | n/a | `STAB-EVENTS-EVIDENCE.md` §5/F5-F6; `master-plan-v6-recovery-evidence.md`; `FINAL-STABILIZATION-ACCEPTANCE.md` §4.4 | `C0` | — (M-4 is an engineering decision) | PINV |
+| PR-16 | Clean setup and dependency install | FULL — hash-pinned `--require-hashes` install, editable install, version sync, `check_version_sync.py` | FINAL — 4724/0 @ `C1`; 8/8 clean-checkout harness checks; governance gates re-run at `C0` | Win + WSL2 | n/a | `STAB-CI-EVIDENCE.md`; `STAB-INSTALL-EVIDENCE.md` §2; `PROD-CLEAN-SETUP-EVIDENCE.md` [HISTORICAL] | `C0`, `C11` | — | PINV |
+| PR-17 | Upgrade and recovery path | FULL locally — signed loopback manifest, atomic swap, SQLite preservation, interrupted-swap recovery, O(1) ledger cache | FINAL — 4724/0 @ `C1`; install/upgrade local gate `pass`; 6/6 drill + 7/7 defect regression | Win local, WSL2 scoped, mac none | **NO SIGNED CLEAN-VM RUN** — no disposable VM, no signed installer, no published release | `STAB-INSTALL-EVIDENCE.md` §3-§4/§8; `PROD-ROLLBACK-EVIDENCE.md` [HISTORICAL]; `master-plan-v6-signing-evidence.md` | `C0`, `C8`, `C2` | `A2` + `A5` | EXTP |
+| PR-18 | Real signals, redaction, bounded views | FULL — `diagnostic_report`, `admin_page`, `circuit_breaker`, `costs status`, bounded retention/steering; no exporter/pager (scope note, not a gate requirement) | FINAL — 4724/0 @ `C1`; bounded retention and worker-cancel regressions (7 tests) | Win + WSL2 | n/a | `STAB-PERFORMANCE-EVIDENCE.md` §11; `master-plan-v6-reliability-contracts-evidence.md` | `C0` | — (thresholds are a product decision, not external) | PINV |
+| PR-19 | Native Linux/macOS execution and installers | PARTIAL — Windows native and Linux Landlock+seccomp implemented and verified; macOS library present but unverified; no DMG/ZIP/AppImage/deb verified on native runners | Win 31 passed/6 skipped/0 failed; WSL2 16/16 sandbox + 9/1 os-sandbox; **macOS 14 tests all platform-gated skips** | Win VERIFIED; WSL2 kernel 6.6.87.2 VERIFIED; **mac none**, macOS 26 `sandbox-exec` SIGABRT | n/a — cannot attempt without a runner | `STAB-PLATFORM-EVIDENCE.md` §1-§5; `PROD-PLATFORM-EVIDENCE.md` [HISTORICAL] | `C0` | `A3` (+ `A2` for Apple trust) | BLCK |
+| PR-20 | Live providers, signing, release authorization | FULL code — `signing.py` hard-fail gate, `publish.py` always gated for real publish, `build-desktop.yml` verify-release-signatures job, `signing-readiness.yml`; 42/42 SHA-pinned actions | FINAL — 4724/0 @ `C1`; 10 signing-gate tests + 36 combined at `C9`, governance gates re-run at `C0` | n/a | **NO KEYS, NO `.sig`, NO PUBLISH** — `signing-readiness.yml` reports MISSING; branch protection unavailable on GitHub Free | `master-plan-v6-signing-evidence.md`; `keel/docs/release/SIGNING-PREPARATION.md`; `PROD-SUPPLY-CHAIN-EVIDENCE.md` [HISTORICAL for 30/31 pins] | `C0`, `C3`, `C9`, `C10` | `A1`, `A2`, `A4`, `A5` | OWNR |
 
 ## D. Six separate summaries
 
@@ -99,9 +112,9 @@ Scope notes recorded, not hidden: PR-10/PR-15 are implemented as libraries with 
 
 | Measure | Value |
 | --- | --- |
-| Definitive full suite at the `C0` tree | **4610 passed / 0 failed / 54 skipped / 3707 subtests** (`C1`; `C0` tree = `C1` tree) |
+| Definitive full suite (completion branch) | **4724 passed / 0 failed / 54 skipped / 3707 subtests in 801.99 s** at `C1` = `060a281…`; the full-suite re-run at the final execution branch `C0` is **pending** (R-19) |
 | Per-area targeted suites | PR-06/PR-14 128 passed; PR-07/PR-08 64 + 275; PR-09/PR-16/PR-17 local install gate `pass`, 6/6 + 7/7; PR-13 workflow auth + reviewer probes; PR-20 10 + 36 signing tests |
-| Governance gates re-run at `C0` by this reconciliation | registry CONSISTENCY OK (865); strict backend gate 421/421, 0 failing, exit 0; license gate OK; dependency graph FRESH; version sync OK; 9/9 YAML parse; 42/42 SHA pins |
+| Governance gates re-run at `C0` by this reconciliation | registry CONSISTENCY OK (865); strict backend gate 421/421, 0 failing, exit 0; license gate OK (11 entries, 0 bundled); dependency graph FRESH; version sync OK; **9/9** workflow YAMLs parse; **42/42** external full-SHA `uses:` pins + 1 local reusable path |
 | Gates with local verification only at historical commits | **0** (historical runs are retained as provenance, never as the decisive evidence) |
 | Gates locally verified at the final tree | **20 / 20** |
 
@@ -131,7 +144,7 @@ Scope notes recorded, not hidden: PR-10/PR-15 are implemented as libraries with 
 | Signing keys configured | **0** — `KEEL_RELEASE_SIGNING_KEY` / `KEEL_RELEASE_SIGNING_PUBLIC_KEY` absent |
 | Platform trust secrets (Authenticode / Developer ID / notarization / Linux) | **0**; OS signing skipped by electron-builder |
 | Signed artifacts (`.sig`, signed `RELEASE-MANIFEST.json`) | **0** tracked or on disk |
-| Workflow action pinning | **42/42** full-SHA at `C0` (older 20/23/26/30/31 counts are historical) |
+| Workflow action pinning | **42/42** external full-SHA `uses:` refs at `C0` across **9 workflow files**, plus 1 local reusable path (checkout 16, setup-python 14, download-artifact 5, setup-node 4, upload-artifact 3); older 8-workflow and 20/23/26/30/31 counts are **[HISTORICAL]** |
 | GitHub Free branch protection / 2FA enforcement | Unavailable (403/404/422); owner plan decision `A4` |
 | Final class | PR-20 `OWNR` |
 
@@ -173,28 +186,44 @@ SHA existed; at `C0` it refines to the table above. No gate is counted twice and
 
 | Stale claim / artifact | Where | Status at `C0` |
 | --- | --- | --- |
-| `<<CANDIDATE_HEAD_REFERENCE — PLACEHOLDER>>`, `<<LEAD_SUPPLIED_SHA…>>` | `PRODUCTION-READINESS-MATRIX.md:17`; `PRODUCTION-READINESS-REPORT.md:5` | **[HISTORICAL]** — final SHA is `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd…` |
-| `f60b080` as "current baseline tip" | matrix/report §A | **[HISTORICAL]** baseline; completion HEAD is `C0` |
-| Candidate `63ab72e` as final | `FINAL-STABILIZATION-ACCEPTANCE.md` | **[HISTORICAL]** acceptance candidate; 5 commits later the tree is `C0` = `C1` |
+| `<<CANDIDATE_HEAD_REFERENCE — PLACEHOLDER>>`, `<<LEAD_SUPPLIED_SHA…>>` | `PRODUCTION-READINESS-MATRIX.md:17`; `PRODUCTION-READINESS-REPORT.md:5` | **[HISTORICAL]** — authoritative final reference is the branch `release/final-execution-2026-11-25` (`d5a50c0…` at reconciliation; resolve exactly with `git rev-parse HEAD`); the older `abfd…` completion SHA is historical provenance |
+| `f60b080` as "current baseline tip" | matrix/report §A | **[HISTORICAL]** baseline; authoritative tree is `C0` = final execution branch |
+| Candidate `63ab72e` as final | `FINAL-STABILIZATION-ACCEPTANCE.md` | **[HISTORICAL]** acceptance candidate; later completion/execution commits superseded it |
 | `e573273`, `ac84fee`, `fe6cdd`, `ecba9d2b`, `CANDIDATE_HEAD…`; branches `agent/prod-ops`, `integration/*`, `final/v6-production`, `agent/stab-*` | PROD-*/FINAL-*/master-plan-v6-* docs | **[HISTORICAL]** provenance only; never current evidence for `C0` |
-| Test counts 4214 / 4419 / 4437 / 4442 / 4459 / 4546 / 4557 / 4558 | delivery, STAB, POST-PROMOTION and test evidence docs | **[HISTORICAL]** at their own commits; authoritative final count **4610 / 0 / 54 skipped** |
-| Action-pin counts 20 / 23 / 26 / 30 / 31 | security, supply-chain, error-sweep, matrix, acceptance docs | **[HISTORICAL]**; direct count at `C0` is **42/42** full-SHA pins across 8 workflows |
+| Test counts 4214 / 4419 / 4437 / 4442 / 4459 / 4546 / 4557 / 4558 / 4610 / 4628 / 4630 / 4722 | delivery, STAB, POST-PROMOTION, independent-acceptance and test evidence docs | **[HISTORICAL]** at their own commits; authoritative recorded suite is **4724 passed / 0 failed / 54 skipped** at `C1` = `060a281…`; re-run at `C0` **pending** (R-19) |
+| Action-pin counts 20 / 23 / 26 / 30 / 31; "8 workflows" | security, supply-chain, error-sweep, matrix, acceptance docs and this matrix's older §A/§D.5 | **[HISTORICAL]**; direct count at `C0` is **9 workflow files, 42/42 external full-SHA pins + 1 local reusable path** |
 | `pass 13 / unverified 5 / blocked 2` | `FINAL-RELEASE-ACCEPTANCE.md` §B3, `FINAL-ERROR-SWEEP.md` §4 | **[HISTORICAL]** pre-promotion candidate verdict (`BLOCK`) |
 | `pass 17 / unverified 3 / blocked 2` (only 13 IDs, PR-19 twice) | old `PRODUCTION-READINESS-MATRIX.md` summary | **[HISTORICAL]** superseded by five-state vocabulary then by this matrix |
 | `17 local + 2 external + 1 owner + 1 blocked = 21` | `POST-PROMOTION-STABILIZATION-REPORT.md` §F | **[HISTORICAL]** mutually-exclusive recount = 16 + 2 + 1 + 1 = 20 |
-| `18 external_validation_pending`, `pass locally = 0`, "no STAB evidence landed" | `PRODUCTION-READINESS-MATRIX.md` §A/§D; `PRODUCTION-READINESS-REPORT.md` | **[HISTORICAL]** provisional; 14 `STAB-*-EVIDENCE.md` files are present and the final tree suite is 4610/0 |
+| `18 external_validation_pending`, `pass locally = 0`, "no STAB evidence landed" | `PRODUCTION-READINESS-MATRIX.md` §A/§D; `PRODUCTION-READINESS-REPORT.md` | **[HISTORICAL]** provisional; 14 `STAB-*-EVIDENCE.md` files are present and the recorded suite is 4724/0 |
 | "no frontend work / frontend files imported" | `FINAL-RELEASE-ACCEPTANCE.md` B1; `POST-PROMOTION-STABILIZATION-REPORT.md` §B | **[HISTORICAL]** — frontend completion merged via PR #16 (`d965d20`) and owner merge `C3`; no frontend was edited by this reconciliation |
 | "no `keel backup` CLI exists" | old matrix PR-07 | Superseded — CLI is `python -m keel.backups` (`backups.py:695`) |
 | "Linux WSL2 scoped with four conformance failures" | old matrix PR-19 / `PROD-PLATFORM-EVIDENCE.md` | Superseded — `STAB-PLATFORM-EVIDENCE.md` VERIFIED 16/16 + 9/1 with fail-closed skips disclosed |
 | Perf §9.1 `BLOCKING / PRODUCTION-SIGNIFICANT` unimplemented | `STAB-PERFORMANCE-EVIDENCE.md:307`; `FINAL-STABILIZATION-ACCEPTANCE.md` §4.3 | Closed by `C2` (`_LEDGER_CACHE` in `backend_workflows.py`, `test_stab_ledger_cache.py`) before `C0` |
-| 42/42 SHA pins and 4557-pass suite in final report | `POST-PROMOTION-STABILIZATION-REPORT.md` §C/§F | Superseded — 42/42 pins and 4610/0 at `C0` |
+| 42/42 SHA pins and 4557-pass suite in final report | `POST-PROMOTION-STABILIZATION-REPORT.md` §C/§F | Superseded — 42/42 pins across 9 workflows and 4724/0 at `C1`; `C0` re-run pending |
+
+### Superseded reports — HISTORICAL, retained not deleted
+
+| Report | HISTORICAL status |
+| --- | --- |
+| `PRODUCTION-READINESS-MATRIX.md`, `PRODUCTION-READINESS-REPORT.md` | Provisional partition, superseded by §C/§E of this matrix |
+| `POST-PROMOTION-STABILIZATION-REPORT.md` §F | `17 + 2 + 1 + 1 = 21` double-count; superseded by 16 + 2 + 1 + 1 = 20 |
+| `FINAL-RELEASE-ACCEPTANCE.md` | Pre-promotion `BLOCK` verdict; superseded for the final tree, still not a production approval |
+| `FINAL-STABILIZATION-ACCEPTANCE.md` | Candidate `63ab72e` verdict; not a final-tree verdict |
+| `FINAL-INDEPENDENT-ACCEPTANCE.md` | Reviewer verdict at `530c067` (`BLOCK`, F-0); verdict retained for reviewer, stale counts corrected only; a fresh acceptance at the promoted SHA is pending |
+| `FINAL-RELEASE-COMPLETION-REPORT.md` §1–§5 | Completion-lineage accounting; reconciled by its appendix and `docs/FINAL-RELEASE-EXECUTION-REPORT.md` |
+| `master-plan-v6-test-evidence.md` §"FINAL stabilization full suite" | 4610-suite at `c512f87`; the later completion-branch run is 4724/0 |
 | `signing-readiness.yml` reports MISSING; unsigned installers | `keel/docs/release/SIGNING-PREPARATION.md` | Still true at `C0`; the hard-fail code is implemented but no key exists — PR-20 `OWNR` |
 | Literal `>>>>>>> agent/stab-provider` conflict marker | `STAB-PROVIDER-EVIDENCE.md:62` | Documentation hygiene defect only; no source/test impact, no gate reclassification |
 
 ## G. Scope and honesty note
 
-This matrix classifies backend/harness and release-readiness gates at one exact tree. It
-is not a production-readiness approval: `PASS_VERIFIED` is zero, no owner action has
-been performed, no push/tag/publish occurred, and no source, test, workflow or frontend
-file was changed by this reconciliation. Any later promotion requires a fresh review at
-the SHA actually promoted and the owner actions in `FINAL-OWNER-ACTIONS.md`.
+This matrix classifies backend/harness and release-readiness gates at the final
+execution branch reference (`C0`), with the authoritative suite recorded at the
+completion-branch commit `C1`. It is not a production-readiness approval:
+`PASS_VERIFIED` is zero, the full-suite re-run at `C0` is pending (R-19), no owner
+action has been performed, no push/tag/publish occurred, and no source, test,
+workflow or frontend file was changed by this reconciliation. Any later promotion
+requires a fresh review at the SHA actually promoted and the owner actions in
+`FINAL-OWNER-ACTIONS.md`, executed with the exact safe steps in
+`docs/FINAL-OWNER-ACTION-RUNBOOK.md`.

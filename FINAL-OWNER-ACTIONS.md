@@ -1,6 +1,8 @@
 # FINAL OWNER ACTIONS — the only genuine external requirements
 
-> **Scope:** completion HEAD `completion/final-production-release-2026-11-25 HEAD (resolve with `git rev-parse HEAD`)abfd784393b2b252e2b9e2927aba817dd`, version `0.1.1` / tag `v0.1.1`.
+> **Scope:** final execution branch `release/final-execution-2026-11-25` (HEAD
+> `d5a50c0ad3d9cdf3f53a5b9c49d145d2f43849dd` at reconciliation; resolve exactly with
+> `git rev-parse HEAD`), version `0.1.1` / tag `v0.1.1`.
 > This file lists **only** actions that engineering cannot perform: owner-controlled
 > credentials, an owner-provided Darwin host, an owner signing identity, an owner plan
 > entitlement, and owner deployment authorization. No engineering follow-up is listed
@@ -8,7 +10,12 @@
 > secret write, signing or publish occurred.
 
 Each action names the exact gate(s) it unlocks. Gate IDs and classifications are from
-`FINAL-PRODUCTION-READINESS-MATRIX.md` §C/§E.
+`FINAL-PRODUCTION-READINESS-MATRIX.md` §C/§E. **Exact, safe, step-by-step instructions
+for every action — including required access, cost/free status, success evidence,
+rollback/recovery, and which workflow to run afterwards — are in
+`docs/FINAL-OWNER-ACTION-RUNBOOK.md`.** Never paste a secret value into chat, logs,
+files, issues or PRs; configure values only in the owner's provider account or the
+GitHub Secrets UI.
 
 ---
 
@@ -26,14 +33,20 @@ repository, the chat or a test fixture.
 2. Configure it as the matching `KEEL_*_API_KEY` variable in the owner-controlled CI
    environment or host environment for the run only; use a fresh disposable state
    directory (`KEEL_STATE_DIR`) and a clean `HOME`/`USERPROFILE`.
-3. After confirming the value is present, run one smoke against the exact final tree:
-   `python -m keel.cli.main provider validate --live` (from `keel/`, with
-   `PYTHONPATH=<final-tree>/keel/src`). Expect a real provider response with redacted
-   details; record only the outcome, never the key.
+3. Re-confirm current free-tier terms (≤30 days old) in a private confirmation
+   record. From the repository root, with `PYTHONPATH=<final-tree>/keel/src`, run the
+   one-shot harness with explicit opt-in:
+   `python scripts/verify_live_provider.py --allow-live-provider-check --confirm-free-tier-current --provider <google|openrouter|nvidia> --confirmation-file <private-path> --results-json <private-path>`.
+   It makes at most one bounded request (16 output tokens, 15 s, no retry/fallback)
+   and records only provider, model, timestamp, commit, result summary and quota
+   context — never the key, prompt, response text or headers.
 4. In the same disposable environment, exercise the live revoke round-trip used by
-   PR-14 (save key → `remove_provider_key` → confirm env and encrypted store cleared →
-   confirm no re-apply after a fresh interpreter).
-5. Remove and rotate the disposable credential immediately afterwards.
+   PR-14 (save key → `settings_store.remove_provider_key` → confirm env and encrypted
+   store cleared with the presence-only `keel secrets has <KEY>` → confirm no re-apply
+   after a fresh interpreter). Never use `keel secrets get`, which reveals values.
+5. Remove and rotate the disposable credential immediately afterwards; delete the
+   private confirmation/result files. See runbook §2 for all steps and follow-up
+   workflow.
 
 **Unlocks:** PR-06 `EXTERNAL_PENDING` → `PASS_VERIFIED` for the live-provider claim;
 PR-14's live revoke sub-check (its local half is already verified). Does **not** unlock
@@ -78,6 +91,8 @@ strength alone.
 
 **Unlocks:** the signing half of PR-20 `OWNR`; the signed installer prerequisite for the
 PR-17 clean-VM run; OS trust (SmartScreen/Gatekeeper) if step 4 is authorized.
+Authenticode, Developer ID + notarization and CI secret entry are specified step by
+step in runbook §4–§6.
 
 ---
 
@@ -102,7 +117,8 @@ skips and a documented read-isolation `BLOCKED` fallback on macOS 26
 
 **Unlocks:** PR-19 `BLCK` → verified native platform status. Windows (31 passed /
 6 disclosed skips / 0 failed) and Linux-in-WSL2 (16/16 + 9/1) are already verified and
-do not need repeating for the local claim.
+do not need repeating for the local claim. Runbook §3 gives the exact macOS 15
+Seatbelt commands, skip accounting, SIGABRT rollback and follow-up workflows.
 
 ---
 
@@ -120,9 +136,11 @@ plan. Engineering cannot upgrade the plan or change repository governance.
    registry consistency, `verify_backend_operation.py --strict` (421/421),
    dependency-graph freshness, license gate, version sync, workflow YAML parse and the
    42/42 full-SHA `uses:` pin check.
-3. Confirm the 40 pinned action refs are effective on the default branch after the
-   owner-authorized merge (the local final tree has 42/42; the live default branch may
-   still lag until that merge happens).
+3. Confirm the **42** external full-SHA-pinned action refs across **9 workflow files**
+   (plus 1 local reusable path) are effective on the default branch after the
+   owner-authorized merge (the local final execution tree has 42/42; the live default
+   branch may still lag until that merge happens). Older 40/8-workflow counts are
+   historical.
 
 **Unlocks:** the governance portion of PR-20 `OWNR`. A1/A2/A5 are still required.
 
@@ -151,7 +169,9 @@ permission to publish are owner-controlled.
 **Unlocks:** PR-17 `EXTP` → `PASS_VERIFIED`; the deployment half of PR-20; any
 `production_verified` classification. `keel/site/download.json` currently has
 `url: null`, `available: false`, `verified: false` for every channel — these values
-must only change as a result of this authorized publication.
+must only change as a result of this authorized publication. Runbook §7 (clean-VM
+drill) and §8 (tag, approval marker, release authorization) give the exact steps,
+rollback and follow-up workflows.
 
 ---
 
