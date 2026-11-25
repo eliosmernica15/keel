@@ -133,13 +133,37 @@ function CommandPalette({ open, onClose, commands }: { open: boolean; onClose: (
 
 function Shell() {
   const app = useApp();
-  const [destination, setDestination] = useState<Destination>("cowork");
+  // A hash deep link (e.g. /#settings-privacy) names a global destination in a
+  // freshly loaded desktop window, which has no persisted surface yet.
+  const deepLink = typeof window === "undefined" ? null
+    : /^#settings-/.test(window.location.hash) ? "settings"
+    : window.location.hash === "#capabilities" ? "capabilities" : null;
+  const [destination, setDestination] = useState<Destination>(deepLink ?? "cowork");
+  const deepLinkRef = useRef<Destination | null>(deepLink);
   const surfaceRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const { status: bridgeStatus, detail: bridgeDetail, probe } = useBridgeStatus();
 
   // AppProvider hydrates the persisted surface after mount. Mirror it here so
-  // reloading restores the work surface, not just the stored preference.
-  useEffect(() => { setDestination(app.surface); }, [app.surface]);
+  // reloading restores the work surface — unless a hash deep link won.
+  useEffect(() => {
+    if (!deepLinkRef.current) setDestination(app.surface);
+  }, [app.surface]);
+
+  // Settings owns the section id; the shell only picks the destination.
+  useEffect(() => {
+    const applyDeepLink = () => {
+      const hash = window.location.hash;
+      if (/^#settings-/.test(hash)) {
+        deepLinkRef.current = "settings";
+        setDestination("settings");
+      } else if (hash === "#capabilities") {
+        deepLinkRef.current = "capabilities";
+        setDestination("capabilities");
+      }
+    };
+    window.addEventListener("hashchange", applyDeepLink);
+    return () => window.removeEventListener("hashchange", applyDeepLink);
+  }, []);
 
   const goto = useCallback((d: Destination) => {
     setDestination(d);

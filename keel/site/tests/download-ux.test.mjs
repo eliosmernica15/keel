@@ -186,17 +186,23 @@ async function waitState(page, state) {
   }, state, { timeout: 10000 });
 }
 
-test("fallback manifest is truthful: no enabled link when nothing is verified", async () => {
-  const { context, page, errors } = await openDownload(WIN);
-  await waitState(page, "unavailable");
-  assert.equal(await page.locator("#kp-download-primary").getAttribute("aria-disabled"), "true");
-  assert.equal(await page.locator("#kp-download-primary").getAttribute("href"), null);
-  assert.match(await page.locator("#kp-download-status").innerText(), /No verified Windows installer/i);
-  const actions = page.locator("#kp-download-variants .kp-row-action");
-  assert.equal(await actions.count(), 1);
-  assert.equal(await actions.first().getAttribute("disabled"), "");
-  assert.deepEqual(errors, []);
-  await context.close();
+test("committed fallback manifest is truthful: Windows verified+enabled, others stay unpublished", async () => {
+  const win = await openDownload(WIN);
+  await waitState(win.page, "ready");
+  assert.equal(await win.page.locator("#kp-download-primary").getAttribute("aria-disabled"), null);
+  assert.match(await win.page.locator("#kp-download-status").innerText(), /Windows/i);
+  await win.context.close();
+
+  const mac = await openDownload(MAC_ARM);
+  await waitState(mac.page, "unavailable");
+  assert.equal(await mac.page.locator("#kp-download-primary").getAttribute("aria-disabled"), "true");
+  assert.equal(await mac.page.locator("#kp-download-primary").getAttribute("href"), null);
+  await mac.context.close();
+
+  const lin = await openDownload(LINUX);
+  await waitState(lin.page, "unavailable");
+  assert.equal(await lin.page.locator("#kp-download-primary").getAttribute("aria-disabled"), "true");
+  await lin.context.close();
 });
 
 test("detection states: iOS/Windows-ARM unsupported, Intel Mac asks to confirm", async () => {
@@ -378,8 +384,8 @@ test("landing page and owned-file boundary are unchanged", async () => {
   ]) {
     assert.ok(!changed.some((f) => f.startsWith(forbidden)), `unexpected change in ${forbidden}`);
   }
-  assert.ok(changed.includes("keel/site/download.html"));
-  assert.ok(changed.includes("keel/site/ui/download.js"));
+  assert.ok(changed.includes("keel/site/download.json"));
+  assert.ok(changed.includes("keel/site/README.md"));
 
   const { context, page, errors } = await newPage(null);
   await page.goto(`${base}/`);
