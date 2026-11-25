@@ -485,8 +485,11 @@ async function handleMessage(message, sender) {
     case 'SET_SETTINGS': {
       var current = await getState();
       var nextSettings = Object.assign({}, current.settings);
-      Object.keys(payload || {}).forEach(function (key) {
-        if (typeof payload[key] === 'boolean') nextSettings[key] = payload[key];
+      var patch = (message.settings && typeof message.settings === 'object')
+        ? message.settings
+        : ((payload && typeof payload === 'object') ? payload : {});
+      Object.keys(patch).forEach(function (key) {
+        if (typeof patch[key] === 'boolean') nextSettings[key] = patch[key];
       });
       await setState({ settings: nextSettings });
       return { ok: true, settings: nextSettings };

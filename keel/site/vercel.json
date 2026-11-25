@@ -22,7 +22,10 @@
   "rewrites": [
     { "source": "/product/overview", "destination": "/product-overview.html" },
     { "source": "/download", "destination": "/download.html" },
+    { "source": "/keel-in-chrome", "destination": "/keel-in-chrome.html" },
+    { "source": "/chrome-web-store", "destination": "/chrome-web-store.html" },
     { "source": "/app", "destination": "/app.html" },
+    { "source": "/pricing", "destination": "/pricing.html" },
     { "source": "/login", "destination": "/login.html" },
     { "source": "/new", "destination": "/new.html" },
     { "source": "/plugins", "destination": "/plugins.html" },
