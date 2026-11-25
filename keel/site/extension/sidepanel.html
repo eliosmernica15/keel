@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel in Chrome</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- ============ top bar ============ -->
+    <header class="topbar">
+      <div class="brand" aria-label="Keel">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+        </span>
+        <span class="brand-name">Keel</span>
+      </div>
+      <div class="topbar-right">
+        <button type="button" id="newSessionBtn" class="ghost-btn" aria-label="Start a new Keel session">New</button>
+        <button type="button" id="historyBtn" class="ghost-btn" aria-label="Open session history" aria-expanded="false" aria-controls="historyDrawer">History</button>
+        <button type="button" id="accountBtn" class="account-chip" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account: Elios, Free plan. Open account menu">
+          <span class="account-avatar" aria-hidden="true">E</span>
+          <span class="account-label">Elios <span class="account-plan">&middot; Free</span></span>
+          <svg class="chevron" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 6l4 4 4-4"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============ tool tab strip ============ -->
+    <nav class="tabstrip" role="tablist" aria-label="Keel tools">
+      <button type="button" class="tool-tab is-active" role="tab" id="tab-Keel" data-tab="Keel" aria-selected="true" aria-controls="quickActions" tabindex="0">Keel</button>
+      <button type="button" class="tool-tab" role="tab" id="tab-Keel Code" data-tab="Keel Code" aria-selected="false" aria-controls="quickActions" tabindex="-1">Keel Code</button>
+      <button type="button" class="tool-tab" role="tab" id="tab-Everyday tools" data-tab="Everyday tools" aria-selected="false" aria-controls="quickActions" tabindex="-1">Everyday tools</button>
+      <button type="button" class="tool-tab" role="tab" id="tab-Background tasks" data-tab="Background tasks" aria-selected="false" aria-controls="quickActions" tabindex="-1">Background tasks</button>
+    </nav>
+
+    <!-- ============ page context chip ============ -->
+    <div class="context-bar">
+      <button type="button" id="contextChip" class="context-chip" aria-label="Current page context. Click to copy page details.">
+        <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8.5 11.5a3 3 0 0 0 4.2 0l2.3-2.3a3 3 0 0 0-4.2-4.2L9.6 6.2M11.5 8.5a3 3 0 0 0-4.2 0L5 10.8a3 3 0 0 0 4.2 4.2l1.2-1.2"/></svg>
+        <span class="context-lines">
+          <span id="contextTitle" class="context-title">Reading this page&hellip;</span>
+          <span id="contextMeta" class="context-meta">Waiting for page context</span>
+        </span>
+      </button>
+      <button type="button" id="refreshContextBtn" class="icon-btn" aria-label="Refresh page context" title="Refresh page context">
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5V7h-3.5"/></svg>
+      </button>
+    </div>
+
+    <!-- ============ mode toggle ============ -->
+    <div class="mode-row">
+      <div class="mode-toggle" role="group" aria-label="Response mode">
+        <button type="button" id="modeChat" class="mode-btn is-active" aria-pressed="true">Chat</button>
+        <button type="button" id="modeKey" class="mode-key" aria-label="Toggle Chat or Convert with the K key" title="Shortcut: K">K</button>
+        <button type="button" id="modeConvert" class="mode-btn" aria-pressed="false">Convert</button>
+      </div>
+    </div>
+
+    <!-- ============ scrollable content ============ -->
+    <main id="mainContent" class="main-scroll" tabindex="-1">
+      <section id="hero" class="hero" aria-labelledby="heroTitle">
+        <div class="hero-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="44" height="44" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+        </div>
+        <h1 id="heroTitle">Ask questions about this page</h1>
+        <p id="heroSubtitle" class="hero-subtitle">Keel reads the page you&rsquo;re on and answers locally &mdash; nothing is uploaded.</p>
+        <button type="button" id="copyMarkdownBtn" class="copy-btn">
+          <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M7 7V4.5A1.5 1.5 0 0 1 8.5 3h7A1.5 1.5 0 0 1 17 4.5v7a1.5 1.5 0 0 1-1.5 1.5H12M4.5 7h7A1.5 1.5 0 0 1 13 8.5v7a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 15.5v-7A1.5 1.5 0 0 1 4.5 7z"/></svg>
+          Copy as markdown
+        </button>
+      </section>
+
+      <div id="welcomeNote" class="welcome-note" hidden>
+        <strong>Welcome to Keel in Chrome.</strong>
+        <span>This is a local demo: answers are generated in this panel from the page text, with no API key or network call.</span>
+        <button type="button" id="dismissWelcomeBtn" class="text-btn">Got it</button>
+      </div>
+
+      <section id="conversation" class="conversation" aria-label="Conversation" hidden></section>
+
+      <section class="quick-section" aria-labelledby="quickTitle">
+        <div class="section-heading">
+          <h2 id="quickTitle">Suggested for you</h2>
+          <span id="quickHint" class="section-hint">with page context</span>
+        </div>
+        <div id="quickActions" class="quick-grid" role="tabpanel" aria-labelledby="tab-Keel" tabindex="0"></div>
+      </section>
+    </main>
+
+    <!-- ============ composer ============ -->
+    <footer class="composer-area">
+      <div id="listeningNote" class="listening-note" hidden>
+        <span class="listen-dot" aria-hidden="true"></span>
+        <span><strong>Simulated listening.</strong> No audio is recorded, stored, or sent. Type your request below.</span>
+        <button type="button" id="stopListeningBtn" class="text-btn">Done</button>
+      </div>
+      <div id="attachedBar" class="attached-bar" hidden>
+        <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M15.5 8.5l-5.8 5.8a3 3 0 0 1-4.2-4.2l6-6a2 2 0 0 1 2.8 2.8l-6 6"/></svg>
+        <span id="attachedLabel">Full page attached</span>
+        <button type="button" id="clearAttachBtn" class="text-btn">Clear</button>
+      </div>
+      <div class="composer">
+        <textarea id="composerInput" rows="1" aria-label="Message Keel" placeholder="Ask Keel about this page&hellip;"></textarea>
+        <div class="composer-tools">
+          <div class="left-tools">
+            <button type="button" id="attachBtn" class="round-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="attachMenu" aria-label="Attach page context" title="Attach page context">
+              <svg viewBox="0 0 20 20" width="17" height="17" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M10 4v12M4 10h12"/></svg>
+            </button>
+            <button type="button" id="micBtn" class="round-btn" aria-pressed="false" aria-label="Toggle simulated listening" title="Simulated listening">
+              <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M10 13a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v4a3 3 0 0 0 3 3zM5.5 9.5A4.5 4.5 0 0 0 10 14a4.5 4.5 0 0 0 4.5-4.5M10 14v3M7.5 17h5"/></svg>
+            </button>
+            <span id="sourceLabel" class="source-label">Full page</span>
+          </div>
+          <div class="right-tools">
+            <label class="select-wrap" title="Model">
+              <span class="sr-only">Model</span>
+              <select id="modelSelect" aria-label="Model">
+                <option>Mythos</option><option>Opus</option><option>Sonnet</option><option>Haiku</option>
+              </select>
+            </label>
+            <label class="select-wrap approval-wrap" title="Approval mode">
+              <span class="sr-only">Approval mode</span>
+              <select id="approvalSelect" aria-label="Approval mode">
+                <option>Ask before each action</option><option>Permissions Mode</option><option>Work autonomously</option>
+              </select>
+            </label>
+            <button type="button" id="sendBtn" class="send-btn" aria-label="Send message" title="Send message">
+              <svg id="sendIcon" viewBox="0 0 20 20" width="17" height="17" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M10 16V4M5 9l5-5 5 5"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <p class="composer-foot">Runs locally in your browser &middot; <kbd>Enter</kbd> send &middot; <kbd>Shift</kbd>+<kbd>Enter</kbd> new line &middot; <kbd>K</kbd> Chat / Convert</p>
+    </footer>
+
+    <!-- ============ popover menus ============ -->
+    <div id="attachMenu" class="menu attach-menu" role="menu" aria-label="Attach options" hidden>
+      <button type="button" role="menuitem" data-source="selection">Use page selection</button>
+      <button type="button" role="menuitem" data-source="full">Use full page</button>
+      <p class="menu-note">Context is read from this tab only.</p>
+    </div>
+    <div id="accountMenu" class="menu account-menu" role="menu" aria-label="Account menu" hidden>
+      <a role="menuitem" href="https://keel-desktop.vercel.app/app" target="_blank" rel="noopener noreferrer">Open Keel web app <span aria-hidden="true">&nearr;</span></a>
+      <button type="button" role="menuitem" id="settingsMenuItem">Settings</button>
+      <div class="menu-sep" role="separator"></div>
+      <p class="menu-note">Local demo &middot; no account needed</p>
+    </div>
+
+    <!-- ============ drawers ============ -->
+    <div id="drawerBackdrop" class="drawer-backdrop" hidden></div>
+
+    <aside id="historyDrawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="historyTitle" hidden>
+      <div class="drawer-head">
+        <h2 id="historyTitle">Session history</h2>
+        <button type="button" id="closeHistoryBtn" class="icon-btn" aria-label="Close session history">
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <p class="drawer-sub">Saved on this device only.</p>
+      <div id="sessionList" class="session-list"></div>
+    </aside>
+
+    <aside id="settingsDrawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+      <div class="drawer-head">
+        <h2 id="settingsTitle">Settings</h2>
+        <button type="button" id="closeSettingsBtn" class="icon-btn" aria-label="Close settings">
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <p class="drawer-sub">Preferences stay in extension storage.</p>
+      <div class="settings-body">
+        <label class="setting-row"><span><strong>Stream responses</strong><small>Type answers gradually</small></span><input type="checkbox" id="settingStream" /></label>
+        <label class="setting-row"><span><strong>Auto-save sessions</strong><small>Keep a local history of conversations</small></span><input type="checkbox" id="settingAutoSave" /></label>
+        <label class="setting-row"><span><strong>Keyboard hints</strong><small>Show shortcut badge in the mode toggle</small></span><input type="checkbox" id="settingHints" /></label>
+        <label class="setting-row"><span><strong>Reduce motion</strong><small>Show answers instantly</small></span><input type="checkbox" id="settingReduceMotion" /></label>
+        <div class="settings-actions">
+          <button type="button" id="clearHistoryBtn" class="outline-btn">Clear session history</button>
+          <button type="button" id="resetPrefsBtn" class="outline-btn">Reset preferences</button>
+        </div>
+        <p class="settings-note">Keel&rsquo;s demo answers use deterministic rules over the page text. No API keys, no cloud calls, no page modifications.</p>
+      </div>
+    </aside>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
