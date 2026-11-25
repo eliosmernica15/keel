@@ -45,7 +45,7 @@ No security-critical test converts failed enforcement into a skipped success.
 - `python scripts/verify_v6_audit.py` → CONSISTENCY OK (865 IDs, parity identical, all verified refs resolve).
 - `python keel/scripts/build_dependency_graph.py --check` → FRESH.
 - `python scripts/check_model_licenses.py` → LICENSE GATE OK.
-- All 8 GitHub Actions workflow YAMLs parse; 26 `uses:` refs are full-SHA pinned.
+- All 8 GitHub Actions workflow YAMLs parse; 31 `uses:` refs are full-SHA pinned.
 - Offline runtime tests: 4 passed (network namespace lane in CI is fail-closed).
 - Per-batch targeted suites across 42 specialist branches: all passing before merge; independent reviewers found 0 critical and their high/medium findings were fixed with regression tests.
 
@@ -219,7 +219,7 @@ and a clean MCP config exist.
 
 ## Production-readiness candidate v2 — definitive full suite
 
-Candidate: `release/backend-production-readiness-2026-11-24-v2`, HEAD `3f6d7e5`.
+Candidate: `release/backend-production-readiness-2026-11-24-v2`, HEAD `CANDIDATE_HEAD`.
 Command (clean local HOME; from `keel/`):
 
 ```

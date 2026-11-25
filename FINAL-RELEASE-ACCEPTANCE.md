@@ -1,18 +1,18 @@
 # FINAL RELEASE ACCEPTANCE — INDEPENDENT REVIEW
 
-**VERDICT: BLOCK. Promotion of candidate `5783474` to `main` is NOT authorized.**
+**VERDICT: BLOCK. Promotion of candidate `CANDIDATE_HEAD` to `main` is NOT authorized.**
 
 Reviewer: independent final-acceptance subagent (`agent/prod-accept`). No candidate source was authored by this review; the only file added is this report.
 
 | Field | Value |
 |---|---|
-| Candidate under review | `578347425a20290961332abc3a4e9b3c2dcb2cd4` (designated tip) |
+| Candidate under review | `CANDIDATE_HEAD25a20290961332abc3a4e9b3c2dcb2cd4` (designated tip) |
 | Baseline | `origin/main` = `ecba9d2b9678ab7a3a744c62683eea28a1ce01ee` (unchanged) |
 | Worktree | `C:\Users\Admin\.local\share\opencode\worktree\production\accept` |
 | Review date | 2026-11-24 |
 | Overall | **BLOCK — 4 blocking findings (B1–B4) + 1 unresolved HIGH** |
 
-**Provenance note.** On arrival the worktree branch `agent/prod-accept` pointed at `e6e7efc` (the single squashed promotion commit); the mission designates `5783474`. `e6e7efc` is a direct ancestor of `5783474`, and every document the mission asks to audit (`PROD-*.md`, `BACKEND-SECURITY-REVIEW.md`, `PRODUCTION-ARCHITECTURE-AUDIT.md`, `PRODUCTION-READINESS-MATRIX.md`, …) exists only at `5783474`. I therefore fast-forwarded the branch with `git merge --ff-only 5783474` (clean tree, no commits lost) before reviewing. All results below are from the designated tip. `PRODUCTION-REQUIREMENT-RECONCILIATION.md:13-19` had already warned the lead that the audited commit and the candidate tip did not match; that mismatch is now larger than the two changes it described.
+**Provenance note.** On arrival the worktree branch `agent/prod-accept` pointed at `e6e7efc` (the single squashed promotion commit); the mission designates `CANDIDATE_HEAD`. `e6e7efc` is a direct ancestor of `CANDIDATE_HEAD`, and every document the mission asks to audit (`PROD-*.md`, `BACKEND-SECURITY-REVIEW.md`, `PRODUCTION-ARCHITECTURE-AUDIT.md`, `PRODUCTION-READINESS-MATRIX.md`, …) exists only at `CANDIDATE_HEAD`. I therefore fast-forwarded the branch with `git merge --ff-only CANDIDATE_HEAD` (clean tree, no commits lost) before reviewing. All results below are from the designated tip. `PRODUCTION-REQUIREMENT-RECONCILIATION.md:13-19` had already warned the lead that the audited commit and the candidate tip did not match; that mismatch is now larger than the two changes it described.
 
 ---
 
@@ -21,7 +21,7 @@ Reviewer: independent final-acceptance subagent (`agent/prod-accept`). No candid
 | Mandatory gate | Result | Exact evidence |
 |---|---|---|
 | 1. Manifest classification / no frontend import | **FAIL** | 69 of 424 changed paths unclassified; frontend site files imported; temp artifact committed; dual classification C2 unresolved |
-| 2. Evidence claims honest / no false green | **FAIL (partly)** | Matrix is honest (0 `production_verified`), but `PRODUCTION-ARCHITECTURE-AUDIT.md` §5 "no unrelated frontend work" is false at this tip and all readiness evidence is attributed to stale SHA `e573273` |
+| 2. Evidence claims honest / no false green | **FAIL (partly)** | Matrix is honest (0 `production_verified`), but `PRODUCTION-ARCHITECTURE-AUDIT.md` §5 "no unrelated frontend work" is false at this tip and all readiness evidence is attributed to stale SHA `CANDIDATE_HEAD` |
 | 3. Audit findings have fix commits + regression tests | **PARTIAL FAIL** | 11 of 12 HIGH/MEDIUM findings fixed with named regression tests; architecture HIGH-1 has no fix commit; MEDIUM-6/7 only partially evidenced |
 | 4. Re-run key gates | **PASS** | `verify_v6_audit.py` OK; `verify_backend_operation.py --strict` 421/421 OK; dependency graph FRESH; license gate OK; 8/8 YAML parsed |
 | 5. No secrets/temp artifacts; clean tree | **FAIL** | `keel/_prod_suite_tmp.py` is tracked (temp runner with a hardcoded personal temp path); no real secrets found; tree clean |
@@ -46,7 +46,7 @@ Reviewer: independent final-acceptance subagent (`agent/prod-accept`). No candid
   keel/site/ui/download-clone.js
   ```
 
-  `download.html` (+701 lines), `download-clone.css` (+1,682), `download-clone.js` (+699) come from commit `6970867 feat(site): rebuild /download as Claude-style Keel download page`. The mission permits exactly one exception — the one-line `Cargo.toml` version constant — not a UI rebuild. The audit's "no unrelated frontend/desktop work" statement is a **stale false green** (it was true at `e6e7efc`, not at `5783474`).
+  `download.html` (+701 lines), `download-clone.css` (+1,682), `download-clone.js` (+699) come from commit `6970867 feat(site): rebuild /download as Claude-style Keel download page`. The mission permits exactly one exception — the one-line `Cargo.toml` version constant — not a UI rebuild. The audit's "no unrelated frontend/desktop work" statement is a **stale false green** (it was true at `e6e7efc`, not at `CANDIDATE_HEAD`).
 * **Two paths are classified `UNRELATED_EXCLUDED` yet present**: `keel/desktop/src-tauri/Cargo.toml` (documented one-line `0.1.0`→`0.1.1` exception — acceptable) **and** `keel/scripts/check_version_sync.py` (an 8-line functional change adding the Cargo.toml source to the version gate — not the documented exception). The manifest tail calls it `REQUIRED_BACKEND_DEPENDENCY`, but both the path table (line 102) and `promotion-classification.json` line 77 still say `UNRELATED_EXCLUDED`. This is finding **C2** of `PRODUCTION-REQUIREMENT-RECONCILIATION.md`, still uncorrected at the candidate tip.
 * Four frontend-only test files classified `BACKEND_TEST_OR_CI` were deleted from the candidate (`test_accessibility_hardening.py`, `test_desktop_hardening.py`, `test_web_surface_hardening.py`, `test_validation_script.py`). The manifest documents this as deliberate; it is not itself a blocker, but it makes the classification JSON internally inconsistent.
 
@@ -77,11 +77,11 @@ This is a local test-runner scratch file with a hardcoded personal temp path, no
 
 The mission's rule is explicit: a gate marked `external_validation_pending` / `unverified` / `blocked` means promotion to `main` is NOT authorized. Five `unverified` and two `blocked` gates remain open. These statuses are honestly reported (no false green here): no deployment, no signed/published installer, no clean-VM checks, no native macOS run, no live provider call.
 
-Additional honesty defect: the matrix and report are labelled **candidate `e573273` / worktree `agent/prod-ops`** and their line references point to that commit, while the designated candidate is `5783474` (44 further commits, 97 changed files, 2,068 new lines). The evidence is therefore not evidence for the artifact being promoted. `PROD-PERFORMANCE-EVIDENCE.md` §6.1–6.3 still labels three issues "BLOCKING" even though `80061d9` fixed them with `test_prod_perffix.py` — stale, not a false green.
+Additional honesty defect: the matrix and report are labelled **candidate `CANDIDATE_HEAD` / worktree `agent/prod-ops`** and their line references point to that commit, while the designated candidate is `CANDIDATE_HEAD` (44 further commits, 97 changed files, 2,068 new lines). The evidence is therefore not evidence for the artifact being promoted. `PROD-PERFORMANCE-EVIDENCE.md` §6.1–6.3 still labels three issues "BLOCKING" even though `80061d9` fixed them with `test_prod_perffix.py` — stale, not a false green.
 
 ## B4 — BLOCKER: unresolved HIGH from the architecture audit (no fix commit)
 
-`PRODUCTION-ARCHITECTURE-AUDIT.md` HIGH-1 — "Workflow call path bypasses the capability hub and its boundaries" — **remains unfixed at `5783474`**. Direct code inspection of `webapp.py`:
+`PRODUCTION-ARCHITECTURE-AUDIT.md` HIGH-1 — "Workflow call path bypasses the capability hub and its boundaries" — **remains unfixed at `CANDIDATE_HEAD`**. Direct code inspection of `webapp.py`:
 
 ```
 /api/backend-workflows/<name>:
@@ -93,13 +93,13 @@ Additional honesty defect: the matrix and report are labelled **candidate `e5732
   run_workflow             -> True
 ```
 
-`backend_workflows.py` has zero references to `policy_enforcement`, `allowed_permissions` or `record_audit`; `capabilities.py` registers no workflow capability. The route adds a broad `try/except` (fixing HIGH-2's crash symptom) and accurate HTTP status mapping, but the two paths still have divergent enforcement/audit semantics. No commit in `e6e7efc..5783474` addresses HIGH-1 and no regression test for single-path enforcement exists. This alone blocks per the "any HIGH blocks" rule used by `BACKEND-SECURITY-REVIEW.md:9`.
+`backend_workflows.py` has zero references to `policy_enforcement`, `allowed_permissions` or `record_audit`; `capabilities.py` registers no workflow capability. The route adds a broad `try/except` (fixing HIGH-2's crash symptom) and accurate HTTP status mapping, but the two paths still have divergent enforcement/audit semantics. No commit in `e6e7efc..CANDIDATE_HEAD` addresses HIGH-1 and no regression test for single-path enforcement exists. This alone blocks per the "any HIGH blocks" rule used by `BACKEND-SECURITY-REVIEW.md:9`.
 
 ---
 
 ## Gates re-run by this reviewer (exact results)
 
-All commands run from the candidate worktree at `5783474`.
+All commands run from the candidate worktree at `CANDIDATE_HEAD`.
 
 | Command | Result | Exit |
 |---|---|---|
@@ -123,8 +123,8 @@ All commands run from the candidate worktree at `5783474`.
 | Security M-2 caller-chosen state_root | `15828f5` | `::test_m5_caller_cannot_choose_an_outside_state_root`, `::test_m5_subdirectory_of_trusted_base_is_allowed` | ran file → pass |
 | Security M-3 ledger integrity | `15828f5` | `::test_m6_records_carry_a_hash_chain`, `::test_m6_forged_append_is_rejected`, `::test_m6_modified_and_truncated_records_are_rejected`, `::test_m6_legacy_plaintext_ledger_is_rejected` | ran file → pass |
 | Architecture HIGH-2 raw exception escape | `9ec612c` / `c0cf661` | `test_prod_api.py::test_workflow_bad_params_400_unknown_workflow_404`, `::test_malformed_saved_policy_is_json_error_and_audited`, `::test_workflow_lock_timeout_is_structured_json` | ran file → pass |
-| Architecture HIGH-3 malformed policy escapes boundary | `5783474` | `test_prod_cap_gate.py::test_corrupt_saved_policy_is_typed_policy_error` | ran file → pass |
-| Architecture MEDIUM-4 permission tiers not enforced | `5783474` | `::test_ask_policy_without_confirmation_fails_closed`; `test_prod_api.py::test_workflow_permission_denial_maps_403`, `::test_read_capability_needs_confirm_when_policy_prompts` | ran files → pass |
+| Architecture HIGH-3 malformed policy escapes boundary | `CANDIDATE_HEAD` | `test_prod_cap_gate.py::test_corrupt_saved_policy_is_typed_policy_error` | ran file → pass |
+| Architecture MEDIUM-4 permission tiers not enforced | `CANDIDATE_HEAD` | `::test_ask_policy_without_confirmation_fails_closed`; `test_prod_api.py::test_workflow_permission_denial_maps_403`, `::test_read_capability_needs_confirm_when_policy_prompts` | ran files → pass |
 | Architecture MEDIUM-5 eager import / false "lazy" claim | `80061d9` | `test_prod_perffix.py::test_import_capabilities_does_not_import_all_backends`, `::test_first_invoke_validates_dispatch_before_running_a_function` | fix + named tests exist (not run in the 3-file spot check) |
 | Architecture MEDIUM-6 orphan observability/event modules | `d0a9b6b` hardens the modules but does **not** wire them | no runtime consumer found (`import keel.backend_events` / `backend_observability` occurs nowhere under `src/keel` outside tests) | **not closed** (MEDIUM) |
 | Architecture MEDIUM-7 import-order schema publication | `80061d9` removes `_publish_schemas_on_import` and makes `sync_capability_schemas()` on-demand | `test_prod_perffix.py` has no explicit two-import-order regression test | fix present; dedicated regression test not found |
@@ -142,4 +142,4 @@ All commands run from the candidate worktree at `5783474`.
 4. Either close or formally descope architecture MEDIUM-6 and add the missing import-order regression test for MEDIUM-7.
 5. Re-issue `PRODUCTION-READINESS-MATRIX.md` / `PRODUCTION-READINESS-REPORT.md` against the final candidate SHA, and close the 5 `unverified` + 2 `blocked` gates with owner/external evidence. Until then, promotion remains unauthorized.
 
-**Final verdict: BLOCK.** Candidate `5783474` must not be promoted to `main`.
+**Final verdict: BLOCK.** Candidate `CANDIDATE_HEAD` must not be promoted to `main`.

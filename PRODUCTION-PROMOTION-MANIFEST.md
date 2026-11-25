@@ -486,6 +486,6 @@ remain untouched. All backend fixes from the earlier candidate are present in v2
 | Field | Value |
 |---|---|
 | Authoritative candidate branch | `release/backend-production-readiness-2026-11-24-v2` |
-| Authoritative candidate SHA | `cbdfc28d0994986223dd802e47a078a0aeaf5203` |
+| Authoritative candidate SHA | `CANDIDATE_HEADd0994986223dd802e47a078a0aeaf5203` |
 | Excluded unrelated commit | `6970867` (frontend `/download` rebuild) |
 | Frontend/desktop paths in v2 | only the documented one-line `Cargo.toml` version constant |

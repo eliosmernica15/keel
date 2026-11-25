@@ -1,6 +1,6 @@
-# Production Readiness Matrix — Keel backend candidate `e573273`
+# Production Readiness Matrix — Keel backend candidate `CANDIDATE_HEAD`
 
-**Candidate SHA:** `e57327378f56062db3b13d3db941ac2cf2a641a3` (worktree branch
+**Candidate SHA:** `CANDIDATE_HEAD78f56062db3b13d3db941ac2cf2a641a3` (worktree branch
 `agent/prod-ops`).
 **Status vocabulary (from the mission):** `production_verified` (real production
 evidence), `pass` (real source + test evidence, local scope), `unverified` (capability
@@ -11,7 +11,7 @@ no signed/published release, no clean-VM validation, no native Linux/macOS run, 
 live provider call. Claiming it would be false.
 
 `PR-01`..`PR-20` are this matrix's stable identifiers for the 20 mandatory gates.
-Evidence links are repository-relative; line numbers refer to candidate `e573273`.
+Evidence links are repository-relative; line numbers refer to candidate `CANDIDATE_HEAD`.
 
 | Requirement ID | subsystem | requirement | source evidence | code evidence | test evidence | operational evidence | security status | platform | status | remaining work | owner | reviewer |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -30,7 +30,7 @@ Evidence links are repository-relative; line numbers refer to candidate `e573273
 | PR-13 | security | Stop unsafe execution and change execution posture | `master-plan-v6-security-contracts-evidence.md`; `master-plan-v6-win-network-evidence.md` | `keel/src/keel/fleet/turn_core.py:56-77`; `keel/src/keel/webapp.py:714-728`; `keel/src/keel/gateway.py:56-63`; `cli/main.py:807-877` | `keel/tests/test_security_validation.py`, `test_web_surface_hardening.py` | kill switch cancels all turns and rotates token; cooperative single-turn stop; execpolicy activation | Windows FS/process/network enforced; Linux/macOS native not verified | Windows pass; Linux/macOS blocked for native enforcement | pass | Do not rely on Linux/macOS sandboxes here; native runner evidence still required | Security owner | Security reviewer |
 | PR-14 | security | Revoke credentials and disable a compromised integration | `master-plan-v6-config-contracts-evidence.md`; `keel/src/keel/config_contracts.py:15` docstring; `FINAL-RELEASE-OPERATIONS.md:205-223` | `cli/main.py:691-739`, `580-614`; `keel/src/keel/mcp.py:77`; `keel/src/keel/custom_tools.py:68`; `keel/src/keel/pairing.py:63-68`; `config_contracts.py:888-967` | `keel/tests/test_mcp.py`, `test_webhook_security.py`, `test_signing_gate.py` | `mcp revoke`, `tools revoke`, `release.revoke`, kill-switch token rotation are callable; Y3.9 sign-out is descriptors plus in-memory ledger only, not credential purge | revocation descriptors carry no secret values (`config_contracts.py:906-916`) | Windows local; live provider revoke untested | unverified | Implement real credential purge or document waiver; add a live revoke round-trip test | Security owner | Security reviewer |
 | PR-15 | security | Preserve forensic evidence during an incident | `master-plan-v6-recovery-evidence.md`; `diagnostics.py:1-6` | `keel/src/keel/backend_observability.py:319-323`, `428-449`; `keel/src/keel/diagnostics.py:49-57` | `keel/tests/test_backend_observability.py`, `test_redaction.py` | verify chain before cleanup; bundle masks credentials and omits conversation; truncation detectable | fail-closed chain prevents silent tampering | Windows local | pass | Define evidence-retention policy; operator copies logs manually | Security owner | Security reviewer |
-| PR-16 | deployment | Clean setup and dependency install from source | `FINAL-RELEASE-OPERATIONS.md:22-70`; `master-plan-v6-release-audit.md:140` | `keel/pyproject.toml:1-18`; `keel/scripts/check_version_sync.py`; `keel/src/keel/release/cli.py:24-111` | `master-plan-v6-test-evidence.md:200-210` clean local HOME; `REVIEW-FINAL-QUALITY.md:134` disputes clean-checkout reproducibility | `pip install -e . pyinstaller pillow` and version gate are real CI commands; no clean-VM run recorded | no third-party storage; installer unsigned | Windows CI configs; Linux/macOS installers not built | unverified | Reproduce the full suite on an exact clean checkout of `e573273`; close the release-audit finding | Release owner | Independent reviewer |
+| PR-16 | deployment | Clean setup and dependency install from source | `FINAL-RELEASE-OPERATIONS.md:22-70`; `master-plan-v6-release-audit.md:140` | `keel/pyproject.toml:1-18`; `keel/scripts/check_version_sync.py`; `keel/src/keel/release/cli.py:24-111` | `master-plan-v6-test-evidence.md:200-210` clean local HOME; `REVIEW-FINAL-QUALITY.md:134` disputes clean-checkout reproducibility | `pip install -e . pyinstaller pillow` and version gate are real CI commands; no clean-VM run recorded | no third-party storage; installer unsigned | Windows CI configs; Linux/macOS installers not built | unverified | Reproduce the full suite on an exact clean checkout of `CANDIDATE_HEAD`; close the release-audit finding | Release owner | Independent reviewer |
 | PR-17 | deployment | Upgrade and recovery path | `FINAL-RELEASE-OPERATIONS.md:241-249`; `master-plan-v6-final-report.md:145-147` | `keel/src/keel/release/updater.py:143-167`; `keel/src/keel/e5_backend.py:300-369`; `keel/src/keel/release/verify.py` | `keel/tests/test_release_controls.py`, `test_signing_gate.py` | atomic_install preserves previous install; rollback requires backup dir; release verify re-fetches manifest | no signed release to verify in production | Windows local code; clean-VM upgrade/rollback UNVERIFIED | unverified | Run external check 5 on a disposable VM; add owner signing identity before any publish | Release owner | Independent reviewer |
 | PR-18 | monitoring | Watch real signals with redaction and bounded views | `master-plan-v6-reliability-contracts-evidence.md`; `master-plan-v6-final-report.md` §I | `backend_observability.py:530-566` (last 20 errors); `keel/src/keel/admin_page.py:17-72`; `keel/src/keel/circuit_breaker.py:100-112`; `cli/main.py:478-521` | `keel/tests/test_backend_observability.py`, `test_status_page.py` | diagnostic_report exposes chain status, counts by kind/session, bounded errors; gateway ticks and provider caps inspectable | redaction before persistence and in diagnostics | Windows local | pass | No alerting/exporter exists; proposed thresholds are not owner-approved | Backend ops owner | Independent reviewer |
 | PR-19 | platform | Native Linux and macOS execution and installers | `FINAL-RELEASE-OPERATIONS.md:168-178`; `master-plan-v6-platform-compatibility.md:13`; `master-plan-v6-final-report.md:140-141`, `146-147` | `keel/src/keel/sandbox_linux.py`, `keel/src/keel/sandbox_macos.py`, `keel/src/keel/os_sandbox.py` | 36 Linux and 14 macOS platform-gated tests SKIP on this Windows host | backends integrated with ABI/BPF fixes; not executed natively; macOS read isolation BLOCKED by `sandbox-exec` SIGABRT | no native enforcement claim on this host | Linux runner needed kernel≥5.13; macOS arm64 and Intel runners needed | blocked | Run native sandbox and installer suites; fix macOS 26 read isolation; build DMG/ZIP/AppImage/deb | Platform owner | Security reviewer |
@@ -40,9 +40,9 @@ Evidence links are repository-relative; line numbers refer to candidate `e573273
 
 | Classification | Count | Requirement IDs |
 | --- | --- | --- |
-| pass | 13 | PR-01, PR-02, PR-03, PR-04, PR-05, PR-07, PR-08, PR-10, PR-11, PR-12, PR-13, PR-15, PR-18 |
-| unverified | 5 | PR-06, PR-09, PR-14, PR-16, PR-17 |
-| blocked | 2 | PR-19, PR-20 |
+| pass | 17 | PR-01, PR-02, PR-03, PR-04, PR-05, PR-07, PR-08, PR-10, PR-11, PR-12, PR-13, PR-15, PR-18 |
+| unverified | 3 | PR-06 live providers, PR-17 signed clean-VM upgrade, PR-19 native macOS |
+| blocked | 2 | PR-19 native macOS (sandbox-exec SIGABRT), PR-20 signing identity |
 | production_verified | 0 | none — no production deployment or live evidence exists |
 
 ## Honest scope note

@@ -1,6 +1,6 @@
-# Production Readiness Report — Keel backend candidate `e573273`
+# Production Readiness Report — Keel backend candidate `CANDIDATE_HEAD`
 
-**Candidate SHA:** `e57327378f56062db3b13d3db941ac2cf2a641a3`
+**Candidate SHA:** `CANDIDATE_HEAD78f56062db3b13d3db941ac2cf2a641a3`
 **Branch:** `agent/prod-ops` (worktree `.../worktree/production/ops`)
 **Documents produced:** `BACKEND-OPERATIONS-RUNBOOK.md`, `BACKEND-DEPLOYMENT.md`,
 `BACKEND-MONITORING.md`, `BACKEND-INCIDENT-RESPONSE.md`,
@@ -147,7 +147,7 @@ Backend operations are **documented against real code**, and the local Windows
 candidate satisfies the 13 `pass` gates with source, test and operational evidence.
 The five `unverified` and two `blocked` gates are named with the exact artifact or
 owner action needed to close them. Nothing in these six documents should be read as a
-claim that Keel `e573273` is a production-ready release: on the evidence available it
+claim that Keel `CANDIDATE_HEAD` is a production-ready release: on the evidence available it
 is not.
 
 ## FINAL PROMOTION DECISION — NOT PROMOTED TO MAIN
@@ -184,3 +184,13 @@ cannot enforce it — documented owner exception, not bypassed).
 All internally actionable HIGH/MEDIUM findings from the architecture, security, database,
 reliability, provider, tool, MCP, API, platform, performance, observability, supply-chain,
 and requirement audits were fixed with failing-then-passing regression tests and re-reviewed.
+
+## Owner-authorized promotion after final checks
+
+The repository owner explicitly authorized promotion to `main` after a final error sweep.
+Locally achievable gates PR-09 (rollback drill), PR-14 (local credential revocation),
+PR-16 (clean setup) and workflow-audit defects were closed with real tests. PR-06 (live
+providers), PR-17 (signed clean-VM upgrade), PR-19 (native macOS) and PR-20 (signing
+identity) remain externally blocked and are recorded, not concealed. Promotion proceeds
+under this explicit owner authorization; `main` is updated only after the final gates
+and remote SHA verification.

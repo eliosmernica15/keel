@@ -2,7 +2,7 @@
 
 **Audit type:** initially read-only; later owner-authorized **remediation passes** (this document, §8 and §9) added the hash-pinned lock, SBOM, workflow install changes, the pre-push hook fix, npm lock enforcement, the `workflow_run` trust gate, and the lock-freshness CI step. Repository visibility and licensing were never changed.
 **Branch:** `agent/prod-supply`
-**Candidate originally audited:** `e57327378f56062db3b13d3db941ac2cf2a641a3` (`e573273`). Intermediate tip `ab8c80a` was merged via `git merge --no-ff`; **current candidate tip** `578347425a20290961332abc3a4e9b3c2dcb2cd4` (`5783474`) was fetched and fast-forward-merged — no force-push, no push.
+**Candidate originally audited:** `CANDIDATE_HEAD78f56062db3b13d3db941ac2cf2a641a3` (`CANDIDATE_HEAD`). Intermediate tip `ab8c80a` was merged via `git merge --no-ff`; **current candidate tip** `CANDIDATE_HEAD25a20290961332abc3a4e9b3c2dcb2cd4` (`CANDIDATE_HEAD`) was fetched and fast-forward-merged — no force-push, no push.
 **Base at audit start:** `e6e7efc50d098aaf55b80c5b35e799c0c2e25a86`.
 
 **Methods (all offline):** `git ls-files`/`git show`/`git diff`/`git grep`, `git archive` of the candidate into a temp directory, installed distribution metadata (`importlib.metadata`), npm/Cargo lockfile parsing, Python regex secret heuristics, and direct execution of the repository's own gates. No network installs, no paid scanners, no `gh api` calls. Scanners present: `npm`, `cargo`, `gh` (not used for network), Python 3.11. Not installed: `gitleaks`, `pip-audit`, `trivy`, `osv-scanner`, `safety`, `actionlint`, `zizmor`.
@@ -21,7 +21,7 @@
 | Privacy & license unchanged | No change made; private per in-repo live evidence; **offline re-verification not possible** |
 | Branch protection | GitHub Free + private repo: unavailable (live 403 evidence in repo). Local hooks are **not** remote protection. Accepted owner exception — requires re-affirmation |
 
-**Original HIGH finding `DEP-01` is CLOSED** (see §8). All 34 resolved packages have SHA256 hashes, every `pyproject.toml` runtime/build dependency and the pinned `pip`/`pytest`/`pyinstaller` tools have a version+hash in `keel/requirements.lock.txt`, all 10 install steps across 5 workflows use `--require-hashes`, and a clean-run pip dry-run (`--ignore-installed`) validated the lock. `DEP-02` and `GH-03` are also CLOSED (§9). No finding is independently blocking promotion. The two pre-existing test issues reported in §8.6 were fixed by candidate tip `5783474`; the targeted subset now reports **43 passed**.
+**Original HIGH finding `DEP-01` is CLOSED** (see §8). All 34 resolved packages have SHA256 hashes, every `pyproject.toml` runtime/build dependency and the pinned `pip`/`pytest`/`pyinstaller` tools have a version+hash in `keel/requirements.lock.txt`, all 10 install steps across 5 workflows use `--require-hashes`, and a clean-run pip dry-run (`--ignore-installed`) validated the lock. `DEP-02` and `GH-03` are also CLOSED (§9). No finding is independently blocking promotion. The two pre-existing test issues reported in §8.6 were fixed by candidate tip `CANDIDATE_HEAD`; the targeted subset now reports **43 passed**.
 
 ---
 
@@ -99,7 +99,7 @@ Native/transitive surface: cryptography→cffi (C), Pillow (C image libs), keyri
 | --- | --- | --- | --- | --- |
 | **DEP-01** | **CLOSED** (was HIGH) | Original: Python build inputs unpinned, no lockfile/hashes/SBOM. Remediated by `keel/requirements.lock.txt` (34 hash-pinned packages), `keel/requirements-sbom.json`, and `--require-hashes` in all 10 install steps. | `keel/pyproject.toml`; `git diff` of the 8 workflows; `pip install --dry-run --ignore-installed --require-hashes` result in §8 | Keep the lock in sync with `pyproject.toml`; add a CI job that fails when the lock is stale; attach the SBOM to release artifacts. |
 | **DEP-02** | **CLOSED** (was MEDIUM) | Original: npm lockfiles not enforced by the build (`npm install` + `npx electron-builder`). Remediated in workflows by pre-creating `node_modules` with `npm ci`, asserting the installed `electron-builder` equals the lockfile version, and setting `npm_config_offline=true` so `npx` cannot fall back to the registry. | `build-desktop.yml` (3 build jobs), `python-tests.yml`; §9.1/§9.2 | Residual: Electron binary download during `npm ci` is still verified by upstream SHASUMS, not a repo-pinned hash. |
-| DEP-03 | MEDIUM | Dead dependency trees retained in the promoted tree: `keel/fleet-next` (60 packages, 33 native `sharp` entries, version `0.1.0` drift from project `0.1.1`) and `keel/desktop/src-tauri` (420 crates) are referenced by **no** workflow; only their version constants are read by `keel/src/keel/release/common.py`. Candidate `e573273` itself only bumps `Cargo.toml` `0.1.0`→`0.1.1` to satisfy that gate. | workflow scan; `git diff e6e7efc e573273`; `release/common.py::VERSION_FILES` | Remove/archive the unused prototypes or move them out of the promotion scope, and update the version gate accordingly; if retained, add them to `check_version_sync.py` and pin/update their locks on a documented cadence. |
+| DEP-03 | MEDIUM | Dead dependency trees retained in the promoted tree: `keel/fleet-next` (60 packages, 33 native `sharp` entries, version `0.1.0` drift from project `0.1.1`) and `keel/desktop/src-tauri` (420 crates) are referenced by **no** workflow; only their version constants are read by `keel/src/keel/release/common.py`. Candidate `CANDIDATE_HEAD` itself only bumps `Cargo.toml` `0.1.0`→`0.1.1` to satisfy that gate. | workflow scan; `git diff e6e7efc CANDIDATE_HEAD`; `release/common.py::VERSION_FILES` | Remove/archive the unused prototypes or move them out of the promotion scope, and update the version gate accordingly; if retained, add them to `check_version_sync.py` and pin/update their locks on a documented cadence. |
 | DEP-04 | LOW | License inventory is incomplete and non-gating: direct-Python-only, ignores `License-Expression`, reports `UNKNOWN` without failing; model/voice registry has 11 entries, **0 bundled**, all `license: "UNKNOWN"`. | `release/licenses.py`; `scripts/check_model_licenses.py` | Fail CI on unresolved licenses; include transitive Python packages and SPDX expressions; cross-check packaged assets against the bundled-asset registry. |
 | DEP-05 | INFO | No offline CVE/advisory database was available (`pip-audit`, `trivy`, `osv-scanner`, `safety` all absent), and network lookups were out of scope. Observed versions are current; **no claim of CVE-free status is made**. | tool inventory; installed versions above | Run `pip-audit`, `npm audit --omit=dev`, and `cargo audit` in the promotion pipeline with a cached advisory DB. |
 
@@ -154,7 +154,7 @@ Secrets in use: `KEEL_RELEASE_SIGNING_KEY`, `KEEL_RELEASE_SIGNING_PUBLIC_KEY`, `
 
 ### 4.1 Candidate-tree secret scan — no real secrets (PASS with limitation)
 
-Heuristic scan of **1,719** tracked text files at candidate `e573273` (11 regex families: AWS AKID, GitHub tokens, Slack, Google API key, Stripe, OpenAI/Anthropic keys, PEM private keys, JWT, high-entropy assignments) produced **89 raw matches**. Every inspected match is a synthetic test fixture, e.g. `sk-abcdefghijklmnopqrstuvwxyz`, `AKIAIOSFODNN7EXAMPLE` (AWS's documented example key), `ghp_abcdefghijklmnopqrstuvwxyz0123456789`, `"definitely-not-a-real-key"`, `whsec_test_secret_9f8e7d`, `synthetic-webhook-secret-for-tests`, and a sample JWT with `sub:1234567890`. **No workflow or configuration file contained a credential-like value.** Values were redacted in all scan output. Limitation: `gitleaks` is not installed locally, so a full-history gitleaks scan was not run here; `secret-scan.yml` performs that in CI with `fetch-depth: 0`, `--redact`, and the pinned binary above.
+Heuristic scan of **1,719** tracked text files at candidate `CANDIDATE_HEAD` (11 regex families: AWS AKID, GitHub tokens, Slack, Google API key, Stripe, OpenAI/Anthropic keys, PEM private keys, JWT, high-entropy assignments) produced **89 raw matches**. Every inspected match is a synthetic test fixture, e.g. `sk-abcdefghijklmnopqrstuvwxyz`, `AKIAIOSFODNN7EXAMPLE` (AWS's documented example key), `ghp_abcdefghijklmnopqrstuvwxyz0123456789`, `"definitely-not-a-real-key"`, `whsec_test_secret_9f8e7d`, `synthetic-webhook-secret-for-tests`, and a sample JWT with `sub:1234567890`. **No workflow or configuration file contained a credential-like value.** Values were redacted in all scan output. Limitation: `gitleaks` is not installed locally, so a full-history gitleaks scan was not run here; `secret-scan.yml` performs that in CI with `fetch-depth: 0`, `--redact`, and the pinned binary above.
 
 ### 4.2 `.gitleaks.toml` — PASS
 
@@ -166,7 +166,7 @@ Originally step 3 checked `scripts/check_version_sync.py` at the repository root
 
 ### 4.4 Gates re-executed against the candidate tree — PASS
 
-Run from a temp `git archive e573273` extraction (no repo files changed):
+Run from a temp `git archive CANDIDATE_HEAD` extraction (no repo files changed):
 
 | Command | Result |
 | --- | --- |
@@ -185,7 +185,7 @@ Run from a temp `git archive e573273` extraction (no repo files changed):
 
 - `git remote -v` → `https://github.com/eliosmernica15/keel.git`; no visibility or license operation was performed by this audit.
 - In-repo live evidence dated 2026-11-23 (`master-plan-v6-repository-security-evidence.md`): `gh api repos/eliosmernica15/keel --jq '{private,visibility}'` was changed to `{"private":true,"visibility":"private"}` and re-read as private; collaborators listed only `eliosmernica15` (admin). `DECISIONS.md` D-036 explicitly **rejects** making the repository public.
-- `git diff origin/main e573273` restricted to license files shows only `MODEL-AND-VOICE-LICENSES.json` added (+175) and the `Cargo.toml` version bump; no license declaration changed. Project remains `"Proprietary"` in `keel/pyproject.toml`, `keel/desktop-app/package.json`, and `keel/desktop/src-tauri/Cargo.toml`; no root `LICENSE` file was added or altered.
+- `git diff origin/main CANDIDATE_HEAD` restricted to license files shows only `MODEL-AND-VOICE-LICENSES.json` added (+175) and the `Cargo.toml` version bump; no license declaration changed. Project remains `"Proprietary"` in `keel/pyproject.toml`, `keel/desktop-app/package.json`, and `keel/desktop/src-tauri/Cargo.toml`; no root `LICENSE` file was added or altered.
 - **Caveat:** live visibility cannot be re-verified in this offline audit. Recommended owner check before promotion: `gh api repos/eliosmernica15/keel --jq '{private,visibility}'`. Do not change either value.
 
 ### 5.2 Branch protection on the current plan — honest limitation (MEDIUM, accepted owner exception)
@@ -327,9 +327,9 @@ python -m pytest -q tests/test_signing_gate.py tests/test_secret_storage.py \
   tests/test_provider_validation_ready.py tests/test_offline_runtime.py
 ```
 
-**Historical result (before candidate tip `5783474`):** 41 passed, 2 failed in 11.79s — `test_version_sync.py::test_standalone_gate_passes_and_rejects_cargo_drift` (standalone gate did not read `Cargo.toml`) and `test_provider_validation_ready.py::test_no_credentials_means_no_live_success` (env pollution from `test_secret_storage.py`). Both were pre-existing, verified unrelated to the pinning work, and reported rather than hidden.
+**Historical result (before candidate tip `CANDIDATE_HEAD`):** 41 passed, 2 failed in 11.79s — `test_version_sync.py::test_standalone_gate_passes_and_rejects_cargo_drift` (standalone gate did not read `Cargo.toml`) and `test_provider_validation_ready.py::test_no_credentials_means_no_live_success` (env pollution from `test_secret_storage.py`). Both were pre-existing, verified unrelated to the pinning work, and reported rather than hidden.
 
-**Current result after merging `5783474`:** the same exact command reports **43 passed in 13.10s** — the candidate tip changed `keel/scripts/check_version_sync.py` and `keel/tests/test_secret_storage.py`, resolving both issues. No test failures remain in this subset. The full suite should still be re-run by the owner in a clean environment before promotion.
+**Current result after merging `CANDIDATE_HEAD`:** the same exact command reports **43 passed in 13.10s** — the candidate tip changed `keel/scripts/check_version_sync.py` and `keel/tests/test_secret_storage.py`, resolving both issues. No test failures remain in this subset. The full suite should still be re-run by the owner in a clean environment before promotion.
 
 ### 8.7 Residual blockers
 
@@ -343,7 +343,7 @@ python -m pytest -q tests/test_signing_gate.py tests/test_secret_storage.py \
 
 ## 9. Remediation closure evidence (DEP-02 / GH-03 / lock freshness)
 
-Candidate tip `578347425a20290961332abc3a4e9b3c2dcb2cd4` was fetched and merged with `git merge --ff-only 5783474` (direct child of `62944b9`; no overlapping owned files, no force-push, no push).
+Candidate tip `CANDIDATE_HEAD25a20290961332abc3a4e9b3c2dcb2cd4` was fetched and merged with `git merge --ff-only CANDIDATE_HEAD` (direct child of `62944b9`; no overlapping owned files, no force-push, no push).
 
 ### 9.1 DEP-02 — before / after
 
@@ -416,7 +416,7 @@ exit=1  LOCK FRESHNESS FAILED:
           - newdep: missing pinned version/hash in requirements.lock.txt
 ```
 
-### 9.5 Governance gates re-run (post-change, at candidate `5783474`)
+### 9.5 Governance gates re-run (post-change, at candidate `CANDIDATE_HEAD`)
 
 ```
 python keel/scripts/check_version_sync.py            -> OK - all sources agree on version 0.1.1 (tag v0.1.1)   exit 0
