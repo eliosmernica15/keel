@@ -39,6 +39,15 @@ jobs:
 
       - name: Deterministic fixture validation (no network, no credentials)
         working-directory: keel
+        env:
+          # The fixture suite asserts that no provider is configured. Clear any
+          # ambient key so this step is deterministic; the live-check step below
+          # is the only step that receives the repository's secrets.
+          KEEL_OPENROUTER_API_KEY: ""
+          KEEL_GOOGLE_API_KEY: ""
+          KEEL_NVIDIA_API_KEY: ""
+          KEEL_ANTHROPIC_API_KEY: ""
+          KEEL_COMPAT_API_KEY: ""
         run: |
           set -euo pipefail
           python -m pytest -q \
