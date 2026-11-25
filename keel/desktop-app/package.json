@@ -27,6 +27,7 @@
     "files": [
       "package.json",
       "main.js",
+      "renderer-policy.js",
       "splash.html"
     ],
     "extraResources": [
@@ -50,6 +51,38 @@
       {
         "from": "../build/resources/keel",
         "to": "keel"
+      },
+      {
+        "from": "../fleet-next/.next/standalone",
+        "to": "fleet-next",
+        "filter": [
+          "**/*",
+          "node_modules/**",
+          "!**/.env*",
+          "!**/tests/**",
+          "!**/*.map"
+        ]
+      },
+      {
+        "from": "../fleet-next/.next/standalone/node_modules",
+        "to": "fleet-next/node_modules",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../fleet-next/.next/static",
+        "to": "fleet-next/.next/static",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../fleet-next/public",
+        "to": "fleet-next/public",
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {

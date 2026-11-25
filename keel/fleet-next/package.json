@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "next dev -H 127.0.0.1 -p 3000",
     "build": "next build",
+    "build:standalone": "node scripts/build-standalone.mjs",
     "start": "next start -H 127.0.0.1 -p 3000",
+    "start:standalone": "node scripts/start-standalone.mjs",
+    "verify:standalone": "node scripts/verify-standalone.mjs",
     "lint": "next lint",
     "test:e2e": "playwright test",
     "test:features": "playwright test --config tests/features/cowork/playwright.config.ts && playwright test --config tests/features/code-duet/playwright.config.ts && playwright test --config tests/features/fleet/playwright.config.ts && playwright test --config tests/features/capabilities-settings/playwright.config.ts && playwright test --config tests/features/onboarding/playwright.config.ts",

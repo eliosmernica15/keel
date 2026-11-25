@@ -41,8 +41,20 @@ test("Kanban columns and cards come from real task rows; moves and assignments u
   expect(assign?.body).toEqual({ assigned_bot_id: "b_beta" });
 
   // A real HTML5 drag uses the same update route and never invents a status.
-  await page.locator("article").filter({ hasText: "Fix import" })
-    .dragTo(page.getByRole("region", { name: "Cancelled column" }));
+  // Playwright's dragTo does not start Chromium drags in this harness (the
+  // moves after mouse.down produce no dragstart/drop events here), so drive
+  // the real mouse sequence by hand: down on the card, move to the column,
+  // up — the same events a user drag produces.
+  const cancelledColumn = page.getByRole("region", { name: "Cancelled column" });
+  await cancelledColumn.scrollIntoViewIfNeeded();
+  const columnBox = await cancelledColumn.boundingBox();
+  if (!columnBox) throw new Error("Cancelled column has no bounding box");
+  const card = page.locator("article").filter({ hasText: "Fix import" });
+  await card.hover();
+  await page.mouse.down();
+  await page.mouse.move(columnBox.x + columnBox.width / 2, columnBox.y + Math.min(columnBox.height / 2, 120), { steps: 10 });
+  await page.mouse.up();
+  await page.waitForTimeout(300);
   const dragUpdate = fixture.calls.filter((c) => c.path === "tasks/t4/update");
   expect(dragUpdate.length).toBeGreaterThan(0);
   expect(dragUpdate[dragUpdate.length - 1].body).toEqual({ status: "cancelled" });

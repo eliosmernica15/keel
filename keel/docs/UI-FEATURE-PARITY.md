@@ -2,7 +2,9 @@
 
 **Evidence base:** `desktop/fleet/fleet.js` + `desktop/fleet/index.html` (classic reference),
 `src/keel/fleet/routes.py` / `service.py` / `db.py` (authoritative bridge),
-`fleet-next/features/fleet/**` and `fleet-next/tests/features/fleet/**` (new implementation + specs).
+`fleet-next/features/fleet/**` and `fleet-next/tests/features/fleet/**` (new implementation + specs),
+plus the 2026-11-25 Electron integration sources `desktop-app/{main.js,renderer-policy.js}` and
+`docs/RENDERER-INTEGRATION-CONTRACT.md` (renderer wiring only — no new capability claims).
 **Rule:** `implemented` needs both a real bridge route and a working, tested UI flow.
 `api-missing` means the Python bridge has no route at all; `blocked` means a route exists but a
 host/hardware/credential gate prevents verification here. Statuses below were verified in the
@@ -133,3 +135,54 @@ helper is **not** treated as a working UI flow.
 
 This matrix covers **feature** parity, not packaging parity. Classic Fleet and `desktop/ui` must
 remain available until those gates pass.
+
+## Unified desktop renderer parity (2026-11-25 integration round)
+
+The integration makes `fleet-next` loadable **inside Electron** through a Next standalone server
+and the same BFF; it does **not** add, remove or re-verify any capability row above. Every row in
+this document was measured in the browser/`fleet-next` context; the packaged unified window has
+**not** been exercised, so none of those rows is upgraded on the strength of the Electron wiring.
+
+| Aspect | Unified desktop renderer (source) | Evidence / honest status |
+|---|---|---|
+| Surfaces | Cowork, Code, Duet, Fleet + Capabilities/Settings reachable from one Electron window when `mode=unified` | contract §0/§6; 144/144 production E2E in browser; **no packaged-unified walkthrough** |
+| Data path | Browser → Next BFF `/api/bridge/*` → Python bridge; token injected server-side, window URL token-free | `route.ts:6-10,23-35,98-133`, contract §2; unit/source verified, unified round-trip spec **pending** |
+| Bridge authority | Python still owns sessions, permissions, trust, secrets, tools/MCP, history, audit | unchanged (`webapp.py`, `src/keel/fleet/**`); no new capability invented |
+| Known feature gaps | browser-preview route, tool catalogue, egress/retention/diagnostics, extension marketplace | same documented gaps as the browser matrix; UI shows honest unavailable states |
+| Fleet rewind / Markdown export | real bridge routes, UI still **implemented-unverified** in this worktree | unchanged from the finalization reconciliation above; integration does not promote them |
+| Live provider turn | blocked (no credentials on this host) | unchanged; not faked in either renderer |
+| Packaged renderer | existing `Keel-Setup-0.1.1.exe` renders legacy `desktop/ui`; Agent G EXE probe shows a token-bearing sidecar URL and no Next child | `UI-DESKTOP-PACKAGING.md` §4–5/§8; `tests/packaged-qa/qa-logs/electron-exe-2026-11-25T14-36-57-215Z.json` — **not unified-EXE evidence** |
+| Rollback parity | `KEEL_RENDERER=legacy` and `KEEL_UI_PROFILE=mirror` paths preserved in source; packaged re-run pending | 29/29 renderer-policy unit cases (after contract reconciliation); **packaged rollback not verified** |
+
+### 150-criterion frontend history preserved
+
+The authoritative, unchanged frontend acceptance history remains
+`docs/UI-REQUIREMENTS-MATRIX.md`: **150 criteria**, last recorded as **131 verified /
+6 implemented-unverified / 2 partial / 2 not started / 9 blocked** (87.3 % verified), with the
+initial 120/150 round retained alongside it. This integration round does **not** change that
+denominator, promote any criterion, or replace the matrix: no packaged-unified run exists that
+could justify promotion. The 150-criterion count is a frontend-criterion count, not a
+registry/whole-product percentage and not a production-readiness claim. See
+`docs/MASTER-PLAN-INVENTORY.md` and `docs/FULL-PLAN-QA.md` for the same caveat.
+
+**Parity verdict:** feature parity unchanged and evidenced for the listed browser flows; unified
+**desktop** parity is implemented in source but not packaged-verified. Classic Fleet and
+`desktop/ui` remain available as rollback paths.
+
+## 2026-11-25 — Download page & installer parity (Agent E)
+
+Added to this matrix per the user's request. Evidence base: Agent G's distribution QA
+(`DISTRIBUTION-QA.md`, 42/42; logs in `keel/fleet-next/tests/distribution-qa/qa-logs/`),
+`keel/site/tests/*.test.mjs` (20/20), and worktree measurements (ledger: `AGENT-E-PROGRESS-LEDGER.md`).
+
+| Aspect | Classic/public surface | Unified (`fleet-next`) | Status |
+|---|---|---|---|
+| Download page (`/download`) | `keel/site/download.html` + `keel/site/ui/download.js` (manifest-driven) | same page (no `fleet-next` download page; `fleet-next` has no `/download` route — `site/**` and the download page are not touched by this round) | **verified** — Agent G `01-download-journey.spec.ts` + site tests 20/20 |
+| Device detection | UA/platform heuristics, arch fallback, no silent wrong pick | same page | **verified** (matrix: Win x64, Win ARM64 note, macOS Apple Silicon/Intel choice, Linux DEB/RPM, iOS/Android unsupported) |
+| Availability gate | `site/ui/download-core` helpers: `isDownloadable` — `available` + `verified` + `verified_at` + `size` + 64-hex `sha256` + HTTPS-only URL | same | **verified** (`site/tests/download-core.test.mjs:64-90`) |
+| Public download URL | `https://github.com/eliosmernica15/keel/releases/download/...` (pipeline, `keel/src/keel/release/build.py:163`, `publish.py:122`); site `https://keel-desktop.vercel.app/download` | same | **recorded** — no public installer live yet (QA-G-D03, owner gate) |
+| Installer artifacts | `Keel-Setup-0.1.1.exe` (NSIS), PKG/DEB/RPM targets | packaged `Keel.exe` + `keel.exe` sidecar ship in `dist/win-unpacked/resources/` | measured (ledger §3) |
+| Unsigned installer warning | expected until Authenticode cert (DISTRIBUTION-INSTALLATION.md §2/§7) | same — installer unsigned | **recorded** |
+
+Not promoted to verified: public installer availability (owner gate) and macOS/Linux install
+execution (no native hardware/tooling on this host).

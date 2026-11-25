@@ -31,20 +31,8 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    ".next-a11y/types/**/*.ts",
-    ".next-acceptance-final/types/**/*.ts",
-    ".next-caps-settings/types/**/*.ts",
-    ".next-code-duet-audit/types/**/*.ts",
-    ".next-code-duet-tests/types/**/*.ts",
-    ".next-cowork-tests/types/**/*.ts",
-    ".next-e2e-onboarding/types/**/*.ts",
-    ".next-e2e/types/**/*.ts",
-    ".next-fleet-parity/types/**/*.ts",
-    ".next-pwa/types/**/*.ts",
-    ".next-quality/types/**/*.ts",
     ".next/types/**/*.ts",
-    "next-env.d.ts",
-    ".next-download-entry/types/**/*.ts"
+    "next-env.d.ts"
   ],
   "exclude": [
     "node_modules"
