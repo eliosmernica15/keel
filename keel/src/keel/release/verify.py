@@ -9,27 +9,68 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from .common import sha256_file
+
+MAX_REDIRECTS = 2
 
 
 def _is_loopback_url(url: str) -> bool:
     try:
-        from urllib.parse import urlparse
-
         host = urlparse(url).hostname or ""
     except Exception:
         return False
     return host in {"localhost", "127.0.0.1", "::1"}
 
 
+def _url_allowed(url: str, *, allow_http: bool) -> bool:
+    """Positive allowlist for remote URLs.
+
+    Only HTTPS is allowed for remote fetching. Plain HTTP is permitted solely
+    for explicit loopback URLs when the caller opts in with ``allow_http``
+    (local tests). Every other scheme -- including file://, ftp://, data: and
+    scheme-relative URLs -- is refused before urllib can open it.
+    """
+    if not isinstance(url, str) or not url:
+        return False
+    scheme = urlparse(url).scheme.lower()
+    if scheme == "https":
+        return True
+    if scheme == "http" and allow_http and _is_loopback_url(url):
+        return True
+    return False
+
+
+class _ValidatingRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Re-validate every redirect hop instead of trusting urllib defaults."""
+
+    def __init__(self, *, allow_http: bool) -> None:
+        super().__init__()
+        self.allow_http = allow_http
+        self.hops = 0
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        self.hops += 1
+        if self.hops > MAX_REDIRECTS:
+            raise ValueError(f"too many redirects (limit {MAX_REDIRECTS}): {newurl}")
+        if not _url_allowed(newurl, allow_http=self.allow_http):
+            raise ValueError(f"refusing non-HTTPS redirect target: {newurl}")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def _open_url(req: urllib.request.Request, *, allow_http: bool, timeout: int):
+    """Open a request with scheme validation enforced on every redirect hop."""
+    handler = _ValidatingRedirectHandler(allow_http=allow_http)
+    opener = urllib.request.build_opener(handler)
+    return opener.open(req, timeout=timeout)
+
+
 def fetch_bytes(url: str, *, allow_http: bool, timeout: int) -> tuple[bytes, int]:
-    if url.startswith("http://") and not (allow_http and _is_loopback_url(url)):
+    if not _url_allowed(url, allow_http=allow_http):
         raise ValueError(f"refusing non-HTTPS URL: {url}")
-    last_exc: Exception | None = None
     req = urllib.request.Request(url, headers={"Accept": "*/*", "Cache-Control": "no-cache"})
-    # urllib follows redirects by default.
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
+    with _open_url(req, allow_http=allow_http, timeout=timeout) as resp:
         if resp.status != 200:
             raise RuntimeError(f"{url} returned HTTP {resp.status}")
         declared = resp.headers.get("Content-Length")
@@ -108,14 +149,10 @@ def verify_manifest(
             errors.append(f"{key}: invalid size")
         if len(sha) != 64 or any(c not in "0123456789abcdefABCDEF" for c in sha):
             errors.append(f"{key}: invalid sha256")
-        safe_url = url
         if not isinstance(url, str) or not url:
             errors.append(f"{key}: missing url")
             continue
-        if url.startswith("http://") and not (allow_http and _is_loopback_url(url)):
-            errors.append(f"{key}: url is not a public HTTPS URL")
-            continue
-        if url.startswith("https://") is False and not (allow_http and _is_loopback_url(url)):
+        if not _url_allowed(url, allow_http=allow_http):
             errors.append(f"{key}: url is not a public HTTPS URL")
             continue
 
@@ -141,7 +178,7 @@ def verify_manifest(
             alt_sha = str(alt.get("sha256") or "")
             if not alt_url:
                 continue
-            if alt_url.startswith("http://") and not (allow_http and _is_loopback_url(alt_url)):
+            if not _url_allowed(alt_url, allow_http=allow_http):
                 errors.append(f"{key} alt {alt.get('file')}: url is not HTTPS")
                 continue
             if not isinstance(alt_size, int) or alt_size <= 0:
@@ -216,7 +253,7 @@ def verify_release_manifest(
         if not isinstance(url, str) or not url:
             errors.append(f"{name}: missing url")
             continue
-        if url.startswith("http://") and not (allow_http and _is_loopback_url(url)):
+        if not _url_allowed(url, allow_http=allow_http):
             errors.append(f"{name}: url is not HTTPS")
             continue
         result = download(url)
@@ -240,14 +277,27 @@ def verify_release_manifest(
     return errors
 
 
+def _looks_like_url(value: str) -> bool:
+    """Distinguish a remote URL from a local path (including Windows drives)."""
+    parsed = urlparse(value)
+    scheme = parsed.scheme.lower()
+    if scheme:
+        # A single letter followed by ":\" or ":/" is a Windows drive, not a
+        # URL scheme, even though urlparse reports it as one.
+        if len(scheme) == 1 and scheme.isalpha() and value[1:3] in (":\\", ":/"):
+            return False
+        return True
+    # Protocol-relative URLs and UNC-looking paths are treated as URLs so they
+    # are validated rather than silently opened from the filesystem.
+    return value.startswith("//")
+
+
 def load_manifest(path_or_url: str, *, allow_http: bool, timeout: int) -> dict[str, Any]:
-    if "://" in path_or_url:
-        if path_or_url.startswith("http://") and not (
-            allow_http and _is_loopback_url(path_or_url)
-        ):
+    if _looks_like_url(path_or_url):
+        if not _url_allowed(path_or_url, allow_http=allow_http):
             raise ValueError("manifest URL must be HTTPS")
         req = urllib.request.Request(path_or_url, headers={"Accept": "application/json", "Cache-Control": "no-cache"})
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with _open_url(req, allow_http=allow_http, timeout=timeout) as resp:
             raw = resp.read()
     else:
         raw = Path(path_or_url).read_bytes()

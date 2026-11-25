@@ -6,7 +6,9 @@ Outputs files into desktop-app/build/.
 
 from __future__ import annotations
 
+import io
 import math
+import struct
 import sys
 from pathlib import Path
 
@@ -137,20 +139,56 @@ def _make_ico(images, path):
     images[-1].save(str(path), format="ICO", sizes=sizes)
 
 
+def _on_bg(size: int) -> Image.Image:
+    mark = _starburst(size)
+    bg = Image.new("RGBA", mark.size, BG + (255,))
+    bg.paste(mark, (0, 0), mark.split()[3])
+    return bg.convert("RGBA")
+
+
+def _make_icns(images, path: Path) -> None:
+    """Write a valid ICNS container from PNG-encoded icon entries.
+
+    ICNS is a simple big-endian container: 'icns' + total length, followed by
+    4-byte type + 4-byte chunk length + PNG payload. Modern macOS accepts the
+    PNG entry types below, so no macOS host is required to generate the file.
+    """
+    codes = {128: b"ic07", 256: b"ic08", 512: b"ic09", 1024: b"ic10"}
+    chunks = []
+    for im in images:
+        code = codes.get(im.width)
+        if code is None:
+            continue
+        buf = io.BytesIO()
+        im.save(buf, format="PNG")
+        payload = buf.getvalue()
+        chunks.append(code + struct.pack(">I", len(payload) + 8) + payload)
+    if not chunks:
+        raise RuntimeError("no ICNS-compatible icon sizes were generated")
+    body = b"".join(chunks)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"icns" + struct.pack(">I", len(body) + 8) + body)
+
+
 def main():
-    sizes = [16, 24, 32, 48, 64, 128, 256]
-    icons = [_starburst(s) for s in sizes]
-    for im in icons:
-        bg = Image.new("RGBA", im.size, BG + (255,))
-        bg.paste(im, (0, 0), im.split()[3])
-        icons[icons.index(im)] = bg.convert("RGBA")
+    ico_sizes = [16, 24, 32, 48, 64, 128, 256]
+    icons = [_on_bg(s) for s in ico_sizes]
     _make_ico(icons, BUILD_DIR / "icon.ico")
     print("  -> icon.ico")
 
-    rgb512 = _starburst(512)
-    bg = Image.new("RGBA", rgb512.size, BG + (255,))
-    bg.paste(rgb512, (0, 0), rgb512.split()[3])
-    bg.save(BUILD_DIR / "icon.png")
+    # macOS PKG icon (electron-builder mac.icon).
+    icns_sizes = [128, 256, 512, 1024]
+    _make_icns([_on_bg(s) for s in icns_sizes], BUILD_DIR / "icon.icns")
+    print("  -> icon.icns")
+
+    # Linux .deb/.rpm icons -> desktop entry icon (electron-builder linux.icon).
+    icons_dir = BUILD_DIR / "icons"
+    icons_dir.mkdir(parents=True, exist_ok=True)
+    for size in (16, 32, 48, 64, 128, 256, 512):
+        _on_bg(size).save(str(icons_dir / f"{size}x{size}.png"), format="PNG")
+    print("  -> icons/{16,32,48,64,128,256,512}x*.png")
+
+    _on_bg(512).save(BUILD_DIR / "icon.png", format="PNG")
     print("  -> icon.png")
 
     _draw_sidebar().save(str(BUILD_DIR / "sidebar.bmp"), format="BMP")

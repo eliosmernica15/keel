@@ -107,7 +107,8 @@ def test_electron_update_check_is_opt_in():
               "main.js").read_text(encoding="utf-8")
     assert "KEEL_UPDATE_MANIFEST_URL" in source
     assert "checkForUpdates();" in source
-    assert "if (!manifest) return;" in source
+    # SEC-F-06: the advisory plan is now fail-closed on a missing key too.
+    assert "if (!manifest || !key) return;" in source
 
 
 def test_atomic_install_and_rollback(tmp_path):

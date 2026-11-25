@@ -184,8 +184,10 @@ function updatePlatform() {
 
 function checkForUpdates() {
   const manifest = process.env.KEEL_UPDATE_MANIFEST_URL;
-  if (!manifest) return; // disabled by default: no owner endpoint configured
   const key = process.env.KEEL_UPDATE_PUBLIC_KEY_PATH || "";
+  // Fail closed: an advisory plan is produced only from a manifest whose
+  // Ed25519 signature can be checked. No key => no plan (SEC-F-06).
+  if (!manifest || !key) return;
   const binary = bundledSidecar();
   const args = binary
     ? [binary, "release", "update-check"]

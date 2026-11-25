@@ -30,6 +30,10 @@ class UpdatePlan:
     size: int
     sha256: str
     manifest_version: str
+    # False when the manifest was accepted without an Ed25519 public key.
+    # The desktop shell stores this in its advisory update-state.json so an
+    # unsigned manifest is never silently presented as verified.
+    signature_verified: bool = False
 
 
 def _version_tuple(value: str) -> tuple[int, ...]:
@@ -111,6 +115,7 @@ def check_for_update(manifest_url: str | list[str], *, current_version: str,
         size=int(entry.get("bytes", 0)),
         sha256=str(entry.get("sha256", "")),
         manifest_version=str(manifest.get("version", "")),
+        signature_verified=(public_key is not None),
     )
 
 
