@@ -9,6 +9,18 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AppProvider, useApp } from "@/lib/state";
 import { bridge, errMessage, isBridgeUnavailable } from "@/lib/api";
 import { Icon, KeelMark, type IconName } from "@/components/icons";
+
+/** G2: true when running inside the Electron desktop shell. */
+function isElectron(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /Electron/i.test(navigator.userAgent);
+}
+
+/** G3: platform-aware command key. */
+function cmdKey(): string {
+  if (typeof navigator === "undefined") return "Ctrl+K";
+  return /Mac|iPhone|iPad/i.test(navigator.platform) ? "\u2318K" : "Ctrl+K";
+}
 import { Badge, Button, IconButton, SegmentedControl, StatusDot } from "@/components/ui";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Cowork from "@/features/cowork/Cowork";
@@ -28,9 +40,10 @@ type BridgeStatus = "checking" | "online" | "offline" | "unconfigured";
 const SURFACE_ITEMS: Array<{ value: Surface; label: string; icon: IconName }> = [
   { value: "cowork", label: "Cowork", icon: "cowork" },
   { value: "code", label: "Code", icon: "code" },
-  { value: "duet", label: "Duet", icon: "duet" },
   { value: "fleet", label: "Fleet", icon: "fleet" },
 ];
+// Duet is hidden until it is differentiated from Code (surface fix plan D1).
+// Re-enable by adding { value: "duet", label: "Duet", icon: "duet" } above.
 
 const GLOBAL_ITEMS: Array<{ value: Destination; label: string; icon: IconName }> = [
   { value: "capabilities", label: "Capabilities", icon: "capabilities" },
@@ -194,7 +207,7 @@ function Shell() {
     setCreatingTask(true);
     try {
       const result = await bridge.createBot({
-        name: `New task · ${new Date().toLocaleString()}`,
+        name: `New task \u00b7 ${new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`,
         role: "",
         engine: "provider",
         notes: "",
@@ -288,7 +301,7 @@ function Shell() {
         </div>
         <div className="keel-topbar__spacer" />
         <div className="keel-context-chip" title="Local-first workspace"><Icon name="shield" size={14} /> Local workspace</div>
-        <IconButton label="Command palette (Ctrl+K)" onClick={() => app.setCommandOpen(true)}><Icon name="command" /></IconButton>
+        <IconButton label={`Command palette (${cmdKey()})`} onClick={() => app.setCommandOpen(true)}><Icon name="command" /></IconButton>
         <div className="keel-context-chip" title={bridgeDetail}><StatusDot tone={bridgeTone} label={bridgeLabel} /><span>{bridgeStatus === "online" ? "Connected" : "Bridge"}</span></div>
         <IconButton label="Toggle theme" onClick={() => app.setTheme(app.resolvedTheme === "dark" ? "light" : "dark")}><Icon name={app.resolvedTheme === "dark" ? "sun" : "moon"} /></IconButton>
         <IconButton label="Toggle context panel" onClick={() => app.setRightPanelOpen(!app.rightPanelOpen)} active={app.rightPanelOpen}><Icon name="panel" /></IconButton>
@@ -323,19 +336,23 @@ function Shell() {
             {/* The single contextual desktop entry point in the unified shell.
                 A native <a> keeps keyboard/Enter behaviour; Keel's shared
                 button classes and icon set keep it visually consistent. */}
-            <a
-              className="keel-btn keel-btn--ghost keel-btn--sm"
-              href="https://keel-desktop.vercel.app/download"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Get Keel Desktop"
-              title="Get Keel Desktop (opens in a new tab)"
-              style={{ width: "100%", justifyContent: "flex-start", textDecoration: "none" }}
-            >
-              <Icon name="download" size={15} />
-              <span style={{ flex: 1, textAlign: "left" }}>Get Keel Desktop</span>
-              <Icon name="external" size={13} />
-            </a>
+            {/* G2: only show "Get Keel Desktop" in the browser build, not in the
+                installed desktop app (Electron). */}
+            {!isElectron() && (
+              <a
+                className="keel-btn keel-btn--ghost keel-btn--sm"
+                href="https://keel-desktop.vercel.app/download"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get Keel Desktop"
+                title="Get Keel Desktop (opens in a new tab)"
+                style={{ width: "100%", justifyContent: "flex-start", textDecoration: "none" }}
+              >
+                <Icon name="download" size={15} />
+                <span style={{ flex: 1, textAlign: "left" }}>Get Keel Desktop</span>
+                <Icon name="external" size={13} />
+              </a>
+            )}
           </div>
         </aside>
 
@@ -381,7 +398,7 @@ function Shell() {
               <div className="keel-section-title"><h4>Keyboard</h4></div>
               <div style={{ display: "grid", gap: 7, fontSize: 12, color: "var(--k-muted)" }}>
                 {[
-                  ["Command palette", "Ctrl / ⌘ K"], ["Switch surface", "1 – 4"],
+                  ["Command palette", cmdKey()], ["Switch surface", "1 – 4"],
                   ["Toggle sidebar", "["], ["Toggle context", "\\"],
                 ].map(([label, key]) => (
                   <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>

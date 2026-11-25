@@ -28,7 +28,7 @@ export function PrivacyPanel() {
       <div className={s.sectionHead}>
         <div>
           <h2>Privacy &amp; data</h2>
-          <p className={s.muted}>Keel is local-first: the bridge owns transcripts and usage on this machine. Only data the bridge reports is shown.</p>
+          <p className={s.muted}>Keel is local-first: Keel owns transcripts and usage on this machine. Only data the bridge reports is shown.</p>
         </div>
         <Button onClick={usageQ.reload}><Icon name="refresh" size={14} /> Reload</Button>
       </div>

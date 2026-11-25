@@ -26,9 +26,9 @@ function field(r: Routine, key: string): unknown {
 }
 function fmtInZone(value: unknown, tz?: string): string {
   const iso = text(value);
-  if (!iso) return "Not reported by bridge";
+  if (!iso) return "Not reported";
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "Not reported by bridge";
+  if (Number.isNaN(d.getTime())) return "Not reported";
   try {
     return new Intl.DateTimeFormat(undefined, {
       dateStyle: "medium", timeStyle: "short", ...(tz ? { timeZone: tz } : {}),

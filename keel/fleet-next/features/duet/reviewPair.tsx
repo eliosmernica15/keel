@@ -120,7 +120,7 @@ function Fact({ label, value, title }: { label: string; value?: string; title?: 
       <dt>{label}</dt>
       <dd>{value
         ? <span className={s.mono} title={title ?? value}>{value}</span>
-        : <span className={s.notReported}>not reported by bridge</span>}</dd>
+        : <span className={s.notReported}>not reported</span>}</dd>
     </div>
   );
 }

@@ -799,20 +799,8 @@ export default function Cowork() {
                 <Icon name="download" size={15} /> <span>Export</span>
               </a>
               {/* Honest gap: the bridge has a real export.md route but no route
-                  that accepts this Markdown back. Never offer a fake import. */}
-              <button
-                type="button"
-                className={s.importButton}
-                disabled
-                aria-label="Import transcript unavailable"
-                aria-describedby="cowork-import-note"
-                title="Import is unavailable — see the note beside this control"
-              >
-                <Icon name="panel" size={14} /> <span>Import</span>
-              </button>
-              <span className={s.importNote} id="cowork-import-note" role="note">
-                Import unavailable — no bridge route accepts the exported Markdown.
-              </span>
+                  that accepts this Markdown back. Import is hidden (not disabled)
+                  until a route exists, per the surface fix plan G13. */}
             </div>
           </header>
 
