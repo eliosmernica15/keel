@@ -420,7 +420,7 @@ export function TreeView({ nodes, activePath, onOpen, filter = "", label = "Proj
       ) : nodes.length ? (
         <div role="tree" aria-label={label}>{nodes.map((n) => <Row key={n.path} node={n} depth={0} />)}</div>
       ) : (
-        <p className={s.hint}>The bridge returned no files for this project.</p>
+        <p className={s.hint}>No files were found in this project.</p>
       )}
     </div>
   );

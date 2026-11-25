@@ -231,7 +231,7 @@ export default function ActivityPanel({ bot, bots, events, onOpenBot, onChanged 
       <div className={s.panel}>
         <div className={s.panelHead}>
           <h4 className={s.panelTitle}>Message {bot.name || bot.id}</h4>
-          <span className={s.hintNote}>{text(bot.engine) === "echo" ? "Echo engine — scripted replies, not a live model" : "Provider engine"}</span>
+          <span className={s.hintNote}>{text(bot.engine) === "echo" ? "Demo engine - scripted replies, not a live model" : "Keel engine"}</span>
         </div>
         <div className={s.composer}>
           <Textarea aria-label="Message" placeholder={`Message ${bot.name || bot.id}…`} value={draft} onChange={(e) => setDraft(e.target.value)} />
@@ -239,7 +239,7 @@ export default function ActivityPanel({ bot, bots, events, onOpenBot, onChanged 
             <option value="build">Build</option>
             <option value="plan">Plan</option>
             <option value="acceptEdits">Accept edits</option>
-            <option value="autopilot">Autopilot</option>
+            <option value="autopilot">Auto-accept edits</option>
           </select>
           <Button variant="primary" disabled={!draft.trim() || busy} onClick={() => void send()}><Icon name="send" size={15} /> Send</Button>
           {activity.state === "working" && (

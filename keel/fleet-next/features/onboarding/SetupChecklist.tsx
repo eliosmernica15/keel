@@ -65,7 +65,7 @@ export default function SetupChecklist({ onNavigate }: SetupChecklistProps) {
   return (
     <section className={s.checklist} aria-label="Setup checklist">
       <SectionTitle action={<Badge tone={allRequiredDone ? "success" : "warning"}>
-        {done}/{total} required
+        {allRequiredDone ? "Setup complete" : `${done}/${total} required`}
       </Badge>}>
         Setup checklist
       </SectionTitle>

@@ -8,6 +8,9 @@ const nextConfig = {
   // Isolate parallel verification servers (e.g. Playwright on 3300) from the
   // production preview build in .next. Set KEEL_DIST_DIR for a separate build.
   distDir: process.env.KEEL_DIST_DIR || ".next",
+  // Electron packages the traced standalone server, not `next start`: the
+  // Node BFF route (and its runtime bridge env) must survive packaging.
+  output: "standalone",
   // this app lives in its own folder inside a bigger workspace — keep tracing local
   outputFileTracingRoot: path.dirname(fileURLToPath(import.meta.url)),
   async headers() {
@@ -28,7 +31,7 @@ const nextConfig = {
               "default-src 'self'; script-src 'self' 'unsafe-inline'" +
               (process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'") + "; " +
               "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; " +
-              "connect-src 'self'; font-src 'self' data:; " +
+              "connect-src 'self' https://api.github.com; font-src 'self' data:; " +
               "object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
           },
         ],

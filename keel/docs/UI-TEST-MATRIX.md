@@ -176,3 +176,75 @@ and `FINAL-STABILIZATION-ACCEPTANCE.md`. Every row below is a **recorded command
 > `PASS_WITH_EXTERNAL_LIMITATIONS` with 18 `external_validation_pending`, 1 `owner_gated` and
 > 1 `blocked` gate; packaged Electron/Tauri, live provider turn, real screen reader and public
 > installer are still outside the passed evidence.
+
+## Unified renderer integration round (2026-11-25) — `feat/unified-renderer-electron-2026-11-25`
+
+Branch base `bcc9123`. Contract: `docs/RENDERER-INTEGRATION-CONTRACT.md` (Agent A, source audit
+only). Every row below records an actually observed command output or an existing cited artifact.
+`pending` / `not run` / `fail` rows are **not** passes. In particular, a `next build` producing
+`.next/standalone` is **not** a packaged-EXE result.
+
+| Check | Exact command / source | Real result | Status |
+|---|---|---|---|
+| Contract availability | read `keel/docs/RENDERER-INTEGRATION-CONTRACT.md` | file present, 378 lines; explicitly a read-only architecture proposal, no packaged GUI/native build/live turn run | source evidence only |
+| Main-process syntax (Agent B source) | `node --check desktop-app/main.js` (in `keel/`) | no output, `MAIN_CHECK=0` | pass |
+| Renderer-policy syntax (Agent B source) | `node --check desktop-app/renderer-policy.js` (in `keel/`) | no output, `POLICY_CHECK=0` | pass |
+| Renderer-policy behaviour (Agent B/F test) | `node --test desktop-app/tests/renderer-policy.test.js` (in `keel/`) | first recorded run **25 pass / 0 fail** (421 ms); after the contract-reconciliation edits, re-run **29 pass / 0 fail**, `TEST=0`, 474 ms; covers default `legacy`, unified asset triad (`server.js` + `.next/static` + `public`), no silent fallback, explicit `KEEL_RENDERER=legacy` rollback, reason hygiene | pass (unit) |
+| Node test glob note | `node --test desktop-app/tests/` (same cwd, Node v24.22.2) | `Cannot find module ...\desktop-app\tests`, tests 1 / fail 1 — use the explicit `.js` path above | fail (harness invocation only, not a code defect) |
+| Entry-point source assertions | `node desktop-app/scripts/assert-ui-entrypoints.js` (in `keel/`) | first recorded run 23/25 pass, `ASSERT_EXIT=1`; after the reconciled main.js + new packaging entries, re-run **21/25 passed, `ASSERT_EXIT=1`**. Failures: `Electron feeds uiRoot() into the sidecar as KEEL_UI_DIR`, `Electron loads the sidecar over 127.0.0.1 (not a static file root)`, `Electron build config does not ship/repoint to fleet-next`, `Electron main.js does not reference fleet-next`. The old script asserts the pre-integration contract and must be updated, not bypassed. | **FAIL — blocking red gate (R10)** |
+| Standalone build artifacts | `Test-Path fleet-next/.next/standalone/server.js`; `.next/static`; `public`; `standalone/.next/static`; `standalone/public` | `server.js` present (6,507 B, 2026-11-25 15:36 local); `.next/static` present; `public/` present (`fonts/`, `icon-192.png`, `icon-512.png`, `icon.svg`, `sw.js`); `standalone/.next/static` **absent**; `standalone/public` **absent**; `standalone/node_modules/sharp` present | source build present; overlay/packaging not proved |
+| Reproducible standalone build script | `fleet-next/package.json` scripts `build:standalone` / `start:standalone` / `verify:standalone`; `fleet-next/docs/standalone-build.log` (Agent C) | script files present; one recorded build attempt compiled in 12.3 s but **failed** at type-check: `File '.../.next-bridge-int-mock/types/app/api/bridge/[...path]/route.ts' not found` (stale `tsconfig.json` include from a parallel isolated build). `docs/standalone-asset-inventory.json` **absent** — no successful script run recorded | **FAIL — build blocker, re-run required** |
+| Packaging entries | `git diff -- desktop-app/package.json` | `renderer-policy.js` added to `build.files`; three `extraResources` entries added for `.next/standalone` (filter excludes `.env*`, `tests/`, `*.map`), `.next/static`, `public`; existing `site`, `desktop/ui`, `keel` entries intact | source implemented; **no package built after the change** |
+| Loopback binding of Next child | read `fleet-next/.next/standalone/server.js:9` vs current `desktop-app/main.js` child env | server reads `process.env.HOSTNAME || '0.0.0.0'`. Earlier source revision set `HOST` (documented defect); current source sets `HOSTNAME: "127.0.0.1"`, `ELECTRON_RUN_AS_NODE=1`, `PORT`, and uses `serve --port 0` for Python | source reconciled; **socket assertion in G4 still pending** |
+| Agent G Electron dev probe | `node tests/packaged-qa/electron-probe.mjs dev` → `qa-logs/electron-dev-2026-11-25T14-35-55-816Z.json` | CDP ok; window `http://127.0.0.1:10097/?t=…`, title `Keel - Desktop & Code`; `sessionStorage.keel_token` present; `hasBridgeTokenInHtml:false`; no Next child; sidecar child disappeared after close | pass for **legacy-only** dev launch; not unified evidence |
+| Agent G Electron EXE probes | `node tests/packaged-qa/electron-probe.mjs exe` → `qa-logs/electron-exe-2026-11-25T14-36-57-215Z.json` and `...14-37-53-540Z.json` | both CDP ok; windows `http://127.0.0.1:10692/?t=…` and `http://127.0.0.1:9797/?t=…`, legacy renderer body both times; `bundledKeel` = two `resources/keel/keel.exe serve --port <port>` processes (parent+child), gone after close; `nextServer` / `nextServerAlt` empty; `errors:[]` | pass for **legacy packaged EXE**; **no unified EXE verification** |
+| Existing packaged installer evidence (Agent E) | `docs/UI-DESKTOP-PACKAGING.md` §4–5, §8.3–8.4; `Get-FileHash dist\Keel-Setup-0.1.1.exe -Algorithm SHA256` | `F6CAE185A6A2AA53D61572E4C9930B3750CE418FC9AAF38BD788CCC6E63743BB`; built before the integration source edits; resources = `desktop/`, `keel/`, `site/`, `app.asar`, no `fleet-next/`; CDP confirmed the full local (`desktop/ui`) renderer and `KEEL_UI_PROFILE=mirror` rollback | verified for legacy renderer only |
+| Agent G bridge-integration harness | `fleet-next/tests/bridge-integration/playwright.config.ts` + `helpers.ts` + `01-bff-security.spec.ts`, `02-agents-cowork.spec.ts`, `03-code-projects.spec.ts`, `04-fleet-capabilities.spec.ts` | real bridge `:8797`, mock `:8798`, Next BFF `:3311`/`:3312`/`:3313`; four specs present; **no `test-results/.last-run.json` and no recorded pass** at time of writing | **not run / pending** |
+| Agent G packaged source-contract spec | `fleet-next/tests/packaged-qa/01-source-contract.spec.ts` → `test-results/.last-run.json` | `{"status":"failed","failedTests":[5 IDs]}`; `qa-logs/source-contract-detection.json` records `integrationDetected: true` and the captured main.js. No passing run recorded. | **FAIL — spec under reconciliation; not a pass** |
+| G3 unified round-trip (sidecar → Next BFF → Python) | contract §6 + harness config | flow specified and harness scaffolded; no passing unified spec, no SSE named-row assertion recorded | **pending** |
+| G4 packaged unified launch | requires package build with `fleet-next` resources + `electron-probe.mjs exe` | no such package built; EXE probe shows legacy renderer | **not verified / external gate** |
+| G6 packaged rollback (`KEEL_RENDERER=legacy`, `KEEL_UI_PROFILE=mirror`) | policy unit tests pass; packaged re-run pending | unit evidence only | **not verified in package** |
+
+### Agent report arrival status (this round)
+
+| Agent | Integration artefacts observed in the worktree | Written integration report |
+|---|---|---|
+| A — contract | `keel/docs/RENDERER-INTEGRATION-CONTRACT.md` (378 lines, source audit) | yes (contract document) |
+| B — renderer/electron source | `desktop-app/main.js`, `renderer-policy.js`, `tests/renderer-policy.test.js` (now 29 cases), `fleet-next/next.config.mjs` (`output: "standalone"`), `fleet-next/tsconfig.json` | no separate report doc; source + 29/29 unit run |
+| C — standalone build scripts | `fleet-next/package.json` gained `build:standalone`, `start:standalone`, `verify:standalone`; `fleet-next/scripts/{build,start,verify}-standalone.mjs`; `docs/standalone-build.log` records one failed type-check | scripts landed; **no successful build/inventory recorded** |
+| D | no new integration artefacts observed in this worktree at time of writing | none yet |
+| E — packaging | no new edits in this round; prior `UI-DESKTOP-PACKAGING.md` legacy evidence retained | prior doc only |
+| F — build/packaging | `desktop-app/package.json` now has `renderer-policy.js` in `files` and three `fleet-next` `extraResources` entries; main.js reconciled with contract (`HOSTNAME`, `--port 0`, `ELECTRON_RUN_AS_NODE`, asset triad) | `docs/RENDERER-FALLBACK-POLICY.md` (policy/default/env/rollback, 29-test output with command-shape caveat); **no package build recorded** |
+| G — QA | `tests/packaged-qa/electron-probe.mjs` + dev/2× EXE probe JSON/log/PNGs + `01-source-contract.spec.ts` (last run failed); `tests/bridge-integration/` with 4 specs, no run | probe artifacts only; no written report yet |
+
+> Rule applied: a row moves to `pass` only on a recorded command result or an existing cited
+> artifact. No browser-only, unit-only or source-only result is promoted to a packaged claim.
+> As further agent reports land, append their exact commands and results here rather than
+> upgrading a row on expectation.
+
+---
+
+## Download page & installer QA — additions (2026-11-25, Agent E)
+
+Commands and results cited below are from Agent G's runs; each `pass` is tied to a recorded run.
+
+| Check | Command / evidence | Status | Notes |
+|---|---|---|---|
+| Device detection — Windows x64 / ARM64 | `npx playwright test --config tests/distribution-qa/playwright.config.ts` — `01-download-journey.spec.ts` "architecture fallback: UA hints hide, UA string still detects Windows x64" | **pass** | UA fallback verified; platform matrix rows `PLATFORMS` in `fixtures.ts` (Win x64, Win ARM64, macOS ARM64/x64, Linux, iOS, Android) |
+| Device detection — macOS / Linux choice | same suite, "architecture fallback: Intel Mac gets an explicit Apple Silicon / Intel choice", "Linux offers an explicit DEB vs RPM choice" | **pass** | no silent wrong-arch pick; package family never guessed from the UA |
+| Button enabled per OS | same suite, "primary action uses the exact verified manifest URL" + "dishonest manifest (size 0 / short sha / http URL) enables no download" | **pass** | one enabled CTA carries the exact manifest URL; disabled states use `aria-disabled` buttons, not links |
+| SHA-256 / size verification | `node --test keel/site/tests/*.test.mjs` (from repo root) — `download-core.test.mjs:64-90` "availability requires verified_at, size, SHA-256 and a public HTTPS URL"; distribution suite `01-download-journey.spec.ts:198` | **pass** | 20/20 site tests; honest-gate tests (size 0, short sha, http) never enable a link |
+| Installer publishing (artifacts) | `Get-FileHash -Algorithm SHA256 -Path keel\dist\win-unpacked\Keel.exe, keel\dist\Keel-Setup-0.1.1.exe` (run twice, identical) | **pass** | `Keel.exe` 235,419,136 B / `D52DB523…288B20`; `Keel-Setup-0.1.1.exe` 158,152,373 B / `170F1361…1667BC`; sidecar `keel.exe` 31,436,836 B / `B091538D…431FF` |
+| Installer publishing (public URLs) | `DISTRIBUTION-QA.md` §2.5, `DISTRIBUTION-SMART-DOWNLOAD.md` §5, `keel/src/keel/release/build.py:163`, `RELEASE-2026-11-25.md` | **recorded** | GitHub base `https://github.com/eliosmernica15/keel/releases/download`; site `https://keel-desktop.vercel.app/download`; proxy `/api/download-manifest` (503 until configured) |
+| Public installer availability | `keel/site/download.json` read-back + `DISTRIBUTION-QA.md` §2.5, QA-G-D03 | **not run / blocked** | all channels `available:false` — owner-gated publication |
+| Packaged EXE launch (default, unified) | Agent G `qa-logs/electron-exe-2026-11-25T15-14-55-042Z.json`, `15-22-23-946Z`, `15-25-40-221Z` | **pass** | window `http://127.0.0.1:57613/`, title `Keel — Unified Workspace`, BFF `GET /api/bridge/bots` → 200, both children alive, `nonLoopbackListeners: []`, 0 token leaks |
+| Packaged EXE rollback (`KEEL_RENDERER=legacy`) | Agent G `qa-logs/electron-exe-2026-11-25T15-24-38-876Z.json` | **pass** | window `http://127.0.0.1:51505/?t=…`, title `Keel — Desktop & Code`, no Next child, sidecar gone after close |
+| Packaged EXE mirror (`KEEL_UI_PROFILE=mirror`) | Agent G `qa-logs/electron-exe-2026-11-25T15-19-23-069Z.json` | **pass** | token-bearing sidecar URL, "PUBLIC MIRROR · NO BACKEND" copy, title still `Keel — Desktop & Code` |
+| Cutover state (source default) | `node -e 'const src=require("fs").readFileSync("desktop-app/renderer-policy.js","utf8"); …'` (Agent E, 2026-11-25) | **pass** | `DEFAULT_RENDERER = RENDERER_MODES.UNIFIED` (renderer-policy.js:46); 30/30 policy unit cases (Agent G §3.7) |
+
+## Kanban drag fix result (2026-11-25)
+
+| Check | Status | Evidence |
+|---|---|---|
+| Fleet kanban drag | **fixed & re-verified** (QA-F-010) | `UI-DEFECT-LOG.md:160` — new E2E "Fleet kanban… no dead controls" passes; all four new Fleet tabs (Board / Delegation map / Live wall / Cost) render their real panels; dead controls fixed in `fleet-next/features/fleet/Fleet.tsx` (`:27-39` → `:99-120` `case "board"/"org"/"live"/"cost"`). Drag is implemented in `features/fleet/Board.tsx` (`draggable`, `onDragStart`/`onDrop`) with `fleet.module.css` drop indicators. |
+| Board drag in E2E | not recorded as a dedicated passing run | `fleet-next/tests/features/fleet/debug-drag.spec.ts` exists as a diagnostic ("TEMPORARY debug spec") |

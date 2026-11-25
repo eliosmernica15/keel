@@ -7,14 +7,18 @@
  *   node keel/desktop-app/scripts/assert-ui-entrypoints.js \
  *        --resources "C:\path\to\Keel\win-unpacked\resources"
  *
- * It asserts the packaging-fixed entry-point contract:
- *   Electron  -> KEEL_UI_DIR = uiRoot()  = <resources>/desktop/ui (full local UI)
- *               rollback only: KEEL_UI_PROFILE=mirror -> <resources>/site
+ * It asserts the packaging entry-point contract:
+ *   Electron  -> renderer-policy.js selects one of:
+ *                 unified  = packaged Fleet Next standalone server (BFF + token)
+ *                 legacy   = <resources>/desktop/ui (stable fallback)
+ *                 mirror   = <resources>/site, EXPLICIT diagnostic mode only
+ *               legacy/mirror roots flow into the sidecar as KEEL_UI_DIR.
  *   Tauri     -> frontendDist           = <repo>/desktop/ui
  *   keel serve-> UI_DIR                 = KEEL_UI_DIR or <root>/desktop/ui
  *   /fleet    -> <root>/desktop/fleet (classic, via keel.fleet.routes)
  *   public /app -> <root>/site/app.html (static mirror, never the desktop default)
- *   fleet-next is NOT a static UI root and must NOT be wired into any of them.
+ *   fleet-next is a SERVER runtime (not a static root); it ships as standalone
+ *   assets and is reached via a loopback URL, never as a static UI directory.
  *
  * The optional --resources mode inspects an ACTUAL unpacked Electron build.
  * It never launches or modifies it. A production binary being present is not
@@ -87,10 +91,17 @@ check("Electron mirror is only reachable via KEEL_UI_PROFILE=mirror",
     !/candidates[\s\S]{0,200}"site"/.test(uiRootBody));
 check("Electron preserves explicit KEEL_UI_DIR override for rollback",
   /process\.env\.KEEL_UI_DIR/.test(uiRootBody));
-check("Electron feeds uiRoot() into the sidecar as KEEL_UI_DIR",
-  /KEEL_UI_DIR\s*=\s*uiRoot\(\)/.test(mainJs));
-check("Electron loads the sidecar over 127.0.0.1 (not a static file root)",
-  /loadURL\(`http:\/\/127\.0\.0\.1:/.test(mainJs));
+check("Electron feeds the policy-selected root into the sidecar as KEEL_UI_DIR",
+  /KEEL_UI_DIR\s*=\s*uiDir\s*\|\|\s*undefined/.test(mainJs));
+check("Electron loads a loopback URL (sidecar for legacy, Next server for unified)",
+  /loadURL\([^;]*http:\/\/127\.0\.0\.1:/.test(mainJs));
+check("Electron binds the Next server to loopback only, never 0.0.0.0",
+  /HOSTNAME\s*[:=]\s*["']127\.0\.0\.1["']/.test(mainJs) &&
+    !/HOST\s*[:=]\s*["']127\.0\.0\.1["']/.test(mainJs));
+check("unified renderer loads a token-free Next URL",
+  /renderer\.mode === "unified"[\s\S]{0,300}startUiServer\(/.test(mainJs));
+check("bridge token is passed only to the Next child env (no NEXT_PUBLIC token)",
+  /KEEL_BRIDGE_TOKEN:\s*token/.test(mainJs) && !/NEXT_PUBLIC_[A-Z_]*TOKEN/.test(mainJs));
 
 const siteResource = (pkg.build?.extraResources || []).find((r) => r.to === "site");
 check("electron-builder ships ../site -> resources/site (rollback only)",
@@ -106,7 +117,7 @@ check("source desktop/ui/index.html exists and is the full local UI",
 check("source site/app.html exists and carries the mirror badge",
   fileExists("site/app.html") && /safe-mode-badge/.test(read("site/app.html")));
 info("Why this matters",
-  "A packaged build now resolves resources/desktop/ui first; site is only used with KEEL_UI_PROFILE=mirror.");
+  "renderer-policy.js selects the renderer: legacy desktop/ui by default until G1-G6 pass, unified Fleet Next via KEEL_RENDERER=unified, and site only with KEEL_UI_PROFILE=mirror.");
 
 if (resourcesDir) {
   const res = resolve(resourcesDir);
@@ -129,12 +140,15 @@ if (resourcesDir) {
   if (fileExists(asar)) {
     try {
       const buf = readFileSync(asar);
+      // asar: pickle header, JSON header string at 16 (length at offset 12),
+      // then a NUL terminator; file bytes start at 16 + length + 1.
       const headerSize = buf.readUInt32LE(12);
       const header = JSON.parse(buf.slice(16, 16 + headerSize).toString("utf8"));
       const entry = header.files?.["main.js"];
       if (!entry || entry.files) throw new Error("app.asar has no top-level main.js");
-      const shipped = buf.slice(16 + headerSize + Number(entry.offset),
-                                16 + headerSize + Number(entry.offset) + Number(entry.size));
+      const base = 16 + headerSize + 1; // +1 for the header string's NUL terminator
+      const shipped = buf.slice(base + Number(entry.offset),
+                                base + Number(entry.offset) + Number(entry.size));
       const src = readFileSync(resolve(KEEL, "desktop-app", "main.js"));
       const sha = (b) => createHash("sha256").update(b).digest("hex");
       check("packaged app.asar main.js matches source main.js",
@@ -146,6 +160,24 @@ if (resourcesDir) {
   } else {
     info("app.asar", "not present in supplied resources; skipped integrity check");
   }
+
+  // Unified renderer asset inventory (G4 packaging evidence).
+  check("packaged resources/fleet-next/server.js present",
+    fileExists(join(res, "fleet-next", "server.js")));
+  check("packaged Fleet Next client chunks present",
+    dirExists(join(res, "fleet-next", ".next", "static", "chunks")));
+  check("packaged Fleet Next traced node_modules present",
+    fileExists(join(res, "fleet-next", "node_modules", "next", "package.json")) &&
+      fileExists(join(res, "fleet-next", "node_modules", "react", "package.json")));
+  check("packaged Fleet Next PWA assets present",
+    fileExists(join(res, "fleet-next", "public", "sw.js")) &&
+      fileExists(join(res, "fleet-next", "public", "icon-512.png")) &&
+      fileExists(join(res, "fleet-next", "public", "fonts", "inter-400.woff2")));
+  check("packaged BFF route handler present",
+    fileExists(join(res, "fleet-next", ".next", "server", "app", "api", "bridge",
+                    "[...path]", "route.js")));
+  info("Renderer selection",
+    "Files alone do not prove the packaged app loaded Fleet Next; see ELECTRON-INTEGRATION-QA.md for launch evidence.");
 }
 
 /* --------------------------------------------------------------------- Tauri */
@@ -176,18 +208,40 @@ check("classic Fleet UI root is desktop/fleet",
 check("webapp does not reference fleet-next", !/fleet-next/i.test(webapp));
 
 /* --------------------------------------------------------------- parity gate */
-check("Electron build config does not ship/repoint to fleet-next",
-  !/fleet-next/i.test(JSON.stringify(pkg.build)));
-check("Electron main.js does not reference fleet-next", !/fleet-next/i.test(mainJs));
-check("fleet-next exists (candidate, not shipped)",
-  dirExists(resolve(KEEL, "fleet-next")));
+// The old contract forbade fleet-next wiring; integration supersedes it.
+// Tauri and keel serve MUST remain on desktop/ui (their own frozen contracts).
+check("Tauri build config still has no fleet-next reference", !/fleet-next/i.test(tauriText));
+check("keel serve still has no fleet-next reference", !/fleet-next/i.test(webapp));
+check("fleet-next standalone runtime exists",
+  dirExists(resolve(KEEL, "fleet-next")) &&
+    fileExists(resolve(KEEL, "fleet-next", ".next", "standalone", "server.js")));
 const nextCfg = read("fleet-next/next.config.mjs");
 check("fleet-next is NOT a static export (needs a Next server + BFF)",
   !/output\s*:\s*["']export["']/.test(nextCfg));
+check("fleet-next uses standalone output", /output\s*:\s*["']standalone["']/.test(nextCfg));
 check("fleet-next BFF route exists",
   fileExists(resolve(KEEL, "fleet-next", "app", "api", "bridge", "[...path]", "route.ts")));
+const resources = pkg.build?.extraResources || [];
+for (const [from, to] of [
+  ["../fleet-next/.next/standalone", "fleet-next"],
+  // electron-builder hard-excludes a root-level node_modules from any
+  // extraResources source, so it needs its own mapping (regression guard).
+  ["../fleet-next/.next/standalone/node_modules", "fleet-next/node_modules"],
+  ["../fleet-next/.next/static", "fleet-next/.next/static"],
+  ["../fleet-next/public", "fleet-next/public"],
+]) {
+  check(`electron-builder ships ${from} -> ${to}`,
+    resources.some((r) => r.from === from && r.to === to));
+}
+check("renderer-policy.js is shipped in app.asar",
+  (pkg.build?.files || []).includes("renderer-policy.js"));
+check("legacy fallback renderer is still shipped",
+  resources.some((r) => r.to === "desktop/ui") &&
+    fileExists(resolve(KEEL, "desktop", "ui", "index.html")));
+check("mirror is shipped but only explicitly selectable",
+  resources.some((r) => r.to === "site") && fileExists(resolve(KEEL, "site", "app.html")));
 info("Gate G4/G6",
-  "Repointing a shipped renderer to fleet-next needs a real package build + parity gate; this script fails if that repoint is attempted.");
+  "Static assertions only. A real package build + packaged launch is required to verify the unified renderer (G4) and fallback (G6).");
 
 /* --------------------------------------------------------------------- summary */
 const failed = results.filter((r) => !r.ok);
@@ -197,4 +251,4 @@ if (failed.length) {
   console.error("FAILED: " + failed.map((f) => f.name).join("; "));
   process.exit(1);
 }
-console.log("All entry-point assertions hold: local UI wins, mirror is rollback-only.");
+console.log("All entry-point assertions hold: legacy fallback intact, unified runtime packaged, mirror explicit-only.");
