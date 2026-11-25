@@ -850,50 +850,17 @@
       "status": "pass",
       "detail": "11 endpoint(s) probed; 0 anomalous",
       "evidence": [
-        {
-          "path": "bots",
-          "status": 200
-        },
-        {
-          "path": "providers",
-          "status": 200
-        },
-        {
-          "path": "projects",
-          "status": 200
-        },
-        {
-          "path": "shells",
-          "status": 200
-        },
-        {
-          "path": "tasks",
-          "status": 200
-        },
-        {
-          "path": "routines",
-          "status": 200
-        },
-        {
-          "path": "library",
-          "status": 200
-        },
-        {
-          "path": "skills",
-          "status": 200
-        },
-        {
-          "path": "connectors",
-          "status": 200
-        },
-        {
-          "path": "usage",
-          "status": 200
-        },
-        {
-          "path": "keep-awake",
-          "status": 200
-        }
+        { "path": "bots", "status": 200 },
+        { "path": "providers", "status": 200 },
+        { "path": "projects", "status": 200 },
+        { "path": "shells", "status": 200 },
+        { "path": "tasks", "status": 200 },
+        { "path": "routines", "status": 200 },
+        { "path": "library", "status": 200 },
+        { "path": "skills", "status": 200 },
+        { "path": "connectors", "status": 200 },
+        { "path": "usage", "status": 200 },
+        { "path": "keep-awake", "status": 200 }
       ]
     },
     {
