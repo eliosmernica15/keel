@@ -6,12 +6,12 @@ through actual API and runtime integration, not isolated function calls.
 
 from __future__ import annotations
 
+import io
 import json
 import os
+import socket
 import subprocess
-import threading
 import time
-from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
 import pytest
@@ -34,8 +34,35 @@ def _cfg(tmp_path, **overrides):
     return SessionConfig(**cfg)
 
 
-def test_e2e_milestone_6b(tmp_path):
+def test_e2e_milestone_6b(tmp_path, monkeypatch):
     """Full Milestone 6B end-to-end scenario."""
+    import keel.runner as runner
+
+    class ExampleResponse(io.BytesIO):
+        headers = {"Content-Type": "text/html"}
+
+        def geturl(self):
+            return "https://example.com"
+
+    class ExampleOpener:
+        def open(self, request, timeout):
+            assert request.full_url == "https://example.com"
+            return ExampleResponse(b"<html><body><h1>Example Domain</h1></body></html>")
+
+    monkeypatch.setattr(
+        runner,
+        "_ssrf_getaddrinfo",
+        lambda host, port: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "",
+             ("93.184.216.34", port))
+        ],
+    )
+    monkeypatch.setattr(
+        runner,
+        "_build_ssrf_opener",
+        lambda validated, ssl_context: ExampleOpener(),
+    )
+
     project = tmp_path / "project"
     project.mkdir()
     (project / "hello.py").write_text("print('hello')\n", encoding="utf-8")
