@@ -358,3 +358,18 @@ artifacts, signing/notarization, the public Ship-article deployment, and
 production release authorization remain unverified. The public download
 metadata remains fail-closed pending verified release artifacts. Versal and
 landing-page files were not changed.
+
+A fresh read of GitHub release `v0.1.1` confirms that Windows, macOS arm64
+and Linux assets are present, but the release records are inconsistent:
+the current Windows asset is 315,605,830 bytes with SHA-256
+`dd585d898e00a5e1621821d18ba2a6e846392c6178e49a78b356d0ecfc549604`;
+the published `RELEASE-MANIFEST.json` instead records 122,153,124 bytes and
+SHA-256 `917a58ff527b5ccb831329d6a761ed2a1ba9cefe9ea12e967e30ad8becb0a0bf`,
+while the published `download.json` has the current digest but a different
+size. The macOS/Linux files match the release manifest and GitHub asset
+digests, but the published download metadata marks them unavailable and the
+checksums file does not cover the macOS files. Therefore the local download
+fallback remains unavailable until an owner reconciles and re-verifies the
+release records; the assets should not be advertised as a verified release
+from this checkout.
+Evidence command: `gh release view v0.1.1 --repo eliosmernica15/keel --json tagName,name,isDraft,isPrerelease,publishedAt,assets,url` (read 2026-11-26).
