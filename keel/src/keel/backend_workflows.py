@@ -403,6 +403,9 @@ def _record_digest(record: dict, key: bytes) -> str:
 # requires the same (mtime_ns, size) signature; any cross-process append changes
 # it and forces a full re-verification, so integrity is never weakened.
 _LEDGER_CACHE: dict[str, tuple[tuple[int, int], list[dict]]] = {}
+_LEDGER_IDEMPOTENCY_INDEX: dict[
+    str, tuple[tuple[int, int], dict[str, dict], dict[str, dict]]
+] = {}
 
 
 def _ledger_stat(target: Path) -> tuple[int, int]:
@@ -412,17 +415,20 @@ def _ledger_stat(target: Path) -> tuple[int, int]:
 
 def _read_jsonl(path: str | Path) -> list[dict]:
     target = Path(path)
+    cache_key = str(target)
     if not target.is_file():
-        _LEDGER_CACHE.pop(str(target), None)
+        _LEDGER_CACHE.pop(cache_key, None)
+        _LEDGER_IDEMPOTENCY_INDEX.pop(cache_key, None)
         # A missing log with a committed non-genesis head is a deleted ledger,
         # not a fresh one. Fail closed before any append can rewrite the head.
         if _head_path(target).is_file():
             _verify_chain_head(target, [], _ledger_key(target))
         return []
     signature = _ledger_stat(target)
-    cached = _LEDGER_CACHE.get(str(target))
+    cached = _LEDGER_CACHE.get(cache_key)
     if cached is not None and cached[0] == signature:
         return list(cached[1])
+    _LEDGER_IDEMPOTENCY_INDEX.pop(cache_key, None)
     records: list[dict] = []
     with _locked_path(target):
         lines = target.read_text(encoding="utf-8").splitlines()
@@ -432,7 +438,7 @@ def _read_jsonl(path: str | Path) -> list[dict]:
             # committed head. Otherwise truncation to zero bytes resets the
             # chain and the next append launders the head at seq=1.
             _verify_chain_head(target, [], key)
-            _LEDGER_CACHE[str(target)] = (signature, [])
+            _LEDGER_CACHE[cache_key] = (signature, [])
             return []
         expected_prev = _GENESIS_HASH
         expected_seq = 1
@@ -467,15 +473,58 @@ def _read_jsonl(path: str | Path) -> list[dict]:
             expected_seq += 1
             records.append(record)
         _verify_chain_head(target, records, key)
-        _LEDGER_CACHE[str(target)] = (_ledger_stat(target), list(records))
+        _LEDGER_CACHE[cache_key] = (_ledger_stat(target), records)
     return records
+
+
+def _verified_records_locked(target: Path) -> list[dict]:
+    """Return the cache-owned verified records while the ledger lock is held."""
+    cache_key = str(target)
+    if not target.is_file():
+        return _read_jsonl(target)
+    signature = _ledger_stat(target)
+    cached = _LEDGER_CACHE.get(cache_key)
+    if cached is not None and cached[0] == signature:
+        return cached[1]
+    _read_jsonl(target)
+    cached = _LEDGER_CACHE.get(cache_key)
+    return cached[1] if cached is not None else []
+
+
+def _find_idempotency_record(
+    path: str | Path, idempotency_key: str, *, newest: bool = False,
+) -> dict | None:
+    """Look up a verified idempotency key without scanning a warm ledger."""
+    target = Path(path)
+    cache_key = str(target)
+    with _locked_path(target):
+        records = _verified_records_locked(target)
+        if not records:
+            return None
+        signature = _ledger_stat(target)
+        cached = _LEDGER_IDEMPOTENCY_INDEX.get(cache_key)
+        if cached is None or cached[0] != signature:
+            first_by_key: dict[str, dict] = {}
+            last_by_key: dict[str, dict] = {}
+            for record in records:
+                key = record.get("idempotency_key")
+                if isinstance(key, str):
+                    first_by_key.setdefault(key, record)
+                    last_by_key[key] = record
+            cached = (signature, first_by_key, last_by_key)
+            _LEDGER_IDEMPOTENCY_INDEX[cache_key] = cached
+        index = cached[2] if newest else cached[1]
+        return index.get(idempotency_key)
 
 
 def _append_jsonl(path: str | Path, record: dict) -> int:
     target = Path(path)
     with _locked_path(target):
         target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        records = _read_jsonl(target)
+        cache_key = str(target)
+        records = _verified_records_locked(target)
+        previous_cache = _LEDGER_CACHE.get(cache_key)
+        previous_signature = previous_cache[0] if previous_cache else None
         key = _ledger_key(target)
         seq = len(records) + 1
         payload = dict(record)
@@ -493,9 +542,21 @@ def _append_jsonl(path: str | Path, record: dict) -> int:
             handle.flush()
             os.fsync(handle.fileno())
         _write_chain_head(target, seq, safe["hash"], key)
-        # Refresh the verified cache so the next call is O(1) while still
-        # re-verifying whenever another process changes the file.
-        _LEDGER_CACHE[str(target)] = (_ledger_stat(target), records + [safe])
+        records.append(safe)
+        signature = _ledger_stat(target)
+        _LEDGER_CACHE[cache_key] = (signature, records)
+        cached_index = _LEDGER_IDEMPOTENCY_INDEX.get(cache_key)
+        if (cached_index is not None
+                and cached_index[0] == previous_signature):
+            first_by_key, last_by_key = cached_index[1], cached_index[2]
+            idempotency_key = safe.get("idempotency_key")
+            if isinstance(idempotency_key, str):
+                first_by_key.setdefault(idempotency_key, safe)
+                last_by_key[idempotency_key] = safe
+            _LEDGER_IDEMPOTENCY_INDEX[cache_key] = (
+                signature, first_by_key, last_by_key)
+        else:
+            _LEDGER_IDEMPOTENCY_INDEX.pop(cache_key, None)
         with contextlib.suppress(OSError):
             os.chmod(target, 0o600)
         return seq
@@ -527,8 +588,7 @@ def _execution(state_root: Path, name: str,
     key = _idempotency_key(name, params)
     ctx: dict = {"steps": [], "state_root": state_root, "key": key}
     with _locked_path(path):
-        prior = next((r for r in _read_jsonl(path)
-                      if r.get("idempotency_key") == key), None)
+        prior = _find_idempotency_record(path, key)
         if prior is not None:
             yield None
             return
@@ -588,9 +648,8 @@ def _execute(name: str, params: Mapping[str, Any],
         with _execution(state_root, name, params) as ctx:
             if ctx is None:
                 path = _result_path(state_root, name)
-                prior = next((r for r in _read_jsonl(path)
-                              if r.get("idempotency_key") ==
-                              _idempotency_key(name, params)), {})
+                prior = _find_idempotency_record(
+                    path, _idempotency_key(name, params)) or {}
                 return _replay_response(name, prior)
             ctx["started"] = time.monotonic()
             try:
@@ -653,8 +712,8 @@ def _finalize(name: str, params: Mapping[str, Any],
             state_root = _state_root(dict(params))
             path = _result_path(state_root, name)
             key = response.get("idempotency_key")
-            match = next((r for r in reversed(_read_jsonl(path))
-                          if r.get("idempotency_key") == key), None)
+            match = (_find_idempotency_record(path, key, newest=True)
+                     if isinstance(key, str) else None)
             if match is not None:
                 response["persisted"] = {"path": str(path),
                                          "sequence": match.get("sequence")}
