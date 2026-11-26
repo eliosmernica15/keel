@@ -50,7 +50,7 @@ def test_packaged_sidecar_serves_ui():
         with urllib.request.urlopen(req, timeout=10) as resp:
             page = resp.read().decode("utf-8", errors="replace")
         assert resp.status == 200
-        for marker in ("Keel Cowork", "Execution policies", "Take the tour"):
+        for marker in ("Keel Chat", "Execution policies", "Take the tour"):
             assert marker in page, marker
         for asset in ("/ui/app.js", "/ui/style.css",
                       "/ui/fonts/WorkSans-Regular.ttf"):
@@ -60,8 +60,16 @@ def test_packaged_sidecar_serves_ui():
             with urllib.request.urlopen(req, timeout=10) as resp:
                 assert resp.status == 200, asset
     finally:
-        proc.terminate()
+        if proc.poll() is None:
+            if os.name == "nt":
+                subprocess.run(
+                    ["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+                    check=True, stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL, timeout=10)
+            else:
+                proc.terminate()
         try:
             proc.wait(timeout=10)
         except subprocess.TimeoutExpired:
             proc.kill()
+            proc.wait(timeout=10)

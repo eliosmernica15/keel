@@ -22,8 +22,8 @@ const state = {
   turns: 0,
   tokens: 0,
 };
-// chat = Keel Cowork (knowledge work); IDs stay chat/code for persistence.
-const surfaceName = { chat: "Keel Cowork", code: "Keel Code" };
+// IDs stay chat/code for persistence.
+const surfaceName = { chat: "Keel Chat", code: "Keel Code" };
 
 /* local(Storage)-only helpers used across modules */
 const fsToken = () => {
@@ -431,7 +431,7 @@ prompts.code.addEventListener("keydown", (ev) => handleEnter(ev, "code"));
 /* ================================================================ attachments
    The + (Add) button opens a per-surface attach menu:
 
-   - Keel Cowork: upload Documents / Images / Spreadsheets / Code files;
+   - Keel Chat: upload Documents / Images / Spreadsheets / Code files;
    - Keel Code:    upload ANYTHING - the agent works on what you give it.
 
    Files are uploaded to the bridge (~/.keel/uploads/) and the agent reads /

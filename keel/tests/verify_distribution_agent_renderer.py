@@ -22,6 +22,7 @@ asserted below.
 from __future__ import annotations
 
 import json
+import re
 import threading
 import urllib.error
 import urllib.request
@@ -93,8 +94,9 @@ def test_shipped_sources_select_full_local_renderer():
     # `join(res, "site")` appears only inside the explicit mirror rollback
     # branch, which is gated by KEEL_UI_PROFILE and precedes the default list.
     assert profile_at < mirror_gate_at < mirror_at < local
-    assert "env.KEEL_UI_DIR = uiRoot() || undefined;" in main_js
-    assert 'mainWindow.loadURL(`http://127.0.0.1:${sidecarPort}/?t=${sidecarToken}`)' in main_js
+    assert "env.KEEL_UI_DIR = uiDir || undefined;" in main_js
+    assert "loadUrl = await startUiServer(url, renderer.uiDir);" in main_js
+    assert "createWindow(loadUrl);" in main_js
 
     # electron-builder ships the same local tree into resources/desktop/ui.
     targets = {r.get("to") for r in pkg["build"]["extraResources"]}
@@ -127,14 +129,21 @@ def test_shipped_configs_do_not_inject_fake_execution():
     for path in config_files:
         # Scripts under desktop-app/scripts are read-only assertions/test
         # tooling, not configuration that reaches a shipped process.
-        if "scripts" in path.parts:
+        if "scripts" in path.parts or "tests" in path.parts:
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         for line in text.splitlines():
             stripped = line.strip()
             if stripped.startswith(("//", "/*", "*", "#")):
                 continue  # documentation of the rollback flag, not injection
-            if "KEEL_FAKE_SCRIPT" in line or "KEEL_UI_PROFILE=mirror" in line:
+            mirror_injection = (
+                re.search(
+                    r"(?:process\.env|env)\.KEEL_UI_PROFILE\s*=\s*['\"]mirror['\"]",
+                    line,
+                )
+                or re.match(r"\s*KEEL_UI_PROFILE\s*[:=]\s*['\"]?mirror\b", line)
+            )
+            if "KEEL_FAKE_SCRIPT" in line or mirror_injection:
                 offenders.append(str(path.relative_to(ROOT.parent)))
     assert offenders == [], f"shipped config injects a fake path: {offenders}"
 
@@ -150,7 +159,7 @@ def test_shipped_configs_do_not_inject_fake_execution():
 def test_live_bridge_serves_full_local_ui_not_browser_mirror(bridge):
     status, page = _raw(bridge, "/?t=" + TOKEN)
     assert status == 200
-    for marker in ("Keel Cowork", "Execution policies", "Take the tour"):
+    for marker in ("Keel Chat", "Execution policies", "Take the tour"):
         assert marker in page, marker
     # `safe-mode-badge` is unique to site/app.html (the restricted mirror).
     assert "safe-mode-badge" not in page

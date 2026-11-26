@@ -166,6 +166,9 @@ def test_empty_prompt_refused(server):
 
 
 def test_run_streams_events_and_done_marker(server, tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    monkeypatch.setenv("KEEL_STATE_DIR", str(tmp_path / "state"))
     script = tmp_path / "canned.json"
     script.write_text(json.dumps(
         {"script": [[{"type": "text", "text": "webapp works"}]]}),

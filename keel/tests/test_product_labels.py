@@ -20,10 +20,10 @@ def test_desktop_ui_labels_match_products():
     desktop = Path(__file__).resolve().parents[1] / "desktop" / "ui"
     js = (desktop / "app.js").read_text(encoding="utf-8")
     html = (desktop / "index.html").read_text(encoding="utf-8")
-    assert 'chat: "Keel Cowork"' in js
+    assert 'chat: "Keel Chat"' in js
     assert "Keel Desktop: upload" not in js
-    assert 'aria-label="Keel Cowork"' in html
-    assert 'id="head-title">Keel Cowork<' in html
+    assert 'aria-label="Keel Chat"' in html
+    assert 'id="head-title">Keel Chat<' in html
 
 
 def test_aria_labels_match():
