@@ -278,4 +278,37 @@ macOS, live-provider, signing or owner-governance gate is claimed as verified.
 ## 10. Sign-off
 
 Independent final acceptance reviewer — verdict **PASS_WITH_EXTERNAL_LIMITATIONS**.
+
+---
+
+## 11. Post-acceptance engineering follow-up (2026-11-26)
+
+This follow-up is on `backend/surface-fix-2026-11-25`, after the candidate reviewed above;
+it does not rewrite or change that candidate's historical findings.
+
+- `349c9f4` forwards confirmation-derived permission tiers through CLI and TUI capability
+  invocation, matching the HTTP boundary. Its focused CLI/TUI/HTTP tests passed 62/62.
+- `9405110` adds committed fail-closed license-gate cases for bundled `UNKNOWN`, an unreviewed
+  license, unbundled `UNKNOWN`, and bundled MIT.
+- `37b069a` changes `keel/site/download.json` to the canonical unavailable fallback. The prior
+  Windows URL had release size/checksum evidence that did not reconcile; this disables that
+  unverified download locally and does not publish or authorize a release.
+- `f376999` adds a per-ledger idempotency index and updates it incrementally on appends. Warm
+  workflow lookups and appends avoid full record-list scans; a changed file signature still
+  triggers the existing full HMAC-chain verification. Duplicate-key lookup preserves first
+  record semantics for replay and latest-record semantics for finalization.
+
+Validation:
+
+| Scope | Command/result |
+| --- | --- |
+| Full Python suite before `f376999` | `python -m pytest -q -o faulthandler_timeout=90` — 4,790 passed, 49 skipped, 3,707 subtests passed |
+| Capability permission boundaries | `python -m pytest -q tests/test_capability_cli_tui.py tests/test_stab_workflow_auth.py tests/test_prod_auth_hardening.py tests/test_bridge_e2e_hardening.py tests/test_security_validation.py` — 62 passed |
+| Release metadata | `python -m pytest -q tests/test_final_artifacts.py` — 18 passed |
+| Workflow ledger/index | `python -m pytest -q tests/test_stab_ledger_cache.py tests/test_backend_workflows.py tests/test_prod_secfix.py tests/test_final_events.py` — 65 passed |
+| 300-entry synthetic ledger probe after `f376999` | first 50 p50 25.453 ms; last 50 p50 24.033 ms; last 50 p95 27.251 ms (not a public-workflow SLA) |
+
+The full suite has not been rerun after `f376999`; the focused ledger/integrity suite and the
+synthetic probe cover that last change. Native macOS/Linux builds, signing, public deployment,
+remaining performance findings, and the 70 unmerged branch tips remain outside this follow-up.
 Commit on `agent/stab-accept`; **no push**.
