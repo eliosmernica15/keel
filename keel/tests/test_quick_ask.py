@@ -30,6 +30,9 @@ def _post(port, path, body):
 
 
 def test_quick_ask_endpoint_uses_real_runtime(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    monkeypatch.setenv("KEEL_STATE_DIR", str(tmp_path / "state"))
     script = tmp_path / "script.json"
     script.write_text(json.dumps({"script": [
         [{"type": "text", "text": "quick answer"}]]}), encoding="utf-8")
