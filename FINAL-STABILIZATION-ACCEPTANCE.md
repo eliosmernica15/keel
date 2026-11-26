@@ -332,22 +332,32 @@ completion claim.
 - Rebuilt the local Windows PyInstaller sidecar at `dist/keel-sidecar/keel.exe`.
   This is an ignored local build artifact; no Electron installer was rebuilt
   or published.
+- `82479e2` hardens the macOS Seatbelt fallback: broad file reads are allowed
+  only when both the cached host probe and the invocation probe reproduce
+  `SIGABRT` with empty stderr. Other failures now fail closed and report read
+  isolation as unavailable. PR #15's intentional macOS read-isolation
+  limitation remains blocked; no confinement claim is inferred from its skip.
 - Reviewed the attached Universal AI Harness plan and the current `main`-only
   branch changes. The plan is a multi-phase P0–P3 roadmap, not a bounded
   implementation ticket. `main` was not merged wholesale: review found
   regressions in the workflow artifact trust gate, execution-policy enforcement
   and sandbox path validation. No reference-repository code was copied.
+- PR #15's three files already match `origin/main`; PR #31 has no patch to
+  integrate and its CI is red. Neither PR was merged or cherry-picked.
 
 Validation:
 
 | Scope | Command/result |
 | --- | --- |
-| Full Python suite | `python -m pytest -q -o faulthandler_timeout=90` — 4,792 passed, 49 skipped, 3,707 subtests passed |
+| Full Python suite before sandbox fallback hardening | `python -m pytest -q -o faulthandler_timeout=90` with a fresh `KEEL_STATE_DIR` and `PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring` — 4,792 passed, 49 skipped, 3,707 subtests passed |
+| Full Python suite after sandbox fallback hardening | Same command and environment — 1 failed, 4,797 passed, 48 skipped, 3,707 subtests passed. The failure is `tests/test_os_sandbox.py::test_concurrent_confinement`: concurrent Windows `CreateAppContainerProfile` returned `HRESULT 0x8000ffff` in `win_network.appcontainer_sid`; no Windows sandbox files changed in this follow-up. |
+| Isolated Windows concurrency follow-up | `python -m pytest -q -rs tests\test_os_sandbox.py::test_concurrent_confinement` — 1 skipped because network enforcement could not be established on this host |
 | Quick Ask | `python -m pytest -q tests\test_quick_ask.py` — 3 passed |
 | Milestone 6B | `python -m pytest -q tests\test_e2e_milestone_6b.py` — 1 passed |
 | Desktop labels and packaged UI | `python -m pytest -q tests\test_product_labels.py tests\test_packaged_ui_serving.py` — 7 passed; packaged smoke re-run after cleanup fix: `python -m pytest -q tests\test_packaged_ui_serving.py` — 2 passed |
 | Renderer/bridge verification | `python -m pytest -q tests\verify_distribution_agent_renderer.py` — 4 passed |
 | Webapp runtime isolation | `python -m pytest -q tests\test_webapp.py::test_run_streams_events_and_done_marker` — 1 passed |
+| Sandbox fallback hardening | `python -m pytest -q tests\test_sandbox_macos_probe.py tests\test_sandbox_macos.py tests\test_sandbox_hardened.py tests\test_native_isolation.py` — 20 passed, 14 skipped (native macOS tests cannot execute on this Windows host) |
 | Desktop JavaScript syntax | `node --check desktop\ui\app.js` — passed |
 | Windows sidecar build | `python -m PyInstaller desktop-app\sidecar.spec --noconfirm --distpath dist\keel-sidecar` — passed |
 
