@@ -52,7 +52,7 @@ def test_single_cleanup_helper_kills_process_tree_on_windows():
 def test_before_quit_uses_cleanup_helper():
     text = _main_js()
     block = _handler(text, 'app.on("before-quit"')
-    assert "stopSidecar()" in block
+    assert "stopAllChildren()" in block
     assert "sidecar.kill(" not in block, "bare kill bypasses process-tree cleanup"
 
 
@@ -62,17 +62,17 @@ def test_window_closed_also_stops_sidecar():
     # Stop at the next top-level handler so we only inspect the closed block.
     block = block.split("setWindowOpenHandler", 1)[0]
     assert "mainWindow = null" in block
-    assert "stopSidecar()" in block, "closing the window must not orphan the bridge"
+    assert "stopAllChildren()" in block, "closing the window must stop child processes"
 
 
 def test_startup_failure_kills_sidecar_before_exit():
     text = _main_js()
-    # Locate the whenReady error box (not the earlier spawn try/catch).
-    pos = text.index("dialog.showErrorBox")
+    # Locate the startup-failure fallback (not the runtime server error box).
+    pos = text.rindex('dialog.showErrorBox("Keel failed to start"')
     block = text[max(0, pos - 300):pos + 120]
-    assert "stopSidecar()" in block, "app.exit() skips before-quit; clean up here"
+    assert "stopAllChildren()" in block, "app.exit() skips before-quit; clean up here"
     assert "app.exit(1)" in block
-    assert block.index("stopSidecar()") < block.index("app.exit(1)")
+    assert block.index("stopAllChildren()") < block.index("app.exit(1)")
 
 
 def test_no_bare_sidecar_kill_outside_helper():
@@ -90,6 +90,7 @@ def test_token_parsed_via_url_api_not_fragile_regex():
     assert "new URL(m[1])" in text, "URL line must be parsed with the URL API"
     assert 'searchParams.get("t")' in text
     assert "url.hostname !== \"127.0.0.1\"" in text, "loopback must be enforced"
+    assert "if (!token)" in text, "bridge tokens must be present"
     assert "[A-Za-z0-9_-]" not in text, "old restrictive token regex must be gone"
 
 

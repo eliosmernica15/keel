@@ -786,8 +786,10 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     self._refuse()
                     return
                 from . import capability_registry  # noqa: F401 - registers all
+                from .backend_hub import sync_capability_schemas
                 from .capabilities import list_capabilities
 
+                sync_capability_schemas()
                 query = urllib.parse.parse_qs(
                     urllib.parse.urlparse(self.path).query)
                 surface = (query.get("surface") or [None])[0]

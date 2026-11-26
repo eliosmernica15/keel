@@ -261,6 +261,13 @@ def test_session_derived_permissions_narrow_privileged_calls(
             "state_root": str(root), "allowed_permissions": {"read"}})
     assert exc.value.code == "permission_denied"
 
+    # A transport-level grant cannot widen the session's permission ceiling.
+    with pytest.raises(capabilities.CapabilityError) as exc:
+        capabilities.invoke(name, {}, allowed_permissions={"read", "write"},
+                            context={"state_root": str(root),
+                                     "allowed_permissions": {"read"}})
+    assert exc.value.code == "permission_denied"
+
     # Explicit parameter and a confirmed call still work (backward compat).
     confirmed = capabilities.invoke(
         name, {}, context={"state_root": str(root), "confirm": True})

@@ -347,7 +347,7 @@ function waitForUiServer(proc, port, ms = 30000) {
 async function startUiServer(sidecarUrl, uiDir) {
   const parsed = new URL(sidecarUrl); // already validated by waitForSidecarUrl
   const token = parsed.searchParams.get("t") || "";
-  if (!/^[A-Za-z0-9_-]+$/.test(token)) {
+  if (!token) {
     throw new Error("the sidecar returned an unusable bridge token");
   }
   appendLog(UI_LOG(), `bridge token accepted: length=${token.length} prefix=${token.slice(0, 4)}…`);

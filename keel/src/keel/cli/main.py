@@ -255,6 +255,9 @@ def _capability_cmd(argv: list[str]) -> int:
                 f"{cap['description'][:60]}\n")
         return 0
     if cmd == "describe" and len(argv) > 1:
+        if argv[1] in {"backend.invoke", "backend.describe"}:
+            from ..backend_hub import sync_capability_schemas
+            sync_capability_schemas()
         cap = get(argv[1])
         if cap is None:
             sys.stderr.write(f"unknown capability: {argv[1]}\n")

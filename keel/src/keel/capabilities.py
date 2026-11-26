@@ -25,6 +25,12 @@ class CapabilityError(RuntimeError):
         self.code = code
 
 
+def _safe_exception_message(exc: Exception) -> str:
+    from .redaction import redact_text
+
+    return redact_text(f"{type(exc).__name__}: {exc}")[0][:500]
+
+
 @dataclass
 class Capability:
     id: str
@@ -85,13 +91,28 @@ def invoke(cap_id: str, params: dict | None = None, *,
     params = params or {}
     if not isinstance(params, dict):
         raise CapabilityError("params must be an object", code="bad_params")
-    allowed = allowed_permissions if allowed_permissions is not None else {
-        "read", "write", "execute"}
+    context = context or {}
+    context_permissions = context.get("allowed_permissions")
+    if (allowed_permissions is not None
+            and not isinstance(allowed_permissions, (set, frozenset))):
+        raise CapabilityError(
+            "invalid allowed permission set", code="permission_denied")
+    if (context_permissions is not None
+            and not isinstance(context_permissions, (set, frozenset))):
+        raise CapabilityError(
+            "invalid context permission set", code="permission_denied")
+    if allowed_permissions is not None and context_permissions is not None:
+        allowed = allowed_permissions & context_permissions
+    elif allowed_permissions is not None:
+        allowed = allowed_permissions
+    elif context_permissions is not None:
+        allowed = context_permissions
+    else:
+        allowed = {"read", "write", "execute"}
     if cap.permission not in allowed:
         raise CapabilityError(
             f"permission {cap.permission!r} required for {cap_id}",
             code="permission_denied")
-    context = context or {}
     # Saved execution policies bind the capability surface too: a capability
     # carrying a command or URL is checked before its handler runs.
     from .policy_enforcement import enforce as _enforce_policy
@@ -109,7 +130,8 @@ def invoke(cap_id: str, params: dict | None = None, *,
         # bypass the typed CapabilityError boundary used by every transport.
         raise CapabilityError(
             f"policy evaluation failed for {cap_id}: "
-            f"{type(exc).__name__}: {exc}"[:500], code="policy_error") from exc
+            f"{_safe_exception_message(exc)}",
+            code="policy_error") from None
     if enforced is not None and enforced.decision == "deny":
         raise CapabilityError(
             f"execution policy denied {cap_id}: {enforced.reason}",
@@ -131,7 +153,7 @@ def invoke(cap_id: str, params: dict | None = None, *,
         raise
     except Exception as exc:  # handlers must surface real errors, not fake success
         raise CapabilityError(
-            f"{type(exc).__name__}: {exc}"[:500], code="handler_error") from exc
+            _safe_exception_message(exc), code="handler_error") from None
 
 
 def audit_path(state_root: str | Path) -> Path:
@@ -139,12 +161,20 @@ def audit_path(state_root: str | Path) -> Path:
 
 
 def record_audit(state_root: str | Path, entry: dict) -> None:
+    from .backend_observability import (
+        _acquire_lock, _append, _release_lock, redact,
+    )
+
     path = audit_path(state_root)
     path.parent.mkdir(parents=True, exist_ok=True)
-    record = dict(entry)
+    record = redact(dict(entry))
     record.setdefault("ts", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
-    with open(path, "a", encoding="utf-8") as handle:
-        handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+    lock_path = path.with_name(path.name + ".lock")
+    lock_fd = _acquire_lock(lock_path)
+    try:
+        _append(path, json.dumps(record, ensure_ascii=False) + "\n")
+    finally:
+        _release_lock(lock_path, lock_fd)
 
 
 # --- Master Plan v6 backend module integration -----------------------------

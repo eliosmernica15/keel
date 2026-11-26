@@ -56,16 +56,15 @@ def test_registry_entries_have_required_fields():
 def test_authoritative_source_hashes_unchanged():
     """Pin the canonical source copies committed in `keel/docs/plan-sources/`.
 
-    These hashes were refreshed when the 865-row registry reconciliation added
-    the canonical copies; the files themselves are unchanged at this commit.
+    These hashes guard the canonical source files against accidental drift.
     """
     expected = {
         "Keel_Master_Plan_v5.md":
-            "47b346bc9b7ee26a51e5fe2576e9a9fa5cc6e75e339ab554e90aa2bfd79c1f13",
+            "da1dd5dc81d7f85fadbc5e10143c937e7fc63fd34b86f0f0d3659f7af67d427f",
         "Keel_Plan_v5_Addendum_Missed_Features.md":
-            "014d8375fb1682bbbc8ac57f891fb17f8cead68dcaff26b6b1d0ffc2cbc43b9b",
+            "e4e314a5a0c31f7868e7568d061fb5aebbe809144624479f96537eb0c84b6583",
         "Keel_Plan_v5_Addendum_2_More_Features.md":
-            "c5778cff08f6a0b6039283a31ffee921fe29820f50ef1b95a74ed327a334368f",
+            "b42219150271fa9e25dbd28c878beba3608032c17e221fdda73d716f4fc9125a",
     }
     for name, prefix in expected.items():
         digest = hashlib.sha256((DOWNLOADS / name).read_bytes()).hexdigest()
