@@ -312,3 +312,49 @@ The full suite has not been rerun after `f376999`; the focused ledger/integrity 
 synthetic probe cover that last change. Native macOS/Linux builds, signing, public deployment,
 remaining performance findings, and the 70 unmerged branch tips remain outside this follow-up.
 Commit on `agent/stab-accept`; **no push**.
+
+## 12. Follow-up verification (2026-11-26)
+
+This follow-up records additional work on `backend/surface-fix-2026-11-25`;
+it does not change the prior acceptance verdict or make a whole-product
+completion claim.
+
+- `a682f53` isolates the Quick Ask subprocess test from host HOME, USERPROFILE
+  and Keel state, preventing tests from loading a developer's configured MCP
+  servers.
+- `5ecd364` makes the milestone web-fetch E2E deterministic and offline by
+  mocking the resolver/opener seam while retaining the unsafe-local-URL check.
+- `4f6dd5c` labels the desktop chat pane “Keel Chat” without changing the
+  site/landing UI or the backend's existing `cowork` surface. It also updates
+  stale desktop-renderer assertions, narrows a false-positive environment
+  scanner, isolates the webapp runtime test, and cleans up the packaged Windows
+  sidecar process tree.
+- Rebuilt the local Windows PyInstaller sidecar at `dist/keel-sidecar/keel.exe`.
+  This is an ignored local build artifact; no Electron installer was rebuilt
+  or published.
+- Reviewed the attached Universal AI Harness plan and the current `main`-only
+  branch changes. The plan is a multi-phase P0–P3 roadmap, not a bounded
+  implementation ticket. `main` was not merged wholesale: review found
+  regressions in the workflow artifact trust gate, execution-policy enforcement
+  and sandbox path validation. No reference-repository code was copied.
+
+Validation:
+
+| Scope | Command/result |
+| --- | --- |
+| Full Python suite | `python -m pytest -q -o faulthandler_timeout=90` — 4,792 passed, 49 skipped, 3,707 subtests passed |
+| Quick Ask | `python -m pytest -q tests\test_quick_ask.py` — 3 passed |
+| Milestone 6B | `python -m pytest -q tests\test_e2e_milestone_6b.py` — 1 passed |
+| Desktop labels and packaged UI | `python -m pytest -q tests\test_product_labels.py tests\test_packaged_ui_serving.py` — 7 passed; packaged smoke re-run after cleanup fix: `python -m pytest -q tests\test_packaged_ui_serving.py` — 2 passed |
+| Renderer/bridge verification | `python -m pytest -q tests\verify_distribution_agent_renderer.py` — 4 passed |
+| Webapp runtime isolation | `python -m pytest -q tests\test_webapp.py::test_run_streams_events_and_done_marker` — 1 passed |
+| Desktop JavaScript syntax | `node --check desktop\ui\app.js` — passed |
+| Windows sidecar build | `python -m PyInstaller desktop-app\sidecar.spec --noconfirm --distpath dist\keel-sidecar` — passed |
+
+The attached plan remains substantially incomplete: this follow-up does not
+implement or certify the full provider, orchestration, plugin, browser,
+workflow, IDE, compatibility, enterprise or release roadmap. macOS/Linux
+artifacts, signing/notarization, the public Ship-article deployment, and
+production release authorization remain unverified. The public download
+metadata remains fail-closed pending verified release artifacts. Versal and
+landing-page files were not changed.
