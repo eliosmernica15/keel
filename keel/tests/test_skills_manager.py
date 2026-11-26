@@ -49,6 +49,34 @@ def test_remove_skill(tmp_path):
     assert sm.remove("demo-skill", scope="project", project_root=project) is False
 
 
+def test_list_managed_prefers_project_scope_for_duplicate_skill_names(tmp_path, monkeypatch):
+    project = tmp_path / "proj"
+    project.mkdir()
+    project_skill = make_skill_dir(tmp_path, "shared", "project copy")
+    project_dest = project / ".keel" / "skills" / "project-folder"
+    project_dest.parent.mkdir(parents=True)
+    import shutil
+    shutil.copytree(project_skill, project_dest)
+
+    user_root = tmp_path / "user-skills"
+    bundled_root = tmp_path / "bundled-skills"
+    for root, folder in ((user_root, "user-folder"), (bundled_root, "bundled-folder")):
+        root.mkdir()
+        dest = root / folder
+        shutil.copytree(project_skill, dest)
+
+    monkeypatch.setattr(sm, "default_roots",
+                        lambda project_root=None: [
+                            (project / ".keel" / "skills", "project"),
+                            (user_root, "user"),
+                            (bundled_root, "bundled"),
+                        ])
+    managed = sm.list_managed(project)
+    shared = [row for row in managed if row["name"] == "shared"]
+    assert len(shared) == 1
+    assert shared[0]["scope"] == "project"
+
+
 def test_select_skills(tmp_path):
     project = tmp_path / "proj"
     project.mkdir()

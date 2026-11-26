@@ -202,6 +202,7 @@ def update(name: str, source: str | Path, scope: str = "user",
 
 def list_managed(project_root: Path | None = None) -> list[dict[str, Any]]:
     out = []
+    seen: set[str] = set()
     for path, scope in default_roots(project_root):
         if not path.exists():
             continue
@@ -212,9 +213,15 @@ def list_managed(project_root: Path | None = None) -> list[dict[str, Any]]:
             try:
                 skill = _load_file(skill_md, scope)
             except SkillError as exc:
+                if child.name in seen:
+                    continue
+                seen.add(child.name)
                 out.append({"name": child.name, "scope": scope, "error": str(exc),
                             "enabled": is_enabled(child.name)})
                 continue
+            if skill.name in seen:
+                continue
+            seen.add(skill.name)
             out.append({
                 "name": skill.name,
                 "description": skill.description,
