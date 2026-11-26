@@ -871,7 +871,10 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                 if request is None:
                     return
                 from . import capability_registry  # noqa: F401
-                from .capabilities import CapabilityError, invoke
+                from .capabilities import (
+                    CapabilityError, invoke,
+                    permission_tiers_for_confirmation,
+                )
 
                 cap_id = str(request.get("id", ""))
                 from .capabilities import get as get_capability
@@ -914,8 +917,7 @@ def make_server(port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
                     # decision instead of relying on the hub's permissive
                     # default: submit a real session permission set.
                     confirmed = request.get("confirm") is True
-                    allowed_tiers = ({"read", "write", "execute"}
-                                     if confirmed else {"read"})
+                    allowed_tiers = permission_tiers_for_confirmation(confirmed)
                     result = invoke(
                         cap_id, request.get("params", {}),
                         allowed_permissions=allowed_tiers,

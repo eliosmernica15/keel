@@ -7,7 +7,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from keel import capability_registry  # noqa: F401
+from keel import capabilities
 from keel.tui import Tui
+from keel.cli.main import _capability_cmd
 
 
 def _cli(*args, cwd=None):
@@ -65,3 +68,42 @@ def test_tui_capability_commands(tmp_path):
     assert tui.handle_command("/invoke core.hardware.detect") is True
     assert any("hardware" in line.lower() or "os" in line.lower()
                for line in outputs)
+
+
+def test_cli_forwards_permission_tiers(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("KEEL_STATE_DIR", str(tmp_path / "state"))
+    monkeypatch.chdir(tmp_path)
+    calls = []
+
+    def invoke(cap_id, params, *, context, allowed_permissions):
+        calls.append((cap_id, allowed_permissions))
+        return {"ok": True, "capability": cap_id, "result": {}}
+
+    monkeypatch.setattr(capabilities, "invoke", invoke)
+    assert _capability_cmd(["invoke", "core.hardware.detect"]) == 0
+    assert _capability_cmd(["invoke", "core.flags.set", "--confirm"]) == 0
+
+    assert calls == [
+        ("core.hardware.detect", {"read"}),
+        ("core.flags.set", {"read", "write", "execute"}),
+    ]
+    assert capsys.readouterr().out
+
+
+def test_tui_forwards_permission_tiers(tmp_path, monkeypatch):
+    calls = []
+
+    def invoke(cap_id, params, *, context, allowed_permissions):
+        calls.append((cap_id, allowed_permissions))
+        return {"ok": True, "capability": cap_id, "result": {}}
+
+    monkeypatch.setattr(capabilities, "invoke", invoke)
+    tui = Tui(cwd=str(tmp_path), state_root=str(tmp_path / "state"),
+              input_fn=lambda _prompt: "yes", output_fn=lambda _text: None)
+    tui.handle_command("/invoke core.hardware.detect")
+    tui.handle_command('/invoke core.flags.set {"name":"demo","enabled":true}')
+
+    assert calls == [
+        ("core.hardware.detect", {"read"}),
+        ("core.flags.set", {"read", "write", "execute"}),
+    ]

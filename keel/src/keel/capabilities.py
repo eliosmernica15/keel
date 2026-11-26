@@ -81,6 +81,13 @@ def list_capabilities(*, surface: str | None = None) -> list[dict]:
     ]
 
 
+def permission_tiers_for_confirmation(confirmed: bool) -> set[str]:
+    """Return the permission ceiling granted by a transport confirmation."""
+    if confirmed is True:
+        return {"read", "write", "execute"}
+    return {"read"}
+
+
 def invoke(cap_id: str, params: dict | None = None, *,
            context: dict | None = None,
            allowed_permissions: set[str] | None = None) -> dict:

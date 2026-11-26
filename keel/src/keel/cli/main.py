@@ -235,7 +235,9 @@ def _capability_cmd(argv: list[str]) -> int:
 
     from .. import capability_registry  # noqa: F401
     from ..capabilities import (CapabilityError, audit_path, get, invoke,
-                                list_capabilities, record_audit)
+                                list_capabilities,
+                                permission_tiers_for_confirmation,
+                                record_audit)
 
     usage = ("usage: keel capability list [--surface S]\n"
              "       keel capability describe <id>\n"
@@ -289,7 +291,9 @@ def _capability_cmd(argv: list[str]) -> int:
             return 1
         state_root = str(_state_root())
         try:
+            allowed_tiers = permission_tiers_for_confirmation(confirmed)
             result = invoke(cap_id, params,
+                            allowed_permissions=allowed_tiers,
                             context={"state_root": state_root,
                                      "cwd": os.getcwd(),
                                      "confirm": confirmed,

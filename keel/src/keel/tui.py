@@ -180,6 +180,7 @@ class Tui:
         if line.startswith("/invoke "):
             from . import capability_registry  # noqa: F401
             from .capabilities import (CapabilityError, get, invoke,
+                                       permission_tiers_for_confirmation,
                                        record_audit)
 
             rest = line[len("/invoke "):].strip()
@@ -227,7 +228,9 @@ class Tui:
             try:
                 result = invoke(cap_id, params, context={
                     "state_root": self.state_root, "cwd": self.cwd,
-                    "confirm": confirmed, "interactive": True})
+                    "confirm": confirmed, "interactive": True},
+                    allowed_permissions=permission_tiers_for_confirmation(
+                        confirmed))
                 record_audit(self.state_root, {"capability": cap_id,
                                                "ok": True, "surface": "tui"})
                 self.out(json.dumps(result.get("result"), default=str)[:2000])
