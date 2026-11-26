@@ -194,6 +194,16 @@ def _probe(sandbox_exec: str, profile: str, target: str = "/usr/bin/true"):
         return None
 
 
+def _is_known_read_filter_abort(
+    result: subprocess.CompletedProcess | None,
+) -> bool:
+    return (
+        result is not None
+        and result.returncode == -signal.SIGABRT
+        and not (result.stderr or b"").strip()
+    )
+
+
 def _support() -> dict:
     """Probe which profile shapes this host can actually enforce (cached)."""
     global _SUPPORT
@@ -215,6 +225,7 @@ def _support() -> dict:
         "available": True,
         "narrow_subpath": bool(narrow is not None and narrow.returncode == 0),
         "restrictive": bool(restrictive is not None and restrictive.returncode == 0),
+        "restrictive_abort": _is_known_read_filter_abort(restrictive),
         "broad": bool(broad is not None and broad.returncode == 0),
         "restrictive_error": (
             f"exit={restrictive.returncode if restrictive else 'timeout'}, "
@@ -255,7 +266,7 @@ def _limitations(memory_mb: int, *, allow_network: bool = False,
             "file-read-metadata is allowed globally so dyld/CPython can stat "
             "ancestors; names and sizes are visible, contents are not."
         )
-    elif support.get("broad"):
+    elif support.get("broad") and support.get("restrictive_abort"):
         out.append(
             "READ ISOLATION BLOCKED on this host: sandbox-exec aborts "
             f"({support['restrictive_error']}) for any path-filtered "
@@ -263,6 +274,11 @@ def _limitations(memory_mb: int, *, allow_network: bool = False,
             f"{support['narrow_subpath']}). A documented fallback grants "
             "global file-read* while still confining writes, network and "
             "rlimits; host file contents remain readable."
+        )
+    elif support.get("broad"):
+        out.append(
+            "READ ISOLATION UNAVAILABLE on this host: the restrictive profile "
+            "failed for an unexpected reason; the broad-read fallback is disabled."
         )
     if allow_network:
         out.append("Network access explicitly enabled by caller (allow_network=True).")
@@ -277,7 +293,7 @@ def capabilities() -> dict:
         read_isolation = "UNAVAILABLE"
     elif support["restrictive"]:
         read_isolation = "RESTRICTIVE"
-    elif support["broad"]:
+    elif support["broad"] and support["restrictive_abort"]:
         read_isolation = "BLOCKED"
     else:
         read_isolation = "UNAVAILABLE"
@@ -350,7 +366,9 @@ def run_confined(
     if not restrictive_ok:
         # Only the specifically diagnosed SIGABRT for filtered reads may fall
         # back; every other failure stays fail-closed.
-        if support["restrictive"] or not support["broad"]:
+        if (support["restrictive"] or not support["broad"]
+                or not support["restrictive_abort"]
+                or not _is_known_read_filter_abort(probe)):
             raise SandboxUnavailable(
                 f"sandbox-exec profile could not launch a probe "
                 f"(exit={probe.returncode}, stderr={_tail(probe.stderr)!r}); "

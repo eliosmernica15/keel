@@ -127,8 +127,11 @@ loopback port only if `allow_network=True`; by default networking is denied.
    `file-read-metadata` still exposes names and sizes while contents outside
    the allowlist are denied. On macOS 26 arm64 any path-filtered `file-read*`
    rule aborts the child (SIGABRT, empty stderr), so the documented fallback
-   grants global reads: host file *contents* are readable and read denial
-   cannot be proven. Writes remain confined to the workspace (`FULL`).
+   grants global reads only when both the cached host probe and the current
+   invocation reproduce that exact failure signature. Other restrictive
+   profile failures fail closed. Under the documented fallback, host file
+   *contents* are readable and read denial cannot be proven. Writes remain
+   confined to the workspace (`FULL`).
 3. **System IPC is not confined.** `mach-lookup`, POSIX shared memory and
    `system-socket` are allowed so dyld/libSystem and user-lookup calls work.
 4. **Already-open descriptors bypass later checks.** `sandbox(7)` is explicit
@@ -191,7 +194,11 @@ reads, independently reported for macOS 27.0.1 in
 profiles print an error and exit 65. Consequently read isolation is reported
 as `BLOCKED` with `read_isolation: "BLOCKED"` and the exact error
 `exit=-6, stderr=b''` in `capabilities()["limitations"]`; the fallback grants
-global reads and must not be trusted for host-file confidentiality.
+global reads and must not be trusted for host-file confidentiality. Runtime
+fallback is allowed only if both the cached support probe and the invocation's
+own restrictive probe return SIGABRT (`-SIGABRT`) with empty stderr; a
+different failure must raise `SandboxUnavailable` rather than grant broad
+reads.
 
 A subsequent run exposed a second, unrelated defect: an uncaught
 `resource.setrlimit` `ValueError` inside `preexec_fn` produced

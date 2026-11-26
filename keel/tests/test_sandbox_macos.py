@@ -60,7 +60,7 @@ def test_capabilities_are_honest():
     assert caps["sandbox_exec"] is True
     assert caps["available"] is True
     assert caps["deprecated"] is True
-    assert caps["read_isolation"] in ("RESTRICTIVE", "BLOCKED")
+    assert caps["read_isolation"] in ("RESTRICTIVE", "BLOCKED", "UNAVAILABLE")
     assert caps["filesystem_enforcement"] in ("FULL", "PARTIAL")
     assert caps["filesystem_write_enforcement"] == "FULL"
     assert caps["network_enforcement"] is True
