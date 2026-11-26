@@ -2,24 +2,24 @@
   "name": "Keel Desktop",
   "version": "0.1.1",
   "tag": "v0.1.1",
-  "generated": "local",
+  "generated": "fallback",
   "published_at": null,
-  "verified_at": "2026-11-25T18:12:10Z",
+  "verified_at": null,
   "base_url": null,
   "release_manifest_url": null,
   "channels": {
     "windows": {
-      "name": "Windows x64",
+      "name": "Windows x64 (64-bit)",
       "arch": "x64",
       "version": "0.1.1",
       "file": "Keel-Setup-0.1.1.exe",
-      "size": 315612855,
-      "sha256": "DD585D898E00A5E1621821D18BA2A6E846392C6178E49A78B356D0ECFC549604",
-      "url": "https://github.com/eliosmernica15/keel/releases/download/v0.1.1/Keel-Setup-0.1.1.exe",
-      "available": true,
-      "verified": true,
-      "verified_at": "2026-11-25T19:37:24Z",
-      "notes": "Built from feat/unified-renderer-electron-2026-11-25: unified renderer default, Privacy & data screen, Settings updates panel, Cowork chat with provider/model selection, zip file attachments.",
+      "size": null,
+      "sha256": null,
+      "url": null,
+      "available": false,
+      "verified": false,
+      "verified_at": null,
+      "notes": "Not publicly hosted yet; there is nothing to download. Installers will appear here after verification.",
       "installation": "Run Keel-Setup-0.1.1.exe. Accept the installer prompts. Launch from the Start Menu shortcut or Desktop shortcut. Your ~/.keel data is preserved on uninstall.",
       "alternatives": []
     },
@@ -34,7 +34,7 @@
       "available": false,
       "verified": false,
       "verified_at": null,
-      "notes": "macOS .pkg (Apple Silicon, Keel-0.1.1-macos-arm64.pkg) is not published in this round; there is no public URL to download it yet.",
+      "notes": "Not publicly hosted yet; there is nothing to download. Installers will appear here after verification.",
       "installation": "Open Keel-0.1.1-macos-arm64.pkg (Apple Silicon) or Keel-0.1.1-macos-x64.pkg (Intel). The installer places Keel in /Applications. If Gatekeeper blocks first launch, right-click Keel and choose Open.",
       "alternatives": [
         {
@@ -60,7 +60,7 @@
       "available": false,
       "verified": false,
       "verified_at": null,
-      "notes": "Linux DEB/AppImage is not published in this round; there is no public URL to download it yet.",
+      "notes": "Not publicly hosted yet; there is nothing to download. Installers will appear here after verification.",
       "installation": "Debian/Ubuntu: install Keel-0.1.1-linux-amd64.deb with your package manager. Fedora/RHEL: install Keel-0.1.1-linux-x86_64.rpm. Launch Keel from your desktop's application menu.",
       "alternatives": [
         {
