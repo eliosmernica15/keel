@@ -114,8 +114,15 @@ def test_concurrent_confinement(tmp_path):
     import concurrent.futures
 
     def run(i):
-        return confined_or_blocked([sys.executable, "-c", f"print({i})"],
-                            workspace=tmp_path / str(i), timeout_s=15)
+        if WINDOWS:
+            argv = [
+                os.environ.get("COMSPEC", r"C:\Windows\System32\cmd.exe"),
+                "/c", f"echo {i}",
+            ]
+        else:
+            argv = [sys.executable, "-c", f"print({i})"]
+        return confined_or_blocked(
+            argv, workspace=tmp_path / str(i), timeout_s=15)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
         results = list(pool.map(run, range(4)))

@@ -367,7 +367,7 @@ Validation:
 | Isolated Windows concurrency follow-up | `python -m pytest -q -rs tests\test_os_sandbox.py::test_concurrent_confinement` — 1 skipped because network enforcement could not be established on this host |
 | AppContainer concurrency regression tests | `python -m pytest -q tests\test_win_network_profiles.py tests\test_win_network.py` — 14 passed |
 | Full Python suite after AppContainer fix | `python -m pytest -q -o faulthandler_timeout=90` with a fresh `KEEL_STATE_DIR` and `PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring` — 4,800 passed, 49 skipped, 3,707 subtests passed |
-| Concurrent confinement after AppContainer fix | `python -m pytest -q -rs tests\test_os_sandbox.py::test_concurrent_confinement` — 1 skipped because Python could not launch in AppContainer on this host; concurrent profile creation itself is covered by the passing mocked API race test |
+| Concurrent confinement after AppContainer fix | `python -m pytest -q -rs tests\test_os_sandbox.py::test_concurrent_confinement` — 1 passed using `cmd.exe` children; repeated five times with 5/5 passing. Python itself is not a supported AppContainer child on this host, so the Windows test now uses the verified shell executable. |
 | Quick Ask | `python -m pytest -q tests\test_quick_ask.py` — 3 passed |
 | Milestone 6B | `python -m pytest -q tests\test_e2e_milestone_6b.py` — 1 passed |
 | Desktop labels and packaged UI | `python -m pytest -q tests\test_product_labels.py tests\test_packaged_ui_serving.py` — 7 passed; packaged smoke re-run after cleanup fix: `python -m pytest -q tests\test_packaged_ui_serving.py` — 2 passed |
