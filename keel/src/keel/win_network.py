@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import ctypes
 import os
+import threading
 
 try:
     from ctypes import wintypes
@@ -53,6 +54,8 @@ APP_CONTAINER_PROFILE_NAME = "Keel.Sandbox.NetworkDeny.v1"
 PROC_THREAD_ATTRIBUTE_SECURITY_CAPABILITIES = 0x00020009
 
 HRESULT_ALREADY_EXISTS = 0x800700B7  # HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS)
+HRESULT_UNEXPECTED = 0x8000FFFF
+_APPCONTAINER_PROFILE_LOCK = threading.Lock()
 
 
 class NetworkIsolationUnavailable(RuntimeError):
@@ -143,29 +146,32 @@ def appcontainer_sid(profile_name: str = APP_CONTAINER_PROFILE_NAME,
         raise NetworkIsolationUnavailable(
             "userenv/advapi32 AppContainer APIs unavailable")
 
-    sid = ctypes.c_void_p()
-    hr = userenv.CreateAppContainerProfile(
-        profile_name, profile_name, "Keel network-denied sandbox",
-        None, 0, ctypes.byref(sid))
-    if hr == 0 and sid.value:
-        return sid
-    if hr < 0:
-        hr &= 0xFFFFFFFF
-    if hr != HRESULT_ALREADY_EXISTS:
-        raise NetworkIsolationUnavailable(
-            f"CreateAppContainerProfile failed: HRESULT 0x{hr:08x}")
+    with _APPCONTAINER_PROFILE_LOCK:
+        sid = ctypes.c_void_p()
+        hr = userenv.CreateAppContainerProfile(
+            profile_name, profile_name, "Keel network-denied sandbox",
+            None, 0, ctypes.byref(sid))
+        if hr == 0 and sid.value:
+            return sid
+        if hr < 0:
+            hr &= 0xFFFFFFFF
+        if hr not in (HRESULT_ALREADY_EXISTS, HRESULT_UNEXPECTED):
+            raise NetworkIsolationUnavailable(
+                f"CreateAppContainerProfile failed: HRESULT 0x{hr:08x}")
 
-    # Profile already exists: derive the same SID instead of replacing it.
-    sid = ctypes.c_void_p()
-    hr = userenv.DeriveAppContainerSidFromAppContainerName(
-        profile_name, ctypes.byref(sid))
-    if hr < 0:
-        hr &= 0xFFFFFFFF
-    if hr != 0 or not sid.value:
-        raise NetworkIsolationUnavailable(
-            f"DeriveAppContainerSidFromAppContainerName failed: "
-            f"HRESULT 0x{hr:08x}")
-    return sid
+        # A concurrent creator can surface E_UNEXPECTED instead of
+        # ERROR_ALREADY_EXISTS. Resolve the stable profile SID in either case.
+        sid = ctypes.c_void_p()
+        derive_hr = userenv.DeriveAppContainerSidFromAppContainerName(
+            profile_name, ctypes.byref(sid))
+        if derive_hr < 0:
+            derive_hr &= 0xFFFFFFFF
+        if derive_hr != 0 or not sid.value:
+            raise NetworkIsolationUnavailable(
+                f"DeriveAppContainerSidFromAppContainerName failed: "
+                f"HRESULT 0x{derive_hr:08x} "
+                f"(CreateAppContainerProfile returned 0x{hr:08x})")
+        return sid
 
 
 # --- evidence helper: WFP per-process filter permission probe ---------------
