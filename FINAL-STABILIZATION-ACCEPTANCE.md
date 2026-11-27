@@ -348,6 +348,15 @@ completion claim.
   and sandbox path validation. No reference-repository code was copied.
 - PR #15's three files already match `origin/main`; PR #31 has no patch to
   integrate and its CI is red. Neither PR was merged or cherry-picked.
+- Rechecked the public Ship article on 2026-11-27: the site home and download
+  route return content, but `/resources/articles/introducing-keel-ship` and
+  `/resources/articles/introducing-keel-code` return 404. The tracked Ship
+  HTML and Vercel rewrite both exist locally, and a new browser regression test
+  confirms the rewrite serves the article from the current source tree. No
+  public deployment was created: the linked Vercel CLI resolves the site root
+  twice when run from the nested directory, while a repository-root preview
+  attempts to upload the 1.6 GB monorepo and is rejected at Vercel's 100 MB
+  per-file limit. Production remains unchanged.
 
 Validation:
 
@@ -366,6 +375,7 @@ Validation:
 | Webapp runtime isolation | `python -m pytest -q tests\test_webapp.py::test_run_streams_events_and_done_marker` — 1 passed |
 | Sandbox fallback hardening | `python -m pytest -q tests\test_sandbox_macos_probe.py tests\test_sandbox_macos.py tests\test_sandbox_hardened.py tests\test_native_isolation.py` — 20 passed, 14 skipped (native macOS tests cannot execute on this Windows host) |
 | Windows sandbox regressions | `python -m pytest -q tests\test_sandbox_windows.py tests\test_security_remediation.py` — 17 passed, 1 skipped |
+| Static website routes and download UX | `node --test keel\site\tests\*.test.mjs` — 25 passed, including the Ship article clean route and honest unavailable release states |
 | Desktop JavaScript syntax | `node --check desktop\ui\app.js` — passed |
 | Windows sidecar build | `python -m PyInstaller desktop-app\sidecar.spec --noconfirm --distpath dist\keel-sidecar` — passed |
 

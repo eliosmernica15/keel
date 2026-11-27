@@ -13,7 +13,7 @@
 | `/platform/api` | `/platform/api.html` | Static KEEL Platform page (models, agent SDK, console, enterprise, testimonials; all controls client-side) |
 | `/product/cowork` | `/product/cowork.html` | Static KEEL Cowork product page (capabilities, use cases, pricing, FAQ) |
 | `/api/download-manifest` | serverless function | Same-origin proxy for the latest GitHub Release manifest |
-| `/download.json` | static | Committed fallback manifest; the Windows .exe is verified and available this round, macOS/Linux stay unpublished until a verified release is published |
+| `/download.json` | static | Committed fail-closed fallback manifest; all channels remain unavailable until release sizes and checksums are reconciled and verified |
 
 The download surface only enables a button when the manifest marks the channel
 `available: true`, points at an HTTPS URL, and carries a positive byte size and
