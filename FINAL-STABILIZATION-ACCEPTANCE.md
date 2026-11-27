@@ -337,6 +337,10 @@ completion claim.
   `SIGABRT` with empty stderr. Other failures now fail closed and report read
   isolation as unavailable. PR #15's intentional macOS read-isolation
   limitation remains blocked; no confinement claim is inferred from its skip.
+- `155d7f1` serializes Windows AppContainer profile creation/reuse to avoid
+  concurrent `CreateAppContainerProfile` failures. The known `E_UNEXPECTED`
+  result can recover only by deriving the existing profile SID; otherwise the
+  operation remains fail-closed.
 - Reviewed the attached Universal AI Harness plan and the current `main`-only
   branch changes. The plan is a multi-phase P0–P3 roadmap, not a bounded
   implementation ticket. `main` was not merged wholesale: review found
@@ -352,12 +356,16 @@ Validation:
 | Full Python suite before sandbox fallback hardening | `python -m pytest -q -o faulthandler_timeout=90` with a fresh `KEEL_STATE_DIR` and `PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring` — 4,792 passed, 49 skipped, 3,707 subtests passed |
 | Full Python suite after sandbox fallback hardening | Same command and environment — 1 failed, 4,797 passed, 48 skipped, 3,707 subtests passed. The failure is `tests/test_os_sandbox.py::test_concurrent_confinement`: concurrent Windows `CreateAppContainerProfile` returned `HRESULT 0x8000ffff` in `win_network.appcontainer_sid`; no Windows sandbox files changed in this follow-up. |
 | Isolated Windows concurrency follow-up | `python -m pytest -q -rs tests\test_os_sandbox.py::test_concurrent_confinement` — 1 skipped because network enforcement could not be established on this host |
+| AppContainer concurrency regression tests | `python -m pytest -q tests\test_win_network_profiles.py tests\test_win_network.py` — 14 passed |
+| Full Python suite after AppContainer fix | `python -m pytest -q -o faulthandler_timeout=90` with a fresh `KEEL_STATE_DIR` and `PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring` — 4,800 passed, 49 skipped, 3,707 subtests passed |
+| Concurrent confinement after AppContainer fix | `python -m pytest -q -rs tests\test_os_sandbox.py::test_concurrent_confinement` — 1 skipped because Python could not launch in AppContainer on this host; concurrent profile creation itself is covered by the passing mocked API race test |
 | Quick Ask | `python -m pytest -q tests\test_quick_ask.py` — 3 passed |
 | Milestone 6B | `python -m pytest -q tests\test_e2e_milestone_6b.py` — 1 passed |
 | Desktop labels and packaged UI | `python -m pytest -q tests\test_product_labels.py tests\test_packaged_ui_serving.py` — 7 passed; packaged smoke re-run after cleanup fix: `python -m pytest -q tests\test_packaged_ui_serving.py` — 2 passed |
 | Renderer/bridge verification | `python -m pytest -q tests\verify_distribution_agent_renderer.py` — 4 passed |
 | Webapp runtime isolation | `python -m pytest -q tests\test_webapp.py::test_run_streams_events_and_done_marker` — 1 passed |
 | Sandbox fallback hardening | `python -m pytest -q tests\test_sandbox_macos_probe.py tests\test_sandbox_macos.py tests\test_sandbox_hardened.py tests\test_native_isolation.py` — 20 passed, 14 skipped (native macOS tests cannot execute on this Windows host) |
+| Windows sandbox regressions | `python -m pytest -q tests\test_sandbox_windows.py tests\test_security_remediation.py` — 17 passed, 1 skipped |
 | Desktop JavaScript syntax | `node --check desktop\ui\app.js` — passed |
 | Windows sidecar build | `python -m PyInstaller desktop-app\sidecar.spec --noconfirm --distpath dist\keel-sidecar` — passed |
 
