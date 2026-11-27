@@ -2,10 +2,8 @@
  * Fixture-based: the manifest is the committed keel/site/download.json, served
  * by a local static server. Run: node --test keel/site/tests/download-device.test.mjs
  *
- * Verifies, per device (Windows/macOS/Linux):
- *   - the primary download button is enabled and points at the device's channel;
- *   - the status reflects the detected device;
- *   - SHA-256 + size are shown.
+ * Verifies that every platform without reconciled public release metadata
+ * remains unavailable and never exposes a download link.
  */
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
@@ -122,45 +120,28 @@ async function waitState(page, state) {
   }, state, { timeout: 10000 });
 }
 
-test("committed manifest: Windows .exe is the verified channel (fixture-based)", () => {
+test("committed manifest does not advertise an unverified Windows .exe", () => {
   const win = MANIFEST.channels.windows;
   assert.equal(win.file, "Keel-Setup-0.1.1.exe");
-  assert.equal(win.available, true);
-  assert.equal(win.verified, true);
-  assert.ok(/^\d{4}-\d{2}-\d{2}/.test(String(win.verified_at)), "windows.verified_at must be a date");
-  assert.ok(Number.isFinite(Number(win.size)) && Number(win.size) > 0, "windows.size must be positive");
-  assert.match(String(win.sha256), /^[0-9a-f]{64}$/i, "windows.sha256 must be a full hash");
-  assert.match(win.url, /^https:\/\/github\.com\/eliosmernica15\/keel\/releases\/download\/v0\.1\.1\/Keel-Setup-0\.1\.1\.exe$/);
+  assert.equal(win.available, false);
+  assert.equal(win.verified, false);
+  assert.equal(win.verified_at, null);
+  assert.equal(win.size, null);
+  assert.equal(win.sha256, null);
+  assert.equal(win.url, null);
 });
 
-test("Windows device: primary enabled → .exe URL, status reflects device, size + SHA-256 shown", async () => {
+test("Windows device: unverified .exe remains unavailable", async () => {
   const { context, page, errors } = await openDownload(WIN);
-  await waitState(page, "ready");
+  await waitState(page, "unavailable");
   const primary = page.locator("#kp-download-primary");
-  assert.equal(await primary.getAttribute("href"), "https://github.com/eliosmernica15/keel/releases/download/v0.1.1/Keel-Setup-0.1.1.exe");
-  assert.equal(await primary.getAttribute("download"), "Keel-Setup-0.1.1.exe");
-  assert.equal(await primary.getAttribute("aria-disabled"), null);
-  assert.equal(await primary.evaluate((el) => !el.hasAttribute("aria-disabled") && el.hasAttribute("href")), true);
+  assert.equal(await primary.getAttribute("href"), null);
+  assert.equal(await primary.getAttribute("aria-disabled"), "true");
 
   const status = await page.locator("#kp-download-status").innerText();
   assert.match(status, /Windows/i, "status must reflect the detected Windows device");
-  assert.match(status, /SHA-256/i);
-
-  const variantsText = await page.locator("#kp-download-variants").innerText();
-  assert.match(variantsText, /150\.8 MB/);
-  assert.match(variantsText, /SHA-256 verified/i);
-
-  const title = await primary.getAttribute("title");
-  assert.match(title, /150\.8 MB/);
-  assert.match(title, /SHA-256 verified/i);
-
-  // Clicking the primary starts the download of the .exe.
-  const downloadPromise = page.waitForEvent("download", { timeout: 10000 });
-  await primary.click();
-  const download = await downloadPromise;
-  assert.equal(download.suggestedFilename(), "Keel-Setup-0.1.1.exe");
-  await waitState(page, "started");
-  assert.match(await page.locator("#kp-download-status").innerText(), /Download started/i);
+  assert.match(status, /No verified Windows installer/i);
+  assert.doesNotMatch(await page.locator("#kp-download-variants").innerText(), /SHA-256 verified/i);
 
   assert.deepEqual(errors, []);
   await context.close();
@@ -174,11 +155,11 @@ test("macOS device: page reflects macOS; primary stays disabled (honest placehol
   assert.equal(await primary.getAttribute("aria-disabled"), "true");
   const status = await page.locator("#kp-download-status").innerText();
   assert.match(status, /macOS/i);
-  const variantsText = await page.locator("#kp-download-variants").innerText();
-  assert.match(variantsText, /Keel-0\.1\.1-macos-arm64\.pkg/, "the macOS placeholder must name the .pkg build");
   const macosChannel = MANIFEST.channels.macos;
   assert.match(String(macosChannel.file), /\.pkg$/);
   assert.equal(macosChannel.available, false);
+  assert.equal(macosChannel.verified, false);
+  assert.equal(await page.locator("#kp-download-primary").getAttribute("href"), null);
   await context.close();
 });
 

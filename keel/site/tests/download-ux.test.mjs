@@ -13,6 +13,7 @@ import { chromium } from "../../fleet-next/node_modules/playwright/index.mjs";
 
 const SITE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const WORKTREE = path.resolve(SITE, "../..");
+const VERCEL = JSON.parse(fs.readFileSync(path.join(SITE, "vercel.json"), "utf8"));
 const SHA = "a".repeat(64);
 const FIXTURE_URL = "https://downloads.example.test";
 
@@ -78,6 +79,10 @@ before(async () => {
       res.end(JSON.stringify({ error: "manifest_not_configured" }));
       return;
     }
+    const rewrite = name.startsWith("/resources/articles/")
+      ? VERCEL.rewrites?.find((route) => route.source === name)
+      : undefined;
+    if (rewrite) name = rewrite.destination;
     if (name === "/app.html") {
       res.writeHead(307, { Location: "/app" });
       res.end();
@@ -186,10 +191,11 @@ async function waitState(page, state) {
   }, state, { timeout: 10000 });
 }
 
-test("committed fallback manifest is truthful: Windows verified+enabled, others stay unpublished", async () => {
+test("committed fallback manifest keeps every platform unavailable", async () => {
   const win = await openDownload(WIN);
-  await waitState(win.page, "ready");
-  assert.equal(await win.page.locator("#kp-download-primary").getAttribute("aria-disabled"), null);
+  await waitState(win.page, "unavailable");
+  assert.equal(await win.page.locator("#kp-download-primary").getAttribute("aria-disabled"), "true");
+  assert.equal(await win.page.locator("#kp-download-primary").getAttribute("href"), null);
   assert.match(await win.page.locator("#kp-download-status").innerText(), /Windows/i);
   await win.context.close();
 
@@ -332,6 +338,26 @@ test("PWA manifest starts at the real app route and has one contextual desktop l
   await context.close();
 });
 
+test("Keel Ship article clean route serves the tracked article page", async () => {
+  const route = "/resources/articles/introducing-keel-ship";
+  const rewrite = VERCEL.rewrites.find((item) => item.source === route);
+  assert.ok(rewrite, `missing Vercel rewrite for ${route}`);
+  assert.equal(
+    rewrite.destination,
+    "/resources/articles/introducing-keel-ship/index.html",
+  );
+  assert.ok(fs.statSync(path.join(SITE, rewrite.destination)).isFile(),
+    `rewrite destination does not exist: ${rewrite.destination}`);
+
+  const { context, page, errors } = await newPage(null);
+  const response = await page.goto(`${base}${route}`);
+  assert.equal(response?.status(), 200);
+  assert.equal(await page.title(), "Introducing Keel Ship | Keel");
+  assert.equal(await page.getByRole("heading", { name: "Introducing Keel Ship" }).count(), 1);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
 test("service worker caches app shell only and never release data or binaries", async () => {
   const sw = fs.readFileSync(path.join(SITE, "sw.js"), "utf8");
   assert.match(sw, /const VERSION = "keel-shell-v17"/);
@@ -384,8 +410,16 @@ test("landing page and owned-file boundary are unchanged", async () => {
   ]) {
     assert.ok(!changed.some((f) => f.startsWith(forbidden)), `unexpected change in ${forbidden}`);
   }
-  assert.ok(changed.includes("keel/site/download.json"));
-  assert.ok(changed.includes("keel/site/README.md"));
+  const allowedSiteChanges = [
+    "keel/site/vercel.json",
+    "keel/site/tests/",
+    "keel/site/resources/articles/",
+  ];
+  assert.ok(
+    changed.filter((file) => file.startsWith("keel/site/"))
+      .every((file) => allowedSiteChanges.some((allowed) => file.startsWith(allowed))),
+    "unexpected site change outside route tests/article routing",
+  );
 
   const { context, page, errors } = await newPage(null);
   await page.goto(`${base}/`);

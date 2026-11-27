@@ -150,13 +150,10 @@ test("detection uses userAgentData first and never guesses Intel vs Apple Silico
   assert.deepEqual({ ...(await API.detectPlatform({ userAgent: "Mozilla/5.0 (Linux; Android 14)", platform: "Linux armv8l" })) }, { os: "android", arch: null });
 });
 
-test("committed fallback manifest is truthful: Windows verified+downloadable, others unpublished", () => {
+test("committed fallback manifest keeps every unverified platform unavailable", () => {
   const doc = JSON.parse(fs.readFileSync(path.join(SITE, "download.json"), "utf8"));
   assert.equal(API.validManifest(doc), true);
-  const winVariants = API.variantsFor(doc, "windows");
-  assert.equal(winVariants.some((v) => v.downloadable), true, "windows must expose a downloadable variant");
   for (const [name, channel] of Object.entries(doc.channels)) {
-    if (name === "windows") continue;
     assert.equal(channel.available, false, `${name}.available must stay false`);
     assert.equal(channel.verified, false, `${name}.verified must stay false`);
     assert.equal(channel.url, null, `${name}.url must stay null`);
