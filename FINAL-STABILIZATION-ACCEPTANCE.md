@@ -357,6 +357,10 @@ completion claim.
   twice when run from the nested directory, while a repository-root preview
   attempts to upload the 1.6 GB monorepo and is rejected at Vercel's 100 MB
   per-file limit. Production remains unchanged.
+- `e746977` removes raw connector argument values from the connectors-list
+  response, redacts recognizable credentials in the command, and reports only
+  the argument count. The Fleet UI now displays that count without rendering
+  argument values.
 
 Validation:
 
@@ -376,6 +380,9 @@ Validation:
 | Sandbox fallback hardening | `python -m pytest -q tests\test_sandbox_macos_probe.py tests\test_sandbox_macos.py tests\test_sandbox_hardened.py tests\test_native_isolation.py` — 20 passed, 14 skipped (native macOS tests cannot execute on this Windows host) |
 | Windows sandbox regressions | `python -m pytest -q tests\test_sandbox_windows.py tests\test_security_remediation.py` — 17 passed, 1 skipped |
 | Static website routes and download UX | `node --test keel\site\tests\*.test.mjs` — 25 passed, including the Ship article clean route and honest unavailable release states |
+| Connector listing redaction | `python -m pytest -q tests\test_mcp_presets.py tests\test_prod_revocation.py` — 10 passed |
+| Connector settings UI E2E | `npx playwright test --config tests\features\capabilities-settings\playwright.config.ts --grep "connectors add, test and remove"` — 1 passed |
+| Fleet UI type-check | `npx tsc --noEmit` — passed |
 | Desktop JavaScript syntax | `node --check desktop\ui\app.js` — passed |
 | Windows sidecar build | `python -m PyInstaller desktop-app\sidecar.spec --noconfirm --distpath dist\keel-sidecar` — passed |
 
