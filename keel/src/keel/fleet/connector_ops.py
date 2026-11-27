@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+from ..redaction import redact_text
 from ..settings import default_state_root, resolve
 
 _GITHUB_CMD = (
@@ -153,10 +154,12 @@ def list_configured() -> dict[str, Any]:
     for name, spec in sorted(servers.items()):
         if not isinstance(spec, dict):
             continue
+        args = spec.get("args")
+        command = str(spec.get("command", ""))
         connectors.append({
             "name": str(name),
-            "command": str(spec.get("command", ""))[:200],
-            "args": [str(a) for a in (spec.get("args") or [])][:8],
+            "command": redact_text(command)[0][:200],
+            "arg_count": len(args) if isinstance(args, list) else 0,
             "env_keys": sorted((spec.get("env") or {}).keys())
             if isinstance(spec.get("env"), dict) else [],
         })

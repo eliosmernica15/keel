@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+from types import SimpleNamespace
+
 import pytest
 
 from keel.fleet import connector_ops
@@ -24,3 +27,30 @@ def test_preset_spec_works_for_local_servers():
     assert memory
     with pytest.raises(ValueError, match="unknown preset"):
         connector_ops.preset_spec("not-real", [], {})
+
+
+def test_connector_listing_never_exposes_argument_or_environment_values(
+    monkeypatch,
+):
+    unrecognized_secret = "opaque-user-supplied-secret-value"
+    command_secret = "sk-or-v1-abcdefghijklmnopqrstuvwxyz"
+    resolved = SimpleNamespace(value={
+        "mcpServers": {
+            "private": {
+                "command": f"node --api-key={command_secret}",
+                "args": ["--credential", unrecognized_secret],
+                "env": {"ACCESS_TOKEN": unrecognized_secret},
+            },
+        },
+    })
+    monkeypatch.setattr(connector_ops, "resolve", lambda **_kwargs: resolved)
+
+    listing = connector_ops.list_configured()
+
+    assert unrecognized_secret not in json.dumps(listing)
+    assert command_secret not in json.dumps(listing)
+    connector = listing["connectors"][0]
+    assert "[REDACTED]" in connector["command"]
+    assert connector["arg_count"] == 2
+    assert connector["env_keys"] == ["ACCESS_TOKEN"]
+    assert "args" not in connector

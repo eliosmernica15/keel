@@ -23,7 +23,7 @@ interface ServerRow {
 interface ConnectorRow {
   name?: string;
   command?: string;
-  args?: string[];
+  arg_count?: number;
   env_keys?: string[];
   type?: string;
   transport?: string;
@@ -293,7 +293,10 @@ export function ConnectorsPanel() {
                       <Badge tone="neutral">{row.type ?? row.transport ?? (row.command ? "stdio" : "type not reported")}</Badge>
                     </div>
                     <p className={s.rowMeta}>{status.reason}</p>
-                    <p className={s.mono}>{row.command ? `${row.command}${(row.args ?? []).length ? ` ${row.args?.join(" ")}` : ""}` : "No command reported"}</p>
+                    <p className={s.mono}>{row.command || "No command reported"}</p>
+                    {Number(row.arg_count) > 0 && (
+                      <p className={s.muted}>{Number(row.arg_count)} argument values hidden</p>
+                    )}
                     {Array.isArray(row.env_keys) && row.env_keys.length > 0 && (
                       <p className={s.muted}>Env vars (values hidden): {row.env_keys.map((k) => <code className={s.code} key={String(k)}>{String(k)}</code>)}</p>
                     )}

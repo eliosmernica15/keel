@@ -146,9 +146,22 @@ test("connectors add, test and remove surface real handshake results and errors"
   consoleErrors,
 }) => {
   void consoleErrors;
-  interface Connector { name: string; command: string; args: string[]; env_keys?: string[] }
+  interface Connector {
+    name: string;
+    command: string;
+    args: string[];
+    arg_count?: number;
+    env_keys?: string[];
+  }
+  const argumentSecret = "opaque-user-supplied-secret-value";
   let configured: Connector[] = [
-    { name: "filesystem", command: "npx", args: ["-y", "@mcp/fs"], env_keys: ["FS_ROOT"] },
+    {
+      name: "filesystem",
+      command: "npx",
+      args: ["--token", argumentSecret],
+      arg_count: 2,
+      env_keys: ["FS_ROOT"],
+    },
   ];
   const mock = await mockBridge(page, {
     handlers: {
@@ -183,6 +196,8 @@ test("connectors add, test and remove surface real handshake results and errors"
   await expect(page.getByRole("heading", { name: "filesystem" })).toBeVisible();
 
   const fsRow = page.locator("li").filter({ hasText: "filesystem" }).first();
+  await expect(fsRow.getByText("2 argument values hidden")).toBeVisible();
+  await expect(fsRow.getByText(argumentSecret)).toHaveCount(0);
   await fsRow.getByRole("button", { name: "Test" }).click();
   await expect(page.getByText("Verified", { exact: true })).toBeVisible();
   await expect(page.getByText("read_file", { exact: true })).toBeVisible();
