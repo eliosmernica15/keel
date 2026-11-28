@@ -63,7 +63,9 @@ test("Fleet agent roster, creation, details config, policy revoke and audit filt
   await drawer.getByLabel("Filter by result").selectOption("timeout");
   await expect(drawer.getByText("No matching decisions")).toBeVisible();
 
+  // Close the details drawer before interacting with controls in the roster beneath it.
   await page.getByRole("button", { name: "Close details" }).click();
+  // Agent deletion is irreversible: require an exact name before calling the bridge.
   await page.getByRole("button", { name: "Select Alpha" }).locator("..").getByRole("button", { name: "Delete" }).click();
   const deleteDialog = page.getByRole("dialog", { name: "Delete Alpha?" });
   const deleteButton = deleteDialog.getByRole("button", { name: "Delete agent" });

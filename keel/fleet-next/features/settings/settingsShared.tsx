@@ -95,8 +95,8 @@ export function readRecord(value: unknown): Record<string, unknown> {
 }
 
 export type SectionId =
-  | "general" | "providers" | "agent-models" | "credentials" | "usage" | "privacy" | "import-export" | "keel-code" | "keel-desktop"
-  | "policies" | "admin" | "network" | "system" | "developer" | "appearance" | "accessibility" | "reset"
+  | "general" | "providers" | "usage" | "privacy" | "import-export" | "keel-code" | "keel-desktop"
+  | "policies" | "admin" | "system" | "developer" | "appearance" | "accessibility" | "reset"
   | "skills" | "commands" | "workflows" | "mcp-servers" | "plugins";
 
 export interface SectionDef {
@@ -113,19 +113,16 @@ export interface SectionDef {
 export const SETTINGS_SECTIONS: SectionDef[] = [
   // SETTINGS
   { id: "general", title: "General", category: "SETTINGS", description: "Your account, this device and general preferences.", keywords: "account device general preferences local", icon: "user" },
-  { id: "providers", title: "Providers & models", category: "SETTINGS", description: "Configured providers and the model catalogue.", keywords: "provider model catalogue", icon: "spark" },
-  { id: "agent-models", title: "Agent models", category: "SETTINGS", description: "Choose a model for each provider-backed agent.", keywords: "agent model per-agent", icon: "agents" },
-  { id: "credentials", title: "Credentials", category: "SETTINGS", description: "Manage provider keys stored on this machine or in the current bridge session.", keywords: "credentials api keys provider secrets", icon: "shield" },
+  { id: "providers", title: "Providers", category: "SETTINGS", description: "Configured providers and the model catalogue.", keywords: "provider model api key catalogue", icon: "spark" },
   { id: "usage", title: "Usage", category: "SETTINGS", description: "Usage totals reported by the bridge.", keywords: "usage tokens requests cost", icon: "clock" },
-  { id: "privacy", title: "Privacy & data", category: "SETTINGS", description: "Privacy and local-first data handling.", keywords: "privacy data retention storage", icon: "shield" },
+  { id: "privacy", title: "Privacy", category: "SETTINGS", description: "Privacy and local-first data handling.", keywords: "privacy data retention storage", icon: "shield" },
   { id: "import-export", title: "Import & export", category: "SETTINGS", description: "Import and export settings and data.", keywords: "import export backup restore", icon: "download" },
   { id: "keel-code", title: "Keel Code", category: "SETTINGS", description: "Keel Code integration settings.", keywords: "keel code", icon: "code" },
   { id: "keel-desktop", title: "Keel Desktop", category: "SETTINGS", description: "Keel Desktop application settings.", keywords: "keel desktop electron", icon: "panel" },
   // THIS COMPUTER
-  { id: "policies", title: "Permission mode", category: "THIS COMPUTER", description: "Permission mode for new composer sessions.", keywords: "policy permission mode", icon: "shield" },
-  { id: "admin", title: "Workspace trust", category: "THIS COMPUTER", description: "Review and manage trusted workspaces.", keywords: "admin trust workspace projects", icon: "settings" },
-  { id: "network", title: "Network & egress", category: "THIS COMPUTER", description: "Network egress capabilities exposed by this build.", keywords: "network egress domains rules", icon: "link" },
-  { id: "system", title: "System diagnostics", category: "THIS COMPUTER", description: "System diagnostics and updates.", keywords: "system diagnostics updates health", icon: "info" },
+  { id: "policies", title: "Policies", category: "THIS COMPUTER", description: "Permission and tool policies for this machine.", keywords: "policy permission mode", icon: "shield" },
+  { id: "admin", title: "Admin", category: "THIS COMPUTER", description: "Admin and workspace trust settings.", keywords: "admin trust workspace", icon: "settings" },
+  { id: "system", title: "System", category: "THIS COMPUTER", description: "System diagnostics and updates.", keywords: "system diagnostics updates health", icon: "info" },
   { id: "developer", title: "Developer", category: "THIS COMPUTER", description: "Developer tools and options.", keywords: "developer debug", icon: "terminal" },
   { id: "appearance", title: "Appearance", category: "THIS COMPUTER", description: "Theme and display preferences.", keywords: "theme dark light system", icon: "sun" },
   { id: "accessibility", title: "Accessibility", category: "THIS COMPUTER", description: "Motion, contrast and keyboard accessibility.", keywords: "accessibility motion contrast keyboard", icon: "info" },

@@ -20,7 +20,7 @@ import type {
   ShellHandle,
   Skill,
   SlashCommand,
-  Usage,
+  UsageResponse,
 } from "./types";
 
 export { api };
@@ -155,7 +155,7 @@ export const bridge = {
   testConnector: (payload: unknown) => api("connectors/test", { method: "POST", body: JSON.stringify(payload) }),
 
   /* system */
-  usage: () => api<Usage>("usage"),
+  usage: () => api<UsageResponse>("usage"),
   keepAwake: (enabled?: boolean) =>
     enabled === undefined
       ? api<boolean>("keep-awake")

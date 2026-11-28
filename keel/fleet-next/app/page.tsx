@@ -145,10 +145,18 @@ function CommandPalette({ open, onClose, commands }: { open: boolean; onClose: (
 
 function Shell() {
   const app = useApp();
+  // Keep the first client render identical to the server; apply hash links
+  // after hydration so direct settings links do not cause a hydration mismatch.
   const [destination, setDestination] = useState<Destination>("cowork");
   const deepLinkRef = useRef<Destination | null>(null);
   const surfaceRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const { status: bridgeStatus, detail: bridgeDetail, probe } = useBridgeStatus();
+
+  // AppProvider hydrates the persisted surface after mount. Mirror it here so
+  // reloading restores the work surface — unless a hash deep link won.
+  useEffect(() => {
+    if (!deepLinkRef.current) setDestination(app.surface);
+  }, [app.surface]);
 
   // Settings owns the section id; the shell only picks the destination.
   useEffect(() => {
@@ -167,26 +175,14 @@ function Shell() {
     return () => window.removeEventListener("hashchange", applyDeepLink);
   }, []);
 
-  // AppProvider hydrates the persisted surface after mount. Mirror it here so
-  // reloading restores the work surface — unless a hash deep link won.
-  useEffect(() => {
-    if (!deepLinkRef.current) setDestination(app.surface);
-  }, [app.surface]);
-
   const goto = useCallback((d: Destination) => {
     setDestination(d);
-    if (d === "settings" || d === "capabilities") {
-      deepLinkRef.current = d;
-      if ((d === "settings" && window.location.hash === "#capabilities") ||
-          (d === "capabilities" && /^#settings-/.test(window.location.hash))) {
-        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
-      }
-    } else {
+    if (d !== "capabilities" && d !== "settings") {
       deepLinkRef.current = null;
-      if (/^#settings-/.test(window.location.hash) || window.location.hash === "#capabilities") {
+      app.setSurface(d);
+      if (window.location.hash === "#capabilities" || window.location.hash.startsWith("#settings-")) {
         window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
       }
-      app.setSurface(d);
     }
     if (window.innerWidth <= 1100) app.setSidebarOpen(false);
   // Only stable setters belong here; depending on the whole `app` object made
@@ -214,7 +210,7 @@ function Shell() {
     setCreatingTask(true);
     try {
       const result = await bridge.createBot({
-        name: `New task \u00b7 ${new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`,
+        name: "Untitled task",
         role: "",
         engine: "provider",
         notes: "",

@@ -1,37 +1,30 @@
 "use client";
 
-// Settings — sidebar navigation + card-based main content matching the
-// settings screenshot. Sidebar groups: SETTINGS · THIS COMPUTER · CUSTOMIZE.
-// Each section renders as a card (title, description, toggle/button controls)
-// in the main content area. "General" is selected by default.
+// Settings navigation and functional preference panels. Unsupported controls
+// stay out of the UI; General links to the settings this build actually provides.
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Button, Card, EmptyState } from "@/components/ui";
 import { Icon } from "@/components/icons";
+import { bridge } from "@/lib/api";
+import { useApp } from "@/lib/state";
 import s from "./settings.module.css";
-import { SETTINGS_SECTIONS, type SectionId } from "./settingsShared";
+import { PanelState, SETTINGS_SECTIONS, useBridgeData, type SectionId } from "./settingsShared";
 import { AgentModelsPanel, CredentialsPanel, ProvidersPanel } from "./ProvidersSettings";
 import { AccessibilityPanel, AppearancePanel, ResetPanel } from "./PreferencesSettings";
-import { NetworkPanel, PermissionsPanel, TrustPanel } from "./SecuritySettings";
 import { DiagnosticsPanel, PrivacyPanel, UpdatesPanel } from "./SystemSettings";
 
 const CATEGORY_ORDER = ["SETTINGS", "THIS COMPUTER", "CUSTOMIZE"] as const;
 
 export default function Settings({ onClose }: { onClose: () => void }) {
+  const { notify, setSurface } = useApp() as { notify: (message: string, kind?: "error" | "warning" | "info" | "success") => void; setSurface: (surface: "cowork" | "code" | "duet" | "fleet") => void };
   const [active, setActive] = useState<SectionId>("general");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     const applyHash = () => {
       const id = window.location.hash.replace(/^#settings-/, "");
-      const aliases: Record<string, SectionId> = {
-        diagnostics: "system",
-        trust: "admin",
-        permissions: "policies",
-      };
-      const target = aliases[id] ?? id;
-      const section = SETTINGS_SECTIONS.find((candidate) => candidate.id === target);
-      if (section) setActive(section.id);
+      if (SETTINGS_SECTIONS.some((section) => section.id === id)) setActive(id as SectionId);
     };
     applyHash();
     window.addEventListener("hashchange", applyHash);
@@ -62,8 +55,6 @@ export default function Settings({ onClose }: { onClose: () => void }) {
   function renderSection(id: SectionId) {
     switch (id) {
       case "providers": return <ProvidersPanel />;
-      case "agent-models": return <AgentModelsPanel />;
-      case "credentials": return <CredentialsPanel />;
       case "usage": return <UsagePanel />;
       case "appearance": return <AppearancePanel />;
       case "accessibility": return <AccessibilityPanel />;
@@ -72,9 +63,8 @@ export default function Settings({ onClose }: { onClose: () => void }) {
       case "import-export": return <StubPanel title="Import & export" note="Import and export routes are not exposed by this bridge build." />;
       case "keel-code": return <StubPanel title="Keel Code" note="Keel Code settings are managed on the Code surface." />;
       case "keel-desktop": return <StubPanel title="Keel Desktop" note="Keel Desktop is a separate application; its settings live in the desktop shell." />;
-      case "policies": return <PermissionsPanel />;
-      case "admin": return <TrustPanel />;
-      case "network": return <NetworkPanel />;
+      case "policies": return <PoliciesPanel notify={notify} />;
+      case "admin": return <AdminPanel notify={notify} onOpenProjects={() => setSurface("code")} />;
       case "system": return (
         <>
           <DiagnosticsPanel />
@@ -143,24 +133,17 @@ export default function Settings({ onClose }: { onClose: () => void }) {
 
       <main className={s.main}>
         <header className={s.header}>
-          <nav className={s.breadcrumb} aria-label="Breadcrumb">
-            <span>{current.id === "providers" || current.id === "agent-models" || current.id === "credentials"
-              ? "Models & providers"
-              : current.category}</span>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">{current.title}</span>
-          </nav>
           <h1>{current.title}</h1>
           <p>{current.description}</p>
         </header>
-        <section className={s.content} aria-label={current.title}>
+        <div className={s.content} aria-label={current.title}>
           {isGeneral && (
             <>
               <AccountCard />
               <SectionHeader label="LOCAL PREFERENCES" title="Make Keel yours" />
               <Card className={s.settingCard}>
-                <h3>Appearance and accessibility</h3>
-                <p className={s.cardDesc}>These controls reflect preferences the app shell can apply. Unsupported controls are not shown.</p>
+                <h3>Appearance, accessibility and reset controls</h3>
+                <p className={s.cardDesc}>Appearance and layout preferences stay on this device. Motion and keyboard behavior follow your operating system.</p>
                 <div className={s.controls}>
                   <Button size="sm" variant="secondary" onClick={() => select("appearance")}>Appearance</Button>
                   <Button size="sm" variant="secondary" onClick={() => select("accessibility")}>Accessibility</Button>
@@ -178,7 +161,7 @@ export default function Settings({ onClose }: { onClose: () => void }) {
           {matches.length === 0 && !isGeneral && (
             <EmptyState icon={<Icon name="search" />} title="No matching settings" description="Try another term, or clear the search to see every category." />
           )}
-        </section>
+        </div>
       </main>
     </div>
   );
@@ -220,24 +203,95 @@ function StubPanel({ title, note }: { title: string; note: string }) {
   );
 }
 
-// Usage — usage counters card.
-function UsagePanel() {
+// Policies — permission mode (local preference).
+function PoliciesPanel({ notify }: { notify: (message: string, kind?: "error" | "warning" | "info" | "success") => void }) {
+  type PermissionMode = "build" | "acceptEdits" | "plan" | "autopilot";
+  const [mode, setMode] = useState<PermissionMode>("build");
+  const MODES: Array<{ value: PermissionMode; label: string }> = [
+    { value: "build", label: "Build" },
+    { value: "acceptEdits", label: "Accept edits" },
+    { value: "plan", label: "Plan" },
+    { value: "autopilot", label: "Autopilot" },
+  ];
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("keel-mode");
+      if (saved === "build" || saved === "acceptEdits" || saved === "plan" || saved === "autopilot") setMode(saved);
+    } catch { /* local preferences remain optional */ }
+  }, []);
   return (
     <Card className={s.settingCard}>
       <div className={s.settingHead}>
-        <h3 className={s.cardTitle}>Usage reported by the bridge</h3>
+        <h3 className={s.cardTitle}>Permission mode</h3>
       </div>
-      <p className={s.cardDesc}>Approximate totals across finished turns on this install, not a per-project bill.</p>
+      <p className={s.cardDesc}>Choose how much the agent may do before asking you. A local preference; the bridge retains its own allow/ask/deny checks.</p>
       <div className={s.controls}>
-        <dl className={s.usageGrid}>
-          <div><dt>Input tokens</dt><dd className={s.mono}>—</dd></div>
-          <div><dt>Output tokens</dt><dd className={s.mono}>—</dd></div>
-          <div><dt>Requests</dt><dd className={s.mono}>—</dd></div>
-          <div><dt>Cost</dt><dd className={s.mono}>—</dd></div>
-        </dl>
-        <p className={s.muted}>The bridge returned no numeric usage fields. Cost is shown only if the bridge reports it.</p>
+        {MODES.map((m) => (
+          <button
+            key={m.value}
+            type="button"
+            className={`${s.modeChip} ${mode === m.value ? s.modeChipActive : ""}`}
+            onClick={() => {
+              setMode(m.value);
+              try { localStorage.setItem("keel-mode", m.value); } catch { /* local preferences remain optional */ }
+              notify(`Permission mode set to ${m.label}.`, "success");
+            }}
+          >
+            {m.label}
+          </button>
+        ))}
       </div>
     </Card>
+  );
+}
+
+// Admin — workspace trust placeholder.
+function AdminPanel({ notify, onOpenProjects }: { notify: (message: string, kind?: "error" | "warning" | "info" | "success") => void; onOpenProjects: () => void }) {
+  return (
+    <Card className={s.settingCard}>
+      <div className={s.settingHead}>
+        <h3 className={s.cardTitle}>Workspace trust</h3>
+      </div>
+      <p className={s.cardDesc}>Keel only reads and writes folders you have explicitly trusted. Trust is stored by the bridge and can be revoked here.</p>
+      <div className={s.controls}>
+        <Button size="sm" onClick={() => {
+          onOpenProjects();
+          notify("Open the project list in Code to manage folder trust.", "info");
+        }}>Manage trusted folders</Button>
+      </div>
+    </Card>
+  );
+}
+
+// Usage — totals come from the bridge, and unsupported metrics stay explicit.
+function UsagePanel() {
+  const query = useBridgeData(() => bridge.usage());
+  return (
+    <PanelState query={query}>
+      {({ usage }) => {
+        const value = (amount: number | undefined) =>
+          typeof amount === "number" && Number.isFinite(amount) ? amount.toLocaleString() : "Not reported";
+        return (
+          <Card className={s.settingCard}>
+            <div className={s.settingHead}>
+              <h3 className={s.cardTitle}>Usage reported by the bridge</h3>
+              <Button size="sm" variant="secondary" onClick={query.reload}>Refresh</Button>
+            </div>
+            <p className={s.cardDesc}>Aggregate token totals across this Keel install. They are not a per-project bill.</p>
+            <div className={s.controls}>
+              <dl className={s.usageGrid}>
+                <div><dt>Input tokens</dt><dd>{value(usage?.input_tokens)}</dd></div>
+                <div><dt>Output tokens</dt><dd>{value(usage?.output_tokens)}</dd></div>
+                <div><dt>Cache read tokens</dt><dd>{value(usage?.cache_read_input_tokens)}</dd></div>
+                <div><dt>Cache creation tokens</dt><dd>{value(usage?.cache_creation_input_tokens)}</dd></div>
+                <div><dt>Cost</dt><dd>{value(usage?.cost)}</dd></div>
+              </dl>
+              <p className={s.muted}>Cost is shown only when the provider reports it. Keel does not estimate a price from token counts.</p>
+            </div>
+          </Card>
+        );
+      }}
+    </PanelState>
   );
 }
 

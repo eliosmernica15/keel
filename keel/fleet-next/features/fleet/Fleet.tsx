@@ -29,7 +29,7 @@ type Tab = "agents" | "groups" | "tasks" | "board" | "org" | "live" | "cost" | "
 // real data yet; show them only when their backing data exists.
 const TABS: Array<{ value: Tab; label: string; icon: IconName; hidden?: boolean }> = [
   { value: "agents", label: "Agents", icon: "agents" },
-  { value: "groups", label: "Groups", icon: "fleet" },
+  { value: "groups", label: "Groups", icon: "fleet", hidden: true },
   { value: "tasks", label: "Tasks", icon: "tasks" },
   { value: "board", label: "Board", icon: "tasks" },
   { value: "cost", label: "Cost", icon: "info" },

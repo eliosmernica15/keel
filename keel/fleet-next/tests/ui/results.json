@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T23:56:57.464Z",
+  "generatedAt": "2026-11-25T21:15:05.702Z",
   "app": "fleet-next",
   "summary": {
     "info": 1,
@@ -13,15 +13,15 @@
       "fleet-next/app/manifest.ts",
       "fleet-next/app/page.tsx",
       "fleet-next/components/ErrorBoundary.tsx",
-      "fleet-next/components/icons.tsx",
       "fleet-next/components/PwaRegister.tsx",
+      "fleet-next/components/icons.tsx",
       "fleet-next/components/ui.tsx",
       "fleet-next/features/capabilities/Capabilities.tsx",
-      "fleet-next/features/capabilities/capabilitiesShared.tsx",
       "fleet-next/features/capabilities/McpPanel.tsx",
       "fleet-next/features/capabilities/SkillsPanel.tsx",
       "fleet-next/features/capabilities/ToolsCommandsPanel.tsx",
       "fleet-next/features/capabilities/WorkflowsExtensionsPanel.tsx",
+      "fleet-next/features/capabilities/capabilitiesShared.tsx",
       "fleet-next/features/code/Code.tsx",
       "fleet-next/features/code/workspace.tsx",
       "fleet-next/features/cowork/Composer.tsx",
@@ -29,9 +29,9 @@
       "fleet-next/features/cowork/LiveStream.tsx",
       "fleet-next/features/cowork/Markdown.tsx",
       "fleet-next/features/cowork/Search.tsx",
-      "fleet-next/features/cowork/shared.ts",
       "fleet-next/features/cowork/Timeline.tsx",
       "fleet-next/features/cowork/WorkLog.tsx",
+      "fleet-next/features/cowork/shared.ts",
       "fleet-next/features/duet/Duet.tsx",
       "fleet-next/features/duet/reviewPair.tsx",
       "fleet-next/features/fleet/Activity.tsx",
@@ -47,18 +47,18 @@
       "fleet-next/features/fleet/LiveWall.tsx",
       "fleet-next/features/fleet/OrgChart.tsx",
       "fleet-next/features/fleet/Routines.tsx",
-      "fleet-next/features/fleet/support.ts",
       "fleet-next/features/fleet/Tasks.tsx",
+      "fleet-next/features/fleet/support.ts",
       "fleet-next/features/onboarding/HelpCenter.tsx",
       "fleet-next/features/onboarding/Onboarding.tsx",
-      "fleet-next/features/onboarding/progress.ts",
       "fleet-next/features/onboarding/SetupChecklist.tsx",
+      "fleet-next/features/onboarding/progress.ts",
       "fleet-next/features/settings/PreferencesSettings.tsx",
       "fleet-next/features/settings/ProvidersSettings.tsx",
       "fleet-next/features/settings/SecuritySettings.tsx",
       "fleet-next/features/settings/Settings.tsx",
-      "fleet-next/features/settings/settingsShared.tsx",
       "fleet-next/features/settings/SystemSettings.tsx",
+      "fleet-next/features/settings/settingsShared.tsx",
       "fleet-next/lib/api.ts",
       "fleet-next/lib/client.ts",
       "fleet-next/lib/state.tsx",
@@ -85,598 +85,612 @@
   },
   "frontendEndpoints": [
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\features\\code\\workspace.tsx",
+      "file": "/vercel/share/v0-project/keel/fleet-next/features/code/workspace.tsx",
       "line": 1145,
       "raw": "/api/fleet/shells",
       "path": "/api/fleet/shells",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\features\\cowork\\Composer.tsx",
+      "file": "/vercel/share/v0-project/keel/fleet-next/features/cowork/Composer.tsx",
       "line": 134,
       "raw": "/api/bridge/library",
       "path": "/api/fleet/library",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\features\\fleet\\Board.tsx",
+      "file": "/vercel/share/v0-project/keel/fleet-next/features/fleet/Board.tsx",
       "line": 75,
       "raw": "tasks/${id}/assign",
       "path": "/api/fleet/tasks/*/assign",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\features\\fleet\\Tasks.tsx",
+      "file": "/vercel/share/v0-project/keel/fleet-next/features/fleet/Tasks.tsx",
       "line": 92,
       "raw": "tasks/${id}/assign",
       "path": "/api/fleet/tasks/*/assign",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\features\\fleet\\Tasks.tsx",
+      "file": "/vercel/share/v0-project/keel/fleet-next/features/fleet/Tasks.tsx",
       "line": 103,
       "raw": "tasks/${id}/cancel",
       "path": "/api/fleet/tasks/*/cancel",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\features\\settings\\SystemSettings.tsx",
+      "file": "/vercel/share/v0-project/keel/fleet-next/features/settings/SystemSettings.tsx",
       "line": 93,
       "raw": "mcp/health",
       "path": "/api/fleet/mcp/health",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 60,
       "raw": "bots",
       "path": "/api/fleet/bots",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 61,
       "raw": "bots/${id}/rows",
       "path": "/api/fleet/bots/*/rows",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 62,
       "raw": "bots",
       "path": "/api/fleet/bots",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 63,
       "raw": "bots/${id}/update",
       "path": "/api/fleet/bots/*/update",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 64,
       "raw": "bots/${id}/delete",
       "path": "/api/fleet/bots/*/delete",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 65,
       "raw": "bots/${id}/fork",
       "path": "/api/fleet/bots/*/fork",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 66,
       "raw": "bots/${id}/messages",
       "path": "/api/fleet/bots/*/messages",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 67,
       "raw": "bots/${id}/cancel",
       "path": "/api/fleet/bots/*/cancel",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 70,
       "raw": "bots/${id}/approvals/${approvalId}/decide",
       "path": "/api/fleet/bots/*/approvals/*/decide",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 72,
       "raw": "bots/${id}/asks/${askId}/answer",
       "path": "/api/fleet/bots/*/asks/*/answer",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 73,
       "raw": "bots/${id}/rewind",
       "path": "/api/fleet/bots/*/rewind",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 74,
       "raw": "bots/${id}/restore",
       "path": "/api/fleet/bots/*/restore",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 75,
       "raw": "bots/${id}/policies",
       "path": "/api/fleet/bots/*/policies",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 76,
       "raw": "bots/${id}/audit?limit=${limit}",
       "path": "/api/fleet/bots/*/audit",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 78,
       "raw": "bots/${id}/policies/revoke",
       "path": "/api/fleet/bots/*/policies/revoke",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 81,
       "raw": "groups",
       "path": "/api/fleet/groups",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 82,
       "raw": "groups",
       "path": "/api/fleet/groups",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 83,
       "raw": "groups/${id}",
       "path": "/api/fleet/groups/*",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 84,
       "raw": "groups/${id}/rows",
       "path": "/api/fleet/groups/*/rows",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 86,
       "raw": "groups/${id}/messages",
       "path": "/api/fleet/groups/*/messages",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 87,
       "raw": "groups/${id}/delete",
       "path": "/api/fleet/groups/*/delete",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 90,
       "raw": "providers",
       "path": "/api/fleet/providers",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 91,
       "raw": "providers/catalog",
       "path": "/api/fleet/providers/catalog",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 92,
       "raw": "providers/credential",
       "path": "/api/fleet/providers/credential",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 93,
       "raw": "providers/credential/clear",
       "path": "/api/fleet/providers/credential/clear",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 94,
       "raw": "providers/save",
       "path": "/api/fleet/providers/save",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 95,
       "raw": "providers/remove",
       "path": "/api/fleet/providers/remove",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 98,
       "raw": "projects",
       "path": "/api/fleet/projects",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 99,
       "raw": "projects",
       "path": "/api/fleet/projects",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 100,
       "raw": "projects/${id}/trust",
       "path": "/api/fleet/projects/*/trust",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 101,
       "raw": "projects/${id}/remove",
       "path": "/api/fleet/projects/*/remove",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 102,
       "raw": "projects/${id}/open",
       "path": "/api/fleet/projects/*/open",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 103,
       "raw": "projects/${id}/chat",
       "path": "/api/fleet/projects/*/chat",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 104,
       "raw": "projects/${id}/tree",
       "path": "/api/fleet/projects/*/tree",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 105,
       "raw": "projects/${id}/file/read?path=${encodeURIComponent(path)}",
       "path": "/api/fleet/projects/*/file/read",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 107,
       "raw": "projects/${id}/file/write",
       "path": "/api/fleet/projects/*/file/write",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 108,
       "raw": "projects/${id}/review",
       "path": "/api/fleet/projects/*/review",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 110,
       "raw": "projects/${id}/terminal/exec",
       "path": "/api/fleet/projects/*/terminal/exec",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 112,
       "raw": "projects/${id}/model",
       "path": "/api/fleet/projects/*/model",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 115,
       "raw": "shells",
       "path": "/api/fleet/shells",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 116,
       "raw": "shells/${handle}/output",
       "path": "/api/fleet/shells/*/output",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 117,
       "raw": "shells/${handle}/kill",
       "path": "/api/fleet/shells/*/kill",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 119,
       "raw": "shells/clear/finished",
       "path": "/api/fleet/shells/clear/finished",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 122,
       "raw": "tasks",
       "path": "/api/fleet/tasks",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 123,
       "raw": "tasks",
       "path": "/api/fleet/tasks",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 124,
       "raw": "tasks/${id}/update",
       "path": "/api/fleet/tasks/*/update",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 125,
       "raw": "tasks/${id}/undo",
       "path": "/api/fleet/tasks/*/undo",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 126,
       "raw": "tasks/${id}/delete",
       "path": "/api/fleet/tasks/*/delete",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 127,
       "raw": "tasks/reorder",
       "path": "/api/fleet/tasks/reorder",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 128,
       "raw": "routines",
       "path": "/api/fleet/routines",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 129,
       "raw": "routines",
       "path": "/api/fleet/routines",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 130,
       "raw": "routines/${id}",
       "path": "/api/fleet/routines/*",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 131,
       "raw": "routines/${id}/runs",
       "path": "/api/fleet/routines/*/runs",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 133,
       "raw": "routines/${id}/${action}",
       "path": "/api/fleet/routines/*/*",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 134,
       "raw": "routines/${id}/run",
       "path": "/api/fleet/routines/*/run",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 135,
       "raw": "tasks/${id}/events",
       "path": "/api/fleet/tasks/*/events",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 136,
       "raw": "library",
       "path": "/api/fleet/library",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 137,
       "raw": "library",
       "path": "/api/fleet/library",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 138,
       "raw": "library/${id}/delete",
       "path": "/api/fleet/library/*/delete",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 141,
       "raw": "skills",
       "path": "/api/fleet/skills",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 142,
       "raw": "skills/manage",
       "path": "/api/fleet/skills/manage",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 143,
       "raw": "skills/install",
       "path": "/api/fleet/skills/install",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 144,
       "raw": "skills/remove",
       "path": "/api/fleet/skills/remove",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 145,
       "raw": "skills/enable",
       "path": "/api/fleet/skills/enable",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 146,
       "raw": "commands",
       "path": "/api/fleet/commands",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 147,
       "raw": "commands/execute",
       "path": "/api/fleet/commands/execute",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 148,
       "raw": "workflows",
       "path": "/api/fleet/workflows",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 149,
       "raw": "workflows/execute",
       "path": "/api/fleet/workflows/execute",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 150,
       "raw": "mcp/servers",
       "path": "/api/fleet/mcp/servers",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 151,
       "raw": "mcp/health",
       "path": "/api/fleet/mcp/health",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 152,
       "raw": "connectors",
       "path": "/api/fleet/connectors",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 153,
       "raw": "connectors/add",
       "path": "/api/fleet/connectors/add",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 154,
       "raw": "connectors/remove",
       "path": "/api/fleet/connectors/remove",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 155,
       "raw": "connectors/test",
       "path": "/api/fleet/connectors/test",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 158,
       "raw": "usage",
       "path": "/api/fleet/usage",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 161,
       "raw": "keep-awake",
       "path": "/api/fleet/keep-awake",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 162,
       "raw": "keep-awake",
       "path": "/api/fleet/keep-awake",
       "method": "POST"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 2,
       "raw": "/api/bridge/*",
       "path": "/api/fleet/*",
       "method": "GET"
     },
     {
-      "file": "C:\\Users\\Admin\\Desktop\\Claude clone\\keel\\fleet-next\\lib\\api.ts",
+      "file": "/vercel/share/v0-project/keel/fleet-next/lib/api.ts",
       "line": 174,
       "raw": "/api/bridge/events",
       "path": "/api/fleet/events",
+      "method": "GET"
+    },
+    {
+      "file": "/vercel/share/v0-project/keel/fleet-next/scripts/verify-standalone.mjs",
+      "line": 79,
+      "raw": "/api/fleet/events",
+      "path": "/api/fleet/events",
+      "method": "GET"
+    },
+    {
+      "file": "/vercel/share/v0-project/keel/fleet-next/scripts/verify-standalone.mjs",
+      "line": 138,
+      "raw": "/api/fleet/providers?x=1",
+      "path": "/api/fleet/providers",
       "method": "GET"
     }
   ],
@@ -694,31 +708,31 @@
         "fleet-next/app/page.tsx",
         "fleet-next/app/ui.css",
         "fleet-next/components/ErrorBoundary.tsx",
-        "fleet-next/components/icons.tsx",
         "fleet-next/components/PwaRegister.tsx",
+        "fleet-next/components/icons.tsx",
         "fleet-next/components/ui.tsx",
-        "fleet-next/features/capabilities/capabilities.module.css",
         "fleet-next/features/capabilities/Capabilities.tsx",
-        "fleet-next/features/capabilities/capabilitiesShared.tsx",
         "fleet-next/features/capabilities/McpPanel.tsx",
         "fleet-next/features/capabilities/SkillsPanel.tsx",
         "fleet-next/features/capabilities/ToolsCommandsPanel.tsx",
         "fleet-next/features/capabilities/WorkflowsExtensionsPanel.tsx",
-        "fleet-next/features/code/code.module.css",
+        "fleet-next/features/capabilities/capabilities.module.css",
+        "fleet-next/features/capabilities/capabilitiesShared.tsx",
         "fleet-next/features/code/Code.tsx",
+        "fleet-next/features/code/code.module.css",
         "fleet-next/features/code/workspace.module.css",
         "fleet-next/features/code/workspace.tsx",
         "fleet-next/features/cowork/Composer.tsx",
-        "fleet-next/features/cowork/cowork.module.css",
         "fleet-next/features/cowork/Cowork.tsx",
         "fleet-next/features/cowork/LiveStream.tsx",
         "fleet-next/features/cowork/Markdown.tsx",
         "fleet-next/features/cowork/Search.tsx",
-        "fleet-next/features/cowork/shared.ts",
         "fleet-next/features/cowork/Timeline.tsx",
         "fleet-next/features/cowork/WorkLog.tsx",
-        "fleet-next/features/duet/duet.module.css",
+        "fleet-next/features/cowork/cowork.module.css",
+        "fleet-next/features/cowork/shared.ts",
         "fleet-next/features/duet/Duet.tsx",
+        "fleet-next/features/duet/duet.module.css",
         "fleet-next/features/duet/reviewPair.tsx",
         "fleet-next/features/fleet/Activity.tsx",
         "fleet-next/features/fleet/AgentDetails.tsx",
@@ -727,27 +741,27 @@
         "fleet-next/features/fleet/Bits.tsx",
         "fleet-next/features/fleet/Board.tsx",
         "fleet-next/features/fleet/CostPanel.tsx",
-        "fleet-next/features/fleet/fleet.module.css",
         "fleet-next/features/fleet/Fleet.tsx",
         "fleet-next/features/fleet/Groups.tsx",
         "fleet-next/features/fleet/Library.tsx",
         "fleet-next/features/fleet/LiveWall.tsx",
         "fleet-next/features/fleet/OrgChart.tsx",
         "fleet-next/features/fleet/Routines.tsx",
-        "fleet-next/features/fleet/support.ts",
         "fleet-next/features/fleet/Tasks.tsx",
+        "fleet-next/features/fleet/fleet.module.css",
+        "fleet-next/features/fleet/support.ts",
         "fleet-next/features/onboarding/HelpCenter.tsx",
-        "fleet-next/features/onboarding/onboarding.module.css",
         "fleet-next/features/onboarding/Onboarding.tsx",
-        "fleet-next/features/onboarding/progress.ts",
         "fleet-next/features/onboarding/SetupChecklist.tsx",
+        "fleet-next/features/onboarding/onboarding.module.css",
+        "fleet-next/features/onboarding/progress.ts",
         "fleet-next/features/settings/PreferencesSettings.tsx",
         "fleet-next/features/settings/ProvidersSettings.tsx",
         "fleet-next/features/settings/SecuritySettings.tsx",
-        "fleet-next/features/settings/settings.module.css",
         "fleet-next/features/settings/Settings.tsx",
-        "fleet-next/features/settings/settingsShared.tsx",
         "fleet-next/features/settings/SystemSettings.tsx",
+        "fleet-next/features/settings/settings.module.css",
+        "fleet-next/features/settings/settingsShared.tsx",
         "fleet-next/lib/api.ts",
         "fleet-next/lib/client.ts",
         "fleet-next/lib/state.tsx",
@@ -771,7 +785,7 @@
       "id": "API-01",
       "check": "Every frontend bridge call maps to a backend route",
       "status": "pass",
-      "detail": "85 call sites inspected; 0 unmapped endpoints",
+      "detail": "87 call sites inspected; 0 unmapped endpoints",
       "evidence": []
     },
     {
@@ -836,50 +850,17 @@
       "status": "pass",
       "detail": "11 endpoint(s) probed; 0 anomalous",
       "evidence": [
-        {
-          "path": "bots",
-          "status": 200
-        },
-        {
-          "path": "providers",
-          "status": 200
-        },
-        {
-          "path": "projects",
-          "status": 200
-        },
-        {
-          "path": "shells",
-          "status": 200
-        },
-        {
-          "path": "tasks",
-          "status": 200
-        },
-        {
-          "path": "routines",
-          "status": 200
-        },
-        {
-          "path": "library",
-          "status": 200
-        },
-        {
-          "path": "skills",
-          "status": 200
-        },
-        {
-          "path": "connectors",
-          "status": 200
-        },
-        {
-          "path": "usage",
-          "status": 200
-        },
-        {
-          "path": "keep-awake",
-          "status": 200
-        }
+        { "path": "bots", "status": 200 },
+        { "path": "providers", "status": 200 },
+        { "path": "projects", "status": 200 },
+        { "path": "shells", "status": 200 },
+        { "path": "tasks", "status": 200 },
+        { "path": "routines", "status": 200 },
+        { "path": "library", "status": 200 },
+        { "path": "skills", "status": 200 },
+        { "path": "connectors", "status": 200 },
+        { "path": "usage", "status": 200 },
+        { "path": "keep-awake", "status": 200 }
       ]
     },
     {
