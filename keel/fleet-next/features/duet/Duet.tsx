@@ -573,9 +573,9 @@ function DuetWorkspace() {
         )}
 
         <main className={s.main} aria-label="Duet active workspace">
-          {/* Review pair reads bots/rows, not project files, so it is available
-              without trusting a folder. It never edits or executes anything. */}
-          {activeTab?.kind === "pair" ? (
+          {/* Pair mode can drive a build, so it requires the same explicit
+              project trust gate as the rest of the workspace. */}
+          {activeTab?.kind === "pair" && trusted ? (
             <section className={s.pane}>
               <PairWorkbench projectId={selectedId} trusted={trusted} notify={notify} />
             </section>

@@ -23,7 +23,9 @@ Scope and limitations, stated plainly:
 * **Credentials are never sent to the page by the agent and never logged.**
   Credential-shaped values and sensitive fields are blocked; login/2FA/
   payment/sensitive steps require an explicit human ``handoff`` followed by
-  an explicit user-confirmed ``resume``.
+  ``resume`` validated by a host-supplied confirmation provider. A caller
+  cannot self-assert user confirmation: with no provider configured, resume
+  fails closed.
 
 Nothing in this module launches a process, writes outside an explicit artifact
 directory, or performs network I/O on import. DNS resolution is injected and
@@ -36,6 +38,7 @@ import html
 import importlib
 import ipaddress
 import re
+import secrets
 import socket
 import threading
 import time
@@ -158,7 +161,7 @@ _INJECTION = re.compile(
     r"(?i)(?:ignore (?:all )?(?:previous|prior|above) instructions|"
     r"disregard (?:the )?(?:system|developer) (?:prompt|message)|"
     r"you must now|new system prompt|"
-    r"(?:add|allow|whitelist|whitelist)\b.{0,40}\b(?:allowlist|domain|origin|site)\b|"
+    r"(?:add|allow|whitelist|allowlist)\b.{0,40}\b(?:allowlist|domain|origin|site)\b|"
     r"send (?:me |us )?(?:the )?(?:password|secret|token|credentials))")
 
 _OMIT_EVENT_KEYS = frozenset({
@@ -522,8 +525,10 @@ def build_snapshot(raw: Any, *, url: str, epoch: int, revision: int,
             if not isinstance(node, dict):
                 flags.append("malformed_driver_data")
                 continue
-            role = redact_text(node.get("role", "text"), limit=64)
-            name = redact_text(node.get("name", ""), limit=max_text)
+            # Every page-controlled string is escaped; none is ever treated as
+            # instructions in Keel's context or UI.
+            role = html.escape(redact_text(node.get("role", "text"), limit=64))
+            name = html.escape(redact_text(node.get("name", ""), limit=max_text))
             editable = bool(node.get("editable", False))
             # Value-bearing nodes are redacted *at capture*, never transported.
             text = "" if editable else html.escape(redact_text(node.get("text", ""),
@@ -544,9 +549,10 @@ def build_snapshot(raw: Any, *, url: str, epoch: int, revision: int,
                           "text": text, "editable": editable})
             total += len(text) + len(name)
             node_budget -= 1
-        frames.append(FrameSnapshot(frame_no, redact_text(frame_url, limit=512),
-                                    redact_text(frame.get("title", ""), limit=256),
-                                    tuple(nodes)))
+        frames.append(FrameSnapshot(
+            frame_no, html.escape(redact_text(frame_url, limit=512)),
+            html.escape(redact_text(frame.get("title", ""), limit=256)),
+            tuple(nodes)))
 
     return Snapshot(revision=revision, epoch=epoch, url=url,
                     frames=tuple(frames), refs=tuple(refs), truncated=truncated,
@@ -757,7 +763,8 @@ _PW_SNAPSHOT_JS = """(opts) => {
     const name = el.getAttribute('aria-label') || el.getAttribute('title') || '';
     const editable = !!el.matches('input, textarea, select, [contenteditable="true"]')
       || tag === 'input' || tag === 'textarea' || tag === 'select';
-    const ref = opts.prefix + (count + 1);
+    // Must match build_snapshot(): f<frame>.e<ordinal>@<epoch>.
+    const ref = 'f' + opts.frame + '.e' + (count + 1) + '@' + opts.epoch;
     el.setAttribute('data-keel-ref', ref);
     let text = '';
     if (!editable) text = (el.textContent || '').trim().slice(0, 2000);
@@ -817,7 +824,7 @@ class PlaywrightDriver:
             try:
                 data = frame.evaluate(_PW_SNAPSHOT_JS, {
                     "maxNodes": min(max_nodes, self._max_nodes),
-                    "prefix": f"f{index}.e{epoch}@"})
+                    "frame": index, "epoch": epoch})
             except Exception as exc:  # noqa: BLE001 - report, never fake a page
                 raise DriverError("playwright snapshot failed",
                                   details={"reason": type(exc).__name__}) from exc
@@ -895,6 +902,27 @@ _SENSITIVE_FIELD = re.compile(
     r"card\s*number|cvv|secret|token|recovery\s*code)")
 
 
+_MAX_ARTIFACT_BYTES = 32 * 1024 * 1024
+
+
+def _artifact_target(artifact_dir: Path, requested: str | Path | None,
+                     default_name: str, data_len: int) -> Path:
+    """Resolve an artifact path inside ``artifact_dir``; fail closed otherwise.
+
+    Callers may suggest a filename, never an arbitrary destination. Symlinks
+    are resolved before the containment check, so they cannot escape.
+    """
+    if data_len > _MAX_ARTIFACT_BYTES:
+        raise PolicyError("artifact exceeds the byte cap", code="artifact_too_large")
+    root = artifact_dir.resolve()
+    candidate = Path(requested) if requested is not None else artifact_dir / default_name
+    target = candidate.resolve()
+    if target == root or not target.is_relative_to(root):
+        raise PolicyError("artifact path must stay inside the artifact directory",
+                          code="artifact_root_violation")
+    return target
+
+
 @dataclass
 class BrowserSession:
     """One named browser session, owned by exactly one caller."""
@@ -915,6 +943,10 @@ class BrowserSession:
     revision: int = 0
     url: str = "about:blank"
     handoff_reason: str | None = None
+    # Host-supplied out-of-band confirmation check. Without it, resume fails
+    # closed: the agent/session owner cannot assert that the user acted.
+    confirmation_provider: Callable[[str], bool] | None = None
+    _handoff_token: str | None = None
     _cancel: threading.Event = field(default_factory=threading.Event)
     _last_dom: int = 0
     _refs: dict[str, NodeRef] = field(default_factory=dict)
@@ -1120,8 +1152,10 @@ class BrowserSession:
             self.artifact_dir.mkdir(parents=True, exist_ok=True)
             self._artifact_seq += 1
             safe = re.sub(r"[^A-Za-z0-9_.-]", "_", self.name)[:48]
-            target = Path(path) if path is not None else (
-                self.artifact_dir / f"{safe}-{int(time.time() * 1000)}-{self._artifact_seq}.png")
+            target = _artifact_target(
+                self.artifact_dir, path,
+                f"{safe}-{int(time.time() * 1000)}-{self._artifact_seq}.png",
+                len(data))
             target.write_bytes(bytes(data))
             self.log.record("screenshot", session=self.name, artifact=str(target),
                             bytes_written=len(data))
@@ -1143,8 +1177,10 @@ class BrowserSession:
             self.artifact_dir.mkdir(parents=True, exist_ok=True)
             self._artifact_seq += 1
             safe = re.sub(r"[^A-Za-z0-9_.-]", "_", self.name)[:48]
-            target = Path(path) if path is not None else (
-                self.artifact_dir / f"{safe}-download-{self._artifact_seq}.bin")
+            target = _artifact_target(
+                self.artifact_dir, path,
+                f"{safe}-download-{self._artifact_seq}.bin",
+                len(data))
             target.write_bytes(bytes(data))
             self.log.record("download", session=self.name, ref=node.id,
                             bytes_written=len(data))
@@ -1174,37 +1210,61 @@ class BrowserSession:
     def handoff(self, reason: str) -> dict:
         """Pause the session and return control to the user.
 
-        A page cannot complete a handoff: only :meth:`resume` with
-        ``user_confirmed=True`` on this owner-bound handle does.
+        A page cannot complete a handoff. The returned token must be surfaced
+        to the user by the host; only :meth:`resume` with a host-validated
+        confirmation token can close the gate.
         """
         self._state_check()
         if not isinstance(reason, str) or reason not in _HANDOFF_REASONS:
             raise BrowserRuntimeError("invalid handoff reason", code="invalid_input")
         self.state = "handoff"
         self.handoff_reason = reason
-        self.log.record("handoff", session=self.name, reason=reason)
+        self._handoff_token = secrets.token_urlsafe(24)
+        self.log.record("handoff", session=self.name, reason=reason,
+                        token_issued=True)
         return {
             "ok": True,
             "status": "handoff_required",
             "session": self.name,
             "reason": reason,
-            "message": ("Paused. The user must complete this step in the browser "
-                        "and then call resume(user_confirmed=True)."),
+            "confirmation_token": self._handoff_token,
+            "message": ("Paused. The user must complete this step in the browser; "
+                        "the host must validate the confirmation token before resume."),
         }
 
-    def resume(self, *, user_confirmed: bool = False) -> dict:
-        if user_confirmed is not True:
-            raise HandoffRequired(
-                "resume requires an explicit user confirmation",
-                details={"session": self.name, "reason": self.handoff_reason})
+    def resume(self, *, confirmation_token: str) -> dict:
+        """Resume only after the host confirms a real user action out of band.
+
+        A boolean supplied by the same caller that drives automation is not
+        evidence of user consent, so it is deliberately not accepted.
+        """
         if self.state not in ("handoff", "cancelled"):
             raise BrowserRuntimeError("nothing to resume", code="invalid_state")
+        if (not isinstance(confirmation_token, str) or not confirmation_token
+                or confirmation_token != self._handoff_token):
+            raise HandoffRequired(
+                "resume requires the token issued by handoff",
+                details={"session": self.name, "reason": self.handoff_reason})
+        if self.confirmation_provider is None:
+            raise HandoffRequired(
+                "no host confirmation provider is configured; user consent cannot be verified",
+                details={"session": self.name, "reason": self.handoff_reason})
+        try:
+            confirmed = bool(self.confirmation_provider(confirmation_token))
+        except Exception as exc:  # noqa: BLE001 - host failure must fail closed
+            raise HandoffRequired("confirmation provider failed",
+                                  details={"session": self.name}) from exc
+        if not confirmed:
+            raise HandoffRequired("host did not confirm the user action",
+                                  details={"session": self.name})
         previous = self.state
         self.state = "open"
         self.handoff_reason = None
+        self._handoff_token = None
         if self._cancel.is_set():
             self._cancel = threading.Event()
-        self.log.record("resumed", session=self.name, previous_state=previous)
+        self.log.record("resumed", session=self.name, previous_state=previous,
+                        confirmation="host-validated")
         return {"ok": True, "status": "open", "session": self.name}
 
     def cancel(self) -> dict:
@@ -1259,6 +1319,7 @@ class BrowserRuntime:
         max_frames: int = 8,
         allowed_upload_roots: Sequence[str | Path] = (),
         dns_resolver: _DnsResolver | None = None,
+        confirmation_provider: Callable[[str], bool] | None = None,
     ) -> BrowserSession:
         """Create (or return the owner's existing) named session.
 
@@ -1296,7 +1357,8 @@ class BrowserRuntime:
                 timeout_ms=timeout_ms, max_nodes=max(1, int(max_nodes)),
                 max_frames=max(1, int(max_frames)),
                 allowed_upload_roots=tuple(Path(root) for root in allowed_upload_roots),
-                dns_resolver=dns_resolver)
+                dns_resolver=dns_resolver,
+                confirmation_provider=confirmation_provider)
             self._sessions[name] = session
             session.log.record("session_opened", session=name, owner=owner)
             return session

@@ -271,9 +271,11 @@ def test_named_session_has_single_owner(rt):
     assert session(rt, fake(), owner="agent-a") is a  # idempotent for owner
 
 
-def test_handoff_pauses_everything_until_explicit_user_resume(rt):
+def test_handoff_requires_host_validated_confirmation(rt):
+    confirmed = []
     driver = fake()
-    s = session(rt, driver)
+    s = session(rt, driver,
+                confirmation_provider=lambda token: confirmed.append(token) or True)
     ref = s.snapshot()["refs"][2]["id"]
     result = s.handoff("2fa")
     assert result["status"] == "handoff_required"
@@ -284,10 +286,20 @@ def test_handoff_pauses_everything_until_explicit_user_resume(rt):
                  lambda: s.screenshot()):
         with pytest.raises(br.HandoffRequired):
             call()
+    token = result["confirmation_token"]
     with pytest.raises(br.HandoffRequired):
-        s.resume()  # a page or agent cannot fake user confirmation
-    assert s.resume(user_confirmed=True)["status"] == "open"
+        s.resume(confirmation_token="fabricated")  # caller cannot self-confirm
+    assert s.resume(confirmation_token=token)["status"] == "open"
+    assert confirmed == [token]
     assert s.snapshot()["ok"] is True
+
+
+def test_handoff_fails_closed_without_host_confirmation_provider(rt):
+    s = session(rt, fake())
+    token = s.handoff("login")["confirmation_token"]
+    with pytest.raises(br.HandoffRequired):
+        s.resume(confirmation_token=token)
+    assert s.state == "handoff"
 
 
 def test_sensitive_fields_block_agent_credentials_and_point_to_handoff(rt):
@@ -402,11 +414,14 @@ def test_snapshot_output_is_bounded(rt):
 
 def test_screenshot_writes_artifact_without_logging_bytes(rt, tmp_path):
     driver = fake(screenshot_bytes=b"\x89PNG\r\n\x1a\ncapture")
-    s = session(rt, driver, artifact_dir=tmp_path / "artifacts")
-    out = s.screenshot(path=tmp_path / "shot.png")
+    artifacts = tmp_path / "artifacts"
+    s = session(rt, driver, artifact_dir=artifacts)
+    out = s.screenshot(path=artifacts / "shot.png")
     assert out["ok"] is True and out["trust"] == "untrusted"
-    assert (tmp_path / "shot.png").read_bytes() == b"\x89PNG\r\n\x1a\ncapture"
+    assert (artifacts / "shot.png").read_bytes() == b"\x89PNG\r\n\x1a\ncapture"
     assert "capture" not in repr(s.events())
+    with pytest.raises(br.PolicyError):
+        s.screenshot(path=tmp_path / "outside.png")
 
 
 def test_screenshot_capability_failure_is_honest(rt, tmp_path):

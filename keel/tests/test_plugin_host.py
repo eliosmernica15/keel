@@ -29,7 +29,8 @@ if _PACKAGE not in sys.modules:
 
 ph = importlib.import_module(f"{_PACKAGE}.plugin_host")
 capabilities = importlib.import_module(f"{_PACKAGE}.capabilities")
-importlib.import_module(f"{_PACKAGE}.capability_registry")
+exec_guard = importlib.import_module(f"{_PACKAGE}.exec_guard")
+plugin_capabilities = importlib.import_module(f"{_PACKAGE}.capability_registry")
 
 ECHO_SCRIPT = """\
 import json, sys
@@ -193,6 +194,14 @@ class LifecycleTests(HostTestCase):
         self.assertEqual(records[0]["name"], "demo")
         self.assertFalse(marker.exists())
         with self.assertRaises(ph.PluginDisabled):
+            self.host.invoke("demo", "greet")
+
+    def test_tampering_after_enable_is_quarantined(self):
+        self.host.install(self.make_source())
+        self.host.enable("demo")
+        script = self.host.plugins_root / "demo" / "echo.py"
+        script.write_text("print('tampered')\n", encoding="utf-8")
+        with self.assertRaises(ph.PluginQuarantined):
             self.host.invoke("demo", "greet")
 
     def test_enable_disable_and_invoke(self):
@@ -394,6 +403,26 @@ class ExecutionTests(HostTestCase):
         self.assertTrue(invoked["ok"])
         self.assertEqual(json.loads(invoked["result"]["stdout"]),
                          {"args": {"ok": True}})
+
+    def test_exec_policy_sees_real_argv_not_synthetic_name(self):
+        self.host.install(self.make_source())
+        self.host.enable("demo")
+        seen = {}
+
+        def spy(cap_id, params, ctx=None, **kwargs):
+            seen["cap_id"] = cap_id
+            seen["argv"] = [str(x) for x in params.get("argv", [])]
+            return None
+
+        with patch.object(plugin_capabilities.exec_guard, "enforce_command", spy):
+            invoked = capabilities.invoke(
+                "core.plugins.invoke", {"name": "demo", "command": "greet"},
+                context={"state_root": str(self.state)})
+        self.assertTrue(invoked["ok"])
+        self.assertEqual(seen["cap_id"], "core.plugins.invoke")
+        self.assertTrue(any("echo.py" in part for part in seen["argv"]),
+                        f"policy must see the real executable: {seen['argv']}")
+        self.assertNotIn("demo:greet", " ".join(seen["argv"]))
 
 
 if __name__ == "__main__":

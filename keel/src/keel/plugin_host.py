@@ -48,6 +48,7 @@ import hashlib
 import json
 import os
 import re
+import secrets
 import shutil
 import signal
 import subprocess
@@ -958,6 +959,53 @@ class PluginHost:
         environment["PYTHONDONTWRITEBYTECODE"] = "1"
         return environment
 
+    def _verify_content(self, wanted: str, record: Mapping[str, Any],
+                        root: Path) -> None:
+        """Bind the trust decision to the bytes actually about to execute.
+
+        An enabled plugin whose tree changed since install/enable is
+        quarantined and refused; a single enable must not authorize arbitrary
+        later edits (TOCTOU).
+        """
+        entry = self._load_state().get("plugins", {}).get(wanted)
+        expected = entry.get("manifest_sha256") if isinstance(entry, Mapping) else None
+        current = _tree_hash(root)
+        if not isinstance(expected, str) or not secrets.compare_digest(
+                str(expected), str(current)):
+            try:
+                self.quarantine(wanted, "content_changed")
+            except PluginHostError:
+                pass
+            raise PluginQuarantined("plugin_content_changed")
+
+    def command_argv(self, name: str, command: str) -> list[str]:
+        """Resolve the exact argv an invocation would run, without running it.
+
+        Callers must enforce exec policy against these tokens, not against a
+        synthetic ``name:command`` string.
+        """
+        wanted = _safe_name(name, "plugin_name")
+        command_name = _safe_name(command, "command_name")
+        record = self._enabled_record(wanted)
+        root = _contained(self.plugins_root, Path(record["root"]), "plugin_root")
+        manifest = load_manifest(root)  # re-validate immediately before exec
+        self._verify_content(wanted, record, root)
+        declared = next((c for c in manifest.commands if c.name == command_name),
+                        None)
+        if declared is None:
+            raise InvocationError("unknown_command")
+        argv: list[str] = []
+        for token in declared.argv:
+            if token == PYTHON_ALIAS:
+                argv.append(sys.executable)
+            else:
+                resolved = _contained(root, root / _safe_rel(token, "command_argv"),
+                                      "command_argv")
+                if not resolved.is_file():
+                    raise InvocationError("command_executable_missing")
+                argv.append(str(resolved))
+        return argv
+
     def invoke(self, name: str, command: str, args: Mapping[str, Any] | None = None,
                *, timeout_s: float | None = None,
                max_output_bytes: int | None = None) -> dict:
@@ -969,30 +1017,16 @@ class PluginHost:
         """
         wanted = _safe_name(name, "plugin_name")
         command_name = _safe_name(command, "command_name")
-        record = self._enabled_record(wanted)
-        root = _contained(self.plugins_root, Path(record["root"]), "plugin_root")
-        manifest = load_manifest(root)  # re-validate immediately before exec
-        declared = next((c for c in manifest.commands if c.name == command_name),
-                        None)
-        if declared is None:
-            raise InvocationError("unknown_command")
         if args is not None and not isinstance(args, Mapping):
             raise InvocationError("args_must_be_object")
+        argv = self.command_argv(wanted, command_name)
+        record = self._enabled_record(wanted)
+        root = _contained(self.plugins_root, Path(record["root"]), "plugin_root")
         # Args are passed verbatim to the child; redaction applies only to the
         # audit record (which logs key names, never values).
         payload = json.dumps(args or {}, sort_keys=True,
                              separators=(",", ":"), ensure_ascii=False,
                              allow_nan=False)
-        argv: list[str] = []
-        for token in declared.argv:
-            if token == PYTHON_ALIAS:
-                argv.append(sys.executable)
-            else:
-                resolved = _contained(root, root / _safe_rel(token, "command_argv"),
-                                      "command_argv")
-                if not resolved.is_file():
-                    raise InvocationError("command_executable_missing")
-                argv.append(str(resolved))
         argv.append(payload)
 
         limit = self.max_output_bytes if max_output_bytes is None \

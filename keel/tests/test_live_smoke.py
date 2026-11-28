@@ -78,9 +78,19 @@ def test_live_provider_bad_key_fails_fast(provider, key_env, model_env):
     adapter = registry.build_adapter(provider, api_key="definitely-not-a-real-key")
     client = ProviderModelClient(adapter, model=registry.capability(provider).default_model,
                                  max_output_tokens=8)
-    with pytest.raises(ProviderError) as excinfo:
+    try:
         client.complete([{"role": "user", "content": "pong"}], [])
-    assert excinfo.value.category in (
-        "authentication_failed", "organization_not_allowed",
-        "invalid_request", "unknown",
-    )
+    except ProviderError as exc:
+        # An offline environment produces a connection/timeout error even for
+        # a bad key. That is not evidence of key rejection: skip honestly.
+        message = str(exc)
+        if ("connection failed" in message or "timed out" in message.lower()
+                or "name resolution" in message.lower()):
+            pytest.skip(f"live provider unreachable from this environment ({provider}): {message}")
+        assert exc.category in (
+            "authentication_failed", "organization_not_allowed",
+            "invalid_request", "unknown",
+        )
+        return
+    pytest.fail(f"bad key unexpectedly succeeded for {provider}")
+

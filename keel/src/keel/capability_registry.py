@@ -291,12 +291,19 @@ def _plugins_list(p, ctx):
             "Invoke a declared command of an explicitly enabled local plugin",
             mutates=True)
 def _plugins_invoke(p, ctx):
-    exec_guard.enforce_command("core.plugins.invoke", p, ctx,
-                               command=f"{p.get('name', '')}:{p.get('command', '')}")
     from .plugin_host import PluginHost
-    host = PluginHost(str(p.get("state_root", ctx.get("state_root", ".keel"))))
-    return host.invoke(str(p.get("name", "")), str(p.get("command", "")),
-                       p.get("args") or {},
+
+    # The state root comes only from the trusted context: a caller must not be
+    # able to point invocation at a state file where a plugin is pre-enabled.
+    host = PluginHost(str(ctx.get("state_root") or ".keel"))
+    name = str(p.get("name", ""))
+    command = str(p.get("command", ""))
+    # Enforce saved exec policy against the *actual* executable argv from the
+    # enabled manifest, not a synthetic "name:command" string that no rule can
+    # match. command_argv also re-checks the installed tree hash (TOCTOU).
+    argv = host.command_argv(name, command)
+    exec_guard.enforce_command("core.plugins.invoke", {"argv": argv}, ctx)
+    return host.invoke(name, command, p.get("args") or {},
                        timeout_s=p.get("timeout_s"),
                        max_output_bytes=p.get("max_output_bytes"))
 

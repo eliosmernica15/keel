@@ -1453,6 +1453,18 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
             mode = str(payload.get("mode", "build")).strip().lower()
             if mode not in ("build", "plan", "autopilot", "acceptEdits"):
                 mode = "build"
+            # A bot bound to a project must run in that project's trusted
+            # folder, never in the Keel state root. Trust is enforced here, at
+            # the Python boundary, not only by the renderer.
+            workdir: str | None = None
+            project_id = store().project_id_of(bot_id)
+            if project_id:
+                project = store().get_project(project_id)
+                if not project or not project.get("trusted"):
+                    _send(handler, {"error": "workspace_not_trusted"},
+                          HTTPStatus.FORBIDDEN)
+                    return True
+                workdir = str(project.get("path") or "") or None
             # engine gate — F0/F-provider: echo + provider both wired here
             if bot["engine"] == "echo":
                 seq_bot = store().append_row(bot_id, "message", {
@@ -1466,7 +1478,8 @@ def dispatch_post(handler, *, _authorized, _origin_ok):
                     "content": content,
                 })
                 lock, started = _provider_turn.start_provider_turn(
-                    store(), bot, content, permission_mode=mode)
+                    store(), bot, content, permission_mode=mode,
+                    workdir=workdir)
             else:
                 _send(handler, {"error": "unknown_engine",
                                 "detail": f"engine {bot['engine']!r} not supported"},

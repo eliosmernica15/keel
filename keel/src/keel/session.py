@@ -415,7 +415,12 @@ class Session:
             cancel_ev = getattr(self.config, "cancel_event", None)
             if cancel_ev is not None and cancel_ev.is_set():
                 return True
-            return bool(getattr(steering, "cancelled", False))
+            if bool(getattr(steering, "cancelled", False)):
+                return True
+            # The real SteeringController exposes cancel_event; duck-typed
+            # controllers may expose only that. Honour both forms.
+            steering_ev = getattr(steering, "cancel_event", None)
+            return bool(steering_ev is not None and steering_ev.is_set())
 
         def emit(event: dict, transcript_entry: dict | None = None) -> None:
             events.append(event)
