@@ -1,36 +1,30 @@
 """Adversarial, stdlib-only tests for the local plugin host.
 
-The tests target the *worktree's* ``src/keel`` rather than any editable install
-that may point at a different checkout: a synthetic package root points at that
-``src/keel`` directory, so imports and relative imports resolve locally without
-disturbing the process-wide ``keel`` package.  Temp directories come from
-``tempfile``; no pytest fixtures or third-party test helpers are required.
+Temp directories come from ``tempfile``; no pytest fixtures or third-party test
+helpers are required. The real ``keel`` package is used: loading duplicate
+copies under a synthetic package name splits module/class identity and breaks
+unrelated suites in the same pytest session.
 """
 
 from __future__ import annotations
 
-import importlib
 import json
 import os
 import sys
 import tempfile
 import time
-import types
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 _SRC = str(Path(__file__).resolve().parents[1] / "src")
-_PACKAGE = "keel_plugin_host_worktree"
-if _PACKAGE not in sys.modules:
-    _local = types.ModuleType(_PACKAGE)
-    _local.__path__ = [str(Path(_SRC) / "keel")]
-    sys.modules[_PACKAGE] = _local
+if _SRC not in sys.path:
+    sys.path.insert(0, _SRC)
 
-ph = importlib.import_module(f"{_PACKAGE}.plugin_host")
-capabilities = importlib.import_module(f"{_PACKAGE}.capabilities")
-exec_guard = importlib.import_module(f"{_PACKAGE}.exec_guard")
-plugin_capabilities = importlib.import_module(f"{_PACKAGE}.capability_registry")
+import keel.plugin_host as ph  # noqa: E402
+import keel.capabilities as capabilities  # noqa: E402
+import keel.exec_guard as exec_guard  # noqa: E402
+import keel.capability_registry as plugin_capabilities  # noqa: E402
 
 ECHO_SCRIPT = """\
 import json, sys

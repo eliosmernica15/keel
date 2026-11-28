@@ -21,10 +21,10 @@ import pytest
 _SRC = str(Path(__file__).resolve().parents[1] / "src")
 if _SRC not in sys.path:
     sys.path.insert(0, _SRC)
-for _name in tuple(sys.modules):
-    if _name == "keel" or _name.startswith("keel."):
-        del sys.modules[_name]
 
+# Do NOT purge sys.modules here: removing already-imported keel modules splits
+# class/module identity for the rest of the pytest session and causes unrelated
+# suites to fail. sys.path already prefers this worktree's src.
 from keel import worktree_runtime as wt  # noqa: E402
 
 
