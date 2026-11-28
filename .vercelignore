@@ -1,5 +1,6 @@
 # Keep Vercel uploads to the static site only (project root: keel/site).
 .git
+.audit
 .build
 .claude
 .githooks
