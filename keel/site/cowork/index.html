@@ -4,12 +4,887 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>KEEL Cowork | KEEL</title>
+  <meta name="description" content="KEEL Cowork completes tasks you can steer from anywhere. Give it a goal, and it works across your files and tools. You come back to polished work for your review." />
   <link rel="canonical" href="https://keel-desktop.vercel.app/product/cowork" />
-  <meta http-equiv="refresh" content="0; url=/product/cowork" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="KEEL Cowork | KEEL" />
+  <meta property="og:description" content="The work behind your best work. KEEL Cowork completes tasks you can steer from anywhere." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/product/cowork" />
+  <meta property="og:image" content="/assets/img/cw-app-window.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
-  <script src="/ui/route-redirect.js" defer></script>
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f7f6f2" />
+  <link rel="stylesheet" href="/ui/cowork.css" />
+  <script src="/ui/cowork.js" defer></script>
 </head>
-<body data-redirect="/product/cowork">
-  <p>Moving to <a href="/product/cowork">KEEL Cowork</a>.</p>
+<body class="cw-body">
+
+  <a class="cw-skip" href="#main-content">Skip to main content</a>
+
+  <div class="cw-page">
+
+    <!-- ==================== header / mega navigation ==================== -->
+    <header class="cw-header" id="cw-header">
+      <a class="cw-brand" href="/" aria-label="KEEL home">
+        <img class="cw-brand-mark" src="/assets/img/cw-mark.svg" alt="" />
+        <span>KEEL</span>
+      </a>
+
+      <nav class="cw-nav" aria-label="Primary">
+        <div class="cw-nav-item" data-nav="product">
+          <button class="cw-nav-trigger" type="button" aria-expanded="false" aria-controls="cw-menu-product">Product <span class="cw-chevron" aria-hidden="true"></span></button>
+          <div class="cw-mega" id="cw-menu-product" hidden>
+            <div class="cw-mega-grid">
+              <div class="cw-mega-col">
+                <p class="cw-mega-heading">Products</p>
+                <a class="cw-mega-link" href="/product/overview">KEEL</a>
+                <a class="cw-mega-link" href="/product/keel-code">KEEL Code</a>
+                <a class="cw-mega-link" href="/product/cowork">KEEL Cowork</a>
+                <a class="cw-mega-link" href="/product/keel-duet">KEEL Duet</a>
+                <a class="cw-mega-link" href="/requirements">KEEL Platform</a>
+                <a class="cw-mega-link" href="/pricing">KEEL Tag</a>
+                <p class="cw-mega-subhead">Specialized</p>
+                <a class="cw-mega-link" href="/privacy">KEEL Security</a>
+                <a class="cw-mega-link" href="/pricing">KEEL Science</a>
+              </div>
+              <div class="cw-mega-col">
+                <p class="cw-mega-heading">Capabilities</p>
+                <a class="cw-mega-link" href="#capabilities">Artifacts</a>
+                <a class="cw-mega-link" href="#capabilities">Design</a>
+                <a class="cw-mega-link" href="#capabilities">Connectors</a>
+                <a class="cw-mega-link" href="#plugins">Plugins</a>
+                <a class="cw-mega-link" href="#plugins">Skills</a>
+              </div>
+              <div class="cw-mega-col">
+                <p class="cw-mega-heading">Extensions</p>
+                <a class="cw-mega-link" href="/keel-in-chrome">KEEL in Chrome</a>
+                <a class="cw-mega-link" href="/download">KEEL for Google Workspace</a>
+                <a class="cw-mega-link" href="/download">KEEL for Microsoft 365</a>
+              </div>
+              <div class="cw-mega-col">
+                <p class="cw-mega-heading">Models</p>
+                <a class="cw-mega-link" href="/pricing">Mythos (including Fable) <span aria-hidden="true">↗</span></a>
+                <a class="cw-mega-link" href="/pricing">Opus <span aria-hidden="true">↗</span></a>
+                <a class="cw-mega-link" href="/pricing">Sonnet <span aria-hidden="true">↗</span></a>
+                <a class="cw-mega-link" href="/pricing">Haiku <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+            <div class="cw-mega-footer">
+              <a class="cw-mega-link" href="/product/overview">Import to KEEL</a>
+              <a class="cw-mega-link" href="/download">Download apps <span aria-hidden="true">↓</span></a>
+              <a class="cw-mega-link" href="/app">Login <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="cw-nav-item" data-nav="developers">
+          <button class="cw-nav-trigger" type="button" aria-expanded="false" aria-controls="cw-menu-developers">Developers <span class="cw-chevron" aria-hidden="true"></span></button>
+          <div class="cw-mega" id="cw-menu-developers" hidden>
+            <div class="cw-mega-grid">
+              <div class="cw-mega-col">
+                <p class="cw-mega-heading">Build with</p>
+                <a class="cw-mega-link" href="/product/keel-code">KEEL Code</a>
+                <a class="cw-mega-link" href="/requirements">KEEL Platform</a>
+                <a class="cw-mega-link" href="/roadmap">KEEL Ship</a>
+                <a class="cw-mega-link" href="/roadmap">Code Review</a>
+                <a class="cw-mega-link" href="/requirements">Managed Agents</a>
+              </div>
+              <div class="cw-mega-col">
+                <p class="cw-mega-heading">For developers</p>
+                <a class="cw-mega-link" href="/requirements">KEEL Academy <span aria-hidden="true">↗</span></a>
+                <a class="cw-mega-link" href="mailto:hello@keel.dev">Community</a>
+                <a class="cw-mega-link" href="/notices">Developer blog <span aria-hidden="true">↗</span></a>
+              </div>
+              <div class="cw-mega-col">
+                <p class="cw-mega-heading">Explore</p>
+                <a class="cw-mega-link" href="/app">Open the console</a>
+                <a class="cw-mega-link" href="/requirements">Documentation</a>
+              </div>
+            </div>
+            <div class="cw-mega-footer">
+              <a class="cw-mega-link" href="/requirements">Explore here <span aria-hidden="true">↓</span></a>
+              <a class="cw-mega-link" href="/download">Download apps <span aria-hidden="true">↓</span></a>
+              <a class="cw-mega-link" href="/app">Login <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="cw-nav-item" data-nav="enterprise">
+          <button class="cw-nav-trigger" type="button" aria-expanded="false" aria-controls="cw-menu-enterprise">Enterprise <span class="cw-chevron" aria-hidden="true"></span></button>
+          <div class="cw-mega" id="cw-menu-enterprise" hidden>
+            <div class="cw-mega-grid">
+              <div class="cw-mega-col">
+                <p class="cw-mega-heading">Enterprise</p>
+                <a class="cw-mega-link" href="/pricing">Overview</a>
+                <a class="cw-mega-link" href="/product/keel-code">KEEL Code for Enterprise</a>
+                <a class="cw-mega-link" href="/requirements">KEEL Platform</a>
+                <a class="cw-mega-link" href="/roadmap">KEEL Ship</a>
+              </div>
+              <div class="cw-mega-col">
+                <p class="cw-mega-heading">Use Cases</p>
+                <a class="cw-mega-link" href="#usecase">AI Agents</a>
+                <a class="cw-mega-link" href="#tasks">Coding</a>
+                <a class="cw-mega-link" href="#usecase">Commerce</a>
+                <p class="cw-mega-subhead">Departments</p>
+                <a class="cw-mega-link" href="mailto:hello@keel.dev">Customer support</a>
+                <a class="cw-mega-link" href="/privacy">Cybersecurity</a>
+                <a class="cw-mega-link" href="/terms">Legal</a>
+                <a class="cw-mega-link" href="mailto:hello@keel.dev">Sales</a>
+              </div>
+              <div class="cw-mega-col">
+                <p class="cw-mega-heading">Industries</p>
+                <a class="cw-mega-link" href="/pricing">Financial advisors</a>
+                <a class="cw-mega-link" href="/pricing">Financial services</a>
+                <a class="cw-mega-link" href="/pricing">Government</a>
+                <a class="cw-mega-link" href="/pricing">Healthcare</a>
+                <a class="cw-mega-link" href="/pricing">Higher education</a>
+                <a class="cw-mega-link" href="/pricing">K-12 teachers</a>
+                <a class="cw-mega-link" href="/pricing">Life sciences</a>
+                <a class="cw-mega-link" href="/pricing">Manufacturing</a>
+                <a class="cw-mega-link" href="/pricing">Nonprofits</a>
+              </div>
+            </div>
+            <div class="cw-mega-footer">
+              <a class="cw-mega-link" href="/notices">Browse marketplace</a>
+              <a class="cw-mega-link" href="/notices">Customers</a>
+              <a class="cw-mega-link" href="mailto:hello@keel.dev">Contact sales</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="cw-header-actions">
+        <button class="cw-btn cw-btn-dark cw-nav-cta" type="button" data-action="open-auth">Log in</button>
+        <a class="cw-btn cw-btn-dark" href="/download">Download app</a>
+        <a class="cw-btn cw-btn-primary" href="/app">Try KEEL</a>
+        <button class="cw-hamburger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="cw-mobile-menu"><span></span><span></span><span></span></button>
+      </div>
+
+      <div class="cw-mobile-menu" id="cw-mobile-menu" hidden>
+        <a class="cw-mobile-link" href="#hero">Product</a>
+        <a class="cw-mobile-link" href="/requirements">Developers</a>
+        <a class="cw-mobile-link" href="#control">Enterprise</a>
+        <a class="cw-mobile-link" href="#pricing">Pricing</a>
+        <a class="cw-mobile-link" href="/product/overview">Product overview</a>
+        <a class="cw-mobile-link" href="/product/cowork">KEEL Cowork</a>
+        <a class="cw-mobile-link" href="/download">Download app</a>
+        <a class="cw-mobile-link" href="/app">Try KEEL</a>
+      </div>
+    </header>
+
+    <!-- ==================== news toast ==================== -->
+    <aside class="cw-news" id="cw-news" aria-label="Latest news">
+      <p class="cw-news-kicker">Latest news</p>
+      <p class="cw-news-title">KEEL Cowork is now just KEEL.</p>
+      <p class="cw-news-body">Rolling out to Pro, Max, and Ultra, with more plans to follow.</p>
+      <a class="cw-news-link" href="/product/overview">Read what changed</a>
+      <button class="cw-news-close" type="button" data-action="dismiss-news" aria-label="Dismiss">×</button>
+    </aside>
+
+    <main id="main-content">
+
+      <!-- ==================== 1. hero ==================== -->
+      <section class="cw-section cw-hero" id="hero" aria-labelledby="cw-hero-title">
+        <div class="cw-container">
+          <p class="cw-eyebrow">KEEL Cowork</p>
+          <h1 class="cw-hero-title" id="cw-hero-title">The work behind your best work</h1>
+          <p class="cw-hero-sub">KEEL Cowork completes tasks you can steer from anywhere. Give it a goal, and it works across your files and tools. You come back to polished work for your review.</p>
+          <div class="cw-hero-actions">
+            <a class="cw-btn cw-btn-dark" href="/download">Download for macOS</a>
+            <button class="cw-btn cw-btn-light" type="button" data-action="open-contact">Talk to sales</button>
+          </div>
+          <p class="cw-hero-note">Works with a paid plan. Rolling out on web, mobile. Not on a paid plan? <a href="/pricing">Upgrade now</a></p>
+          <div class="cw-hero-visual">
+            <img src="/assets/img/cw-app-window.svg" alt="KEEL Cowork app window showing a task, files and a generated deck" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 2. capabilities ==================== -->
+      <section class="cw-section cw-capabilities" id="capabilities" aria-labelledby="cw-cap-title">
+        <div class="cw-container">
+          <h2 class="cw-section-title" id="cw-cap-title">Core capabilities</h2>
+          <p class="cw-section-sub">Cowork is your teammate for the work that fills your day.</p>
+
+          <div class="cw-cap-grid">
+            <article class="cw-cap-card">
+              <img class="cw-cap-icon" src="/assets/img/cw-cap-1.svg" alt="" />
+              <h3>KEEL Cowork takes on your tasks</h3>
+              <p>Works directly in folders and tools you choose, and runs your task to deliver work for review. No need to copy from a chat or paste into files.</p>
+            </article>
+            <article class="cw-cap-card">
+              <img class="cw-cap-icon" src="/assets/img/cw-cap-2.svg" alt="" />
+              <h3>Say what, not how</h3>
+              <p>Tell KEEL what you need, not how. It opens browsers for web tasks and takes over your screen only when it has to.</p>
+            </article>
+            <article class="cw-cap-card">
+              <img class="cw-cap-icon" src="/assets/img/cw-cap-3.svg" alt="" />
+              <h3>See the work as it happens</h3>
+              <p>KEEL shows each step: the files it opens, tools it uses, and choices it makes. Follow along from anywhere, and redirect it if you need to.</p>
+            </article>
+            <article class="cw-cap-card">
+              <img class="cw-cap-icon" src="/assets/img/cw-cap-4.svg" alt="" />
+              <h3>Your work follows you</h3>
+              <p>KEEL Cowork runs on web, desktop, and mobile and is the same KEEL, wherever you work. Start at your desk, pick it up on your phone.</p>
+            </article>
+            <article class="cw-cap-card">
+              <img class="cw-cap-icon" src="/assets/img/cw-cap-5.svg" alt="" />
+              <h3>KEEL works when you don't</h3>
+              <p>Close your laptop, it keeps going. Schedule a task for any cadence, and it runs unattended. You come back to your deck, spreadsheet, or research.</p>
+            </article>
+            <article class="cw-cap-card">
+              <img class="cw-cap-icon" src="/assets/img/cw-cap-6.svg" alt="" />
+              <h3>More than one thing at a time</h3>
+              <p>Big projects are split into chunks that run together. While it drafts, it researches and organizes at the same time. You review polished work.</p>
+            </article>
+          </div>
+
+          <div class="cw-browser-feature">
+            <div class="cw-browser-copy">
+              <h3>A built-in browser for Cowork</h3>
+              <p>When a task requires opening a site, reading a page, or filling a form, KEEL opens a browser in the Cowork side panel instead of yours while you keep working.</p>
+              <ul class="cw-browser-list">
+                <li>No installation needed.</li>
+                <li>Separate from your own browser, logins, and tabs.</li>
+                <li>Sign in once for every session, or import cookies to stay signed in to your browser (Chrome, Edge, and Firefox on macOS; Firefox on Windows and Linux).</li>
+              </ul>
+              <p class="cw-browser-note">Available in the Cowork desktop app on Pro, Max, Ultra, and Team plans. Enterprise admins manage it in Organization settings → Cowork.</p>
+              <a class="cw-link" href="#tasks">See more use cases</a>
+            </div>
+            <img class="cw-browser-art" src="/assets/img/cw-browser.svg" alt="KEEL Cowork built-in browser side panel" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 3. tasks ==================== -->
+      <section class="cw-section cw-tasks" id="tasks" aria-labelledby="cw-tasks-title">
+        <div class="cw-container">
+          <h2 class="cw-section-title" id="cw-tasks-title">Power through tedious tasks</h2>
+          <p class="cw-section-sub">Show KEEL what good looks like, then let it handle the rest.</p>
+
+          <div class="cw-task-tabs" role="tablist" aria-label="Types of tasks">
+            <button class="cw-task-tab" type="button" role="tab" aria-selected="true" data-task="reports" aria-controls="cw-task-panel">Schedule reports</button>
+            <button class="cw-task-tab" type="button" role="tab" aria-selected="false" data-task="sheets" aria-controls="cw-task-panel">Build spreadsheets</button>
+            <button class="cw-task-tab" type="button" role="tab" aria-selected="false" data-task="review" aria-controls="cw-task-panel">Review in bulk</button>
+            <button class="cw-task-tab" type="button" role="tab" aria-selected="false" data-task="notes" aria-controls="cw-task-panel">Analyze notes</button>
+          </div>
+
+          <div class="cw-task-panel" id="cw-task-panel" role="tabpanel" aria-label="Task example">
+            <p class="cw-task-note">Interact with the data—hover and toggle views to uncover patterns</p>
+
+            <div class="cw-task-detail">
+              <p class="cw-task-prompt-label">Prompt</p>
+              <pre class="cw-task-prompt" data-prompt>Every Monday morning, build last week's marketing readout. Pull web views and signups from Amplitude, and the newsletter, social, and webinar numbers from Marketing/Channel-tracker in Drive. Compare everything to the week before. Slide one: company name and the week. Slide two: awareness metrics with anything that moved more than 10% flagged. Slide three: consideration metrics, same flags. Note any trend worth watching and anything you couldn't pull. Save to Marketing/Weekly in Drive.</pre>
+
+              <p class="cw-task-connectors-label">Connectors</p>
+              <div class="cw-task-connectors" data-task-connectors>
+                <span class="cw-connector-chip cw-connector" data-connector><img src="/assets/img/cw-amplitude.svg" alt="" /> <span class="cw-connector-name">Amplitude</span></span>
+                <span class="cw-connector-chip cw-connector" data-connector><img src="/assets/img/cw-microsoft.svg" alt="" /> <span class="cw-connector-name">Microsoft 365</span></span>
+              </div>
+            </div>
+
+            <div class="cw-task-visual">
+              <img src="/assets/img/cw-deck.svg" alt="Generated deck preview" data-view-image="slides" />
+              <img src="/assets/img/cw-data.svg" alt="Generated data preview" data-view-image="data" hidden />
+              <div class="cw-view-toggle" role="group" aria-label="Preview view">
+                <button class="cw-view-btn" type="button" data-view="slides" aria-pressed="true">Slides</button>
+                <button class="cw-view-btn" type="button" data-view="data" aria-pressed="false">Data</button>
+              </div>
+            </div>
+
+            <div class="cw-task-caption-block">
+              <h3 class="cw-task-caption" data-task-caption>Schedule recurring reports, ready for review</h3>
+              <p class="cw-task-desc" data-task-desc>Schedule a report once and get it daily, weekly, or monthly. KEEL pulls the numbers, compares them to the period before, and builds the deck, so Monday starts with the readout instead of the assembly.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 4. plugins ==================== -->
+      <section class="cw-section cw-plugins" id="plugins" aria-labelledby="cw-plugins-title">
+        <div class="cw-container">
+          <h2 class="cw-section-title" id="cw-plugins-title">Customize KEEL with plugins</h2>
+          <p class="cw-section-sub">Plugins bundle your tools, knowledge, and workflows into a single install so KEEL shows up as a specialist from day one.</p>
+          <a class="cw-btn cw-btn-dark" href="#plugins-list">Explore plugins</a>
+
+          <div class="cw-plugin-features">
+            <article class="cw-plugin-feature">
+              <h3>Skills</h3>
+              <p>Domain knowledge and best practices baked in</p>
+              <a class="cw-link" href="/product/overview">Learn more</a>
+            </article>
+            <article class="cw-plugin-feature">
+              <h3>Connectors</h3>
+              <p>KEEL connects to the tools you already use</p>
+              <a class="cw-link" href="/product/overview">Learn more</a>
+            </article>
+            <article class="cw-plugin-feature">
+              <h3>Sub-agents</h3>
+              <p>Specialized agents that handle specific tasks end-to-end</p>
+              <a class="cw-link" href="/product/overview">Learn more</a>
+            </article>
+          </div>
+
+          <div class="cw-plugin-spotlight">
+            <img class="cw-plugin-art" src="/assets/img/cw-plugins.svg" alt="KEEL Cowork plugins diagram" />
+            <div class="cw-plugin-spotlight-copy">
+              <h3>Customize Cowork with plugins</h3>
+              <p>Bundle any skills, connectors, and sub-agents together to turn KEEL into a specialist for your role, team, and company.</p>
+              <a class="cw-link" href="/product/overview">Read more</a>
+            </div>
+          </div>
+
+          <div class="cw-carousel" id="plugins-list" aria-label="Plugins">
+            <p class="cw-carousel-label">Plugins</p>
+            <div class="cw-carousel-track">
+              <article class="cw-plugin-slide" data-slide="0">
+                <h3>Brand voice (by Tribe AI)</h3>
+                <p>Analyze your existing documents, marketing materials, and conversations to distill your brand's voice into clear, enforceable guidelines.</p>
+                <a class="cw-link" href="/product/overview">Learn more</a>
+              </article>
+              <article class="cw-plugin-slide" data-slide="1" hidden>
+                <h3>Monthly close (by KEEL Labs)</h3>
+                <p>Reconcile accounts, draft variance commentary, and assemble the month-end package from your finance tools, ready for review.</p>
+                <a class="cw-link" href="/product/overview">Learn more</a>
+              </article>
+              <article class="cw-plugin-slide" data-slide="2" hidden>
+                <h3>Support triage (by KEEL Labs)</h3>
+                <p>Read incoming tickets, spot recurring issues, draft replies, and route urgent cases to the right owner on your team.</p>
+                <a class="cw-link" href="/product/overview">Learn more</a>
+              </article>
+            </div>
+            <div class="cw-carousel-controls">
+              <button class="cw-carousel-prev" type="button" data-carousel="plugins" aria-label="Previous">←</button>
+              <span class="cw-carousel-count" aria-live="polite">1 of 3</span>
+              <button class="cw-carousel-next" type="button" data-carousel="plugins" aria-label="Next">→</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 5. blog ==================== -->
+      <section class="cw-section cw-blog" id="blog" aria-labelledby="cw-blog-title">
+        <div class="cw-container">
+          <h2 class="cw-section-title cw-sr-only" id="cw-blog-title">From the blog</h2>
+          <div class="cw-article-grid">
+            <article class="cw-article-card">
+              <a href="/product/overview" aria-label="Read: Built-in browser">
+                <img src="/assets/img/cw-article-browser.svg" alt="" />
+                <h3><strong>Built-in browser:</strong> KEEL can now open sites, fill forms, and finish web tasks in a browser built into Cowork</h3>
+                <p class="cw-article-date">Blog · Aug 26, 2026</p>
+              </a>
+            </article>
+            <article class="cw-article-card">
+              <a href="/product/overview" aria-label="Read: Enterprise deployment">
+                <img src="/assets/img/cw-article-enterprise.svg" alt="" />
+                <h3><strong>Enterprise deployment:</strong> Manage feature access, control spend, and track KEEL Cowork usage across the org</h3>
+                <p class="cw-article-date">Blog · Apr 9, 2026</p>
+              </a>
+            </article>
+            <article class="cw-article-card">
+              <a href="/product/overview" aria-label="Read: Plugin marketplace">
+                <img src="/assets/img/cw-article-plugins.svg" alt="" />
+                <h3><strong>Plugin marketplace:</strong> Admins can now create private plugin marketplaces</h3>
+                <p class="cw-article-date">Blog · Feb 24, 2026</p>
+              </a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 6. use case ==================== -->
+      <section class="cw-section cw-usecase cw-alt" id="usecase" aria-labelledby="cw-usecase-heading">
+        <div class="cw-container">
+          <h2 class="cw-section-title" id="cw-usecase-heading">Introducing KEEL Cowork for everyday work</h2>
+
+          <div class="cw-persona-tabs" role="tablist" aria-label="Choose a team">
+            <button class="cw-persona-tab" type="button" role="tab" aria-selected="true" data-persona="marketing" aria-controls="cw-usecase-showcase">Marketing</button>
+            <button class="cw-persona-tab" type="button" role="tab" aria-selected="false" data-persona="sales" aria-controls="cw-usecase-showcase">Sales</button>
+            <button class="cw-persona-tab" type="button" role="tab" aria-selected="false" data-persona="legal" aria-controls="cw-usecase-showcase">Legal</button>
+          </div>
+
+          <div class="cw-usecase-showcase" id="cw-usecase-showcase" role="tabpanel" aria-label="Team example">
+            <div class="cw-video-stage">
+              <img class="cw-usecase-poster cw-video-poster" id="cw-usecase-poster" data-persona-poster src="/assets/img/cw-video-marketing.svg" alt="KEEL Cowork for marketing" />
+              <button class="cw-play" type="button" data-action="open-video" aria-label="Play KEEL Cowork for marketing video">▶</button>
+            </div>
+            <div class="cw-usecase-copy cw-usecase-caption">
+              <h3 class="cw-usecase-title" id="cw-usecase-title" data-persona-title>KEEL Cowork for marketing</h3>
+              <p class="cw-usecase-desc" id="cw-usecase-desc" data-persona-desc>See how KEEL uses KEEL Cowork to gather weekly reviews on a schedule.</p>
+              <a class="cw-link" href="/product/overview">Learn more</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 7. control ==================== -->
+      <section class="cw-section cw-control" id="control" aria-labelledby="cw-control-title">
+        <div class="cw-container">
+          <h2 class="cw-section-title" id="cw-control-title">Stay in control</h2>
+          <p class="cw-section-sub">KEEL Cowork takes real actions on your files and in connected tools. Enterprise admins can configure permissions to customize security according to their needs.</p>
+          <a class="cw-btn cw-btn-light" href="/privacy">Read our safety guide</a>
+
+          <div class="cw-control-grid">
+            <article class="cw-control-card">
+              <h3>You decide what KEEL can access</h3>
+              <p>You choose the folders and tools. KEEL is designed to work only within what you choose. Deleting anything needs your approval.</p>
+              <a class="cw-link" href="/privacy">Learn more</a>
+            </article>
+            <article class="cw-control-card">
+              <h3>KEEL asks before acting</h3>
+              <p>Enable permissions settings, so KEEL shows its plan and waits for your approval before anything significant. Redirect, or stop anytime.</p>
+            </article>
+            <article class="cw-control-card">
+              <h3>For Teams &amp; Enterprise</h3>
+              <p>Admins set access by team, manage spend limits, and control tool permissions by department. Activity streams to your SIEM through OpenTelemetry.</p>
+              <a class="cw-link" href="/product/overview">Learn more</a>
+            </article>
+          </div>
+
+          <div class="cw-data-region">
+            <h3>Runs where your data lives</h3>
+            <p>Use a KEEL account or your own cloud provider: Access KEEL through Amazon Bedrock, Gemini Enterprise Agent Platform, or Microsoft Foundry.</p>
+            <div class="cw-partner-logos">
+              <img src="/assets/img/cw-partner-1.svg" alt="Amazon Bedrock" />
+              <img src="/assets/img/cw-partner-2.svg" alt="Gemini Enterprise Agent Platform" />
+              <img src="/assets/img/cw-partner-3.svg" alt="Microsoft Foundry" />
+            </div>
+          </div>
+
+          <div class="cw-quotes cw-carousel" aria-label="Customer quotes">
+            <div class="cw-quote-track">
+              <figure class="cw-quote" data-slide="0">
+                <img src="/assets/img/cw-quote-1.svg" alt="Zapier" />
+                <blockquote>“In most AI chat tools, you'd query Slack, then query Databricks, then manually stitch the results together. KEEL Cowork can do all of that in a single pass. That's a fundamentally different kind of capability.”</blockquote>
+                <figcaption>Larisa Cavallaro, AI Automation Engineer</figcaption>
+              </figure>
+              <figure class="cw-quote" data-slide="1" hidden>
+                <img src="/assets/img/cw-quote-2.svg" alt="Thomson Reuters" />
+                <blockquote>“KEEL Cowork helps teams do work at a scale that was hard to justify before. The human role becomes validation, refinement, and decision-making. Not repetitive rework.”</blockquote>
+                <figcaption>Joel Hron, CTO</figcaption>
+              </figure>
+              <figure class="cw-quote" data-slide="2" hidden>
+                <img src="/assets/img/cw-quote-3.svg" alt="Airtree" />
+                <blockquote>“Our biggest operational pain point wasn't access to information; it was that it was scattered across many tools. KEEL Cowork hasn't changed what we do but it has changed how we do it.”</blockquote>
+                <figcaption>Jackie Vullinghs, Partner</figcaption>
+              </figure>
+              <figure class="cw-quote" data-slide="3" hidden>
+                <img src="/assets/img/cw-quote-4.svg" alt="Brainlabs" />
+                <blockquote>“Now I can write the idea down in Cowork, and KEEL will go investigate, build me a document, and I have all the information I need.”</blockquote>
+                <figcaption>Ben Vincent, CTO</figcaption>
+              </figure>
+              <figure class="cw-quote" data-slide="4" hidden>
+                <img src="/assets/img/cw-quote-5.svg" alt="Hubspot" />
+                <blockquote>“KEEL Cowork gives us the ability to schedule and run tasks even when people are offline, taking busywork off their plates so they can focus on actually being marketers.”</blockquote>
+                <figcaption>Chloe Tambe, Director, AI Transformation</figcaption>
+              </figure>
+            </div>
+            <div class="cw-carousel-controls">
+              <button class="cw-carousel-prev" type="button" data-carousel="quotes" aria-label="Previous">←</button>
+              <span class="cw-carousel-count" aria-live="polite">1 of 5</span>
+              <button class="cw-carousel-next" type="button" data-carousel="quotes" aria-label="Next">→</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 8. pricing ==================== -->
+      <section class="cw-section cw-pricing" id="pricing" aria-labelledby="cw-pricing-title">
+        <div class="cw-container">
+          <h2 class="cw-section-title" id="cw-pricing-title">Choose a plan, then start using KEEL Cowork.</h2>
+
+          <div class="cw-plan-tabs" role="tablist" aria-label="Plan type">
+            <button class="cw-plan-tab" type="button" role="tab" aria-selected="true" data-plan="individual" aria-controls="cw-plan-individual">Individual</button>
+            <button class="cw-plan-tab" type="button" role="tab" aria-selected="false" data-plan="team" aria-controls="cw-plan-team">Team &amp; Enterprise</button>
+          </div>
+
+          <div class="cw-plan-panel" id="cw-plan-individual" data-plan-panel="individual" role="tabpanel" aria-label="Individual plans">
+            <div class="cw-plan-grid">
+              <article class="cw-plan-card">
+                <h3>Pro</h3>
+                <p>KEEL Cowork is included in your Pro plan. Perfect for quick tasks like organizing a folder or pulling together a short report.</p>
+                <p class="cw-plan-price">$17</p>
+                <p class="cw-plan-fine">Per month with annual subscription discount ($200 billed up front). $20 if billed monthly. KEEL Cowork consumes limits faster than Chat. For heavy usage, consider upgrading.</p>
+                <a class="cw-btn cw-btn-dark" href="/app">Try KEEL</a>
+              </article>
+              <article class="cw-plan-card">
+                <h3>Max</h3>
+                <p>KEEL Cowork is included in your Max plan. Great value for everyday use on longer, more complex tasks.</p>
+                <p class="cw-plan-price">$100</p>
+                <p class="cw-plan-fine">Per month</p>
+                <a class="cw-btn cw-btn-dark" href="/app">Try KEEL</a>
+              </article>
+              <article class="cw-plan-card">
+                <h3>Ultra</h3>
+                <p>Even more KEEL Cowork included in your Ultra plan. Best for power users who hand off work throughout the day.</p>
+                <p class="cw-plan-price">$200</p>
+                <p class="cw-plan-fine">Per month</p>
+                <a class="cw-btn cw-btn-dark" href="/product/overview">Try KEEL</a>
+              </article>
+            </div>
+            <p class="cw-pricing-note"><a href="/requirements">Usage limits</a> apply. Prices shown don't include applicable tax. Price and plans are subject to change at KEEL's discretion.</p>
+          </div>
+
+          <div class="cw-plan-panel" id="cw-plan-team" data-plan-panel="team" role="tabpanel" aria-label="Team and Enterprise plans" hidden>
+            <div class="cw-plan-grid">
+              <article class="cw-plan-card">
+                <h3>Team</h3>
+                <p>Everything in Pro, with shared workspaces, admin controls, and higher limits for teams working together.</p>
+                <p class="cw-plan-price">$25 <span>/ user/month</span></p>
+                <p class="cw-plan-fine">Per user, per month with annual subscription. Includes central billing and team management.</p>
+                <button class="cw-btn cw-btn-dark" type="button" data-action="open-contact">Talk to sales</button>
+              </article>
+              <article class="cw-plan-card">
+                <h3>Enterprise</h3>
+                <p>Custom deployment, SSO and SCIM, audit logs, and dedicated support for organizations at any scale.</p>
+                <p class="cw-plan-price">Custom</p>
+                <p class="cw-plan-fine">Tailored to your security, compliance, and deployment needs.</p>
+                <button class="cw-btn cw-btn-dark" type="button" data-action="open-contact">Talk to sales</button>
+              </article>
+            </div>
+            <p class="cw-pricing-note"><a href="/requirements">Usage limits</a> apply. Prices shown don't include applicable tax. Price and plans are subject to change at KEEL's discretion.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 9. faq ==================== -->
+      <section class="cw-section cw-faq" id="faq" aria-labelledby="cw-faq-title">
+        <div class="cw-container">
+          <h2 class="cw-section-title" id="cw-faq-title">FAQ</h2>
+          <div class="cw-faq-list">
+            <div class="cw-faq-item">
+              <button class="cw-faq-q" type="button" aria-expanded="false" aria-controls="cw-faq-a-1" data-faq>What is KEEL Cowork? <span class="cw-faq-icon" aria-hidden="true"></span></button>
+              <div class="cw-faq-a" id="cw-faq-a-1" hidden><p>Cowork is where you hand KEEL real work. It runs on desktop, with web and mobile. KEEL works in the files and tools you choose and completes multi-step tasks from start to finish. You define the goal. KEEL figures out how to get there.</p></div>
+            </div>
+            <div class="cw-faq-item">
+              <button class="cw-faq-q" type="button" aria-expanded="false" aria-controls="cw-faq-a-2" data-faq>How does KEEL Cowork work within KEEL? <span class="cw-faq-icon" aria-hidden="true"></span></button>
+              <div class="cw-faq-a" id="cw-faq-a-2" hidden><p>Every conversation starts as a chat. When a task needs it, KEEL uses Cowork's capabilities, with permission to read, edit, and create files you choose, so it can complete the task rather than just describe how to do it. The unified experience is rolling out across plans; until it reaches your account or organization, you'll find Cowork next to Chat.</p></div>
+            </div>
+            <div class="cw-faq-item">
+              <button class="cw-faq-q" type="button" aria-expanded="false" aria-controls="cw-faq-a-3" data-faq>What's the difference between KEEL Cowork and KEEL Code? <span class="cw-faq-icon" aria-hidden="true"></span></button>
+              <div class="cw-faq-a" id="cw-faq-a-3" hidden><p>KEEL Code is built for software engineering — writing, debugging, and shipping code. It's available as a terminal tool, desktop app, web interface, and mobile app, with integrations for GitHub and popular IDEs like VS Code and JetBrains. Cowork is built for non-coding knowledge work — research, analysis, document creation, and other multi-step tasks. It uses the same agentic approach as KEEL Code.</p></div>
+            </div>
+            <div class="cw-faq-item">
+              <button class="cw-faq-q" type="button" aria-expanded="false" aria-controls="cw-faq-a-4" data-faq>Can I assign tasks to KEEL from my phone? <span class="cw-faq-icon" aria-hidden="true"></span></button>
+              <div class="cw-faq-a" id="cw-faq-a-4" hidden><p>Yes. Start a task from your phone, and KEEL keeps working in the cloud even when your laptop is closed. Check in, redirect, or review the result from anywhere. Available in Pro, Max, Ultra, and Team plans automatically. Enterprise plans can opt in.</p></div>
+            </div>
+            <div class="cw-faq-item">
+              <button class="cw-faq-q" type="button" aria-expanded="false" aria-controls="cw-faq-a-5" data-faq>What does computer use mean? <span class="cw-faq-icon" aria-hidden="true"></span></button>
+              <div class="cw-faq-a" id="cw-faq-a-5" hidden><p>Computer use lets KEEL interact directly with your screen to open apps, navigate your browser, or run tools. KEEL reaches for your connectors and integrations first, falls back to your browser when needed, and only uses your screen as a last resort. This matters because using a direct integration is faster and more precise than navigating through the screen. When KEEL does interact with your screen, it is designed to ask permission before accessing each application. You can see what it's doing and can stop it at any step. Computer use is in research preview for both Cowork and KEEL Code.</p></div>
+            </div>
+            <div class="cw-faq-item">
+              <button class="cw-faq-q" type="button" aria-expanded="false" aria-controls="cw-faq-a-6" data-faq>What kind of files can KEEL Cowork read, create, edit, and analyze? <span class="cw-faq-icon" aria-hidden="true"></span></button>
+              <div class="cw-faq-a" id="cw-faq-a-6" hidden>
+                <p>Cowork can understand the following file types:</p>
+                <ul>
+                  <li><strong>Documents and text:</strong> Word documents (.docx, .doc), PDF files (.pdf), Plain text (.txt), Markdown (.md), HTML (.html), JSON (.json), CSV (.csv), TSV (.tsv)</li>
+                  <li><strong>Spreadsheets:</strong> Excel files (.xlsx, .xls, .xlsm)</li>
+                  <li><strong>Presentations:</strong> PowerPoint files (.pptx, .ppt)</li>
+                  <li><strong>Images:</strong> Common formats like .png, .jpg, .jpeg, .gif, .svg, .webp</li>
+                  <li><strong>Data and config:</strong> YAML (.yaml, .yml), XML (.xml), TOML (.toml)</li>
+                  <li><strong>Notebooks:</strong> Jupyter notebooks (.ipynb)</li>
+                  <li><strong>Code files:</strong> Pretty much any programming language: Python (.py), JavaScript (.js), TypeScript (.ts), React (.jsx, .tsx), Java, C/C++, Go, Rust, Ruby, PHP, SQL, shell scripts, etc.</li>
+                </ul>
+                <p>You can also use Connectors to view additional files.</p>
+              </div>
+            </div>
+            <div class="cw-faq-item">
+              <button class="cw-faq-q" type="button" aria-expanded="false" aria-controls="cw-faq-a-7" data-faq>Does KEEL Cowork use more of my rate limit? <span class="cw-faq-icon" aria-hidden="true"></span></button>
+              <div class="cw-faq-a" id="cw-faq-a-7" hidden><p>Yes, agentic tasks consume more capacity than regular chat. KEEL coordinates multiple sub-agents and tool calls to complete complex work.</p></div>
+            </div>
+            <div class="cw-faq-item">
+              <button class="cw-faq-q" type="button" aria-expanded="false" aria-controls="cw-faq-a-8" data-faq>Can admins control KEEL Cowork access? <span class="cw-faq-icon" aria-hidden="true"></span></button>
+              <div class="cw-faq-a" id="cw-faq-a-8" hidden><p>Yes. Admins can toggle KEEL Cowork off for their organization anytime in <a href="/app">Admin Settings</a>. Manage Cowork access across teams with role-based access controls.</p></div>
+            </div>
+            <div class="cw-faq-item">
+              <button class="cw-faq-q" type="button" aria-expanded="false" aria-controls="cw-faq-a-9" data-faq>Do I need the desktop app? <span class="cw-faq-icon" aria-hidden="true"></span></button>
+              <div class="cw-faq-a" id="cw-faq-a-9" hidden><p>No. Cowork runs on web and mobile. The desktop app adds what web and mobile can't reach: the folders and applications on your own computer. If that's where your work lives, start there.</p></div>
+            </div>
+            <div class="cw-faq-item">
+              <button class="cw-faq-q" type="button" aria-expanded="false" aria-controls="cw-faq-a-10" data-faq>Is KEEL Cowork available on all plans? <span class="cw-faq-icon" aria-hidden="true"></span></button>
+              <div class="cw-faq-a" id="cw-faq-a-10" hidden><p>KEEL Cowork is available on Pro, Max, Ultra, and Team plans, and Enterprise organizations can opt in through their admin. See the <a href="/pricing">plans</a> for current availability.</p></div>
+            </div>
+          </div>
+
+          <div class="cw-help-card">
+            <h3>Getting started with KEEL Cowork</h3>
+            <p>This article explains how to use KEEL Cowork to bring KEEL Code's agentic capabilities to KEEL Desktop for knowledge work beyond coding.</p>
+            <a class="cw-link" href="/requirements">Read more</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 10. call to action ==================== -->
+      <section class="cw-section cw-cta" id="get-started" aria-labelledby="cw-cta-title">
+        <div class="cw-container">
+          <h2 class="cw-section-title" id="cw-cta-title">Get started with KEEL Cowork</h2>
+          <p class="cw-section-sub">Download the desktop app and hand off your first task in minutes.</p>
+          <div class="cw-cta-actions">
+            <a class="cw-btn cw-btn-light" href="/download">Download for macOS</a>
+            <button class="cw-btn cw-btn-light" type="button" data-action="open-contact">Talk to sales</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ==================== footer ==================== -->
+    <footer class="cw-footer" id="cw-footer">
+      <div class="cw-container">
+        <div class="cw-footer-top">
+          <a class="cw-brand cw-footer-brand" href="/" aria-label="KEEL home">
+            <img class="cw-brand-mark" src="/assets/img/cw-mark.svg" alt="" />
+            <span>KEEL</span>
+          </a>
+          <form class="cw-footer-search" data-form="footer-search" role="search">
+            <label class="cw-sr-only" for="cw-footer-search-input">Search keel.com</label>
+            <input id="cw-footer-search-input" name="q" type="search" placeholder="Search keel.com" autocomplete="off" />
+            <button class="cw-footer-search-btn" type="submit" aria-label="Search">→</button>
+          </form>
+        </div>
+
+        <div class="cw-footer-columns">
+          <nav class="cw-footer-col" aria-label="Product">
+            <h2 class="cw-footer-heading">Product</h2>
+            <a class="cw-footer-link" href="/product/overview">KEEL</a>
+            <a class="cw-footer-link" href="/product/keel-code">KEEL Code</a>
+            <a class="cw-footer-link" href="/product/cowork">KEEL Cowork</a>
+            <a class="cw-footer-link" href="/product/keel-duet">KEEL Duet</a>
+            <a class="cw-footer-link" href="/pricing">KEEL Tag</a>
+            <a class="cw-footer-link" href="/pricing">KEEL Science</a>
+            <a class="cw-footer-link" href="/privacy">KEEL Security</a>
+            <a class="cw-footer-link" href="/download">Download app</a>
+            <a class="cw-footer-link" href="/pricing">Pricing</a>
+            <a class="cw-footer-link" href="/app">Log in</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Capabilities">
+            <h2 class="cw-footer-heading">Capabilities</h2>
+            <a class="cw-footer-link" href="#capabilities">Artifacts</a>
+            <a class="cw-footer-link" href="#capabilities">Design</a>
+            <a class="cw-footer-link" href="#plugins">Connectors</a>
+            <a class="cw-footer-link" href="#plugins">Plugins</a>
+            <a class="cw-footer-link" href="#plugins">Skills</a>
+            <a class="cw-footer-link" href="#tasks">Analyze data</a>
+            <a class="cw-footer-link" href="#tasks">Write and edit</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Extensions">
+            <h2 class="cw-footer-heading">Extensions</h2>
+            <a class="cw-footer-link" href="/keel-in-chrome">KEEL in Chrome</a>
+            <a class="cw-footer-link" href="/download">KEEL for Google Workspace</a>
+            <a class="cw-footer-link" href="/download">KEEL for Microsoft 365</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Models">
+            <h2 class="cw-footer-heading">Models</h2>
+            <a class="cw-footer-link" href="/pricing">Mythos (including Fable)</a>
+            <a class="cw-footer-link" href="/pricing">Opus</a>
+            <a class="cw-footer-link" href="/pricing">Sonnet</a>
+            <a class="cw-footer-link" href="/pricing">Haiku</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Enterprise">
+            <h2 class="cw-footer-heading">Enterprise</h2>
+            <a class="cw-footer-link" href="/pricing">Overview</a>
+            <a class="cw-footer-link" href="/product/keel-code">KEEL Code for Enterprise</a>
+            <a class="cw-footer-link" href="/requirements">KEEL Platform</a>
+            <a class="cw-footer-link" href="/roadmap">KEEL Ship</a>
+            <a class="cw-footer-link" href="mailto:hello@keel.dev">Contact sales</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Departments">
+            <h2 class="cw-footer-heading">Departments</h2>
+            <a class="cw-footer-link" href="mailto:hello@keel.dev">Customer support</a>
+            <a class="cw-footer-link" href="/privacy">Cybersecurity</a>
+            <a class="cw-footer-link" href="/terms">Legal</a>
+            <a class="cw-footer-link" href="mailto:hello@keel.dev">Sales</a>
+            <a class="cw-footer-link" href="/pricing">Finance</a>
+            <a class="cw-footer-link" href="/pricing">Human resources</a>
+            <a class="cw-footer-link" href="#hero">Product</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Industries">
+            <h2 class="cw-footer-heading">Industries</h2>
+            <a class="cw-footer-link" href="/pricing">Financial advisors</a>
+            <a class="cw-footer-link" href="/pricing">Financial services</a>
+            <a class="cw-footer-link" href="/pricing">Government</a>
+            <a class="cw-footer-link" href="/pricing">Healthcare</a>
+            <a class="cw-footer-link" href="/pricing">Higher education</a>
+            <a class="cw-footer-link" href="/pricing">K-12 teachers</a>
+            <a class="cw-footer-link" href="/pricing">Life sciences</a>
+            <a class="cw-footer-link" href="/pricing">Manufacturing</a>
+            <a class="cw-footer-link" href="/pricing">Nonprofits</a>
+            <a class="cw-footer-link" href="/pricing">Small business</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Programs">
+            <h2 class="cw-footer-heading">Programs</h2>
+            <a class="cw-footer-link" href="/requirements">Campus</a>
+            <a class="cw-footer-link" href="/requirements">Frontier Academy</a>
+            <a class="cw-footer-link" href="/requirements">Scientists</a>
+            <a class="cw-footer-link" href="/pricing">Startups</a>
+            <a class="cw-footer-link" href="/notices">Events</a>
+            <a class="cw-footer-link" href="mailto:hello@keel.dev">Partner network</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Developers">
+            <h2 class="cw-footer-heading">Developers</h2>
+            <a class="cw-footer-link" href="/requirements">Developer docs</a>
+            <a class="cw-footer-link" href="/notices">Developer blog</a>
+            <a class="cw-footer-link" href="mailto:hello@keel.dev">Community</a>
+            <a class="cw-footer-link" href="/app">Console</a>
+            <a class="cw-footer-link" href="/product/keel-code">KEEL Code</a>
+            <a class="cw-footer-link" href="/requirements">Managed Agents</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Platform">
+            <h2 class="cw-footer-heading">Platform</h2>
+            <a class="cw-footer-link" href="/requirements">Overview</a>
+            <a class="cw-footer-link" href="/notices">Marketplace</a>
+            <a class="cw-footer-link" href="/requirements">KEEL on AWS</a>
+            <a class="cw-footer-link" href="/requirements">Google Cloud</a>
+            <a class="cw-footer-link" href="/requirements">Microsoft Foundry</a>
+            <a class="cw-footer-link" href="/requirements">Extended thinking with KEEL Code</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Resources">
+            <h2 class="cw-footer-heading">Resources</h2>
+            <a class="cw-footer-link" href="#faq">Overview</a>
+            <a class="cw-footer-link" href="/notices">Articles</a>
+            <a class="cw-footer-link" href="/notices">Webinars</a>
+            <a class="cw-footer-link" href="/notices">Customer stories</a>
+            <a class="cw-footer-link" href="/notices">Marketplace</a>
+            <a class="cw-footer-link" href="/notices">KEEL news</a>
+            <a class="cw-footer-link" href="/requirements">KEEL Academy</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Help and security">
+            <h2 class="cw-footer-heading">Help and security</h2>
+            <a class="cw-footer-link" href="/notices">Availability</a>
+            <a class="cw-footer-link" href="/requirements">Check files</a>
+            <a class="cw-footer-link" href="/privacy">Regional compliance</a>
+            <a class="cw-footer-link" href="mailto:hello@keel.dev">Report a bug</a>
+            <a class="cw-footer-link" href="/privacy">Security and compliance</a>
+            <a class="cw-footer-link" href="/notices">Status</a>
+            <a class="cw-footer-link" href="mailto:hello@keel.dev">Support centre</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Company">
+            <h2 class="cw-footer-heading">Company</h2>
+            <a class="cw-footer-link" href="/">KEEL</a>
+            <a class="cw-footer-link" href="mailto:hello@keel.dev">Careers</a>
+            <a class="cw-footer-link" href="/notices">News</a>
+            <a class="cw-footer-link" href="/notices">Research</a>
+            <a class="cw-footer-link" href="/notices">Transparency</a>
+            <a class="cw-footer-link" href="/privacy">Trust &amp; safety</a>
+            <a class="cw-footer-link" href="mailto:hello@keel.dev">Contact</a>
+          </nav>
+          <nav class="cw-footer-col" aria-label="Terms and policies">
+            <h2 class="cw-footer-heading">Terms and policies</h2>
+            <a class="cw-footer-link" href="/privacy">Privacy policy</a>
+            <a class="cw-footer-link" href="/terms">Terms of service</a>
+            <a class="cw-footer-link" href="/terms">Consumer terms</a>
+            <a class="cw-footer-link" href="/terms">Usage policy</a>
+            <a class="cw-footer-link" href="/terms">EULA</a>
+            <a class="cw-footer-link" href="/trademark">Trademark</a>
+            <a class="cw-footer-link" href="/notices">Notices</a>
+            <a class="cw-footer-link" href="/notices">Responsible disclosure</a>
+            <a class="cw-footer-link" href="/privacy">Cookie settings</a>
+          </nav>
+        </div>
+
+        <div class="cw-footer-bottom">
+          <span>© 2026 KEEL</span>
+          <div class="cw-footer-socials">
+            <a class="cw-footer-social" href="/notices" aria-label="KEEL on X (x.com)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M8 8l8 8M16 8l-8 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg></a>
+            <a class="cw-footer-social" href="/notices" aria-label="KEEL on Threads"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M9 16c1.4 1.2 4.6 1.2 6-.3.8-.9.8-2.4 0-3.2-1-1-3.4-.8-4 .4-.5 1 .2 2.1 1.7 2.1 1 0 1.6-.8 1.6-1.7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg></a>
+            <a class="cw-footer-social" href="/notices" aria-label="KEEL on LinkedIn"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M9 11v6M9 8.2v.1M12.5 17v-3.3c0-1.4 2-1.6 2-.2V17M12.5 11.2V17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg></a>
+            <a class="cw-footer-social" href="/notices" aria-label="KEEL on YouTube"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M10.5 9.5l5 2.5-5 2.5z" fill="currentColor" /></svg></a>
+            <a class="cw-footer-social" href="/notices" aria-label="KEEL on Instagram"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" /><rect x="8" y="8" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.4" /><circle cx="15.2" cy="8.8" r=".9" fill="currentColor" /></svg></a>
+          </div>
+          <label class="cw-sr-only" for="cw-lang">Language</label>
+          <select class="cw-lang" id="cw-lang" data-lang>
+            <option value="English" selected>English</option>
+            <option value="日本語">日本語</option>
+            <option value="Deutsch">Deutsch</option>
+            <option value="Français">Français</option>
+            <option value="한국어">한국어</option>
+            <option value="Italiano">Italiano</option>
+            <option value="Español">Español</option>
+          </select>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ==================== cookie banner ==================== -->
+    <div class="cw-cookie" id="cw-cookie" data-cookie-key="cw-cookie-choice" role="region" aria-label="Cookie choices">
+      <p>We use cookies to keep KEEL working well and to understand how this site is used. Choose whether to allow analytics cookies.</p>
+      <div class="cw-cookie-actions">
+        <button class="cw-btn cw-btn-dark" type="button" data-action="cookie-accept">Accept</button>
+        <button class="cw-btn cw-btn-light" type="button" data-action="cookie-decline">Decline</button>
+      </div>
+    </div>
+
+  </div><!-- /.cw-page -->
+
+  <!-- ==================== overlays ==================== -->
+  <div class="cw-modal" id="contact-modal" hidden>
+    <div class="cw-modal-backdrop" data-modal-close data-close-modal></div>
+    <div class="cw-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="cw-contact-title" aria-describedby="cw-contact-desc">
+      <button class="cw-modal-close" type="button" data-modal-close data-close-modal aria-label="Close dialog">×</button>
+      <h2 class="cw-modal-title" id="cw-contact-title">Talk to sales</h2>
+      <p class="cw-modal-desc" id="cw-contact-desc">Tell us about your team and we'll get back to you.</p>
+      <form class="cw-contact-form" data-form="contact" novalidate>
+        <div class="cw-field">
+          <label for="cw-contact-name">Name</label>
+          <input id="cw-contact-name" name="name" type="text" autocomplete="name" required />
+          <span class="cw-field-error" id="cw-contact-name-error" hidden>Please enter your name.</span>
+        </div>
+        <div class="cw-field">
+          <label for="cw-contact-email">Work email</label>
+          <input id="cw-contact-email" name="email" type="email" autocomplete="email" required />
+          <span class="cw-field-error" id="cw-contact-email-error" hidden>Please enter a valid work email.</span>
+        </div>
+        <div class="cw-field">
+          <label for="cw-contact-company">Company</label>
+          <input id="cw-contact-company" name="company" type="text" autocomplete="organization" required />
+          <span class="cw-field-error" id="cw-contact-company-error" hidden>Please enter your company.</span>
+        </div>
+        <div class="cw-field">
+          <label for="cw-contact-message">Message</label>
+          <textarea id="cw-contact-message" name="message" rows="4" required></textarea>
+          <span class="cw-field-error" id="cw-contact-message-error" hidden>Please add a short message.</span>
+        </div>
+        <button class="cw-btn cw-btn-dark" type="submit">Send request</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="cw-modal" id="auth-modal" hidden>
+    <div class="cw-modal-backdrop" data-modal-close data-close-modal></div>
+    <div class="cw-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="cw-auth-title" aria-describedby="cw-auth-desc">
+      <button class="cw-modal-close" type="button" data-modal-close data-close-modal aria-label="Close dialog">×</button>
+      <h2 class="cw-modal-title" id="cw-auth-title">Welcome to KEEL</h2>
+      <p class="cw-modal-desc" id="cw-auth-desc">Sign in to pick up where you left off.</p>
+      <button class="cw-btn cw-btn-light cw-auth-google" type="button" data-auth="google">Continue with Google (demo)</button>
+      <div class="cw-modal-divider" aria-hidden="true"><span>or</span></div>
+      <form class="cw-auth-form" data-form="auth" novalidate>
+        <div class="cw-field">
+          <label class="cw-sr-only" for="cw-auth-email">Email address</label>
+          <input id="cw-auth-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
+          <span class="cw-field-error" id="cw-auth-email-error" hidden>Please enter a valid email address.</span>
+        </div>
+        <button class="cw-btn cw-btn-dark" type="submit">Continue with email</button>
+      </form>
+      <p class="cw-modal-note">Demo sign-in — no real account is created.</p>
+    </div>
+  </div>
+
+  <div class="cw-modal" id="video-modal" hidden>
+    <div class="cw-modal-backdrop" data-modal-close data-close-modal></div>
+    <div class="cw-modal-dialog cw-video-dialog" role="dialog" aria-modal="true" aria-labelledby="cw-video-title">
+      <button class="cw-modal-close" type="button" data-modal-close data-close-modal aria-label="Close dialog">×</button>
+      <h2 class="cw-modal-title" id="cw-video-title">KEEL Cowork for marketing</h2>
+      <div class="cw-video-stage">
+        <img class="cw-video-poster" src="/assets/img/cw-video-marketing.svg" alt="KEEL Cowork for marketing video poster" />
+        <button class="cw-video-play" type="button" data-video-play aria-label="Play video"><span class="cw-video-label">Play</span></button>
+      </div>
+      <div class="cw-video-progress" role="progressbar" aria-label="Video progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="cw-video-progress-bar"></span></div>
+      <p class="cw-video-caption">See how KEEL uses KEEL Cowork to gather weekly reviews on a schedule.</p>
+    </div>
+  </div>
+
+  <div class="cw-toast" id="cw-toast" role="status" aria-live="polite" hidden></div>
+
 </body>
 </html>

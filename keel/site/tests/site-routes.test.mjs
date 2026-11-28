@@ -42,7 +42,7 @@ const PHYSICAL_INDEXES = [
   "resources/articles/introducing-keel-ship",
   "resources/articles/introducing-keel-code",
   "resources/articles/keel-ship-session-format",
-  "chrome-web-store",
+  // chrome-web-store was retired by the upstream direct-install extension flow.
   "keel-in-chrome",
 ];
 
@@ -123,15 +123,43 @@ test("every physical route index exists", () => {
   }
 });
 
-test("short-route stubs redirect to the product pages without inline code", () => {
-  for (const [route, destination] of [["cowork", "/product/cowork"], ["keel-code", "/product/keel-code"]]) {
+test("every clean route resolves with a trailing slash too", () => {
+  const sources = new Set(VERCEL.rewrites.map((item) => item.source));
+  for (const { source } of VERCEL.rewrites) {
+    if (source.endsWith("/")) continue;
+    const physical = path.join(SITE, source.replace(/^\//, ""), "index.html");
+    const hasSlashRewrite = sources.has(`${source}/`);
+    const hasIndex = fs.existsSync(physical) && fs.statSync(physical).isFile();
+    assert.ok(hasSlashRewrite || hasIndex,
+      `${source}/ has neither a rewrite nor a physical index`);
+  }
+});
+
+test("static assets are cacheable instead of revalidating on every visit", () => {
+  const cacheRules = VERCEL.headers.filter((h) =>
+    h.headers.some((entry) => entry.key.toLowerCase() === "cache-control"));
+  for (const prefix of ["/ui/(.*)", "/assets/(.*)", "/screenshots/(.*)"]) {
+    const rule = cacheRules.find((h) => h.source === prefix);
+    assert.ok(rule, `${prefix}: missing cache-control header`);
+    const value = rule.headers.find((e) => e.key.toLowerCase() === "cache-control").value;
+    assert.match(value, /max-age=[1-9]/, `${prefix}: assets must be cached`);
+  }
+});
+
+test("short routes serve the full product page design, not a redirect stub", () => {
+  for (const [route, title] of [
+    ["cowork", "KEEL Cowork"],
+    ["keel-code", "Keel Code"],
+  ]) {
     const html = fs.readFileSync(path.join(SITE, route, "index.html"), "utf8");
-    assert.ok(html.includes(`<meta http-equiv="refresh" content="0; url=${destination}" />`), `${route}: meta refresh`);
-    assert.ok(html.includes(`rel="canonical" href="https://keel-desktop.vercel.app${destination}"`), `${route}: canonical`);
-    assert.ok(html.includes(`data-redirect="${destination}"`), `${route}: JS redirect target`);
-    assert.ok(html.includes('src="/ui/route-redirect.js"'), `${route}: external redirect script`);
-    assert.ok(html.includes(`href="${destination}"`), `${route}: accessible link`);
-    assert.ok(!/<script(?![^>]*\bsrc=)|<style[\s>]|\son(click|load|error)=\s*["']/i.test(html), `${route}: no inline code`);
+    const canonical = fs.readFileSync(
+      path.join(SITE, "product", route === "cowork" ? "cowork" : "keel-code", "index.html"),
+      "utf8");
+    assert.equal(html, canonical, `${route}: short route must match the product page design`);
+    assert.ok(html.includes(`<title>${title}`) || html.includes(title),
+      `${route}: product page title present`);
+    assert.ok(!html.includes("Moving to "), `${route}: no redirect stub`);
+    assert.ok(!html.includes("route-redirect.js"), `${route}: no redirect script`);
   }
 });
 
@@ -196,10 +224,12 @@ test("QA server resolves the three previously-404 URLs with real content", async
   }
 });
 
-test("QA server also serves the physical short-route stubs", async () => {
-  for (const [route, destination] of [["/cowork/index.html", "/product/cowork"], ["/keel-code/index.html", "/product/keel-code"]]) {
+test("QA server also serves the full product design at physical short routes", async () => {
+  for (const [route, title] of [["/cowork/index.html", "KEEL Cowork"], ["/keel-code/index.html", "Keel Code"]]) {
     const response = await fetch(`${base}${route}`);
     assert.equal(response.status, 200, `${route}: expected 200, got ${response.status}`);
-    assert.match(await response.text(), new RegExp(`data-redirect="${destination.replace(/\//g, "\\/")}"`));
+    const body = await response.text();
+    assert.ok(body.includes(title), `${route}: product design title missing`);
+    assert.ok(!body.includes("Moving to "), `${route}: still a redirect stub`);
   }
 });

@@ -23,6 +23,30 @@
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
+    },
+    {
+      "source": "/ui/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/screenshots/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/store-assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
     }
   ],
   "rewrites": [
@@ -54,7 +78,31 @@
     { "source": "/resources/articles", "destination": "/resources/articles/index.html" },
     { "source": "/resources/articles/introducing-keel-ship", "destination": "/resources/articles/introducing-keel-ship/index.html" },
     { "source": "/resources/articles/introducing-keel-code", "destination": "/resources/articles/introducing-keel-code/index.html" },
-    { "source": "/resources/articles/keel-ship-session-format", "destination": "/resources/articles/keel-ship-session-format/index.html" }
+    { "source": "/resources/articles/keel-ship-session-format", "destination": "/resources/articles/keel-ship-session-format/index.html" },
+    { "source": "/download/", "destination": "/download.html" },
+    { "source": "/downloads/", "destination": "/downloads.html" },
+    { "source": "/login/", "destination": "/login.html" },
+    { "source": "/new/", "destination": "/new.html" },
+    { "source": "/plugins/", "destination": "/plugins.html" },
+    { "source": "/projects/", "destination": "/projects.html" },
+    { "source": "/artifacts/", "destination": "/artifacts.html" },
+    { "source": "/keel-in-chrome/", "destination": "/keel-in-chrome.html" },
+    { "source": "/privacy/", "destination": "/privacy.html" },
+    { "source": "/terms/", "destination": "/terms.html" },
+    { "source": "/notices/", "destination": "/notices.html" },
+    { "source": "/roadmap/", "destination": "/roadmap.html" },
+    { "source": "/eula/", "destination": "/eula.html" },
+    { "source": "/trademark/", "destination": "/trademark.html" },
+    { "source": "/requirements/", "destination": "/requirements.html" },
+    { "source": "/product/cowork/", "destination": "/product/cowork.html" },
+    { "source": "/product/keel-code/", "destination": "/product/keel-code.html" },
+    { "source": "/product/keel-duet/", "destination": "/product/keel-duet.html" },
+    { "source": "/product/overview/", "destination": "/product-overview.html" },
+    { "source": "/platform/api/", "destination": "/platform/api.html" },
+    { "source": "/pricing/", "destination": "/pricing.html" },
+    { "source": "/cowork/", "destination": "/product/cowork.html" },
+    { "source": "/keel-code/", "destination": "/product/keel-code.html" },
+    { "source": "/resources/articles/", "destination": "/resources/articles/index.html" }
   ],
   "redirects": [
     { "source": "/app.html", "destination": "/app", "permanent": false },
