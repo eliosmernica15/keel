@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel Science — Your research partner for rigorous science</title>
+  <meta name="description" content="Keel Science walks with you through every step of the research process, from idea to publication, and is available to everyone." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/product/keel-science" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f7f5f0" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Keel Science — Your research partner for rigorous science" />
+  <meta property="og:description" content="A research partner for rigorous science, from idea to publication." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/product/keel-science" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Keel Science — Your research partner for rigorous science" />
+  <meta name="twitter:description" content="A research partner for rigorous science, from idea to publication." />
+  <link rel="stylesheet" href="/ui/keel-duet-shell.css" />
+  <link rel="stylesheet" href="/ui/keel-science.css" />
+</head>
+<body class="duet-page science-page">
+
+  <!-- ==================== header / mega navigation ==================== -->
+  <header class="l-header s-header">
+    <div class="l-nav-inner">
+      <a class="l-wordmark" href="/" aria-label="Keel home">
+        <span class="l-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+        </span>
+        <span class="l-wordmark-text">Keel</span>
+      </a>
+
+      <nav class="l-nav-links" aria-label="Primary">
+
+        <!-- Product: four-column mega menu -->
+        <div class="l-nav-item" data-menu="product">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-product">Product <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-product" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Products</p>
+                <a class="l-mega-link" href="/">Keel</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/product/cowork">Keel Cowork</a>
+                <a class="l-mega-link" href="/product/keel-duet">Keel Duet</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/pricing">Pricing</a>
+                <p class="l-mega-subhead">Specialized</p>
+                <a class="l-mega-link" href="/privacy">Keel Security</a>
+                <a class="l-mega-link" href="/product/keel-science">Keel Science</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Capabilities</p>
+                <a class="l-mega-link" href="#research">Research</a>
+                <a class="l-mega-link" href="#drafts">Drafts</a>
+                <a class="l-mega-link" href="#workflow">Visualizations</a>
+                <a class="l-mega-link" href="#integrations">Integrations</a>
+                <a class="l-mega-link" href="#stories">Customer stories</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Extensions</p>
+                <a class="l-mega-link" href="/download">Keel in Chrome</a>
+                <a class="l-mega-link" href="/download">Keel for Google Workspace</a>
+                <a class="l-mega-link" href="/download">Keel for Microsoft 365</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Research with Keel</p>
+                <button class="l-mega-link" type="button" data-model="Literature search">Literature search</button>
+                <button class="l-mega-link" type="button" data-model="Data analysis">Data analysis</button>
+                <button class="l-mega-link" type="button" data-model="Experiment design">Experiment design</button>
+                <button class="l-mega-link" type="button" data-model="Publication">Publication</button>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/download">Import to Keel</a></div>
+              <div class="l-mega-foot-right">
+                <a class="l-mega-link" href="/download">Download apps <span class="l-dl" aria-hidden="true">↓</span></a>
+                <a class="l-mega-link" href="/login">Log in <span class="l-ext" aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="developers">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-developers">Developers <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-developers" aria-hidden="true">
+            <a class="l-explore-hint" href="/requirements">Explore here <span class="l-dl" aria-hidden="true">↓</span></a>
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Build with</p>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+                <a class="l-mega-link" href="/roadmap">Code Review</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">For developers</p>
+                <a class="l-mega-link" href="/requirements">Keel Academy</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+                <a class="l-mega-link" href="/notices">Developer blog</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="enterprise">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-enterprise">Enterprise <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-enterprise" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Enterprise</p>
+                <a class="l-mega-link" href="/product-overview">Overview</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code for Enterprise</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Use cases</p>
+                <a class="l-mega-link" href="/product/keel-science">Scientific research</a>
+                <a class="l-mega-link" href="/product/keel-code">Coding</a>
+                <a class="l-mega-link" href="/product-overview">Commerce</a>
+                <p class="l-mega-subhead">Departments</p>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Customer support</a>
+                <a class="l-mega-link" href="/privacy">Cybersecurity</a>
+                <a class="l-mega-link" href="/terms">Legal</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Industries</p>
+                <a class="l-mega-link" href="/product/keel-science">Life sciences</a>
+                <a class="l-mega-link" href="/product-overview">Government</a>
+                <a class="l-mega-link" href="/product-overview">Healthcare</a>
+                <a class="l-mega-link" href="/product-overview">Higher education</a>
+                <a class="l-mega-link" href="/product-overview">Financial services</a>
+                <a class="l-mega-link" href="/product-overview">Nonprofits</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/notices">Browse marketplace</a></div>
+              <div class="l-mega-foot-right">
+                <a class="l-mega-link" href="/notices">Customers</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Contact sales</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="resources">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-resources">Resources <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-resources" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Insights</p>
+                <a class="l-mega-link" href="#faq">Resources</a>
+                <a class="l-mega-link" href="/notices">Articles</a>
+                <a class="l-mega-link" href="/notices">Webinars</a>
+                <a class="l-mega-link" href="#stories">Customer stories</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Learn</p>
+                <a class="l-mega-link" href="/requirements">Keel Academy</a>
+                <a class="l-mega-link" href="/requirements">Courses</a>
+                <a class="l-mega-link" href="/requirements">Tutorials</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Connect</p>
+                <a class="l-mega-link" href="/notices">Events</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="pricing">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-pricing">Pricing <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-pricing" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <a class="l-mega-link" href="/pricing">Overview</a>
+                <a class="l-mega-link" href="/pricing#compare">Compare plans</a>
+                <a class="l-mega-link" href="/pricing#faq">FAQ</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a class="l-nav-link" href="/login">Log in</a>
+        <a class="l-nav-link" href="mailto:hello@keel.ai">Contact sales</a>
+      </nav>
+
+      <div class="l-nav-actions">
+        <a class="l-btn l-btn-dark l-btn-sm" href="/login">Get Keel</a>
+      </div>
+
+      <button class="l-nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+        <span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span>
+      </button>
+    </div>
+
+    <div class="l-mobile-menu" id="mobileMenu" hidden>
+      <a href="#research">Product</a>
+      <a href="/requirements">Developers</a>
+      <a href="/product-overview">Enterprise</a>
+      <a href="#faq">Resources</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/download">Download desktop app</a>
+      <a href="/product/keel-science">Keel Science</a>
+      <a href="/login">Log in</a>
+      <a href="mailto:hello@keel.ai">Contact sales</a>
+      <a href="/login">Get Keel</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ==================== breadcrumb ==================== -->
+    <nav class="s-crumbs l-container" aria-label="Breadcrumb"><a href="/">Product</a> <span aria-hidden="true">/</span> Keel Science</nav>
+
+    <!-- ==================== hero ==================== -->
+    <section class="s-hero" id="research-home"><div class="l-container">
+      <div class="s-hero-copy s-reveal">
+        <h1 class="s-hero-title">Your research partner for rigorous science</h1>
+        <p class="s-hero-lede">The Keel Science app walks with you through every step of the research process, from idea to publication, and is available to everyone.</p>
+        <div class="s-hero-actions">
+          <a class="l-btn l-btn-dark" href="/login">Get started</a>
+          <button class="l-btn l-btn-outline" type="button" data-announcement>Read the announcement</button>
+        </div>
+      </div>
+
+      <div class="s-hero-stage s-reveal">
+        <div class="s-video-card" id="science-video">
+          <div class="s-video-art" aria-hidden="true">
+            <svg viewBox="0 0 720 380" preserveAspectRatio="xMidYMid slice" focusable="false">
+              <rect width="720" height="380" fill="#f2eee6"/>
+              <rect x="0" y="300" width="720" height="80" fill="#e9e3d8"/>
+              <path d="M0 300h720" stroke="#d9d2c5" stroke-width="1"/>
+              <g fill="none" stroke="#b9b0a1" stroke-width="1">
+                <path d="M80 60v240M220 60v240M360 60v240M500 60v240M640 60v240"/>
+                <path d="M60 80h600M60 140h600M60 200h600M60 260h600"/>
+              </g>
+              <path d="M80 258 200 214 320 232 440 150 560 174 660 96" fill="none" stroke="#d97757" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+              <path d="M80 280 200 262 320 268 440 236 560 246 660 214" fill="none" stroke="#8d84c9" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+              <g fill="#d97757"><circle cx="200" cy="214" r="5"/><circle cx="440" cy="150" r="5"/><circle cx="660" cy="96" r="5"/></g>
+              <g fill="#8d84c9"><circle cx="320" cy="268" r="4"/><circle cx="560" cy="246" r="4"/></g>
+              <g fill="#fff" opacity=".92">
+                <rect x="42" y="26" width="170" height="34" rx="8"/>
+                <rect x="42" y="70" width="118" height="9" rx="4.5" fill="#d8d1c5"/>
+                <rect x="42" y="86" width="154" height="9" rx="4.5" fill="#e3ddd2"/>
+              </g>
+              <text x="56" y="48" font-family="Georgia, serif" font-size="15" fill="#191918">Research overview</text>
+            </svg>
+          </div>
+          <button class="s-play" type="button" data-video-play aria-label="Play the Keel Science walkthrough">
+            <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 5.5v13l11-6.5z"/></svg>
+          </button>
+          <p class="s-video-label">Keel Science <span aria-hidden="true">·</span> Watch the walkthrough</p>
+        </div>
+
+        <aside class="s-chat-card" id="science-chat" aria-label="Keel Science assistant">
+          <div class="s-chat-head">
+            <span class="s-chat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+            </span>
+            <strong>Keel Science</strong>
+            <span class="s-chat-dot" aria-hidden="true"></span>
+          </div>
+          <button class="s-chat-prompt" type="button" data-chat-prompt>Help me design an experiment</button>
+          <button class="s-chat-reply" type="button" data-show-reply aria-expanded="false" aria-controls="science-reply">Show reply</button>
+          <div class="s-reply" id="science-reply" hidden>
+            <p><strong>A good starting design</strong></p>
+            <p>State the question, name your outcome measure, and list the variables you will control. Then choose a comparison and record the protocol before you collect data.</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="s-montage s-reveal" aria-label="Examples of research figures and notes">
+        <button class="s-figure s-figure-wide" type="button" data-figure="Study overview"><span class="s-figure-art s-figure-art-lines" aria-hidden="true"></span><span class="s-figure-cap">Study overview</span></button>
+        <button class="s-figure" type="button" data-figure="Spectral analysis"><span class="s-figure-art s-figure-art-bars" aria-hidden="true"></span><span class="s-figure-cap">Spectral analysis</span></button>
+        <button class="s-figure" type="button" data-figure="Field notes"><span class="s-figure-art s-figure-art-notes" aria-hidden="true"></span><span class="s-figure-cap">Field notes</span></button>
+        <button class="s-figure" type="button" data-figure="Cited literature"><span class="s-figure-art s-figure-art-cites" aria-hidden="true"></span><span class="s-figure-cap">Cited literature</span></button>
+        <button class="s-figure" type="button" data-figure="Lab notebook"><span class="s-figure-art s-figure-art-grid" aria-hidden="true"></span><span class="s-figure-cap">Lab notebook</span></button>
+      </div>
+    </div></section>
+
+    <!-- ==================== built for scientific research ==================== -->
+    <section class="s-built" id="research"><div class="l-container">
+      <div class="s-section-head s-reveal">
+        <h2 class="s-section-title">Built for scientific research</h2>
+        <p class="s-section-sub">Built to accelerate authentic daily research workflows.</p>
+      </div>
+
+      <div class="s-built-grid">
+        <div class="s-paper-frame s-reveal">
+          <div class="s-paper-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="s-paper-tabs" role="tablist" aria-label="Research paper views">
+            <button class="s-paper-tab" type="button" role="tab" id="paper-tab-text" aria-controls="paper-panel-text" aria-selected="true" data-paper-tab="text">Paper</button>
+            <button class="s-paper-tab" type="button" role="tab" id="paper-tab-figures" aria-controls="paper-panel-figures" aria-selected="false" data-paper-tab="figures">Figures</button>
+            <button class="s-paper-tab" type="button" role="tab" id="paper-tab-notes" aria-controls="paper-panel-notes" aria-selected="false" data-paper-tab="notes">Notes</button>
+          </div>
+          <div class="s-paper-panel" id="paper-panel-text" role="tabpanel" aria-labelledby="paper-tab-text">
+            <p class="s-paper-kicker">RESEARCH NOTE · 2026</p>
+            <p class="s-paper-h">Patterns in open literature</p>
+            <p class="s-paper-line"></p><p class="s-paper-line short"></p><p class="s-paper-line"></p>
+            <p class="s-paper-h2">Method</p>
+            <p class="s-paper-line"></p><p class="s-paper-line medium"></p><p class="s-paper-line short"></p>
+            <p class="s-paper-h2">Findings</p>
+            <p class="s-paper-line"></p><p class="s-paper-line medium"></p>
+          </div>
+          <div class="s-paper-panel" id="paper-panel-figures" role="tabpanel" aria-labelledby="paper-tab-figures" hidden>
+            <div class="s-paper-figure" aria-hidden="true">
+              <svg viewBox="0 0 320 160" focusable="false"><rect width="320" height="160" fill="#fdf6ee"/><path d="M20 130h280M20 20v110" stroke="#d8c8b5"/><path d="M26 118 74 96 122 104 170 66 218 78 266 40 300 52" fill="none" stroke="#d97757" stroke-width="3"/><path d="M26 126 74 120 122 122 170 110 218 114 266 98 300 104" fill="none" stroke="#8d84c9" stroke-width="2.5"/></svg>
+            </div>
+            <p class="s-paper-figcap">Figure 2 · Signal comparison across conditions</p>
+          </div>
+          <div class="s-paper-panel" id="paper-panel-notes" role="tabpanel" aria-labelledby="paper-tab-notes" hidden>
+            <p class="s-paper-note">• Check the replication note in the cited paper.</p>
+            <p class="s-paper-note">• The repository has code for the second analysis.</p>
+            <p class="s-paper-note">• Save the figure before the review deadline.</p>
+          </div>
+        </div>
+
+        <div class="s-built-list s-reveal">
+          <article class="s-built-item">
+            <span class="s-built-num" aria-hidden="true">01</span>
+            <div><h3>Deeply engage with literature</h3><p>Ask questions across the papers you trust, follow the argument, and keep the evidence close to your notes.</p></div>
+          </article>
+          <article class="s-built-item">
+            <span class="s-built-num" aria-hidden="true">02</span>
+            <div><h3>Follow links to cited papers</h3><p>Move from a claim to its source in one step, and see how a field builds on earlier work.</p></div>
+          </article>
+          <article class="s-built-item">
+            <span class="s-built-num" aria-hidden="true">03</span>
+            <div><h3>Navigate to code in referenced repositories</h3><p>Jump from a method section to the code that implements it, so you can reproduce and adapt the analysis.</p></div>
+          </article>
+          <article class="s-built-item">
+            <span class="s-built-num" aria-hidden="true">04</span>
+            <div><h3>Extract figures from the paper</h3><p>Pull out the plots that matter, keep their captions and context, and bring them into your own draft.</p></div>
+          </article>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- ==================== drafts ==================== -->
+    <section class="s-drafts" id="drafts"><div class="l-container s-drafts-grid">
+      <div class="s-reveal">
+        <h2 class="s-section-title">Drafts ready in one day</h2>
+        <p class="s-section-sub">Turn a question into a structured first draft you can edit, challenge, and build on.</p>
+        <div class="s-draft-notes">
+          <p>For exploratory research</p>
+          <p>For literature reviews and systematic reviews</p>
+        </div>
+      </div>
+      <div class="s-draft-card s-reveal">
+        <p class="s-draft-label">Example prompt</p>
+        <button class="s-draft-prompt" type="button" data-draft aria-expanded="false" aria-controls="draft-output">Generate a literature review on my topic</button>
+        <div class="s-draft-output" id="draft-output" hidden>
+          <p class="s-draft-h">Literature review · first draft</p>
+          <p>1. Scope and search terms</p>
+          <p>2. Key themes in recent work</p>
+          <p>3. Points of disagreement</p>
+          <p>4. Open questions for your study</p>
+          <p class="s-draft-foot">A starting outline, not a finished paper. Check every claim against the source.</p>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- ==================== existing work ==================== -->
+    <section class="s-existing" id="existing"><div class="l-container s-existing-grid">
+      <div class="s-existing-copy s-reveal">
+        <h2 class="s-section-title">For existing work with experiments and figures</h2>
+        <p class="s-section-sub">Bring the data and plots you already have. Keel Science reads the figure, keeps the labels intact, and helps you write the result up honestly.</p>
+        <a class="s-text-link" href="/login">Start with your own files <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="s-existing-mock s-reveal" aria-label="Example paper with an experiment figure">
+        <div class="s-existing-top"><span>Experiment 03</span><span class="s-existing-tag">Figure attached</span></div>
+        <div class="s-existing-figure" aria-hidden="true">
+          <svg viewBox="0 0 420 190" focusable="false">
+            <rect width="420" height="190" fill="#fffaf3"/>
+            <g stroke="#e2d9cb" stroke-width="1"><path d="M40 24v140M40 164h350M40 124h350M40 84h350M40 44h350"/></g>
+            <g fill="#d97757"><circle cx="88" cy="142" r="5"/><circle cx="140" cy="128" r="5"/><circle cx="192" cy="112" r="5"/><circle cx="244" cy="88" r="5"/><circle cx="296" cy="76" r="5"/><circle cx="348" cy="54" r="5"/></g>
+            <path d="M88 142 140 128 192 112 244 88 296 76 348 54" fill="none" stroke="#d97757" stroke-width="2.5" opacity=".6"/>
+            <g fill="#8d84c9"><circle cx="88" cy="152" r="4"/><circle cx="140" cy="146" r="4"/><circle cx="192" cy="138" r="4"/><circle cx="244" cy="128" r="4"/><circle cx="296" cy="120" r="4"/><circle cx="348" cy="108" r="4"/></g>
+            <path d="M88 152 140 146 192 138 244 128 296 120 348 108" fill="none" stroke="#8d84c9" stroke-width="2.5" opacity=".6"/>
+          </svg>
+        </div>
+        <p class="s-existing-cap">Figure 3 · Treatment effect over time, with control</p>
+        <div class="s-existing-lines" aria-hidden="true"><span></span><span></span><span class="short"></span></div>
+      </div>
+    </div></section>
+
+    <!-- ==================== workflows ==================== -->
+    <section class="s-workflow" id="workflow"><div class="l-container">
+      <div class="s-section-head s-reveal">
+        <h2 class="s-section-title">How researchers use Keel Science</h2>
+        <p class="s-section-sub">go from a simple question to well-supported insights</p>
+      </div>
+      <div class="s-workflow-tabs s-reveal" role="tablist" aria-label="Research workflows">
+        <button class="s-workflow-tab" type="button" role="tab" id="tab-literature" aria-selected="true" aria-controls="panel-literature" data-workflow="Literature search">Literature search</button>
+        <button class="s-workflow-tab" type="button" role="tab" id="tab-analysis" aria-selected="false" aria-controls="panel-analysis" data-workflow="Data analysis">Data analysis</button>
+        <button class="s-workflow-tab" type="button" role="tab" id="tab-design" aria-selected="false" aria-controls="panel-design" data-workflow="Experiment design">Experiment design</button>
+      </div>
+      <div class="s-workflow-frame s-reveal">
+        <div class="s-workflow-panel" id="panel-literature" role="tabpanel" aria-labelledby="tab-literature">
+          <p class="s-plot-label">Citation themes over time</p>
+          <svg class="s-plot" viewBox="0 0 560 240" focusable="false" aria-hidden="true">
+            <g stroke="#e0d8cc"><path d="M48 20v190M48 210h490M48 165h490M48 120h490M48 75h490"/></g>
+            <g fill="#d97757"><rect x="76" y="150" width="42" height="60" rx="4"/><rect x="146" y="128" width="42" height="82" rx="4"/><rect x="216" y="96" width="42" height="114" rx="4"/><rect x="286" y="106" width="42" height="104" rx="4"/><rect x="356" y="70" width="42" height="140" rx="4"/><rect x="426" y="48" width="42" height="162" rx="4"/></g>
+            <g fill="#8d84c9"><rect x="120" y="174" width="22" height="36" rx="4"/><rect x="190" y="164" width="22" height="46" rx="4"/><rect x="260" y="150" width="22" height="60" rx="4"/><rect x="330" y="158" width="22" height="52" rx="4"/><rect x="400" y="134" width="22" height="76" rx="4"/><rect x="470" y="120" width="22" height="90" rx="4"/></g>
+          </svg>
+        </div>
+        <div class="s-workflow-panel" id="panel-analysis" role="tabpanel" aria-labelledby="tab-analysis" hidden>
+          <p class="s-plot-label">Measurement scatter</p>
+          <svg class="s-plot" viewBox="0 0 560 240" focusable="false" aria-hidden="true">
+            <g stroke="#e0d8cc"><path d="M48 20v190M48 210h490M48 165h490M48 120h490M48 75h490"/></g>
+            <g fill="#d97757"><circle cx="90" cy="186" r="6"/><circle cx="126" cy="160" r="6"/><circle cx="158" cy="172" r="6"/><circle cx="196" cy="141" r="6"/><circle cx="232" cy="152" r="6"/><circle cx="268" cy="118" r="6"/><circle cx="304" cy="130" r="6"/><circle cx="340" cy="96" r="6"/><circle cx="382" cy="108" r="6"/><circle cx="416" cy="76" r="6"/><circle cx="458" cy="90" r="6"/><circle cx="494" cy="58" r="6"/></g>
+            <path d="M80 196 510 50" fill="none" stroke="#8d84c9" stroke-width="2.5" stroke-dasharray="6 5"/>
+          </svg>
+        </div>
+        <div class="s-workflow-panel" id="panel-design" role="tabpanel" aria-labelledby="tab-design" hidden>
+          <p class="s-plot-label">Survival curve</p>
+          <svg class="s-plot" viewBox="0 0 560 240" focusable="false" aria-hidden="true">
+            <g stroke="#e0d8cc"><path d="M48 20v190M48 210h490M48 165h490M48 120h490M48 75h490"/></g>
+            <path d="M52 28v18h74v22h82v30h88v26h92v34h162" fill="none" stroke="#d97757" stroke-width="3"/>
+            <path d="M52 28v34h74v38h82v34h88v28h92v22h162" fill="none" stroke="#8d84c9" stroke-width="3"/>
+            <g fill="#d97757"><rect x="120" y="60" width="8" height="8"/><rect x="290" y="110" width="8" height="8"/><rect x="470" y="168" width="8" height="8"/></g>
+          </svg>
+        </div>
+        <p class="s-plot-caption">Simple with Keel visualization</p>
+      </div>
+    </div></section>
+
+    <!-- ==================== researcher stories ==================== -->
+    <section class="s-stories" id="stories"><div class="l-container">
+      <div class="s-section-head s-reveal">
+        <h2 class="s-section-title">Trusted by working researchers</h2>
+        <p class="s-section-sub">Short stories from the people who use Keel Science every day.</p>
+      </div>
+      <div class="s-story-grid">
+        <article class="s-story s-reveal">
+          <blockquote>“I can ask a question about a paper at midnight and still have a careful answer to work from in the morning.”</blockquote>
+          <p class="s-story-handle">@anna · PhD candidate</p>
+          <button class="s-story-link" type="button" data-story="anna">Read story <span aria-hidden="true">→</span></button>
+        </article>
+        <article class="s-story s-reveal">
+          <blockquote>“It follows the citations I care about and opens the code behind a method without me hunting for it.”</blockquote>
+          <p class="s-story-handle">@dimitris · postdoctoral researcher</p>
+          <button class="s-story-link" type="button" data-story="dimitris">Read story <span aria-hidden="true">→</span></button>
+        </article>
+        <article class="s-story s-reveal">
+          <blockquote>“Our lab uses it to turn a rough experiment idea into a protocol and a figure everyone can discuss.”</blockquote>
+          <p class="s-story-handle">@ug · research group</p>
+          <button class="s-story-link" type="button" data-story="ug">Read story <span aria-hidden="true">→</span></button>
+        </article>
+      </div>
+    </div></section>
+
+    <!-- ==================== integrations ==================== -->
+    <section class="s-integrations" id="integrations"><div class="l-container">
+      <div class="s-section-head s-reveal">
+        <h2 class="s-section-title">Works with your stack</h2>
+        <p class="s-section-sub">The tools you already use, connected to your research workflow.</p>
+      </div>
+      <div class="s-integration-grid s-reveal">
+        <button class="s-integration" type="button" data-integration="arXiv"><span class="s-logo s-logo-arxiv" aria-hidden="true">arXiv</span><span>arXiv</span></button>
+        <button class="s-integration" type="button" data-integration="GitHub"><span class="s-logo s-logo-github" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.4-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.5.1 2.8.6.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg></span><span>GitHub</span></button>
+        <button class="s-integration" type="button" data-integration="Zotero"><span class="s-logo s-logo-zotero" aria-hidden="true">Z</span><span>Zotero</span></button>
+        <button class="s-integration" type="button" data-integration="Google Scholar"><span class="s-logo s-logo-scholar" aria-hidden="true">🎓</span><span>Google Scholar</span></button>
+        <button class="s-integration" type="button" data-integration="Python"><span class="s-logo s-logo-python" aria-hidden="true">Py</span><span>Python</span></button>
+        <button class="s-integration" type="button" data-integration="Jupyter"><span class="s-logo s-logo-jupyter" aria-hidden="true">〈〉</span><span>Jupyter</span></button>
+      </div>
+      <div class="s-integration-cta s-reveal"><a class="l-btn l-btn-outline" href="/plugins">Explore integrations</a></div>
+    </div></section>
+
+    <!-- ==================== FAQ ==================== -->
+    <section class="s-faq" id="faq"><div class="l-container">
+      <div class="s-section-head s-reveal">
+        <h2 class="s-section-title">Frequently asked questions</h2>
+      </div>
+      <div class="s-accordion s-reveal">
+        <div class="s-acc-item is-open">
+          <button class="s-acc-btn" type="button" aria-expanded="true" aria-controls="s-acc-panel-1"><span class="s-acc-q">What is Keel Science?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="s-acc-panel-1"><p>Keel Science is a research partner that walks with you through the research process, from shaping a question to writing it up. It reads the literature, works with your files and figures, and keeps your sources attached to the work.</p></div>
+        </div>
+        <div class="s-acc-item">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="s-acc-panel-2"><span class="s-acc-q">Who is Keel Science for?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="s-acc-panel-2"><p>It is for anyone doing rigorous research: students, doctoral candidates, postdocs, lab teams, and independent investigators. It is available to everyone, not just one institution or field.</p></div>
+        </div>
+        <div class="s-acc-item">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="s-acc-panel-3"><span class="s-acc-q">What kinds of tasks is Keel Science best at?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="s-acc-panel-3"><p>Literature search and review, following citations to source papers, reading code in referenced repositories, designing experiments, analysing data, extracting figures, and drafting a write-up you can revise.</p></div>
+        </div>
+        <div class="s-acc-item">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="s-acc-panel-4"><span class="s-acc-q">Can I use Keel Science with my own files and data?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="s-acc-panel-4"><p>Yes. Bring your papers, notes, tables, and figures into a project. Keel Science works from the material you provide and points back to the source for each claim it makes.</p></div>
+        </div>
+        <div class="s-acc-item">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="s-acc-panel-5"><span class="s-acc-q">Does Keel Science create figures?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="s-acc-panel-5"><p>It can build clear plots from your data and help you adapt figures you already have, with captions and labels intact. You stay responsible for checking the result before it goes into a paper.</p></div>
+        </div>
+        <div class="s-acc-item">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="s-acc-panel-6"><span class="s-acc-q">How is Keel Science different from a general chatbot?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="s-acc-panel-6"><p>It is built around research workflows rather than one-off answers: sources stay linked, papers and code can be opened in place, and the work continues across the whole project from idea to publication.</p></div>
+        </div>
+        <div class="s-acc-item">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="s-acc-panel-7"><span class="s-acc-q">Is Keel Science available on mobile and desktop?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="s-acc-panel-7"><p>Yes. Use it in the browser, on the desktop app, and on mobile. Your projects and files follow you, so you can pick up a review or a figure on whichever device you have.</p></div>
+        </div>
+      </div>
+      <p class="s-search-empty" id="s-search-empty" role="status" hidden>No matching questions. Try a different search.</p>
+    </div></section>
+
+    <!-- ==================== dark CTA ==================== -->
+    <section class="s-cta s-reveal"><div class="l-container">
+      <h2 class="s-cta-title">Accelerate your research</h2>
+      <p class="s-cta-sub">Start research with Keel Science</p>
+      <a class="l-btn s-cta-btn" href="/login">Get started</a>
+    </div></section>
+
+  </main>
+
+  <!-- ==================== dark footer ==================== -->
+  <footer class="l-footer" id="footer">
+    <div class="l-container">
+      <div class="l-footer-top">
+        <a class="l-wordmark l-footer-wordmark" href="/" aria-label="Keel home">
+          <span class="l-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+          <span class="l-wordmark-text">Keel</span>
+        </a>
+
+        <form class="l-help" id="helpForm" role="search">
+          <label class="l-sr-only" for="s-footer-search">How can we help today?</label>
+          <input id="s-footer-search" type="search" placeholder="How can we help today?" autocomplete="off" />
+          <button class="l-help-submit" type="submit" aria-label="Search Keel help and links">
+            <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false"><path d="M4 10h11m0 0-4.5-4.5M15 10l-4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+        <p class="l-search-status" id="searchStatus" role="status" aria-live="polite" hidden>
+          <span id="searchStatusText"></span>
+          <button type="button" id="clearSearch">Clear search</button>
+        </p>
+      </div>
+
+      <div class="l-footer-cols">
+        <nav class="l-footer-col" aria-label="Products">
+          <h2 class="l-footer-h">Products</h2>
+          <a href="/">Keel</a>
+          <a href="/product/keel-code">Keel Code</a>
+          <a href="/product/cowork">Keel Cowork</a>
+          <a href="/product/keel-duet">Keel Duet</a>
+          <a href="/product/keel-science">Keel Science</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/download">Download apps</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Developers">
+          <h2 class="l-footer-h">Developers</h2>
+          <a href="/requirements">Developer docs</a>
+          <a href="/notices">Developer blog</a>
+          <a href="/login">Console</a>
+          <a href="/roadmap">Manuscript</a>
+          <a href="/platform/api">API reference</a>
+          <a href="/requirements">Keel Academy</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Enterprise">
+          <h2 class="l-footer-h">Enterprise</h2>
+          <a href="/product-overview">Overview</a>
+          <a href="/product/keel-code">Keel Code for Enterprise</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="mailto:hello@keel.ai">Contact sales</a>
+          <a href="/privacy">Cybersecurity</a>
+          <a href="/terms">Legal</a>
+          <a href="/privacy">Trust centre</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Company">
+          <h2 class="l-footer-h">Company</h2>
+          <a href="/">Keel</a>
+          <a href="mailto:careers@keel.ai">Careers</a>
+          <a href="/notices">News</a>
+          <a href="/notices">Transparency</a>
+          <a href="/privacy">Trust &amp; safety</a>
+          <a href="/terms">Responsible scaling policy</a>
+          <a href="mailto:hello@keel.ai">Community</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Terms and policies">
+          <h2 class="l-footer-h">Terms and policies</h2>
+          <a href="/privacy">Privacy policy</a>
+          <a href="/terms">Terms of service</a>
+          <a href="/privacy">Cookie settings</a>
+          <a href="/privacy">Data processing addendum</a>
+          <a href="/terms">Usage policy</a>
+          <a href="/notices">Responsible disclosure policy</a>
+          <a href="/terms">Consumer terms</a>
+        </nav>
+      </div>
+
+      <div class="l-footer-bar">
+        <span class="l-footer-sig">KEEL 2026 All rights reserved. Keel Science is a product of Keel.</span>
+
+        <div class="l-socials" aria-label="Keel social channels">
+          <a href="/notices" aria-label="Keel on X (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+          <a href="/notices" aria-label="Keel on LinkedIn (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4 9h4v11H4zM6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM11 9h4v1.7c.8-1.2 2-2 3.5-2 2.5 0 3.5 1.6 3.5 4.3V20h-4v-6c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2 1-2.2 2.4V20h-4z"/></svg></a>
+          <a href="/notices" aria-label="Keel on GitHub (source updates)"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.4-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.5.1 2.8.6.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg></a>
+          <a href="/notices" aria-label="Keel on YouTube (video updates)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M22 12s0-3.4-.4-5a2.5 2.5 0 0 0-1.8-1.8C18.2 4.8 12 4.8 12 4.8s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7C2 8.6 2 12 2 12s0 3.4.4 5a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-5 .4-5zM10 15V9l5.2 3z"/></svg></a>
+        </div>
+
+        <label class="l-lang">
+          <span class="l-sr-only">Language</span>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+          <select id="languageSelect" aria-label="Language">
+            <option value="en" selected>English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="ja">日本語</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/ui/keel-science.js" defer></script>
+</body>
+</html>
