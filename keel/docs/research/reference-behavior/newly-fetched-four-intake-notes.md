@@ -11,6 +11,15 @@ security or platform result from a reference is claimed as a Keel result.
 This note covers only the four repositories cloned for this intake. It does not re-verify the other six
 repositories in Sections 28–29 of the implementation plan.
 
+## Provenance statement
+
+These are clean-room behavioral notes derived from public, pinned repositories. The method is observation
+of behavior and architecture only: do not copy source code, prompts, config text, brand assets or doc
+prose into Keel. Any future reuse requires a separate source-provenance record with immutable commit SHA,
+blob path/SHA, exact license notice, dependency review and Keel-native contract tests. No upstream test,
+security or platform claim is adopted as a Keel claim. Source metadata for each repository is recorded in
+Section 1 below, including its `github.com` URL and pinned commit.
+
 ---
 
 ## 1. Source metadata and commit verification
