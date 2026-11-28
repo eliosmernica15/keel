@@ -91,6 +91,9 @@
     { "source": "/resources/articles/introducing-keel-ship", "destination": "/resources/articles/introducing-keel-ship/index.html" },
     { "source": "/resources/articles/introducing-keel-code", "destination": "/resources/articles/introducing-keel-code/index.html" },
     { "source": "/resources/articles/keel-ship-session-format", "destination": "/resources/articles/keel-ship-session-format/index.html" },
+    { "source": "/developers", "destination": "/developers.html" },
+    { "source": "/enterprise", "destination": "/enterprise.html" },
+    { "source": "/resources", "destination": "/resources.html" },
     { "source": "/download/", "destination": "/download.html" },
     { "source": "/downloads/", "destination": "/downloads.html" },
     { "source": "/login/", "destination": "/login.html" },
@@ -128,7 +131,10 @@
     { "source": "/models/haiku/", "destination": "/models/haiku.html" },
     { "source": "/cowork/", "destination": "/product/cowork.html" },
     { "source": "/keel-code/", "destination": "/product/keel-code.html" },
-    { "source": "/resources/articles/", "destination": "/resources/articles/index.html" }
+    { "source": "/resources/articles/", "destination": "/resources/articles/index.html" },
+    { "source": "/developers/", "destination": "/developers.html" },
+    { "source": "/enterprise/", "destination": "/enterprise.html" },
+    { "source": "/resources/", "destination": "/resources.html" }
   ],
   "redirects": [
     { "source": "/login.html", "destination": "/login", "permanent": false },

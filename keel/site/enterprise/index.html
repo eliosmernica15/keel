@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel for teams and organizations | Keel</title>
+  <meta name="description" content="An overview of Keel for teams: security, administration, spend controls, audit, deployment options, use cases and industries." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/enterprise" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f5f4ef" />
+  <link rel="stylesheet" href="/ui/keel-duet-shell.css" />
+  <link rel="stylesheet" href="/ui/nav-hubs.css" />
+  <script src="/ui/nav-hubs.js" defer></script>
+</head>
+<body class="duet-page navhub-page">
+
+  <a class="nh-skip" href="#nh-main">Skip to content</a>
+
+  <!-- ==================== sticky header / mega navigation ==================== -->
+  <header class="l-header" id="nh-header">
+    <div class="l-nav-inner">
+      <a class="l-wordmark" href="/" aria-label="Keel home">
+        <span class="l-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+        <span class="l-wordmark-text">Keel</span>
+      </a>
+
+      <nav class="l-nav-links" aria-label="Primary">
+        <div class="l-nav-item" data-menu="product">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-product">Product <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-product" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Products</p>
+                <a class="l-mega-link" href="/product/overview">Keel</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/product/cowork">Keel Cowork</a>
+                <a class="l-mega-link" href="/product/keel-duet">Keel Duet</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/pricing">Plans &amp; pricing</a>
+                <p class="l-mega-subhead">Specialized</p>
+                <a class="l-mega-link" href="/product/keel-security">Keel Security</a>
+                <a class="l-mega-link" href="/product/keel-science">Keel Science</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Capabilities</p>
+                <a class="l-mega-link" href="/product/design">Design</a>
+                <a class="l-mega-link" href="/product/keel-code">Code</a>
+                <a class="l-mega-link" href="/features/artifacts">Artifacts</a>
+                <a class="l-mega-link" href="/skills">Skills</a>
+                <a class="l-mega-link" href="/marketplace/connectors-plugins">Connectors</a>
+                <a class="l-mega-link" href="/marketplace/plugins">Plugins</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Extensions</p>
+                <a class="l-mega-link" href="/keel-in-chrome">Keel in Chrome</a>
+                <a class="l-mega-link" href="/keel-for-google-workspace">Keel for Google Workspace</a>
+                <a class="l-mega-link" href="/keel-for-microsoft-365">Keel for Microsoft 365</a>
+                <p class="l-mega-subhead">Explore</p>
+                <a class="l-mega-link" href="/roadmap">Roadmap</a>
+                <a class="l-mega-link" href="/download">Download apps</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Models</p>
+                <a class="l-mega-link" href="/models/mythos">Mythos (including Fable)</a>
+                <a class="l-mega-link" href="/models/opus">Opus</a>
+                <a class="l-mega-link" href="/models/sonnet">Sonnet</a>
+                <a class="l-mega-link" href="/models/haiku">Haiku</a>
+                <p class="l-mega-subhead">Learn</p>
+                <a class="l-mega-link" href="/resources/articles">Articles</a>
+                <a class="l-mega-link" href="/platform/api">Platform API</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/new">Import to Keel</a></div>
+              <div class="l-mega-foot-right">
+                <a class="l-mega-link" href="/login">Log in <span aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/login">Get Keel <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="developers">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-developers">Developers <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-developers" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Build with</p>
+                <a class="l-mega-link" href="/developers">Developer hub</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/platform/api">Platform / API</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+                <a class="l-mega-link" href="/platform/api">Managed Agents</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">For developers</p>
+                <a class="l-mega-link" href="/requirements">Documentation</a>
+                <a class="l-mega-link" href="/notices">Developer blog</a>
+                <a class="l-mega-link" href="/skills">Skills</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Connect</p>
+                <a class="l-mega-link" href="/platform/api">MCP</a>
+                <a class="l-mega-link" href="/marketplace/plugins">Plugins</a>
+                <a class="l-mega-link" href="/login">Console</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/developers#quickstart">Quickstart <span class="l-dl" aria-hidden="true">↓</span></a></div>
+              <div class="l-mega-foot-right"><a class="l-mega-link" href="/login">Log in <span aria-hidden="true">↗</span></a></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="enterprise">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-enterprise">Enterprise <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-enterprise" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Enterprise</p>
+                <a class="l-mega-link" href="/enterprise">Overview</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code for teams</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Controls</p>
+                <a class="l-mega-link" href="/enterprise#security">Security</a>
+                <a class="l-mega-link" href="/enterprise#admin">SSO &amp; admin</a>
+                <a class="l-mega-link" href="/enterprise#spend">Spend controls</a>
+                <a class="l-mega-link" href="/enterprise#audit">Audit</a>
+                <a class="l-mega-link" href="/enterprise#deployment">Deployment</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Explore</p>
+                <a class="l-mega-link" href="/enterprise#use-cases">Use cases</a>
+                <a class="l-mega-link" href="/enterprise#industries">Industries</a>
+                <a class="l-mega-link" href="/pricing">Plans</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/enterprise">Enterprise overview</a></div>
+              <div class="l-mega-foot-right"><a class="l-mega-link" href="mailto:sales@keel.dev?subject=Enterprise%20enquiry">Contact sales</a></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="resources">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-resources">Resources <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-resources" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Insights</p>
+                <a class="l-mega-link" href="/resources">Resource hub</a>
+                <a class="l-mega-link" href="/resources/articles">Articles</a>
+                <a class="l-mega-link" href="/resources#stories">Customer stories</a>
+                <a class="l-mega-link" href="/resources#webinars">Webinars</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Learn</p>
+                <a class="l-mega-link" href="/requirements">Documentation</a>
+                <a class="l-mega-link" href="/resources#tutorials">Tutorials</a>
+                <a class="l-mega-link" href="/enterprise#use-cases">Use cases</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Connect</p>
+                <a class="l-mega-link" href="/roadmap">Roadmap</a>
+                <a class="l-mega-link" href="/marketplace/plugins">Marketplace</a>
+                <a class="l-mega-link" href="/notices">Keel news</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/resources/articles">Browse articles</a></div>
+              <div class="l-mega-foot-right"><a class="l-mega-link" href="/roadmap">Roadmap <span aria-hidden="true">↗</span></a></div>
+            </div>
+          </div>
+        </div>
+
+        <a class="l-nav-link" href="/pricing">Pricing</a>
+        <a class="l-nav-link" href="/login">Log in</a>
+      </nav>
+
+      <div class="l-nav-actions">
+        <a class="l-btn l-btn-dark l-btn-sm" href="/login">Get Keel</a>
+      </div>
+
+      <button class="l-nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+        <span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span>
+      </button>
+    </div>
+
+    <div class="l-mobile-menu" id="mobileMenu" hidden>
+      <a href="/developers">Developers</a>
+      <a href="/enterprise">Enterprise</a>
+      <a href="/resources">Resources</a>
+      <a href="/product/overview">Product overview</a>
+      <a href="/product/keel-code">Keel Code</a>
+      <a href="/platform/api">Platform / API</a>
+      <a href="/models/mythos">Mythos</a>
+      <a href="/models/opus">Opus</a>
+      <a href="/models/sonnet">Sonnet</a>
+      <a href="/models/haiku">Haiku</a>
+      <a href="/resources/articles">Articles</a>
+      <a href="/roadmap">Roadmap</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/download">Download desktop app</a>
+      <a href="/login">Log in</a>
+    </div>
+  </header>
+
+  <main id="nh-main">
+    <nav class="nh-crumbs l-container" aria-label="Breadcrumb"><a href="/">Keel</a><span aria-hidden="true">/</span>Enterprise</nav>
+
+    <!-- ==================== hero ==================== -->
+    <section class="nh-hero" id="top" aria-labelledby="nh-hero-title"><div class="l-container nh-hero-grid">
+      <div class="nh-hero-copy nh-reveal">
+        <p class="nh-eyebrow">For teams and organizations</p>
+        <h1 id="nh-hero-title">Keel for teams and organizations</h1>
+        <p class="nh-hero-lede">Bring one calm workspace to the whole organization. Keep context with the work, choose the surfaces your teams need, and talk to us about the controls your environment requires.</p>
+        <div class="nh-hero-actions">
+          <a class="l-btn l-btn-dark" href="mailto:sales@keel.dev?subject=Enterprise%20enquiry">Contact sales</a>
+          <a class="l-btn l-btn-outline" href="/pricing">See plans</a>
+        </div>
+      </div>
+      <aside class="nh-hero-panel nh-reveal" aria-label="What this page does">
+        <h2>An overview, not a contract</h2>
+        <p>This page describes where to find things. It does not claim certifications or make commitments.</p>
+        <ul class="nh-state-list">
+          <li><span class="nh-state-dot" aria-hidden="true"></span><span><strong>Forms:</strong> local previews only; nothing is sent</span></li>
+          <li><span class="nh-state-dot" aria-hidden="true"></span><span><strong>Controls:</strong> live in the console at <a href="/login">/login</a></span></li>
+          <li><span class="nh-state-dot" aria-hidden="true"></span><span><strong>Certifications:</strong> none claimed on this page</span></li>
+          <li><span class="nh-state-dot" aria-hidden="true"></span><span><strong>Questions:</strong> <a href="mailto:sales@keel.dev?subject=Enterprise%20question">email our team</a></span></li>
+        </ul>
+      </aside>
+    </div></section>
+
+    <!-- ==================== overview tabs ==================== -->
+    <section class="nh-section" id="overview"><div class="l-container">
+      <div class="nh-section-head nh-reveal">
+        <p class="nh-eyebrow">Overview</p>
+        <h2 class="nh-section-title">One family, many ways to work</h2>
+        <p class="nh-section-sub">Teams adopt the surface that fits their work. Switch the tabs to see the three common starting points.</p>
+      </div>
+      <div class="nh-tabs nh-reveal" role="tablist" aria-label="Enterprise overview" data-nh-tabs>
+        <button class="nh-tab" type="button" role="tab" id="nh-etab-teams" aria-selected="true" tabindex="0" aria-controls="nh-epanel-teams" data-nh-tab>Teams</button>
+        <button class="nh-tab" type="button" role="tab" id="nh-etab-workflows" aria-selected="false" tabindex="-1" aria-controls="nh-epanel-workflows" data-nh-tab>Workflows</button>
+        <button class="nh-tab" type="button" role="tab" id="nh-etab-scale" aria-selected="false" tabindex="-1" aria-controls="nh-epanel-scale" data-nh-tab>Scale</button>
+      </div>
+      <div class="nh-panel nh-reveal" id="nh-epanel-teams" role="tabpanel" aria-labelledby="nh-etab-teams">
+        <h3>Teams</h3>
+        <p>Shared projects keep threads, files and outcomes together so a team can pick up work without repeating context.</p>
+        <div class="nh-panel-grid">
+          <div class="nh-panel-tile"><strong>Product overview</strong><span>Map of the Keel family. <a href="/product/overview">Open →</a></span></div>
+          <div class="nh-panel-tile"><strong>Keel Cowork</strong><span>Where collaborative work lives. <a href="/product/cowork">Open →</a></span></div>
+          <div class="nh-panel-tile"><strong>Desktop apps</strong><span>Install on managed machines. <a href="/download">Open →</a></span></div>
+        </div>
+      </div>
+      <div class="nh-panel nh-reveal" id="nh-epanel-workflows" role="tabpanel" aria-labelledby="nh-etab-workflows" hidden>
+        <h3>Workflows</h3>
+        <p>Code, research, design and writing each have a surface. Connect the tools your team already uses.</p>
+        <div class="nh-panel-grid">
+          <div class="nh-panel-tile"><strong>Coding</strong><span><a href="/product/keel-code">Keel Code →</a></span></div>
+          <div class="nh-panel-tile"><strong>Research</strong><span><a href="/product/keel-science">Keel Science →</a></span></div>
+          <div class="nh-panel-tile"><strong>Extensions</strong><span><a href="/marketplace/connectors-plugins">Connectors →</a></span></div>
+        </div>
+      </div>
+      <div class="nh-panel nh-reveal" id="nh-epanel-scale" role="tabpanel" aria-labelledby="nh-etab-scale" hidden>
+        <h3>Scale</h3>
+        <p>Platform access and plans give you a path from a small pilot to wider use.</p>
+        <div class="nh-panel-grid">
+          <div class="nh-panel-tile"><strong>Platform</strong><span><a href="/platform/api">API overview →</a></span></div>
+          <div class="nh-panel-tile"><strong>Plans</strong><span><a href="/pricing">Compare plans →</a></span></div>
+          <div class="nh-panel-tile"><strong>Roadmap</strong><span><a href="/roadmap">What is next →</a></span></div>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- ==================== security and governance ==================== -->
+    <section class="nh-section nh-section--warm" id="security"><div class="l-container">
+      <div class="nh-section-head nh-reveal">
+        <p class="nh-eyebrow">Security &amp; governance</p>
+        <h2 class="nh-section-title">Controls you can find today</h2>
+        <p class="nh-section-sub">Each card links to the page that actually describes that area. We do not list certifications here.</p>
+      </div>
+      <div class="nh-grid nh-grid--3">
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Security</span>
+          <h3>Product security</h3>
+          <p>Read the dedicated security product page.</p>
+          <a class="nh-text-link" href="/product/keel-security">Keel Security <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Privacy</span>
+          <h3>Privacy &amp; data</h3>
+          <p>Privacy terms and data handling are published on the privacy page.</p>
+          <a class="nh-text-link" href="/privacy">Privacy policy <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Identity</span>
+          <h3>SSO &amp; admin</h3>
+          <p>Sign-in and administration live in the console. Ask us about current availability.</p>
+          <a class="nh-text-link" href="/login">Open the console <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Budgets</span>
+          <h3>Spend controls</h3>
+          <p>Plan limits and options are described on the pricing page.</p>
+          <a class="nh-text-link" href="/pricing">See pricing <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Visibility</span>
+          <h3>Audit</h3>
+          <p>Activity views live in the console. Ask us about export options.</p>
+          <a class="nh-text-link" href="/login">Open the console <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Deployment</span>
+          <h3>Deployment options</h3>
+          <p>Browser, desktop apps and the managed platform each have their own route.</p>
+          <a class="nh-text-link" href="/download">Download apps <span aria-hidden="true">→</span></a>
+        </article>
+      </div>
+      <form class="nh-form nh-reveal" data-nh-form="choice">
+        <div class="nh-field">
+          <label for="nh-deploy-choice">What are you evaluating?</label>
+          <select id="nh-deploy-choice" name="topic">
+            <option value="identity">SSO and administration</option>
+            <option value="spend">Spend controls</option>
+            <option value="audit">Audit and activity</option>
+            <option value="deployment">Deployment options</option>
+          </select>
+        </div>
+        <button class="l-btn l-btn-dark" type="submit">Show local note</button>
+        <p class="nh-form-status" role="status" aria-live="polite" data-nh-status></p>
+      </form>
+      <p class="nh-form-note nh-reveal">This selector only displays a note on this page. It does not submit a request or save your answer.</p>
+      <p class="nh-note"><strong>No invented certifications:</strong> this page makes no compliance claims. Ask our team directly for current documents.</p>
+    </div></section>
+
+    <!-- ==================== use cases and industries ==================== -->
+    <section class="nh-section" id="use-cases"><div class="l-container nh-split">
+      <div class="nh-reveal">
+        <p class="nh-eyebrow">Use cases</p>
+        <h2>Where teams start</h2>
+        <p>Follow the product that matches the work, then bring the rest of the family in when you need it.</p>
+        <div class="nh-grid nh-grid--2 nh-embed-grid">
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Build</span>
+          <h3>Engineering</h3>
+          <p>Code, review and hand-off in one place.</p>
+          <a class="nh-text-link" href="/product/keel-code">Keel Code <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Study</span>
+          <h3>Research</h3>
+          <p>Work through literature, data and figures.</p>
+          <a class="nh-text-link" href="/product/keel-science">Keel Science <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Shape</span>
+          <h3>Design</h3>
+          <p>Explore directions and keep the details.</p>
+          <a class="nh-text-link" href="/product/design">Design <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Write</span>
+          <h3>Documentation</h3>
+          <p>Turn notes into artifacts people can edit.</p>
+          <a class="nh-text-link" href="/features/artifacts">Artifacts <span aria-hidden="true">→</span></a>
+        </article>
+        </div>
+      </div>
+      <div class="nh-reveal" id="industries">
+        <p class="nh-eyebrow">Industries</p>
+        <h2>Organizations we can talk with</h2>
+        <p>These are conversations, not promises of a tailored product. Tell us what your environment needs.</p>
+        <ul class="nh-list">
+          <li><span>Financial services</span><a href="mailto:sales@keel.dev?subject=Financial%20services">Ask →</a></li>
+          <li><span>Government</span><a href="mailto:sales@keel.dev?subject=Government">Ask →</a></li>
+          <li><span>Healthcare</span><a href="mailto:sales@keel.dev?subject=Healthcare">Ask →</a></li>
+          <li><span>Higher education</span><a href="mailto:sales@keel.dev?subject=Higher%20education">Ask →</a></li>
+          <li><span>Life sciences</span><a href="mailto:sales@keel.dev?subject=Life%20sciences">Ask →</a></li>
+          <li><span>Nonprofits</span><a href="mailto:sales@keel.dev?subject=Nonprofits">Ask →</a></li>
+        </ul>
+        <p class="nh-note nh-note--left"><strong>Contact:</strong> <a href="mailto:sales@keel.dev?subject=Enterprise%20enquiry">sales@keel.dev</a>. Email opens your mail app; this page sends nothing itself.</p>
+      </div>
+    </div></section>
+
+    <!-- ==================== FAQ ==================== -->
+    <section class="nh-section nh-section--warm" id="faq"><div class="l-container">
+      <div class="nh-section-head nh-reveal">
+        <p class="nh-eyebrow">FAQ</p>
+        <h2 class="nh-section-title">Questions from organizations</h2>
+      </div>
+      <div class="nh-accordion">
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="true" aria-controls="nh-faq-1"><span>Do you support SSO?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-1"><p>Account and admin controls live in the <a href="/login">console</a>. Please <a href="mailto:sales@keel.dev?subject=SSO%20availability">ask our team</a> about availability for your plan.</p></div>
+        </div>
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="false" aria-controls="nh-faq-2"><span>Which certifications do you hold?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-2" hidden><p>We do not publish a certification list on this page and make no claims here. Ask us directly for current documents.</p></div>
+        </div>
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="false" aria-controls="nh-faq-3"><span>Can we control spend?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-3" hidden><p>Plans and limits are described on the <a href="/pricing">pricing page</a>. For organization-specific controls, contact sales.</p></div>
+        </div>
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="false" aria-controls="nh-faq-4"><span>How does Keel handle data?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-4" hidden><p>Start with the <a href="/privacy">privacy policy</a>. The <a href="/platform/api">platform page</a> describes how the API fits into a deployment.</p></div>
+        </div>
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="false" aria-controls="nh-faq-5"><span>Can we use the desktop app?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-5" hidden><p>Yes — see the <a href="/download">download page</a> for the available apps. The browser workspace is at <a href="/login">/login</a>.</p></div>
+        </div>
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="false" aria-controls="nh-faq-6"><span>How do we get started?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-6" hidden><p>Read the <a href="/product/overview">overview</a>, then <a href="mailto:sales@keel.dev?subject=Enterprise%20enquiry">email our team</a> with your requirements.</p></div>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- ==================== dark CTA ==================== -->
+    <section class="nh-cta nh-reveal"><div class="l-container">
+      <h2>Talk to us about your team</h2>
+      <p>Tell us what you are building and what your environment requires. We will answer with what exists today.</p>
+      <div class="nh-cta-actions">
+        <a class="l-btn nh-cta-btn" href="mailto:sales@keel.dev?subject=Enterprise%20enquiry">Contact sales</a>
+        <a class="l-btn l-btn-outline nh-cta-outline" href="/pricing">Compare plans</a>
+      </div>
+    </div></section>
+  </main>
+
+  <!-- ==================== dark footer ==================== -->
+  <footer class="l-footer" id="footer">
+    <div class="l-container">
+      <div class="l-footer-top">
+        <a class="l-wordmark l-footer-wordmark" href="/" aria-label="Keel home">
+          <span class="l-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+          <span class="l-wordmark-text">Keel</span>
+        </a>
+
+        <form class="l-help" id="helpForm" role="search" data-nh-search="#searchStatus">
+          <label class="l-sr-only" for="nh-footer-search">How can we help today?</label>
+          <input id="nh-footer-search" type="search" placeholder="How can we help today?" autocomplete="off" />
+          <button class="l-help-submit" type="submit" aria-label="Search this page only">
+            <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false"><path d="M4 10h11m0 0-4.5-4.5M15 10l-4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+        <p class="l-search-status" id="searchStatus" role="status" aria-live="polite" hidden>
+          <span id="searchStatusText"></span>
+          <button type="button" id="clearSearch">Clear search</button>
+        </p>
+      </div>
+
+      <div class="l-footer-cols">
+        <nav class="l-footer-col" aria-label="Products">
+          <h2 class="l-footer-h">Products</h2>
+          <a href="/product/overview">Keel</a>
+          <a href="/product/keel-code">Keel Code</a>
+          <a href="/product/cowork">Keel Cowork</a>
+          <a href="/product/keel-duet">Keel Duet</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="/product/tag">Keel Tag</a>
+          <p class="l-footer-sub">Specialized</p>
+          <a href="/product/keel-security">Keel Security</a>
+          <a href="/product/keel-science">Keel Science</a>
+          <p class="l-footer-sub">Capabilities</p>
+          <a href="/features/artifacts">Artifacts</a>
+          <a href="/product/design">Design</a>
+          <a href="/skills">Skills</a>
+          <a href="/marketplace/plugins">Plugins</a>
+          <p class="l-footer-sub">Models</p>
+          <a href="/models/mythos">Mythos (including Fable)</a>
+          <a href="/models/opus">Opus</a>
+          <a href="/models/sonnet">Sonnet</a>
+          <a href="/models/haiku">Haiku</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Developers">
+          <h2 class="l-footer-h">Developers</h2>
+          <a href="/developers">Developer hub</a>
+          <a href="/requirements">Developer docs</a>
+          <a href="/notices">Developer blog</a>
+          <a href="/login">Console</a>
+          <a href="/roadmap">Roadmap</a>
+          <a href="/platform/api">API overview</a>
+          <a href="/platform/api">Managed Agents</a>
+          <a href="/platform/api">MCP</a>
+          <a href="/skills">Skills</a>
+          <a href="/marketplace/plugins">Plugins</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Enterprise">
+          <h2 class="l-footer-h">Enterprise</h2>
+          <a href="/enterprise">Overview</a>
+          <a href="/product/keel-code">Keel Code for teams</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="/pricing">Plans &amp; pricing</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
+          <a href="mailto:sales@keel.dev?subject=Enterprise%20enquiry">Contact sales</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Resources">
+          <h2 class="l-footer-h">Resources</h2>
+          <a href="/resources">Resource hub</a>
+          <a href="/resources/articles">Articles</a>
+          <a href="/roadmap">Roadmap</a>
+          <a href="/notices">Keel news</a>
+          <a href="/marketplace/plugins">Plugins</a>
+          <a href="/marketplace/connectors-plugins">Connectors</a>
+          <a href="/skills">Skills</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Company and policies">
+          <h2 class="l-footer-h">Company and policies</h2>
+          <a href="/">Keel</a>
+          <a href="mailto:careers@keel.ai">Careers</a>
+          <a href="/notices">News</a>
+          <a href="/privacy">Privacy policy</a>
+          <a href="/terms">Terms of service</a>
+          <a href="/notices">Responsible disclosure policy</a>
+          <a href="/trademark">Trademark</a>
+          <a href="/eula">EULA</a>
+        </nav>
+      </div>
+
+      <div class="l-footer-bar">
+        <span class="l-footer-sig">KEEL 2026 All rights reserved. Keel is a workspace for thinking, building and getting work done.</span>
+
+        <div class="l-socials" aria-label="Keel social channels">
+          <a href="/notices" aria-label="Keel on X (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+          <a href="/notices" aria-label="Keel on LinkedIn (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4 9h4v11H4zM6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM11 9h4v1.7c.8-1.2 2-2 3.5-2 2.5 0 3.5 1.6 3.5 4.3V20h-4v-6c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2 1-2.2 2.4V20h-4z"/></svg></a>
+          <a href="/notices" aria-label="Keel on GitHub (source updates)"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.4-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.5.1 2.8.6.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg></a>
+          <a href="/notices" aria-label="Keel on YouTube (video updates)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M22 12s0-3.4-.4-5a2.5 2.5 0 0 0-1.8-1.8C18.2 4.8 12 4.8 12 4.8s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7C2 8.6 2 12 2 12s0 3.4.4 5a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-5 .4-5zM10 15V9l5.2 3z"/></svg></a>
+        </div>
+
+        <label class="l-lang">
+          <span class="l-sr-only">Language</span>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+          <select id="languageSelect" aria-label="Language">
+            <option value="en" selected>English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="ja">日本語</option>
+          </select>
+        </label>
+        <p class="l-sr-only" id="nh-lang-status" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

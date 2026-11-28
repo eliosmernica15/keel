@@ -55,6 +55,9 @@ const REWRITES = {
   '/resources/articles/introducing-keel-ship': '/resources/articles/introducing-keel-ship.html',
   '/resources/articles/introducing-keel-code': '/resources/articles/introducing-keel-code.html',
   '/resources/articles/keel-ship-session-format': '/resources/articles/keel-ship-session-format.html',
+  '/developers': '/developers.html',
+  '/enterprise': '/enterprise.html',
+  '/resources': '/resources.html',
   // Trailing-slash variants must behave exactly like production clean URLs.
   '/download/': '/download.html',
   '/downloads/': '/downloads.html',
@@ -94,6 +97,9 @@ const REWRITES = {
   '/cowork/': '/product/cowork.html',
   '/keel-code/': '/product/keel-code.html',
   '/resources/articles/': '/resources/articles/index.html',
+  '/developers/': '/developers.html',
+  '/enterprise/': '/enterprise.html',
+  '/resources/': '/resources.html',
 };
 
 const TYPES = {

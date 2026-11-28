@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Build with Keel — Developer hub | Keel</title>
+  <meta name="description" content="Developer hub for Keel Code, the Platform API, Keel Ship, managed agents, MCP, skills, plugins, docs and community." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/developers" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f5f4ef" />
+  <link rel="stylesheet" href="/ui/keel-duet-shell.css" />
+  <link rel="stylesheet" href="/ui/nav-hubs.css" />
+  <script src="/ui/nav-hubs.js" defer></script>
+</head>
+<body class="duet-page navhub-page">
+
+  <a class="nh-skip" href="#nh-main">Skip to content</a>
+
+  <!-- ==================== sticky header / mega navigation ==================== -->
+  <header class="l-header" id="nh-header">
+    <div class="l-nav-inner">
+      <a class="l-wordmark" href="/" aria-label="Keel home">
+        <span class="l-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+        <span class="l-wordmark-text">Keel</span>
+      </a>
+
+      <nav class="l-nav-links" aria-label="Primary">
+        <div class="l-nav-item" data-menu="product">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-product">Product <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-product" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Products</p>
+                <a class="l-mega-link" href="/product/overview">Keel</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/product/cowork">Keel Cowork</a>
+                <a class="l-mega-link" href="/product/keel-duet">Keel Duet</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/pricing">Plans &amp; pricing</a>
+                <p class="l-mega-subhead">Specialized</p>
+                <a class="l-mega-link" href="/product/keel-security">Keel Security</a>
+                <a class="l-mega-link" href="/product/keel-science">Keel Science</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Capabilities</p>
+                <a class="l-mega-link" href="/product/design">Design</a>
+                <a class="l-mega-link" href="/product/keel-code">Code</a>
+                <a class="l-mega-link" href="/features/artifacts">Artifacts</a>
+                <a class="l-mega-link" href="/skills">Skills</a>
+                <a class="l-mega-link" href="/marketplace/connectors-plugins">Connectors</a>
+                <a class="l-mega-link" href="/marketplace/plugins">Plugins</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Extensions</p>
+                <a class="l-mega-link" href="/keel-in-chrome">Keel in Chrome</a>
+                <a class="l-mega-link" href="/keel-for-google-workspace">Keel for Google Workspace</a>
+                <a class="l-mega-link" href="/keel-for-microsoft-365">Keel for Microsoft 365</a>
+                <p class="l-mega-subhead">Explore</p>
+                <a class="l-mega-link" href="/roadmap">Roadmap</a>
+                <a class="l-mega-link" href="/download">Download apps</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Models</p>
+                <a class="l-mega-link" href="/models/mythos">Mythos (including Fable)</a>
+                <a class="l-mega-link" href="/models/opus">Opus</a>
+                <a class="l-mega-link" href="/models/sonnet">Sonnet</a>
+                <a class="l-mega-link" href="/models/haiku">Haiku</a>
+                <p class="l-mega-subhead">Learn</p>
+                <a class="l-mega-link" href="/resources/articles">Articles</a>
+                <a class="l-mega-link" href="/platform/api">Platform API</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/new">Import to Keel</a></div>
+              <div class="l-mega-foot-right">
+                <a class="l-mega-link" href="/login">Log in <span aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/login">Get Keel <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="developers">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-developers">Developers <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-developers" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Build with</p>
+                <a class="l-mega-link" href="/developers">Developer hub</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/platform/api">Platform / API</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+                <a class="l-mega-link" href="/platform/api">Managed Agents</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">For developers</p>
+                <a class="l-mega-link" href="/requirements">Documentation</a>
+                <a class="l-mega-link" href="/notices">Developer blog</a>
+                <a class="l-mega-link" href="/skills">Skills</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Connect</p>
+                <a class="l-mega-link" href="/platform/api">MCP</a>
+                <a class="l-mega-link" href="/marketplace/plugins">Plugins</a>
+                <a class="l-mega-link" href="/login">Console</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/developers#quickstart">Quickstart <span class="l-dl" aria-hidden="true">↓</span></a></div>
+              <div class="l-mega-foot-right"><a class="l-mega-link" href="/login">Log in <span aria-hidden="true">↗</span></a></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="enterprise">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-enterprise">Enterprise <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-enterprise" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Enterprise</p>
+                <a class="l-mega-link" href="/enterprise">Overview</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code for teams</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Controls</p>
+                <a class="l-mega-link" href="/enterprise#security">Security</a>
+                <a class="l-mega-link" href="/enterprise#admin">SSO &amp; admin</a>
+                <a class="l-mega-link" href="/enterprise#spend">Spend controls</a>
+                <a class="l-mega-link" href="/enterprise#audit">Audit</a>
+                <a class="l-mega-link" href="/enterprise#deployment">Deployment</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Explore</p>
+                <a class="l-mega-link" href="/enterprise#use-cases">Use cases</a>
+                <a class="l-mega-link" href="/enterprise#industries">Industries</a>
+                <a class="l-mega-link" href="/pricing">Plans</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/enterprise">Enterprise overview</a></div>
+              <div class="l-mega-foot-right"><a class="l-mega-link" href="mailto:sales@keel.dev?subject=Enterprise%20enquiry">Contact sales</a></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="resources">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-resources">Resources <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-resources" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Insights</p>
+                <a class="l-mega-link" href="/resources">Resource hub</a>
+                <a class="l-mega-link" href="/resources/articles">Articles</a>
+                <a class="l-mega-link" href="/resources#stories">Customer stories</a>
+                <a class="l-mega-link" href="/resources#webinars">Webinars</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Learn</p>
+                <a class="l-mega-link" href="/requirements">Documentation</a>
+                <a class="l-mega-link" href="/resources#tutorials">Tutorials</a>
+                <a class="l-mega-link" href="/enterprise#use-cases">Use cases</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Connect</p>
+                <a class="l-mega-link" href="/roadmap">Roadmap</a>
+                <a class="l-mega-link" href="/marketplace/plugins">Marketplace</a>
+                <a class="l-mega-link" href="/notices">Keel news</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/resources/articles">Browse articles</a></div>
+              <div class="l-mega-foot-right"><a class="l-mega-link" href="/roadmap">Roadmap <span aria-hidden="true">↗</span></a></div>
+            </div>
+          </div>
+        </div>
+
+        <a class="l-nav-link" href="/pricing">Pricing</a>
+        <a class="l-nav-link" href="/login">Log in</a>
+      </nav>
+
+      <div class="l-nav-actions">
+        <a class="l-btn l-btn-dark l-btn-sm" href="/login">Get Keel</a>
+      </div>
+
+      <button class="l-nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+        <span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span>
+      </button>
+    </div>
+
+    <div class="l-mobile-menu" id="mobileMenu" hidden>
+      <a href="/developers">Developers</a>
+      <a href="/enterprise">Enterprise</a>
+      <a href="/resources">Resources</a>
+      <a href="/product/overview">Product overview</a>
+      <a href="/product/keel-code">Keel Code</a>
+      <a href="/platform/api">Platform / API</a>
+      <a href="/models/mythos">Mythos</a>
+      <a href="/models/opus">Opus</a>
+      <a href="/models/sonnet">Sonnet</a>
+      <a href="/models/haiku">Haiku</a>
+      <a href="/resources/articles">Articles</a>
+      <a href="/roadmap">Roadmap</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/download">Download desktop app</a>
+      <a href="/login">Log in</a>
+    </div>
+  </header>
+
+  <main id="nh-main">
+    <nav class="nh-crumbs l-container" aria-label="Breadcrumb"><a href="/">Keel</a><span aria-hidden="true">/</span>Developers</nav>
+
+    <!-- ==================== hero ==================== -->
+    <section class="nh-hero" id="top" aria-labelledby="nh-hero-title"><div class="l-container nh-hero-grid">
+      <div class="nh-hero-copy nh-reveal">
+        <p class="nh-eyebrow">Developer hub</p>
+        <h1 id="nh-hero-title">Build with Keel</h1>
+        <p class="nh-hero-lede">From the first API call to a working agent, the Keel developer family gives you one calm place to build. Every link here goes to a page that exists today.</p>
+        <div class="nh-hero-actions">
+          <a class="l-btn l-btn-dark" href="/platform/api">Explore the platform</a>
+          <a class="l-btn l-btn-outline" href="/login">Open the console</a>
+        </div>
+      </div>
+      <aside class="nh-hero-panel nh-reveal" aria-label="Local status">
+        <h2>Nothing runs from this page</h2>
+        <p>This hub is a guide. No keys, prompts or form values are collected here.</p>
+        <ul class="nh-state-list">
+          <li><span class="nh-state-dot" aria-hidden="true"></span><span><strong>Account:</strong> not connected on this page</span></li>
+          <li><span class="nh-state-dot" aria-hidden="true"></span><span><strong>Keys:</strong> not requested here; add them in the console</span></li>
+          <li><span class="nh-state-dot" aria-hidden="true"></span><span><strong>Requests:</strong> none sent by this page</span></li>
+          <li><span class="nh-state-dot" aria-hidden="true"></span><span><strong>Examples:</strong> run them in your own project</span></li>
+        </ul>
+      </aside>
+    </div></section>
+
+    <!-- ==================== starting points ==================== -->
+    <section class="nh-section" id="build-with"><div class="l-container">
+      <div class="nh-section-head nh-reveal">
+        <p class="nh-eyebrow">Pick a surface</p>
+        <h2 class="nh-section-title">Choose how you want to build</h2>
+        <p class="nh-section-sub">Code in an editor, call the API, ship work to a team, or extend Keel with skills and plugins.</p>
+      </div>
+      <div class="nh-grid nh-grid--4">
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Code</span>
+          <h3>Keel Code</h3>
+          <p>A focused place to write, run and review code with Keel alongside you.</p>
+          <a class="nh-text-link" href="/product/keel-code">See Keel Code <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Platform</span>
+          <h3>Platform / API</h3>
+          <p>Messages, tool use and model choices behind the Keel family.</p>
+          <a class="nh-text-link" href="/platform/api">Read the API overview <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Delivery</span>
+          <h3>Keel Ship</h3>
+          <p>The current roadmap and delivery notes for what is being built.</p>
+          <a class="nh-text-link" href="/roadmap">See the roadmap <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Review</span>
+          <h3>Code Review</h3>
+          <p>Review work in the Code product; see how it fits a developer workflow.</p>
+          <a class="nh-text-link" href="/product/keel-code">Explore the Code page <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Agents</span>
+          <h3>Managed Agents</h3>
+          <p>Where agent work fits in the platform and console.</p>
+          <a class="nh-text-link" href="/platform/api">See the platform <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Extensions</span>
+          <h3>Skills</h3>
+          <p>Teach Keel a repeatable process and apply it across a project.</p>
+          <a class="nh-text-link" href="/skills">Browse skills <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">MCP</span>
+          <h3>MCP &amp; connectors</h3>
+          <p>Connect tools and context through the platform and connector pages.</p>
+          <a class="nh-text-link" href="/marketplace/connectors-plugins">See connectors <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Marketplace</span>
+          <h3>Plugins</h3>
+          <p>Extend the workspace with plugins from the marketplace.</p>
+          <a class="nh-text-link" href="/marketplace/plugins">Browse plugins <span aria-hidden="true">→</span></a>
+        </article>
+      </div>
+      <p class="nh-note nh-note--left"><strong>Local only:</strong> these cards are links to real pages. Opening one takes you there; this hub does not send anything.</p>
+    </div></section>
+
+    <!-- ==================== quickstart ==================== -->
+    <section class="nh-section nh-section--warm" id="quickstart"><div class="l-container">
+      <div class="nh-section-head nh-reveal">
+        <p class="nh-eyebrow">Quickstart</p>
+        <h2 class="nh-section-title">Start from a small, honest example</h2>
+        <p class="nh-section-sub">These snippets are illustrative. Run them in your own project after you have read the current API page.</p>
+      </div>
+      <div class="nh-tabs nh-reveal" role="tablist" aria-label="Quickstart examples" data-nh-tabs>
+        <button class="nh-tab" type="button" role="tab" id="nh-qtab-js" aria-selected="true" tabindex="0" aria-controls="nh-qpanel-js" data-nh-tab>JavaScript</button>
+        <button class="nh-tab" type="button" role="tab" id="nh-qtab-curl" aria-selected="false" tabindex="-1" aria-controls="nh-qpanel-curl" data-nh-tab>cURL</button>
+        <button class="nh-tab" type="button" role="tab" id="nh-qtab-python" aria-selected="false" tabindex="-1" aria-controls="nh-qpanel-python" data-nh-tab>Python</button>
+      </div>
+      <div class="nh-panel nh-reveal" id="nh-qpanel-js" role="tabpanel" aria-labelledby="nh-qtab-js">
+        <h3>JavaScript</h3>
+        <p>An example shape only. This page makes no request; confirm the current contract on the Platform API page.</p>
+        <div class="nh-code">
+          <div class="nh-code-bar"><span class="nh-code-label">example.js</span><button class="nh-copy" type="button" data-nh-copy>Copy</button></div>
+          <pre><code>// Illustrative only — see /platform/api for the current contract
+const response = await fetch('http://localhost:3000/api/messages', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    model: 'sonnet',
+    messages: [{ role: 'user', content: 'Summarise this brief' }]
+  })
+});
+const result = await response.json();
+console.log(result);</code></pre>
+          <p class="nh-code-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="nh-panel nh-reveal" id="nh-qpanel-curl" role="tabpanel" aria-labelledby="nh-qtab-curl" hidden>
+        <h3>cURL</h3>
+        <p>A local example you can adapt in your own terminal. Nothing here contacts Keel.</p>
+        <div class="nh-code">
+          <div class="nh-code-bar"><span class="nh-code-label">terminal</span><button class="nh-copy" type="button" data-nh-copy>Copy</button></div>
+          <pre><code># Illustrative only — run inside your own project
+curl -X POST http://localhost:3000/api/messages   -H 'Content-Type: application/json'   -d '{"model":"sonnet","messages":[{"role":"user","content":"Hello from Keel"}]}'</code></pre>
+          <p class="nh-code-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="nh-panel nh-reveal" id="nh-qpanel-python" role="tabpanel" aria-labelledby="nh-qtab-python" hidden>
+        <h3>Python</h3>
+        <p>The same example using the standard library. Adapt it to the current API before you run it.</p>
+        <div class="nh-code">
+          <div class="nh-code-bar"><span class="nh-code-label">example.py</span><button class="nh-copy" type="button" data-nh-copy>Copy</button></div>
+          <pre><code># Illustrative only — see /platform/api for the current contract
+import json, urllib.request
+
+payload = {
+    "model": "sonnet",
+    "messages": [{"role": "user", "content": "Summarise this brief"}],
+}
+request = urllib.request.Request(
+    "http://localhost:3000/api/messages",
+    data=json.dumps(payload).encode("utf-8"),
+    headers={"Content-Type": "application/json"},
+)
+with urllib.request.urlopen(request) as response:
+    print(json.load(response))</code></pre>
+          <p class="nh-code-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      <form class="nh-form nh-reveal" data-nh-form="quickstart">
+        <div class="nh-field">
+          <label for="nh-project-name">Project name (optional)</label>
+          <input id="nh-project-name" type="text" name="project" placeholder="my-app" autocomplete="off" data-nh-input />
+        </div>
+        <button class="l-btn l-btn-dark" type="submit">Preview locally</button>
+        <p class="nh-form-output" data-nh-output>Local preview · no request made · nothing saved.</p>
+        <p class="nh-form-status" role="status" aria-live="polite" data-nh-status></p>
+      </form>
+      <p class="nh-form-note nh-reveal">The preview above is built in your browser only. It is not stored and nothing is sent.</p>
+    </div></section>
+
+    <!-- ==================== docs and community ==================== -->
+    <section class="nh-section" id="docs-community"><div class="l-container nh-split">
+      <div class="nh-reveal">
+        <p class="nh-eyebrow">Keep going</p>
+        <h2>Documentation and community</h2>
+        <p>Read the current contracts, then ask questions through the real community and news routes.</p>
+        <ul class="nh-list">
+          <li><span>Documentation<span class="nh-list-note">Current requirements and setup information</span></span><a href="/requirements">Open →</a></li>
+          <li><span>Platform API<span class="nh-list-note">Models, messages and managed agents</span></span><a href="/platform/api">Open →</a></li>
+          <li><span>Developer blog<span class="nh-list-note">News and notes</span></span><a href="/notices">Open →</a></li>
+          <li><span>Community<span class="nh-list-note">Email the Keel team</span></span><a href="mailto:hello@keel.ai">Email →</a></li>
+          <li><span>Console<span class="nh-list-note">Sign in to work with your own projects</span></span><a href="/login">Open →</a></li>
+        </ul>
+      </div>
+      <div class="nh-reveal">
+        <div class="nh-grid nh-grid--2">
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Extend</span>
+          <h3>MCP</h3>
+          <p>See how external tools and context are described on the platform page.</p>
+          <a class="nh-text-link" href="/platform/api">Platform details <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Learn</span>
+          <h3>Skills</h3>
+          <p>Reusable instructions for the work you repeat.</p>
+          <a class="nh-text-link" href="/skills">See skills <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Discover</span>
+          <h3>Plugins</h3>
+          <p>Browse the marketplace for extensions.</p>
+          <a class="nh-text-link" href="/marketplace/plugins">Browse plugins <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="nh-card nh-reveal">
+          <span class="nh-card-kicker">Reference</span>
+          <h3>Product overview</h3>
+          <p>A map of the whole Keel family.</p>
+          <a class="nh-text-link" href="/product/overview">See overview <span aria-hidden="true">→</span></a>
+        </article>
+        </div>
+        <p class="nh-note"><strong>Honest state:</strong> this is a link hub, not a live console. No account, key or session is created here.</p>
+      </div>
+    </div></section>
+
+    <!-- ==================== FAQ ==================== -->
+    <section class="nh-section nh-section--warm" id="faq"><div class="l-container">
+      <div class="nh-section-head nh-reveal">
+        <p class="nh-eyebrow">FAQ</p>
+        <h2 class="nh-section-title">Developer questions</h2>
+      </div>
+      <div class="nh-accordion">
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="true" aria-controls="nh-faq-1"><span>Do I need an account to read this page?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-1"><p>No. This hub is a static guide. To use the console or your own projects, <a href="/login">sign in</a>.</p></div>
+        </div>
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="false" aria-controls="nh-faq-2"><span>Where do API keys live?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-2" hidden><p>Keys belong in your own project and in the console. This page never asks for a key and stores nothing.</p></div>
+        </div>
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="false" aria-controls="nh-faq-3"><span>Are the code samples copyable?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-3" hidden><p>Yes. The Copy button writes the snippet to your clipboard on this device. It reports the result locally and sends nothing.</p></div>
+        </div>
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="false" aria-controls="nh-faq-4"><span>What is Keel Ship?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-4" hidden><p>Keel Ship is the delivery track shown on the <a href="/roadmap">roadmap</a>. This hub links to that page rather than promising dates.</p></div>
+        </div>
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="false" aria-controls="nh-faq-5"><span>Is there a developer blog or community?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-5" hidden><p>News lives on the <a href="/notices">news page</a>. You can reach the team by <a href="mailto:hello@keel.ai">email</a>.</p></div>
+        </div>
+        <div class="nh-acc-item nh-reveal">
+          <button class="nh-acc-btn" type="button" aria-expanded="false" aria-controls="nh-faq-6"><span>Can I extend Keel with MCP, skills or plugins?</span><span class="nh-acc-icon" aria-hidden="true"></span></button>
+          <div class="nh-acc-panel" id="nh-faq-6" hidden><p>Start from the <a href="/platform/api">platform</a>, <a href="/skills">skills</a> and <a href="/marketplace/plugins">plugins</a> pages for what is available today.</p></div>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- ==================== dark CTA ==================== -->
+    <section class="nh-cta nh-reveal"><div class="l-container">
+      <h2>Ready to start building?</h2>
+      <p>Read the current API contract, then open the console when you are ready to work with your own projects.</p>
+      <div class="nh-cta-actions">
+        <a class="l-btn nh-cta-btn" href="/platform/api">Read the platform overview</a>
+        <a class="l-btn l-btn-outline nh-cta-outline" href="/login">Open the console</a>
+      </div>
+    </div></section>
+  </main>
+
+  <!-- ==================== dark footer ==================== -->
+  <footer class="l-footer" id="footer">
+    <div class="l-container">
+      <div class="l-footer-top">
+        <a class="l-wordmark l-footer-wordmark" href="/" aria-label="Keel home">
+          <span class="l-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+          <span class="l-wordmark-text">Keel</span>
+        </a>
+
+        <form class="l-help" id="helpForm" role="search" data-nh-search="#searchStatus">
+          <label class="l-sr-only" for="nh-footer-search">How can we help today?</label>
+          <input id="nh-footer-search" type="search" placeholder="How can we help today?" autocomplete="off" />
+          <button class="l-help-submit" type="submit" aria-label="Search this page only">
+            <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false"><path d="M4 10h11m0 0-4.5-4.5M15 10l-4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+        <p class="l-search-status" id="searchStatus" role="status" aria-live="polite" hidden>
+          <span id="searchStatusText"></span>
+          <button type="button" id="clearSearch">Clear search</button>
+        </p>
+      </div>
+
+      <div class="l-footer-cols">
+        <nav class="l-footer-col" aria-label="Products">
+          <h2 class="l-footer-h">Products</h2>
+          <a href="/product/overview">Keel</a>
+          <a href="/product/keel-code">Keel Code</a>
+          <a href="/product/cowork">Keel Cowork</a>
+          <a href="/product/keel-duet">Keel Duet</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="/product/tag">Keel Tag</a>
+          <p class="l-footer-sub">Specialized</p>
+          <a href="/product/keel-security">Keel Security</a>
+          <a href="/product/keel-science">Keel Science</a>
+          <p class="l-footer-sub">Capabilities</p>
+          <a href="/features/artifacts">Artifacts</a>
+          <a href="/product/design">Design</a>
+          <a href="/skills">Skills</a>
+          <a href="/marketplace/plugins">Plugins</a>
+          <p class="l-footer-sub">Models</p>
+          <a href="/models/mythos">Mythos (including Fable)</a>
+          <a href="/models/opus">Opus</a>
+          <a href="/models/sonnet">Sonnet</a>
+          <a href="/models/haiku">Haiku</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Developers">
+          <h2 class="l-footer-h">Developers</h2>
+          <a href="/developers">Developer hub</a>
+          <a href="/requirements">Developer docs</a>
+          <a href="/notices">Developer blog</a>
+          <a href="/login">Console</a>
+          <a href="/roadmap">Roadmap</a>
+          <a href="/platform/api">API overview</a>
+          <a href="/platform/api">Managed Agents</a>
+          <a href="/platform/api">MCP</a>
+          <a href="/skills">Skills</a>
+          <a href="/marketplace/plugins">Plugins</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Enterprise">
+          <h2 class="l-footer-h">Enterprise</h2>
+          <a href="/enterprise">Overview</a>
+          <a href="/product/keel-code">Keel Code for teams</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="/pricing">Plans &amp; pricing</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
+          <a href="mailto:sales@keel.dev?subject=Enterprise%20enquiry">Contact sales</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Resources">
+          <h2 class="l-footer-h">Resources</h2>
+          <a href="/resources">Resource hub</a>
+          <a href="/resources/articles">Articles</a>
+          <a href="/roadmap">Roadmap</a>
+          <a href="/notices">Keel news</a>
+          <a href="/marketplace/plugins">Plugins</a>
+          <a href="/marketplace/connectors-plugins">Connectors</a>
+          <a href="/skills">Skills</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Company and policies">
+          <h2 class="l-footer-h">Company and policies</h2>
+          <a href="/">Keel</a>
+          <a href="mailto:careers@keel.ai">Careers</a>
+          <a href="/notices">News</a>
+          <a href="/privacy">Privacy policy</a>
+          <a href="/terms">Terms of service</a>
+          <a href="/notices">Responsible disclosure policy</a>
+          <a href="/trademark">Trademark</a>
+          <a href="/eula">EULA</a>
+        </nav>
+      </div>
+
+      <div class="l-footer-bar">
+        <span class="l-footer-sig">KEEL 2026 All rights reserved. Keel is a workspace for thinking, building and getting work done.</span>
+
+        <div class="l-socials" aria-label="Keel social channels">
+          <a href="/notices" aria-label="Keel on X (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+          <a href="/notices" aria-label="Keel on LinkedIn (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4 9h4v11H4zM6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM11 9h4v1.7c.8-1.2 2-2 3.5-2 2.5 0 3.5 1.6 3.5 4.3V20h-4v-6c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2 1-2.2 2.4V20h-4z"/></svg></a>
+          <a href="/notices" aria-label="Keel on GitHub (source updates)"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.4-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.5.1 2.8.6.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg></a>
+          <a href="/notices" aria-label="Keel on YouTube (video updates)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M22 12s0-3.4-.4-5a2.5 2.5 0 0 0-1.8-1.8C18.2 4.8 12 4.8 12 4.8s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7C2 8.6 2 12 2 12s0 3.4.4 5a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-5 .4-5zM10 15V9l5.2 3z"/></svg></a>
+        </div>
+
+        <label class="l-lang">
+          <span class="l-sr-only">Language</span>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+          <select id="languageSelect" aria-label="Language">
+            <option value="en" selected>English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="ja">日本語</option>
+          </select>
+        </label>
+        <p class="l-sr-only" id="nh-lang-status" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

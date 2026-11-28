@@ -42,4 +42,7 @@
   <url><loc>https://keel-desktop.vercel.app/models/opus</loc></url>
   <url><loc>https://keel-desktop.vercel.app/models/sonnet</loc></url>
   <url><loc>https://keel-desktop.vercel.app/models/haiku</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/developers</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/enterprise</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/resources</loc></url>
 </urlset>
