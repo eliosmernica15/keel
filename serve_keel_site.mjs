@@ -8,24 +8,40 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), 'keel/site');
 const PORT = Number(process.env.PORT || 3100);
 
+// Mirrors keel/site/vercel.json. The article routes resolve to the top-level
+// .html copies (Vercel clean-URL file resolution); the index.html rewrites in
+// vercel.json remain as a fallback.
 const REWRITES = {
   '/download': '/download.html',
+  '/downloads': '/downloads.html',
   '/app': '/app.html',
+  '/app/': '/app.html',
+  '/login': '/login.html',
+  '/new': '/new.html',
+  '/plugins': '/plugins.html',
+  '/projects': '/projects.html',
+  '/artifacts': '/artifacts.html',
   '/keel-in-chrome': '/keel-in-chrome.html',
   '/chrome-web-store': '/chrome-web-store.html',
+  '/privacy': '/privacy.html',
+  '/terms': '/terms.html',
+  '/notices': '/notices.html',
+  '/roadmap': '/roadmap.html',
+  '/eula': '/eula.html',
+  '/trademark': '/trademark.html',
+  '/requirements': '/requirements.html',
+  '/product/overview': '/product-overview.html',
   '/product/keel-code': '/product/keel-code.html',
   '/product/keel-duet': '/product/keel-duet.html',
   '/product/cowork': '/product/cowork.html',
-  '/product/overview': '/product-overview.html',
-  '/pricing': '/pricing.html',
   '/platform/api': '/platform/api.html',
-  '/privacy': '/privacy.html',
-  '/terms': '/eula.html',
-  '/notices': '/notices.html',
-  '/roadmap': '/roadmap.html',
-  '/requirements': '/requirements.html',
-  '/trademark': '/trademark.html',
-  '/eula': '/eula.html',
+  '/pricing': '/pricing.html',
+  '/cowork': '/product/cowork.html',
+  '/keel-code': '/product/keel-code.html',
+  '/resources/articles': '/resources/articles/index.html',
+  '/resources/articles/introducing-keel-ship': '/resources/articles/introducing-keel-ship.html',
+  '/resources/articles/introducing-keel-code': '/resources/articles/introducing-keel-code.html',
+  '/resources/articles/keel-ship-session-format': '/resources/articles/keel-ship-session-format.html',
 };
 
 const TYPES = {
