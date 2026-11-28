@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plugins — Keel Marketplace</title>
+  <meta name="description" content="Add new capabilities to Keel. Browse plugins that bundle tools, skills, and integrations for one-click installation." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/marketplace/plugins" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f6f5f1" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Plugins — Keel Marketplace" />
+  <meta property="og:description" content="Browse plugins that bundle tools, skills, and integrations for one-click installation." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/marketplace/plugins" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="stylesheet" href="/ui/marketplace-plugins.css" />
+  <script src="/ui/marketplace-plugins.js" defer></script>
+</head>
+<body class="mp-page">
+
+  <!-- Local, text-only SVG icons. No remote or inline data-URI assets. -->
+  <svg class="mp-svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="mp-blocks" viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.6" fill="currentColor"/></symbol>
+      <symbol id="mp-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m15.5 15.5 5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+      <symbol id="mp-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="mp-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+      <symbol id="mp-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c1.4 0 2-1 2-2 0-1.3-1-1.7-1-2.8 0-1 .8-1.7 1.9-1.7H17a4 4 0 0 0 4-4C21 6.8 17 3 12 3Z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="7.5" cy="10" r="1" fill="currentColor"/><circle cx="11" cy="7.5" r="1" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1" fill="currentColor"/></symbol>
+      <symbol id="mp-spark" viewBox="0 0 24 24"><path d="M12 2.5 14 9l6.5 2-6.5 2-2 6.5-2-6.5L3.5 11 10 9l2-6.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+      <symbol id="mp-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6l8-3Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m8.5 12 2.3 2.3 4.7-4.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+      <symbol id="mp-book" viewBox="0 0 24 24"><path d="M5 4.5h11a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3V4.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 9h6M9 13h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+      <symbol id="mp-wand" viewBox="0 0 24 24"><path d="m4 20 10-10M14.5 4.5l5 5M12 7l5 5M17 3l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+      <symbol id="mp-browser" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="mp-github" viewBox="0 0 24 24"><path d="M9 20c-5 1.6-5-2.3-6.5-3M15 21v-3.4c0-1 .1-1.4-.5-2 2.7-.3 5.5-1.3 5.5-6A4.7 4.7 0 0 0 18.6 6 4.4 4.4 0 0 0 18.5 2.7S17.4 2.3 15 4a12 12 0 0 0-6 0C6.6 2.3 5.5 2.7 5.5 2.7A4.4 4.4 0 0 0 5.4 6 4.7 4.7 0 0 0 4 9.6c0 4.7 2.8 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+      <symbol id="mp-management" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 9h5M7 13h5M7 17h8M16 8.5l1.6 1.6L20 7.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="mp-feature" viewBox="0 0 24 24"><path d="M4 19V6a2 2 0 0 1 2-2h9l5 5v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M15 4v5h5M8 13h8M8 17h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+      <symbol id="mp-triangle" viewBox="0 0 24 24"><path d="M12 3.5 22 20H2L12 3.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 20l4-7 4 7" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+      <symbol id="mp-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="mp-loop" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8M20 4v4h-4M20 12a8 8 0 0 1-13.7 5.7L4 16M4 20v-4h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="mp-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m7 9 3 3-3 3M13 15h5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="mp-git" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="18" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 8.5v7M8.5 6h3a4 4 0 0 1 4 4v0M8.5 18h3a4 4 0 0 0 4-4v0" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+      <symbol id="mp-figma" viewBox="0 0 24 24"><circle cx="9" cy="6" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="15" cy="6" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="15" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="mp-database" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="mp-pr" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="19" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="18" cy="19" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 7v10M8 19h8M18 17V9l-4-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="mp-python" viewBox="0 0 24 24"><path d="M12 3c-4 0-5 1.6-5 4v2h10V7c0-2.4-1-4-5-4Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M17 9h2c1.5 0 2 1 2 3v2c0 2-.8 3-2.5 3H12c-4 0-5-1.5-5-4v-2h10v2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="9.5" cy="6.5" r=".8" fill="currentColor"/><circle cx="14.5" cy="15.5" r=".8" fill="currentColor"/></symbol>
+      <symbol id="mp-chrome" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h9M20.5 9l-5 8M8 20l5-8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+      <symbol id="mp-telegram" viewBox="0 0 24 24"><path d="M21 4 2.5 11l5.5 2 2 6 3.5-4 5 3 2.5-14Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m8 13 9-6-6.5 7.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+      <symbol id="mp-atlassian" viewBox="0 0 24 24"><path d="M3 6.5 8 15l3-5-3-5H3Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M16 6.5 11 15l3 5 5-9-3-4.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+      <symbol id="mp-slack" viewBox="0 0 24 24"><path d="M9 3v11a2 2 0 0 1-4 0V7a2 2 0 0 1 4 0M21 15H10a2 2 0 0 1 0-4h8a2 2 0 0 0 0-4M15 21H6a2 2 0 0 1 0-4h9a2 2 0 0 0 0-4M3 9h11a2 2 0 0 1 0 4H6a2 2 0 0 0 0 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+      <symbol id="mp-serena" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7.5 13.5c1.5-4 4-6 6.5-6s3.5 3 2.5 6.5M5.5 9.5c2.5 1 5 1.5 8 1.2M12 20.5V17" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- ========================= sticky navigation ========================= -->
+  <header class="mp-header" id="mp-header">
+    <div class="mp-topbar">
+      <div class="mp-container mp-topbar-inner">
+        <a class="mp-brand" href="/" aria-label="Keel Marketplace home">
+          <svg class="mp-brand-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#mp-blocks" /></svg>
+          <span>Keel <strong>Marketplace</strong></span>
+        </a>
+
+        <nav class="mp-main-nav" aria-label="Main navigation">
+          <a href="/product/overview">Product</a>
+          <a href="/keel-code">Developers</a>
+          <a href="/platform/api">Enterprise</a>
+          <a href="/resources/articles">Resources</a>
+          <a href="/pricing">Pricing</a>
+        </nav>
+
+        <div class="mp-top-actions">
+          <a class="mp-login-link" href="/login">Log in</a>
+          <a class="mp-btn mp-btn-outline mp-btn-sm" href="mailto:hello@keel.dev">Contact sales</a>
+          <a class="mp-btn mp-btn-dark mp-btn-sm" href="/login">Get Keel</a>
+        </div>
+
+        <button class="mp-menu-toggle" type="button" aria-expanded="false" aria-controls="mp-mobile-menu" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mp-subnav">
+      <div class="mp-container mp-subnav-inner">
+        <nav class="mp-subnav-links" aria-label="Marketplace sections">
+          <a href="/">Home</a>
+          <a href="/marketplace/plugins" aria-current="page">Connectors and plugins</a>
+          <a href="/product/overview">Agents and products</a>
+          <a href="/product/cowork">Service partners</a>
+        </nav>
+        <button class="mp-search-jump" type="button" data-search-jump aria-label="Search plugins">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mp-search" /></svg>
+        </button>
+      </div>
+    </div>
+
+    <nav class="mp-mobile-menu" id="mp-mobile-menu" aria-label="Mobile navigation" hidden>
+      <a href="/">Home</a>
+      <a href="/marketplace/plugins" aria-current="page">Connectors and plugins</a>
+      <a href="/product/overview">Product</a>
+      <a href="/keel-code">Developers</a>
+      <a href="/platform/api">Enterprise</a>
+      <a href="/resources/articles">Resources</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/product/cowork">Service partners</a>
+      <a href="/login">Log in</a>
+      <a href="mailto:hello@keel.dev">Contact sales</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- ============================== hero ============================== -->
+    <section class="mp-hero" aria-labelledby="mp-hero-title">
+      <div class="mp-container">
+        <nav class="mp-breadcrumb" aria-label="Breadcrumb">
+          <a href="/product/overview">Capabilities</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">Plugins</span>
+        </nav>
+        <div class="mp-hero-inner mp-reveal">
+          <span class="mp-hero-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-blocks" /></svg></span>
+          <h1 id="mp-hero-title">Add new capabilities to Keel</h1>
+          <p>Browse plugins that bundle tools, skills, and integrations for one-click installation.</p>
+          <button class="mp-btn mp-btn-dark mp-btn-lg" type="button" data-open-submit>Submit a plugin</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== plugin directory ========================== -->
+    <section class="mp-browse" id="browse" aria-label="Plugin directory">
+      <div class="mp-container mp-browse-grid">
+        <aside class="mp-filters" aria-label="Plugin filters">
+          <h2>Filters</h2>
+          <fieldset class="mp-filter-group">
+            <legend>Works with</legend>
+            <label class="mp-check"><input type="checkbox" data-works-filter value="Keel" /> <span>Keel</span></label>
+            <label class="mp-check"><input type="checkbox" data-works-filter value="Keel Code" /> <span>Keel Code</span></label>
+          </fieldset>
+          <button class="mp-clear-filters" type="button" data-clear-filters>Clear filters</button>
+          <p class="mp-filter-note">Search and filters run locally on this page.</p>
+        </aside>
+
+        <div class="mp-results">
+          <div class="mp-search-row">
+            <label class="mp-search-field" for="mp-search">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mp-search" /></svg>
+              <span class="mp-sr-only">Search plugins</span>
+              <input id="mp-search" data-plugin-search type="search" placeholder="Search plugins" autocomplete="off" />
+            </label>
+            <p class="mp-count" data-result-count role="status" aria-live="polite"></p>
+          </div>
+
+          <div class="mp-grid" data-plugin-grid>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Frontend Design" data-description="Frontend design skill for polished UI and UX implementation" data-works-with="Keel Code" data-kind="local" data-slug="frontend-design">
+              <span class="mp-card-icon mp-c-violet" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-palette" /></svg></span>
+              <span class="mp-card-name">Frontend Design</span>
+              <span class="mp-card-desc">Frontend design skill for polished UI and UX implementation</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Superpowers" data-description="Core skills library for test-driven development and debugging" data-works-with="Keel Code" data-kind="local" data-slug="superpowers">
+              <span class="mp-card-icon mp-c-amber" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-spark" /></svg></span>
+              <span class="mp-card-name">Superpowers</span>
+              <span class="mp-card-desc">Core skills library for test-driven development and debugging</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Code Review" data-description="Review pull requests with focused, actionable feedback" data-works-with="Keel|Keel Code" data-kind="local" data-slug="code-review">
+              <span class="mp-card-icon mp-c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-shield" /></svg></span>
+              <span class="mp-card-name">Code Review</span>
+              <span class="mp-card-desc">Review pull requests with focused, actionable feedback</span>
+              <span class="mp-card-meta">Works with Keel and Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Context7" data-description="Fetch up-to-date library docs and code examples on demand" data-works-with="Keel|Keel Code" data-kind="local" data-slug="context7">
+              <span class="mp-card-icon mp-c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-book" /></svg></span>
+              <span class="mp-card-name">Context7</span>
+              <span class="mp-card-desc">Fetch up-to-date library docs and code examples on demand</span>
+              <span class="mp-card-meta">Works with Keel and Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Code Simplifier" data-description="Simplify and refactor code while preserving behaviour" data-works-with="Keel Code" data-kind="local" data-slug="code-simplifier">
+              <span class="mp-card-icon mp-c-rose" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-wand" /></svg></span>
+              <span class="mp-card-name">Code Simplifier</span>
+              <span class="mp-card-desc">Simplify and refactor code while preserving behaviour</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Playwright" data-description="Browser automation and end-to-end testing with Playwright" data-works-with="Keel Code" data-kind="local" data-slug="playwright">
+              <span class="mp-card-icon mp-c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-browser" /></svg></span>
+              <span class="mp-card-name">Playwright</span>
+              <span class="mp-card-desc">Browser automation and end-to-end testing with Playwright</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="GitHub" data-description="Search issues, pull requests, and repositories from GitHub" data-works-with="Keel" data-kind="download" data-slug="github">
+              <span class="mp-card-icon mp-c-slate" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-github" /></svg></span>
+              <span class="mp-card-name">GitHub</span>
+              <span class="mp-card-desc">Search issues, pull requests, and repositories from GitHub</span>
+              <span class="mp-card-meta">Works with Keel</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Keel and Management" data-description="Manage Keel settings, usage, and team resources" data-works-with="Keel" data-kind="login" data-slug="keel-and-management">
+              <span class="mp-card-icon mp-c-ink" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-management" /></svg></span>
+              <span class="mp-card-name">Keel and Management</span>
+              <span class="mp-card-desc">Manage Keel settings, usage, and team resources</span>
+              <span class="mp-card-meta">Works with Keel</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Feature Dev" data-description="Plan, build, and verify new features end to end" data-works-with="Keel Code" data-kind="local" data-slug="feature-dev">
+              <span class="mp-card-icon mp-c-violet" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-feature" /></svg></span>
+              <span class="mp-card-name">Feature Dev</span>
+              <span class="mp-card-desc">Plan, build, and verify new features end to end</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Security Guidance" data-description="Find and fix security issues with guided reviews" data-works-with="Keel Code" data-kind="local" data-slug="security-guidance">
+              <span class="mp-card-icon mp-c-amber" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-shield" /></svg></span>
+              <span class="mp-card-name">Security Guidance</span>
+              <span class="mp-card-desc">Find and fix security issues with guided reviews</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Vercel" data-description="Inspect deployments, projects, and logs from Vercel" data-works-with="Keel" data-kind="download" data-slug="vercel">
+              <span class="mp-card-icon mp-c-ink" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-triangle" /></svg></span>
+              <span class="mp-card-name">Vercel</span>
+              <span class="mp-card-desc">Inspect deployments, projects, and logs from Vercel</span>
+              <span class="mp-card-meta">Works with Keel</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="TypeScript LSP" data-description="Type-aware diagnostics and refactors for TypeScript" data-works-with="Keel Code" data-kind="local" data-slug="typescript-lsp">
+              <span class="mp-card-icon mp-c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-code" /></svg></span>
+              <span class="mp-card-name">TypeScript LSP</span>
+              <span class="mp-card-desc">Type-aware diagnostics and refactors for TypeScript</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Ralph Loop" data-description="Iterate on tasks until verification passes" data-works-with="Keel Code" data-kind="local" data-slug="ralph-loop">
+              <span class="mp-card-icon mp-c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-loop" /></svg></span>
+              <span class="mp-card-name">Ralph Loop</span>
+              <span class="mp-card-desc">Iterate on tasks until verification passes</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Keel Code Setup" data-description="Configure Keel Code commands, hooks, and skills" data-works-with="Keel Code" data-kind="local" data-slug="keel-code-setup">
+              <span class="mp-card-icon mp-c-slate" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-terminal" /></svg></span>
+              <span class="mp-card-name">Keel Code Setup</span>
+              <span class="mp-card-desc">Configure Keel Code commands, hooks, and skills</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Commit Commands" data-description="Draft consistent commit messages from your changes" data-works-with="Keel Code" data-kind="local" data-slug="commit-commands">
+              <span class="mp-card-icon mp-c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-git" /></svg></span>
+              <span class="mp-card-name">Commit Commands</span>
+              <span class="mp-card-desc">Draft consistent commit messages from your changes</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Figma" data-description="Generate diagrams and better code from Figma context" data-works-with="Keel" data-kind="download" data-slug="figma">
+              <span class="mp-card-icon mp-c-rose" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-figma" /></svg></span>
+              <span class="mp-card-name">Figma</span>
+              <span class="mp-card-desc">Generate diagrams and better code from Figma context</span>
+              <span class="mp-card-meta">Works with Keel</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Supabase" data-description="Query and manage your Supabase project from Keel" data-works-with="Keel" data-kind="login" data-slug="supabase">
+              <span class="mp-card-icon mp-c-green" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-database" /></svg></span>
+              <span class="mp-card-name">Supabase</span>
+              <span class="mp-card-desc">Query and manage your Supabase project from Keel</span>
+              <span class="mp-card-meta">Works with Keel</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="PR Review Toolkit" data-description="Review, summarise, and respond to pull requests" data-works-with="Keel Code" data-kind="local" data-slug="pr-review-toolkit">
+              <span class="mp-card-icon mp-c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-pr" /></svg></span>
+              <span class="mp-card-name">PR Review Toolkit</span>
+              <span class="mp-card-desc">Review, summarise, and respond to pull requests</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Pyright LSP" data-description="Fast Python type checking and diagnostics" data-works-with="Keel Code" data-kind="local" data-slug="pyright-lsp">
+              <span class="mp-card-icon mp-c-amber" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-python" /></svg></span>
+              <span class="mp-card-name">Pyright LSP</span>
+              <span class="mp-card-desc">Fast Python type checking and diagnostics</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Chrome DevTools" data-description="Inspect and debug pages with Chrome DevTools" data-works-with="Keel Code" data-kind="local" data-slug="chrome-devtools">
+              <span class="mp-card-icon mp-c-violet" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-chrome" /></svg></span>
+              <span class="mp-card-name">Chrome DevTools</span>
+              <span class="mp-card-desc">Inspect and debug pages with Chrome DevTools</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Telegram" data-description="Connect a Telegram channel to Keel Code" data-works-with="Keel Code" data-kind="local" data-slug="telegram">
+              <span class="mp-card-icon mp-c-teal" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-telegram" /></svg></span>
+              <span class="mp-card-name">Telegram</span>
+              <span class="mp-card-desc">Connect a Telegram channel to Keel Code</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Atlassian MCP" data-description="Search and update Jira, Confluence, and Bitbucket" data-works-with="Keel" data-kind="download" data-slug="atlassian-mcp">
+              <span class="mp-card-icon mp-c-blue" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-atlassian" /></svg></span>
+              <span class="mp-card-name">Atlassian MCP</span>
+              <span class="mp-card-desc">Search and update Jira, Confluence, and Bitbucket</span>
+              <span class="mp-card-meta">Works with Keel</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Slack" data-description="Send messages and fetch Slack workspace data" data-works-with="Keel" data-kind="download" data-slug="slack">
+              <span class="mp-card-icon mp-c-rose" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-slack" /></svg></span>
+              <span class="mp-card-name">Slack</span>
+              <span class="mp-card-desc">Send messages and fetch Slack workspace data</span>
+              <span class="mp-card-meta">Works with Keel</span>
+            </button>
+            <button class="mp-card mp-reveal" type="button" data-plugin data-name="Serena" data-description="Semantic code search and editing across your repository" data-works-with="Keel Code" data-kind="local" data-slug="serena">
+              <span class="mp-card-icon mp-c-slate" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mp-serena" /></svg></span>
+              <span class="mp-card-name">Serena</span>
+              <span class="mp-card-desc">Semantic code search and editing across your repository</span>
+              <span class="mp-card-meta">Works with Keel Code</span>
+            </button>
+          </div>
+
+          <p class="mp-empty" data-empty hidden>No plugins match that search. Try another term or clear the filters.</p>
+
+          <div class="mp-more-row">
+            <button class="mp-btn mp-btn-outline" type="button" data-view-more>View more</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================= plugin detail dialog ========================= -->
+  <div class="mp-backdrop" data-detail-backdrop hidden>
+    <div class="mp-dialog" role="dialog" aria-modal="true" aria-labelledby="mp-detail-title" data-detail-dialog>
+      <button class="mp-dialog-close" type="button" data-close-detail aria-label="Close plugin details">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mp-close" /></svg>
+      </button>
+      <span class="mp-dialog-icon" data-detail-icon aria-hidden="true"></span>
+      <h2 id="mp-detail-title" data-detail-title></h2>
+      <p class="mp-dialog-desc" data-detail-desc></p>
+      <p class="mp-dialog-meta" data-detail-meta></p>
+
+      <div class="mp-dialog-action" data-action-download hidden>
+        <a class="mp-btn mp-btn-dark" href="/download">Download the app</a>
+        <p>Connectors are configured inside the Keel app after you sign in.</p>
+      </div>
+      <div class="mp-dialog-action" data-action-login hidden>
+        <a class="mp-btn mp-btn-dark" href="/login">Log in</a>
+        <p>Sign in to your Keel account to connect this plugin.</p>
+      </div>
+      <div class="mp-dialog-action" data-action-local hidden>
+        <label class="mp-command-label" for="mp-install-command">Local install command</label>
+        <div class="mp-command-row">
+          <code id="mp-install-command" data-install-command></code>
+          <button class="mp-btn mp-btn-outline mp-btn-sm" type="button" data-copy-command>Copy command</button>
+        </div>
+        <p>Run this in your terminal with Keel Code installed. This page does not install anything itself.</p>
+        <a class="mp-text-link" href="/keel-code">Learn about Keel Code</a>
+      </div>
+      <p class="mp-dialog-note">No plugin is installed or enabled by opening this dialog.</p>
+    </div>
+  </div>
+
+  <!-- ========================= submit plugin dialog ========================= -->
+  <div class="mp-backdrop" data-submit-backdrop hidden>
+    <div class="mp-dialog mp-dialog-form" role="dialog" aria-modal="true" aria-labelledby="mp-submit-title" data-submit-dialog>
+      <button class="mp-dialog-close" type="button" data-close-submit aria-label="Close submission form">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mp-close" /></svg>
+      </button>
+      <h2 id="mp-submit-title">Submit a plugin</h2>
+      <p class="mp-dialog-desc">Share a plugin with the Keel community. This form is local-only: nothing is uploaded by this page.</p>
+      <form data-submit-form>
+        <label>Plugin name <input type="text" name="name" required maxlength="80" placeholder="My plugin" /></label>
+        <label>Website or repository URL <input type="url" name="url" required maxlength="500" placeholder="example.com/plugin" /></label>
+        <label>Description <textarea name="description" rows="3" required maxlength="500" placeholder="What does the plugin do?"></textarea></label>
+        <label>Works with
+          <select name="worksWith">
+            <option value="Keel">Keel</option>
+            <option value="Keel Code">Keel Code</option>
+            <option value="Keel and Keel Code">Both</option>
+          </select>
+        </label>
+        <label>Your email <input type="email" name="email" required maxlength="200" placeholder="you@example.com" /></label>
+        <button class="mp-btn mp-btn-dark" type="submit">Prepare submission</button>
+      </form>
+      <div class="mp-submit-result" data-submit-result hidden aria-live="polite">
+        <p class="mp-local-badge" data-local-badge>Local only — nothing sent</p>
+        <p data-submit-message></p>
+        <a class="mp-btn mp-btn-outline mp-btn-sm" data-submit-mailto href="mailto:plugins@keel.dev">Open email app to send</a>
+      </div>
+    </div>
+  </div>
+
+  <p class="mp-status" data-status role="status" aria-live="polite" hidden></p>
+
+  <!-- ============================== footer ============================== -->
+  <footer class="mp-footer">
+    <div class="mp-container">
+      <div class="mp-footer-grid">
+        <div class="mp-footer-brand">
+          <a class="mp-footer-wordmark" href="/" aria-label="Keel home">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mp-blocks" /></svg>
+            <span>Keel Marketplace</span>
+          </a>
+          <p>Add new capabilities to Keel with plugins, connectors, and skills.</p>
+        </div>
+        <div class="mp-footer-col">
+          <h2>Products</h2>
+          <a href="/">Keel</a>
+          <a href="/keel-code">Keel Code</a>
+          <a href="/cowork">Keel Cowork</a>
+          <a href="/download">Download apps</a>
+        </div>
+        <div class="mp-footer-col">
+          <h2>Capabilities</h2>
+          <a href="/marketplace/plugins" aria-current="page">Plugins</a>
+          <a href="/plugins">Connectors</a>
+          <a href="/features/artifacts">Artifacts</a>
+          <a href="/product/overview">Overview</a>
+        </div>
+        <div class="mp-footer-col">
+          <h2>Resources</h2>
+          <a href="/resources/articles">Articles</a>
+          <a href="/roadmap">Roadmap</a>
+          <a href="/pricing">Pricing</a>
+          <a href="mailto:hello@keel.dev">Contact sales</a>
+        </div>
+        <div class="mp-footer-col">
+          <h2>Company</h2>
+          <a href="/login">Log in</a>
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/notices">Notices</a>
+        </div>
+      </div>
+      <div class="mp-footer-bottom">
+        <p>© 2026 Keel. All rights reserved.</p>
+        <label class="mp-language">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#mp-globe" /></svg>
+          <span class="mp-sr-only">Language</span>
+          <select data-language aria-label="Language">
+            <option value="en" selected>English</option>
+            <option value="de">Deutsch</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="ja">日本語</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
