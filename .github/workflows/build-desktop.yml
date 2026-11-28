@@ -112,6 +112,16 @@ jobs:
             }
             console.log(`electron-builder pinned from lockfile: ${installed}`);
           '
+      - name: Build fleet-next standalone renderer
+        shell: bash
+        working-directory: keel/fleet-next
+        run: |
+          set -euo pipefail
+          # assert-ui-entrypoints.js checks the standalone runtime produced by
+          # next build; a clean checkout has no .next directory yet.
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run verify:standalone
       - name: Static packaging + UI acceptance checks (Windows)
         shell: powershell
         working-directory: keel
@@ -201,6 +211,14 @@ jobs:
             }
             console.log(`electron-builder pinned from lockfile: ${installed}`);
           '
+      - name: Build fleet-next standalone renderer
+        shell: bash
+        working-directory: keel/fleet-next
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run verify:standalone
       - name: Static packaging + UI acceptance checks (macOS)
         working-directory: keel
         run: |
@@ -299,6 +317,14 @@ jobs:
             }
             console.log(`electron-builder pinned from lockfile: ${installed}`);
           '
+      - name: Build fleet-next standalone renderer
+        shell: bash
+        working-directory: keel/fleet-next
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run verify:standalone
       - name: Static packaging + UI acceptance checks (Linux)
         working-directory: keel
         run: |
