@@ -610,3 +610,9 @@ body.kic-page :focus-visible { outline: 2px solid var(--kic-accent); outline-off
 /* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
 html, body { overflow-x: clip; }
 
+
+/* Specificity fix: body.kic-page a (0,1,1) overrode .kic-btn-* (0,1,0). */
+body.kic-page a.kic-skip,
+body.kic-page a.kic-btn-dark { color: #fff; }
+body.kic-page a.kic-btn-light { color: var(--kic-dark); }
+

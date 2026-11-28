@@ -592,3 +592,7 @@ body.m365-page.m365-dialog-open { overflow: hidden; }
 /* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
 html, body { overflow-x: clip; }
 
+
+/* Specificity fix: body.m365-page a overrides .m365-skip colour. */
+body.m365-page a.m365-skip { color: #fff; }
+

@@ -324,3 +324,7 @@ body.mp-page h1, h2, h3, p { margin-top: 0; }
 
 html { overflow-x: clip !important; }
 
+
+/* Specificity fix: body.mm-page a overrides .mp-btn-* colour. */
+body.mp-page a.mp-btn-dark { color: #fff; }
+
