@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel for Google Workspace — Expertise in every app</title>
+  <meta name="description" content="Put Keel to work in Google Docs, Sheets, and Slides, on your files directly in Keel. Craft, analyze, and build on the file you have open. Accept or edit any change." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/keel-for-google-workspace" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f5f4ef" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Keel for Google Workspace — Expertise in every app" />
+  <meta property="og:description" content="Expertise in every app. Put Keel to work in Google Docs, Sheets, and Slides." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/keel-for-google-workspace" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Keel for Google Workspace — Expertise in every app" />
+  <meta name="twitter:description" content="Craft, analyze, and build on the file you have open. Accept or edit any change." />
+  <link rel="stylesheet" href="/ui/keel-duet-shell.css" />
+  <link rel="stylesheet" href="/ui/gworkspace.css" />
+</head>
+<body class="duet-page gworkspace-page">
+
+  <!-- ==================== header / mega navigation ==================== -->
+  <header class="l-header s-header">
+    <div class="l-nav-inner">
+      <a class="l-wordmark" href="/" aria-label="Keel home">
+        <span class="l-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+        </span>
+        <span class="l-wordmark-text">Keel</span>
+      </a>
+
+      <nav class="l-nav-links" aria-label="Primary">
+
+        <div class="l-nav-item" data-menu="product">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-product">Product <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-product" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Products</p>
+                <a class="l-mega-link" href="/">Keel</a>
+                <a class="l-mega-link" href="/product/design">Keel Design</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/product/cowork">Keel Cowork</a>
+                <a class="l-mega-link" href="/product/keel-duet">Keel Duet</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/pricing">Pricing</a>
+                <p class="l-mega-subhead">Specialized</p>
+                <a class="l-mega-link" href="/privacy">Keel Security</a>
+                <a class="l-mega-link" href="/product/keel-science">Keel Science</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Capabilities</p>
+                <a class="l-mega-link" href="/product/design">Design</a>
+                <a class="l-mega-link" href="/product/keel-code">Code</a>
+                <a class="l-mega-link" href="/product/keel-science">Research</a>
+                <a class="l-mega-link" href="/product/cowork">Cowork</a>
+                <a class="l-mega-link" href="/artifacts">Artifacts</a>
+                <a class="l-mega-link" href="/skills">Skills</a>
+                <p class="l-mega-subhead">Extensions</p>
+                <a class="l-mega-link" href="/download">Keel in Chrome</a>
+                <a class="l-mega-link is-current" href="/keel-for-google-workspace" aria-current="page">Keel for Google Workspace</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Explore</p>
+                <a class="l-mega-link" href="/keel-for-google-workspace#trust" data-scroll="trust">Review your edits</a>
+                <a class="l-mega-link" href="/keel-for-google-workspace#capabilities" data-scroll="capabilities">Core capabilities</a>
+                <a class="l-mega-link" href="/keel-for-google-workspace#faq" data-scroll="faq">Frequently asked questions</a>
+                <a class="l-mega-link" href="/plugins">Browse plugins</a>
+                <p class="l-mega-subhead">Files</p>
+                <a class="l-mega-link" href="/artifacts">Reference files</a>
+                <a class="l-mega-link" href="/skills">Reusable skills</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Get started</p>
+                <button class="l-mega-link" type="button" data-try>Try Keel for Google Workspace</button>
+                <a class="l-mega-link" href="/login">Log in to Keel</a>
+                <a class="l-mega-link" href="/download">Download the desktop app</a>
+                <p class="l-mega-subhead">Help</p>
+                <a class="l-mega-link" href="#faq" data-scroll="faq">Installation questions</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Contact sales</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/download">Import to Keel</a></div>
+              <div class="l-mega-foot-right">
+                <a class="l-mega-link" href="/download">Download apps <span class="l-dl" aria-hidden="true">↓</span></a>
+                <a class="l-mega-link" href="/login">Log in <span class="l-ext" aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="developers">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-developers">Developers <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-developers" aria-hidden="true">
+            <a class="l-explore-hint" href="/requirements">Explore here <span class="l-dl" aria-hidden="true">↓</span></a>
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Build with</p>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+                <a class="l-mega-link" href="/product/design">Design tools</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">For developers</p>
+                <a class="l-mega-link" href="/requirements">Keel Academy</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+                <a class="l-mega-link" href="/notices">Developer blog</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="enterprise">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-enterprise">Enterprise <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-enterprise" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Enterprise</p>
+                <a class="l-mega-link" href="/product-overview">Overview</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code for Enterprise</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Use cases</p>
+                <a class="l-mega-link" href="/product/keel-science">Scientific research</a>
+                <a class="l-mega-link" href="/product/keel-code">Coding</a>
+                <a class="l-mega-link" href="/product/design">Design</a>
+                <p class="l-mega-subhead">Departments</p>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Customer support</a>
+                <a class="l-mega-link" href="/privacy">Cybersecurity</a>
+                <a class="l-mega-link" href="/terms">Legal</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Industries</p>
+                <a class="l-mega-link" href="/product/keel-science">Life sciences</a>
+                <a class="l-mega-link" href="/product-overview">Government</a>
+                <a class="l-mega-link" href="/product-overview">Healthcare</a>
+                <a class="l-mega-link" href="/product-overview">Higher education</a>
+                <a class="l-mega-link" href="/product-overview">Financial services</a>
+                <a class="l-mega-link" href="/product-overview">Nonprofits</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/notices">Browse marketplace</a></div>
+              <div class="l-mega-foot-right">
+                <a class="l-mega-link" href="#trust" data-scroll="trust">Customers</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Contact sales</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="resources">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-resources">Resources <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-resources" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Insights</p>
+                <a class="l-mega-link" href="/resources/articles">Resources</a>
+                <a class="l-mega-link" href="/resources/articles">Articles</a>
+                <a class="l-mega-link" href="/notices">Webinars</a>
+                <a class="l-mega-link" href="#faq" data-scroll="faq">FAQ</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Learn</p>
+                <a class="l-mega-link" href="/requirements">Keel Academy</a>
+                <a class="l-mega-link" href="/requirements">Courses</a>
+                <a class="l-mega-link" href="/requirements">Tutorials</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Connect</p>
+                <a class="l-mega-link" href="/notices">Events</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="pricing">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-pricing">Pricing <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-pricing" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <a class="l-mega-link" href="/pricing">Overview</a>
+                <a class="l-mega-link" href="/pricing#compare">Compare plans</a>
+                <a class="l-mega-link" href="/pricing#faq">FAQ</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a class="l-nav-link" href="/login">Log in</a>
+        <a class="l-nav-link" href="mailto:hello@keel.ai">Contact sales</a>
+      </nav>
+
+      <div class="l-nav-actions">
+        <a class="l-btn l-btn-dark l-btn-sm" href="/login">Get Keel</a>
+      </div>
+
+      <button class="l-nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+        <span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span>
+      </button>
+    </div>
+
+    <div class="l-mobile-menu" id="mobileMenu" hidden>
+      <a href="#trust" data-scroll="trust">Product</a>
+      <a href="/keel-for-google-workspace">Keel for Google Workspace</a>
+      <a href="/product/design">Keel Design</a>
+      <a href="/requirements">Developers</a>
+      <a href="/product-overview">Enterprise</a>
+      <a href="#faq" data-scroll="faq">Resources</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/skills">Skills</a>
+      <a href="/download">Download desktop app</a>
+      <a href="/login">Log in</a>
+      <a href="mailto:hello@keel.ai">Contact sales</a>
+      <a href="/login">Get Keel</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ==================== breadcrumb ==================== -->
+    <nav class="s-crumbs l-container" aria-label="Breadcrumb"><a href="/">Extensions</a> <span aria-hidden="true">/</span> Keel for Google Workspace</nav>
+
+    <!-- ==================== hero ==================== -->
+    <section class="s-hero" id="workspace-home"><div class="l-container">
+      <div class="s-hero-copy s-reveal">
+        <p class="s-eyebrow">Keel for Google Workspace (Beta)</p>
+        <h1 class="s-hero-title">Expertise in every app</h1>
+        <p class="s-hero-lede">Put Keel to work in Google Docs, Sheets, and Slides, on your files directly in Keel. Craft, analyze, and build on the file you have open. Accept or edit any change.</p>
+        <div class="s-hero-actions">
+          <button class="l-btn l-btn-dark" type="button" data-try>Try Keel for Google Workspace</button>
+          <a class="l-btn l-btn-outline" href="#trust" data-scroll="trust">See how it works</a>
+        </div>
+      </div>
+
+      <div class="s-sheet-stage s-reveal" aria-label="Interactive preview of Keel in Google Sheets">
+        <div class="s-stage-glow" aria-hidden="true"></div>
+
+        <div class="s-sheet-card s-parallax" data-depth="0.5">
+          <div class="s-sheet-bar">
+            <span class="s-sheet-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="s-sheet-title">Q3 2020 budget vs actuals</span>
+            <span class="s-sheet-badge">Shared with Keel</span>
+          </div>
+          <div class="s-sheet-menu" aria-hidden="true">
+            <span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span>
+          </div>
+          <div class="s-sheet-toolbar" aria-hidden="true">
+            <span class="s-tool">100%</span><span class="s-tool">B</span><span class="s-tool">I</span><span class="s-tool">U</span><span class="s-tool s-tool-rule"></span><span class="s-tool">≡</span><span class="s-tool">⌗</span><span class="s-tool">ƒx</span>
+          </div>
+          <div class="s-formula-bar">
+            <span class="s-cell-ref" id="cellRef">D2</span>
+            <span class="s-formula-icon" aria-hidden="true">ƒx</span>
+            <span class="s-formula-value" id="formulaValue">+6,400</span>
+          </div>
+
+          <div class="s-sheet-workspace">
+            <div class="s-sheet-main">
+              <div class="s-sheet-panels">
+                <div class="s-sheet-panel" data-sheet-panel="q3">
+                  <table class="s-sheet-grid" aria-label="Q3 2020 budget versus actuals spreadsheet">
+                    <thead>
+                      <tr><th scope="col" aria-label="Row"></th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th><th scope="col">D</th><th scope="col">E</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><th scope="row">1</th><td><button class="s-cell s-cell-head" type="button" data-cell="A1" data-value="Category">Category</button></td><td><button class="s-cell s-cell-head" type="button" data-cell="B1" data-value="Budget">Budget</button></td><td><button class="s-cell s-cell-head" type="button" data-cell="C1" data-value="Actual">Actual</button></td><td><button class="s-cell s-cell-head" type="button" data-cell="D1" data-value="Variance">Variance</button></td><td><button class="s-cell s-cell-head" type="button" data-cell="E1" data-value="Notes">Notes</button></td></tr>
+                      <tr><th scope="row">2</th><td><button class="s-cell" type="button" data-cell="A2" data-value="Product">Product</button></td><td><button class="s-cell" type="button" data-cell="B2" data-value="$120,000">$120,000</button></td><td><button class="s-cell" type="button" data-cell="C2" data-value="$128,400">$128,400</button></td><td><button class="s-cell is-selected" type="button" data-cell="D2" data-value="+6,400">+6,400</button></td><td><button class="s-cell" type="button" data-cell="E2" data-value="Higher contractor spend">Higher contractor spend</button></td></tr>
+                      <tr><th scope="row">3</th><td><button class="s-cell" type="button" data-cell="A3" data-value="Marketing">Marketing</button></td><td><button class="s-cell" type="button" data-cell="B3" data-value="$85,000">$85,000</button></td><td><button class="s-cell" type="button" data-cell="C3" data-value="$79,200">$79,200</button></td><td><button class="s-cell" type="button" data-cell="D3" data-value="−5,800">−5,800</button></td><td><button class="s-cell" type="button" data-cell="E3" data-value="Q4 conference moved">Q4 conference moved</button></td></tr>
+                      <tr><th scope="row">4</th><td><button class="s-cell" type="button" data-cell="A4" data-value="Support">Support</button></td><td><button class="s-cell" type="button" data-cell="B4" data-value="$64,000">$64,000</button></td><td><button class="s-cell" type="button" data-cell="C4" data-value="$66,750">$66,750</button></td><td><button class="s-cell" type="button" data-cell="D4" data-value="+2,750">+2,750</button></td><td><button class="s-cell" type="button" data-cell="E4" data-value="Weekend coverage">Weekend coverage</button></td></tr>
+                      <tr><th scope="row">5</th><td><button class="s-cell" type="button" data-cell="A5" data-value="Operations">Operations</button></td><td><button class="s-cell" type="button" data-cell="B5" data-value="$48,000">$48,000</button></td><td><button class="s-cell" type="button" data-cell="C5" data-value="$46,900">$46,900</button></td><td><button class="s-cell" type="button" data-cell="D5" data-value="−1,100">−1,100</button></td><td><button class="s-cell" type="button" data-cell="E5" data-value="Software renewal">Software renewal</button></td></tr>
+                      <tr><th scope="row">6</th><td><button class="s-cell s-cell-total" type="button" data-cell="A6" data-value="Total">Total</button></td><td><button class="s-cell s-cell-total" type="button" data-cell="B6" data-value="$317,000">$317,000</button></td><td><button class="s-cell s-cell-total" type="button" data-cell="C6" data-value="$321,250">$321,250</button></td><td><button class="s-cell s-cell-total" type="button" data-cell="D6" data-value="+4,250">+4,250</button></td><td><button class="s-cell s-cell-total" type="button" data-cell="E6" data-value="See notes tab">See notes tab</button></td></tr>
+                    </tbody>
+                  </table>
+                  <div class="s-sheet-chart" aria-hidden="true">
+                    <p class="s-chart-label">Variance by category</p>
+                    <div class="s-bar-row"><span>Product</span><i class="s-bar s-bar-1"></i><em>+8,400</em></div>
+                    <div class="s-bar-row"><span>Marketing</span><i class="s-bar s-bar-2"></i><em>−5,800</em></div>
+                    <div class="s-bar-row"><span>Support</span><i class="s-bar s-bar-3"></i><em>+2,750</em></div>
+                    <div class="s-bar-row"><span>Operations</span><i class="s-bar s-bar-4"></i><em>−1,100</em></div>
+                  </div>
+                </div>
+                <div class="s-sheet-panel" data-sheet-panel="notes" hidden>
+                  <p class="s-notes-label">Notes</p>
+                  <p class="s-notes-text" id="notesSummary">Budget review is scheduled for Monday. Contractor spend needs a closer look before the forecast is locked.</p>
+                  <p class="s-notes-meta">Keel can add a summary here when you accept the third suggestion.</p>
+                </div>
+                <div class="s-sheet-panel" data-sheet-panel="fy21" hidden>
+                  <p class="s-notes-label">FY21 plan</p>
+                  <p class="s-notes-text">Draft planning sheet. Move a model from your Keel library into this file without changing its formatting.</p>
+                  <p class="s-notes-meta">This preview stays in your browser — no file is opened on Google Drive.</p>
+                </div>
+              </div>
+              <div class="s-sheet-tabs" role="tablist" aria-label="Spreadsheet sheets">
+                <button class="s-sheet-tab is-active" type="button" role="tab" aria-selected="true" data-sheet-tab="q3">Q3 2020</button>
+                <button class="s-sheet-tab" type="button" role="tab" aria-selected="false" data-sheet-tab="notes">Notes</button>
+                <button class="s-sheet-tab" type="button" role="tab" aria-selected="false" data-sheet-tab="fy21">FY21 plan</button>
+              </div>
+            </div>
+
+            <aside class="s-keel-panel" aria-label="Keel side panel">
+              <div class="s-panel-head">
+                <span class="s-panel-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg></span>
+                <span class="s-panel-name">Keel</span>
+                <span class="s-panel-beta">Beta</span>
+              </div>
+              <p class="s-panel-context">Working in: <strong>Q3 2020 budget vs actuals</strong></p>
+              <div class="s-panel-tabs" role="tablist" aria-label="Keel panel views">
+                <button class="s-panel-tab is-active" type="button" role="tab" aria-selected="true" data-panel-tab="suggestions">Suggestions</button>
+                <button class="s-panel-tab" type="button" role="tab" aria-selected="false" data-panel-tab="activity">Activity</button>
+              </div>
+
+              <div class="s-panel-view" data-panel-view="suggestions" role="tabpanel">
+                <p class="s-panel-hint">Review each change before it lands in your file.</p>
+
+                <article class="s-suggest" data-suggest="variance" data-target-cell="D2" data-target-value="+8,400">
+                  <p class="s-suggest-tag">Formula</p>
+                  <p class="s-suggest-text">Recalculate variance in D2 from +6,400 to +8,400 using the latest actuals.</p>
+                  <div class="s-suggest-actions">
+                    <button class="s-accept" type="button" data-accept="variance">Accept</button>
+                    <button class="s-edit" type="button" data-edit="variance" aria-expanded="false" aria-controls="edit-variance">Edit</button>
+                  </div>
+                  <div class="s-suggest-edit" id="edit-variance" hidden>
+                    <label class="l-sr-only" for="edit-variance-input">Edit variance suggestion</label>
+                    <textarea id="edit-variance-input" rows="3">Recalculate variance in D2 from +6,400 to +8,400 using the latest actuals.</textarea>
+                    <div class="s-edit-actions">
+                      <button class="s-save" type="button" data-save="variance">Save</button>
+                      <button class="s-cancel" type="button" data-cancel="variance">Cancel</button>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="s-suggest" data-suggest="note" data-target-cell="E3" data-target-value="Conference moved to Q4 — flag in forecast">
+                  <p class="s-suggest-tag">Note</p>
+                  <p class="s-suggest-text">Add a note to E3: “Conference moved to Q4 — flag in forecast.”</p>
+                  <div class="s-suggest-actions">
+                    <button class="s-accept" type="button" data-accept="note">Accept</button>
+                    <button class="s-edit" type="button" data-edit="note" aria-expanded="false" aria-controls="edit-note">Edit</button>
+                  </div>
+                  <div class="s-suggest-edit" id="edit-note" hidden>
+                    <label class="l-sr-only" for="edit-note-input">Edit note suggestion</label>
+                    <textarea id="edit-note-input" rows="3">Add a note to E3: “Conference moved to Q4 — flag in forecast.”</textarea>
+                    <div class="s-edit-actions">
+                      <button class="s-save" type="button" data-save="note">Save</button>
+                      <button class="s-cancel" type="button" data-cancel="note">Cancel</button>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="s-suggest" data-suggest="summary" data-target-id="notesSummary" data-target-value="Q3 closed $4,250 over budget. Contractor spend drove the variance; Marketing came in under budget as the conference moved to Q4.">
+                  <p class="s-suggest-tag">Summary</p>
+                  <p class="s-suggest-text">Summarize the quarter in the Notes sheet.</p>
+                  <div class="s-suggest-actions">
+                    <button class="s-accept" type="button" data-accept="summary">Accept</button>
+                    <button class="s-edit" type="button" data-edit="summary" aria-expanded="false" aria-controls="edit-summary">Edit</button>
+                  </div>
+                  <div class="s-suggest-edit" id="edit-summary" hidden>
+                    <label class="l-sr-only" for="edit-summary-input">Edit summary suggestion</label>
+                    <textarea id="edit-summary-input" rows="3">Summarize the quarter in the Notes sheet.</textarea>
+                    <div class="s-edit-actions">
+                      <button class="s-save" type="button" data-save="summary">Save</button>
+                      <button class="s-cancel" type="button" data-cancel="summary">Cancel</button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+
+              <div class="s-panel-view" data-panel-view="activity" role="tabpanel" hidden>
+                <p class="s-panel-hint">Recent steps in this file.</p>
+                <ul class="s-activity">
+                  <li><span>10:24</span> Keel read the shared Sheet.</li>
+                  <li><span>10:25</span> Three suggestions were prepared.</li>
+                  <li><span>10:26</span> Formatting and formulas were preserved.</li>
+                </ul>
+                <p class="s-panel-note">Activity shown is part of this on-page preview. Nothing is sent to Google Drive.</p>
+              </div>
+
+              <p class="s-panel-status" id="sheetStatus" role="status" aria-live="polite"></p>
+            </aside>
+          </div>
+
+          <div class="s-sheet-foot">
+            <span class="s-sheet-foot-note">Interactive preview — edits stay in this page.</span>
+            <button class="s-reset" type="button" data-reset-sheet>Reset preview</button>
+          </div>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- ==================== trust section ==================== -->
+    <section class="s-trust" id="trust"><div class="l-container">
+      <div class="s-section-head s-reveal">
+        <h2 class="s-section-title">The Keel you trust, inside Google Workspace</h2>
+        <p class="s-section-sub">Work on the file you already have open. Keel shows its work and waits for your approval.</p>
+      </div>
+      <div class="s-trust-grid">
+        <article class="s-trust-item s-reveal">
+          <span class="s-trust-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 5h16v14H4z"/><path d="M8 10h8M8 14h5"/><path d="m16.5 13.5 1.8 1.8 3-3"/></svg>
+          </span>
+          <h3>Review your edits</h3>
+          <p>See every change Keel suggests before it touches your file. Accept it, edit the wording, or leave it out.</p>
+        </article>
+        <article class="s-trust-item s-reveal">
+          <span class="s-trust-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v5h4"/><path d="M9 12h7M9 16h5"/></svg>
+          </span>
+          <h3>Keep your formatting</h3>
+          <p>Your fonts, styles, formulas, and sheet structure stay exactly where you put them. Keel works inside your file.</p>
+        </article>
+        <article class="s-trust-item s-reveal">
+          <span class="s-trust-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>
+          </span>
+          <h3>Admin controls, built in</h3>
+          <p>Workspace admins decide who can use the add-on. Users choose which files to share, one file at a time.</p>
+        </article>
+      </div>
+
+      <div class="s-admin-card s-reveal" id="adminCard">
+        <p class="s-admin-kicker">Google Workspace admin controls</p>
+        <p class="s-admin-copy">Keel can only access files users explicitly share.</p>
+        <button class="l-btn l-btn-outline l-btn-sm" type="button" data-admin-demo aria-controls="adminDialog">Show demo</button>
+      </div>
+    </div></section>
+
+    <!-- ==================== capabilities ==================== -->
+    <section class="s-capabilities" id="capabilities"><div class="l-container">
+      <div class="s-section-head s-reveal">
+        <h2 class="s-section-title">Core capabilities across the apps you use every day</h2>
+        <p class="s-section-sub">The same Keel habits follow you from the desktop app into Docs, Sheets, and Slides.</p>
+      </div>
+      <div class="s-cap-grid">
+        <article class="s-cap-card s-reveal">
+          <span class="s-cap-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" focusable="false"><path d="M9 15l6-6M10 6l1.5-1.5a4 4 0 0 1 5.7 5.7L15.5 11M14 18l-1.5 1.5a4 4 0 0 1-5.7-5.7L8.5 13"/></svg></span>
+          <h3>Bring in your tools</h3>
+          <p>Use the plugins and connectors your team already relies on without leaving the document.</p>
+          <button class="s-learn" type="button" data-learn="tools" aria-expanded="false" aria-controls="learn-tools">Learn more <span aria-hidden="true">→</span></button>
+          <div class="s-learn-more" id="learn-tools" hidden><p>Pick a plugin from the Keel panel, then ask Keel to use it on the file in front of you.</p><a href="/plugins">Browse plugins</a></div>
+        </article>
+        <article class="s-cap-card s-reveal">
+          <span class="s-cap-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 3l2.3 4.7 5.2.8-3.8 3.7.9 5.2-4.6-2.5-4.6 2.5.9-5.2-3.8-3.7 5.2-.8z"/></svg></span>
+          <h3>Turn workflows into skills</h3>
+          <p>Save a repeatable process once, then ask Keel to run it again in the next file.</p>
+          <button class="s-learn" type="button" data-learn="skills" aria-expanded="false" aria-controls="learn-skills">Learn more <span aria-hidden="true">→</span></button>
+          <div class="s-learn-more" id="learn-skills" hidden><p>Skills hold your team's instructions and checks, so the first draft already follows the checklist.</p><a href="/skills">Explore skills</a></div>
+        </article>
+        <article class="s-cap-card s-reveal">
+          <span class="s-cap-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" focusable="false"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="18" cy="17" r="2"/></svg></span>
+          <h3>Set your preferences</h3>
+          <p>Choose how much detail you want and which changes need your approval.</p>
+          <button class="s-learn" type="button" data-learn="prefs" aria-expanded="false" aria-controls="learn-prefs">Learn more <span aria-hidden="true">→</span></button>
+          <div class="s-learn-more" id="learn-prefs" hidden><p>Preferences travel with your Keel account. Sign in to review your settings before a session.</p><a href="/login">Open Keel settings</a></div>
+        </article>
+        <article class="s-cap-card s-reveal">
+          <span class="s-cap-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M5 3h9l5 5v13H5z"/><path d="M14 3v5h5"/><path d="M8 13h8M8 17h5"/></svg></span>
+          <h3>Bring in reference files</h3>
+          <p>Keep a brief, a model, or a previous draft close by while you work on the current file.</p>
+          <button class="s-learn" type="button" data-learn="files" aria-expanded="false" aria-controls="learn-files">Learn more <span aria-hidden="true">→</span></button>
+          <div class="s-learn-more" id="learn-files" hidden><p>Artifacts give Keel a stable place to keep reference material you want to reuse across files.</p><a href="/artifacts">View artifacts</a></div>
+        </article>
+      </div>
+    </div></section>
+
+    <!-- ==================== FAQ ==================== -->
+    <section class="s-faq" id="faq"><div class="l-container">
+      <div class="s-acc" id="faqList">
+        <div class="s-acc-head s-reveal"><h2>Frequently asked questions</h2><p>The essentials before your team tries the Beta.</p></div>
+
+        <div class="s-acc-item is-open s-reveal">
+          <button class="s-acc-btn" type="button" aria-expanded="true" aria-controls="gw-faq-1"><span class="s-acc-q">What is Keel for Google Workspace?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="gw-faq-1" aria-hidden="false"><p>It is a Beta extension that brings Keel into Google Docs, Sheets, and Slides. Open a file you already have, ask Keel for help in the side panel, and review every change before it lands.</p></div>
+        </div>
+        <div class="s-acc-item s-reveal">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="gw-faq-2"><span class="s-acc-q">How does this compare to the Keel for Microsoft 365 app?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="gw-faq-2" aria-hidden="true" hidden><p>The Microsoft 365 app works in Word, Excel, and PowerPoint. This extension is built for Google Docs, Sheets, and Slides. Both use the same Keel account and the same accept-or-edit review step.</p></div>
+        </div>
+        <div class="s-acc-item s-reveal">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="gw-faq-3"><span class="s-acc-q">How do I install it?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="gw-faq-3" aria-hidden="true" hidden><p>Ask your Google Workspace admin to enable the Keel add-on for your domain. Then open a Doc, Sheet, or Slide and look for Keel under the Extensions menu. If it is not there yet, your admin has not enabled it.</p></div>
+        </div>
+        <div class="s-acc-item s-reveal">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="gw-faq-4"><span class="s-acc-q">Where can I access Keel?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="gw-faq-4" aria-hidden="true" hidden><p>In the Keel side panel of a supported Google file, or in the Keel desktop app. Your conversations stay with your Keel account, so you can pick up where you left off at <a href="/login">/login</a>.</p></div>
+        </div>
+        <div class="s-acc-item s-reveal">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="gw-faq-5"><span class="s-acc-q">How is data handled?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="gw-faq-5" aria-hidden="true" hidden><p>Keel can only read a file a user explicitly shares. Workspace admins control whether the extension is available, and every edit needs your approval. Keel does not read the rest of Drive.</p></div>
+        </div>
+        <div class="s-acc-item s-reveal">
+          <button class="s-acc-btn" type="button" aria-expanded="false" aria-controls="gw-faq-6"><span class="s-acc-q">Where can I get support?</span><span class="s-acc-icon" aria-hidden="true"></span></button>
+          <div class="s-acc-panel" id="gw-faq-6" aria-hidden="true" hidden><p>Email <a href="mailto:hello@keel.ai?subject=Google%20Workspace%20Beta">hello@keel.ai</a> with “Google Workspace Beta” in the subject, or ask your admin to get in touch. Our policies are listed in <a href="/privacy">Privacy</a> and <a href="/terms">Terms</a>.</p></div>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- ==================== dark call to action ==================== -->
+    <section class="s-cta" id="get-started"><div class="l-container s-cta-inner s-reveal">
+      <p class="s-cta-eyebrow">Keel for Google Workspace</p>
+      <h2>Get started with Keel for Google Workspace</h2>
+      <p class="s-cta-copy">Bring Keel into the file you already have open. Review every change, keep your formatting, and stay in control of what Keel can see.</p>
+      <div class="s-cta-actions">
+        <button class="l-btn l-btn-dark" type="button" data-try>Try Keel for Google Workspace</button>
+        <a class="s-cta-link" href="/download">Download Keel <span aria-hidden="true">→</span></a>
+      </div>
+    </div></section>
+
+  </main>
+
+  <!-- ==================== dark footer ==================== -->
+  <footer class="l-footer" id="footer">
+    <div class="l-container">
+      <div class="l-footer-top">
+        <a class="l-wordmark l-footer-wordmark" href="/" aria-label="Keel home">
+          <span class="l-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+          <span class="l-wordmark-text">Keel</span>
+        </a>
+
+        <form class="l-help" id="helpForm" role="search">
+          <label class="l-sr-only" for="footerSearch">How can we help today?</label>
+          <input id="footerSearch" type="search" placeholder="How can we help today?" autocomplete="off" />
+          <button class="l-help-submit" type="submit" aria-label="Search Keel help and links">
+            <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false"><path d="M4 10h11m0 0-4.5-4.5M15 10l-4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+        <p class="l-search-status" id="searchStatus" role="status" aria-live="polite" hidden>
+          <span id="searchStatusText"></span>
+          <button type="button" id="clearSearch">Clear search</button>
+        </p>
+      </div>
+
+      <div class="l-footer-cols">
+        <nav class="l-footer-col" aria-label="Products">
+          <h2 class="l-footer-h">Products</h2>
+          <a href="/">Keel</a>
+          <a href="/product/design">Keel Design</a>
+          <a href="/product/keel-code">Keel Code</a>
+          <a href="/product/cowork">Keel Cowork</a>
+          <a href="/product/keel-duet">Keel Duet</a>
+          <a href="/product/keel-science">Keel Science</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="/skills">Skills</a>
+          <a href="/pricing">Pricing</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Extensions">
+          <h2 class="l-footer-h">Extensions</h2>
+          <a href="/keel-for-google-workspace">Keel for Google Workspace</a>
+          <a href="/download">Keel in Chrome</a>
+          <a href="/download">Keel for Microsoft 365</a>
+          <a href="/plugins">Browse plugins</a>
+          <a href="/artifacts">Reference files</a>
+          <a href="/download">Download apps</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Developers">
+          <h2 class="l-footer-h">Developers</h2>
+          <a href="/requirements">Developer docs</a>
+          <a href="/notices">Developer blog</a>
+          <a href="/login">Console</a>
+          <a href="/roadmap">Manuscript</a>
+          <a href="/platform/api">API reference</a>
+          <a href="/requirements">Keel Academy</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Company">
+          <h2 class="l-footer-h">Company</h2>
+          <a href="/">Keel</a>
+          <a href="mailto:careers@keel.ai">Careers</a>
+          <a href="/notices">News</a>
+          <a href="/notices">Transparency</a>
+          <a href="/privacy">Trust &amp; safety</a>
+          <a href="/terms">Responsible scaling policy</a>
+          <a href="mailto:hello@keel.ai">Contact sales</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Terms and policies">
+          <h2 class="l-footer-h">Terms and policies</h2>
+          <a href="/privacy">Privacy policy</a>
+          <a href="/terms">Terms of service</a>
+          <a href="/privacy">Cookie settings</a>
+          <a href="/privacy">Data processing addendum</a>
+          <a href="/terms">Usage policy</a>
+          <a href="/notices">Responsible disclosure policy</a>
+          <a href="/terms">Consumer terms</a>
+        </nav>
+      </div>
+
+      <div class="l-footer-bar">
+        <span class="l-footer-sig">KEEL 2026 All rights reserved. Keel for Google Workspace is a Beta extension.</span>
+
+        <div class="l-socials" aria-label="Keel social channels">
+          <a href="/notices" aria-label="Keel on X (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+          <a href="/notices" aria-label="Keel on LinkedIn (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4 9h4v11H4zM6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM11 9h4v1.7c.8-1.2 2-2 3.5-2 2.5 0 3.5 1.6 3.5 4.3V20h-4v-6c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2 1-2.2 2.4V20h-4z"/></svg></a>
+          <a href="/notices" aria-label="Keel on GitHub (source updates)"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.4-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.5.1 2.8.6.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg></a>
+          <a href="/notices" aria-label="Keel on YouTube (video updates)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M22 12s0-3.4-.4-5a2.5 2.5 0 0 0-1.8-1.8C18.2 4.8 12 4.8 12 4.8s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7C2 8.6 2 12 2 12s0 3.4.4 5a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-5 .4-5zM10 15V9l5.2 3z"/></svg></a>
+        </div>
+
+        <label class="l-lang">
+          <span class="l-sr-only">Language</span>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+          <select id="languageSelect" aria-label="Language">
+            <option value="en" selected>English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="ja">日本語</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== try dialog ==================== -->
+  <div class="l-modal gw-modal" id="tryDialog" hidden>
+    <div class="l-modal-backdrop" data-modal-close="tryDialog"></div>
+    <div class="l-modal-card" role="dialog" aria-modal="true" aria-labelledby="tryTitle" aria-describedby="tryDesc">
+      <button class="l-modal-close" type="button" data-modal-close="tryDialog" aria-label="Close dialog">×</button>
+      <span class="l-modal-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg></span>
+      <h2 class="l-modal-title" id="tryTitle">Try Keel for Google Workspace</h2>
+      <p class="l-modal-desc" id="tryDesc">The Beta add-on is enabled by your Workspace admin. These are the real next steps.</p>
+      <ol class="gw-steps">
+        <li><a href="/login">Sign in to Keel</a> — use the same account across desktop and web.</li>
+        <li><a href="/download">Install the desktop app</a> if you want the same workflows outside Google files.</li>
+        <li>Ask your Google Workspace admin to enable the Keel add-on for your domain, then open a Doc, Sheet, or Slide and choose Extensions → Keel.</li>
+      </ol>
+      <p class="l-modal-note">The Google Workspace Marketplace listing is not part of this repository yet. If Keel is missing from the Extensions menu, your admin has not enabled it. Email <a href="mailto:hello@keel.ai?subject=Google%20Workspace%20Beta">hello@keel.ai</a> for setup help.</p>
+      <div class="gw-modal-actions">
+        <a class="l-btn l-btn-dark" href="/login">Go to log in</a>
+        <button class="l-btn l-btn-outline" type="button" data-modal-close="tryDialog">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== admin demo dialog ==================== -->
+  <div class="l-modal gw-modal" id="adminDialog" hidden>
+    <div class="l-modal-backdrop" data-modal-close="adminDialog"></div>
+    <div class="l-modal-card" role="dialog" aria-modal="true" aria-labelledby="adminTitle" aria-describedby="adminDesc">
+      <button class="l-modal-close" type="button" data-modal-close="adminDialog" aria-label="Close dialog">×</button>
+      <span class="l-modal-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>
+      </span>
+      <h2 class="l-modal-title" id="adminTitle">Google Workspace admin controls</h2>
+      <p class="l-modal-desc" id="adminDesc">Keel can only access files users explicitly share. Walk through what an admin and a user each do.</p>
+      <ul class="gw-checklist">
+        <li><button type="button" data-admin-step="1" aria-pressed="false"><span class="gw-check" aria-hidden="true"></span> An admin enables the Keel add-on for the organization.</button></li>
+        <li><button type="button" data-admin-step="2" aria-pressed="false"><span class="gw-check" aria-hidden="true"></span> A user shares one Doc, Sheet, or Slide with Keel.</button></li>
+        <li><button type="button" data-admin-step="3" aria-pressed="false"><span class="gw-check" aria-hidden="true"></span> Keel works in that file only; every change needs approval.</button></li>
+      </ul>
+      <p class="gw-check-status" id="adminStatus" role="status" aria-live="polite">0 of 3 steps reviewed. This checklist is local to your browser.</p>
+      <p class="l-modal-note">No marketplace listing is published in this repository. For rollout help, email <a href="mailto:hello@keel.ai?subject=Google%20Workspace%20admin%20setup">hello@keel.ai</a> or read <a href="/privacy">how Keel handles data</a>.</p>
+      <div class="gw-modal-actions">
+        <a class="l-btn l-btn-dark" href="/login">Open Keel</a>
+        <button class="l-btn l-btn-outline" type="button" data-modal-close="adminDialog">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/ui/gworkspace.js" defer></script>
+</body>
+</html>
