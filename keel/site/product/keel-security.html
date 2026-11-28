@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel Security — From scan to fix, done seamlessly</title>
+  <meta name="description" content="Keel Security scans your codebase with Keel Mythos, validates real risks in context, and suggests fixes with your approval. Available in public beta for Keel Enterprise." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/product/keel-security" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f5f4ef" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Keel Security — From scan to fix, done seamlessly" />
+  <meta property="og:description" content="Scan your codebase with Keel Mythos and review fixes before they land. Public beta for Keel Enterprise." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/product/keel-security" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Keel Security — From scan to fix, done seamlessly" />
+  <meta name="twitter:description" content="Scan your codebase with Keel Mythos and review fixes before they land." />
+  <link rel="stylesheet" href="/ui/keel-security.css" />
+</head>
+<body class="security-page">
+
+  <!-- ==================== sticky header / mega navigation ==================== -->
+  <header class="ks-header" id="siteHeader">
+    <div class="ks-nav-inner">
+      <a class="ks-wordmark" href="/" aria-label="Keel home">
+        <span class="ks-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+        </span>
+        <span class="ks-wordmark-text">Keel</span>
+      </a>
+
+      <nav class="ks-nav-links" aria-label="Primary">
+
+        <!-- Product: the four-column mega menu from the reference -->
+        <div class="ks-nav-item" data-menu="product">
+          <button class="ks-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-product">Product <span class="ks-chevron" aria-hidden="true"></span></button>
+          <div class="ks-mega" id="mega-product" aria-hidden="true">
+            <div class="ks-mega-grid">
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Products</p>
+                <a class="ks-mega-link" href="/">Keel</a>
+                <a class="ks-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="ks-mega-link" href="/product/cowork">Keel Cowork</a>
+                <a class="ks-mega-link" href="/product/keel-duet">Keel Duet</a>
+                <a class="ks-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="ks-mega-link" href="/pricing">Pricing</a>
+                <p class="ks-mega-subhead">Specialized</p>
+                <a class="ks-mega-link" href="/product/keel-security" aria-current="page">Keel Security</a>
+                <a class="ks-mega-link" href="/product-overview">Keel Science</a>
+              </div>
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Capabilities</p>
+                <a class="ks-mega-link" href="#how-teams-use">Artifacts</a>
+                <a class="ks-mega-link" href="#how-teams-use">Design</a>
+                <a class="ks-mega-link" href="#built-for">Connectors</a>
+                <a class="ks-mega-link" href="#security-resources">Plugins</a>
+                <a class="ks-mega-link" href="#faq">Skills</a>
+              </div>
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Extensions</p>
+                <a class="ks-mega-link" href="/download">Keel in Chrome</a>
+                <a class="ks-mega-link" href="/download">Keel for Google Workspace</a>
+                <a class="ks-mega-link" href="/download">Keel for Microsoft 365</a>
+              </div>
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Models</p>
+                <a class="ks-mega-link" href="#built-for">Keel Mythos <span class="ks-ext" aria-hidden="true">↗</span></a>
+                <a class="ks-mega-link" href="#built-for">Security models <span class="ks-ext" aria-hidden="true">↗</span></a>
+                <a class="ks-mega-link" href="/product-overview">All Keel models <span class="ks-ext" aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+            <div class="ks-mega-foot">
+              <div class="ks-mega-foot-left"><a class="ks-mega-link" href="/download">Import to Keel</a></div>
+              <div class="ks-mega-foot-right">
+                <a class="ks-mega-link" href="/download">Download apps <span class="ks-dl" aria-hidden="true">↓</span></a>
+                <a class="ks-mega-link" href="/login">Log in <span class="ks-ext" aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ks-nav-item" data-menu="developers">
+          <button class="ks-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-developers">Developers <span class="ks-chevron" aria-hidden="true"></span></button>
+          <div class="ks-mega" id="mega-developers" aria-hidden="true">
+            <a class="ks-explore-hint" href="/requirements">Explore here <span class="ks-dl" aria-hidden="true">↓</span></a>
+            <div class="ks-mega-grid">
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Build with</p>
+                <a class="ks-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="ks-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="ks-mega-link" href="/roadmap">Keel Ship</a>
+                <a class="ks-mega-link" href="#data-flow">Code review</a>
+              </div>
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">For developers</p>
+                <a class="ks-mega-link" href="/requirements">Keel Academy</a>
+                <a class="ks-mega-link" href="mailto:hello@keel.ai">Community</a>
+                <a class="ks-mega-link" href="/notices">Developer blog</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ks-nav-item" data-menu="enterprise">
+          <button class="ks-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-enterprise">Enterprise <span class="ks-chevron" aria-hidden="true"></span></button>
+          <div class="ks-mega" id="mega-enterprise" aria-hidden="true">
+            <div class="ks-mega-grid">
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Enterprise</p>
+                <a class="ks-mega-link" href="/product-overview">Overview</a>
+                <a class="ks-mega-link" href="/product/keel-code">Keel Code for Enterprise</a>
+                <a class="ks-mega-link" href="/product/keel-security" aria-current="page">Keel Security</a>
+                <a class="ks-mega-link" href="/platform/api">Keel Platform</a>
+              </div>
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Use cases</p>
+                <a class="ks-mega-link" href="#how-teams-use">AI agents</a>
+                <a class="ks-mega-link" href="/product/keel-code">Coding</a>
+                <a class="ks-mega-link" href="#built-for">Cybersecurity</a>
+                <a class="ks-mega-link" href="/terms">Legal</a>
+              </div>
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Industries</p>
+                <a class="ks-mega-link" href="/product-overview">Financial services</a>
+                <a class="ks-mega-link" href="/product-overview">Government</a>
+                <a class="ks-mega-link" href="/product-overview">Healthcare</a>
+                <a class="ks-mega-link" href="/privacy">Trust &amp; safety</a>
+              </div>
+            </div>
+            <div class="ks-mega-foot">
+              <div class="ks-mega-foot-left"><a class="ks-mega-link" href="/notices">Browse marketplace</a></div>
+              <div class="ks-mega-foot-right">
+                <a class="ks-mega-link" href="/notices">Customers</a>
+                <a class="ks-mega-link" href="mailto:hello@keel.ai">Contact sales</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ks-nav-item" data-menu="resources">
+          <button class="ks-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-resources">Resources <span class="ks-chevron" aria-hidden="true"></span></button>
+          <div class="ks-mega" id="mega-resources" aria-hidden="true">
+            <div class="ks-mega-grid">
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Insights</p>
+                <a class="ks-mega-link" href="/resources/articles">Resources</a>
+                <a class="ks-mega-link" href="/notices">Articles</a>
+                <a class="ks-mega-link" href="#security-resources">Security resources</a>
+                <a class="ks-mega-link" href="#faq">FAQ</a>
+              </div>
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Learn</p>
+                <a class="ks-mega-link" href="/requirements">Keel Academy</a>
+                <a class="ks-mega-link" href="/requirements">Courses</a>
+                <a class="ks-mega-link" href="/notices">Tutorials</a>
+              </div>
+              <div class="ks-mega-col">
+                <p class="ks-mega-title">Connect</p>
+                <a class="ks-mega-link" href="/notices">Events</a>
+                <a class="ks-mega-link" href="mailto:hello@keel.ai">Community</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ks-nav-item" data-menu="pricing">
+          <button class="ks-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-pricing">Pricing <span class="ks-chevron" aria-hidden="true"></span></button>
+          <div class="ks-mega" id="mega-pricing" aria-hidden="true">
+            <div class="ks-mega-grid">
+              <div class="ks-mega-col">
+                <a class="ks-mega-link" href="/pricing">Overview</a>
+                <a class="ks-mega-link" href="/pricing#compare">Compare plans</a>
+                <a class="ks-mega-link" href="/pricing#faq">FAQ</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a class="ks-nav-link" href="/login">Log in</a>
+        <a class="ks-nav-link" href="mailto:hello@keel.ai">Contact sales</a>
+      </nav>
+
+      <div class="ks-nav-actions">
+        <a class="ks-btn ks-btn-dark ks-btn-sm" href="/login">Get Keel</a>
+      </div>
+
+      <button class="ks-nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+        <span class="ks-nav-toggle-bar"></span><span class="ks-nav-toggle-bar"></span><span class="ks-nav-toggle-bar"></span>
+      </button>
+    </div>
+
+    <div class="ks-mobile-menu" id="mobileMenu" hidden>
+      <a href="#how-teams-use">Product</a>
+      <a href="/requirements">Developers</a>
+      <a href="/product-overview">Enterprise</a>
+      <a href="#security-resources">Resources</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/product/keel-security" aria-current="page">Keel Security</a>
+      <a href="/download">Download desktop app</a>
+      <a href="/login">Log in</a>
+      <a href="mailto:hello@keel.ai">Contact sales</a>
+      <a href="/login">Get Keel</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ==================== breadcrumb ==================== -->
+    <nav class="ks-crumbs ks-container" aria-label="Breadcrumb"><a href="/product-overview">Product</a> <span aria-hidden="true">/</span> Security research</nav>
+
+    <!-- ==================== hero ==================== -->
+    <section class="ks-hero" id="hero">
+      <div class="ks-container ks-hero-inner">
+        <div class="ks-hero-copy ks-reveal">
+          <p class="ks-eyebrow">KEEL SECURITY · PUBLIC BETA</p>
+          <h1 class="ks-title">From scan to fix, done seamlessly</h1>
+          <p class="ks-lede">Keel scans your codebase with Keel Mythos, vulnerabilities finding, and auto-fixes with your approval. Available in public beta for Keel Enterprise.</p>
+          <div class="ks-hero-actions">
+            <a class="ks-btn ks-btn-dark" href="mailto:hello@keel.ai">Contact sales</a>
+            <button class="ks-btn ks-btn-outline" type="button" data-announcement>Read the Announcement</button>
+          </div>
+        </div>
+
+        <div class="ks-hero-visual ks-reveal">
+          <aside class="ks-chat-card" id="floatCard" aria-label="Keel security example prompt">
+            <div class="ks-chat-head">
+              <span class="ks-chat-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+              </span>
+              <span class="ks-chat-name">Keel security</span>
+              <span class="ks-chat-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            </div>
+            <div class="ks-chat-body">
+              <p class="ks-chat-prompt">Help me fix this security vulnerability</p>
+              <div class="ks-lock" aria-hidden="true">
+                <svg viewBox="0 0 132 124" width="132" height="124" focusable="false">
+                  <path d="M40 54V38a26 26 0 0 1 52 0v16" fill="none" stroke="#d97757" stroke-width="9" stroke-linecap="round"/>
+                  <rect x="26" y="50" width="80" height="62" rx="14" fill="#d97757"/>
+                  <rect x="32" y="56" width="68" height="50" rx="10" fill="#e8906f"/>
+                  <circle cx="66" cy="77" r="8" fill="#fff7eb"/>
+                  <path d="M66 82v11" stroke="#fff7eb" stroke-width="5" stroke-linecap="round"/>
+                  <path d="M10 30l2.4 6.6L19 39l-6.6 2.4L10 48l-2.4-6.6L1 39l6.6-2.4z" fill="#d97757" opacity=".7"/>
+                  <path d="M120 16l1.8 5.2L127 23l-5.2 1.8L120 30l-1.8-5.2L113 23l5.2-1.8z" fill="#d97757" opacity=".5"/>
+                </svg>
+              </div>
+              <p class="ks-chat-note">Keel traces the untrusted value through password recovery.</p>
+            </div>
+            <div class="ks-chat-foot">
+              <button class="ks-show-issue" type="button" data-show-issue>Show issue <span aria-hidden="true">↗</span></button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== data-flow band ==================== -->
+    <section class="ks-flow" id="data-flow" aria-label="Example data flow">
+      <div class="ks-container ks-flow-inner">
+        <code class="ks-flow-code" id="flowCode">Data flows: 1. Attacker POSTs /api/recover/login {login: unknownUser()}</code>
+        <button class="ks-copy" type="button" data-copy-flow aria-label="Copy the example data flow snippet">Copy snippet</button>
+      </div>
+    </section>
+
+    <!-- ==================== how teams use it ==================== -->
+    <section class="ks-usage" id="how-teams-use">
+      <div class="ks-container ks-narrow">
+        <h2 class="ks-section-title ks-reveal">How teams use Keel Security</h2>
+        <span class="ks-underline" aria-hidden="true"></span>
+        <p class="ks-section-copy ks-reveal">Keel reasons through your code like a skilled security researcher. It validates real risks in context, filters out false positives, and then suggests and tracks fixes.</p>
+      </div>
+    </section>
+
+    <!-- ==================== built for security teams ==================== -->
+    <section class="ks-proof" id="built-for">
+      <div class="ks-container">
+        <h2 class="ks-section-title ks-center ks-reveal">Built for security teams, used by Keel users</h2>
+        <div class="ks-proof-grid">
+          <div class="ks-proof-left">
+            <button class="ks-award ks-reveal" type="button" data-award aria-label="About the reference award badge">
+              <span class="ks-award-mark" aria-hidden="true">
+                <svg viewBox="0 0 48 48" width="42" height="42" focusable="false"><path fill="currentColor" d="M24 0l3.2 14.2L42.1 7l-8.2 13.8L48 24l-14.1 3.2L42.1 41l-14.9-7.2L24 48l-3.2-14.2L5.9 41l8.2-13.8L0 24l14.1-3.2L5.9 7l14.9 7.2z"/></svg>
+              </span>
+              <span class="ks-award-copy"><strong>Y Combinator award</strong><small>Reference design badge · details</small></span>
+            </button>
+
+            <button class="ks-video-card ks-reveal" type="button" data-video="beta-launch" aria-label="Open the Keel Security beta launch video preview">
+              <span class="ks-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" focusable="false"><path fill="currentColor" d="M8 5.5v13l11-6.5z"/></svg></span>
+              <span class="ks-video-copy"><strong>Beta launch about Keel Security video</strong><small>Preview · Keel News</small></span>
+              <span class="ks-video-arrow" aria-hidden="true">↗</span>
+            </button>
+          </div>
+
+          <div class="ks-proof-right ks-reveal">
+            <span class="ks-proof-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+            </span>
+            <h3>Powered by Keel Mythos</h3>
+            <p>Scan your codebase with our latest cyber capability model.</p>
+            <a class="ks-text-link" href="/product/keel-code">See how Keel works with code <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== security resources ==================== -->
+    <section class="ks-resources" id="security-resources">
+      <div class="ks-container">
+        <div class="ks-resources-head ks-reveal">
+          <div>
+            <h2 class="ks-section-title">Security resources</h2>
+            <p class="ks-section-copy">Learn how Keel Security fits into a security team's workflow.</p>
+          </div>
+          <div class="ks-resource-actions">
+            <a class="ks-btn ks-btn-dark" href="mailto:hello@keel.ai">Contact sales</a>
+            <a class="ks-btn ks-btn-outline" href="/resources/articles">Read the blog</a>
+          </div>
+        </div>
+
+        <div class="ks-card-grid">
+          <a class="ks-resource-card ks-reveal" href="/notices" data-resource="playground">
+            <span class="ks-tag">Blog</span>
+            <h3>Keel Security Playground for security teams</h3>
+            <span class="ks-card-foot">Read on Keel News <span aria-hidden="true">↗</span></span>
+          </a>
+          <a class="ks-resource-card ks-reveal" href="/requirements" data-resource="how-to-use">
+            <span class="ks-tag">Blog</span>
+            <h3>Keel Security how to use guide</h3>
+            <span class="ks-card-foot">Open the docs <span aria-hidden="true">↗</span></span>
+          </a>
+          <a class="ks-resource-card ks-reveal" href="/resources/articles/introducing-keel-code" data-resource="open-source-risks">
+            <span class="ks-tag">Blog</span>
+            <h3>Evaluating and mitigating AI-generated open source risks</h3>
+            <span class="ks-card-foot">Read the article <span aria-hidden="true">↗</span></span>
+          </a>
+          <a class="ks-resource-card ks-reveal" href="/resources/articles/introducing-keel-ship" data-resource="security-information">
+            <span class="ks-tag">Blog</span>
+            <h3>Experimenting with AI for security information</h3>
+            <span class="ks-card-foot">Read the article <span aria-hidden="true">↗</span></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FAQ ==================== -->
+    <section class="ks-faq" id="faq">
+      <div class="ks-container ks-narrow">
+        <h2 class="ks-section-title ks-center ks-reveal">FAQ</h2>
+        <div class="ks-accordion ks-reveal">
+
+          <div class="ks-acc-item is-open">
+            <button class="ks-acc-btn" type="button" aria-expanded="true" aria-controls="ks-acc-panel-1"><span class="ks-acc-q">What is this available to?</span><span class="ks-acc-icon" aria-hidden="true"></span></button>
+            <div class="ks-acc-panel" id="ks-acc-panel-1"><p>Keel Security is in public beta for Keel Enterprise. Contact sales to ask about access for your team.</p></div>
+          </div>
+
+          <div class="ks-acc-item">
+            <button class="ks-acc-btn" type="button" aria-expanded="false" aria-controls="ks-acc-panel-2"><span class="ks-acc-q">What is the access level this gives me?</span><span class="ks-acc-icon" aria-hidden="true"></span></button>
+            <div class="ks-acc-panel" id="ks-acc-panel-2"><p>Access is scoped to the repositories you choose to connect and the permissions you grant. Keel Security suggests fixes for your review; nothing changes in your codebase until you approve it.</p></div>
+          </div>
+
+          <div class="ks-acc-item">
+            <button class="ks-acc-btn" type="button" aria-expanded="false" aria-controls="ks-acc-panel-3"><span class="ks-acc-q">What is the security risk I should know about?</span><span class="ks-acc-icon" aria-hidden="true"></span></button>
+            <div class="ks-acc-panel" id="ks-acc-panel-3"><p>AI-assisted review can miss an issue or propose a change that needs a second look. Keep a human in the loop, review every suggested fix, and grant only the access you need.</p></div>
+          </div>
+
+          <div class="ks-acc-item">
+            <button class="ks-acc-btn" type="button" aria-expanded="false" aria-controls="ks-acc-panel-4"><span class="ks-acc-q">What types of vulnerabilities does Keel Security find?</span><span class="ks-acc-icon" aria-hidden="true"></span></button>
+            <div class="ks-acc-panel" id="ks-acc-panel-4"><p>Keel reasons about data flows in context, for example an untrusted login value reaching password recovery. It surfaces issues that matter and filters out likely false positives.</p></div>
+          </div>
+
+          <div class="ks-acc-item">
+            <button class="ks-acc-btn" type="button" aria-expanded="false" aria-controls="ks-acc-panel-5"><span class="ks-acc-q">How is this different from traditional security tools?</span><span class="ks-acc-icon" aria-hidden="true"></span></button>
+            <div class="ks-acc-panel" id="ks-acc-panel-5"><p>Instead of matching patterns alone, Keel Mythos reads your code like a researcher, validates risks in context, and suggests and tracks fixes with your approval.</p></div>
+          </div>
+
+          <div class="ks-acc-item">
+            <button class="ks-acc-btn" type="button" aria-expanded="false" aria-controls="ks-acc-panel-6"><span class="ks-acc-q">Does Keel Security work with my existing security tools?</span><span class="ks-acc-icon" aria-hidden="true"></span></button>
+            <div class="ks-acc-panel" id="ks-acc-panel-6"><p>It is designed to complement the scanners and workflows your team already uses: review Keel findings alongside your existing reports. Contact sales to discuss your setup.</p></div>
+          </div>
+
+        </div>
+        <p class="ks-faq-empty" id="faqEmpty" role="status" hidden>No matching questions. Try a different search.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== dark footer ==================== -->
+  <footer class="ks-footer" id="footer">
+    <div class="ks-container">
+      <div class="ks-footer-top">
+        <a class="ks-wordmark ks-footer-wordmark" href="/" aria-label="Keel home">
+          <span class="ks-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+          <span class="ks-wordmark-text">Keel</span>
+        </a>
+
+        <form class="ks-help" id="helpForm" role="search">
+          <label class="ks-sr-only" for="ks-footer-search">How can we help today?</label>
+          <input id="ks-footer-search" type="search" placeholder="How can we help today?" autocomplete="off" />
+          <button class="ks-help-submit" type="submit" aria-label="Search Keel help and links">
+            <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false"><path d="M4 10h11m0 0-4.5-4.5M15 10l-4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+        <p class="ks-search-status" id="searchStatus" role="status" aria-live="polite" hidden>
+          <span id="searchStatusText"></span>
+          <button type="button" id="clearSearch">Clear search</button>
+        </p>
+      </div>
+
+      <div class="ks-footer-cols">
+        <nav class="ks-footer-col" aria-label="Products">
+          <h2 class="ks-footer-h">Products</h2>
+          <a href="/">Keel</a>
+          <a href="/product/keel-code">Keel Code</a>
+          <a href="/product/cowork">Keel Cowork</a>
+          <a href="/product/keel-duet">Keel Duet</a>
+          <a href="/product/keel-security" aria-current="page">Keel Security</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/download">Download apps</a>
+        </nav>
+
+        <nav class="ks-footer-col" aria-label="Developers">
+          <h2 class="ks-footer-h">Developers</h2>
+          <a href="/requirements">Developer docs</a>
+          <a href="/notices">Developer blog</a>
+          <a href="/login">Console</a>
+          <a href="/roadmap">Manuscript</a>
+          <a href="/platform/api">API reference</a>
+          <a href="/requirements">Keel Academy</a>
+        </nav>
+
+        <nav class="ks-footer-col" aria-label="Enterprise">
+          <h2 class="ks-footer-h">Enterprise</h2>
+          <a href="/product-overview">Overview</a>
+          <a href="/product/keel-code">Keel Code for Enterprise</a>
+          <a href="/product/keel-security">Keel Security</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="mailto:hello@keel.ai">Contact sales</a>
+          <a href="/privacy">Cybersecurity</a>
+          <a href="/terms">Legal</a>
+        </nav>
+
+        <nav class="ks-footer-col" aria-label="Company">
+          <h2 class="ks-footer-h">Company</h2>
+          <a href="/">Keel</a>
+          <a href="mailto:careers@keel.ai">Careers</a>
+          <a href="/notices">News</a>
+          <a href="/notices">Transparency</a>
+          <a href="/privacy">Trust &amp; safety</a>
+          <a href="/terms">Responsible scaling policy</a>
+          <a href="mailto:hello@keel.ai">Community</a>
+        </nav>
+
+        <nav class="ks-footer-col" aria-label="Terms and policies">
+          <h2 class="ks-footer-h">Terms and policies</h2>
+          <a href="/privacy">Privacy policy</a>
+          <a href="/terms">Terms of service</a>
+          <a href="/privacy">Cookie settings</a>
+          <a href="/privacy">Data processing addendum</a>
+          <a href="/terms">Usage policy</a>
+          <a href="/notices">Responsible disclosure policy</a>
+          <a href="/terms">Consumer terms</a>
+        </nav>
+      </div>
+
+      <div class="ks-footer-bar">
+        <span class="ks-footer-sig">KEEL 2026 All rights reserved. Keel Security is a product of Keel. Public beta for Keel Enterprise.</span>
+
+        <div class="ks-socials" aria-label="Keel social channels">
+          <a href="/notices" aria-label="Keel on X (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+          <a href="/notices" aria-label="Keel on LinkedIn (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4 9h4v11H4zM6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM11 9h4v1.7c.8-1.2 2-2 3.5-2 2.5 0 3.5 1.6 3.5 4.3V20h-4v-6c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2 1-2.2 2.4V20h-4z"/></svg></a>
+          <a href="/notices" aria-label="Keel on GitHub (source updates)"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.4-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.5.1 2.8.6.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg></a>
+          <a href="/notices" aria-label="Keel on YouTube (video updates)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M22 12s0-3.4-.4-5a2.5 2.5 0 0 0-1.8-1.8C18.2 4.8 12 4.8 12 4.8s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7C2 8.6 2 12 2 12s0 3.4.4 5a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-5 .4-5zM10 15V9l5.2 3z"/></svg></a>
+        </div>
+
+        <label class="ks-lang">
+          <span class="ks-sr-only">Language</span>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+          <select id="languageSelect" aria-label="Language">
+            <option value="en" selected>English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="ja">日本語</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/ui/keel-security.js" defer></script>
+</body>
+</html>
