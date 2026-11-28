@@ -13,6 +13,11 @@ import { PanelState, SETTINGS_SECTIONS, useBridgeData, type SectionId } from "./
 import { AgentModelsPanel, CredentialsPanel, ProvidersPanel } from "./ProvidersSettings";
 import { AccessibilityPanel, AppearancePanel, ResetPanel } from "./PreferencesSettings";
 import { DiagnosticsPanel, PrivacyPanel, UpdatesPanel } from "./SystemSettings";
+import {
+  CommandsSettingsPanel, DeveloperPanel, ImportExportPanel, KeelCodePanel,
+  KeelDesktopPanel, McpServersSettingsPanel, PluginsSettingsPanel,
+  SkillsSettingsPanel, WorkflowsSettingsPanel,
+} from "./SettingsPanels";
 
 const CATEGORY_ORDER = ["SETTINGS", "THIS COMPUTER", "CUSTOMIZE"] as const;
 
@@ -60,9 +65,9 @@ export default function Settings({ onClose }: { onClose: () => void }) {
       case "accessibility": return <AccessibilityPanel />;
       case "reset": return <ResetPanel />;
       case "privacy": return <PrivacyPanel />;
-      case "import-export": return <StubPanel title="Import & export" note="Import and export routes are not exposed by this bridge build." />;
-      case "keel-code": return <StubPanel title="Keel Code" note="Keel Code settings are managed on the Code surface." />;
-      case "keel-desktop": return <StubPanel title="Keel Desktop" note="Keel Desktop is a separate application; its settings live in the desktop shell." />;
+      case "import-export": return <ImportExportPanel />;
+      case "keel-code": return <KeelCodePanel />;
+      case "keel-desktop": return <KeelDesktopPanel />;
       case "policies": return <PoliciesPanel notify={notify} />;
       case "admin": return <AdminPanel notify={notify} onOpenProjects={() => setSurface("code")} />;
       case "system": return (
@@ -71,12 +76,12 @@ export default function Settings({ onClose }: { onClose: () => void }) {
           <UpdatesPanel />
         </>
       );
-      case "developer": return <StubPanel title="Developer" note="Developer options are not exposed in this build." />;
-      case "skills": return <StubPanel title="Skills" note="Skills are managed on the Capabilities surface." />;
-      case "commands": return <StubPanel title="Commands" note="Slash commands are listed in the command palette." />;
-      case "workflows": return <StubPanel title="Workflows" note="Workflows are managed on the Fleet surface." />;
-      case "mcp-servers": return <StubPanel title="MCP Servers" note="MCP server connections are managed on the Capabilities surface." />;
-      case "plugins": return <StubPanel title="Plugins" note="Plugins are not supported in this build." />;
+      case "developer": return <DeveloperPanel />;
+      case "skills": return <SkillsSettingsPanel />;
+      case "commands": return <CommandsSettingsPanel />;
+      case "workflows": return <WorkflowsSettingsPanel />;
+      case "mcp-servers": return <McpServersSettingsPanel />;
+      case "plugins": return <PluginsSettingsPanel />;
     }
   }
 
@@ -188,18 +193,6 @@ function SectionHeader({ label, title }: { label: string; title: string }) {
       <span className={s.sectionLabel}>{label}</span>
       <h2 className={s.sectionTitle}>{title}</h2>
     </div>
-  );
-}
-
-function StubPanel({ title, note }: { title: string; note: string }) {
-  return (
-    <Card className={s.settingCard}>
-      <div className={s.settingHead}>
-        <h3 className={s.cardTitle}>{title}</h3>
-      </div>
-      <p className={s.cardDesc}>{note}</p>
-      <p className={s.muted}>No controls are rendered here until the bridge exposes a route for this section.</p>
-    </Card>
   );
 }
 

@@ -68,7 +68,7 @@ export default function Capabilities() {
           {tab === "tools" && <ToolsPanel />}
           {tab === "commands" && <CommandsPanel />}
           {tab === "workflows" && <WorkflowsPanel />}
-          {tab === "extensions" && <ExtensionsPanel />}
+          {tab === "extensions" && <ExtensionsPanel onOpenTab={setTab} />}
         </section>
       </div>
     </div>

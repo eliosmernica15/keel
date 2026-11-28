@@ -2,8 +2,8 @@
 
 // Workflows are discoverable and runnable through real bridge routes. This is
 // a runner, not a builder: the bridge reports a step count and execution
-// results, not editable node schemas. The marketplace tab is intentionally an
-// explicit unavailable state.
+// results, not editable node schemas. Extensions shows the real extension
+// points the bridge exposes — skills and MCP connectors.
 
 import React, { useState } from "react";
 import { Badge, Button, Card, Dialog, EmptyState } from "@/components/ui";
@@ -137,16 +137,104 @@ function TextFieldProjectRoot({ value, onChange }: { value: string; onChange: (v
   );
 }
 
-export function ExtensionsPanel() {
+type ExtensionTab = "skills" | "mcp" | "connectors";
+interface ExtensionRow { name?: string; description?: string; [key: string]: unknown }
+
+export function ExtensionsPanel({ onOpenTab }: { onOpenTab?: (tab: ExtensionTab) => void }) {
+  const skillsQ = useBridgeData(() => bridge.skills());
+  const serversQ = useBridgeData(() => bridge.mcpServers());
+  const connectorsQ = useBridgeData(() => bridge.connectors());
+
+  function manage(tab: ExtensionTab) {
+    onOpenTab?.(tab);
+  }
+
   return (
     <div className={s.panel}>
-      <div className={s.sectionHead}><div><h2>Extensions &amp; plugins</h2></div></div>
-      <EmptyState
-        icon={<Icon name="capabilities" size={26} />}
-        title="Extension marketplace is not available in this build"
-        description="There is no plugin marketplace or extension install API in this bridge build, so no install controls are shown. Keel's extension points today are Skills and MCP connectors — use those tabs for real, bridge-backed management."
-        action={<span className={s.badgeRow}><Badge tone="neutral">Skills ✓</Badge><Badge tone="neutral">MCP connectors ✓</Badge><Badge tone="neutral">Marketplace — not available</Badge></span>}
-      />
+      <div className={s.sectionHead}>
+        <div>
+          <h2>Extensions</h2>
+          <p className={s.muted}>Keel extends through skills and MCP connectors. Everything listed here comes from the local bridge.</p>
+        </div>
+      </div>
+
+      <PanelState query={skillsQ}>
+        {(data) => {
+          const skills = asArray<ExtensionRow>(data, "skills");
+          return (
+            <Card className={s.noteCard}>
+              <div className={s.noteTitle}><Icon name="spark" size={16} /> Skills · {skills.length}</div>
+              {skills.length === 0 ? (
+                <EmptyState icon={<Icon name="spark" />} title="No skills found"
+                  description="Keel found no skills in the bundled or user folders." />
+              ) : (
+                <ul className={s.chipList}>
+                  {skills.map((skill, i) => (
+                    <li className={s.toolChip} key={String(skill.name ?? i)}>
+                      <code className={s.code}>{String(skill.name ?? "skill")}</code>
+                      {stringOrUndefined(skill.description) && <span className={s.muted}>{String(skill.description)}</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {onOpenTab && <Button size="sm" variant="ghost" onClick={() => manage("skills")}>Manage skills</Button>}
+            </Card>
+          );
+        }}
+      </PanelState>
+
+      <PanelState query={serversQ}>
+        {(data) => {
+          const servers = asArray<ExtensionRow>(data, "servers");
+          return (
+            <Card className={s.noteCard}>
+              <div className={s.noteTitle}><Icon name="link" size={16} /> MCP servers · {servers.length}</div>
+              {servers.length === 0 ? (
+                <EmptyState icon={<Icon name="link" />} title="No MCP servers configured"
+                  description="Add a connector to give Keel tools from another process." />
+              ) : (
+                <ul className={s.chipList}>
+                  {servers.map((server, i) => (
+                    <li className={s.toolChip} key={String(server.name ?? i)}>
+                      <code className={s.code}>{String(server.name ?? "server")}</code>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {onOpenTab && <Button size="sm" variant="ghost" onClick={() => manage("mcp")}>Manage MCP servers</Button>}
+            </Card>
+          );
+        }}
+      </PanelState>
+
+      <PanelState query={connectorsQ}>
+        {(data) => {
+          const connectors = asArray<ExtensionRow>(data, "connectors");
+          return (
+            <Card className={s.noteCard}>
+              <div className={s.noteTitle}><Icon name="capabilities" size={16} /> Connectors · {connectors.length}</div>
+              {connectors.length === 0 ? (
+                <EmptyState icon={<Icon name="capabilities" />} title="No connectors configured"
+                  description="Add, test and remove connectors on the Connectors tab."
+                  action={onOpenTab ? <Button size="sm" onClick={() => manage("connectors")}>Add a connector</Button> : undefined} />
+              ) : (
+                <ul className={s.chipList}>
+                  {connectors.map((connector, i) => (
+                    <li className={s.toolChip} key={String(connector.name ?? i)}>
+                      <code className={s.code}>{String(connector.name ?? "connector")}</code>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {onOpenTab && <Button size="sm" variant="ghost" onClick={() => manage("connectors")}>Manage connectors</Button>}
+            </Card>
+          );
+        }}
+      </PanelState>
     </div>
   );
+}
+
+function stringOrUndefined(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value : undefined;
 }
