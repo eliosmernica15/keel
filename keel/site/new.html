@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-auth-gate="new">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,6 +11,9 @@
   <meta name="theme-color" content="#ffffff" />
   <link rel="stylesheet" href="/ui/new.css" />
   <link rel="stylesheet" href="/ui/search-palette.css" />
+  <link rel="stylesheet" href="/ui/auth.css" />
+  <!-- Gate before the chat renders: a visitor without a session goes to /login. -->
+  <script src="/ui/auth.js"></script>
 </head>
 <body class="n-page" data-n-font="body">
 
@@ -114,6 +117,7 @@
             <button type="button" role="menuitem" id="n-account-upgrade">Upgrade</button>
             <button type="button" role="menuitem" id="n-account-settings">Settings</button>
             <a role="menuitem" href="/download">Download apps</a>
+            <button type="button" role="menuitem" id="n-account-signout">Sign out</button>
           </div>
         </div>
       </aside>
@@ -129,6 +133,7 @@
         </div>
 
         <div class="n-center">
+          <p class="n-auth-status" id="n-auth-status" role="status" aria-live="polite" hidden></p>
           <section class="n-greeting" aria-labelledby="n-greeting-title">
             <svg class="n-hero-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#n-starburst"/></svg>
             <h1 id="n-greeting-title">You're here!</h1>
@@ -231,7 +236,7 @@
           <button class="n-info-close" id="n-info-close" type="button" aria-label="Dismiss note">&times;</button>
           <h2 id="n-info-title"></h2>
           <p id="n-info-text"></p>
-          <a id="n-info-link" href="/app" hidden>Open in Keel</a>
+          <a id="n-info-link" href="/login" hidden>Sign in to Keel</a>
         </div>
       </main>
     </div>
@@ -287,15 +292,32 @@
             <button type="button" data-font="serif" aria-pressed="false">Serif</button>
           </div>
         </div>
-        <p class="n-field-hint">These settings are shared with the Keel app at <a href="/app">/app</a>.</p>
+        <p class="n-field-hint">These settings stay in this browser. Account controls live on the <a href="/login">sign-in page</a>.</p>
         <p class="n-settings-status" id="n-general-status" role="status" aria-live="polite"></p>
       </div>
 
       <div class="n-dialog-view" data-view="account" hidden>
-        <p>You're on the Free plan. Upgrade when the work gets bigger, or open the local app for projects, plugins and your full artifact library.</p>
+        <p>You're on the Free plan. Upgrade when the work gets bigger. Your account lives in this browser.</p>
         <button class="n-link-btn" type="button" id="n-account-dialog-upgrade">See plans</button>
+        <div class="auth-account-fields">
+          <div class="n-setting-field">
+            <label for="auth-current-password">Current password</label>
+            <input id="auth-current-password" type="password" autocomplete="current-password" />
+            <label for="auth-new-password">New password</label>
+            <input id="auth-new-password" type="password" autocomplete="new-password" />
+            <button class="n-btn n-btn-primary" id="auth-change-password" type="button">Change password</button>
+            <p class="n-settings-status" id="auth-password-status" role="status" aria-live="polite"></p>
+          </div>
+          <div class="n-setting-field">
+            <label for="auth-client-id-new">Google Client ID</label>
+            <input id="auth-client-id-new" type="text" autocomplete="off" spellcheck="false" placeholder="123-abc.apps.googleusercontent.com" />
+            <p class="n-field-hint">Leave empty for local-only sign-in. Stored only in this browser.</p>
+            <button class="n-btn n-btn-primary" id="auth-save-client-id-new" type="button">Save Client ID</button>
+            <p class="n-settings-status" id="auth-settings-status-new" role="status" aria-live="polite"></p>
+          </div>
+        </div>
         <div class="n-dialog-actions">
-          <a class="n-dialog-link" href="/app">Open Keel app</a>
+          <button class="n-link-btn" type="button" id="n-account-dialog-signout">Sign out</button>
           <a class="n-dialog-link" href="/download">Download apps</a>
         </div>
       </div>

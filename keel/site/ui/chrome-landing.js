@@ -426,7 +426,7 @@
       try { localStorage.setItem('keel_logged_in', 'true'); } catch { /* storage unavailable */ }
       if (formView) formView.hidden = true;
       if (success) success.hidden = false;
-      const link = success && success.querySelector('a[href="/app"]');
+      const link = success && success.querySelector('a[href="/login"]');
       if (link && typeof link.focus === 'function') link.focus();
     }
 

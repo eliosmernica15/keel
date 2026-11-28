@@ -14,6 +14,8 @@ plan-extract
 research
 keel/src
 keel/tests
+# Local-only Electron mirror diagnostic (KEEL_UI_PROFILE=mirror); never deploy.
+keel/site/app.html
 keel/desktop
 keel/desktop-app
 keel/fleet-next

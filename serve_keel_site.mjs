@@ -10,12 +10,11 @@ const PORT = Number(process.env.PORT || 3100);
 
 // Mirrors keel/site/vercel.json. The article routes resolve to the top-level
 // .html copies (Vercel clean-URL file resolution); the index.html rewrites in
-// vercel.json remain as a fallback.
+// vercel.json remain as a fallback. /app is intentionally absent: app.html is
+// only the local Electron mirror diagnostic and is not a public route.
 const REWRITES = {
   '/download': '/download.html',
   '/downloads': '/downloads.html',
-  '/app': '/app.html',
-  '/app/': '/app.html',
   '/login': '/login.html',
   '/new': '/new.html',
   '/plugins': '/plugins.html',

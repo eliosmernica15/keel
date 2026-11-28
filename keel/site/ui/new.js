@@ -736,7 +736,7 @@
     var value = instructionsEl.value.trim();
     saveSettingsSafe({ ui: { instructions: value } });
     instructionsMeta.textContent = value.length + ' characters · saved';
-    generalStatus.textContent = 'Saved. This setting is shared with /app.';
+    generalStatus.textContent = 'Saved in this browser.';
     generalStatus.className = 'n-settings-status is-ok';
   });
 
@@ -764,7 +764,7 @@
 
   artifactCards.forEach(function (card) {
     card.addEventListener('click', function () {
-      showInfo(card.getAttribute('data-title'), 'Artifact preview. Open the Keel app for the full document.', '/app');
+      showInfo(card.getAttribute('data-title'), 'Artifact preview. Open the Keel app for the full document.', '/login');
     });
   });
 

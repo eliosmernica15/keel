@@ -591,7 +591,7 @@
       success.appendChild(el("h3", "", heading || "You're signed in"));
       success.appendChild(el("p", "", copy || "Your demo session is ready."));
       var link = el("a", "pa-btn pa-btn-dark", "Open the KEEL app ↗");
-      link.href = "/app";
+      link.href = "/login";
       success.appendChild(link);
       setHeading("You're all set", "Continue to KEEL when you're ready.");
       setHidden(success, false);

@@ -117,7 +117,7 @@
     var title = document.getElementById('dl-integration-title');
     var description = document.getElementById('dl-integration-desc');
     var link = document.getElementById('dl-integration-link');
-    var allowed = ['/app', '/download', '/plugins'];
+    var allowed = ['/login', '/download', '/plugins'];
 
     Array.prototype.forEach.call(document.querySelectorAll('[data-integration]'), function (button) {
       button.addEventListener('click', function () {

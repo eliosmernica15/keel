@@ -37,12 +37,12 @@ before(async () => {
       res.end(JSON.stringify({ error: "manifest_not_configured" }));
       return;
     }
-    if (name === "/app.html") {
-      res.writeHead(307, { Location: "/app" });
-      res.end();
+    if (name === "/app" || name === "/app.html") {
+      res.writeHead(404);
+      res.end("not found");
       return;
     }
-    if (name === "/app" || name === "/download" || name === "/downloads") name += ".html";
+    if (name === "/download" || name === "/downloads") name += ".html";
     if (name === "/") name = "/index.html";
     const file = path.resolve(SITE, "." + name);
     if (!file.startsWith(SITE + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {

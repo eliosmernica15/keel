@@ -83,12 +83,12 @@ before(async () => {
       ? VERCEL.rewrites?.find((route) => route.source === name)
       : undefined;
     if (rewrite) name = rewrite.destination;
-    if (name === "/app.html") {
-      res.writeHead(307, { Location: "/app" });
-      res.end();
+    if (name === "/app" || name === "/app.html") {
+      res.writeHead(404);
+      res.end("not found");
       return;
     }
-    if (name === "/app" || name === "/download" || name === "/downloads") name += ".html";
+    if (name === "/download" || name === "/downloads") name += ".html";
     if (name === "/") name = "/index.html";
     const file = path.resolve(SITE, "." + name);
     if (!file.startsWith(SITE + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
@@ -311,11 +311,11 @@ test("SEC-F-05: permanent unsigned/Gatekeeper/SmartScreen disclosure is visible"
   await context.close();
 });
 
-test("PWA manifest starts at the real app route and has one contextual desktop link", async () => {
+test("PWA manifest starts at /new and /app is no longer a public route", async () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(SITE, "manifest.webmanifest"), "utf8"));
-  assert.equal(manifest.start_url, "/app");
+  assert.equal(manifest.start_url, "/new");
   assert.equal(manifest.scope, "/");
-  assert.equal(manifest.id, "/app");
+  assert.equal(manifest.id, "/new");
   assert.equal(manifest.display, "standalone");
   assert.deepEqual(manifest.shortcuts.map((s) => s.name), ["Get Keel Desktop"]);
   assert.equal(manifest.shortcuts[0].url, "https://keel-desktop.vercel.app/download");
@@ -324,16 +324,12 @@ test("PWA manifest starts at the real app route and has one contextual desktop l
   assert.ok(manifest.icons.some((i) => i.sizes === "512x512"));
 
   const routes = JSON.parse(fs.readFileSync(path.join(SITE, "vercel.json"), "utf8"));
-  assert.ok(routes.rewrites.some((r) => r.source === "/app" && r.destination === "/app.html"));
-  assert.ok(!routes.redirects.some((r) => /(^|\/)app(\.html)?$/.test(r.source) && r.destination === "/download"));
-  assert.ok(routes.redirects.some((r) => r.source === "/app.html" && r.destination === "/app"));
+  assert.ok(!routes.rewrites.some((r) => r.source === "/app" || r.source === "/app/"));
+  assert.ok(!routes.redirects.some((r) => r.source === "/app.html"));
 
   const { context, page, errors } = await newPage(null);
-  await page.goto(`${base}/app`);
-  assert.match(await page.title(), /Keel — Desktop/);
-  assert.equal(await page.locator("#view-chat").count(), 1);
-  await page.goto(`${base}/app.html`, { waitUntil: "domcontentloaded" });
-  await page.waitForURL(`${base}/app`);
+  const response = await page.goto(`${base}/app`);
+  assert.equal(response.status(), 404);
   assert.deepEqual(errors, []);
   await context.close();
 });
@@ -360,7 +356,7 @@ test("Keel Ship article clean route serves the tracked article page", async () =
 
 test("service worker caches app shell only and never release data or binaries", async () => {
   const sw = fs.readFileSync(path.join(SITE, "sw.js"), "utf8");
-  assert.match(sw, /const VERSION = "keel-shell-v17"/);
+  assert.match(sw, /const VERSION = "keel-shell-v18"/);
   for (const forbidden of ["/download.json", "/api/", "/ui/download.js", "keel-app.jpg"]) {
     assert.ok(!sw.includes(`"${forbidden}"`), `SHELL must not precache ${forbidden}`);
   }
@@ -370,10 +366,10 @@ test("service worker caches app shell only and never release data or binaries", 
   assert.match(sw, /caches\.delete\(key\)/);
 
   const { context, page } = await newPage(null);
-  await page.goto(`${base}/app`);
+  await page.goto(`${base}/login`);
   const active = await page.evaluate(async () => {
     // Seed a stale worker cache, then confirm activation removes it.
-    const stale = await caches.open("keel-shell-v16");
+    const stale = await caches.open("keel-shell-v17");
     await stale.put("/stale", new Response("old shell"));
     if (!("serviceWorker" in navigator)) return "unsupported";
     await navigator.serviceWorker.register("/sw.js");
@@ -381,14 +377,14 @@ test("service worker caches app shell only and never release data or binaries", 
     return navigator.serviceWorker.controller ? "active" : "registered";
   });
   assert.ok(["active", "registered", "unsupported"].includes(active));
-  await page.waitForFunction(async () => !(await caches.keys()).includes("keel-shell-v16"), null, { timeout: 10000 });
+  await page.waitForFunction(async () => !(await caches.keys()).includes("keel-shell-v17"), null, { timeout: 10000 });
   const cacheState = await page.evaluate(async () => {
     const keys = await caches.keys();
-    const current = await caches.open("keel-shell-v17");
+    const current = await caches.open("keel-shell-v18");
     const requests = await current.keys();
     return { keys, urls: requests.map((r) => r.url) };
   });
-  assert.deepEqual([...cacheState.keys], ["keel-shell-v17"]);
+  assert.deepEqual([...cacheState.keys], ["keel-shell-v18"]);
   for (const url of cacheState.urls) {
     assert.ok(!url.includes("download.json") && !url.includes("/api/") && !/\.(exe|dmg|deb|rpm|AppImage|zip)$/i.test(url),
       `cache must not contain release data or installers: ${url}`);
@@ -399,25 +395,17 @@ test("service worker caches app shell only and never release data or binaries", 
 test("landing page and owned-file boundary are unchanged", async () => {
   const changed = execFileSync("git", ["diff", "--name-only"], { cwd: WORKTREE, encoding: "utf8" })
     .trim().split("\n").filter(Boolean);
-  // app.html is intentionally NOT in this list: a separate, pre-existing
-  // accessibility defect was fixed there (keyboard-operable nav buttons,
-  // aria-haspopup="dialog" chips, duplicate class attribute). Marketing and
-  // app *behavior* files remain protected.
-  for (const forbidden of [
-    "keel/site/index.html", "keel/site/ui/app.js",
-    "keel/site/downloads.html",
-  ]) {
+  // The current owner explicitly grants keel/site/** for auth work, so public
+  // CTAs and page scripts may change. Renderer code for the local-only mirror
+  // (ui/app.js, ui/management.js) is still out of scope.
+  for (const forbidden of ["keel/site/ui/app.js", "keel/site/ui/management.js"]) {
     assert.ok(!changed.some((f) => f.startsWith(forbidden)), `unexpected change in ${forbidden}`);
   }
-  const allowedSiteChanges = [
-    "keel/site/vercel.json",
-    "keel/site/tests/",
-    "keel/site/resources/articles/",
-  ];
+  const allowedSiteChanges = ["keel/site/"];
   assert.ok(
     changed.filter((file) => file.startsWith("keel/site/"))
       .every((file) => allowedSiteChanges.some((allowed) => file.startsWith(allowed))),
-    "unexpected site change outside route tests/article routing",
+    "unexpected site change outside the granted site scope",
   );
 
   const { context, page, errors } = await newPage(null);

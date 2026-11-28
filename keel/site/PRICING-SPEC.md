@@ -119,7 +119,7 @@ Each agent owns ONLY its file. Use exactly these class/id names so the three fil
       <button class="pr-btn pr-btn-dark" type="submit">Continue</button>
       <p class="pr-form-msg" id="prFormMsg" role="status" hidden></p>
     </form>
-    <div class="pr-modal-links"><a href="/download">Download KEEL</a><a href="/app">Open KEEL</a><a href="mailto:hello@keel.dev">Contact sales</a></div>
+    <div class="pr-modal-links"><a href="/download">Download KEEL</a><a href="/login">Sign in to KEEL</a><a href="mailto:hello@keel.dev">Contact sales</a></div>
   </div>
 </div>
 <script src="/ui/pricing.js" defer></script>

@@ -558,9 +558,9 @@
       })[0];
       if (row) openPluginDialog(row);
     } else if (action === 'manage-connection') {
-      showInfo('Manage connection', 'GitHub is connected to Keel. Connection settings live in the app.', '/app');
+      showInfo('Manage connection', 'GitHub is connected to Keel. Connection settings live in the app.', '/login');
     } else if (action === 'remove-plugin') {
-      showInfo('Remove plugin', 'Disconnect GitHub from the Keel app to remove it from your plugins.', '/app');
+      showInfo('Remove plugin', 'Disconnect GitHub from the Keel app to remove it from your plugins.', '/login');
     } else if (sort) {
       state.sort = sort;
       toArray(sortMenu.querySelectorAll('[data-sort]')).forEach(function (option) {

@@ -561,7 +561,7 @@ function initAuthModal() {
     try { localStorage.setItem('keel_logged_in', 'true'); } catch { /* storage unavailable */ }
     if (formView) formView.hidden = true;
     if (success) success.hidden = false;
-    const continueLink = success && success.querySelector('a[href="/app"]');
+    const continueLink = success && success.querySelector('a[href="/login"]');
     if (continueLink && typeof continueLink.focus === 'function') continueLink.focus();
   }
 

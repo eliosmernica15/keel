@@ -936,7 +936,7 @@
         dOpenModal({
           title: "You're in",
           body: '<p>You\'re signed in to Keel. Keep exploring here, or open the app.</p>' +
-                '<p><a class="l-btn l-btn-dark" href="/app">Continue to Keel</a></p>'
+                '<p><a class="l-btn l-btn-dark" href="/login">Continue to Keel</a></p>'
         });
       });
 
@@ -1003,7 +1003,7 @@
           rememberLogin();
           if (formView) formView.hidden = true;
           if (successView) successView.hidden = false;
-          var appLink = successView ? successView.querySelector('a[href="/app"]') : null;
+          var appLink = successView ? successView.querySelector('a[href="/login"]') : null;
           if (appLink && typeof appLink.focus === 'function') {
             window.setTimeout(function () { appLink.focus(); }, 0);
           }

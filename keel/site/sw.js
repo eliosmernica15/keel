@@ -1,7 +1,7 @@
-/* Keel webapp service worker — app shell only (v17).
+/* Keel webapp service worker — app shell only (v18).
  *
- * The installed PWA opens /app (the real web mirror). Only that document, its
- * CSS/JS and static icons/fonts are precached. Release metadata (/download.json
+ * The installed PWA opens /new (the local-first chat page). Only that document,
+ * its CSS/JS and static icons/fonts are precached. Release metadata (/download.json
  * and /api/*) and installer binaries (.exe/.dmg/.deb/.rpm/.AppImage/.zip/.pkg)
  * are never cached: stale availability or a stale binary must never be served.
  *
@@ -9,12 +9,15 @@
  * on activation, so a new deploy cannot be trapped behind an old worker.
  */
 
-const VERSION = "keel-shell-v17";
+const VERSION = "keel-shell-v18";
 const SHELL = [
-  "/app",
-  "/ui/style.css",
-  "/ui/app.js",
-  "/ui/management.js",
+  "/new",
+  "/ui/new.css",
+  "/ui/auth.css",
+  "/ui/auth.js",
+  "/ui/new.js",
+  "/ui/search-palette.js",
+  "/ui/keel-chat.js",
   "/manifest.webmanifest",
   "/ui/icons/icon-192.png",
   "/ui/icons/icon-512.png",
@@ -78,7 +81,7 @@ self.addEventListener("fetch", (event) => {
         }
         return response;
       }).catch(() =>
-        caches.match(request).then((cached) => cached || caches.match("/app"))
+        caches.match(request).then((cached) => cached || caches.match("/new"))
       )
     );
     return;

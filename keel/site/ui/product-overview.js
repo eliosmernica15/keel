@@ -885,14 +885,14 @@
         if (modal.classList) modal.classList.remove("is-open");
         modal.setAttribute("aria-hidden", "true");
         document.body.classList.remove("po-modal-open");
-        window.location.assign("/app");
+        window.location.assign("/login");
         return;
       }
       showToast("Demo sign-in — no real Google account is connected. Opening the Keel app…");
       close();
       redirectTimer = setTimeout(function () {
         redirectTimer = null;
-        window.location.assign("/app");
+        window.location.assign("/login");
       }, 1000);
     }
 

@@ -216,9 +216,9 @@
     },
     web: {
       title: 'Keel Code on the web',
-      html: "<p>Open Keel Code in your browser at keel.ai/app. There is nothing to install: your projects, sessions and permission settings follow you from the desktop app.</p>" +
+      html: "<p>Sign in and open Keel Code in your browser at /new. There is nothing to install: your projects, sessions and permission settings stay in this browser.</p>" +
         "<p>The web is ideal for reviewing a running task, approving an action, or starting a quick fix while you are away from your machine.</p>" +
-        "<p><a href='/app' class='l-btn l-btn-dark'>Open Keel Code</a> " +
+        "<p><a href='/login' class='l-btn l-btn-dark'>Open Keel Code</a> " +
         "<a href='/requirements' class='l-btn l-btn-outline'>Documentation</a></p>"
     },
     ios: {
@@ -871,7 +871,7 @@
       if (!modal) {
         /* Defensive fallback so an auth button is never dead. */
         openCModal(config.title, '<p>' + esc(config.desc) + '</p>' +
-          '<p><a href="/app" class="l-btn l-btn-dark">Continue to Keel</a></p>');
+          '<p><a href="/login" class="l-btn l-btn-dark">Continue to Keel</a></p>');
         return;
       }
       previousFocus = document.activeElement;
@@ -953,11 +953,11 @@
         catch (exception) { /* storage may be unavailable; demo still works */ }
         if (formView) formView.hidden = true;
         if (successView) successView.hidden = false;
-        var appLink = successView ? qs('a[href="/app"]', successView) : null;
+        var appLink = successView ? qs('a[href="/login"]', successView) : null;
         if (appLink && typeof appLink.focus === 'function') {
           try { appLink.focus(); } catch (exception) { /* ignore */ }
         }
-        /* The /app link keeps its native behaviour. */
+        /* The sign-in link keeps its native behaviour. */
       });
     }
   }

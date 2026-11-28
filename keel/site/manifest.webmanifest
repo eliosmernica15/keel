@@ -1,10 +1,10 @@
 {
   "name": "Keel",
   "short_name": "Keel",
-  "id": "/app",
+  "id": "/new",
   "lang": "en",
-  "description": "Keel — a local, private, multi-agent coding workspace. The web mirror; the desktop app is the full experience. No account, no telemetry.",
-  "start_url": "/app",
+  "description": "Keel — a local-first thinking partner. Sign in on the web; account data stays in this browser.",
+  "start_url": "/new",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0a0605",
