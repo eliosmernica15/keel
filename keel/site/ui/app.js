@@ -3020,9 +3020,8 @@ agentProbe().then(() => {
 /* The legacy mock-bridge event listeners are intentionally gone: the real
    backend drives turns through the v2 EventSource in startAgentStream(). */
 
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-  navigator.serviceWorker.register("/sw.js").catch(() => {});
-}
+/* Service worker retired: the old app-shell worker could cache the local
+   mirror and serve it on unrelated pages. No registration here. */
 
 // C1.4: screen-share / recording safe mode. Masks key hints, tokens and local
 // paths while presenting or recording. Toggle with Ctrl+Shift+S.

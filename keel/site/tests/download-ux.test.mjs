@@ -354,40 +354,31 @@ test("Keel Ship article clean route serves the tracked article page", async () =
   await context.close();
 });
 
-test("service worker caches app shell only and never release data or binaries", async () => {
+test("service worker retires itself and clears stale app-shell caches", async () => {
   const sw = fs.readFileSync(path.join(SITE, "sw.js"), "utf8");
   assert.match(sw, /const VERSION = "keel-shell-v18"/);
-  for (const forbidden of ["/download.json", "/api/", "/ui/download.js", "keel-app.jpg"]) {
-    assert.ok(!sw.includes(`"${forbidden}"`), `SHELL must not precache ${forbidden}`);
-  }
-  assert.match(sw, /download\\\.json/);
-  assert.match(sw, /\.\(exe\|msi\|dmg/);
-  assert.match(sw, /skipWaiting\(\)/);
+  assert.match(sw, /registration\.unregister\(\)/);
   assert.match(sw, /caches\.delete\(key\)/);
+  assert.match(sw, /caches\.keys\(\)/);
+  assert.ok(!/addEventListener\(\s*["']fetch["']/.test(sw), "no fetch interception remains");
+  const appJs = fs.readFileSync(path.join(SITE, "ui/app.js"), "utf8");
+  assert.ok(!appJs.includes('navigator.serviceWorker.register("/sw.js")'),
+    "local mirror must not re-register the retired worker");
 
   const { context, page } = await newPage(null);
   await page.goto(`${base}/login`);
-  const active = await page.evaluate(async () => {
-    // Seed a stale worker cache, then confirm activation removes it.
+  await page.evaluate(async () => {
     const stale = await caches.open("keel-shell-v17");
     await stale.put("/stale", new Response("old shell"));
-    if (!("serviceWorker" in navigator)) return "unsupported";
-    await navigator.serviceWorker.register("/sw.js");
-    await navigator.serviceWorker.ready;
-    return navigator.serviceWorker.controller ? "active" : "registered";
   });
-  assert.ok(["active", "registered", "unsupported"].includes(active));
-  await page.waitForFunction(async () => !(await caches.keys()).includes("keel-shell-v17"), null, { timeout: 10000 });
-  const cacheState = await page.evaluate(async () => {
-    const keys = await caches.keys();
-    const current = await caches.open("keel-shell-v18");
-    const requests = await current.keys();
-    return { keys, urls: requests.map((r) => r.url) };
-  });
-  assert.deepEqual([...cacheState.keys], ["keel-shell-v18"]);
-  for (const url of cacheState.urls) {
-    assert.ok(!url.includes("download.json") && !url.includes("/api/") && !/\.(exe|dmg|deb|rpm|AppImage|zip)$/i.test(url),
-      `cache must not contain release data or installers: ${url}`);
+  const supported = await page.evaluate(() => "serviceWorker" in navigator);
+  if (supported) {
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.register("/sw.js");
+      await navigator.serviceWorker.ready;
+    });
+    await page.waitForFunction(async () => (await caches.keys()).length === 0,
+      null, { timeout: 10000 });
   }
   await context.close();
 });
