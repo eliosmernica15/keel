@@ -278,6 +278,29 @@ def _cap_log(p, ctx):
                         path.read_text().splitlines() if line.strip()][-200:]}
 
 
+# ---------------------------------------------------------------- plugins
+@capability("core.plugins.list", "plugin_host", "core", "read",
+            "List local plugins with their trust state (never executes plugin code)")
+def _plugins_list(p, ctx):
+    from .plugin_host import PluginHost
+    host = PluginHost(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    return {"plugins": [dict(record) for record in host.list()]}
+
+
+@capability("core.plugins.invoke", "plugin_host", "core", "execute",
+            "Invoke a declared command of an explicitly enabled local plugin",
+            mutates=True)
+def _plugins_invoke(p, ctx):
+    exec_guard.enforce_command("core.plugins.invoke", p, ctx,
+                               command=f"{p.get('name', '')}:{p.get('command', '')}")
+    from .plugin_host import PluginHost
+    host = PluginHost(str(p.get("state_root", ctx.get("state_root", ".keel"))))
+    return host.invoke(str(p.get("name", "")), str(p.get("command", "")),
+                       p.get("args") or {},
+                       timeout_s=p.get("timeout_s"),
+                       max_output_bytes=p.get("max_output_bytes"))
+
+
 # ---------------------------------------------------------------- cowork
 @capability("cowork.doc.read", "documents", "cowork", "read",
             "Read text from a DOCX file")
