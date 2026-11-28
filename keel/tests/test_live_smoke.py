@@ -7,7 +7,10 @@ environment variable is set, e.g.:
     KEEL_OPENROUTER_API_KEY=sk-or-... pytest tests/test_live_smoke.py
 
 Use cases covered: auth success/failure, provider resolution, token usage,
-tool-call shape on the wire. CI must never run these (no keys there).
+tool-call shape on the wire. A key alone is not enough: set KEEL_LIVE_SMOKE=1
+as an explicit second opt-in. This keeps offline/sandboxed developer machines
+and CI from failing on DNS/egress restrictions while still allowing real live
+validation with one command.
 """
 
 import os
@@ -28,7 +31,10 @@ PROVIDERS = [
 
 
 def _live_enabled(env_var: str) -> bool:
-    return bool(os.environ.get(env_var, "").strip())
+    # Two-factor opt-in: a real key AND an explicit live-smoke flag. Environments
+    # with a stored key but no network must skip, not produce false failures.
+    return (bool(os.environ.get(env_var, "").strip())
+            and os.environ.get("KEEL_LIVE_SMOKE", "").strip().lower() in {"1", "true", "yes"})
 
 
 @pytest.mark.parametrize("provider,key_env,model_env", PROVIDERS)
@@ -46,6 +52,13 @@ def test_live_provider_smoke(provider, key_env, model_env):
             [],
         )
     except ProviderError as exc:
+        # A key may be present in a sandboxed/offline environment with no DNS
+        # or egress. That is not a provider or product failure: report it as a
+        # skip instead of a false negative. Auth/protocol errors still fail.
+        message = str(exc)
+        if ("connection failed" in message or "timed out" in message.lower()
+                or "name resolution" in message.lower()):
+            pytest.skip(f"live provider unreachable from this environment ({provider}): {message}")
         pytest.fail(f"live call failed: {exc.category}: {exc}")
 
     text = "".join(b.get("text", "") for b in blocks if b.get("type") == "text")
