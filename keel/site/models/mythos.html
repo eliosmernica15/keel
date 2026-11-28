@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel Mythos — a future Keel model (concept) | Keel</title>
+  <meta name="description" content="Keel Mythos is an imaginary future Keel model. A concept only — not currently available. Explore the design, concept targets and how it would differ from the rest of the family." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/models/mythos" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f7f5ef" />
+  <link rel="stylesheet" href="/ui/models.css" />
+  <script src="/ui/models.js" defer></script>
+</head>
+<body class="mdl-body mdl--mythos">
+
+  <!-- ==================== sticky header / 4-column Product mega menu ==================== -->
+  <header class="mdl-header" id="mdl-header">
+    <div class="mdl-nav-inner">
+      <a class="mdl-brand" href="/" aria-label="Keel home">
+        <img class="mdl-brand-mark" src="/assets/img/po-mark.svg" alt="" />
+        <span>Keel</span>
+      </a>
+
+      <nav class="mdl-main-nav" aria-label="Primary">
+        <div class="mdl-nav-item" data-nav="product">
+          <button class="mdl-nav-trigger" type="button" data-mega-trigger aria-expanded="false" aria-controls="mdl-mega-product">Product <span class="mdl-chevron" aria-hidden="true"></span></button>
+          <div class="mdl-mega" id="mdl-mega-product" hidden>
+            <div class="mdl-mega-grid">
+              <div class="mdl-mega-col">
+                <p class="mdl-mega-heading">Products</p>
+                <a class="mdl-mega-link" href="/product/overview">Keel</a>
+                <a class="mdl-mega-link" href="/keel-code">Keel Code</a>
+                <a class="mdl-mega-link" href="/cowork">Keel Cowork</a>
+                <a class="mdl-mega-link" href="/product/keel-duet">Keel Duet</a>
+                <a class="mdl-mega-link" href="/platform/api">Keel Platform</a>
+              </div>
+              <div class="mdl-mega-col">
+                <p class="mdl-mega-heading">Capabilities</p>
+                <a class="mdl-mega-link" href="/features/artifacts">Artifacts</a>
+                <a class="mdl-mega-link" href="/product/design">Design</a>
+                <a class="mdl-mega-link" href="/marketplace/connectors-plugins">Connectors</a>
+                <a class="mdl-mega-link" href="/marketplace/plugins">Plugins</a>
+                <a class="mdl-mega-link" href="/skills">Skills</a>
+              </div>
+              <div class="mdl-mega-col">
+                <p class="mdl-mega-heading">Extensions</p>
+                <a class="mdl-mega-link" href="/keel-in-chrome">Keel in Chrome</a>
+                <a class="mdl-mega-link" href="/keel-for-google-workspace">Keel for Google Workspace</a>
+                <a class="mdl-mega-link" href="/keel-for-microsoft-365">Keel for Microsoft 365</a>
+              </div>
+              <div class="mdl-mega-col" data-models-column>
+                <p class="mdl-mega-heading">Models <span class="mdl-mega-dot" aria-hidden="true"></span></p>
+                <a class="mdl-mega-link" href="/models/mythos" aria-current="page">Mythos (including Fable)</a>
+                <a class="mdl-mega-link" href="/models/opus">Opus</a>
+                <a class="mdl-mega-link" href="/models/sonnet">Sonnet</a>
+                <a class="mdl-mega-link" href="/models/haiku">Haiku</a>
+              </div>
+            </div>
+            <div class="mdl-mega-footer">
+              <a class="mdl-mega-link" href="/roadmap">Roadmap</a>
+              <a class="mdl-mega-link" href="/download">Download apps</a>
+              <a class="mdl-mega-link" href="/login">Login</a>
+            </div>
+          </div>
+        </div>
+
+        <a class="mdl-nav-link" href="/pricing">Pricing</a>
+      </nav>
+
+      <div class="mdl-header-actions">
+        <a class="mdl-btn mdl-btn-outline mdl-btn-sm" href="/login">Log in</a>
+        <a class="mdl-btn mdl-btn-dark mdl-btn-sm" href="/login">Get Keel</a>
+        <button class="mdl-hamburger" type="button" data-mobile-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mdl-mobile-menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+
+    <div class="mdl-mobile-menu" id="mdl-mobile-menu" hidden>
+      <p class="mdl-mobile-group-title">Future models — concepts</p>
+      <a class="mdl-mobile-link" href="/models/mythos" aria-current="page">Mythos (including Fable)</a>
+      <a class="mdl-mobile-link" href="/models/opus">Opus</a>
+      <a class="mdl-mobile-link" href="/models/sonnet">Sonnet</a>
+      <a class="mdl-mobile-link" href="/models/haiku">Haiku</a>
+      <p class="mdl-mobile-group-title">Keel</p>
+      <a class="mdl-mobile-link" href="/product/overview">Product overview</a>
+      <a class="mdl-mobile-link" href="/roadmap">Roadmap</a>
+      <a class="mdl-mobile-link" href="/download">Download desktop app</a>
+      <a class="mdl-mobile-link" href="/login">Log in</a>
+      <a class="mdl-btn mdl-btn-dark" href="/login">Get Keel</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== breadcrumb + concept badge ==================== -->
+    <div class="mdl-container">
+      <nav class="mdl-crumbs" aria-label="Breadcrumb">
+        <ol class="mdl-crumb-list">
+          <li>Models</li>
+          <li aria-hidden="true">/</li>
+          <li class="mdl-crumb-current" aria-current="page">Keel Mythos</li>
+        </ol>
+      </nav>
+      <p class="mdl-concept-badge"><span class="mdl-concept-dot" aria-hidden="true"></span> CONCEPT / FUTURE MODEL — not currently available</p>
+    </div>
+
+    <!-- ==================== 1. hero ==================== -->
+    <section class="mdl-hero" id="top" aria-labelledby="mdl-hero-title">
+      <div class="mdl-container">
+        <div class="mdl-hero-inner">
+          <div class="mdl-hero-copy" data-reveal>
+            <p class="mdl-eyebrow">The flagship concept</p>
+            <h1 class="mdl-hero-title" id="mdl-hero-title">Reason across <em>everything</em>, then make something worth keeping.</h1>
+            <div class="mdl-hero-desc">
+              <p class="mdl-hero-line">Mythos is our imagined flagship: a future multimodal reasoning model that reads text, images, audio and video as one continuous thread of context.</p>
+              <p class="mdl-hero-line">It is a concept we would love to build — a thinking partner for the moments when the answer lives between the documents, not inside one of them.</p>
+            </div>
+            <div class="mdl-hero-actions">
+              <a class="mdl-btn mdl-btn-coral mdl-btn-lg" href="#get-notified">Get notified</a>
+              <a class="mdl-btn mdl-btn-outline mdl-btn-lg" href="#compare">Compare the family</a>
+            </div>
+            <div class="mdl-notify">
+              <label class="mdl-notify-label" for="mdl-notify-input">Leave an email for a future update</label>
+              <form class="mdl-notify-form" data-notify-form novalidate>
+                <label class="mdl-sr-only" for="mdl-notify-input">Email address</label>
+                <input id="mdl-notify-input" name="email" type="email" placeholder="you@example.com" autocomplete="email" data-notify-input required />
+                <button class="mdl-btn mdl-btn-coral" type="submit">Get notified</button>
+              </form>
+              <p class="mdl-notify-note">Local demo only — nothing is sent, no account is created and no email will arrive.</p>
+              <p class="mdl-notify-result" data-notify-result role="status" aria-live="polite" hidden></p>
+            </div>
+          </div>
+
+          <div class="mdl-visual mdl-visual--prism" data-parallax="0.05" data-reveal aria-label="Abstract illustration of the Keel Mythos concept" role="img">
+            <span class="mdl-ring r1" aria-hidden="true"></span>
+            <span class="mdl-ring r2" aria-hidden="true"></span>
+            <span class="mdl-ring r3" aria-hidden="true"></span>
+            <span class="mdl-core-shape" aria-hidden="true"></span>
+            <span class="mdl-core-shape s2" aria-hidden="true"></span>
+            <span class="mdl-node n1" aria-hidden="true"></span>
+            <span class="mdl-node n2" aria-hidden="true"></span>
+            <span class="mdl-node n3" aria-hidden="true"></span>
+            <span class="mdl-visual-core">MYTHOS</span>
+            <span class="mdl-visual-caption">Mythos · multimodal core</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. what it is designed for ==================== -->
+    <section class="mdl-section mdl-section--alt" id="designed-for" aria-labelledby="mdl-designed-title">
+      <div class="mdl-container">
+        <div class="mdl-section-head" data-reveal>
+          <p class="mdl-kicker">What it is designed for</p>
+          <h2 class="mdl-section-title" id="mdl-designed-title">A concept with a clear point of view</h2>
+          <p class="mdl-section-sub">Four things we would want Mythos to be genuinely good at, if we ever built it.</p>
+        </div>
+        <div class="mdl-card-grid" data-reveal-group>
+          <article class="mdl-feature-card" data-reveal>
+            <span class="mdl-feature-num">01</span>
+            <h3 class="mdl-feature-title">Cross-format reasoning</h3>
+            <p class="mdl-feature-body">Hold a contract, a whiteboard photo, a call recording and a spreadsheet in the same thought, then reason across all four.</p>
+          </article>
+          <article class="mdl-feature-card" data-reveal>
+            <span class="mdl-feature-num">02</span>
+            <h3 class="mdl-feature-title">Long, patient inquiry</h3>
+            <p class="mdl-feature-body">Stay with an ambiguous question through dozens of turns without losing the thread or the evidence behind it.</p>
+          </article>
+          <article class="mdl-feature-card" data-reveal>
+            <span class="mdl-feature-num">03</span>
+            <h3 class="mdl-feature-title">Structured judgment</h3>
+            <p class="mdl-feature-body">Turn messy inputs into a decision you can defend, with the assumptions and the trade-offs made explicit.</p>
+          </article>
+          <article class="mdl-feature-card" data-reveal>
+            <span class="mdl-feature-num">04</span>
+            <h3 class="mdl-feature-title">Room for a creative side</h3>
+            <p class="mdl-feature-body">Fable would share the reasoning engine but loosen the style for stories, worlds and play.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. capability / concept targets ==================== -->
+    <section class="mdl-section" id="specs" aria-labelledby="mdl-specs-title">
+      <div class="mdl-container">
+        <div class="mdl-section-head" data-reveal>
+          <p class="mdl-kicker">Illustrative capability grid</p>
+          <h2 class="mdl-section-title" id="mdl-specs-title">Concept targets, not specifications</h2>
+          <p class="mdl-section-sub">These targets describe what we would aim for if we built Keel Mythos. They are illustrative, not measured, not benchmarked and not promised.</p>
+        </div>
+        <div class="mdl-card-grid" data-reveal-group>
+          <article class="mdl-feature-card" data-reveal>
+            <span class="mdl-feature-num">01</span>
+            <h3 class="mdl-feature-title">Context window</h3>
+            <p class="mdl-feature-body">How much could stay in view at once.</p>
+            <p class="mdl-feature-body"><strong>Concept target: 400K tokens.</strong></p>
+          </article>
+          <article class="mdl-feature-card" data-reveal>
+            <span class="mdl-feature-num">02</span>
+            <h3 class="mdl-feature-title">Response tempo</h3>
+            <p class="mdl-feature-body">How quickly a reply could begin.</p>
+            <p class="mdl-feature-body"><strong>Concept target: a few seconds for a deep answer.</strong></p>
+          </article>
+          <article class="mdl-feature-card" data-reveal>
+            <span class="mdl-feature-num">03</span>
+            <h3 class="mdl-feature-title">Modalities</h3>
+            <p class="mdl-feature-body">What kinds of input it could understand.</p>
+            <p class="mdl-feature-body"><strong>Concept target: text, image, audio and video.</strong></p>
+          </article>
+          <article class="mdl-feature-card" data-reveal>
+            <span class="mdl-feature-num">04</span>
+            <h3 class="mdl-feature-title">Ideal tasks</h3>
+            <p class="mdl-feature-body">Where it would be the right choice.</p>
+            <p class="mdl-feature-body"><strong>Concept target: strategy, research synthesis and design reviews.</strong></p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. Fable creative variant ==================== -->
+    <section class="mdl-section" id="fable" aria-labelledby="mdl-fable-title">
+      <div class="mdl-container">
+        <div class="mdl-fable-inner">
+          <div class="mdl-fable-art" data-reveal data-parallax="-0.03" aria-hidden="true">
+            <span class="fa1"></span><span class="fa2"></span><span class="fa3"></span>
+          </div>
+          <div class="mdl-fable-body" data-reveal>
+            <p class="mdl-kicker">Creative variant · concept</p>
+            <h2 class="mdl-section-title mdl-fable-title" id="mdl-fable-title">Fable — the creative side of Mythos</h2>
+            <p>Fable is an imagined variant of Mythos rather than a separate model. It would keep the same reasoning core but trade strict neutrality for voice, story and play. Like everything on this page, it is a concept only.</p>
+            <div class="mdl-fable-list">
+              <div class="mdl-fable-item"><b>Worldbuilding</b><span>Keep a setting consistent across characters, history and rules.</span></div>
+              <div class="mdl-fable-item"><b>Narrative voice</b><span>Try a scene in several voices without losing the plot.</span></div>
+              <div class="mdl-fable-item"><b>Visual storytelling</b><span>Work from images and text together to shape a sequence.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. how it differs from the family ==================== -->
+    <section class="mdl-section mdl-section--alt" id="compare" aria-labelledby="mdl-compare-title">
+      <div class="mdl-container">
+        <div class="mdl-section-head" data-reveal>
+          <p class="mdl-kicker">How it differs</p>
+          <h2 class="mdl-section-title" id="mdl-compare-title">Four possible futures, four different jobs</h2>
+          <p class="mdl-section-sub">Mythos would be one member of an imagined family. Switch the lens to see how all four concepts would trade off against each other.</p>
+        </div>
+        <div class="mdl-tabs" role="tablist" aria-label="Compare the future Keel models">
+          <button class="mdl-tab" type="button" role="tab" data-tab="family" id="mdl-tab-glance" aria-controls="mdl-panel-glance" aria-selected="true">At a glance</button>
+        <button class="mdl-tab" type="button" role="tab" data-tab="family" id="mdl-tab-depth" aria-controls="mdl-panel-depth" aria-selected="false" tabindex="-1">Depth of reasoning</button>
+        <button class="mdl-tab" type="button" role="tab" data-tab="family" id="mdl-tab-fit" aria-controls="mdl-panel-fit" aria-selected="false" tabindex="-1">Where it fits</button>
+        </div>
+        <div class="mdl-panel" role="tabpanel" id="mdl-panel-glance" data-panel="glance" aria-labelledby="mdl-tab-glance">
+          <div class="mdl-table-wrap">
+            <table class="mdl-table">
+              <caption class="mdl-sr-only">Compare the four concepts — all figures are concept targets, not measured results</caption>
+              <thead><tr><th scope="col">Concept</th><th scope="col">Concept role</th><th scope="col">Concept context target</th><th scope="col">Ideal tasks</th></tr></thead>
+              <tbody>
+            <tr class="is-current"><td class="mdl-model-cell">Keel Mythos<span class="mdl-current-note">this concept</span></td><td class="mdl-td-muted">Flagship multimodal reasoning</td><td class="mdl-td-muted">Concept target: 400K tokens</td><td class="mdl-td-muted">Cross-format strategy and synthesis</td></tr>
+            <tr><td class="mdl-model-cell">Keel Opus</td><td class="mdl-td-muted">Deep long-horizon agent</td><td class="mdl-td-muted">Concept target: 1M tokens</td><td class="mdl-td-muted">Multi-day work and code</td></tr>
+            <tr><td class="mdl-model-cell">Keel Sonnet</td><td class="mdl-td-muted">Fast balanced everyday</td><td class="mdl-td-muted">Concept target: 200K tokens</td><td class="mdl-td-muted">Drafts, questions and quick code</td></tr>
+            <tr><td class="mdl-model-cell">Keel Haiku</td><td class="mdl-td-muted">Tiny on-device model</td><td class="mdl-td-muted">Concept target: 32K tokens</td><td class="mdl-td-muted">Offline assist and local search</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="mdl-panel" role="tabpanel" id="mdl-panel-depth" data-panel="depth" aria-labelledby="mdl-tab-depth" hidden>
+          <div class="mdl-table-wrap">
+            <table class="mdl-table">
+              <caption class="mdl-sr-only">Compare reasoning depth — all figures are concept targets, not measured results</caption>
+              <thead><tr><th scope="col">Concept</th><th scope="col">Concept depth</th><th scope="col">Concept trade-off</th></tr></thead>
+              <tbody>
+            <tr class="is-current"><td class="mdl-model-cell">Keel Mythos<span class="mdl-current-note">this concept</span></td><td class="mdl-td-muted">Deepest, cross-modal</td><td class="mdl-td-muted">Most demanding to run</td></tr>
+            <tr><td class="mdl-model-cell">Keel Opus</td><td class="mdl-td-muted">Long, patient, tool-driven</td><td class="mdl-td-muted">Slowest to reply</td></tr>
+            <tr><td class="mdl-model-cell">Keel Sonnet</td><td class="mdl-td-muted">Steady and general</td><td class="mdl-td-muted">Not for the deepest tasks</td></tr>
+            <tr><td class="mdl-model-cell">Keel Haiku</td><td class="mdl-td-muted">Light and focused</td><td class="mdl-td-muted">Smallest context</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="mdl-panel" role="tabpanel" id="mdl-panel-fit" data-panel="fit" aria-labelledby="mdl-tab-fit" hidden>
+          <div class="mdl-table-wrap">
+            <table class="mdl-table">
+              <caption class="mdl-sr-only">Compare everyday fit — all figures are concept targets, not measured results</caption>
+              <thead><tr><th scope="col">Concept</th><th scope="col">Concept latency target</th><th scope="col">Where it would fit</th></tr></thead>
+              <tbody>
+            <tr class="is-current"><td class="mdl-model-cell">Keel Mythos<span class="mdl-current-note">this concept</span></td><td class="mdl-td-muted">Concept target: a few seconds for a deep answer</td><td class="mdl-td-muted">Big ambiguous questions</td></tr>
+            <tr><td class="mdl-model-cell">Keel Opus</td><td class="mdl-td-muted">Concept target: minutes per work session</td><td class="mdl-td-muted">Complex projects</td></tr>
+            <tr><td class="mdl-model-cell">Keel Sonnet</td><td class="mdl-td-muted">Concept target: under a second to first token</td><td class="mdl-td-muted">All-day work</td></tr>
+            <tr><td class="mdl-model-cell">Keel Haiku</td><td class="mdl-td-muted">Concept target: near-instant on-device</td><td class="mdl-td-muted">Laptop or phone</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="mdl-compare-foot" data-reveal>Every figure in these tables is a concept target for an imaginary model — not a real product, benchmark or promise.</p>
+      </div>
+    </section>
+
+    <!-- ==================== 6. availability ==================== -->
+    <section class="mdl-section" id="availability" aria-labelledby="mdl-availability-title">
+      <div class="mdl-container">
+        <div class="mdl-availability-inner" data-reveal>
+          <div class="mdl-availability-copy">
+            <p class="mdl-kicker">Availability</p>
+            <h2 class="mdl-availability-title" id="mdl-availability-title">A concept, not a product</h2>
+            <p class="mdl-availability-body">Mythos is a concept only. There is no model to try, no API to call and no release date to book. It is a design brief for a future we might choose to build.</p>
+            <div class="mdl-availability-actions">
+              <a class="mdl-btn mdl-btn-dark" href="/roadmap">See the roadmap</a>
+              <a class="mdl-btn mdl-btn-outline" href="/login">Log in to Keel</a>
+            </div>
+          </div>
+          <div class="mdl-availability-list">
+            <div class="mdl-availability-row"><span class="mdl-availability-icon" aria-hidden="true">—</span><div><b>Not currently available</b><span>Mythos does not exist as a model you can call, download or buy today.</span></div></div>
+            <div class="mdl-availability-row"><span class="mdl-availability-icon" aria-hidden="true">?</span><div><b>Concept targets only</b><span>All figures on this page are illustrative intentions, not measured results.</span></div></div>
+            <div class="mdl-availability-row"><span class="mdl-availability-icon" aria-hidden="true">+</span><div><b>Where to look next</b><span>The <a href="/roadmap">roadmap</a> covers real plans. <a href="/login">Log in</a> uses the Keel that ships today.</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 7. FAQ ==================== -->
+    <section class="mdl-section mdl-section--alt" id="faq" aria-labelledby="mdl-faq-title">
+      <div class="mdl-container">
+        <div class="mdl-section-head" data-reveal>
+          <p class="mdl-kicker">Questions</p>
+          <h2 class="mdl-section-title" id="mdl-faq-title">Good questions about an unreal model</h2>
+        </div>
+        <div class="mdl-faq-list" data-reveal-group>
+          <div class="mdl-faq-item" data-reveal>
+            <button class="mdl-faq-q" type="button" data-faq-q aria-expanded="false" aria-controls="mdl-faq-a-mythos-1">Is Keel Mythos available today? <span class="mdl-faq-icon" aria-hidden="true"></span></button>
+            <div class="mdl-faq-a" id="mdl-faq-a-mythos-1" aria-hidden="true"><p>No. Keel Mythos is a concept and future model only — it is not currently available, there is no model to call and no release date. See the <a href="/roadmap">roadmap</a> for what is real.</p></div>
+          </div>
+          <div class="mdl-faq-item" data-reveal>
+            <button class="mdl-faq-q" type="button" data-faq-q aria-expanded="false" aria-controls="mdl-faq-a-mythos-2">What would Keel Mythos be designed for? <span class="mdl-faq-icon" aria-hidden="true"></span></button>
+            <div class="mdl-faq-a" id="mdl-faq-a-mythos-2" aria-hidden="true"><p>Mythos is our imagined flagship: a future multimodal reasoning model that reads text, images, audio and video as one continuous thread of context. It is a concept we would love to build — a thinking partner for the moments when the answer lives between the documents, not inside one of them.</p></div>
+          </div>
+          <div class="mdl-faq-item" data-reveal>
+            <button class="mdl-faq-q" type="button" data-faq-q aria-expanded="false" aria-controls="mdl-faq-a-mythos-3">How would Mythos differ from the other future models? <span class="mdl-faq-icon" aria-hidden="true"></span></button>
+            <div class="mdl-faq-a" id="mdl-faq-a-mythos-3" aria-hidden="true"><p>Mythos is imagined as the broadest and deepest of the four: it would take in more formats and hold more together at once, in exchange for being the most demanding concept to run.</p></div>
+          </div>
+          <div class="mdl-faq-item" data-reveal>
+            <button class="mdl-faq-q" type="button" data-faq-q aria-expanded="false" aria-controls="mdl-faq-a-mythos-4">Are the numbers on this page real benchmarks? <span class="mdl-faq-icon" aria-hidden="true"></span></button>
+            <div class="mdl-faq-a" id="mdl-faq-a-mythos-4" aria-hidden="true"><p>No. Every figure here is labelled a concept target. These are illustrative design intentions, not measured results and not a promise of performance.</p></div>
+          </div>
+          <div class="mdl-faq-item" data-reveal>
+            <button class="mdl-faq-q" type="button" data-faq-q aria-expanded="false" aria-controls="mdl-faq-a-mythos-5">What is Fable? <span class="mdl-faq-icon" aria-hidden="true"></span></button>
+            <div class="mdl-faq-a" id="mdl-faq-a-mythos-5" aria-hidden="true"><p>Fable is an imagined creative variant of Mythos. It would keep the same reasoning engine but trade strict neutrality for narrative voice, worldbuilding and visual storytelling. It is a concept too — nothing is available today.</p></div>
+          </div>
+          <div class="mdl-faq-item" data-reveal>
+            <button class="mdl-faq-q" type="button" data-faq-q aria-expanded="false" aria-controls="mdl-faq-a-mythos-6">How do I hear about it if it ever ships? <span class="mdl-faq-icon" aria-hidden="true"></span></button>
+            <div class="mdl-faq-a" id="mdl-faq-a-mythos-6" aria-hidden="true"><p>The form above is a local demo: it notes your address in this browser only, and nothing is sent. For real updates, check the <a href="/roadmap">roadmap</a> or <a href="/login">log in</a>.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 8. dark CTA ==================== -->
+    <section class="mdl-cta" id="get-notified" aria-labelledby="mdl-cta-title" data-reveal>
+      <div class="mdl-container">
+        <h2 id="mdl-cta-title">Want to hear it if Mythos ever becomes real?</h2>
+        <p>Nothing is live today. Follow the roadmap or sign in to see what Keel actually offers right now.</p>
+        <div class="mdl-cta-actions">
+          <a class="mdl-btn mdl-btn-dark" href="/login">Log in to Keel</a>
+          <a class="mdl-btn mdl-btn-outline" href="/roadmap">Read the roadmap</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== shared dark footer ==================== -->
+  <footer class="mdl-footer" id="footer">
+    <div class="mdl-container">
+      <div class="mdl-footer-top">
+        <a class="mdl-footer-brand" href="/" aria-label="Keel home">
+          <img class="mdl-brand-mark" src="/assets/img/po-mark.svg" alt="" />
+          <span>Keel</span>
+        </a>
+        <p class="mdl-footer-tagline">An intelligent partner for everyday work and big ambitions.</p>
+      </div>
+
+      <div class="mdl-footer-grid">
+        <nav class="mdl-footer-col" aria-label="Products">
+          <h2 class="mdl-footer-heading">Products</h2>
+          <a class="mdl-footer-link" href="/product/overview">Keel</a>
+          <a class="mdl-footer-link" href="/keel-code">Keel Code</a>
+          <a class="mdl-footer-link" href="/cowork">Keel Cowork</a>
+          <a class="mdl-footer-link" href="/product/keel-duet">Keel Duet</a>
+          <a class="mdl-footer-link" href="/platform/api">Keel Platform</a>
+        </nav>
+        <nav class="mdl-footer-col" aria-label="Future models">
+          <h2 class="mdl-footer-heading">Future models — concepts</h2>
+          <a class="mdl-footer-link" href="/models/mythos">Mythos and Fable</a>
+          <a class="mdl-footer-link" href="/models/opus">Opus</a>
+          <a class="mdl-footer-link" href="/models/sonnet">Sonnet</a>
+          <a class="mdl-footer-link" href="/models/haiku">Haiku</a>
+        </nav>
+        <nav class="mdl-footer-col" aria-label="Developers">
+          <h2 class="mdl-footer-heading">Developers</h2>
+          <a class="mdl-footer-link" href="/platform/api">Platform API</a>
+          <a class="mdl-footer-link" href="/marketplace/plugins">Plugins</a>
+          <a class="mdl-footer-link" href="/projects">Projects</a>
+          <a class="mdl-footer-link" href="/roadmap">Roadmap</a>
+          <a class="mdl-footer-link" href="/login">Console</a>
+        </nav>
+        <nav class="mdl-footer-col" aria-label="Legal">
+          <h2 class="mdl-footer-heading">Legal</h2>
+          <a class="mdl-footer-link" href="/privacy">Privacy policy</a>
+          <a class="mdl-footer-link" href="/terms">Terms of service</a>
+          <a class="mdl-footer-link" href="/eula">EULA</a>
+          <a class="mdl-footer-link" href="/trademark">Trademark</a>
+          <a class="mdl-footer-link" href="/notices">Notices</a>
+        </nav>
+      </div>
+
+      <div class="mdl-footer-bottom">
+        <span>KEEL 2026 All rights reserved.</span>
+        <div class="mdl-socials" aria-label="Keel updates">
+          <a class="mdl-social" href="/notices" aria-label="Keel news"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16M20 4L4 20" /></svg></a>
+          <a class="mdl-social" href="/notices" aria-label="Keel updates"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4 9h4v11H4zM6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM11 9h4v1.7c.8-1.2 2-2 3.5-2 2.5 0 3.5 1.6 3.5 4.3V20h-4v-6c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2 1-2.2 2.4V20h-4z" /></svg></a>
+        </div>
+        <div class="mdl-lang-wrap">
+          <button class="mdl-lang" type="button" data-lang-toggle aria-expanded="false" aria-controls="mdl-lang-menu">English <span class="mdl-chevron" aria-hidden="true"></span></button>
+          <div class="mdl-lang-menu" id="mdl-lang-menu" data-lang-menu hidden>
+            <button class="mdl-lang-option" type="button" data-lang-option>English</button>
+            <button class="mdl-lang-option" type="button" data-lang-option>Deutsch</button>
+            <button class="mdl-lang-option" type="button" data-lang-option>Français</button>
+            <button class="mdl-lang-option" type="button" data-lang-option>Español</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -38,4 +38,8 @@
   <url><loc>https://keel-desktop.vercel.app/resources/articles/introducing-keel-ship</loc></url>
   <url><loc>https://keel-desktop.vercel.app/resources/articles/introducing-keel-code</loc></url>
   <url><loc>https://keel-desktop.vercel.app/resources/articles/keel-ship-session-format</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/models/mythos</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/models/opus</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/models/sonnet</loc></url>
+  <url><loc>https://keel-desktop.vercel.app/models/haiku</loc></url>
 </urlset>
