@@ -328,3 +328,6 @@ html { overflow-x: clip !important; }
 /* Specificity fix: body.mm-page a overrides .mp-btn-* colour. */
 body.mp-page a.mp-btn-dark { color: #fff; }
 
+
+body.mp-page button.mp-btn-dark { color: #fff; }
+
