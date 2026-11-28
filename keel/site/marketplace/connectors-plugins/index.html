@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connectors and plugins - Keel Marketplace</title>
+  <meta name="description" content="Bring the tools you already use into every Keel conversation. Browse connectors and plugins for the Keel desktop app." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/marketplace/connectors-plugins" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f7f6f2" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Connectors and plugins - Keel Marketplace" />
+  <meta property="og:description" content="Bring the tools you already use into every Keel conversation." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/marketplace/connectors-plugins" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="stylesheet" href="/ui/marketplace-connectors.css" />
+  <script src="/ui/marketplace-connectors.js" defer></script>
+</head>
+<body class="mc-page">
+
+  <!-- Local, inline SVG marks only: no external images or embedded data URIs. -->
+  <svg class="mc-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="mc-star" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/>
+      </symbol>
+      <symbol id="mc-store" viewBox="0 0 24 24">
+        <path d="M3.5 9.2 5 4.4h14l1.5 4.8a2.6 2.6 0 0 1-4.7 2.2 2.6 2.6 0 0 1-4.3 0 2.6 2.6 0 0 1-4.3 0 2.6 2.6 0 0 1-4.7-2.2Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M5 11.6V20h14v-8.4M9.5 20v-4.8h5V20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="mc-plus" viewBox="0 0 20 20">
+        <path d="M10 4.5v11M4.5 10h11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="mc-icon-search" viewBox="0 0 20 20">
+        <circle cx="8.6" cy="8.6" r="5.4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M12.6 12.6 17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="mc-chevron" viewBox="0 0 16 16">
+        <path d="m4 6.2 4 3.8 4-3.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="mc-close" viewBox="0 0 20 20">
+        <path d="m5 5 10 10M15 5 5 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ===================== sticky navigation ===================== -->
+  <header class="mc-header" id="mc-header">
+    <nav class="mc-nav" aria-label="Main navigation">
+      <div class="mc-nav-inner">
+        <a class="mc-wordmark" href="/" aria-label="Keel home">
+          <svg class="mc-brand-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#mc-star" /></svg>
+          <span>Keel <span class="mc-wordmark-secondary">Marketplace</span></span>
+        </a>
+
+        <div class="mc-nav-links" id="mc-nav-links">
+          <div class="mc-nav-item" data-menu="product">
+            <button class="mc-nav-link" type="button" aria-expanded="false" aria-controls="mc-mega-product">Product <svg class="mc-chevron" viewBox="0 0 16 16" aria-hidden="true"><use href="#mc-chevron" /></svg></button>
+            <div class="mc-mega" id="mc-mega-product" role="group" aria-label="Product menu" aria-hidden="true" hidden>
+              <div class="mc-mega-grid">
+                <div class="mc-mega-col">
+                  <p class="mc-mega-title">Products</p>
+                  <a href="/">Keel</a><a href="/keel-code">Keel Code</a><a href="/cowork">Keel Cowork</a><a href="/product/keel-duet">Keel Duet</a><a href="/platform/api">Keel Platform</a>
+                </div>
+                <div class="mc-mega-col">
+                  <p class="mc-mega-title">Capabilities</p>
+                  <a href="/features/artifacts">Artifacts</a><a href="/product/overview">Design</a><a href="/marketplace/connectors-plugins" aria-current="page">Connectors</a><a href="/plugins">Plugins</a>
+                </div>
+                <div class="mc-mega-col">
+                  <p class="mc-mega-title">Extensions</p>
+                  <a href="/keel-in-chrome">Keel in Chrome</a><a href="/download">Keel for Google Workspace</a><a href="/download">Keel for Microsoft 365</a>
+                </div>
+              </div>
+              <div class="mc-mega-foot"><a href="/download">Download apps</a><a href="/login">Log in</a></div>
+            </div>
+          </div>
+
+          <div class="mc-nav-item" data-menu="developers">
+            <button class="mc-nav-link" type="button" aria-expanded="false" aria-controls="mc-mega-developers">Developers <svg class="mc-chevron" viewBox="0 0 16 16" aria-hidden="true"><use href="#mc-chevron" /></svg></button>
+            <div class="mc-mega" id="mc-mega-developers" role="group" aria-label="Developers menu" aria-hidden="true" hidden>
+              <div class="mc-mega-grid">
+                <div class="mc-mega-col"><p class="mc-mega-title">Build with</p><a href="/keel-code">Keel Code</a><a href="/platform/api">Keel Platform</a><a href="/roadmap">Keel Ship</a></div>
+                <div class="mc-mega-col"><p class="mc-mega-title">For developers</p><a href="/requirements">Documentation</a><a href="/projects">Projects</a><a href="/notices">Developer blog</a></div>
+                <div class="mc-mega-col"><p class="mc-mega-title">Explore</p><a href="/login">Open the console</a><a href="/plugins">Plugins</a></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mc-nav-item" data-menu="enterprise">
+            <button class="mc-nav-link" type="button" aria-expanded="false" aria-controls="mc-mega-enterprise">Enterprise <svg class="mc-chevron" viewBox="0 0 16 16" aria-hidden="true"><use href="#mc-chevron" /></svg></button>
+            <div class="mc-mega" id="mc-mega-enterprise" role="group" aria-label="Enterprise menu" aria-hidden="true" hidden>
+              <div class="mc-mega-grid">
+                <div class="mc-mega-col"><p class="mc-mega-title">Enterprise</p><a href="/platform/api">Overview</a><a href="/keel-code">Keel Code for Enterprise</a><a href="/platform/api">Keel Platform</a></div>
+                <div class="mc-mega-col"><p class="mc-mega-title">Use cases</p><a href="/product/overview">Coding</a><a href="/product/overview">Commerce</a><a href="/product/overview">Customer support</a></div>
+              </div>
+              <div class="mc-mega-foot"><a href="mailto:hello@keel.dev">Contact sales</a></div>
+            </div>
+          </div>
+
+          <div class="mc-nav-item" data-menu="resources">
+            <button class="mc-nav-link" type="button" aria-expanded="false" aria-controls="mc-mega-resources">Resources <svg class="mc-chevron" viewBox="0 0 16 16" aria-hidden="true"><use href="#mc-chevron" /></svg></button>
+            <div class="mc-mega" id="mc-mega-resources" role="group" aria-label="Resources menu" aria-hidden="true" hidden>
+              <div class="mc-mega-grid">
+                <div class="mc-mega-col"><p class="mc-mega-title">Insights</p><a href="/resources/articles">Articles</a><a href="/notices">News</a><a href="/product/overview">Use cases</a></div>
+                <div class="mc-mega-col"><p class="mc-mega-title">Learn</p><a href="/requirements">Documentation</a><a href="/resources/articles">Tutorials</a></div>
+                <div class="mc-mega-col"><p class="mc-mega-title">Connect</p><a href="/notices">Events</a><a href="mailto:hello@keel.dev">Community</a></div>
+              </div>
+            </div>
+          </div>
+
+          <a class="mc-nav-link" href="/pricing">Pricing</a>
+          <a class="mc-nav-link" href="/login">Log in</a>
+          <a class="mc-btn mc-btn-sm mc-btn-outline" href="mailto:hello@keel.dev">Contact sales</a>
+          <a class="mc-btn mc-btn-sm mc-btn-dark" href="/login">Get Keel</a>
+        </div>
+
+        <button class="mc-menu-toggle" id="mc-menu-toggle" type="button" aria-expanded="false" aria-controls="mc-mobile-menu" aria-label="Open menu"><span></span><span></span><span></span></button>
+      </div>
+
+      <div class="mc-mobile-menu" id="mc-mobile-menu" hidden>
+        <a href="/product/overview">Product</a><a href="/platform/api">Developers</a><a href="/platform/api">Enterprise</a><a href="/resources/articles">Resources</a>
+        <a href="/pricing">Pricing</a><a href="/login">Log in</a><a href="mailto:hello@keel.dev">Contact sales</a><a href="/login">Get Keel</a>
+      </div>
+    </nav>
+
+    <div class="mc-subnav-wrap">
+      <div class="mc-subnav">
+        <nav class="mc-subnav-links" aria-label="Marketplace navigation">
+          <a href="/">Home</a>
+          <a href="/marketplace/connectors-plugins" aria-current="page">Connectors and plugins</a>
+          <a href="/product/overview">Agents and products</a>
+          <a href="/platform/api">Service partners</a>
+        </nav>
+        <button class="mc-icon-btn mc-subnav-search" id="mc-nav-search" type="button" aria-label="Search connectors" aria-controls="mc-search">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-icon-search" /></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <!-- ===================== hero ===================== -->
+    <section class="mc-hero" aria-labelledby="mc-hero-title">
+      <div class="mc-container mc-hero-inner">
+        <span class="mc-hero-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mc-store" /></svg></span>
+        <h1 class="mc-hero-title" id="mc-hero-title">Connectors and plugins</h1>
+        <p class="mc-hero-sub">Bring the tools you already use into every Keel conversation.</p>
+        <div class="mc-hero-actions">
+          <button class="mc-btn mc-btn-dark mc-btn-lg" type="button" data-submit="connector">Submit a connector</button>
+          <button class="mc-btn mc-btn-outline mc-btn-lg" type="button" data-submit="plugin">Submit a plugin</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== directory ===================== -->
+    <div class="mc-container mc-layout">
+      <aside class="mc-sidebar" aria-label="Directory filters">
+        <div class="mc-filter-card">
+          <div class="mc-filter-head">
+            <h2 class="mc-filter-title">Filter</h2>
+            <button class="mc-filter-clear" id="mc-clear-filters" type="button" hidden>Clear</button>
+          </div>
+          <fieldset class="mc-fieldset">
+            <legend class="mc-filter-legend">Category</legend>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Commerce &amp; shopping" /><span>Commerce &amp; shopping</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Communication" /><span>Communication</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Customer health" /><span>Customer health</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Data &amp; analytics" /><span>Data &amp; analytics</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Developer tools" /><span>Developer tools</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Education" /><span>Education</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Financial services" /><span>Financial services</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Health" /><span>Health</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Legal" /><span>Legal</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Media &amp; entertainment" /><span>Media &amp; entertainment</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Nonprofit" /><span>Nonprofit</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Other" /><span>Other</span></label>
+            <label class="mc-check"><input type="checkbox" name="mc-category" value="Productivity" /><span>Productivity</span></label>
+          </fieldset>
+        </div>
+      </aside>
+
+      <div class="mc-directory">
+        <div class="mc-controls">
+          <div class="mc-search">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-icon-search" /></svg>
+            <label class="mc-sr-only" for="mc-search">Search connectors</label>
+            <input id="mc-search" type="search" placeholder="Search connectors" autocomplete="off" />
+          </div>
+          <div class="mc-sort">
+            <label for="mc-sort">Sort:</label>
+            <select id="mc-sort">
+              <option value="recommended" selected>Recommended</option>
+              <option value="name">Name A–Z</option>
+              <option value="newest">Newest</option>
+            </select>
+            <svg class="mc-chevron" viewBox="0 0 16 16" aria-hidden="true"><use href="#mc-chevron" /></svg>
+          </div>
+          <a class="mc-text-link" href="#mc-all-connectors">Show all 725</a>
+        </div>
+
+        <p class="mc-active-filter" id="mc-active-filter" role="status" hidden></p>
+        <p class="mc-no-results" id="mc-no-results" role="status" hidden>No connectors match your search and filters. <button type="button" id="mc-no-results-clear">Clear filters</button></p>
+
+        <!-- ---------- Top connectors ---------- -->
+        <section class="mc-section" id="mc-top-connectors" aria-labelledby="mc-top-heading">
+          <div class="mc-section-head">
+            <h2 class="mc-section-title" id="mc-top-heading">Top connectors</h2>
+            <a class="mc-text-link" href="#mc-all-connectors">Show all 725</a>
+          </div>
+          <div class="mc-grid" data-grid>
+            <article class="mc-card mc-reveal" data-name="Google Drive" data-desc="Search, read, and upload files instantly" data-categories="Productivity|Data &amp; analytics" data-order="1" data-added="40">
+              <span class="mc-tile mc-tile--drive" aria-hidden="true">GD</span>
+              <button class="mc-add" type="button" data-add="Google Drive" aria-label="Install Google Drive in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Google Drive</h3><p class="mc-card-desc">Search, read, and upload files instantly</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Gmail" data-desc="Draft replies, summarize threads, and search your inbox" data-categories="Communication|Productivity" data-order="2" data-added="39">
+              <span class="mc-tile mc-tile--gmail" aria-hidden="true">GM</span>
+              <button class="mc-add" type="button" data-add="Gmail" aria-label="Install Gmail in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Gmail</h3><p class="mc-card-desc">Draft replies, summarize threads, and search your inbox</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Google Calendar" data-desc="Manage your schedule and coordinate meetings effortlessly" data-categories="Productivity" data-order="3" data-added="38">
+              <span class="mc-tile mc-tile--calendar" aria-hidden="true">GC</span>
+              <button class="mc-add" type="button" data-add="Google Calendar" aria-label="Install Google Calendar in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Google Calendar</h3><p class="mc-card-desc">Manage your schedule and coordinate meetings effortlessly</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Canva" data-desc="Search, create, autofill, and export Canva designs" data-categories="Media &amp; entertainment|Productivity" data-order="4" data-added="37">
+              <span class="mc-tile mc-tile--canva" aria-hidden="true">Ca</span>
+              <button class="mc-add" type="button" data-add="Canva" aria-label="Install Canva in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Canva</h3><p class="mc-card-desc">Search, create, autofill, and export Canva designs</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Notion" data-desc="Connect your Notion workspace to search, update, and power workflows" data-categories="Productivity" data-order="5" data-added="36">
+              <span class="mc-tile mc-tile--notion" aria-hidden="true">N</span>
+              <button class="mc-add" type="button" data-add="Notion" aria-label="Install Notion in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Notion</h3><p class="mc-card-desc">Connect your Notion workspace to search, update, and power workflows</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Microsoft 365" data-desc="Access SharePoint, OneDrive, Outlook, and Teams directly in Keel" data-categories="Productivity|Communication" data-order="6" data-added="35">
+              <span class="mc-tile mc-tile--m365" aria-hidden="true">M</span>
+              <button class="mc-add" type="button" data-add="Microsoft 365" aria-label="Install Microsoft 365 in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Microsoft 365</h3><p class="mc-card-desc">Access SharePoint, OneDrive, Outlook, and Teams directly in Keel</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Figma" data-desc="Generate diagrams and better code from Figma context" data-categories="Developer tools|Media &amp; entertainment" data-order="7" data-added="34">
+              <span class="mc-tile mc-tile--figma" aria-hidden="true">Fg</span>
+              <button class="mc-add" type="button" data-add="Figma" aria-label="Install Figma in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Figma</h3><p class="mc-card-desc">Generate diagrams and better code from Figma context</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Slack" data-desc="Send messages, create canvases, and fetch Slack data" data-categories="Communication|Productivity" data-order="8" data-added="33">
+              <span class="mc-tile mc-tile--slack" aria-hidden="true">Sl</span>
+              <button class="mc-add" type="button" data-add="Slack" aria-label="Install Slack in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Slack</h3><p class="mc-card-desc">Send messages, create canvases, and fetch Slack data</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Atlassian MCP" data-desc="Search, read, and update Jira, Confluence, and other Atlassian apps" data-categories="Developer tools|Productivity" data-order="9" data-added="32">
+              <span class="mc-tile mc-tile--atlassian" aria-hidden="true">At</span>
+              <button class="mc-add" type="button" data-add="Atlassian MCP" aria-label="Install Atlassian MCP in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Atlassian MCP</h3><p class="mc-card-desc">Search, read, and update Jira, Confluence, and other Atlassian apps</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="HubSpot" data-desc="CRM context for every answer, insight, and action" data-categories="Customer health|Data &amp; analytics" data-order="10" data-added="31">
+              <span class="mc-tile mc-tile--hubspot" aria-hidden="true">Hs</span>
+              <button class="mc-add" type="button" data-add="HubSpot" aria-label="Install HubSpot in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">HubSpot</h3><p class="mc-card-desc">CRM context for every answer, insight, and action</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Asana" data-desc="Connect to Asana to coordinate tasks, projects, and goals" data-categories="Productivity" data-order="11" data-added="30">
+              <span class="mc-tile mc-tile--asana" aria-hidden="true">As</span>
+              <button class="mc-add" type="button" data-add="Asana" aria-label="Install Asana in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Asana</h3><p class="mc-card-desc">Connect to Asana to coordinate tasks, projects, and goals</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Linear" data-desc="Manage issues, projects, and team workflows in Linear" data-categories="Developer tools|Productivity" data-order="12" data-added="29">
+              <span class="mc-tile mc-tile--linear" aria-hidden="true">Li</span>
+              <button class="mc-add" type="button" data-add="Linear" aria-label="Install Linear in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Linear</h3><p class="mc-card-desc">Manage issues, projects, and team workflows in Linear</p>
+            </article>
+          </div>
+        </section>
+
+        <!-- ---------- Top plugins ---------- -->
+        <section class="mc-section" id="mc-top-plugins" aria-labelledby="mc-plugins-heading">
+          <div class="mc-section-head">
+            <h2 class="mc-section-title" id="mc-plugins-heading">Top plugins</h2>
+            <a class="mc-text-link" href="/plugins">Show all</a>
+          </div>
+          <div class="mc-grid" data-grid>
+            <article class="mc-card mc-reveal" data-name="Frontend Design" data-desc="Frontend design skill for UI and UX implementation" data-categories="Developer tools|Media &amp; entertainment" data-order="1" data-added="28">
+              <span class="mc-tile mc-tile--plugin" aria-hidden="true">FD</span>
+              <button class="mc-add" type="button" data-add="Frontend Design" aria-label="Install Frontend Design plugin in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Frontend Design</h3><p class="mc-card-desc">Frontend design skill for UI and UX implementation</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Superpowers" data-desc="Core skills library for testing, debugging, and collaboration patterns" data-categories="Developer tools" data-order="2" data-added="27">
+              <span class="mc-tile mc-tile--plugin" aria-hidden="true">Sp</span>
+              <button class="mc-add" type="button" data-add="Superpowers" aria-label="Install Superpowers plugin in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Superpowers</h3><p class="mc-card-desc">Core skills library for testing, debugging, and collaboration patterns</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Code Review" data-desc="Automated code review for pull requests using specialized agents" data-categories="Developer tools" data-order="3" data-added="26">
+              <span class="mc-tile mc-tile--plugin" aria-hidden="true">CR</span>
+              <button class="mc-add" type="button" data-add="Code Review" aria-label="Install Code Review plugin in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Code Review</h3><p class="mc-card-desc">Automated code review for pull requests using specialized agents</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Context7" data-desc="Up-to-date documentation lookup for the libraries you use" data-categories="Developer tools" data-order="4" data-added="25">
+              <span class="mc-tile mc-tile--plugin" aria-hidden="true">C7</span>
+              <button class="mc-add" type="button" data-add="Context7" aria-label="Install Context7 plugin in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Context7</h3><p class="mc-card-desc">Up-to-date documentation lookup for the libraries you use</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Code Simplifier" data-desc="Refine code for clarity and consistency while preserving behaviour" data-categories="Developer tools" data-order="5" data-added="24">
+              <span class="mc-tile mc-tile--plugin" aria-hidden="true">CS</span>
+              <button class="mc-add" type="button" data-add="Code Simplifier" aria-label="Install Code Simplifier plugin in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Code Simplifier</h3><p class="mc-card-desc">Refine code for clarity and consistency while preserving behaviour</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Playwright" data-desc="Browser automation and end-to-end testing for web pages" data-categories="Developer tools" data-order="6" data-added="23">
+              <span class="mc-tile mc-tile--plugin" aria-hidden="true">Pw</span>
+              <button class="mc-add" type="button" data-add="Playwright" aria-label="Install Playwright plugin in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Playwright</h3><p class="mc-card-desc">Browser automation and end-to-end testing for web pages</p>
+            </article>
+          </div>
+        </section>
+
+        <!-- ---------- New connectors ---------- -->
+        <section class="mc-section" id="mc-new-connectors" aria-labelledby="mc-new-heading">
+          <div class="mc-section-head">
+            <h2 class="mc-section-title" id="mc-new-heading">New connectors</h2>
+            <a class="mc-text-link" href="#mc-new-connectors">Show all 5</a>
+          </div>
+          <div class="mc-grid" data-grid>
+            <article class="mc-card mc-reveal" data-name="Harvest" data-desc="Track time and review projects, budgets, and invoices in Harvest" data-categories="Productivity|Financial services" data-order="1" data-added="95">
+              <span class="mc-badge">New</span>
+              <span class="mc-tile mc-tile--harvest" aria-hidden="true">Hv</span>
+              <button class="mc-add" type="button" data-add="Harvest" aria-label="Install Harvest in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Harvest</h3><p class="mc-card-desc">Track time and review projects, budgets, and invoices in Harvest</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Copy Any Design" data-desc="Share a link or screenshot and get your own live website in that design" data-categories="Media &amp; entertainment|Productivity" data-order="2" data-added="94">
+              <span class="mc-badge">New</span>
+              <span class="mc-tile mc-tile--copy" aria-hidden="true">Cd</span>
+              <button class="mc-add" type="button" data-add="Copy Any Design" aria-label="Install Copy Any Design in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Copy Any Design</h3><p class="mc-card-desc">Share a link or screenshot and get your own live website in that design</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Instant Website" data-desc="Ask for a website and see a real one live on its own link in seconds" data-categories="Developer tools|Media &amp; entertainment" data-order="3" data-added="93">
+              <span class="mc-badge">New</span>
+              <span class="mc-tile mc-tile--website" aria-hidden="true">Iw</span>
+              <button class="mc-add" type="button" data-add="Instant Website" aria-label="Install Instant Website in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Instant Website</h3><p class="mc-card-desc">Ask for a website and see a real one live on its own link in seconds</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Domain for Any..." data-desc="Point a domain you own at any page with secure https, right from chat" data-categories="Developer tools|Other" data-order="4" data-added="92">
+              <span class="mc-badge">New</span>
+              <span class="mc-tile mc-tile--domain" aria-hidden="true">Dm</span>
+              <button class="mc-add" type="button" data-add="Domain for Any..." aria-label="Install Domain for Any... in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Domain for Any...</h3><p class="mc-card-desc">Point a domain you own at any page with secure https, right from chat</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Litter" data-desc="Compare documents with a legal-grade redline and search your firm's matters" data-categories="Legal|Productivity" data-order="5" data-added="91">
+              <span class="mc-badge">New</span>
+              <span class="mc-tile mc-tile--litter" aria-hidden="true">Lt</span>
+              <button class="mc-add" type="button" data-add="Litter" aria-label="Install Litter in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Litter</h3><p class="mc-card-desc">Compare documents with a legal-grade redline and search your firm's matters</p>
+            </article>
+          </div>
+        </section>
+
+        <!-- ---------- All connectors ---------- -->
+        <section class="mc-section" id="mc-all-connectors" aria-labelledby="mc-all-heading">
+          <div class="mc-section-head">
+            <h2 class="mc-section-title" id="mc-all-heading">All connectors</h2>
+            <span class="mc-count">725 connectors</span>
+          </div>
+          <div class="mc-grid" id="mc-all-grid" data-grid data-expanded="false">
+            <article class="mc-card mc-reveal" data-name="Google Drive" data-desc="Search, read, and upload files instantly" data-categories="Productivity|Data &amp; analytics" data-order="1" data-added="40">
+              <span class="mc-tile mc-tile--drive" aria-hidden="true">GD</span>
+              <button class="mc-add" type="button" data-add="Google Drive" aria-label="Install Google Drive in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Google Drive</h3><p class="mc-card-desc">Search, read, and upload files instantly</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Gmail" data-desc="Draft replies, summarize threads, and search your inbox" data-categories="Communication|Productivity" data-order="2" data-added="39">
+              <span class="mc-tile mc-tile--gmail" aria-hidden="true">GM</span>
+              <button class="mc-add" type="button" data-add="Gmail" aria-label="Install Gmail in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Gmail</h3><p class="mc-card-desc">Draft replies, summarize threads, and search your inbox</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Google Calendar" data-desc="Manage your schedule and coordinate meetings effortlessly" data-categories="Productivity" data-order="3" data-added="38">
+              <span class="mc-tile mc-tile--calendar" aria-hidden="true">GC</span>
+              <button class="mc-add" type="button" data-add="Google Calendar" aria-label="Install Google Calendar in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Google Calendar</h3><p class="mc-card-desc">Manage your schedule and coordinate meetings effortlessly</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Microsoft 365" data-desc="Access SharePoint, OneDrive, Outlook, and Teams directly in Keel" data-categories="Productivity|Communication" data-order="4" data-added="35">
+              <span class="mc-tile mc-tile--m365" aria-hidden="true">M</span>
+              <button class="mc-add" type="button" data-add="Microsoft 365" aria-label="Install Microsoft 365 in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Microsoft 365</h3><p class="mc-card-desc">Access SharePoint, OneDrive, Outlook, and Teams directly in Keel</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Canva" data-desc="Search, create, autofill, and export Canva designs" data-categories="Media &amp; entertainment|Productivity" data-order="5" data-added="37">
+              <span class="mc-tile mc-tile--canva" aria-hidden="true">Ca</span>
+              <button class="mc-add" type="button" data-add="Canva" aria-label="Install Canva in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Canva</h3><p class="mc-card-desc">Search, create, autofill, and export Canva designs</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Notion" data-desc="Connect your Notion workspace to search, update, and power workflows" data-categories="Productivity" data-order="6" data-added="36">
+              <span class="mc-tile mc-tile--notion" aria-hidden="true">N</span>
+              <button class="mc-add" type="button" data-add="Notion" aria-label="Install Notion in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Notion</h3><p class="mc-card-desc">Connect your Notion workspace to search, update, and power workflows</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Slack" data-desc="Send messages, create canvases, and fetch Slack data" data-categories="Communication|Productivity" data-order="7" data-added="33">
+              <span class="mc-tile mc-tile--slack" aria-hidden="true">Sl</span>
+              <button class="mc-add" type="button" data-add="Slack" aria-label="Install Slack in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Slack</h3><p class="mc-card-desc">Send messages, create canvases, and fetch Slack data</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Zoho Mail" data-desc="Zoho Mail MCP server for natural-language email access and management" data-categories="Communication" data-order="8" data-added="22">
+              <span class="mc-tile mc-tile--zoho" aria-hidden="true">Zm</span>
+              <button class="mc-add" type="button" data-add="Zoho Mail" aria-label="Install Zoho Mail in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Zoho Mail</h3><p class="mc-card-desc">Zoho Mail MCP server for natural-language email access and management</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Atlassian MCP" data-desc="Search, read, and update Jira, Confluence, and other Atlassian apps" data-categories="Developer tools|Productivity" data-order="9" data-added="32">
+              <span class="mc-tile mc-tile--atlassian" aria-hidden="true">At</span>
+              <button class="mc-add" type="button" data-add="Atlassian MCP" aria-label="Install Atlassian MCP in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Atlassian MCP</h3><p class="mc-card-desc">Search, read, and update Jira, Confluence, and other Atlassian apps</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Figma" data-desc="Generate diagrams and better code from Figma context" data-categories="Developer tools|Media &amp; entertainment" data-order="10" data-added="34" data-extra="true" hidden>
+              <span class="mc-tile mc-tile--figma" aria-hidden="true">Fg</span>
+              <button class="mc-add" type="button" data-add="Figma" aria-label="Install Figma in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Figma</h3><p class="mc-card-desc">Generate diagrams and better code from Figma context</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="HubSpot" data-desc="CRM context for every answer, insight, and action" data-categories="Customer health|Data &amp; analytics" data-order="11" data-added="31" data-extra="true" hidden>
+              <span class="mc-tile mc-tile--hubspot" aria-hidden="true">Hs</span>
+              <button class="mc-add" type="button" data-add="HubSpot" aria-label="Install HubSpot in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">HubSpot</h3><p class="mc-card-desc">CRM context for every answer, insight, and action</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Asana" data-desc="Coordinate tasks, projects, and goals without leaving the conversation" data-categories="Productivity" data-order="12" data-added="30" data-extra="true" hidden>
+              <span class="mc-tile mc-tile--asana" aria-hidden="true">As</span>
+              <button class="mc-add" type="button" data-add="Asana" aria-label="Install Asana in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Asana</h3><p class="mc-card-desc">Coordinate tasks, projects, and goals without leaving the conversation</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Linear" data-desc="Manage issues, projects, and team workflows in Linear" data-categories="Developer tools|Productivity" data-order="13" data-added="29" data-extra="true" hidden>
+              <span class="mc-tile mc-tile--linear" aria-hidden="true">Li</span>
+              <button class="mc-add" type="button" data-add="Linear" aria-label="Install Linear in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Linear</h3><p class="mc-card-desc">Manage issues, projects, and team workflows in Linear</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Box" data-desc="Search, edit, and get insights on your Box content" data-categories="Productivity|Data &amp; analytics" data-order="14" data-added="21" data-extra="true" hidden>
+              <span class="mc-tile mc-tile--box" aria-hidden="true">Bx</span>
+              <button class="mc-add" type="button" data-add="Box" aria-label="Install Box in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Box</h3><p class="mc-card-desc">Search, edit, and get insights on your Box content</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Granola" data-desc="Ask about your meeting notes, transcripts, and context" data-categories="Productivity" data-order="15" data-added="20" data-extra="true" hidden>
+              <span class="mc-tile mc-tile--granola" aria-hidden="true">Gr</span>
+              <button class="mc-add" type="button" data-add="Granola" aria-label="Install Granola in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Granola</h3><p class="mc-card-desc">Ask about your meeting notes, transcripts, and context</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Shopify" data-desc="Build, manage, and analyze your Shopify store" data-categories="Commerce &amp; shopping" data-order="16" data-added="19" data-extra="true" hidden>
+              <span class="mc-tile mc-tile--shopify" aria-hidden="true">Sh</span>
+              <button class="mc-add" type="button" data-add="Shopify" aria-label="Install Shopify in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Shopify</h3><p class="mc-card-desc">Build, manage, and analyze your Shopify store</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="Supabase" data-desc="Manage databases, authentication, and storage" data-categories="Developer tools|Data &amp; analytics" data-order="17" data-added="18" data-extra="true" hidden>
+              <span class="mc-tile mc-tile--supabase" aria-hidden="true">Su</span>
+              <button class="mc-add" type="button" data-add="Supabase" aria-label="Install Supabase in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">Supabase</h3><p class="mc-card-desc">Manage databases, authentication, and storage</p>
+            </article>
+            <article class="mc-card mc-reveal" data-name="OpusClip" data-desc="Turn long videos into short clips" data-categories="Media &amp; entertainment" data-order="18" data-added="17" data-extra="true" hidden>
+              <span class="mc-tile mc-tile--opusclip" aria-hidden="true">Op</span>
+              <button class="mc-add" type="button" data-add="OpusClip" aria-label="Install OpusClip in Keel"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-plus" /></svg></button>
+              <h3 class="mc-card-name">OpusClip</h3><p class="mc-card-desc">Turn long videos into short clips</p>
+            </article>
+          </div>
+          <button class="mc-view-more" id="mc-view-more" type="button" aria-controls="mc-all-grid" aria-expanded="false">View more</button>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================== dark footer ===================== -->
+  <footer class="mc-footer" id="mc-footer">
+    <div class="mc-container">
+      <div class="mc-footer-top">
+        <a class="mc-wordmark mc-footer-brand" href="/" aria-label="Keel home">
+          <svg class="mc-brand-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#mc-star" /></svg>
+          <span>Keel <span class="mc-wordmark-secondary">Marketplace</span></span>
+        </a>
+        <p class="mc-footer-tagline">Bring the tools you already use into every Keel conversation.</p>
+      </div>
+      <div class="mc-footer-grid">
+        <nav class="mc-footer-col" aria-label="Products">
+          <h2>Products</h2>
+          <a href="/">Keel</a><a href="/keel-code">Keel Code</a><a href="/cowork">Keel Cowork</a><a href="/platform/api">Keel Platform</a><a href="/features/artifacts">Artifacts</a><a href="/plugins">Plugins</a>
+        </nav>
+        <nav class="mc-footer-col" aria-label="Capabilities">
+          <h2>Capabilities</h2>
+          <a href="/features/artifacts">Artifacts</a><a href="/product/overview">Design</a><a href="/marketplace/connectors-plugins" aria-current="page">Connectors</a><a href="/plugins">Plugins</a>
+        </nav>
+        <nav class="mc-footer-col" aria-label="Developers">
+          <h2>Developers</h2>
+          <a href="/requirements">Documentation</a><a href="/platform/api">Platform API</a><a href="/projects">Projects</a><a href="/roadmap">Roadmap</a><a href="/login">Console</a>
+        </nav>
+        <nav class="mc-footer-col" aria-label="Company">
+          <h2>Company</h2>
+          <a href="/resources/articles">Articles</a><a href="/notices">News</a><a href="/product/overview">About Keel</a><a href="mailto:hello@keel.dev">Careers</a><a href="mailto:hello@keel.dev">Contact</a>
+        </nav>
+        <nav class="mc-footer-col" aria-label="Legal">
+          <h2>Legal</h2>
+          <a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/eula">EULA</a><a href="/trademark">Trademark</a><a href="/notices">Notices</a>
+        </nav>
+      </div>
+      <div class="mc-footer-bottom">
+        <span>KEEL 2026 All rights reserved.</span>
+        <div class="mc-lang-wrap">
+          <button class="mc-lang" id="mc-lang-button" type="button" aria-expanded="false" aria-controls="mc-lang-menu">English <svg class="mc-chevron" viewBox="0 0 16 16" aria-hidden="true"><use href="#mc-chevron" /></svg></button>
+          <div class="mc-lang-menu" id="mc-lang-menu" role="menu" aria-label="Language" hidden>
+            <button type="button" role="menuitemradio" aria-checked="true" data-lang="English">English</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-lang="Deutsch">Deutsch</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-lang="Español">Español</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-lang="Français">Français</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== honest install dialog ===================== -->
+  <dialog class="mc-dialog" id="mc-install-dialog" aria-labelledby="mc-install-title">
+    <div class="mc-dialog-inner">
+      <button class="mc-dialog-close" type="button" data-close-dialog aria-label="Close dialog"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-close" /></svg></button>
+      <span class="mc-dialog-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#mc-store" /></svg></span>
+      <h2 id="mc-install-title">Install this connector in the Keel desktop app</h2>
+      <p class="mc-dialog-copy">Connectors are added from inside Keel so the app can request only the permissions it needs. <strong id="mc-install-name">This connector</strong> has not been installed. Download the desktop app, or log in if you already have it, then find it in the Keel plugin directory.</p>
+      <div class="mc-dialog-actions">
+        <a class="mc-btn mc-btn-dark" href="/download">Download Keel</a>
+        <a class="mc-btn mc-btn-outline" href="/login">Log in</a>
+        <button class="mc-btn mc-btn-plain" type="button" data-close-dialog>Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ===================== local-only submission dialog ===================== -->
+  <dialog class="mc-dialog" id="mc-submit-dialog" aria-labelledby="mc-submit-title">
+    <div class="mc-dialog-inner">
+      <button class="mc-dialog-close" type="button" data-close-dialog aria-label="Close dialog"><svg viewBox="0 0 20 20" aria-hidden="true"><use href="#mc-close" /></svg></button>
+      <h2 id="mc-submit-title">Submit a connector</h2>
+      <p class="mc-dialog-copy">This form saves to this browser only. Nothing is uploaded to Keel and no submission is created on a server.</p>
+      <form id="mc-submit-form">
+        <label class="mc-field">Your name <input type="text" name="name" required autocomplete="name" /></label>
+        <label class="mc-field">Email <input type="email" name="email" required autocomplete="email" /></label>
+        <label class="mc-field">Name of the connector or plugin <input type="text" name="item" required /></label>
+        <label class="mc-field">Link <input type="url" name="url" placeholder="Paste a link" required /></label>
+        <label class="mc-field">Short description <textarea name="description" rows="3" required></textarea></label>
+        <button class="mc-btn mc-btn-dark" type="submit">Save on this device</button>
+      </form>
+      <p class="mc-submit-status" id="mc-submit-status" role="status" hidden></p>
+      <p class="mc-mail-note">Prefer email? <a id="mc-submit-mail" href="mailto:hello@keel.dev?subject=Keel%20Marketplace%20submission">Send your submission by email instead</a>.</p>
+    </div>
+  </dialog>
+</body>
+</html>
