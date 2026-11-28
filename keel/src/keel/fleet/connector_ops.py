@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -52,6 +53,10 @@ _PRESETS: dict[str, dict[str, Any]] = {
 }
 
 
+class ConnectorSettingsError(ValueError):
+    """Raised when connector settings cannot be safely read or updated."""
+
+
 def state_root() -> Path:
     return default_state_root()
 
@@ -64,18 +69,51 @@ def load_settings() -> dict[str, Any]:
     path = settings_path()
     try:
         # utf-8-sig tolerates the BOM PowerShell likes to insert
-        data = json.loads(path.read_text(encoding="utf-8-sig"))
-        return data if isinstance(data, dict) else {}
-    except (OSError, json.JSONDecodeError):
+        raw = path.read_text(encoding="utf-8-sig")
+    except FileNotFoundError:
         return {}
+    except OSError as exc:
+        raise ConnectorSettingsError("cannot read connector settings") from exc
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ConnectorSettingsError(
+            "connector settings contain invalid JSON; refusing to overwrite"
+        ) from exc
+    if not isinstance(data, dict):
+        raise ConnectorSettingsError(
+            "connector settings must be a JSON object; refusing to overwrite"
+        )
+    return data
 
 
 def atomic_dump(data: dict[str, Any]) -> None:
     path = settings_path()
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-    os.replace(tmp, path)
+    payload = json.dumps(data, indent=2, ensure_ascii=False)
+    fd, tmp_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    tmp = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        if os.name != "nt":
+            os.chmod(tmp, 0o600)
+        os.replace(tmp, path)
+        if os.name != "nt":
+            os.chmod(path, 0o600)
+    except BaseException:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+        try:
+            tmp.unlink()
+        except FileNotFoundError:
+            pass
+        raise
 
 
 def _github_wrapper() -> str:
@@ -180,8 +218,12 @@ def add_connector(name: str, command: str, args: list[str],
         raise ValueError("name and command are required")
     data = load_settings()
     servers = data.get("mcpServers")
-    if not isinstance(servers, dict):
+    if servers is None:
         servers = {}
+    elif not isinstance(servers, dict):
+        raise ConnectorSettingsError(
+            "mcpServers must be a JSON object; refusing to overwrite"
+        )
     spec: dict[str, Any] = {"command": command, "args": list(args or [])}
     if env:
         spec["env"] = {str(k): str(v) for k, v in env.items()}
@@ -194,8 +236,13 @@ def add_connector(name: str, command: str, args: list[str],
 def remove_connector(name: str) -> dict[str, Any]:
     data = load_settings()
     servers = data.get("mcpServers")
-    if isinstance(servers, dict):
-        servers.pop(name, None)
-        data["mcpServers"] = servers
-        atomic_dump(data)
+    if servers is None:
+        return list_configured()
+    if not isinstance(servers, dict):
+        raise ConnectorSettingsError(
+            "mcpServers must be a JSON object; refusing to overwrite"
+        )
+    servers.pop(name, None)
+    data["mcpServers"] = servers
+    atomic_dump(data)
     return list_configured()
