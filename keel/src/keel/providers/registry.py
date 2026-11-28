@@ -2,7 +2,9 @@
 
 Default chain (auto): openrouter -> google -> nvidia -> openai-compatible.
 Anthropic is opt-in only (--provider anthropic) — see the licensing review's
-OPEN-Q1; never a default.
+OPEN-Q1; never a default. Ollama is a local-only, no-key provider resolved
+only when explicitly selected (--provider ollama); it is never auto-selected
+and never probed unless the caller asks for it.
 """
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ from .anthropic import AnthropicAdapter
 from .base import CapabilityRecord, ProviderError, ProviderRequest
 from .gemini import GeminiAdapter
 from .model_client import ProviderModelClient
+from .ollama import OllamaAdapter, make_capability as make_ollama_capability
 from .openai_compatible import OpenAICompatibleAdapter
 from .. import settings_store
 from ..config_schema import validate as validate_settings
@@ -68,6 +71,19 @@ settings_store.apply_stored_keys()
 
 _AUTO_CHAIN = ("openrouter", "google", "nvidia", "openai-compatible")
 
+# Local, no-account providers are opt-in only. They are kept separate from
+# _PROVIDERS so the existing cloud provider listing/contract stays unchanged:
+# nothing here causes a local network call unless the caller names the
+# provider explicitly.
+_LOCAL_PROVIDERS: dict[str, CapabilityRecord] = {
+    "ollama": make_ollama_capability(),
+}
+
+
+def _lookup(name: str) -> CapabilityRecord | None:
+    """Resolve an explicit provider name (cloud or opt-in local)."""
+    return _PROVIDERS.get(name) or _LOCAL_PROVIDERS.get(name.lower())
+
 
 def _key_for(cap: CapabilityRecord) -> str:
     """Env wins; the settings-store key (explicitly saved by the user) is the
@@ -82,7 +98,7 @@ def _key_for(cap: CapabilityRecord) -> str:
 def capability(name: str | None) -> CapabilityRecord | None:
     if not name:
         return None
-    return _PROVIDERS.get(name.lower())
+    return _lookup(name.lower())
 
 
 def list_providers() -> list[dict]:
@@ -112,10 +128,15 @@ def list_providers() -> list[dict]:
 
 def build_adapter(name: str, *, api_key: str | None = None,
                   transport=None):
-    cap = _PROVIDERS.get(name)
+    name = name.lower()
+    cap = _lookup(name)
     if cap is None:
+        known = sorted({**_PROVIDERS, **_LOCAL_PROVIDERS})
         raise ProviderError(f"unknown provider {name!r} "
-                            f"(known: {', '.join(_PROVIDERS)})")
+                            f"(known: {', '.join(known)})")
+    if name == "ollama":
+        # Local provider: any supplied key is ignored, never stored or sent.
+        return OllamaAdapter(cap, transport=transport)
     if name == "anthropic":
         return AnthropicAdapter(cap, api_key=api_key or _key_for(cap),
                                 transport=transport)
@@ -133,10 +154,12 @@ def resolve_chain(requested: str | None) -> list[CapabilityRecord]:
     """Auto: first configured provider in the default chain; explicit: only it."""
     if requested and requested != "auto":
         name = requested.lower()
-        if name not in _PROVIDERS:
+        cap = _lookup(name)
+        if cap is None:
+            known = sorted({**_PROVIDERS, **_LOCAL_PROVIDERS})
             raise ProviderError(f"unknown provider {name!r} "
-                                f"(known: {', '.join(_PROVIDERS)} | auto)")
-        return [_PROVIDERS[name]]
+                                f"(known: {', '.join(known)} | auto)")
+        return [cap]
     chain = []
     for name in _AUTO_CHAIN:
         cap = _PROVIDERS.get(name)
@@ -154,11 +177,14 @@ def smoke(name: str, *, model: str | None = None,
           transport=None) -> dict:
     """One tiny live request; returns a report dict. Raises ProviderError."""
     name = name.lower()
-    if name not in _PROVIDERS:
+    cap = _lookup(name)
+    if cap is None:
         raise ProviderError(f"unknown provider {name!r}")
-    cap = _PROVIDERS[name]
     adapter = build_adapter(name, transport=transport)
     chosen_model = model or cap.default_model
+    if name == "ollama" and not chosen_model:
+        raise ProviderError("ollama requires an explicit model id "
+                            "(no fake fallback model is used)")
     t0 = time.monotonic()
     request = ProviderRequest(
         model=chosen_model,
@@ -179,7 +205,7 @@ def smoke(name: str, *, model: str | None = None,
         "base_url": cap.base_url,
         "text": "".join(text_parts),
         "latency_ms": latency_ms,
-        "key_source": f"env:{cap.env_var}",
+        "key_source": "local" if name == "ollama" else f"env:{cap.env_var}",
     }
 
 
@@ -212,7 +238,7 @@ def resolve_provider_model(identifier: str, *,
     if not provider and default_provider != "auto":
         provider = default_provider
 
-    cap = _PROVIDERS.get(provider) if provider else None
+    cap = _lookup(provider) if provider else None
     if provider and cap is None:
         if catalog_provider(provider) is not None:
             raise ProviderError(
@@ -220,7 +246,7 @@ def resolve_provider_model(identifier: str, *,
                 "but has no executable Keel runtime adapter")
         raise ProviderError(
             f"unknown provider {provider!r} "
-            f"(runnable: {', '.join(sorted(_PROVIDERS))})")
+            f"(runnable: {', '.join(sorted({**_PROVIDERS, **_LOCAL_PROVIDERS}))})")
 
     if cap is None:
         chain = resolve_chain(None)

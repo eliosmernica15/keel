@@ -90,6 +90,12 @@ class SessionConfig:
     read_only: bool = False
     # B2.1: run detected test/lint commands after a turn that changed files.
     auto_verify: bool = True
+    # X1.13 (optional): an in-process steering controller. When present, its
+    # cancel_event participates in cancellation and one STEER_AT_BOUNDARY
+    # message is injected at each tool boundary. When absent, run() behaves
+    # exactly as before. No import is required from callers; the controller is
+    # duck-typed so lightweight fakes work too.
+    steering: "SteeringController | None" = None
 
 
 @dataclass
@@ -162,6 +168,9 @@ class Session:
                              reserved_output=config.reserved_output)
         self.compaction = CompactionState()
         self.safety_stops = 0
+        # Exposed as a plain attribute so a controller can be attached before
+        # run() without changing __init__'s signature.
+        self.steering = getattr(config, "steering", None)
 
     def _session_dir(self) -> str:
         import os
@@ -396,9 +405,17 @@ class Session:
         mode = normalize_mode(self.config.permission_mode)
         events: list[dict] = []
         self._event_sink = events
+        steering = getattr(self, "steering", None)
         denials: list[dict] = []
         writer = TranscriptWriter(self._transcript_path(), self.fs)
         t0 = self.clock.monotonic()
+
+        def cancelled() -> bool:
+            """Operator Stop (existing seam) plus an attached steering abort."""
+            cancel_ev = getattr(self.config, "cancel_event", None)
+            if cancel_ev is not None and cancel_ev.is_set():
+                return True
+            return bool(getattr(steering, "cancelled", False))
 
         def emit(event: dict, transcript_entry: dict | None = None) -> None:
             events.append(event)
@@ -777,8 +794,7 @@ class Session:
         terminal_reason = "completed"
 
         while True:
-            cancel_ev = getattr(self.config, "cancel_event", None)
-            if cancel_ev is not None and cancel_ev.is_set():
+            if cancelled():
                 envelope = ev.result(subtype="success",
                                      session_id=self.config.session_id,
                                      uuid=self.ids.event_uuid(),
@@ -861,6 +877,11 @@ class Session:
             tool_use_ids: dict[int, str] = {}
             for idx, block in enumerate(blocks):
                 out_block = dict(block)
+                if steering is not None and block.get("type") == "text":
+                    try:
+                        steering.append_output(block.get("text", ""))
+                    except Exception:
+                        pass  # steering telemetry must never break the turn
                 if block.get("type") == "tool_use":
                     # provider-assigned ids win; fall back to a generated one
                     tool_use_ids[idx] = block.get("id") or \
@@ -910,8 +931,7 @@ class Session:
             tool_results = []
             block_indices = [i for i, b in enumerate(blocks)
                              if b.get("type") == "tool_use"]
-            cancel_ev = getattr(self.config, "cancel_event", None)
-            if cancel_ev is not None and cancel_ev.is_set():
+            if cancelled():
                 # skip all tool execution; the loop-top check turns this
                 # into the cancelled envelope on the next iteration
                 continue
@@ -1296,6 +1316,33 @@ class Session:
                                  "uuid": self.ids.event_uuid()})
                 messages.append({"role": "user", "content": tool_results,
                                  "uuid": self.ids.event_uuid()})
+                # X1.13: one steering message per tool boundary. QUEUE-mode
+                # messages are deliberately *not* touched here — they belong
+                # to the next turn and stay in the controller for the caller
+                # to drain. Only STEER_AT_BOUNDARY messages are delivered.
+                if steering is not None:
+                    try:
+                        injected = steering.poll_boundary()
+                    except Exception:
+                        injected = None  # steering must never break a turn
+                    if injected is not None:
+                        text = getattr(injected, "text", "")
+                        if isinstance(text, str) and text:
+                            content = "[steering] " + text
+                            messages.append({"role": "user", "content": content,
+                                             "uuid": self.ids.event_uuid()})
+                            try:
+                                emit(ev.system_informational(
+                                    text=content, session_id=self.config.session_id,
+                                    uuid=self.ids.event_uuid(),
+                                    timestamp=self.clock.now_iso(),
+                                    level="info"),
+                                    {"type": "system",
+                                     "subtype": "informational",
+                                     "content": content,
+                                     "sessionId": self.config.session_id})
+                            except Exception:
+                                pass  # observability is best-effort
                 continue
 
             final_text = "".join(b.get("text", "") for b in text_blocks)
