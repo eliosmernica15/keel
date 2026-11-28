@@ -124,7 +124,7 @@ test('each hub reuses the sticky four-column Product mega menu with real model l
   for (const hub of HUBS) {
     const html = HTMLS[hub];
     assert.ok(html.includes('<header class="l-header" id="nh-header">'), `${hub}: sticky header`);
-    const product = between(html, '<div class="l-mega" id="mega-product"', '</div>\n        </div>\n\n        <div class="l-nav-item" data-menu="developers">');
+    const product = between(html, '<div class="l-mega" id="mega-product"', 'id="mega-developers"');
     assert.equal(count(product, '<div class="l-mega-col">'), 4, `${hub}: four Product columns`);
     for (const model of ['mythos', 'opus', 'sonnet', 'haiku']) {
       assert.ok(html.includes(`href="/models/${model}"`), `${hub}: model link ${model}`);
