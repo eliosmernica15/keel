@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel for Microsoft 365 — Work without the window shuffle | Keel</title>
+  <meta name="description" content="Keel works inside Word, Excel, PowerPoint, and Outlook. Start your task in the app you already have open and take it with you." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/keel-for-microsoft-365" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f8f7f4" />
+  <link rel="stylesheet" href="/ui/m365.css" />
+  <script src="/ui/m365.js" defer></script>
+</head>
+<body class="m365-page">
+  <a class="m365-skip" href="#main">Skip to content</a>
+
+  <!-- Local SVG sprite: no external requests, no data URIs. -->
+  <svg class="m365-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="m365-i-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></symbol>
+    <symbol id="m365-i-doc" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6"/></symbol>
+    <symbol id="m365-i-mail" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18v12H3zM3 7l9 6 9-6"/></symbol>
+    <symbol id="m365-i-chart" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 20V4M4 20h16M8 16v-5m5 5V7m5 9v-8"/></symbol>
+    <symbol id="m365-i-pen" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 20l4-1 11-11-3-3L5 16l-1 4zM14 6l3 3"/></symbol>
+    <symbol id="m365-i-grid" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></symbol>
+    <symbol id="m365-i-cal" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/></symbol>
+    <symbol id="m365-i-voice" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM6 11a6 6 0 0 0 12 0M12 17v4m-3 0h6"/></symbol>
+    <symbol id="m365-i-folder" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M3 7h7l2 2h9v10H3zM3 7V4h6l2 2"/></symbol>
+    <symbol id="m365-i-eye" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+    <symbol id="m365-i-book" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 4h7a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H4zM20 4h-3a3 3 0 0 0-3 3v13a3 3 0 0 1 3-3h3z"/></symbol>
+    <symbol id="m365-i-lock" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M6 11h12v10H6zM9 11V8a3 3 0 0 1 6 0v3M12 15v2"/></symbol>
+    <symbol id="m365-i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></symbol>
+    <symbol id="m365-i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></symbol>
+    <symbol id="m365-i-chevron" viewBox="0 0 12 12"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M2 4l4 4 4-4"/></symbol>
+  </svg>
+
+  <!-- ============================== Header ============================== -->
+  <header class="m365-header" id="site-header">
+    <div class="m365-topline">
+      <div class="m365-container m365-topline-inner">
+        <a href="/keel-in-chrome">Extensions</a>
+        <span class="m365-crumb" aria-current="page">Keel for Microsoft 365</span>
+      </div>
+    </div>
+
+    <nav class="m365-nav" aria-label="Main navigation">
+      <div class="m365-container m365-nav-inner">
+        <a class="m365-brand" href="/" aria-label="Keel home">
+          <svg class="m365-brand-mark" aria-hidden="true" focusable="false"><use href="#m365-i-star" /></svg>
+          <span class="m365-brand-text">Keel</span>
+        </a>
+
+        <div class="m365-nav-main">
+          <div class="m365-nav-item" data-m365-mega>
+            <button class="m365-nav-trigger" type="button" data-m365-mega-trigger aria-expanded="false" aria-controls="m365-mega-product">
+              Product <svg class="m365-chevron" aria-hidden="true" focusable="false" viewBox="0 0 12 12"><use href="#m365-i-chevron" /></svg>
+            </button>
+            <div class="m365-mega" id="m365-mega-product" role="group" aria-label="Product menu">
+              <div class="m365-container">
+                <div class="m365-mega-grid">
+                  <div class="m365-mega-col">
+                    <p class="m365-mega-title">Products</p>
+                    <a class="m365-mega-link" href="/">Keel</a>
+                    <a class="m365-mega-link" href="/login">Keel Code</a>
+                    <a class="m365-mega-link" href="/login">Keel Cowork</a>
+                    <a class="m365-mega-link" href="/login">Keel Duet</a>
+                    <a class="m365-mega-link" href="/login">Keel Platform</a>
+                    <a class="m365-mega-link" href="/login">Keel Tag</a>
+                  </div>
+                  <div class="m365-mega-col">
+                    <p class="m365-mega-title">Capabilities</p>
+                    <a class="m365-mega-link" href="/login">Artifacts</a>
+                    <a class="m365-mega-link" href="/login">Design</a>
+                    <a class="m365-mega-link" href="/marketplace/plugins">Connectors</a>
+                    <a class="m365-mega-link" href="/marketplace/plugins">Plugins</a>
+                    <a class="m365-mega-link" href="/login">Skills</a>
+                  </div>
+                  <div class="m365-mega-col">
+                    <p class="m365-mega-title">Extensions</p>
+                    <a class="m365-mega-link" href="/keel-in-chrome">Keel in Chrome</a>
+                    <a class="m365-mega-link" href="/download">Keel for Google Workspace</a>
+                    <a class="m365-mega-link" href="/keel-for-microsoft-365">Keel for Microsoft 365</a>
+                  </div>
+                  <div class="m365-mega-col">
+                    <p class="m365-mega-title">Models</p>
+                    <a class="m365-mega-link" href="/">Mythos (including Fable) <span class="m365-ext" aria-hidden="true">↗</span></a>
+                    <a class="m365-mega-link" href="/">Opus <span class="m365-ext" aria-hidden="true">↗</span></a>
+                    <a class="m365-mega-link" href="/">Sonnet <span class="m365-ext" aria-hidden="true">↗</span></a>
+                    <a class="m365-mega-link" href="/">Haiku <span class="m365-ext" aria-hidden="true">↗</span></a>
+                  </div>
+                </div>
+                <div class="m365-mega-foot">
+                  <a class="m365-mega-link" href="/login">Import to Keel</a>
+                  <a class="m365-mega-link" href="/download">Download apps <span aria-hidden="true">↓</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <a class="m365-nav-link" href="/login">Developers</a>
+          <a class="m365-nav-link" href="/login">Enterprise</a>
+          <a class="m365-nav-link" href="/roadmap">Resources</a>
+          <a class="m365-nav-link" href="/">Pricing</a>
+        </div>
+
+        <div class="m365-nav-actions">
+          <a class="m365-nav-login" href="/login">Log in</a>
+          <a class="m365-btn m365-btn-ghost" href="/requirements">Contact sales</a>
+          <button class="m365-btn m365-btn-dark" type="button" data-m365-dialog-open="get">Get Keel</button>
+        </div>
+
+        <button class="m365-nav-toggle" type="button" data-m365-nav-toggle aria-expanded="false" aria-controls="m365-mobile-menu" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
+      <div class="m365-mobile-menu" id="m365-mobile-menu">
+        <a href="/">Product</a>
+        <a href="/login">Developers</a>
+        <a href="/login">Enterprise</a>
+        <a href="/roadmap">Resources</a>
+        <a href="/">Pricing</a>
+        <a href="/keel-in-chrome">Keel in Chrome</a>
+        <a href="/keel-for-microsoft-365">Keel for Microsoft 365</a>
+        <a href="/login">Log in</a>
+        <a href="/requirements">Contact sales</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- =============================== Hero =============================== -->
+    <section class="m365-section m365-hero" id="top" aria-labelledby="m365-hero-title">
+      <div class="m365-container m365-hero-grid">
+        <div class="m365-hero-copy m365-reveal">
+          <p class="m365-eyebrow">Keel for Microsoft 365</p>
+          <h1 id="m365-hero-title">Work without the window shuffle</h1>
+          <p class="m365-hero-sub">Keel is available inside Word, Excel, PowerPoint, and Outlook. Start your task in the app and take it with you.</p>
+          <div class="m365-hero-actions">
+            <button class="m365-btn m365-btn-dark m365-btn-lg" type="button" data-m365-dialog-open="get">Get Keel for Microsoft 365</button>
+            <button class="m365-btn m365-btn-outline m365-btn-lg" type="button" data-m365-dialog-open="outlook">Sign in to Outlook</button>
+          </div>
+          <p class="m365-hero-foot">One task, from the document to the conversation.</p>
+        </div>
+
+        <div class="m365-hero-visual m365-reveal" aria-hidden="true">
+          <div class="m365-note">
+            <span class="m365-note-tape"></span>
+            <span class="m365-note-label">FROM YOUR DESK</span>
+            <svg class="m365-squiggle" viewBox="0 0 260 96" focusable="false">
+              <path d="M8 58c17-27 33-31 47-14 12 15 4 37-8 34-13-4-7-31 14-34 24-4 38 18 57 13 17-5 19-29 36-31 15-2 20 19 36 19 15 0 24-14 42-13 16 1 27 11 38 8" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M198 83c14 6 29 5 44-2" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+            </svg>
+            <div class="m365-note-lines"><span></span><span></span><span></span></div>
+            <span class="m365-note-tag">Keel <svg viewBox="0 0 24 24" focusable="false"><use href="#m365-i-check" /></svg></span>
+          </div>
+          <div class="m365-app-chips">
+            <span><b>W</b> Word</span><span><b>X</b> Excel</span><span><b>P</b> PowerPoint</span><span><b>O</b> Outlook</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== How teams use Keel ==================== -->
+    <section class="m365-section m365-use" id="use" aria-labelledby="m365-use-title">
+      <div class="m365-container">
+        <div class="m365-section-head m365-reveal">
+          <h2 id="m365-use-title">How teams use Keel for Microsoft 365</h2>
+          <h3>Create and review files with Keel in Microsoft 365</h3>
+          <p>Ask for what you need in the app, then review the result before it becomes part of the file, the sheet, or the reply.</p>
+        </div>
+
+        <div class="m365-video m365-reveal">
+          <div class="m365-video-window">
+            <div class="m365-video-bar" aria-hidden="true">
+              <span class="m365-app-tile">W</span>
+              <span class="m365-video-app">Word</span>
+              <span class="m365-ribbon"><i></i><i></i><i></i><i></i></span>
+              <span class="m365-video-keel"><svg viewBox="0 0 24 24" focusable="false"><use href="#m365-i-star" /></svg> Keel</span>
+            </div>
+            <div class="m365-video-stage">
+              <div class="m365-video-doc" aria-hidden="true">
+                <span class="m365-doc-kicker">PROJECT BRIEF / DRAFT</span>
+                <p class="m365-doc-title">Q4 launch brief</p>
+                <div class="m365-doc-lines"><span></span><span></span><span></span><span></span></div>
+                <div class="m365-doc-table"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <div class="m365-doc-lines short"><span></span><span></span></div>
+              </div>
+              <div class="m365-video-side" aria-hidden="true">
+                <div class="m365-video-side-head"><svg viewBox="0 0 24 24" focusable="false"><use href="#m365-i-star" /></svg><strong>Keel</strong></div>
+                <p class="m365-video-msg-user">Draft the brief from my notes.</p>
+                <div class="m365-video-msg-keel"><span class="m365-video-bubble"></span><span class="m365-video-bubble short"></span><span class="m365-video-chip">Ready to review</span></div>
+                <div class="m365-video-compose"><span>Ask Keel…</span><span class="m365-video-send">↑</span></div>
+              </div>
+              <button class="m365-play" type="button" data-m365-dialog-open="story" aria-label="Play the walkthrough storyboard">
+                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><use href="#m365-i-play" /></svg>
+              </button>
+            </div>
+          </div>
+          <p class="m365-video-caption">A short walkthrough: from a blank document to a reviewed draft, without leaving the app.
+            <button class="m365-inline-btn" type="button" data-m365-dialog-open="story">View the step-by-step storyboard</button>
+          </p>
+        </div>
+
+        <div class="m365-task-grid">
+          <article class="m365-task-card m365-reveal">
+            <span class="m365-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-doc" /></svg></span>
+            <h3>Type a prompt to create a file</h3>
+            <p>Describe the document you need and review a first draft right where your team already writes.</p>
+            <a class="m365-learn" href="/login">Learn more <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="m365-task-card m365-reveal">
+            <span class="m365-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-mail" /></svg></span>
+            <h3>Clean up your inbox with prompts</h3>
+            <p>Sort the noise, find what needs a reply, and keep you in charge of anything that gets sent.</p>
+            <a class="m365-learn" href="/login">Learn more <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="m365-task-card m365-reveal">
+            <span class="m365-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-chart" /></svg></span>
+            <h3>Build a monthly tracker without a formula</h3>
+            <p>Ask for the columns and totals you want, then check the sheet before you share it.</p>
+            <a class="m365-learn" href="/marketplace/plugins">Learn more <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="m365-task-card m365-reveal">
+            <span class="m365-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-pen" /></svg></span>
+            <h3>Draft your response in Keel</h3>
+            <p>Turn a long thread into a clear answer in your own voice, ready for you to review and send.</p>
+            <a class="m365-learn" href="/login">Learn more <span aria-hidden="true">↗</span></a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= Trust inside 365 ======================= -->
+    <section class="m365-section m365-trust" id="trust" aria-labelledby="m365-trust-title">
+      <div class="m365-container">
+        <div class="m365-section-head m365-reveal">
+          <h2 id="m365-trust-title">The Keel you trust, inside Microsoft 365</h2>
+          <p>Useful help should still be your help. You decide what Keel can see, what it can do, and what leaves the app.</p>
+        </div>
+
+        <div class="m365-trust-wrap">
+          <div class="m365-trust-grid">
+            <article class="m365-trust-item m365-reveal">
+              <span class="m365-trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-eye" /></svg></span>
+              <h3>Every action is visible</h3>
+              <p>See what Keel read and what it changed in the file, with the original still there to compare.</p>
+            </article>
+            <article class="m365-trust-item m365-reveal">
+              <span class="m365-trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-book" /></svg></span>
+              <h3>Your examples and knowledge</h3>
+              <p>Give Keel the documents and style rules your team already uses, and keep them tied to your work.</p>
+            </article>
+            <article class="m365-trust-item m365-reveal">
+              <span class="m365-trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-lock" /></svg></span>
+              <h3>Enterprise security</h3>
+              <p>Access follows your Microsoft 365 identity and your organization's existing policies.</p>
+            </article>
+          </div>
+
+          <aside class="m365-admin-card m365-reveal" aria-label="Microsoft 365 admin controls">
+            <span class="m365-admin-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-star" /></svg></span>
+            <h3>Microsoft 365 admin controls</h3>
+            <p>Choose who can use Keel and what it can reach across your tenant.</p>
+            <button class="m365-btn m365-btn-dark" type="button" data-m365-dialog-open="admin">Show demo</button>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= Customers ========================= -->
+    <section class="m365-section m365-customers" id="customers" aria-labelledby="m365-customers-title">
+      <div class="m365-container">
+        <div class="m365-section-head m365-reveal">
+          <h2 id="m365-customers-title">What customers are saying</h2>
+        </div>
+        <div class="m365-quote-grid">
+          <article class="m365-quote-card m365-reveal">
+            <span class="m365-quote-mark" aria-hidden="true">“</span>
+            <blockquote>People can stay in the document they were already writing. The work moves forward without a dozen windows open.</blockquote>
+            <p class="m365-quote-person">Team lead, product design</p>
+            <p class="m365-quote-company">Deloitte</p>
+            <a class="m365-learn" href="/resources/articles">Read the full story <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="m365-quote-card m365-reveal">
+            <span class="m365-quote-mark" aria-hidden="true">“</span>
+            <blockquote>Cleaning up the inbox and drafting replies in one place gave our teams back time they didn't know they were losing.</blockquote>
+            <p class="m365-quote-person">Operations manager</p>
+            <p class="m365-quote-company">Rackspace</p>
+            <a class="m365-learn" href="/resources/articles">Read the full story <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="m365-quote-card m365-reveal">
+            <span class="m365-quote-mark" aria-hidden="true">“</span>
+            <blockquote>Analysts can ask for the tracker they need in plain language, then check the numbers before anyone sees them.</blockquote>
+            <p class="m365-quote-person">Research director</p>
+            <p class="m365-quote-company">Thomson</p>
+            <a class="m365-learn" href="/resources/articles">Read the full story <span aria-hidden="true">↗</span></a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Deliberate breathing room ==================== -->
+    <section class="m365-space" id="space" aria-hidden="true">
+      <div class="m365-container"><span class="m365-space-rule"></span></div>
+    </section>
+
+    <!-- ====================== Core capabilities ====================== -->
+    <section class="m365-section m365-cap" id="capabilities" aria-labelledby="m365-cap-title">
+      <div class="m365-container">
+        <div class="m365-section-head m365-reveal">
+          <h2 id="m365-cap-title">Core capabilities across the apps you use every day</h2>
+          <p>One set of habits, wherever the work happens.</p>
+        </div>
+        <div class="m365-cap-grid">
+          <article class="m365-cap-card m365-reveal">
+            <span class="m365-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-grid" /></svg></span>
+            <h3>Connect to available Microsoft apps</h3>
+            <p>Bring Keel into the apps your organization already has, with the same account and the same rules.</p>
+          </article>
+          <article class="m365-cap-card m365-reveal">
+            <span class="m365-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-cal" /></svg></span>
+            <h3>Appointments through your calendar</h3>
+            <p>Find a time and draft the invitation from the calendar you already keep.</p>
+          </article>
+          <article class="m365-cap-card m365-reveal">
+            <span class="m365-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-pen" /></svg></span>
+            <h3>Write and document with the conversation</h3>
+            <p>Turn a back-and-forth into a draft you can edit, keep, and share.</p>
+          </article>
+          <article class="m365-cap-card m365-reveal">
+            <span class="m365-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-chart" /></svg></span>
+            <h3>Type multiple tabs in Excel</h3>
+            <p>Describe the sheets you need and review the structure before you rely on it.</p>
+          </article>
+          <article class="m365-cap-card m365-reveal">
+            <span class="m365-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-voice" /></svg></span>
+            <h3>Type with voice or text to format a form</h3>
+            <p>Say or write the fields you want, then shape the form until it fits the job.</p>
+          </article>
+          <article class="m365-cap-card m365-reveal">
+            <span class="m365-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#m365-i-folder" /></svg></span>
+            <h3>Access workspaces</h3>
+            <p>Keep related files, notes, and conversations together so a task can continue later.</p>
+          </article>
+        </div>
+        <div class="m365-cap-foot m365-reveal">
+          <a class="m365-btn m365-btn-outline" href="/product/overview">Explore the product <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================== FAQ =============================== -->
+    <section class="m365-section m365-faq" id="faq" aria-labelledby="m365-faq-title">
+      <div class="m365-container">
+        <div class="m365-section-head m365-reveal">
+          <h2 id="m365-faq-title">FAQ</h2>
+        </div>
+        <div class="m365-faq-list m365-reveal">
+          <div class="m365-faq-item">
+            <h3><button class="m365-faq-q" type="button" id="m365-faq-q-1" data-m365-faq aria-expanded="false" aria-controls="m365-faq-a-1"><span>Where is this available?</span><span class="m365-faq-sign" aria-hidden="true">+</span></button></h3>
+            <div class="m365-faq-a" id="m365-faq-a-1" role="region" aria-labelledby="m365-faq-q-1" hidden><p>Keel for Microsoft 365 is designed for Word, Excel, PowerPoint, and Outlook. Availability depends on your organization's plan and tenant settings; check the requirements page for the current list and ask your administrator if a product is missing.</p></div>
+          </div>
+          <div class="m365-faq-item">
+            <h3><button class="m365-faq-q" type="button" id="m365-faq-q-2" data-m365-faq aria-expanded="false" aria-controls="m365-faq-a-2"><span>How does Keel change my Office experience?</span><span class="m365-faq-sign" aria-hidden="true">+</span></button></h3>
+            <div class="m365-faq-a" id="m365-faq-a-2" role="region" aria-labelledby="m365-faq-q-2" hidden><p>It adds an assistant beside the file or message you have open. Your documents, menus, and shortcuts stay where they are. Keel drafts and suggests; you review every change before it is saved or sent.</p></div>
+          </div>
+          <div class="m365-faq-item">
+            <h3><button class="m365-faq-q" type="button" id="m365-faq-q-3" data-m365-faq aria-expanded="false" aria-controls="m365-faq-a-3"><span>Can I add Keel to the app without changing my tenant?</span><span class="m365-faq-sign" aria-hidden="true">+</span></button></h3>
+            <div class="m365-faq-a" id="m365-faq-a-3" role="region" aria-labelledby="m365-faq-q-3" hidden><p>You can use your Keel account in the app without an administrator changing your tenant. Organization-wide deployment, consent, and app-level policies are handled by your Microsoft 365 admin.</p></div>
+          </div>
+          <div class="m365-faq-item">
+            <h3><button class="m365-faq-q" type="button" id="m365-faq-q-4" data-m365-faq aria-expanded="false" aria-controls="m365-faq-a-4"><span>Can Keel work in Excel without me being in Teams?</span><span class="m365-faq-sign" aria-hidden="true">+</span></button></h3>
+            <div class="m365-faq-a" id="m365-faq-a-4" role="region" aria-labelledby="m365-faq-q-4" hidden><p>Yes. Open Excel on its own, open the Keel pane from the toolbar, and ask for the sheet or analysis you need. Teams is not required, though a Keel session can move there later if you want to work with colleagues.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =============================== Footer =============================== -->
+  <footer class="m365-footer">
+    <div class="m365-container">
+      <div class="m365-cta m365-reveal" id="get-started">
+        <svg class="m365-cta-mark" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#m365-i-star" /></svg>
+        <h2>Get started with Keel for Microsoft 365</h2>
+        <p>Start in the app you already have open.</p>
+        <div class="m365-cta-actions">
+          <button class="m365-btn m365-btn-light m365-btn-lg" type="button" data-m365-dialog-open="get">Get Keel for Microsoft 365</button>
+          <button class="m365-btn m365-btn-outline-light m365-btn-lg" type="button" data-m365-dialog-open="docs">Read the docs</button>
+        </div>
+      </div>
+
+      <div class="m365-footer-grid">
+        <div class="m365-footer-brand">
+          <a class="m365-brand m365-brand-footer" href="/" aria-label="Keel home">
+            <svg class="m365-brand-mark" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#m365-i-star" /></svg>
+            <span class="m365-brand-text">Keel</span>
+          </a>
+          <p>Keel for Microsoft 365, right where you work.</p>
+          <button class="m365-btn m365-btn-outline-light" type="button" data-m365-dialog-open="get">Get Keel for Microsoft 365</button>
+        </div>
+        <div class="m365-footer-col"><h3>Products</h3><ul>
+          <li><a href="/">Keel</a></li><li><a href="/login">Keel Code</a></li><li><a href="/login">Keel Cowork</a></li><li><a href="/login">Keel Duet</a></li><li><a href="/login">Keel Platform</a></li><li><a href="/download">Download app</a></li>
+        </ul></div>
+        <div class="m365-footer-col"><h3>Capabilities</h3><ul>
+          <li><a href="/login">Artifacts</a></li><li><a href="/login">Design</a></li><li><a href="/marketplace/plugins">Connectors</a></li><li><a href="/marketplace/plugins">Plugins</a></li><li><a href="/login">Skills</a></li>
+        </ul></div>
+        <div class="m365-footer-col"><h3>Extensions</h3><ul>
+          <li><a href="/keel-in-chrome">Keel in Chrome</a></li><li><a href="/download">Keel for Google Workspace</a></li><li><a href="/keel-for-microsoft-365">Keel for Microsoft 365</a></li>
+        </ul></div>
+        <div class="m365-footer-col"><h3>Resources</h3><ul>
+          <li><a href="/resources/articles">Articles</a></li><li><a href="/roadmap">Webinars</a></li><li><a href="/projects">Projects</a></li><li><a href="/marketplace/plugins">Marketplace</a></li><li><a href="/requirements">Support</a></li>
+        </ul></div>
+        <div class="m365-footer-col"><h3>Company</h3><ul>
+          <li><a href="/">About Keel</a></li><li><a href="/requirements">Careers</a></li><li><a href="/roadmap">News</a></li><li><a href="/requirements">Contact sales</a></li>
+        </ul></div>
+        <div class="m365-footer-col"><h3>Legal</h3><ul>
+          <li><a href="/privacy">Privacy policy</a></li><li><a href="/eula">Terms of service</a></li><li><a href="/terms">Usage policy</a></li><li><a href="/privacy">Responsible disclosure</a></li>
+        </ul></div>
+      </div>
+
+      <div class="m365-footer-bar">
+        <span class="m365-copyright">© 2026 Keel. All rights reserved.</span>
+        <div class="m365-socials">
+          <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="X">X</a>
+          <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">in</a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">GitHub</a>
+          <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube">YouTube</a>
+        </div>
+        <label class="m365-lang"><span class="m365-sr-only">Language</span>
+          <select data-m365-language>
+            <option value="en" selected>English</option>
+            <option value="ja">日本語</option>
+            <option value="de">Deutsch</option>
+            <option value="fr">Français</option>
+            <option value="ko">한국어</option>
+            <option value="it">Italiano</option>
+            <option value="es">Español</option>
+          </select>
+        </label>
+        <span class="m365-lang-status" id="m365-lang-status" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Local dialogs: no external forms, no fake sign-in, no automatic install. -->
+  <div class="m365-dialog" id="m365-dialog" role="dialog" aria-modal="true" aria-labelledby="m365-dialog-title" hidden>
+    <div class="m365-dialog-card">
+      <button class="m365-dialog-close" type="button" data-m365-dialog-close aria-label="Close dialog">×</button>
+      <div id="m365-dialog-content"></div>
+    </div>
+  </div>
+
+  <template id="m365-tpl-get">
+    <h2 id="m365-dialog-title">Get Keel for Microsoft 365</h2>
+    <p class="m365-dialog-lead">The add-in is not published yet. Nothing is installed and no tenant setting is changed from this page. Here is what you can do today.</p>
+    <ol class="m365-dialog-steps">
+      <li>Sign in with your Keel account to keep your work with you.</li>
+      <li>Check the requirements page for supported apps and account needs.</li>
+      <li>Ask your Microsoft 365 admin about tenant deployment and consent.</li>
+    </ol>
+    <p class="m365-dialog-note">No payment and no automatic install. You decide when and where to add Keel.</p>
+    <div class="m365-dialog-actions">
+      <a class="m365-btn m365-btn-dark" href="/login">Sign in to Keel</a>
+      <a class="m365-btn m365-btn-ghost" href="/requirements">View requirements</a>
+      <button class="m365-btn m365-btn-ghost" type="button" data-m365-dialog-close>Got it</button>
+    </div>
+  </template>
+
+  <template id="m365-tpl-outlook">
+    <h2 id="m365-dialog-title">Sign in to Outlook</h2>
+    <p class="m365-dialog-lead">This page cannot sign you in to Microsoft. Use your organization account in Outlook, then open the Keel pane from the toolbar and sign in with your Keel account.</p>
+    <ol class="m365-dialog-steps">
+      <li>Open Outlook with the work account your organization provides.</li>
+      <li>Open the Keel pane from the add-in toolbar.</li>
+      <li>Sign in with your Keel account at the link below, then return to the pane.</li>
+    </ol>
+    <div class="m365-dialog-actions">
+      <a class="m365-btn m365-btn-dark" href="/login">Go to Keel sign in</a>
+      <a class="m365-btn m365-btn-ghost" href="/requirements">Need access? Contact us</a>
+      <button class="m365-btn m365-btn-ghost" type="button" data-m365-dialog-close>Got it</button>
+    </div>
+  </template>
+
+  <template id="m365-tpl-story">
+    <h2 id="m365-dialog-title">Walkthrough: create and review a file</h2>
+    <p class="m365-dialog-lead">A storyboard of the workflow shown above. No video file is bundled with this page.</p>
+    <div class="m365-story" data-m365-story>
+      <div class="m365-story-frame" aria-hidden="true"><span class="m365-story-mark"><svg viewBox="0 0 24 24" focusable="false"><use href="#m365-i-star" /></svg></span><span class="m365-story-line"></span><span class="m365-story-line short"></span></div>
+      <p class="m365-story-text" data-m365-story-text aria-live="polite"></p>
+      <div class="m365-story-actions">
+        <button class="m365-btn m365-btn-ghost" type="button" data-m365-story-step="-1">Previous</button>
+        <span class="m365-story-count" data-m365-story-count></span>
+        <button class="m365-btn m365-btn-dark" type="button" data-m365-story-step="1">Next</button>
+      </div>
+    </div>
+    <div class="m365-dialog-actions">
+      <a class="m365-btn m365-btn-ghost" href="/login">Try with your account</a>
+      <button class="m365-btn m365-btn-ghost" type="button" data-m365-dialog-close>Close</button>
+    </div>
+  </template>
+
+  <template id="m365-tpl-admin">
+    <h2 id="m365-dialog-title">Microsoft 365 admin controls</h2>
+    <p class="m365-dialog-lead">A short demo of the controls an administrator uses. These are the steps, not a live tenant console.</p>
+    <div class="m365-demo" data-m365-demo>
+      <div class="m365-demo-tabs" role="tablist" aria-label="Admin control demo">
+        <button class="m365-demo-tab is-active" type="button" role="tab" id="m365-demo-tab-assign" data-m365-demo-tab="assign" aria-selected="true" aria-controls="m365-demo-panel-assign">Assign users</button>
+        <button class="m365-demo-tab" type="button" role="tab" id="m365-demo-tab-consent" data-m365-demo-tab="consent" aria-selected="false" aria-controls="m365-demo-panel-consent" tabindex="-1">Manage consent</button>
+        <button class="m365-demo-tab" type="button" role="tab" id="m365-demo-tab-review" data-m365-demo-tab="review" aria-selected="false" aria-controls="m365-demo-panel-review" tabindex="-1">Review activity</button>
+      </div>
+      <div class="m365-demo-panels">
+        <div class="m365-demo-panel" id="m365-demo-panel-assign" data-m365-demo-panel="assign" role="tabpanel" aria-labelledby="m365-demo-tab-assign"><p>Choose the people or groups who can open Keel in Word, Excel, PowerPoint, and Outlook. Remove access at any time without changing their Microsoft account.</p></div>
+        <div class="m365-demo-panel" id="m365-demo-panel-consent" data-m365-demo-panel="consent" role="tabpanel" aria-labelledby="m365-demo-tab-consent" hidden><p>Decide which app permissions Keel may request and record consent in line with your organization's policy. Ask your admin to review the scope before rollout.</p></div>
+        <div class="m365-demo-panel" id="m365-demo-panel-review" data-m365-demo-panel="review" role="tabpanel" aria-labelledby="m365-demo-tab-review" hidden><p>Review a simple activity list: who used Keel, which app they used it in, and what changed in a document. Export the list for your own records.</p></div>
+      </div>
+    </div>
+    <div class="m365-dialog-actions">
+      <a class="m365-btn m365-btn-dark" href="/requirements">Talk to our team</a>
+      <button class="m365-btn m365-btn-ghost" type="button" data-m365-dialog-close>Close</button>
+    </div>
+  </template>
+
+  <template id="m365-tpl-docs">
+    <h2 id="m365-dialog-title">Read the docs</h2>
+    <p class="m365-dialog-lead">Documentation is spread across the pages you can already reach from this site. Pick a starting point below.</p>
+    <ol class="m365-dialog-steps">
+      <li>Product overview: what Keel does and how the apps fit together.</li>
+      <li>Requirements: supported apps, accounts, and tenant considerations.</li>
+      <li>Articles: short guides and walkthroughs for everyday tasks.</li>
+    </ol>
+    <div class="m365-dialog-actions">
+      <a class="m365-btn m365-btn-dark" href="/product/overview">Product overview</a>
+      <a class="m365-btn m365-btn-ghost" href="/requirements">Requirements</a>
+      <a class="m365-btn m365-btn-ghost" href="/resources/articles">Articles</a>
+      <button class="m365-btn m365-btn-ghost" type="button" data-m365-dialog-close>Close</button>
+    </div>
+  </template>
+</body>
+</html>
