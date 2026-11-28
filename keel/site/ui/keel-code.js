@@ -45,10 +45,34 @@
     var el = document.getElementById(id);
     if (!el || typeof el.scrollIntoView !== 'function') return;
     try {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
     } catch (error) {
       try { el.scrollIntoView(); } catch (ignored) { /* no scroll API */ }
     }
+  }
+
+  /* Motion is opt-in. Reveals only run when IntersectionObserver exists and
+     the visitor has not asked for reduced motion. Scroll/resize listeners are
+     passive and rAF-throttled, so nothing busy-loops. */
+  var reduceMotion = (function () {
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)'); }
+    catch (error) { return { matches: false, addEventListener: null }; }
+  }());
+
+  function prefersReducedMotion() {
+    return !!(reduceMotion && reduceMotion.matches);
+  }
+
+  function onScrollFrame(handler) {
+    var ticking = false;
+    return function () {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        ticking = false;
+        handler();
+      });
+    };
   }
 
   /* ---------------------- fallback DOM (defensive) ---------------------- */
@@ -88,6 +112,67 @@
     toast.hidden = true;
     document.body.appendChild(toast);
     return toast;
+  }
+
+  /* -------------------- 0a. Scroll reveal (IO) --------------------- */
+  function initReveal() {
+    var targets = qsa('[data-reveal]');
+    if (!targets.length) return;
+
+    /* Staggered groups get a CSS custom property instead of inline handlers. */
+    qsa('[data-reveal-group]').forEach(function (group) {
+      qsa('[data-reveal]', group).forEach(function (node, index) {
+        if (!node.style || node.style.getPropertyValue('--c-reveal-delay')) return;
+        node.style.setProperty('--c-reveal-delay', Math.min(index * 45, 180) + 'ms');
+      });
+    });
+
+    if (prefersReducedMotion() || typeof IntersectionObserver !== 'function') {
+      targets.forEach(function (node) { node.classList.add('is-revealed'); });
+      return;
+    }
+
+    document.documentElement.classList.add('c-reveal-ready');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-revealed');
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    targets.forEach(function (node) { observer.observe(node); });
+  }
+
+  /* ------------- 0b. Sticky shadow + subtle hero parallax ---------- */
+  function initScrollEffects() {
+    var header = qs('#siteHeader, .l-header');
+    var layers = qsa('[data-parallax]');
+    var allowParallax = !prefersReducedMotion() && layers.length > 0;
+
+    function update() {
+      var y = window.pageYOffset || window.scrollY || 0;
+      if (header && header.classList) header.classList.toggle('is-scrolled', y > 12);
+      if (!allowParallax) return;
+      layers.forEach(function (node) {
+        var speed = parseFloat(node.getAttribute('data-parallax')) || 0;
+        var offset = Math.max(-18, Math.min(18, y * speed));
+        /* Transform only — no top/left or layout churn. */
+        node.style.transform = 'translate3d(0,' + offset.toFixed(2) + 'px,0)';
+      });
+    }
+
+    var frame = onScrollFrame(update);
+    window.addEventListener('scroll', frame, { passive: true });
+    window.addEventListener('resize', frame, { passive: true });
+    update();
+
+    if (reduceMotion && typeof reduceMotion.addEventListener === 'function') {
+      reduceMotion.addEventListener('change', function () {
+        allowParallax = !reduceMotion.matches;
+        if (!allowParallax) layers.forEach(function (node) { node.style.transform = ''; });
+        update();
+      });
+    }
   }
 
   /* ------------------------ 1. Toast helper ------------------------ */
@@ -342,43 +427,50 @@
 
   /* -------------------- 5. Terminal demo tabs -------------------- */
   var DEMOS = {
-    onboarding: [
-      { c: 'prompt', t: '⏺  I am new here. Map the auth flow and tell me where sessions are created.' },
+    'command-line': [
+      { c: 'prompt', t: '❯  I am new here. Map this repo, then fix the double-charge bug in checkout.' },
       { c: 'tool',   t: '  ⏺  Read KEEL.md and 12 source files' },
-      { c: 'tool',   t: '  ⏺  Searched 148 files for "session"' },
-      { c: 'file',   t: '  Read  src/auth/session.ts' },
-      { c: 'edit',   t: '   +18 -3  src/auth/session.ts' },
-      { c: 'file',   t: '  Read  src/middleware/requireUser.ts' },
-      { c: 'edit',   t: '   +7 -1  src/middleware/requireUser.ts' },
-      { c: 'file',   t: '  Write ARCHITECTURE.md' },
-      { c: 'edit',   t: '   +26 -0  ARCHITECTURE.md' },
-      { c: 'done',   t: '  ✓  Done — mapped the auth flow across 14 files. Sessions are created in src/auth/session.ts:42 and validated in requireUser.ts.' }
+      { c: 'tool',   t: '  ⏺  Searched 148 files for "createCharge"' },
+      { c: 'file',   t: '  Read  src/checkout/charges.ts' },
+      { c: 'edit',   t: '   +9 -3  src/checkout/charges.ts' },
+      { c: 'file',   t: '  Read  tests/charges.test.ts' },
+      { c: 'edit',   t: '  +21 -0  tests/charges.test.ts' },
+      { c: 'tool',   t: '  ⏺  Ran `npm test -- checkout` → 24 passed' },
+      { c: 'tool',   t: '  ⏺  Asked before `git commit` — you approved' },
+      { c: 'done',   t: '  ✓  Done — fixed the double charge, added a regression test, and opened PR #486.' }
     ],
-    triage: [
-      { c: 'prompt', t: '⏺  Triage issue #482: checkout throws on an empty cart. Add a test, fix it, open a PR.' },
+    desktop: [
+      { c: 'prompt', t: '❯  Add a dark mode toggle to settings and remember the choice.' },
+      { c: 'tool',   t: '  ⏺  Read 4 files, searched the codebase' },
+      { c: 'file',   t: '  Read  src/theme/ThemeProvider.tsx' },
+      { c: 'edit',   t: '  +18 -2  src/theme/ThemeProvider.tsx' },
+      { c: 'file',   t: '  Read  src/settings/settings.tsx' },
+      { c: 'edit',   t: '  +21 -0  src/settings/settings.tsx' },
+      { c: 'tool',   t: '  ⏺  Ran 2 commands · preview running at localhost:5173' },
+      { c: 'edit',   t: '  +24 -0  src/theme/tokens.css' },
+      { c: 'done',   t: '  ✓  Done — the Appearance section now has a Light / Dark toggle.' }
+    ],
+    ide: [
+      { c: 'prompt', t: '❯  Triage issue #482: empty cart throws at checkout. Add a test and a fix.' },
       { c: 'tool',   t: '  ⏺  Read issue #482 and 6 related files' },
       { c: 'tool',   t: '  ⏺  Reproduced with `npm run test:checkout`' },
       { c: 'file',   t: '  Read  src/checkout/total.ts' },
-      { c: 'edit',   t: '   +12 -4  src/checkout/total.ts' },
+      { c: 'edit',   t: '  +12 -4  src/checkout/total.ts' },
       { c: 'file',   t: '  Read  tests/checkout.test.ts' },
-      { c: 'edit',   t: '   +21 -0  tests/checkout.test.ts' },
+      { c: 'edit',   t: '  +21 -0  tests/checkout.test.ts' },
       { c: 'tool',   t: '  ⏺  Ran `npm test -- checkout` → 24 passed' },
-      { c: 'tool',   t: '  ⏺  Committed fix and opened PR #486' },
-      { c: 'done',   t: '  ✓  Done — regression test and fix are in PR #486. All 24 checkout tests pass.' }
+      { c: 'done',   t: '  ✓  Done — patch applied as a diff in your editor and PR #486 is open.' }
     ],
-    migrate: [
-      { c: 'prompt', t: '⏺  Migrate the API client from v2 to v3. Follow imports, update callers, keep tests green.' },
+    web: [
+      { c: 'prompt', t: '❯  Migrate the API client from v2 to v3 and keep the suite green.' },
       { c: 'tool',   t: '  ⏺  Scanned 312 files for `api/v2` imports' },
       { c: 'file',   t: '  Read  src/lib/apiClient.ts' },
-      { c: 'edit',   t: '   +64 -28  src/lib/apiClient.ts' },
+      { c: 'edit',   t: '  +64 -28  src/lib/apiClient.ts' },
       { c: 'file',   t: '  Read  src/routes/users.ts' },
-      { c: 'edit',   t: '   +19 -11  src/routes/users.ts' },
-      { c: 'file',   t: '  Read  src/routes/orders.ts' },
-      { c: 'edit',   t: '   +15 -9  src/routes/orders.ts' },
+      { c: 'edit',   t: '  +19 -11  src/routes/users.ts' },
+      { c: 'tool',   t: '  ⏺  Asked you to keep the legacy retry path — you chose yes' },
       { c: 'tool',   t: '  ⏺  Ran `npm test` → 181 passed, 0 failed' },
-      { c: 'file',   t: '  Write KEEL.md' },
-      { c: 'edit',   t: '   +9 -2  KEEL.md' },
-      { c: 'done',   t: '  ✓  Done — migrated 27 call sites across 9 files. Full suite passes (181 tests).' }
+      { c: 'done',   t: '  ✓  Done — 27 call sites across 9 files migrated. Review and steer from the web.' }
     ]
   };
 
@@ -427,6 +519,43 @@
       return tab.classList && tab.classList.contains('is-active');
     })[0] || tabs[0];
     if (initial) select(initial, false);
+  }
+
+  /* --------------------- 5b. Hero approval card --------------------- */
+  function initApproval() {
+    var card = document.getElementById('approvalCard');
+    if (!card) return;
+    var approve = qs('[data-approve]', card);
+    var deny = qs('[data-deny]', card);
+    var copy = qs('.c-approval-copy', card);
+
+    function decide(kind) {
+      if (card.classList) {
+        card.classList.remove('is-approved', 'is-denied');
+        card.classList.add(kind === 'approve' ? 'is-approved' : 'is-denied');
+      }
+      if (copy) {
+        copy.textContent = kind === 'approve'
+          ? 'Approved: npm test and git commit will run.'
+          : 'Denied: Keel Code will wait for your next instruction.';
+      }
+      cToast(kind === 'approve' ? 'Commands approved.' : 'Commands denied.');
+    }
+
+    if (approve && !approve.__cApproveBound) {
+      approve.__cApproveBound = true;
+      approve.addEventListener('click', function (event) {
+        if (event && typeof event.preventDefault === 'function') event.preventDefault();
+        decide('approve');
+      });
+    }
+    if (deny && !deny.__cDenyBound) {
+      deny.__cDenyBound = true;
+      deny.addEventListener('click', function (event) {
+        if (event && typeof event.preventDefault === 'function') event.preventDefault();
+        decide('deny');
+      });
+    }
   }
 
   /* ------------------------- 6. Copy buttons ------------------------- */
@@ -764,7 +893,34 @@
         item.classList.toggle('open', open);
         item.classList.toggle('is-open', open);
       }
-      if (panel) panel.hidden = !open;
+      if (!panel) return;
+
+      if (panel.__cFaqTimer) {
+        clearTimeout(panel.__cFaqTimer);
+        panel.__cFaqTimer = null;
+      }
+      var instant = prefersReducedMotion() || typeof window.requestAnimationFrame !== 'function';
+      if (open) {
+        panel.hidden = false;
+        if (instant) {
+          panel.style.maxHeight = 'none';
+        } else {
+          panel.style.maxHeight = '0px';
+          window.requestAnimationFrame(function () {
+            panel.style.maxHeight = panel.scrollHeight + 'px';
+          });
+        }
+      } else if (instant) {
+        panel.hidden = true;
+        panel.style.maxHeight = '0px';
+      } else {
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+        window.requestAnimationFrame(function () { panel.style.maxHeight = '0px'; });
+        panel.__cFaqTimer = setTimeout(function () {
+          if (button.getAttribute('aria-expanded') === 'false') panel.hidden = true;
+          panel.__cFaqTimer = null;
+        }, 240);
+      }
     }
 
     function closeAll(except) {
@@ -1169,6 +1325,8 @@
     /* Shared shell behaviours. This page intentionally does not load the
        shared landing.js: it binds the same selectors and would toggle each
        control twice. keel-code.js is the single owner here. */
+    safe(initReveal);
+    safe(initScrollEffects);
     safe(initMegaMenus);
     safe(initMobileMenu);
     safe(initFaq);
@@ -1183,6 +1341,7 @@
     safe(initWays);
     safe(initModals);
     safe(initDemos);
+    safe(initApproval);
     safe(initCopy);
     safe(initNewsletter);
     safe(initAnchors);

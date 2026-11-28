@@ -16,15 +16,16 @@
   <meta property="og:image" content="https://keel-desktop.vercel.app/ui/icons/icon-512.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Keel Code — Hand Keel the work" />
-  <meta name="twitter:description" content="Hand Keel the work: bug fixes, tests, and multi-day migrations under your permissions." />
+  <meta name="twitter:description" content="Hand Keel a bug fix, test, or multi-day migration. You set its permissions." />
   <meta name="twitter:image" content="https://keel-desktop.vercel.app/ui/icons/icon-512.png" />
   <link rel="stylesheet" href="/ui/landing.css" />
   <link rel="stylesheet" href="/ui/keel-code.css" />
+  <script src="/ui/keel-code.js" defer></script>
 </head>
 <body class="landing code-page">
 
   <!-- ==================== header / mega navigation ==================== -->
-  <header class="l-header">
+  <header class="l-header" id="siteHeader">
     <div class="l-nav-inner">
       <a class="l-wordmark" href="/" aria-label="Keel home">
         <span class="l-brand-mark" aria-hidden="true">
@@ -34,31 +35,29 @@
       </a>
 
       <nav class="l-nav-links" aria-label="Primary">
-
-        <!-- Product -->
         <div class="l-nav-item" data-menu="product">
           <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-product">Product <span class="l-chevron" aria-hidden="true"></span></button>
           <div class="l-mega" id="mega-product" aria-hidden="true">
             <div class="l-mega-grid">
               <div class="l-mega-col">
                 <p class="l-mega-title">Products</p>
-                <a class="l-mega-link" href="/">Keel</a>
+                <a class="l-mega-link" href="/product/overview">Keel</a>
                 <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
-                <a class="l-mega-link" href="/#plans">Keel Cowork</a>
+                <a class="l-mega-link" href="/cowork">Keel Cowork</a>
                 <a class="l-mega-link" href="/product/keel-duet">Keel Duet</a>
                 <a class="l-mega-link" href="/platform/api">Keel Platform</a>
-                <a class="l-mega-link" href="/#plans">Keel Tag</a>
+                <a class="l-mega-link" href="/product/overview#capabilities">Keel Tag</a>
                 <p class="l-mega-subhead">Specialized</p>
                 <a class="l-mega-link" href="/privacy">Keel Security</a>
-                <a class="l-mega-link" href="/#plans">Keel Science</a>
+                <a class="l-mega-link" href="/requirements">Keel Science</a>
               </div>
               <div class="l-mega-col">
                 <p class="l-mega-title">Capabilities</p>
-                <a class="l-mega-link" href="/#plans">Artifacts</a>
-                <a class="l-mega-link" href="/#plans">Design</a>
-                <a class="l-mega-link" href="/#plans">Connectors</a>
-                <a class="l-mega-link" href="/#plans">Plugins</a>
-                <a class="l-mega-link" href="/#plans">Skills</a>
+                <a class="l-mega-link" href="/artifacts">Artifacts</a>
+                <a class="l-mega-link" href="/product/overview#capabilities">Design</a>
+                <a class="l-mega-link" href="/product/overview#capabilities">Connectors</a>
+                <a class="l-mega-link" href="/plugins">Plugins</a>
+                <a class="l-mega-link" href="/requirements">Skills</a>
               </div>
               <div class="l-mega-col">
                 <p class="l-mega-title">Extensions</p>
@@ -68,23 +67,22 @@
               </div>
               <div class="l-mega-col">
                 <p class="l-mega-title">Models</p>
-                <a class="l-mega-link" href="/#plans">Mythos (including Fable) <span class="l-ext" aria-hidden="true">↗</span></a>
-                <a class="l-mega-link" href="/#plans">Opus <span class="l-ext" aria-hidden="true">↗</span></a>
-                <a class="l-mega-link" href="/#plans">Sonnet <span class="l-ext" aria-hidden="true">↗</span></a>
-                <a class="l-mega-link" href="/#plans">Haiku <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/requirements">Mythos (including Fable) <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/requirements">Opus <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/requirements">Sonnet <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/requirements">Haiku <span class="l-ext" aria-hidden="true">↗</span></a>
               </div>
             </div>
             <div class="l-mega-foot">
-              <div class="l-mega-foot-left"><a class="l-mega-link" href="/">Import to Keel</a></div>
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/new">Import to Keel</a></div>
               <div class="l-mega-foot-right">
                 <a class="l-mega-link" href="/download">Download apps <span class="l-dl" aria-hidden="true">↓</span></a>
-                <button class="l-mega-link js-auth" type="button" data-auth="login">Login <span class="l-ext" aria-hidden="true">↗</span></button>
+                <a class="l-mega-link" href="/login">Login <span class="l-ext" aria-hidden="true">↗</span></a>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Developers -->
         <div class="l-nav-item" data-menu="developers">
           <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-developers">Developers <span class="l-chevron" aria-hidden="true"></span></button>
           <div class="l-mega" id="mega-developers" aria-hidden="true">
@@ -96,35 +94,34 @@
                 <a class="l-mega-link" href="/platform/api">Keel Platform</a>
                 <a class="l-mega-link" href="/roadmap">Keel Ship</a>
                 <a class="l-mega-link" href="/roadmap">Code Review</a>
-                <a class="l-mega-link" href="/#plans">Managed Agents</a>
+                <a class="l-mega-link" href="/platform/api">Managed Agents</a>
               </div>
               <div class="l-mega-col">
                 <p class="l-mega-title">For developers</p>
                 <a class="l-mega-link" href="/requirements">Keel Academy <span class="l-ext" aria-hidden="true">↗</span></a>
-                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+                <a class="l-mega-link" href="/notices">Community</a>
                 <a class="l-mega-link" href="/notices">Developer blog <span class="l-ext" aria-hidden="true">↗</span></a>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Enterprise -->
         <div class="l-nav-item" data-menu="enterprise">
           <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-enterprise">Enterprise <span class="l-chevron" aria-hidden="true"></span></button>
           <div class="l-mega" id="mega-enterprise" aria-hidden="true">
             <div class="l-mega-grid">
               <div class="l-mega-col">
                 <p class="l-mega-title">Enterprise</p>
-                <a class="l-mega-link" href="/#plans">Overview</a>
+                <a class="l-mega-link" href="/pricing">Overview</a>
                 <a class="l-mega-link" href="/product/keel-code">Keel Code for Enterprise</a>
                 <a class="l-mega-link" href="/platform/api">Keel Platform</a>
                 <a class="l-mega-link" href="/roadmap">Keel Ship</a>
               </div>
               <div class="l-mega-col">
                 <p class="l-mega-title">Use Cases</p>
-                <a class="l-mega-link" href="/#plans">AI Agents</a>
-                <a class="l-mega-link" href="/#plans">Coding</a>
-                <a class="l-mega-link" href="/#plans">Commerce</a>
+                <a class="l-mega-link" href="/product/overview#use-case">AI Agents</a>
+                <a class="l-mega-link" href="/product/overview#work">Coding</a>
+                <a class="l-mega-link" href="/product/overview#use-case">Commerce</a>
                 <p class="l-mega-subhead">Departments</p>
                 <a class="l-mega-link" href="mailto:hello@keel.ai">Customer support</a>
                 <a class="l-mega-link" href="/privacy">Cybersecurity</a>
@@ -133,15 +130,15 @@
               </div>
               <div class="l-mega-col">
                 <p class="l-mega-title">Industries</p>
-                <a class="l-mega-link" href="/#plans">Financial advisors</a>
-                <a class="l-mega-link" href="/#plans">Financial services</a>
-                <a class="l-mega-link" href="/#plans">Government</a>
-                <a class="l-mega-link" href="/#plans">Healthcare</a>
-                <a class="l-mega-link" href="/#plans">Higher education</a>
-                <a class="l-mega-link" href="/#plans">K-12 teachers</a>
-                <a class="l-mega-link" href="/#plans">Life sciences</a>
-                <a class="l-mega-link" href="/#plans">Manufacturing</a>
-                <a class="l-mega-link" href="/#plans">Nonprofits</a>
+                <a class="l-mega-link" href="/pricing">Financial advisors</a>
+                <a class="l-mega-link" href="/pricing">Financial services</a>
+                <a class="l-mega-link" href="/pricing">Government</a>
+                <a class="l-mega-link" href="/pricing">Healthcare</a>
+                <a class="l-mega-link" href="/pricing">Higher education</a>
+                <a class="l-mega-link" href="/pricing">K-12 teachers</a>
+                <a class="l-mega-link" href="/pricing">Life sciences</a>
+                <a class="l-mega-link" href="/pricing">Manufacturing</a>
+                <a class="l-mega-link" href="/pricing">Nonprofits</a>
               </div>
             </div>
             <div class="l-mega-foot">
@@ -154,7 +151,6 @@
           </div>
         </div>
 
-        <!-- Resources -->
         <div class="l-nav-item" data-menu="resources">
           <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-resources">Resources <span class="l-chevron" aria-hidden="true"></span></button>
           <div class="l-mega" id="mega-resources" aria-hidden="true">
@@ -162,7 +158,7 @@
               <div class="l-mega-col">
                 <p class="l-mega-title">Insights</p>
                 <a class="l-mega-link" href="#faq">Resources</a>
-                <a class="l-mega-link" href="/notices">Articles</a>
+                <a class="l-mega-link" href="/resources/articles">Articles</a>
                 <a class="l-mega-link" href="/notices">Webinars</a>
                 <a class="l-mega-link" href="/notices">Customer stories</a>
                 <a class="l-mega-link" href="/notices">Marketplace</a>
@@ -173,36 +169,35 @@
                 <a class="l-mega-link" href="/requirements">Keel Academy <span class="l-ext" aria-hidden="true">↗</span></a>
                 <a class="l-mega-link" href="/requirements">Courses <span class="l-ext" aria-hidden="true">↗</span></a>
                 <a class="l-mega-link" href="/requirements">Tutorials <span class="l-ext" aria-hidden="true">↗</span></a>
-                <a class="l-mega-link" href="/#plans">Use cases <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/product/overview#use-case">Use cases <span class="l-ext" aria-hidden="true">↗</span></a>
               </div>
               <div class="l-mega-col">
                 <p class="l-mega-title">Connect</p>
                 <a class="l-mega-link" href="/notices">Events <span class="l-ext" aria-hidden="true">↗</span></a>
-                <a class="l-mega-link" href="mailto:hello@keel.ai">Community <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/notices">Community <span class="l-ext" aria-hidden="true">↗</span></a>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Pricing -->
         <div class="l-nav-item" data-menu="pricing">
           <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-pricing">Pricing <span class="l-chevron" aria-hidden="true"></span></button>
           <div class="l-mega" id="mega-pricing" aria-hidden="true">
             <div class="l-mega-grid">
               <div class="l-mega-col">
-                <a class="l-mega-link" href="/#plans">Overview</a>
+                <a class="l-mega-link" href="/pricing">Overview</a>
                 <a class="l-mega-link" href="/requirements">API</a>
               </div>
             </div>
           </div>
         </div>
 
-        <button class="l-nav-link js-auth" type="button" data-auth="login">Login</button>
+        <a class="l-nav-link" href="/login">Login</a>
       </nav>
 
       <div class="l-nav-actions">
         <button class="l-btn l-btn-outline l-btn-sm js-auth" type="button" data-auth="sales">Contact sales</button>
-        <button class="l-btn l-btn-dark l-btn-sm js-auth" type="button" data-auth="signup">Try Keel</button>
+        <button class="l-btn l-btn-dark l-btn-sm js-auth" type="button" data-auth="signup">Get Keel</button>
       </div>
 
       <button class="l-nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
@@ -211,28 +206,26 @@
     </div>
 
     <div class="l-mobile-menu" id="mobileMenu" hidden>
-      <a href="/#plans">Product</a>
+      <a href="/product/overview">Product</a>
       <a href="/requirements">Developers</a>
-      <a href="/#plans">Enterprise</a>
+      <a href="/pricing">Enterprise</a>
       <a href="#faq">Resources</a>
-      <a href="/#plans">Pricing</a>
+      <a href="/pricing">Pricing</a>
       <a href="/download">Download desktop app</a>
       <a href="/product/keel-duet">Keel Duet</a>
-      <button class="js-auth" type="button" data-auth="login">Login</button>
+      <a href="/login">Login</a>
       <button class="js-auth" type="button" data-auth="sales">Contact sales</button>
-      <button class="l-btn l-btn-dark js-auth" type="button" data-auth="signup">Try Keel</button>
+      <button class="l-btn l-btn-dark js-auth" type="button" data-auth="signup">Get Keel</button>
     </div>
   </header>
 
   <main id="top">
-
-    <!-- ==================== breadcrumb ==================== -->
-    <nav class="c-crumbs l-container" aria-label="Breadcrumb"><a href="/">Product</a><span aria-hidden="true">/</span><span aria-current="page">Keel Code</span></nav>
+    <nav class="c-crumbs l-container" aria-label="Breadcrumb"><a href="/product/overview">Product</a><span aria-hidden="true">/</span><span aria-current="page">Keel Code</span></nav>
 
     <!-- ==================== hero ==================== -->
-    <section class="c-hero" id="top">
+    <section class="c-hero" id="hero">
       <div class="l-container c-hero-grid">
-        <div class="c-hero-copy">
+        <div class="c-hero-copy" data-reveal>
           <h1 class="c-title">Keel Code</h1>
           <p class="c-lede">Hand Keel a bug fix, test, or multi-day migration. You set its permissions. Steer and review from your desktop, terminal, IDE, Slack, or the web.</p>
           <div class="c-hero-actions">
@@ -254,113 +247,124 @@
             </div>
           </div>
         </div>
-        <div class="c-hero-shots" aria-label="Keel Code app previews">
-          <div class="c-shot c-shot-a" role="img" aria-label="Keel Code desktop app showing a checkout bug session">
-            <svg viewBox="0 0 520 370" focusable="false" aria-hidden="true">
-              <defs><linearGradient id="cShotAG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffdf8"/><stop offset="1" stop-color="#f1ede3"/></linearGradient></defs>
-              <rect x="1" y="1" width="518" height="368" rx="13" fill="url(#cShotAG)" stroke="#d7d3c9" stroke-width="2"/>
-              <path d="M1 14a13 13 0 0 1 13-13h492a13 13 0 0 1 13 13v23H1z" fill="#eae6dc"/>
-              <circle cx="20" cy="19" r="4" fill="#d97757"/><circle cx="36" cy="19" r="4" fill="#d8c9a6"/><circle cx="52" cy="19" r="4" fill="#bfc0ad"/>
-              <text x="248" y="24" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#8b877e">acme-storefront — Keel Code</text>
-              <path d="M144 37v332" stroke="#d7d3c9" stroke-width="1.5"/>
-              <text x="16" y="62" font-family="sans-serif" font-size="10" font-weight="700" fill="#8b877e">RECENTS</text>
-              <rect x="10" y="72" width="126" height="24" rx="5" fill="#f6dccc"/>
-              <text x="20" y="88" font-family="sans-serif" font-size="10" fill="#5c3325">Fix double-charge bug</text>
-              <text x="20" y="118" font-family="sans-serif" font-size="10" fill="#77736b">Write payment tests</text>
-              <text x="20" y="146" font-family="sans-serif" font-size="10" fill="#77736b">Explain this repo</text>
-              <text x="20" y="174" font-family="sans-serif" font-size="10" fill="#77736b">Debug flaky CI</text>
-              <text x="164" y="70" font-family="sans-serif" font-size="11" font-weight="700" fill="#191918">Fix the double-charge bug in checkout</text>
-              <rect x="164" y="80" width="338" height="34" rx="7" fill="#fff" stroke="#dedad0"/>
-              <text x="175" y="101" font-family="sans-serif" font-size="10" fill="#4a4740">We're seeing duplicate charges when customers click twice.</text>
-              <rect x="198" y="124" width="304" height="44" rx="7" fill="#f5f2ea" stroke="#e3ded3"/>
-              <text x="209" y="141" font-family="sans-serif" font-size="10" fill="#4a4740">Reproduced: two POST /charges calls before the first resolves.</text>
-              <text x="209" y="158" font-family="sans-serif" font-size="10" fill="#7b776e">Read 3 files · searched the checkout flow</text>
-              <rect x="164" y="178" width="338" height="64" rx="7" fill="#fff" stroke="#dedad0"/>
-              <text x="175" y="197" font-family="sans-serif" font-size="10" fill="#4a4740">Root cause: the idempotency key is generated per call.</text>
-              <text x="175" y="215" font-family="sans-serif" font-size="10" fill="#4a4740">Fixing that and disabling the button while in flight.</text>
-              <text x="175" y="233" font-family="monospace" font-size="10" fill="#2f7a55">charges.ts  +9 −3</text>
-              <rect x="164" y="252" width="338" height="60" rx="7" fill="#f0efe8" stroke="#dedad0"/>
-              <text x="175" y="271" font-family="sans-serif" font-size="10" fill="#77736b">Ask before running: npm test, git commit</text>
-              <rect x="175" y="282" width="74" height="20" rx="10" fill="#191918"/><text x="188" y="296" font-family="sans-serif" font-size="9" fill="#fff">Approve</text>
-              <rect x="257" y="282" width="74" height="20" rx="10" fill="#fff" stroke="#cfcbc0"/><text x="274" y="296" font-family="sans-serif" font-size="9" fill="#4a4740">Deny</text>
-              <rect x="164" y="328" width="338" height="28" rx="14" fill="#fff" stroke="#d7d3c9"/>
-              <text x="176" y="346" font-family="sans-serif" font-size="10" fill="#a09c93">Ask Keel Code anything…</text>
-            </svg>
+
+        <div class="c-hero-visual" data-reveal>
+          <div class="c-editor-window" data-parallax="0.045">
+            <div class="c-editor-bar">
+              <span class="c-ed-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="c-editor-tab is-active">charges.ts</span>
+              <span class="c-editor-tab">charges.test.ts</span>
+              <span class="c-editor-path">acme-storefront</span>
+            </div>
+            <div class="c-editor-body">
+              <div class="c-editor-side" aria-hidden="true">
+                <p class="c-ed-label">RECENTS</p>
+                <p class="c-ed-file is-current">Fix double-charge bug</p>
+                <p class="c-ed-file">Write payment tests</p>
+                <p class="c-ed-file">Explain this repo</p>
+                <p class="c-ed-file">Debug flaky CI</p>
+                <p class="c-ed-label c-ed-label-2">PROJECT</p>
+                <p class="c-ed-file">src/charges.ts</p>
+                <p class="c-ed-file">src/checkout.ts</p>
+                <p class="c-ed-file">tests/charges.test.ts</p>
+              </div>
+              <div class="c-editor-main">
+                <p class="c-ed-prompt">❯ Fix the double-charge bug in checkout</p>
+                <p class="c-ed-log">⏺ Reproduced: two POST /charges calls before the first resolves.</p>
+                <p class="c-ed-log c-ed-log-dim">Read 3 files · searched the checkout flow</p>
+                <div class="c-diff-block">
+                  <div class="c-diff-head"><span>charges.ts</span><span class="c-diff-stat">+9 −3</span></div>
+                  <pre class="c-diff-code"><span class="c-diff-meta">@@ createCharge @@</span>
+<span class="c-diff-del">− const key = randomUUID()</span>
+<span class="c-diff-add">+ const key = checkout.idempotencyKey</span>
+<span class="c-diff-add">+ if (inFlight) return pending</span>
+<span class="c-diff-ctx">  return gateway.charge(amount, key)</span></pre>
+                </div>
+              </div>
+            </div>
+            <div class="c-approval-card" id="approvalCard">
+              <span class="c-approval-mark" aria-hidden="true">⏺</span>
+              <p class="c-approval-copy"><strong>Ask before running:</strong> <code>npm test</code>, <code>git commit</code></p>
+              <div class="c-approval-actions">
+                <button type="button" class="c-approve" data-approve>Approve</button>
+                <button type="button" class="c-deny" data-deny>Deny</button>
+              </div>
+            </div>
           </div>
-          <div class="c-shot c-shot-b" role="img" aria-label="Keel Code session running a multi-file migration">
-            <svg viewBox="0 0 520 370" focusable="false" aria-hidden="true">
-              <defs><linearGradient id="cShotBG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf7f2"/><stop offset="1" stop-color="#efe9df"/></linearGradient></defs>
-              <rect x="1" y="1" width="518" height="368" rx="13" fill="url(#cShotBG)" stroke="#d7d3c9" stroke-width="2"/>
-              <path d="M1 14a13 13 0 0 1 13-13h492a13 13 0 0 1 13 13v23H1z" fill="#eae6dc"/>
-              <circle cx="20" cy="19" r="4" fill="#d97757"/><circle cx="36" cy="19" r="4" fill="#d8c9a6"/><circle cx="52" cy="19" r="4" fill="#bfc0ad"/>
-              <text x="260" y="24" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#8b877e">projects / payments-migration</text>
-              <text x="18" y="64" font-family="sans-serif" font-size="11" font-weight="700" fill="#191918">Migrate the payments module</text>
-              <text x="18" y="84" font-family="sans-serif" font-size="10" fill="#77736b">Running for 42 min · 3 agents</text>
-              <rect x="18" y="100" width="484" height="54" rx="8" fill="#fff" stroke="#dedad0"/>
-              <text x="30" y="120" font-family="monospace" font-size="10" fill="#4a4740">⏺  Following imports across 18 files…</text>
-              <text x="30" y="140" font-family="monospace" font-size="10" fill="#2f7a55">✓  Tests passing (128 / 128)</text>
-              <rect x="18" y="166" width="484" height="70" rx="8" fill="#fff" stroke="#dedad0"/>
-              <text x="30" y="186" font-family="monospace" font-size="10" fill="#4a4740">Edited src/payments/client.ts</text>
-              <text x="30" y="204" font-family="monospace" font-size="10" fill="#2f7a55">+ 41  − 12</text>
-              <text x="30" y="224" font-family="monospace" font-size="10" fill="#4a4740">Edited src/payments/retry.ts   + 18  − 4</text>
-              <rect x="18" y="248" width="484" height="44" rx="8" fill="#f6e8dd" stroke="#e8cdbb"/>
-              <text x="30" y="267" font-family="sans-serif" font-size="10" fill="#7a4630">Needs your decision: keep the legacy retry path?</text>
-              <rect x="30" y="276" width="80" height="10" rx="5" fill="#d97757"/>
-              <rect x="18" y="304" width="484" height="46" rx="8" fill="#fff" stroke="#dedad0"/>
-              <text x="30" y="324" font-family="sans-serif" font-size="10" fill="#77736b">Review diff · Open pull request · Continue in web</text>
-              <text x="30" y="341" font-family="sans-serif" font-size="10" fill="#d97757">Steer from Slack →</text>
-            </svg>
-          </div>
+          <p class="c-hero-status" aria-hidden="true"><span class="c-status-dot"></span> Running in your terminal · Keel · Opus</p>
         </div>
       </div>
     </section>
 
     <!-- ==================== logo strip ==================== -->
     <section class="c-logo-strip" aria-label="Teams that use Keel Code">
-      <div class="l-container">
-        <span>Zapier</span><span>PagerDuty</span><span>Workato</span><span>Notion</span><span>Asana</span><span>Rakuten</span>
-        <span>Databricks</span><span>Ramp</span><span>Plaid</span><span>Spotify</span><span>StubHub</span><span>Uber</span>
-        <span>Brex</span><span>Intercom</span><span>Stripe</span><span>Shopify</span><span>NASA</span><span>Figma</span>
+      <div class="l-container c-logo-row" data-reveal>
+        <span>Ramp</span>
+        <span>Plane</span>
+        <span>ElevenLabs</span>
+        <img src="/assets/img/platform/pa-logo-vercel.svg" alt="Vercel" width="88" height="22" />
+        <span>Notion</span>
+        <span>Databricks</span>
+        <img src="/assets/img/platform/pa-logo-spotify.svg" alt="Spotify" width="88" height="22" />
+        <span>Asana</span>
+        <span>Plaid</span>
+        <span>StubHub</span>
+        <span>Uber</span>
+        <img src="/assets/img/platform/pa-logo-brex.svg" alt="Brex" width="72" height="22" />
+        <span>Intercom</span>
+        <span>Stripe</span>
+        <span>NASA</span>
+        <span>Figma</span>
       </div>
     </section>
 
     <!-- ==================== get started ==================== -->
     <section class="l-section c-get-started" id="get-started">
       <div class="l-container">
-        <h2 class="l-section-title">Get started with Keel Code</h2>
-        <div class="l-toggle" role="tablist" aria-label="Plan type">
+        <h2 class="l-section-title" data-reveal>Get started with Keel Code</h2>
+        <div class="l-toggle" role="tablist" aria-label="Plan type" data-reveal>
           <button class="l-toggle-btn is-active" type="button" role="tab" id="c-tab-team" aria-selected="true" aria-controls="c-panel-team" data-plan-tab="team">Team &amp; Enterprise</button>
           <button class="l-toggle-btn" type="button" role="tab" id="c-tab-individual" aria-selected="false" aria-controls="c-panel-individual" data-plan-tab="individual" tabindex="-1">Individual</button>
         </div>
-        <div class="l-plan-panel" id="c-panel-team" role="tabpanel" aria-labelledby="c-tab-team" tabindex="0">
-          <div class="c-plan-grid">
-            <article class="c-plan">
+        <div class="l-plan-panel" id="c-panel-team" role="tabpanel" aria-labelledby="c-tab-team" tabindex="0" data-reveal>
+          <div class="c-plan-grid" data-reveal-group>
+            <article class="c-plan" data-reveal>
               <h3>Team</h3>
               <p>Keel Code for every seat, with self-serve seat management and up to $500 per month in pooled API credits.</p>
               <p class="c-plan-price">$20</p>
               <p class="c-plan-note">Per seat / month if billed annually. For teams of 2 to 150.</p>
               <button type="button" class="l-btn l-btn-dark js-auth" data-auth="signup">Get Team plan</button>
-              <a href="/privacy">Learn more</a>
+              <a href="/pricing">Learn more</a>
             </article>
-            <article class="c-plan">
+            <article class="c-plan" data-reveal>
               <h3>Enterprise</h3>
               <p>Everything in Team, plus Keel Security, usage and ROI analytics, role-based access, spend limits, and custom data controls. <a href="/privacy">Learn more</a></p>
+              <div class="c-plan-compare" aria-hidden="true">
+                <p><span>Seat management</span><span>Self-serve</span></p>
+                <p><span>API credits</span><span>Pooled, up to $500/mo</span></p>
+                <p><span>Role-based access</span><span>Enterprise only</span></p>
+              </div>
               <button type="button" class="l-btn l-btn-dark js-auth" data-auth="sales">Get Enterprise plan</button>
             </article>
           </div>
           <div class="c-plan-extra">
             <h4>Available on Team and Enterprise</h4>
-            <a href="/#plans">See all features and pricing</a>
+            <a href="/pricing">See all features and pricing</a>
             <ul><li>Code Review</li><li>Keel Code on web and mobile</li><li>Keel Cowork</li><li>Keel Design, Slides, and Docs</li></ul>
+          </div>
+          <p class="c-plan-help">Need help making the decision? <button type="button" class="c-help-link js-auth" data-auth="sales">Talk to sales</button> for guidance.</p>
+          <div class="c-copy-row c-install-row">
+            <code>curl -fsSL https://keel.ai/install.sh | bash</code>
+            <button type="button" class="c-copy" data-copy="curl -fsSL https://keel.ai/install.sh | bash" aria-label="Copy install command">Copy</button>
           </div>
           <p class="c-fine">Deploying through the API or a cloud provider? <a href="/requirements">See your options</a></p>
           <p class="c-fine">Usage limits apply. Prices shown don't include applicable tax. Price and plans are subject to change at Keel's discretion.</p>
         </div>
         <div class="l-plan-panel" id="c-panel-individual" role="tabpanel" aria-labelledby="c-tab-individual" tabindex="0" hidden>
           <div class="c-plan-grid c-plan-grid-ind">
-            <article class="c-plan"><h3>Pro</h3><p>For everyday work. Keel Code is included.</p><p class="c-plan-price">$17</p><button type="button" class="l-btn l-btn-dark js-auth" data-auth="signup">Try Keel</button></article>
-            <article class="c-plan"><h3>Max</h3><p>For all-day work, with more usage and early features.</p><p class="c-plan-price">$100</p><button type="button" class="l-btn l-btn-dark js-auth" data-auth="signup">Try Keel</button></article>
-            <article class="c-plan"><h3>Ultra</h3><p>For your largest tasks and highest limits.</p><p class="c-plan-price">$200</p><button type="button" class="l-btn l-btn-dark js-auth" data-auth="signup">Try Keel</button></article>
+            <article class="c-plan"><h3>Pro</h3><p>For everyday work. Keel Code is included.</p><p class="c-plan-price">$17</p><button type="button" class="l-btn l-btn-dark js-auth" data-auth="signup">Get Keel</button></article>
+            <article class="c-plan"><h3>Max</h3><p>For all-day work, with more usage and early features.</p><p class="c-plan-price">$100</p><button type="button" class="l-btn l-btn-dark js-auth" data-auth="signup">Get Keel</button></article>
+            <article class="c-plan"><h3>Ultra</h3><p>For your largest tasks and highest limits.</p><p class="c-plan-price">$200</p><button type="button" class="l-btn l-btn-dark js-auth" data-auth="signup">Get Keel</button></article>
           </div>
         </div>
       </div>
@@ -369,19 +373,19 @@
     <!-- ==================== announcements ==================== -->
     <section class="l-section c-announce" id="announcements">
       <div class="l-container">
-        <h2 class="l-section-title">Latest feature announcements</h2>
-        <div class="c-announce-grid">
-          <article class="c-article">
+        <h2 class="l-section-title" data-reveal>Latest feature announcements</h2>
+        <div class="c-announce-grid" data-reveal-group>
+          <article class="c-article" data-reveal>
             <span class="c-article-art" aria-hidden="true"><svg viewBox="0 0 320 140" focusable="false"><rect width="320" height="140" rx="12" fill="#ece7dc"/><circle cx="248" cy="30" r="46" fill="#f4c8b1" opacity=".75"/><rect x="22" y="30" width="150" height="10" rx="5" fill="#191918" opacity=".8"/><rect x="22" y="50" width="215" height="8" rx="4" fill="#a9a398"/><rect x="22" y="66" width="180" height="8" rx="4" fill="#a9a398"/><rect x="22" y="88" width="92" height="24" rx="12" fill="#d97757"/><text x="44" y="104" font-family="sans-serif" font-size="10" fill="#fff">Code Review</text></svg></span>
             <h3><a href="/notices">Code Review: Catch more bugs before they reach production. Now generally available for Team and Enterprise.</a></h3>
             <p>Blog — Oct 15, 2026</p>
           </article>
-          <article class="c-article">
+          <article class="c-article" data-reveal>
             <span class="c-article-art" aria-hidden="true"><svg viewBox="0 0 320 140" focusable="false"><rect width="320" height="140" rx="12" fill="#e5e5dc"/><circle cx="60" cy="112" r="44" fill="#b9c8c0" opacity=".8"/><rect x="22" y="30" width="130" height="10" rx="5" fill="#191918" opacity=".8"/><rect x="22" y="50" width="210" height="8" rx="4" fill="#a9a398"/><rect x="22" y="66" width="166" height="8" rx="4" fill="#a9a398"/><rect x="22" y="88" width="68" height="24" rx="12" fill="#3f5c50"/><text x="43" y="104" font-family="sans-serif" font-size="10" fill="#fff">Mods</text></svg></span>
             <h3><a href="/notices">Mods: Change how Keel Code behaves and looks with a few lines of TypeScript. Available in the CLI and desktop app.</a></h3>
             <p>Blog — Oct 1, 2026</p>
           </article>
-          <article class="c-article">
+          <article class="c-article" data-reveal>
             <span class="c-article-art" aria-hidden="true"><svg viewBox="0 0 320 140" focusable="false"><rect width="320" height="140" rx="12" fill="#e9e3da"/><circle cx="252" cy="118" r="54" fill="#d7cfc0" opacity=".7"/><rect x="22" y="30" width="146" height="10" rx="5" fill="#191918" opacity=".8"/><rect x="22" y="50" width="204" height="8" rx="4" fill="#a9a398"/><rect x="22" y="66" width="178" height="8" rx="4" fill="#a9a398"/><rect x="22" y="88" width="92" height="24" rx="12" fill="#6b6357"/><text x="39" y="104" font-family="sans-serif" font-size="10" fill="#fff">Projects</text></svg></span>
             <h3><a href="/notices">Projects: Group related coding sessions so you can run and easily supervise multiple Keel agents at once. Available on Keel Code Desktop.</a></h3>
             <p>Blog — Sep 17, 2026</p>
@@ -395,70 +399,83 @@
     <section class="l-section c-takeon" id="take-on">
       <div class="l-container">
         <div class="c-doodle" aria-hidden="true"><svg viewBox="0 0 76 54" width="76" height="54" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M8 38c8-3 12-12 15-22 2-7 8-6 8 2 0 10-6 18-6 18s10-4 16-11c4-5 9-1 5 4-7 9-14 13-14 13s11-1 16-6"/><path d="M12 10 8 3m15 6 2-7m-32 30-6 2"/></svg></div>
-        <h2 class="l-section-title">What Keel Code can take on</h2>
-        <p class="c-section-lede">Keel Code builds the plan, asks clarifying questions, and handles work that runs for hours or days.</p>
-        <a class="l-btn l-btn-dark" href="#get-started">Get Keel Code</a>
+        <h2 class="l-section-title" data-reveal>What Keel Code can take on</h2>
+        <p class="c-section-lede" data-reveal>Keel Code builds the plan, asks clarifying questions, and handles work that runs for hours or days.</p>
+        <a class="l-btn l-btn-dark" href="#get-started" data-reveal>Get Keel Code</a>
         <div class="c-takeon-grid">
-          <div class="c-terminal" data-terminal>
+          <div class="c-terminal" data-terminal data-reveal>
             <div class="c-terminal-bar"><span></span><span></span><span></span><em>~/acme-storefront</em></div>
             <div class="c-terminal-body" id="c-terminal-body" role="tabpanel" aria-label="Keel Code session transcript" data-terminal-body>
               <p class="c-term-user">❯ I'm new to this codebase. Can you explain it to me?</p>
-              <p>⏺ I'll analyze the Excalidraw codebase structure and provide a high-level overview.</p>
-              <p>⏺ Analyze(what: "codebase structure, main components and how they're organized")</p>
-              <p><strong>Excalidraw</strong> is an open-source virtual whiteboard application with a hand-drawn style.</p>
-              <p><strong>Purpose</strong><br>Web-based drawing tool with infinite canvas<br>Hand-drawn shapes, arrows and text<br>End-to-end encrypted collaboration</p>
-              <p><strong>Architecture</strong><br>1. Core package — React component library<br>2. Web application — full-featured app<br>3. Support packages — shared utilities<br>4. Examples and documentation</p>
-              <p><strong>Technology stack</strong><br>React, TypeScript, Vite, Jotai, IndexedDB</p>
+              <p>⏺ I'll analyze the codebase structure and provide a high-level overview.</p>
+              <p>⏺ Analyze(what: "project structure, main components and how they're organized")</p>
+              <p><strong>Acme Storefront</strong> is a commerce app with a checkout flow and a payments module.</p>
+              <p><strong>Architecture</strong><br>1. Storefront — React and TypeScript<br>2. Payments — charges and retries<br>3. Tests — checkout and payment suites</p>
               <p>Read 6 files, searched the codebase</p>
             </div>
             <div class="c-terminal-tabs" role="tablist" aria-label="Keel Code demo">
-              <button class="c-ttab is-active" type="button" role="tab" aria-selected="true" aria-controls="c-terminal-body" data-demo="onboarding">Onboarding</button>
-              <button class="c-ttab" type="button" role="tab" aria-selected="false" aria-controls="c-terminal-body" data-demo="triage">Triage issues</button>
-              <button class="c-ttab" type="button" role="tab" aria-selected="false" aria-controls="c-terminal-body" data-demo="migrate">Migrate code</button>
+              <button class="c-ttab is-active" type="button" role="tab" aria-selected="true" aria-controls="c-terminal-body" data-demo="command-line">Command line</button>
+              <button class="c-ttab" type="button" role="tab" aria-selected="false" aria-controls="c-terminal-body" data-demo="desktop" tabindex="-1">Desktop app</button>
+              <button class="c-ttab" type="button" role="tab" aria-selected="false" aria-controls="c-terminal-body" data-demo="ide" tabindex="-1">IDE extensions</button>
+              <button class="c-ttab" type="button" role="tab" aria-selected="false" aria-controls="c-terminal-body" data-demo="web" tabindex="-1">Web</button>
             </div>
           </div>
-          <div class="c-takeon-list">
-            <article class="c-feature"><h3>Code onboarding</h3><p>Keel Code maps and explains large codebases in a few seconds. It uses agentic search to understand project structure and dependencies without you having to manually select context files.</p></article>
-            <article class="c-feature"><h3>Turn issues into PRs</h3><p>Stop bouncing between tools. Keel Code works with GitHub, GitLab, and your command line tools to read issues, write code, run tests, and open pull requests.</p></article>
-            <article class="c-feature"><h3>Run multi-hour refactors and migrations</h3><p>Keel Code is designed to follow imports across the repo, run your tests, and keep going when something breaks, checking with you when it needs a decision.</p></article>
+          <div class="c-takeon-list" data-reveal-group>
+            <article class="c-feature" data-reveal><h3>Code onboarding</h3><p>Keel Code maps and explains large codebases in a few seconds. It uses agentic search to understand project structure and dependencies without you having to manually select context files.</p></article>
+            <article class="c-feature" data-reveal><h3>Triage issues</h3><p>Stop bouncing between tools. Keel Code works with GitHub, GitLab, and your command line tools to read issues, write code, run tests, and open pull requests.</p></article>
+            <article class="c-feature" data-reveal><h3>Migrate code</h3><p>Keel Code follows imports across the repo, runs your tests, and keeps going when something breaks, checking with you when it needs a decision.</p></article>
+            <a class="c-try-link" href="/login">Try it in Keel <span aria-hidden="true">→</span></a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== where you code ==================== -->
+    <!-- ==================== meets you where you code ==================== -->
     <section class="l-section c-where" id="where-you-code">
       <div class="l-container">
-        <h2 class="l-section-title">Meets you where you code</h2>
-        <a class="l-btn l-btn-dark" href="#get-started">Get Keel Code</a>
-        <div class="c-where-grid">
-          <article class="c-where-card">
+        <h2 class="l-section-title" data-reveal>Meets you where you code</h2>
+        <a class="l-btn l-btn-dark" href="#get-started" data-reveal>Get Keel Code</a>
+        <div class="c-where-grid" data-reveal-group>
+          <article class="c-where-card" data-reveal>
             <div class="c-where-art c-art-terminal" aria-hidden="true"><svg viewBox="0 0 420 230" focusable="false"><defs><linearGradient id="cArtTerm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6563c"/><stop offset="1" stop-color="#e8a075"/></linearGradient></defs><rect width="420" height="230" rx="12" fill="url(#cArtTerm)"/><rect x="18" y="16" width="384" height="198" rx="9" fill="#2b1c18" opacity=".86"/><circle cx="36" cy="34" r="4" fill="#e9a58a"/><circle cx="50" cy="34" r="4" fill="#d7b493"/><circle cx="64" cy="34" r="4" fill="#c4c0a8"/><text x="88" y="38" font-family="monospace" font-size="10" fill="#e8d9cd">~/acme-storefront</text><text x="36" y="70" font-family="monospace" font-size="11" fill="#f3d7c5">❯ fix the double-charge bug</text><text x="36" y="94" font-family="monospace" font-size="10" fill="#d8b6a3">⏺ reading charges.ts…</text><text x="36" y="116" font-family="monospace" font-size="10" fill="#d8b6a3">⏺ running tests (128 passing)</text><text x="36" y="138" font-family="monospace" font-size="10" fill="#cbe0b7">✓ patched createCharge() +9 −3</text><rect x="36" y="156" width="150" height="30" rx="6" fill="#f3d7c5"/><text x="48" y="175" font-family="monospace" font-size="10" fill="#2b1c18">❯ approve changes?</text></svg></div>
-            <h3>Start in your terminal</h3>
+            <h3>Terminal</h3>
             <p>Super powerful terminal integration. Works with all your CLI tools alongside popular IDEs.</p>
             <div class="c-copy-row"><code>curl -fsSL https://keel.ai/install.sh | bash</code><button type="button" class="c-copy" data-copy="curl -fsSL https://keel.ai/install.sh | bash" aria-label="Copy install command">Copy</button></div>
-            <a href="/requirements">Or read the documentation</a>
+            <a class="c-learn" href="/requirements">Learn more <span aria-hidden="true">→</span></a>
             <div class="c-where-actions"><a class="l-btn l-btn-dark" href="/login">Try Keel Code</a><a class="l-btn l-btn-outline" href="/requirements">Developer docs</a></div>
           </article>
-          <article class="c-where-card">
+          <article class="c-where-card" data-reveal>
             <div class="c-where-art c-art-editor" aria-hidden="true"><svg viewBox="0 0 420 230" focusable="false"><rect width="420" height="230" rx="12" fill="#111d2e"/><rect x="0" y="0" width="420" height="28" rx="12" fill="#1b2a40"/><circle cx="20" cy="14" r="4" fill="#d97757"/><circle cx="34" cy="14" r="4" fill="#8c9aae"/><circle cx="48" cy="14" r="4" fill="#8c9aae"/><text x="70" y="18" font-family="sans-serif" font-size="10" fill="#9fb0c4">src/theme/ThemeProvider.tsx</text><rect x="0" y="28" width="34" height="202" fill="#162338"/><text x="9" y="58" font-family="monospace" font-size="9" fill="#6c7f96">10</text><text x="9" y="78" font-family="monospace" font-size="9" fill="#6c7f96">11</text><text x="9" y="98" font-family="monospace" font-size="9" fill="#6c7f96">12</text><text x="9" y="118" font-family="monospace" font-size="9" fill="#6c7f96">13</text><text x="9" y="138" font-family="monospace" font-size="9" fill="#6c7f96">14</text><rect x="34" y="68" width="386" height="18" fill="#254833"/><text x="44" y="81" font-family="monospace" font-size="10" fill="#b9e4c4">+ const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')</text><rect x="34" y="88" width="386" height="18" fill="#254833"/><text x="44" y="101" font-family="monospace" font-size="10" fill="#b9e4c4">+ const stored = localStorage.getItem('theme')</text><text x="44" y="129" font-family="monospace" font-size="10" fill="#aebdd0">export function ThemeProvider(&#123;children&#125;) &#123;</text><text x="44" y="149" font-family="monospace" font-size="10" fill="#aebdd0">return &lt;ThemeContext.Provider value=&#123;mode&#125;&gt;</text><rect x="250" y="166" width="150" height="44" rx="6" fill="#223550" stroke="#3b5878"/><text x="262" y="184" font-family="sans-serif" font-size="10" fill="#cfe0f0">Keel Code: +18 −2</text><text x="262" y="200" font-family="sans-serif" font-size="9" fill="#8fa5bf">Preview applied</text></svg></div>
-            <h3>Integrate with your editor</h3>
+            <h3>IDE</h3>
             <p>Native extensions for VS Code (+ Cursor, Devin Desktop) and JetBrains IDEs.</p>
+            <a class="c-learn" href="/requirements">Learn more <span aria-hidden="true">→</span></a>
             <div class="c-where-actions"><button type="button" class="l-btn l-btn-outline" data-modal="vscode">VS Code</button><button type="button" class="l-btn l-btn-outline" data-modal="jetbrains">JetBrains</button></div>
           </article>
-          <article class="c-where-card">
+          <article class="c-where-card" data-reveal>
             <div class="c-where-art c-art-browser" aria-hidden="true"><svg viewBox="0 0 420 230" focusable="false"><defs><linearGradient id="cArtWeb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dbe7f1"/><stop offset="1" stop-color="#b7cee0"/></linearGradient></defs><rect width="420" height="230" rx="12" fill="url(#cArtWeb)"/><rect x="14" y="14" width="392" height="202" rx="9" fill="#fbfcfe"/><rect x="14" y="14" width="392" height="30" rx="9" fill="#e7eef6"/><circle cx="32" cy="29" r="4" fill="#d97757"/><circle cx="46" cy="29" r="4" fill="#e3c48d"/><circle cx="60" cy="29" r="4" fill="#a7c4a0"/><rect x="82" y="22" width="250" height="15" rx="7" fill="#fff" stroke="#d3dfea"/><text x="92" y="33" font-family="sans-serif" font-size="9" fill="#7d8b99">keel.ai/code/session/4821</text><rect x="30" y="58" width="362" height="40" rx="8" fill="#eef3f8"/><text x="42" y="75" font-family="sans-serif" font-size="10" fill="#32445a">Migrate the payments module to the new client</text><text x="42" y="90" font-family="sans-serif" font-size="9" fill="#7d8b99">Running · 3 agents · 42 min</text><rect x="30" y="108" width="230" height="46" rx="8" fill="#fff" stroke="#d8e2eb"/><text x="42" y="126" font-family="sans-serif" font-size="10" fill="#32445a">Following imports across the repo…</text><text x="42" y="142" font-family="sans-serif" font-size="9" fill="#4f7a58">✓ 128 tests passing</text><rect x="270" y="108" width="122" height="46" rx="8" fill="#2c5d86"/><text x="282" y="127" font-family="sans-serif" font-size="9" fill="#fff">Your turn: approve</text><text x="282" y="141" font-family="sans-serif" font-size="9" fill="#cfe0ef">or keep steering →</text><rect x="30" y="166" width="362" height="30" rx="15" fill="#fff" stroke="#d8e2eb"/><text x="44" y="185" font-family="sans-serif" font-size="10" fill="#9aa7b4">Ask Keel Code a follow-up…</text></svg></div>
-            <h3>Access anywhere</h3>
+            <h3>Browser</h3>
             <p>Quick access from browser, mobile app, or Keel on desktop. Great for parallel work or on-the-go coding.</p>
+            <a class="c-learn" href="/login">Learn more <span aria-hidden="true">→</span></a>
             <div class="c-where-actions"><a class="l-btn l-btn-dark" href="/login">Open in browser</a><a class="l-btn l-btn-outline" href="/download">Download app</a></div>
           </article>
         </div>
       </div>
     </section>
 
+    <!-- ==================== risk callout ==================== -->
+    <section class="c-risk" id="risk">
+      <div class="l-container c-risk-inner" data-reveal>
+        <div>
+          <h2>Risk of coding with tools like Keel</h2>
+          <p>Keel Code only runs the commands you allow. Permission modes, allow and deny rules, and approval cards put you in control before a test, commit, or deployment runs.</p>
+        </div>
+        <a class="l-btn l-btn-outline" href="/privacy">Learn more</a>
+      </div>
+    </section>
+
     <!-- ==================== slack ==================== -->
     <section class="l-section c-slack" id="slack">
-      <div class="l-container c-slack-inner">
+      <div class="l-container c-slack-inner" data-reveal>
         <h2>Kick off coding tasks in Slack</h2>
         <div class="c-slack-actions">
           <button type="button" class="l-btn l-btn-dark" data-modal="slack">Add to Slack</button>
@@ -467,27 +484,42 @@
       </div>
     </section>
 
-    <!-- ==================== voices ==================== -->
+    <!-- ==================== voices + logo grid ==================== -->
     <section class="l-section c-voices" id="developers">
       <div class="l-container">
-        <h2 class="l-section-title">What developers are saying</h2>
-        <div class="c-voice-grid">
-          <article class="c-voice"><span class="c-voice-logo">Ramp</span><blockquote>"Keel Code has dramatically accelerated our team's coding efficiency. I can now write EDA code in a notebook-pulling data, training a model, and evaluating it with basic metrics-and then ask Keel to convert that into a Metaflow pipeline. This process saves 1-2 days of routine (and often boring!) work per model."</blockquote><p>Anton Biryukov, Staff Software Engineer</p><a href="/notices">Read story</a></article>
-          <article class="c-voice"><span class="c-voice-logo">Intercom</span><blockquote>"With Keel, we're not just automating customer service-we're elevating it to truly human quality. This lets support teams think more strategically about customer experience and what makes interactions genuinely valuable."</blockquote><p>Fergal Reid, VP of AI</p><a href="/notices">Read story</a></article>
-          <article class="c-voice"><span class="c-voice-logo">Notion</span><blockquote>"Keel Code is moving our team up a level: we decide what needs to happen, and smooth the process so it can build and verify end-to-end. A big part of my job now is to keep as many instances of Keel Code busy as possible."</blockquote><p>Simon Last, Co-founder</p><a href="/notices">Read story</a></article>
+        <h2 class="l-section-title" data-reveal>What developers are saying</h2>
+        <div class="c-voice-grid" data-reveal-group>
+          <article class="c-voice" data-reveal><span class="c-voice-logo">Ramp</span><blockquote>“Keel Code has dramatically accelerated our team's coding efficiency. I can now write EDA code in a notebook—pulling data, training a model, and evaluating it with basic metrics—and then ask Keel to convert that into a Metaflow pipeline. This process saves 1-2 days of routine (and often boring!) work per model.”</blockquote><p>Anton Biryukov, Staff Software Engineer</p><a href="/notices">Read story</a></article>
+          <article class="c-voice" data-reveal><span class="c-voice-logo">Intercom</span><blockquote>“With Keel, we're not just automating customer service—we're elevating it to truly human quality. This lets support teams think more strategically about customer experience and what makes interactions genuinely valuable.”</blockquote><p>Fergal Reid, VP of AI</p><a href="/notices">Read story</a></article>
+          <article class="c-voice" data-reveal><span class="c-voice-logo">Notion</span><blockquote>“Keel Code is moving our team up a level: we decide what needs to happen, and smooth the process so it can build and verify end-to-end. A big part of my job now is to keep as many instances of Keel Code busy as possible.”</blockquote><p>Simon Last, Co-founder</p><a href="/notices">Read story</a></article>
         </div>
-        <div class="c-voice-logos" aria-label="Tools that connect with Keel Code">
-          <span>Gitlab</span><span>Dynatrace</span><span>Kubernetes</span><span>Heroku</span><span>Stripe</span><span>Elastic</span><span>Terraform</span><span>Sentry</span><span>AWS</span><span>MongoDB</span><span>Atlassian</span><span>Datadog</span><span>GitHub</span><span>Vercel</span><span>New Relic</span>
+        <div class="c-voice-logos" aria-label="Tools that connect with Keel Code" data-reveal>
+          <span>Stripe</span>
+          <img src="/assets/img/platform/pa-logo-vercel.svg" alt="Vercel" width="84" height="20" />
+          <span>Databricks</span><span>Ramp</span><span>Plaid</span>
+          <img src="/assets/img/platform/pa-logo-spotify.svg" alt="Spotify" width="84" height="20" />
+          <span>StubHub</span><span>Uber</span>
+          <img src="/assets/img/platform/pa-logo-brex.svg" alt="Brex" width="70" height="20" />
+          <span>Intercom</span><span>NASA</span><span>Figma</span>
+          <img src="/assets/img/platform/pa-logo-gitlab.svg" alt="GitLab" width="78" height="20" />
+          <span>Dynatrace</span><span>Kubernetes</span><span>Heroku</span>
+          <img src="/assets/img/platform/pa-logo-aws.svg" alt="AWS" width="62" height="20" />
+          <img src="/assets/img/platform/pa-logo-atlassian.svg" alt="Atlassian" width="98" height="20" />
+          <img src="/assets/img/platform/pa-logo-datadog.svg" alt="Datadog" width="88" height="20" />
+          <span>MongoDB</span><span>New Relic</span>
         </div>
-        <div class="c-voice-note"><h3>Connects with your favorite command line tools</h3><p>Your terminal is where real work happens. Keel Code connects with the tools that power development-deployment, databases, monitoring, version control. Rather than adding another interface to juggle, it enhances your existing stack.</p></div>
+        <div class="c-voice-note" data-reveal>
+          <h3>Connects with your favorite command line tools</h3>
+          <p>Your terminal is where real work happens. Keel Code connects with the tools that power development—deployment, databases, monitoring, version control. Rather than adding another interface to juggle, it enhances your existing stack.</p>
+        </div>
       </div>
     </section>
 
     <!-- ==================== FAQ ==================== -->
     <section class="l-section c-faq" id="faq">
       <div class="l-container">
-        <h2 class="l-section-title">FAQ</h2>
-        <div class="l-faq">
+        <h2 class="l-section-title" data-reveal>FAQ</h2>
+        <div class="l-faq" data-reveal>
           <div class="l-faq-item">
             <button class="l-faq-q" type="button" aria-expanded="false" aria-controls="c-faq-a-1">How do I get started with Keel?<span class="l-faq-icon" aria-hidden="true"></span></button>
             <div class="l-faq-a" id="c-faq-a-1" hidden><p>You can access Keel Code with a Keel Pro, Max, or Ultra plan, a Team or Enterprise plan, or a Keel Console account. Download Keel Code and sign in with your respective Keel or Console credentials.</p></div>
@@ -510,11 +542,7 @@
           </div>
           <div class="l-faq-item">
             <button class="l-faq-q" type="button" aria-expanded="false" aria-controls="c-faq-a-6">How much does Keel Code cost?<span class="l-faq-icon" aria-hidden="true"></span></button>
-            <div class="l-faq-a" id="c-faq-a-6" hidden><p>When used with a Keel Console account, Keel Code consumes API tokens at <a href="/#plans">standard API pricing.</a></p></div>
-          </div>
-          <div class="l-faq-item">
-            <button class="l-faq-q" type="button" aria-expanded="false" aria-controls="c-faq-a-7">Does Keel Code work with the Keel desktop app?<span class="l-faq-icon" aria-hidden="true"></span></button>
-            <div class="l-faq-a" id="c-faq-a-7" hidden><p>Yes. Pro, Max, Ultra, Team, and Enterprise users can access Keel Code on the <a href="/download">Keel desktop app.</a></p></div>
+            <div class="l-faq-a" id="c-faq-a-6" hidden><p>When used with a Keel Console account, Keel Code consumes API tokens at <a href="/pricing">standard API pricing.</a></p></div>
           </div>
         </div>
       </div>
@@ -524,38 +552,53 @@
     <section class="l-section c-technical" id="technical">
       <div class="l-container">
         <div class="c-doodle" aria-hidden="true"><svg viewBox="0 0 76 54" width="76" height="54" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M10 12h22l7 7v24H10z"/><path d="M32 12v7h7M17 28h16M17 35h12"/><path d="M52 42V18l12-6v24"/><path d="M52 18l12-6M52 30l12-6"/></svg></div>
-        <h2 class="l-section-title">Get the technical rundown</h2>
-        <div class="c-res-grid">
-          <article class="c-res"><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M10 6h20l8 8v28H10z"/><path d="M30 6v8h8M16 24h16M16 30h16M16 36h10"/></svg></span><h3><a href="/requirements">Keel Code documentation</a></h3><p>Developer docs</p></article>
-          <article class="c-res"><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M8 12h13M8 24h20M8 36h13"/><path d="m28 12 6-5 6 5-6 5zM34 19v14m0 0-5-6m5 6 5-6"/></svg></span><h3><a href="/requirements">Common workflows</a></h3><p>Developer docs</p></article>
-          <article class="c-res"><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 6h24v36H12z"/><path d="M18 16h12M18 22h12M18 28h8"/><path d="M22 34h4"/></svg></span><h3><a href="/notices">Using KEEL.md files</a></h3><p>Blog</p></article>
-          <article class="c-res"><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="24" cy="24" r="9"/><path d="M24 4v7M24 37v7M4 24h7M37 24h7M10 10l5 5M33 33l5 5M38 10l-5 5M15 33l-5 5"/></svg></span><h3><a href="/notices">Introduction to agentic coding</a></h3><p>Blog</p></article>
-          <article class="c-res"><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="17" cy="17" r="6"/><circle cx="33" cy="19" r="5"/><path d="M6 39c0-6 5-10 11-10s11 4 11 10M29 31c5 0 9 3 9 8"/></svg></span><h3><a href="/notices">How Keel teams use Keel Code</a></h3><p>Blog</p></article>
-          <article class="c-res"><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 30a12 12 0 1 1 24 0"/><path d="m30 28-8 8-5-5"/><circle cx="24" cy="24" r="18"/></svg></span><h3><a href="/notices">Fix software bugs faster with Keel</a></h3><p>Blog</p></article>
+        <h2 class="l-section-title" data-reveal>Get the technical rundown</h2>
+        <div class="c-res-grid" data-reveal-group>
+          <article class="c-res" data-reveal><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M10 6h20l8 8v28H10z"/><path d="M30 6v8h8M16 24h16M16 30h16M16 36h10"/></svg></span><h3><a href="/requirements">Keel Code documentation</a></h3><p>Developer docs</p></article>
+          <article class="c-res" data-reveal><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M8 12h13M8 24h20M8 36h13"/><path d="m28 12 6-5 6 5-6 5zM34 19v14m0 0-5-6m5 6 5-6"/></svg></span><h3><a href="/requirements">Common workflows</a></h3><p>Developer docs</p></article>
+          <article class="c-res" data-reveal><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 6h24v36H12z"/><path d="M18 16h12M18 22h12M18 28h8"/><path d="M22 34h4"/></svg></span><h3><a href="/notices">Using KEEL.md files</a></h3><p>Blog</p></article>
+          <article class="c-res" data-reveal><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="24" cy="24" r="9"/><path d="M24 4v7M24 37v7M4 24h7M37 24h7M10 10l5 5M33 33l5 5M38 10l-5 5M15 33l-5 5"/></svg></span><h3><a href="/notices">Introduction to agentic coding</a></h3><p>Blog</p></article>
+          <article class="c-res" data-reveal><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="17" cy="17" r="6"/><circle cx="33" cy="19" r="5"/><path d="M6 39c0-6 5-10 11-10s11 4 11 10M29 31c5 0 9 3 9 8"/></svg></span><h3><a href="/notices">How Keel teams use Keel Code</a></h3><p>Blog</p></article>
+          <article class="c-res" data-reveal><span class="c-res-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 30a12 12 0 1 1 24 0"/><path d="m30 28-8 8-5-5"/><circle cx="24" cy="24" r="18"/></svg></span><h3><a href="/notices">Fix software bugs faster with Keel</a></h3><p>Blog</p></article>
         </div>
       </div>
     </section>
 
-    <!-- ==================== dark CTA + newsletter ==================== -->
+    <!-- ==================== dark CTA ==================== -->
     <section class="c-cta" id="get-code">
       <div class="l-container">
-        <h2>Create what's exciting.<br>Maintain what's essential.</h2>
+        <h2 data-reveal>Create what's exciting.<br>Maintain what's essential.</h2>
         <div class="c-cta-grid">
-          <div><h3>Use Keel Code where you work</h3>
-            <div class="c-copy-row"><code>curl -fsSL https://keel.ai/install.sh | bash</code><button type="button" class="c-copy" data-copy="curl -fsSL https://keel.ai/install.sh | bash">Copy</button></div>
+          <div class="c-cta-copy" data-reveal>
+            <h3>Use Keel Code where you work</h3>
+            <div class="c-copy-row"><code>curl -fsSL https://keel.ai/install.sh | bash</code><button type="button" class="c-copy" data-copy="curl -fsSL https://keel.ai/install.sh | bash" aria-label="Copy install command">Copy</button></div>
             <p>Or read the <a href="/requirements">documentation</a></p>
-            <div class="c-cta-actions"><a class="l-btn l-btn-dark" href="/login">Try Keel Code</a><a class="l-btn l-btn-outline" href="/requirements">Developer docs</a></div>
+            <div class="c-cta-actions">
+              <a class="l-btn l-btn-dark" href="/download">Download Keel Code</a>
+              <a class="l-btn l-btn-outline" href="/requirements">Read the documentation</a>
+            </div>
+            <div class="c-cta-news" id="newsletter">
+              <h3>Get the developer newsletter</h3>
+              <p>Product updates, how-tos, community spotlights, and more. Delivered monthly to your inbox.</p>
+              <form id="c-news-form" novalidate>
+                <label class="l-sr-only" for="c-news-email">Email address</label>
+                <input id="c-news-email" type="email" placeholder="you@example.com" required autocomplete="email" />
+                <button type="submit" class="l-btn l-btn-dark">Sign up</button>
+                <p class="c-news-msg" id="c-news-msg" role="status" hidden>Please provide a valid email address.</p>
+              </form>
+              <p class="c-news-fine">Please provide your email address if you'd like to receive our monthly developer newsletter. You can unsubscribe at any time.</p>
+            </div>
           </div>
-          <div class="c-cta-news" id="newsletter">
-            <h3>Get the developer newsletter</h3>
-            <p>Product updates, how-tos, community spotlights, and more. Delivered monthly to your inbox.</p>
-            <form id="c-news-form" novalidate>
-              <label class="l-sr-only" for="c-news-email">Email address</label>
-              <input id="c-news-email" type="email" placeholder="you@example.com" required />
-              <button type="submit" class="l-btn l-btn-dark">Sign up</button>
-              <p class="c-news-msg" id="c-news-msg" role="status" hidden>Please provide a valid email address.</p>
-            </form>
-            <p class="c-news-fine">Please provide your email address if you'd like to receive our monthly developer newsletter. You can unsubscribe at any time.</p>
+          <div class="c-code-preview" data-reveal aria-label="Keel Code session preview">
+            <div class="c-preview-bar" aria-hidden="true"><span><i></i><i></i><i></i></span><em>src/checkout/charges.ts</em></div>
+            <div class="c-preview-body" aria-hidden="true">
+              <p class="c-preview-line"><span class="c-ln">1</span><span class="c-kw">export async function</span> createCharge(cart) &#123;</p>
+              <p class="c-preview-line"><span class="c-ln">2</span>  <span class="c-kw">const</span> key = cart.idempotencyKey</p>
+              <p class="c-preview-line c-preview-del"><span class="c-ln">3</span>−  <span class="c-kw">await</span> gateway.charge(cart.total)</p>
+              <p class="c-preview-line c-preview-add"><span class="c-ln">3</span>+  <span class="c-kw">await</span> chargeOnce(cart, key)</p>
+              <p class="c-preview-line"><span class="c-ln">4</span>&#125;</p>
+            </div>
+            <div class="c-preview-foot" aria-hidden="true"><span>charges.ts</span><span class="c-diff-stat">+9 −3</span><span class="c-preview-ok">✓ 128 tests passing</span></div>
           </div>
         </div>
       </div>
@@ -588,60 +631,51 @@
 
       <div class="l-footer-cols">
         <nav class="l-footer-col" aria-label="Keel">
-          <h2 class="l-footer-h">Keel</h2>
-          <a href="/">Keel</a>
+          <h2 class="l-footer-h">Products</h2>
+          <a href="/product/overview">Keel</a>
           <a href="/product/keel-code">Keel Code</a>
-          <a href="/#plans">Keel Cowork</a>
+          <a href="/cowork">Keel Cowork</a>
           <a href="/product/keel-duet">Keel Duet</a>
           <a href="/platform/api">Keel Platform</a>
-          <a href="/#plans">Keel Science</a>
+          <a href="/product/overview#capabilities">Keel Tag</a>
           <p class="l-footer-sub">Specialized</p>
           <a href="/privacy">Keel Security</a>
-          <a href="/#plans">Keel Science</a>
-          <a href="/download">Keel in Chrome</a>
-          <a href="/download">Keel for Google Workspace</a>
-          <a href="/download">Keel for Microsoft 365</a>
-          <button class="js-auth" type="button" data-auth="login">Login</button>
-          <a href="/#plans">Pricing</a>
+          <a href="/requirements">Keel Science</a>
           <p class="l-footer-sub">Capabilities</p>
-          <a href="/#plans">Artifacts</a>
-          <a href="/#plans">Design</a>
-          <a href="/#plans">Connectors</a>
-          <a href="/#plans">Plugins</a>
-          <a href="/#plans">Skills</a>
+          <a href="/artifacts">Artifacts</a>
+          <a href="/product/overview#capabilities">Design</a>
+          <a href="/product/overview#capabilities">Connectors</a>
+          <a href="/plugins">Plugins</a>
+          <a href="/requirements">Skills</a>
           <p class="l-footer-sub">Extensions</p>
           <a href="/download">Keel in Chrome</a>
           <a href="/download">Keel for Google Workspace</a>
           <a href="/download">Keel for Microsoft 365</a>
           <p class="l-footer-sub">Models</p>
-          <a href="/#plans">Mythos (including Fable)</a>
-          <a href="/#plans">Opus</a>
-          <a href="/#plans">Sonnet</a>
-          <a href="/#plans">Haiku</a>
+          <a href="/requirements">Mythos (including Fable)</a>
+          <a href="/requirements">Opus</a>
+          <a href="/requirements">Sonnet</a>
+          <a href="/requirements">Haiku</a>
         </nav>
 
         <nav class="l-footer-col" aria-label="Enterprise">
           <h2 class="l-footer-h">Enterprise</h2>
-          <a href="/#plans">Overview</a>
+          <a href="/pricing">Overview</a>
           <a href="/product/keel-code">Keel Code for Enterprise</a>
           <a href="/platform/api">Keel Platform</a>
+          <a href="/roadmap">Keel Ship</a>
           <a href="mailto:hello@keel.ai">Customer support</a>
           <a href="/privacy">Cybersecurity</a>
           <a href="/terms">Legal</a>
           <button class="js-auth" type="button" data-auth="sales">Sales</button>
-          <a href="/#plans">Finance</a>
-          <a href="/#plans">Healthcare</a>
-          <a href="/#plans">Government</a>
-          <a href="/#plans">Higher education</a>
-          <a href="/#plans">K-12 education</a>
-          <a href="/#plans">Life sciences</a>
-          <a href="/#plans">Manufacturing</a>
-          <a href="/#plans">Nonprofits</a>
-          <a href="/#plans">Small business</a>
-          <a href="/#plans">Startups</a>
-          <a href="/#plans">Programs</a>
-          <a href="/#plans">Frontline Academy</a>
-          <button class="js-auth" type="button" data-auth="sales">Services</button>
+          <a href="/pricing">Finance</a>
+          <a href="/pricing">Healthcare</a>
+          <a href="/pricing">Government</a>
+          <a href="/pricing">Higher education</a>
+          <a href="/pricing">Life sciences</a>
+          <a href="/pricing">Manufacturing</a>
+          <a href="/pricing">Nonprofits</a>
+          <a href="/pricing">Startups</a>
         </nav>
 
         <nav class="l-footer-col" aria-label="Developers">
@@ -651,38 +685,31 @@
           <a href="/login">Console</a>
           <a href="/notices">Engineering at Keel</a>
           <p class="l-footer-sub">Platform</p>
-          <a href="/#plans">Overview</a>
+          <a href="/platform/api">Overview</a>
           <a href="/roadmap">Manuscript</a>
-          <a href="/requirements">Keel in AWS</a>
           <a href="/requirements">Keel on AWS</a>
           <a href="/requirements">Microsoft Foundry</a>
-          <a href="/#plans">Managed Agents</a>
+          <a href="/platform/api">Managed Agents</a>
           <p class="l-footer-sub">Resources</p>
           <a href="#faq">Overview</a>
           <a href="/requirements">AI academy</a>
           <a href="/notices">Keel partner network</a>
           <a href="/requirements">Keel Academy</a>
           <a href="/notices">Events</a>
-          <a href="/#plans">Programs</a>
-          <a href="/requirements">Extended thinking with Keel Code</a>
           <p class="l-footer-sub">Help and security</p>
           <a href="/notices">Availability</a>
           <a href="/requirements">Check files</a>
           <a href="/privacy">Regional compliance</a>
           <a href="mailto:hello@keel.ai">Report a bug</a>
           <a href="/privacy">Trust centre</a>
-          <a href="/privacy">Agency and compliance</a>
-          <a href="mailto:hello@keel.ai">Support centre</a>
         </nav>
 
         <nav class="l-footer-col" aria-label="Company">
           <h2 class="l-footer-h">Company</h2>
-          <a href="/">Keel</a>
+          <a href="/product/overview">Keel</a>
           <a href="mailto:careers@keel.ai">Careers</a>
-          <a href="mailto:careers@keel.ai">Jobs</a>
           <a href="/notices">News</a>
           <a href="/notices">Keel news</a>
-          <a href="/notices">Publicity</a>
           <a href="/terms">Responsible scaling policy</a>
           <a href="/notices">Transparency</a>
           <a href="/privacy">Trust &amp; safety</a>
@@ -690,13 +717,9 @@
           <a href="/privacy">Privacy policy</a>
           <a href="/terms">Terms of service</a>
           <a href="/notices">Responsible disclosure policy</a>
-          <a href="/terms">Terms of service: Commercial</a>
-          <a href="/terms">Consumer terms</a>
+          <a href="/terms">Usage policy</a>
           <a href="/privacy">Cookie settings</a>
           <a href="/privacy">Data processing addendum</a>
-          <a href="/privacy">US state privacy disclosures</a>
-          <a href="/notices">KB-000412</a>
-          <a href="/terms">Usage policy</a>
         </nav>
       </div>
 
@@ -726,19 +749,16 @@
     </div>
   </footer>
 
-  <!-- ==================== dismissible news chip ==================== -->
   <aside class="l-news" id="newsChip" role="status" aria-label="Latest news">
     <span class="l-news-label">Latest news</span>
     <span class="l-news-text">Keel Desktop is here. <a href="/download">Download it for your platform.</a></span>
     <button class="l-news-close" type="button" aria-label="Dismiss latest news">×</button>
   </aside>
 
-  <!-- ==================== auth / contact modal ==================== -->
   <div class="l-modal" id="authModal" hidden>
     <div class="l-modal-backdrop" data-modal-close=""></div>
     <div class="l-modal-card" role="dialog" aria-modal="true" aria-labelledby="authTitle" aria-describedby="authDesc">
       <button class="l-modal-close" type="button" data-modal-close aria-label="Close dialog">×</button>
-
       <div id="authFormView">
         <span class="l-modal-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="24" height="24" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
@@ -754,7 +774,6 @@
         </form>
         <p class="l-modal-legal">By continuing you agree to Keel's <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms of Service</a>.</p>
       </div>
-
       <div id="authSuccessView" hidden>
         <span class="l-modal-mark l-modal-mark-ok" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 12.5l5 5L20 6.5"/></svg>
@@ -767,7 +786,6 @@
     </div>
   </div>
 
-  <!-- ==================== generic page modal + toast ==================== -->
   <div class="c-modal" id="c-modal" hidden>
     <div class="c-modal-backdrop" data-c-close></div>
     <div class="c-modal-card" role="dialog" aria-modal="true" aria-labelledby="c-modal-title">
@@ -778,8 +796,6 @@
   </div>
   <div class="c-toast" id="c-toast" role="status" aria-live="polite" hidden></div>
 
-  <!-- keel-code.js is self-contained: the shared landing.js binds the same
-       shell selectors and would toggle them twice on this page. -->
-  <script src="/ui/keel-code.js" defer></script>
+  <!-- keel-code.js is self-contained and owns every interactive control here. -->
 </body>
 </html>
