@@ -33,6 +33,7 @@ var DEFAULT_STATE = {
 
 var MODELS = ['Mythos', 'Opus', 'Sonnet', 'Haiku'];
 var APPROVAL_MODES = ['Ask before each action', 'Permissions Mode', 'Work autonomously'];
+var TOOL_TABS = ['Keel', 'Keel Code', 'Everyday tools', 'Background tasks'];
 var MAX_SESSIONS = 60;
 var MAX_CONTEXT_CHARS = 30000;
 
@@ -51,6 +52,10 @@ function normalizeState(raw) {
   if (typeof base.welcomeSeen !== 'boolean') base.welcomeSeen = false;
   if (MODELS.indexOf(base.model) === -1) base.model = DEFAULT_STATE.model;
   if (APPROVAL_MODES.indexOf(base.approvalMode) === -1) base.approvalMode = DEFAULT_STATE.approvalMode;
+  if (TOOL_TABS.indexOf(base.activeTab) === -1) base.activeTab = DEFAULT_STATE.activeTab;
+  if (base.contextSource !== 'full' && base.contextSource !== 'selection') {
+    base.contextSource = DEFAULT_STATE.contextSource;
+  }
   if (!Array.isArray(base.sessions)) base.sessions = [];
   else base.sessions = base.sessions.filter(function (s) { return s && typeof s === 'object'; }).slice(0, MAX_SESSIONS);
   if (typeof base.settings !== 'object' || Array.isArray(base.settings)) base.settings = copyDefaults().settings;
@@ -207,10 +212,11 @@ async function getActiveTab() {
 }
 
 async function requestPageContext(tabId) {
-  var rt = runtimeApi();
-  if (!tabId || !rt || typeof rt.sendMessage !== 'function') return null;
+  /* runtime.sendMessage() cannot reach content scripts; tabs.sendMessage() can. */
+  var tabs = chromeApi && chromeApi.tabs;
+  if (!tabId || !tabs || typeof tabs.sendMessage !== 'function') return null;
   try {
-    var response = await withTimeout(rt.sendMessage(tabId, { type: 'KEEL_GET_CONTEXT' }), 2000, null);
+    var response = await withTimeout(tabs.sendMessage(tabId, { type: 'KEEL_GET_CONTEXT' }), 2000, null);
     if (!response || typeof response !== 'object') return null;
     if (response.ok === false) return null;
     return response.context || response;
@@ -219,27 +225,49 @@ async function requestPageContext(tabId) {
   }
 }
 
-async function openPanel() {
+/* Chrome 114+ can wire the toolbar icon directly to the side panel. This is
+ * preferred over an onClicked -> open() chain because it needs no user-gesture
+ * plumbing and still works after the service worker has been suspended. */
+var panelBehaviorReady = false;
+async function configurePanelBehavior() {
+  var sidePanel = chromeApi && chromeApi.sidePanel;
+  if (!sidePanel || typeof sidePanel.setPanelBehavior !== 'function') return false;
+  try {
+    await sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+    panelBehaviorReady = true;
+    return true;
+  } catch (_e) {
+    panelBehaviorReady = false;
+    return false;
+  }
+}
+
+/* Pass windowId from the triggering user gesture (toolbar/context menu) when
+ * available: sidePanel.open() is only allowed during a user action, so any
+ * await before the call would lose that permission. */
+async function openPanel(windowId) {
   var sidePanel = chromeApi && chromeApi.sidePanel;
   if (!sidePanel || typeof sidePanel.open !== 'function') {
     return { ok: false, reason: 'sidePanel API unavailable' };
   }
-  var windowId = null;
-  try {
-    if (chromeApi.windows && typeof chromeApi.windows.getCurrent === 'function') {
-      var window = await withTimeout(chromeApi.windows.getCurrent(), 1000, null);
-      if (window && window.id != null) windowId = window.id;
+  var resolvedWindowId = windowId;
+  if (resolvedWindowId == null) {
+    try {
+      if (chromeApi.windows && typeof chromeApi.windows.getCurrent === 'function') {
+        var window = await withTimeout(chromeApi.windows.getCurrent(), 1000, null);
+        if (window && window.id != null) resolvedWindowId = window.id;
+      }
+    } catch (_e) {
+      /* ignore */
     }
-  } catch (_e) {
-    /* ignore */
   }
-  if (windowId == null) {
+  if (resolvedWindowId == null) {
     var tab = await getActiveTab();
-    if (tab && tab.windowId != null) windowId = tab.windowId;
+    if (tab && tab.windowId != null) resolvedWindowId = tab.windowId;
   }
-  if (windowId == null) return { ok: false, reason: 'no active window' };
+  if (resolvedWindowId == null) return { ok: false, reason: 'no active window' };
   try {
-    await sidePanel.open({ windowId: windowId });
+    await sidePanel.open({ windowId: resolvedWindowId });
     return { ok: true, method: 'sidePanel' };
   } catch (e) {
     return { ok: false, reason: String((e && e.message) || e) };
@@ -287,6 +315,8 @@ async function createContextMenus() {
 
 async function handleContextMenuClick(info, tab) {
   var type = (info && info.menuItemId === 'keel-convert-page') ? 'convert' : 'ask';
+  /* Start opening before any await so Chrome still sees the user gesture. */
+  var opened = openPanel(tab && tab.windowId);
   await setState({
     pendingAction: {
       type: type,
@@ -296,7 +326,7 @@ async function handleContextMenuClick(info, tab) {
     },
     mode: type === 'convert' ? 'Convert' : 'Chat'
   });
-  var result = await openPanel();
+  var result = await opened;
   if (!result.ok) await openPanelFallback();
   return result;
 }
@@ -516,7 +546,8 @@ async function handleMessage(message, sender) {
     }
 
     case 'OPEN_PANEL': {
-      var opened = await openPanel();
+      var senderWindow = (sender && sender.tab && sender.tab.windowId != null) ? sender.tab.windowId : null;
+      var opened = await openPanel(senderWindow);
       if (!opened.ok) opened = await openPanelFallback();
       return opened;
     }
@@ -541,9 +572,7 @@ if (rt && rt.onInstalled && typeof rt.onInstalled.addListener === 'function') {
       }
       await setState(patch);
       await createContextMenus();
-      /* Best effort: on install the welcome/setup state is already in storage.
-         The panel may need a user gesture, so a failed open is not an error. */
-      await openPanel();
+      await configurePanelBehavior();
     })().catch(function () {
       /* never let a listener reject */
     });
@@ -553,6 +582,7 @@ if (rt && rt.onInstalled && typeof rt.onInstalled.addListener === 'function') {
 if (rt && rt.onStartup && typeof rt.onStartup.addListener === 'function') {
   rt.onStartup.addListener(function () {
     createContextMenus().catch(function () { /* ignore */ });
+    configurePanelBehavior().catch(function () { /* ignore */ });
   });
 }
 
@@ -571,10 +601,14 @@ if (rt && rt.onMessage && typeof rt.onMessage.addListener === 'function') {
   });
 }
 
+/* Normally the toolbar icon is handled by sidePanel.setPanelBehavior(). Keep a
+ * fallback for browsers that reject that call; the tab windowId is available
+ * synchronously here, so the sidePanel.open() user gesture is preserved. */
 try {
   if (chromeApi && chromeApi.action && chromeApi.action.onClicked && typeof chromeApi.action.onClicked.addListener === 'function') {
-    chromeApi.action.onClicked.addListener(function () {
-      openPanel().catch(function () { /* ignore */ });
+    chromeApi.action.onClicked.addListener(function (tab) {
+      if (panelBehaviorReady) return;
+      openPanel(tab && tab.windowId).catch(function () { /* ignore */ });
     });
   }
 } catch (_e) {
@@ -610,5 +644,7 @@ try {
   /* ignore */
 }
 
-/* Boot context menus for already-installed extensions without a fresh install. */
+/* Boot context menus and panel behavior for already-installed extensions
+ * without a fresh install or a browser restart. */
 createContextMenus().catch(function () { /* ignore */ });
+configurePanelBehavior().catch(function () { /* ignore */ });

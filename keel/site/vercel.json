@@ -36,7 +36,6 @@
     { "source": "/projects", "destination": "/projects.html" },
     { "source": "/artifacts", "destination": "/artifacts.html" },
     { "source": "/keel-in-chrome", "destination": "/keel-in-chrome.html" },
-    { "source": "/chrome-web-store", "destination": "/chrome-web-store.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/terms", "destination": "/terms.html" },
     { "source": "/notices", "destination": "/notices.html" },
