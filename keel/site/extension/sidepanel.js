@@ -1,7 +1,7 @@
 /* Keel in Chrome — side panel UI.
  * Fully local, deterministic demo: page text is read from the active tab via
  * the background worker, and answers are built with rules in this file.
- * No fetch(), no API keys, no external scripts.
+ * No network requests, no API keys, no external scripts.
  */
 (function () {
   'use strict';
@@ -15,6 +15,13 @@
   var MODELS = ['Mythos', 'Opus', 'Sonnet', 'Haiku'];
   var APPROVAL_MODES = ['Ask before each action', 'Permissions Mode', 'Work autonomously'];
   var TABS = ['Keel', 'Keel Code', 'Everyday tools', 'Background tasks'];
+  /* IDs must not contain spaces: aria-labelledby is a space-separated IDREF list. */
+  var TAB_IDS = {
+    'Keel': 'tab-Keel',
+    'Keel Code': 'tab-KeelCode',
+    'Everyday tools': 'tab-EverydayTools',
+    'Background tasks': 'tab-BackgroundTasks'
+  };
 
   var state = {
     model: 'Mythos',
@@ -366,7 +373,7 @@
       button.setAttribute('tabindex', active ? '0' : '-1');
     });
     var panel = el.quickActions;
-    if (panel) panel.setAttribute('aria-labelledby', 'tab-' + tab);
+    if (panel) panel.setAttribute('aria-labelledby', TAB_IDS[tab] || TAB_IDS.Keel);
     if (el.quickHint) el.quickHint.textContent = tab === 'Keel' ? 'with page context' : 'for ' + tab.toLowerCase();
     renderQuickActions();
     sendMessage({ type: 'SET_ACTIVE_TAB', tab: tab });
@@ -1094,7 +1101,7 @@
         if (next) {
           event.preventDefault();
           setActiveTab(next);
-          var target = byId('tab-' + next);
+          var target = byId(TAB_IDS[next]);
           if (target) target.focus();
         }
       });

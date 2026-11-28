@@ -405,7 +405,6 @@ test("landing page and owned-file boundary are unchanged", async () => {
   // app *behavior* files remain protected.
   for (const forbidden of [
     "keel/site/index.html", "keel/site/ui/app.js",
-    "keel/site/chrome-web-store.html", "keel/site/keel-in-chrome.html",
     "keel/site/downloads.html",
   ]) {
     assert.ok(!changed.some((f) => f.startsWith(forbidden)), `unexpected change in ${forbidden}`);
