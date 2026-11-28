@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel Design — Design your ideas with Keel</title>
+  <meta name="description" content="Generate, iterate on, and ship design work with AI—all inside the tools you already know." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/product/design" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f5f4ef" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Keel Design — Design your ideas with Keel" />
+  <meta property="og:description" content="Generate, iterate on, and ship design work with AI—all inside the tools you already know." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/product/design" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Keel Design — Design your ideas with Keel" />
+  <meta name="twitter:description" content="Generate, iterate on, and ship design work with AI—all inside the tools you already know." />
+  <link rel="stylesheet" href="/ui/keel-duet-shell.css" />
+  <link rel="stylesheet" href="/ui/product-design.css" />
+</head>
+<body class="duet-page design-page">
+
+  <!-- ==================== header / mega navigation ==================== -->
+  <header class="l-header s-header">
+    <div class="l-nav-inner">
+      <a class="l-wordmark" href="/" aria-label="Keel home">
+        <span class="l-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+        </span>
+        <span class="l-wordmark-text">Keel</span>
+      </a>
+
+      <nav class="l-nav-links" aria-label="Primary">
+
+        <!-- Product: four-column mega menu -->
+        <div class="l-nav-item" data-menu="product">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-product">Product <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-product" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Products</p>
+                <a class="l-mega-link" href="/">Keel</a>
+                <a class="l-mega-link" href="/product/design">Keel Design</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/product/cowork">Keel Cowork</a>
+                <a class="l-mega-link" href="/product/keel-duet">Keel Duet</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/pricing">Pricing</a>
+                <p class="l-mega-subhead">Specialized</p>
+                <a class="l-mega-link" href="/privacy">Keel Security</a>
+                <a class="l-mega-link" href="/product/keel-science">Keel Science</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Capabilities</p>
+                <a class="l-mega-link" href="/product/design">Design</a>
+                <a class="l-mega-link" href="/product/keel-code">Code</a>
+                <a class="l-mega-link" href="/product/keel-science">Research</a>
+                <a class="l-mega-link" href="/product/cowork">Cowork</a>
+                <a class="l-mega-link" href="/artifacts">Artifacts</a>
+                <a class="l-mega-link" href="#stories">Customer stories</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Extensions</p>
+                <a class="l-mega-link" href="/download">Keel in Chrome</a>
+                <a class="l-mega-link" href="/download">Keel for Google Workspace</a>
+                <a class="l-mega-link" href="/download">Keel for Microsoft 365</a>
+                <a class="l-mega-link" href="/plugins">Browse plugins</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Design with Keel</p>
+                <button class="l-mega-link" type="button" data-model="product">Product design</button>
+                <button class="l-mega-link" type="button" data-model="marketing">Marketing design</button>
+                <button class="l-mega-link" type="button" data-model="brand">Brand design</button>
+                <button class="l-mega-link" type="button" data-model="system">Design systems</button>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/download">Import to Keel</a></div>
+              <div class="l-mega-foot-right">
+                <a class="l-mega-link" href="/download">Download apps <span class="l-dl" aria-hidden="true">↓</span></a>
+                <a class="l-mega-link" href="/login">Log in <span class="l-ext" aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="developers">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-developers">Developers <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-developers" aria-hidden="true">
+            <a class="l-explore-hint" href="/requirements">Explore here <span class="l-dl" aria-hidden="true">↓</span></a>
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Build with</p>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+                <a class="l-mega-link" href="/product/design">Design tools</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">For developers</p>
+                <a class="l-mega-link" href="/requirements">Keel Academy</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+                <a class="l-mega-link" href="/notices">Developer blog</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="enterprise">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-enterprise">Enterprise <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-enterprise" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Enterprise</p>
+                <a class="l-mega-link" href="/product-overview">Overview</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code for Enterprise</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Use cases</p>
+                <a class="l-mega-link" href="/product/keel-science">Scientific research</a>
+                <a class="l-mega-link" href="/product/keel-code">Coding</a>
+                <a class="l-mega-link" href="/product/design">Design</a>
+                <p class="l-mega-subhead">Departments</p>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Customer support</a>
+                <a class="l-mega-link" href="/privacy">Cybersecurity</a>
+                <a class="l-mega-link" href="/terms">Legal</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Industries</p>
+                <a class="l-mega-link" href="/product/keel-science">Life sciences</a>
+                <a class="l-mega-link" href="/product-overview">Government</a>
+                <a class="l-mega-link" href="/product-overview">Healthcare</a>
+                <a class="l-mega-link" href="/product-overview">Higher education</a>
+                <a class="l-mega-link" href="/product-overview">Financial services</a>
+                <a class="l-mega-link" href="/product-overview">Nonprofits</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/notices">Browse marketplace</a></div>
+              <div class="l-mega-foot-right">
+                <a class="l-mega-link" href="/notices">Customers</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Contact sales</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="resources">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-resources">Resources <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-resources" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Insights</p>
+                <a class="l-mega-link" href="#faq">Resources</a>
+                <a class="l-mega-link" href="/notices">Articles</a>
+                <a class="l-mega-link" href="/notices">Webinars</a>
+                <a class="l-mega-link" href="#stories">Customer stories</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Learn</p>
+                <a class="l-mega-link" href="/requirements">Keel Academy</a>
+                <a class="l-mega-link" href="/requirements">Courses</a>
+                <a class="l-mega-link" href="/requirements">Tutorials</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Connect</p>
+                <a class="l-mega-link" href="/notices">Events</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Community</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="pricing">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-pricing">Pricing <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-pricing" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <a class="l-mega-link" href="/pricing">Overview</a>
+                <a class="l-mega-link" href="/pricing#compare">Compare plans</a>
+                <a class="l-mega-link" href="/pricing#faq">FAQ</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a class="l-nav-link" href="/login">Log in</a>
+        <a class="l-nav-link" href="mailto:hello@keel.ai">Contact sales</a>
+      </nav>
+
+      <div class="l-nav-actions">
+        <a class="l-btn l-btn-dark l-btn-sm" href="/login">Get Keel</a>
+      </div>
+
+      <button class="l-nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+        <span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span>
+      </button>
+    </div>
+
+    <div class="l-mobile-menu" id="mobileMenu" hidden>
+      <a href="#frontier">Product</a>
+      <a href="/product/design">Keel Design</a>
+      <a href="/requirements">Developers</a>
+      <a href="/product-overview">Enterprise</a>
+      <a href="#faq">Resources</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/download">Download desktop app</a>
+      <a href="/product/keel-science">Keel Science</a>
+      <a href="/login">Log in</a>
+      <a href="mailto:hello@keel.ai">Contact sales</a>
+      <a href="/login">Get Keel</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ==================== breadcrumb ==================== -->
+    <nav class="s-crumbs l-container" aria-label="Breadcrumb"><a href="/">Product</a> <span aria-hidden="true">/</span> Keel Design</nav>
+
+    <!-- ==================== hero ==================== -->
+    <section class="d-hero" id="design-home"><div class="l-container">
+      <div class="d-hero-copy s-reveal">
+        <h1 class="d-hero-title">Design your ideas with Keel</h1>
+        <p class="d-hero-lede">Generate, iterate on, and ship design work with AI—all inside the tools you already know.</p>
+        <div class="d-hero-actions">
+          <a class="l-btn l-btn-dark" href="/login">Get started</a>
+        </div>
+      </div>
+
+      <div class="d-hero-stage s-reveal" aria-label="Keel Design workspace preview">
+        <div class="d-stage-card d-graph-card d-parallax" data-depth="0.6">
+          <div class="d-card-top"><span class="d-card-dot" aria-hidden="true"></span><span>Keel Design · Canvas</span><span class="d-card-tag">Exploration</span></div>
+          <div class="d-graph-art" aria-hidden="true">
+            <svg viewBox="0 0 560 320" preserveAspectRatio="xMidYMid slice" focusable="false">
+              <g stroke="#2f2f36" stroke-width="1">
+                <path d="M0 40h560M0 100h560M0 160h560M0 220h560M0 280h560"/>
+                <path d="M60 0v320M160 0v320M260 0v320M360 0v320M460 0v320"/>
+              </g>
+              <g fill="none" stroke="#55536a" stroke-width="1.5">
+                <path d="M92 232 180 168 272 196 360 108 462 142"/>
+                <path d="M92 232 180 168 250 84 360 108"/>
+                <path d="M180 168 272 196 350 258 462 142"/>
+                <path d="M250 84 272 196 360 108 462 142"/>
+              </g>
+              <circle cx="272" cy="196" r="58" fill="none" stroke="#d97757" stroke-width="1.5" stroke-dasharray="5 6" opacity=".7"/>
+              <g fill="#d97757"><circle cx="272" cy="196" r="9"/><circle cx="360" cy="108" r="7"/></g>
+              <g fill="#9c94c0"><circle cx="92" cy="232" r="6"/><circle cx="180" cy="168" r="6"/><circle cx="250" cy="84" r="6"/><circle cx="462" cy="142" r="6"/></g>
+              <g fill="#c8b6a6"><circle cx="350" cy="258" r="5"/><circle cx="138" cy="96" r="5"/><circle cx="418" cy="250" r="5"/></g>
+              <g fill="#b9b5ad" font-family="Arial, sans-serif" font-size="10">
+                <text x="106" y="252">research</text><text x="372" y="100">concept</text>
+                <text x="286" y="214">core idea</text><text x="428" y="134">direction</text>
+              </g>
+            </svg>
+          </div>
+          <p class="d-graph-cap">Follow a direction, then branch again.</p>
+        </div>
+
+        <div class="d-stage-card d-chat-card d-parallax" data-depth="1.15">
+          <div class="d-chat-head"><span class="d-chat-spark" aria-hidden="true">✦</span><strong>Let's chat</strong><span class="d-chat-status">Ready</span></div>
+          <p class="d-chat-q">What would you like to make?</p>
+          <div class="d-chat-chips">
+            <button class="d-chip" type="button" data-chat-chip="A landing page for a new product">A landing page</button>
+            <button class="d-chip" type="button" data-chat-chip="A component set for my design system">A component set</button>
+          </div>
+          <button class="d-chat-send" type="button" data-hero-chat aria-expanded="false" aria-controls="d-chat-reply">Ask Keel Design <span aria-hidden="true">→</span></button>
+          <div class="d-chat-reply" id="d-chat-reply" hidden>
+            <p>Pick a starting point, describe the outcome, and Keel Design builds the first version inside your design tool.</p>
+          </div>
+        </div>
+
+        <div class="d-stage-card d-system-card d-parallax" data-depth="0.85">
+          <div class="d-card-top"><span class="d-card-dot" aria-hidden="true"></span><span>Keel design system</span></div>
+          <div class="d-swatches" aria-hidden="true"><span class="d-sw-1"></span><span class="d-sw-2"></span><span class="d-sw-3"></span><span class="d-sw-4"></span><span class="d-sw-5"></span><span class="d-sw-6"></span></div>
+          <p class="d-system-label">Aa &nbsp; Display / Body / Mono</p>
+          <div class="d-components" aria-hidden="true"><span>Button</span><span>Card</span><span>Input</span><span>Badge</span></div>
+          <p class="d-system-cap">One source of truth for every screen.</p>
+        </div>
+      </div>
+
+      <div class="d-tool-note s-reveal">
+        <h2>Now you can use Keel Design from inside any compatible design tool</h2>
+        <a class="l-btn l-btn-outline" href="/download">Learn more</a>
+      </div>
+    </div></section>
+
+    <!-- ==================== frontier intelligence ==================== -->
+    <section class="d-frontier" id="frontier"><div class="l-container">
+      <div class="d-section-head s-reveal">
+        <h2 class="d-section-title">Frontier intelligence for every type of design work</h2>
+        <p class="d-section-sub">One creative partner for the whole spectrum of design—from a single screen to a system that scales.</p>
+      </div>
+
+      <div class="d-tabs s-reveal" role="tablist" aria-label="Types of design work">
+        <button class="d-tab" type="button" role="tab" id="d-tab-product" aria-selected="true" aria-controls="d-panel-product" data-design-tab="product">Product</button>
+        <button class="d-tab" type="button" role="tab" id="d-tab-marketing" aria-selected="false" aria-controls="d-panel-marketing" data-design-tab="marketing">Marketing</button>
+        <button class="d-tab" type="button" role="tab" id="d-tab-brand" aria-selected="false" aria-controls="d-panel-brand" data-design-tab="brand">Brand</button>
+      </div>
+
+      <div class="d-frontier-frame s-reveal">
+        <div class="d-frontier-panel" id="d-panel-product" role="tabpanel" aria-labelledby="d-tab-product">
+          <div class="d-peach-frame">
+            <div class="d-skillbook">
+              <div class="d-skillbook-top"><span class="d-skillbook-mark" aria-hidden="true">✦</span><span>Skillbook</span><span class="d-skillbook-count">3 skills</span></div>
+              <p class="d-skillbook-title">Product design kit</p>
+              <ul class="d-skill-list">
+                <li><span class="d-skill-num">01</span><span>Design system</span></li>
+                <li><span class="d-skill-num">02</span><span>Component library</span></li>
+                <li><span class="d-skill-num">03</span><span>Product flows</span></li>
+              </ul>
+              <p class="d-skillbook-foot">Synced with your workspace</p>
+            </div>
+            <div class="d-mock-chat">
+              <div class="d-mock-chat-head"><span aria-hidden="true">✦</span><span>Keel Design</span></div>
+              <p class="d-mock-label">Prompt</p>
+              <p class="d-mock-prompt">Draft an onboarding flow for a new product with our existing components.</p>
+              <div class="d-mock-bubble"><span class="d-mock-avatar" aria-hidden="true">K</span><p>Three flows ready. Each one uses your tokens, type scale, and button states.</p></div>
+              <div class="d-mock-input" aria-hidden="true"><span>Ask for a change…</span><span class="d-mock-send">↑</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-frontier-panel" id="d-panel-marketing" role="tabpanel" aria-labelledby="d-tab-marketing" hidden>
+          <div class="d-peach-frame">
+            <div class="d-skillbook">
+              <div class="d-skillbook-top"><span class="d-skillbook-mark" aria-hidden="true">✦</span><span>Skillbook</span><span class="d-skillbook-count">3 skills</span></div>
+              <p class="d-skillbook-title">Marketing kit</p>
+              <ul class="d-skill-list">
+                <li><span class="d-skill-num">01</span><span>Campaign assets</span></li>
+                <li><span class="d-skill-num">02</span><span>Landing pages</span></li>
+                <li><span class="d-skill-num">03</span><span>Social variants</span></li>
+              </ul>
+              <p class="d-skillbook-foot">Synced with your workspace</p>
+            </div>
+            <div class="d-mock-chat">
+              <div class="d-mock-chat-head"><span aria-hidden="true">✦</span><span>Keel Design</span></div>
+              <p class="d-mock-label">Prompt</p>
+              <p class="d-mock-prompt">Create a launch page for our new plan in three visual directions.</p>
+              <div class="d-mock-bubble"><span class="d-mock-avatar" aria-hidden="true">K</span><p>Three directions ready, with hero, feature rows, and copy blocks you can edit.</p></div>
+              <div class="d-mock-input" aria-hidden="true"><span>Ask for a change…</span><span class="d-mock-send">↑</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-frontier-panel" id="d-panel-brand" role="tabpanel" aria-labelledby="d-tab-brand" hidden>
+          <div class="d-peach-frame">
+            <div class="d-skillbook">
+              <div class="d-skillbook-top"><span class="d-skillbook-mark" aria-hidden="true">✦</span><span>Skillbook</span><span class="d-skillbook-count">3 skills</span></div>
+              <p class="d-skillbook-title">Brand foundations</p>
+              <ul class="d-skill-list">
+                <li><span class="d-skill-num">01</span><span>Visual identity</span></li>
+                <li><span class="d-skill-num">02</span><span>Voice and tone</span></li>
+                <li><span class="d-skill-num">03</span><span>Guidelines</span></li>
+              </ul>
+              <p class="d-skillbook-foot">Synced with your workspace</p>
+            </div>
+            <div class="d-mock-chat">
+              <div class="d-mock-chat-head"><span aria-hidden="true">✦</span><span>Keel Design</span></div>
+              <p class="d-mock-label">Prompt</p>
+              <p class="d-mock-prompt">Build a brand identity for a small design studio with a warm, editorial feel.</p>
+              <div class="d-mock-bubble"><span class="d-mock-avatar" aria-hidden="true">K</span><p>Palette, type pairing, logo directions, and a one-page guideline are ready to review.</p></div>
+              <div class="d-mock-input" aria-hidden="true"><span>Ask for a change…</span><span class="d-mock-send">↑</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-frontier-caption">
+          <p class="d-caption-title">Run your next competition to grow your business</p>
+          <p class="d-caption-sub">Explore more directions in less time, keep every option on-brand, and carry the strongest one all the way to delivery.</p>
+        </div>
+      </div>
+    </div></section>
+
+    <!-- ==================== brand comparison ==================== -->
+    <section class="d-compare" id="brand-control"><div class="l-container d-compare-grid">
+      <div class="d-compare-copy s-reveal">
+        <p class="d-kicker">Keel Code</p>
+        <h2 class="d-section-title">Keep designs on-brand with Keel Code</h2>
+        <p class="d-section-sub">Turn the rules your team already follows into a skill anyone can use, right inside the design tools they open every day.</p>
+        <a class="d-text-link" href="/product/keel-code">Explore Keel Code <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="d-code-panel s-reveal">
+        <div class="d-code-bar"><span class="d-code-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel Code · design.skill</span></div>
+        <button class="d-code-prompt" type="button" data-code-prompt="brand" aria-expanded="false" aria-controls="d-code-brand"><span class="d-caret" aria-hidden="true">&gt;</span> Bring a product to life</button>
+        <div class="d-code-out" id="d-code-brand" hidden>
+          <ol class="d-steps">
+            <li><strong>Read the system once.</strong><span>Keel Code learns your tokens, components, and rules so every output starts from the same foundation.</span></li>
+            <li><strong>Generate on brand.</strong><span>Ask for a screen, a flow, or a campaign and get work that already matches your visual language.</span></li>
+            <li><strong>Ship with confidence.</strong><span>Review the result in your design tool, refine it, and hand it off without rebuilding from scratch.</span></li>
+          </ol>
+        </div>
+        <p class="d-code-hint">Select the prompt to see how it runs</p>
+      </div>
+    </div></section>
+
+    <!-- ==================== output comparison ==================== -->
+    <section class="d-compare d-compare-alt" id="output"><div class="l-container d-compare-grid d-compare-reverse">
+      <div class="d-compare-copy s-reveal">
+        <p class="d-kicker">Keel Code</p>
+        <h2 class="d-section-title">From the prototype to the final output</h2>
+        <p class="d-section-sub">Move from a rough idea to a finished, high-fidelity design without losing the decisions you made along the way.</p>
+        <a class="d-text-link" href="/product/keel-code">See how Keel Code works <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="d-code-panel s-reveal">
+        <div class="d-code-bar"><span class="d-code-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel Code · design.skill</span></div>
+        <button class="d-code-prompt" type="button" data-code-prompt="output" aria-expanded="false" aria-controls="d-code-output"><span class="d-caret" aria-hidden="true">&gt;</span> From prompt to high-fidelity output</button>
+        <div class="d-code-out" id="d-code-output" hidden>
+          <ol class="d-steps">
+            <li><strong>Start from a sentence.</strong><span>Describe the outcome you want and Keel Code assembles the first high-fidelity layout.</span></li>
+            <li><strong>Refine in place.</strong><span>Change copy, spacing, or components with follow-up prompts; earlier decisions stay intact.</span></li>
+            <li><strong>Export the final output.</strong><span>Carry the finished design into your product, deck, or site with the assets already in place.</span></li>
+          </ol>
+        </div>
+        <p class="d-code-hint">Select the prompt to see how it runs</p>
+      </div>
+    </div></section>
+
+    <!-- ==================== customer stories ==================== -->
+    <section class="d-stories" id="stories"><div class="l-container">
+      <div class="d-section-head s-reveal">
+        <h2 class="d-section-title">Design teams already building with Keel</h2>
+        <p class="d-section-sub">Short stories from the people bringing ideas to life with Keel Design.</p>
+      </div>
+      <div class="d-story-grid">
+        <article class="d-story s-reveal">
+          <p class="d-story-brand">Adobe</p>
+          <blockquote>“Keel Design keeps every concept inside the system our team already trusts, so exploration never drifts off-brand.”</blockquote>
+          <p class="d-story-role">Design systems team</p>
+          <button class="d-story-link" type="button" data-story="adobe" aria-expanded="false" aria-controls="d-story-adobe">Read the full story <span aria-hidden="true">→</span></button>
+          <div class="d-story-more" id="d-story-adobe" hidden><p>The team starts each concept from its shared library, then uses follow-up prompts to explore variations. Reviews happen in the same file, so feedback turns into the next iteration instead of a new handoff.</p></div>
+        </article>
+        <article class="d-story s-reveal">
+          <p class="d-story-brand">Canva</p>
+          <blockquote>“We move from a rough idea to a usable design in one session, and the iterations stay consistent all the way through.”</blockquote>
+          <p class="d-story-role">Product design</p>
+          <button class="d-story-link" type="button" data-story="canva" aria-expanded="false" aria-controls="d-story-canva">Read the full story <span aria-hidden="true">→</span></button>
+          <div class="d-story-more" id="d-story-canva" hidden><p>Designers begin with a sentence, pick a direction, and refine in place. Because the outputs already use the team's components, the first review is about the idea rather than cleanup.</p></div>
+        </article>
+        <article class="d-story s-reveal">
+          <p class="d-story-brand">Figma</p>
+          <blockquote>“It works right where our designers work. The move from prompt to component feels effortless.”</blockquote>
+          <p class="d-story-role">Design operations</p>
+          <button class="d-story-link" type="button" data-story="figma" aria-expanded="false" aria-controls="d-story-figma">Read the full story <span aria-hidden="true">→</span></button>
+          <div class="d-story-more" id="d-story-figma" hidden><p>The team keeps its libraries in one place and asks Keel Design to build from them. New screens arrive as editable layers, which means the last mile of polish stays with the designer.</p></div>
+        </article>
+        <article class="d-story s-reveal">
+          <p class="d-story-brand">Wix</p>
+          <blockquote>“Our marketing team can ship on-brand pages without waiting for a design sprint.”</blockquote>
+          <p class="d-story-role">Brand and marketing</p>
+          <button class="d-story-link" type="button" data-story="wix" aria-expanded="false" aria-controls="d-story-wix">Read the full story <span aria-hidden="true">→</span></button>
+          <div class="d-story-more" id="d-story-wix" hidden><p>A shared skillbook holds the brand rules, so anyone can generate a page that matches them. The design team reviews the result once and publishes it with the rest of the campaign assets.</p></div>
+        </article>
+      </div>
+    </div></section>
+
+    <!-- ==================== FAQ ==================== -->
+    <section class="d-faq" id="faq"><div class="l-container">
+      <div class="d-section-head s-reveal">
+        <h2 class="d-section-title">Frequently asked questions</h2>
+      </div>
+      <div class="d-accordion s-reveal">
+        <div class="d-acc-item is-open">
+          <button class="d-acc-btn" type="button" aria-expanded="true" aria-controls="d-acc-1"><span class="d-acc-q">How can I start using Keel Design?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-1" aria-hidden="false"><p>Get started from /login, then open Keel Design inside a compatible design tool or in the Keel desktop app. Describe what you want to make, and Keel Design builds a first version you can edit and keep refining.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-2"><span class="d-acc-q">How should I write prompts so Keel Design gets the best result?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-2" aria-hidden="true"><p>Name the outcome, the audience, and the constraints you care about—such as a format, a component set, or a tone of voice. Short, specific prompts give you the most useful first pass; follow-up prompts refine it.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-3"><span class="d-acc-q">Which design tools does Keel Design work in?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-3" aria-hidden="true"><p>Keel Design works inside any compatible design tool, so you can keep your files, libraries, and workflow where they already are. See /download for the current integrations.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-4"><span class="d-acc-q">Can Keel Design use my existing design system?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-4" aria-hidden="true"><p>Yes. Point Keel Design at your tokens, components, and guidelines, and it will build from them. Keel Code can turn those rules into a reusable skill for your whole team.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-5"><span class="d-acc-q">What kinds of design work is Keel Design best at?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-5" aria-hidden="true"><p>Product screens and flows, marketing pages and campaigns, brand foundations, and the component libraries that hold them together. It is built for both first drafts and later iterations.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-6"><span class="d-acc-q">Can I edit and iterate on the designs Keel Design makes?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-6" aria-hidden="true"><p>Yes. Outputs are editable in your design tool. Ask for changes in plain language, or adjust the layers by hand—the two work together, and your earlier decisions stay in place.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-7"><span class="d-acc-q">Does Keel Design generate code?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-7" aria-hidden="true"><p>Keel Design focuses on design work. For code, use Keel Code, which can turn the same design system and prompts into implementation inside your codebase.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-8"><span class="d-acc-q">Is Keel Design available to everyone?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-8" aria-hidden="true"><p>Yes. Keel Design is available to everyone, from individual designers to whole teams. Compare plans on the /pricing page to find the right fit.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-9"><span class="d-acc-q">How does Keel Design handle my files and data?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-9" aria-hidden="true"><p>Your files stay in your workspace and you decide what Keel Design can use. See /privacy for details about storage, retention, and controls.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-10"><span class="d-acc-q">Can teams share designs made with Keel Design?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-10" aria-hidden="true"><p>Yes. Use a shared skillbook so everyone works from the same rules, then review and hand off designs in the same files your team already uses.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-11"><span class="d-acc-q">Does Keel Design work on mobile?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-11" aria-hidden="true"><p>You can review work and send follow-up prompts on mobile, and pick the file back up in your design tool or desktop app when you are ready to refine it.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-12"><span class="d-acc-q">Can I use Keel Design in the Keel desktop app?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-12" aria-hidden="true"><p>Yes. Keel Design is available in the Keel desktop app as well as inside compatible design tools. Get the app from /download and sign in at /login.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-13"><span class="d-acc-q">Are artifacts available to my Enterprise organization?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-13" aria-hidden="true"><p>Artifacts can be enabled for Enterprise organizations with the right plan and admin settings. See /artifacts for the details, or contact sales at hello@keel.ai.</p></div>
+        </div>
+        <div class="d-acc-item">
+          <button class="d-acc-btn" type="button" aria-expanded="false" aria-controls="d-acc-14"><span class="d-acc-q">What is next for Keel Design?</span><span class="d-acc-icon" aria-hidden="true"></span></button>
+          <div class="d-acc-panel" id="d-acc-14" aria-hidden="true"><p>We are expanding the skills available in Skillbook, deepening design-tool integrations, and making handoff to Keel Code smoother. Follow /roadmap for what ships next.</p></div>
+        </div>
+      </div>
+      <p class="d-search-empty" id="d-search-empty" role="status" hidden>No matching questions. Try a different search.</p>
+    </div></section>
+
+  </main>
+
+  <!-- ==================== dark footer ==================== -->
+  <footer class="l-footer" id="footer">
+    <div class="l-container">
+      <div class="l-footer-top">
+        <a class="l-wordmark l-footer-wordmark" href="/" aria-label="Keel home">
+          <span class="l-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+          <span class="l-wordmark-text">Keel</span>
+        </a>
+
+        <form class="l-help" id="helpForm" role="search">
+          <label class="l-sr-only" for="d-footer-search">How can we help today?</label>
+          <input id="d-footer-search" type="search" placeholder="How can we help today?" autocomplete="off" />
+          <button class="l-help-submit" type="submit" aria-label="Search Keel help and links">
+            <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false"><path d="M4 10h11m0 0-4.5-4.5M15 10l-4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+        <p class="l-search-status" id="searchStatus" role="status" aria-live="polite" hidden>
+          <span id="searchStatusText"></span>
+          <button type="button" id="clearSearch">Clear search</button>
+        </p>
+      </div>
+
+      <div class="l-footer-cols">
+        <nav class="l-footer-col" aria-label="Products">
+          <h2 class="l-footer-h">Products</h2>
+          <a href="/">Keel</a>
+          <a href="/product/design">Keel Design</a>
+          <a href="/product/keel-code">Keel Code</a>
+          <a href="/product/cowork">Keel Cowork</a>
+          <a href="/product/keel-duet">Keel Duet</a>
+          <a href="/product/keel-science">Keel Science</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/download">Download apps</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Developers">
+          <h2 class="l-footer-h">Developers</h2>
+          <a href="/requirements">Developer docs</a>
+          <a href="/notices">Developer blog</a>
+          <a href="/login">Console</a>
+          <a href="/roadmap">Manuscript</a>
+          <a href="/platform/api">API reference</a>
+          <a href="/requirements">Keel Academy</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Enterprise">
+          <h2 class="l-footer-h">Enterprise</h2>
+          <a href="/product-overview">Overview</a>
+          <a href="/product/keel-code">Keel Code for Enterprise</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="mailto:hello@keel.ai">Contact sales</a>
+          <a href="/privacy">Cybersecurity</a>
+          <a href="/terms">Legal</a>
+          <a href="/privacy">Trust centre</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Company">
+          <h2 class="l-footer-h">Company</h2>
+          <a href="/">Keel</a>
+          <a href="mailto:careers@keel.ai">Careers</a>
+          <a href="/notices">News</a>
+          <a href="/notices">Transparency</a>
+          <a href="/privacy">Trust &amp; safety</a>
+          <a href="/terms">Responsible scaling policy</a>
+          <a href="mailto:hello@keel.ai">Community</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Terms and policies">
+          <h2 class="l-footer-h">Terms and policies</h2>
+          <a href="/privacy">Privacy policy</a>
+          <a href="/terms">Terms of service</a>
+          <a href="/privacy">Cookie settings</a>
+          <a href="/privacy">Data processing addendum</a>
+          <a href="/terms">Usage policy</a>
+          <a href="/notices">Responsible disclosure policy</a>
+          <a href="/terms">Consumer terms</a>
+        </nav>
+      </div>
+
+      <div class="l-footer-bar">
+        <span class="l-footer-sig">KEEL 2026 All rights reserved. Keel Design is a product of Keel.</span>
+
+        <div class="l-socials" aria-label="Keel social channels">
+          <a href="/notices" aria-label="Keel on X (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+          <a href="/notices" aria-label="Keel on LinkedIn (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4 9h4v11H4zM6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM11 9h4v1.7c.8-1.2 2-2 3.5-2 2.5 0 3.5 1.6 3.5 4.3V20h-4v-6c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2 1-2.2 2.4V20h-4z"/></svg></a>
+          <a href="/notices" aria-label="Keel on GitHub (source updates)"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.4-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.5.1 2.8.6.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg></a>
+          <a href="/notices" aria-label="Keel on YouTube (video updates)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M22 12s0-3.4-.4-5a2.5 2.5 0 0 0-1.8-1.8C18.2 4.8 12 4.8 12 4.8s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7C2 8.6 2 12 2 12s0 3.4.4 5a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-5 .4-5zM10 15V9l5.2 3z"/></svg></a>
+        </div>
+
+        <label class="l-lang">
+          <span class="l-sr-only">Language</span>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+          <select id="languageSelect" aria-label="Language">
+            <option value="en" selected>English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="ja">日本語</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/ui/product-design.js" defer></script>
+</body>
+</html>
