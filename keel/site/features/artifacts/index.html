@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Artifacts — Keel</title>
+  <meta name="description" content="Docs, decks, and dashboards that come back yours. Turn ideas and data into polished work with a conversation with Keel." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/features/artifacts" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f5f4ef" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Artifacts — Keel" />
+  <meta property="og:description" content="Turn your ideas and data into polished work with a conversation with Keel." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/features/artifacts" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="stylesheet" href="/ui/features-artifacts.css" />
+  <script src="/ui/features-artifacts.js" defer></script>
+</head>
+<body class="fa-page">
+
+  <svg class="fa-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="fa-star" viewBox="0 0 48 48">
+        <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round">
+          <path d="M24 5v11M24 32v11M5 24h11M32 24h11" />
+          <path d="M10.6 10.6l7.8 7.8M29.6 29.6l7.8 7.8M37.4 10.6l-7.8 7.8M18.4 29.6l-7.8 7.8" />
+        </g>
+        <circle cx="24" cy="24" r="5.6" fill="currentColor" />
+      </symbol>
+      <symbol id="fa-doc" viewBox="0 0 24 24">
+        <path d="M6 3h8l4 4v14H6V3Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+        <path d="M14 3v4h4M9 12h6M9 16h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      </symbol>
+      <symbol id="fa-slides" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M12 17v3M8 20h8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M7 8.5h5M7 12h8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+      </symbol>
+      <symbol id="fa-sheet" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M3 9h18M3 14h18M9 4v16M15 4v16" fill="none" stroke="currentColor" stroke-width="1.3" />
+      </symbol>
+      <symbol id="fa-master" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M12 4v16M4 12h16M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.2" />
+      </symbol>
+      <symbol id="fa-deno" viewBox="0 0 24 24">
+        <path d="M4 18c2-7 5-10 8-10s5 3 8 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M7 14c2-4 4-5 5-5s3 1 5 5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+        <circle cx="12" cy="5" r="2" fill="none" stroke="currentColor" stroke-width="1.4" />
+      </symbol>
+      <symbol id="fa-spreadsheet" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M3 8h18M3 12h18M3 16h18M8 4v16M14 4v16" fill="none" stroke="currentColor" stroke-width="1.2" />
+      </symbol>
+      <symbol id="fa-pencil" viewBox="0 0 24 24">
+        <path d="m4 20 1-4L16 5l3 3L8 19l-4 1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+        <path d="m14 7 3 3" fill="none" stroke="currentColor" stroke-width="1.5" />
+      </symbol>
+      <symbol id="fa-people" viewBox="0 0 24 24">
+        <circle cx="9" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M3 19c0-3 2.6-5 6-5s6 2 6 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M16 5.5a3 3 0 0 1 0 5.8M17 14c2.4.5 4 2.3 4 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      </symbol>
+      <symbol id="fa-bulb" viewBox="0 0 24 24">
+        <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5.9 1.1 1 1.6h5c.1-.5.4-1.1 1-1.6A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="fa-chart" viewBox="0 0 24 24">
+        <path d="M4 20h16M6 16V9M11 16V5M16 16v-4M21 16v-8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ===================== sticky header / mega navigation ===================== -->
+  <header class="fa-header" id="fa-header">
+    <div class="fa-topline">
+      <span class="fa-topline-label">Features</span>
+      <span class="fa-topline-muted">Artifacts</span>
+      <a class="fa-topline-latest" href="/roadmap">Latest news</a>
+    </div>
+
+    <nav class="fa-nav" aria-label="Main navigation">
+      <div class="fa-nav-inner">
+        <div class="fa-nav-left">
+          <a class="fa-wordmark" href="/" aria-label="Keel home">
+            <svg class="fa-brand-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#fa-star" /></svg>
+            <span class="fa-wordmark-text">Keel</span>
+          </a>
+        </div>
+
+        <div class="fa-nav-links">
+          <div class="fa-nav-item" data-menu="product">
+            <button class="fa-nav-trigger" type="button" aria-expanded="false" aria-controls="fa-mega-product">Product <span class="fa-chevron" aria-hidden="true"></span></button>
+            <div class="fa-mega" id="fa-mega-product" role="group" aria-label="Product menu" aria-hidden="true">
+              <div class="fa-mega-grid">
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Products</p>
+                  <a class="fa-mega-link" href="/">Keel</a>
+                  <a class="fa-mega-link" href="/keel-code">Keel Code</a>
+                  <a class="fa-mega-link" href="/cowork">Keel Cowork</a>
+                  <a class="fa-mega-link" href="/product/keel-duet">Keel Duet</a>
+                  <a class="fa-mega-link" href="/platform/api">Keel Platform</a>
+                  <a class="fa-mega-link" href="/product/overview">Keel Tag</a>
+                  <p class="fa-mega-subhead">Specialized</p>
+                  <a class="fa-mega-link" href="/privacy">Keel Security</a>
+                  <a class="fa-mega-link" href="/requirements">Keel Science</a>
+                </div>
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Capabilities</p>
+                  <a class="fa-mega-link" href="/features/artifacts" aria-current="page">Artifacts</a>
+                  <a class="fa-mega-link" href="/product/overview#capabilities">Design</a>
+                  <a class="fa-mega-link" href="/product/overview#capabilities">Connectors</a>
+                  <a class="fa-mega-link" href="/plugins">Plugins</a>
+                  <a class="fa-mega-link" href="/requirements">Skills</a>
+                </div>
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Extensions</p>
+                  <a class="fa-mega-link" href="/keel-in-chrome">Keel in Chrome</a>
+                  <a class="fa-mega-link" href="/download">Keel for Google Workspace</a>
+                  <a class="fa-mega-link" href="/download">Keel for Microsoft 365</a>
+                </div>
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Models</p>
+                  <a class="fa-mega-link" href="/requirements">Mythos (including Fable) <span class="fa-ext" aria-hidden="true">↗</span></a>
+                  <a class="fa-mega-link" href="/requirements">Opus <span class="fa-ext" aria-hidden="true">↗</span></a>
+                  <a class="fa-mega-link" href="/requirements">Sonnet <span class="fa-ext" aria-hidden="true">↗</span></a>
+                  <a class="fa-mega-link" href="/requirements">Haiku <span class="fa-ext" aria-hidden="true">↗</span></a>
+                </div>
+              </div>
+              <div class="fa-mega-foot">
+                <div class="fa-mega-foot-left"><a class="fa-mega-link" href="/new">Import to Keel</a></div>
+                <div class="fa-mega-foot-right">
+                  <a class="fa-mega-link" href="/download">Download apps <span class="fa-dl" aria-hidden="true">↓</span></a>
+                  <a class="fa-mega-link" href="/login">Login <span class="fa-ext" aria-hidden="true">↗</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fa-nav-item" data-menu="developers">
+            <button class="fa-nav-trigger" type="button" aria-expanded="false" aria-controls="fa-mega-developers">Developers <span class="fa-chevron" aria-hidden="true"></span></button>
+            <div class="fa-mega" id="fa-mega-developers" role="group" aria-label="Developers menu" aria-hidden="true">
+              <div class="fa-mega-grid">
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Build with</p>
+                  <a class="fa-mega-link" href="/keel-code">Keel Code</a>
+                  <a class="fa-mega-link" href="/platform/api">Keel Platform</a>
+                  <a class="fa-mega-link" href="/roadmap">Keel Ship</a>
+                  <a class="fa-mega-link" href="/requirements">Managed Agents</a>
+                </div>
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">For developers</p>
+                  <a class="fa-mega-link" href="/requirements">Documentation</a>
+                  <a class="fa-mega-link" href="/notices">Developer blog</a>
+                  <a class="fa-mega-link" href="/projects">Projects</a>
+                </div>
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Explore</p>
+                  <a class="fa-mega-link" href="/login">Open the console</a>
+                  <a class="fa-mega-link" href="/plugins">Plugins</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fa-nav-item" data-menu="enterprise">
+            <button class="fa-nav-trigger" type="button" aria-expanded="false" aria-controls="fa-mega-enterprise">Enterprise <span class="fa-chevron" aria-hidden="true"></span></button>
+            <div class="fa-mega" id="fa-mega-enterprise" role="group" aria-label="Enterprise menu" aria-hidden="true">
+              <div class="fa-mega-grid">
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Enterprise</p>
+                  <a class="fa-mega-link" href="/platform/api">Overview</a>
+                  <a class="fa-mega-link" href="/keel-code">Keel Code for Enterprise</a>
+                  <a class="fa-mega-link" href="/platform/api">Keel Platform</a>
+                </div>
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Use cases</p>
+                  <a class="fa-mega-link" href="/product/overview#use-case">Marketing</a>
+                  <a class="fa-mega-link" href="/product/overview#work">Coding</a>
+                  <a class="fa-mega-link" href="/privacy">Cybersecurity</a>
+                </div>
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Industries</p>
+                  <a class="fa-mega-link" href="/requirements">Financial services</a>
+                  <a class="fa-mega-link" href="/requirements">Government</a>
+                  <a class="fa-mega-link" href="/requirements">Healthcare</a>
+                </div>
+              </div>
+              <div class="fa-mega-foot">
+                <div class="fa-mega-foot-right"><a class="fa-mega-link" href="mailto:hello@keel.dev">Contact sales</a></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fa-nav-item" data-menu="resources">
+            <button class="fa-nav-trigger" type="button" aria-expanded="false" aria-controls="fa-mega-resources">Resources <span class="fa-chevron" aria-hidden="true"></span></button>
+            <div class="fa-mega" id="fa-mega-resources" role="group" aria-label="Resources menu" aria-hidden="true">
+              <div class="fa-mega-grid">
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Insights</p>
+                  <a class="fa-mega-link" href="/notices">Articles</a>
+                  <a class="fa-mega-link" href="/notices">Customer stories</a>
+                  <a class="fa-mega-link" href="/notices">Keel news</a>
+                </div>
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Learn</p>
+                  <a class="fa-mega-link" href="/requirements">Keel Academy</a>
+                  <a class="fa-mega-link" href="/resources/articles">Tutorials</a>
+                  <a class="fa-mega-link" href="#how-it-works">Use cases</a>
+                </div>
+                <div class="fa-mega-col">
+                  <p class="fa-mega-title">Connect</p>
+                  <a class="fa-mega-link" href="/notices">Events</a>
+                  <a class="fa-mega-link" href="mailto:hello@keel.dev">Community</a>
+                </div>
+              </div>
+              <div class="fa-mega-foot">
+                <div class="fa-mega-foot-right">
+                  <a class="fa-mega-link" href="#faq">Help centre</a>
+                  <a class="fa-mega-link" href="mailto:hello@keel.dev">Contact us</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <a class="fa-nav-link" href="/pricing">Pricing</a>
+          <a class="fa-nav-link" href="/login">Log in</a>
+
+          <div class="fa-nav-actions">
+            <a class="fa-btn fa-btn-outline fa-btn-sm" href="mailto:hello@keel.dev">Contact sales</a>
+            <a class="fa-btn fa-btn-dark fa-btn-sm" href="/login">Get Keel</a>
+          </div>
+        </div>
+
+        <button class="fa-nav-toggle" type="button" aria-expanded="false" aria-controls="fa-mobile-menu" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
+      <div class="fa-mobile-menu" id="fa-mobile-menu" hidden>
+        <a href="/features/artifacts">Artifacts</a>
+        <a href="/product/overview">Product overview</a>
+        <a href="/keel-code">Keel Code</a>
+        <a href="/cowork">Keel Cowork</a>
+        <a href="/platform/api">Platform API</a>
+        <a href="/plugins">Plugins</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/login">Log in</a>
+        <a href="mailto:hello@keel.dev">Contact sales</a>
+        <a href="/login">Get Keel</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ===================== breadcrumb + hero ===================== -->
+    <div class="fa-container">
+      <nav class="fa-breadcrumb" aria-label="Breadcrumb">
+        <a href="/product/overview">Features</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Artifacts</span>
+      </nav>
+    </div>
+
+    <section class="fa-hero" id="top" aria-labelledby="fa-hero-title">
+      <div class="fa-container fa-hero-grid">
+        <div class="fa-hero-copy fa-reveal">
+          <p class="fa-eyebrow">Artifacts</p>
+          <h1 class="fa-hero-title" id="fa-hero-title">Docs, decks, and dashboards that come back yours</h1>
+          <p class="fa-hero-sub">Turn your ideas and data into polished work with a conversation with Keel. Keep it in one place and pick up where you left off—anytime.</p>
+          <div class="fa-hero-actions">
+            <a class="fa-btn fa-btn-dark fa-btn-lg" href="/login">Get started</a>
+            <a class="fa-btn fa-btn-outline fa-btn-lg" href="/pricing">See plans</a>
+          </div>
+        </div>
+
+        <div class="fa-hero-art" aria-label="An artifact chart created with Keel">
+          <div class="fa-hero-glow" aria-hidden="true"></div>
+          <article class="fa-hero-card" data-parallax="-0.06" data-reveal>
+            <div class="fa-hero-card-top">
+              <span class="fa-star-chip" aria-hidden="true"><svg viewBox="0 0 48 48"><use href="#fa-star" /></svg></span>
+              <span class="fa-hero-card-name">Q4 growth note</span>
+              <span class="fa-hero-card-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            </div>
+            <p class="fa-hero-card-label">Revenue by channel</p>
+            <div class="fa-hero-chart" aria-hidden="true">
+              <span style="--h:38%"></span><span style="--h:56%"></span><span style="--h:44%"></span>
+              <span style="--h:72%"></span><span style="--h:61%"></span><span style="--h:88%"></span>
+              <span style="--h:76%"></span>
+            </div>
+            <div class="fa-hero-card-foot">
+              <span class="fa-pill">Updated just now</span>
+              <span class="fa-hero-card-signature">Made with Keel</span>
+            </div>
+          </article>
+          <div class="fa-hero-chip fa-hero-chip-one" aria-hidden="true">Docs</div>
+          <div class="fa-hero-chip fa-hero-chip-two" aria-hidden="true">Slides</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== artifact types ===================== -->
+    <section class="fa-types section" id="artifact-types" aria-labelledby="fa-types-title">
+      <div class="fa-container">
+        <h2 class="fa-sr-only" id="fa-types-title">What you can make</h2>
+        <ul class="fa-type-row" data-reveal-group>
+          <li class="fa-type" data-reveal>
+            <span class="fa-type-icon fa-type-icon--orange" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-doc" /></svg></span>
+            <span>Keel Docs</span>
+          </li>
+          <li class="fa-type" data-reveal>
+            <span class="fa-type-icon fa-type-icon--blue" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-slides" /></svg></span>
+            <span>Keel Slides</span>
+          </li>
+          <li class="fa-type" data-reveal>
+            <span class="fa-type-icon fa-type-icon--green" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-sheet" /></svg></span>
+            <span>Keel Sheets</span>
+          </li>
+          <li class="fa-type" data-reveal>
+            <span class="fa-type-icon fa-type-icon--purple" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-master" /></svg></span>
+            <span>Keel Master</span>
+          </li>
+          <li class="fa-type" data-reveal>
+            <span class="fa-type-icon fa-type-icon--yellow" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-deno" /></svg></span>
+            <span>Keel Deno</span>
+          </li>
+          <li class="fa-type" data-reveal>
+            <span class="fa-type-icon fa-type-icon--teal" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-slides" /></svg></span>
+            <span>Keel Slides</span>
+          </li>
+          <li class="fa-type" data-reveal>
+            <span class="fa-type-icon fa-type-icon--rose" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-spreadsheet" /></svg></span>
+            <span>Keel spreadsheets</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================== how it works ===================== -->
+    <section class="fa-section section" id="how-it-works" aria-labelledby="fa-how-title">
+      <div class="fa-container">
+        <div class="fa-section-head fa-reveal">
+          <p class="fa-eyebrow">How it works</p>
+          <h2 class="fa-section-title" id="fa-how-title">From first thought to finished work</h2>
+          <p class="fa-section-sub">Ask for what you need, shape it together, and keep every version close to the conversation that made it.</p>
+        </div>
+
+        <ol class="fa-steps" data-reveal-group>
+          <li class="fa-step fa-reveal">
+            <span class="fa-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-pencil" /></svg></span>
+            <div>
+              <span class="fa-step-num">01</span>
+              <h3>Edit your work</h3>
+              <p>Ask Keel to draft a document or slide, then edit the result directly. Every change stays yours.</p>
+            </div>
+          </li>
+          <li class="fa-step fa-reveal">
+            <span class="fa-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-people" /></svg></span>
+            <div>
+              <span class="fa-step-num">02</span>
+              <h3>Work with your team</h3>
+              <p>Bring people into the same artifact, leave comments in context, and move forward with one shared copy.</p>
+            </div>
+          </li>
+          <li class="fa-step fa-reveal">
+            <span class="fa-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-bulb" /></svg></span>
+            <div>
+              <span class="fa-step-num">03</span>
+              <h3>Figure out</h3>
+              <p>Turn a rough question into a clear answer, with the notes, sources, and next steps attached.</p>
+            </div>
+          </li>
+          <li class="fa-step fa-reveal">
+            <span class="fa-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fa-chart" /></svg></span>
+            <div>
+              <span class="fa-step-num">04</span>
+              <h3>Figure out with your data</h3>
+              <p>Connect your numbers and ask the question behind them. Keel builds the view and explains the work.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===================== showcase 1: numbers ===================== -->
+    <section class="fa-section fa-showcase-section" id="show-your-numbers" aria-labelledby="fa-numbers-title">
+      <div class="fa-container">
+        <div class="fa-section-head fa-reveal">
+          <p class="fa-eyebrow">Show your numbers</p>
+          <h2 class="fa-section-title" id="fa-numbers-title">Smarter spreadsheets with your own data</h2>
+          <p class="fa-section-sub">Use performance for your reporting, key facts, and business case, but leave the design to Keel.</p>
+        </div>
+
+        <div class="fa-tabs fa-reveal" role="tablist" aria-label="Artifacts for your numbers">
+          <button class="fa-tab is-active" type="button" role="tab" id="fa-numbers-tab-sheet" aria-selected="true" aria-controls="fa-numbers-panel-sheet" data-showcase-tab="numbers" data-tab="sheet">Spreadsheet</button>
+          <button class="fa-tab" type="button" role="tab" id="fa-numbers-tab-presentation" aria-selected="false" aria-controls="fa-numbers-panel-presentation" data-showcase-tab="numbers" data-tab="presentation">Presentation</button>
+          <button class="fa-tab" type="button" role="tab" id="fa-numbers-tab-docs" aria-selected="false" aria-controls="fa-numbers-panel-docs" data-showcase-tab="numbers" data-tab="docs">Docs</button>
+          <button class="fa-tab" type="button" role="tab" id="fa-numbers-tab-dashboard" aria-selected="false" aria-controls="fa-numbers-panel-dashboard" data-showcase-tab="numbers" data-tab="dashboard">Dashboard</button>
+        </div>
+
+        <div class="fa-showcase fa-showcase--lavender fa-reveal" data-showcase="numbers">
+          <div class="fa-panel" role="tabpanel" id="fa-numbers-panel-sheet" aria-labelledby="fa-numbers-tab-sheet" data-panel="sheet">
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel Sheets · Performance</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-mock-doc">
+                  <div class="fa-mock-line fa-mock-line--title">Quarterly performance</div>
+                  <div class="fa-table" aria-hidden="true">
+                    <div class="fa-table-row fa-table-row--head"><span>Channel</span><span>Q1</span><span>Q2</span><span>Q3</span></div>
+                    <div class="fa-table-row"><span>Organic</span><span>32k</span><span>41k</span><span>48k</span></div>
+                    <div class="fa-table-row"><span>Partner</span><span>18k</span><span>24k</span><span>31k</span></div>
+                    <div class="fa-table-row"><span>Direct</span><span>12k</span><span>19k</span><span>27k</span></div>
+                  </div>
+                  <div class="fa-mini-bars" aria-hidden="true"><i style="--h:42%"></i><i style="--h:60%"></i><i style="--h:78%"></i><i style="--h:92%"></i></div>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Summarize the trend and flag what changed.</p>
+                  <p class="fa-chat-reply">Growth accelerated in Q3, led by direct traffic.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Build your [project] board</h3>
+              <p>Keel reads the sheet, pulls out the signal, and gives your team a board they can actually use.</p>
+            </div>
+          </div>
+
+          <div class="fa-panel" role="tabpanel" id="fa-numbers-panel-presentation" aria-labelledby="fa-numbers-tab-presentation" data-panel="presentation" hidden>
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel Slides · Q3 review</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-mock-doc">
+                  <div class="fa-slide">
+                    <p class="fa-slide-kicker">Q3 REVIEW</p>
+                    <p class="fa-slide-title">The numbers behind the story</p>
+                    <div class="fa-mini-bars" aria-hidden="true"><i style="--h:38%"></i><i style="--h:62%"></i><i style="--h:84%"></i><i style="--h:96%"></i></div>
+                  </div>
+                  <div class="fa-slide-thumbs" aria-hidden="true"><i></i><i></i><i></i></div>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Turn this sheet into five slides.</p>
+                  <p class="fa-chat-reply">Done — one chart per slide, with notes for the presenter.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Build your [project] board</h3>
+              <p>Ask for a deck and Keel turns the same numbers into slides that make the point quickly.</p>
+            </div>
+          </div>
+
+          <div class="fa-panel" role="tabpanel" id="fa-numbers-panel-docs" aria-labelledby="fa-numbers-tab-docs" data-panel="docs" hidden>
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel Docs · Board brief</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-mock-doc">
+                  <p class="fa-mock-line fa-mock-line--title">Project board brief</p>
+                  <p class="fa-mock-line"></p><p class="fa-mock-line fa-mock-line--short"></p>
+                  <p class="fa-mock-line fa-mock-line--mid"></p>
+                  <div class="fa-mini-bars fa-mini-bars--wide" aria-hidden="true"><i style="--h:50%"></i><i style="--h:70%"></i><i style="--h:86%"></i><i style="--h:64%"></i></div>
+                  <p class="fa-mock-line fa-mock-line--short"></p>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Write the board brief from this data.</p>
+                  <p class="fa-chat-reply">Here is a one-page brief with the key facts and owners.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Build your [project] board</h3>
+              <p>Get a written brief alongside the chart, so everyone knows what the numbers mean.</p>
+            </div>
+          </div>
+
+          <div class="fa-panel" role="tabpanel" id="fa-numbers-panel-dashboard" aria-labelledby="fa-numbers-tab-dashboard" data-panel="dashboard" hidden>
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel · Dashboard</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-mock-doc">
+                  <div class="fa-dash-grid" aria-hidden="true">
+                    <div class="fa-dash-card"><span>Revenue</span><strong>$128k</strong><i></i></div>
+                    <div class="fa-dash-card"><span>Growth</span><strong>+24%</strong><i></i></div>
+                    <div class="fa-dash-card fa-dash-card--wide"><span>By channel</span><div class="fa-mini-bars"><i style="--h:44%"></i><i style="--h:68%"></i><i style="--h:90%"></i><i style="--h:74%"></i></div></div>
+                  </div>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Make a dashboard for the team.</p>
+                  <p class="fa-chat-reply">Your dashboard is ready — refresh it whenever the data changes.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Build your [project] board</h3>
+              <p>Keep the live view in one place, with the conversation about it right next door.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== showcase 2: pitch ===================== -->
+    <section class="fa-section fa-showcase-section" id="pitch-and-launch" aria-labelledby="fa-pitch-title">
+      <div class="fa-container">
+        <div class="fa-section-head fa-reveal">
+          <p class="fa-eyebrow">Pitch and launch an idea</p>
+          <h2 class="fa-section-title" id="fa-pitch-title">Make the case, then make it real</h2>
+          <p class="fa-section-sub">Build a plan, get feedback, and use it to make your case—or use any stage that matters most.</p>
+        </div>
+
+        <div class="fa-tabs fa-reveal" role="tablist" aria-label="Artifacts for your idea">
+          <button class="fa-tab is-active" type="button" role="tab" id="fa-pitch-tab-deck" aria-selected="true" aria-controls="fa-pitch-panel-deck" data-showcase-tab="pitch" data-tab="deck">Deck</button>
+          <button class="fa-tab" type="button" role="tab" id="fa-pitch-tab-web" aria-selected="false" aria-controls="fa-pitch-panel-web" data-showcase-tab="pitch" data-tab="web">Web</button>
+          <button class="fa-tab" type="button" role="tab" id="fa-pitch-tab-docs" aria-selected="false" aria-controls="fa-pitch-panel-docs" data-showcase-tab="pitch" data-tab="docs">Docs</button>
+          <button class="fa-tab" type="button" role="tab" id="fa-pitch-tab-dashboard" aria-selected="false" aria-controls="fa-pitch-panel-dashboard" data-showcase-tab="pitch" data-tab="dashboard">Dashboard</button>
+        </div>
+
+        <div class="fa-showcase fa-showcase--teal fa-reveal" data-showcase="pitch">
+          <div class="fa-panel" role="tabpanel" id="fa-pitch-panel-deck" aria-labelledby="fa-pitch-tab-deck" data-panel="deck">
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel Slides · Launch plan</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-whiteboard" aria-hidden="true">
+                  <div class="fa-note fa-note--yellow">The idea</div>
+                  <div class="fa-note fa-note--pink">Why now?</div>
+                  <div class="fa-note fa-note--blue">First users</div>
+                  <div class="fa-note fa-note--green">What we need</div>
+                  <div class="fa-note fa-note--orange">Launch date</div>
+                  <div class="fa-note fa-note--yellow">Open questions</div>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Group these notes into a pitch deck.</p>
+                  <p class="fa-chat-reply">Six slides, with the open questions saved as speaker notes.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Workshop your launch</h3>
+              <p>Scatter the ideas, ask Keel to find the story, and turn the best version into a deck.</p>
+            </div>
+          </div>
+
+          <div class="fa-panel" role="tabpanel" id="fa-pitch-panel-web" aria-labelledby="fa-pitch-tab-web" data-panel="web" hidden>
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel · Launch page</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-webpage" aria-hidden="true">
+                  <div class="fa-web-hero"><span>A better way to work</span><i></i></div>
+                  <div class="fa-web-cards"><i></i><i></i><i></i></div>
+                  <p class="fa-web-caption">Drafted from your workshop notes</p>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Draft a launch page for this idea.</p>
+                  <p class="fa-chat-reply">A first version is ready for your review.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Workshop your launch</h3>
+              <p>Take the same notes from the whiteboard to a page you can share outside the room.</p>
+            </div>
+          </div>
+
+          <div class="fa-panel" role="tabpanel" id="fa-pitch-panel-docs" aria-labelledby="fa-pitch-tab-docs" data-panel="docs" hidden>
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel Docs · Proposal</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-mock-doc">
+                  <p class="fa-mock-line fa-mock-line--title">Launch proposal</p>
+                  <p class="fa-mock-line"></p><p class="fa-mock-line fa-mock-line--mid"></p>
+                  <p class="fa-mock-line fa-mock-line--short"></p><p class="fa-mock-line"></p>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Write a short proposal from these notes.</p>
+                  <p class="fa-chat-reply">Here is a one-page version you can send today.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Workshop your launch</h3>
+              <p>Keep the reasoning behind the pitch in a doc your team can comment on.</p>
+            </div>
+          </div>
+
+          <div class="fa-panel" role="tabpanel" id="fa-pitch-panel-dashboard" aria-labelledby="fa-pitch-tab-dashboard" data-panel="dashboard" hidden>
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel · Launch tracker</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-mock-doc">
+                  <div class="fa-dash-grid" aria-hidden="true">
+                    <div class="fa-dash-card"><span>Signals</span><strong>18</strong><i></i></div>
+                    <div class="fa-dash-card"><span>Ready</span><strong>4 / 6</strong><i></i></div>
+                    <div class="fa-dash-card fa-dash-card--wide"><span>Momentum</span><div class="fa-mini-bars"><i style="--h:30%"></i><i style="--h:55%"></i><i style="--h:80%"></i><i style="--h:95%"></i></div></div>
+                  </div>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Track the launch against these notes.</p>
+                  <p class="fa-chat-reply">Your tracker is live and ready to share.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Workshop your launch</h3>
+              <p>Watch the plan move from idea to launch with a view everyone can check.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== showcase 3: team ===================== -->
+    <section class="fa-section fa-showcase-section" id="keep-team-aligned" aria-labelledby="fa-team-title">
+      <div class="fa-container">
+        <div class="fa-section-head fa-reveal">
+          <p class="fa-eyebrow">Keep the team aligned</p>
+          <h2 class="fa-section-title" id="fa-team-title">One place for the work and the conversation</h2>
+          <p class="fa-section-sub">Collaborate on one doc, share the latest stats, and keep the conversation going.</p>
+        </div>
+
+        <div class="fa-tabs fa-reveal" role="tablist" aria-label="Artifacts for your team">
+          <button class="fa-tab is-active" type="button" role="tab" id="fa-team-tab-dashboard" aria-selected="true" aria-controls="fa-team-panel-dashboard" data-showcase-tab="team" data-tab="dashboard">Dashboard</button>
+          <button class="fa-tab" type="button" role="tab" id="fa-team-tab-docs" aria-selected="false" aria-controls="fa-team-panel-docs" data-showcase-tab="team" data-tab="docs">Docs</button>
+          <button class="fa-tab" type="button" role="tab" id="fa-team-tab-sheet" aria-selected="false" aria-controls="fa-team-panel-sheet" data-showcase-tab="team" data-tab="sheet">Spreadsheet</button>
+          <button class="fa-tab" type="button" role="tab" id="fa-team-tab-presentation" aria-selected="false" aria-controls="fa-team-panel-presentation" data-showcase-tab="team" data-tab="presentation">Presentation</button>
+        </div>
+
+        <div class="fa-showcase fa-showcase--peach fa-reveal" data-showcase="team">
+          <div class="fa-panel" role="tabpanel" id="fa-team-panel-dashboard" aria-labelledby="fa-team-tab-dashboard" data-panel="dashboard">
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel · Sprint board</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-kanban" aria-hidden="true">
+                  <div class="fa-kanban-col"><p>To do</p><i>Research onboarding</i><i>Write launch note</i></div>
+                  <div class="fa-kanban-col"><p>In progress</p><i>Build pricing page</i><i>Review metrics</i></div>
+                  <div class="fa-kanban-col"><p>Done</p><i>Kickoff</i><i>Team goals</i></div>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">What should the team pick up next?</p>
+                  <p class="fa-chat-reply">Two items are blocked — start with the pricing page.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Plan your next sprint</h3>
+              <p>Keep the board, the numbers, and the discussion in the same place so nobody works from an old copy.</p>
+            </div>
+          </div>
+
+          <div class="fa-panel" role="tabpanel" id="fa-team-panel-docs" aria-labelledby="fa-team-tab-docs" data-panel="docs" hidden>
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel Docs · Team update</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-mock-doc">
+                  <p class="fa-mock-line fa-mock-line--title">Weekly team update</p>
+                  <p class="fa-mock-line"></p><p class="fa-mock-line fa-mock-line--short"></p>
+                  <p class="fa-mock-line fa-mock-line--mid"></p><p class="fa-mock-line"></p>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Draft this week's update for the team.</p>
+                  <p class="fa-chat-reply">Here is a short summary with owners and dates.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Plan your next sprint</h3>
+              <p>Write it once, invite the team in, and let the comments stay next to the work.</p>
+            </div>
+          </div>
+
+          <div class="fa-panel" role="tabpanel" id="fa-team-panel-sheet" aria-labelledby="fa-team-tab-sheet" data-panel="sheet" hidden>
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel Sheets · Capacity</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-mock-doc">
+                  <div class="fa-table" aria-hidden="true">
+                    <div class="fa-table-row fa-table-row--head"><span>Owner</span><span>Tasks</span><span>Load</span></div>
+                    <div class="fa-table-row"><span>Avery</span><span>5</span><span>72%</span></div>
+                    <div class="fa-table-row"><span>Rowan</span><span>4</span><span>61%</span></div>
+                    <div class="fa-table-row"><span>Sam</span><span>6</span><span>88%</span></div>
+                  </div>
+                  <div class="fa-mini-bars fa-mini-bars--wide" aria-hidden="true"><i style="--h:45%"></i><i style="--h:68%"></i><i style="--h:88%"></i></div>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Who has room for the next task?</p>
+                  <p class="fa-chat-reply">Avery has the most capacity this week.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Plan your next sprint</h3>
+              <p>Share the latest capacity numbers before you assign the next piece of work.</p>
+            </div>
+          </div>
+
+          <div class="fa-panel" role="tabpanel" id="fa-team-panel-presentation" aria-labelledby="fa-team-tab-presentation" data-panel="presentation" hidden>
+            <div class="fa-mock">
+              <div class="fa-mock-top"><span class="fa-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Keel Slides · Sprint review</span><span class="fa-mock-share">Share</span></div>
+              <div class="fa-mock-body">
+                <div class="fa-mock-doc">
+                  <div class="fa-slide">
+                    <p class="fa-slide-kicker">SPRINT REVIEW</p>
+                    <p class="fa-slide-title">What we shipped together</p>
+                    <div class="fa-slide-thumbs" aria-hidden="true"><i></i><i></i><i></i></div>
+                  </div>
+                </div>
+                <div class="fa-chat">
+                  <p class="fa-chat-kicker">KEEL</p>
+                  <p class="fa-chat-msg">Make a review deck from the board.</p>
+                  <p class="fa-chat-reply">Your review deck is ready to present.</p>
+                  <div class="fa-chat-input">Ask Keel anything…</div>
+                </div>
+              </div>
+            </div>
+            <div class="fa-caption">
+              <h3>Plan your next sprint</h3>
+              <p>Turn the sprint into a short review the whole team can follow.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== FAQ ===================== -->
+    <section class="fa-section fa-faq-section" id="faq" aria-labelledby="fa-faq-title">
+      <div class="fa-container fa-faq-grid">
+        <div class="fa-faq-intro fa-reveal">
+          <p class="fa-eyebrow">FAQ</p>
+          <h2 class="fa-section-title" id="fa-faq-title">Questions, answered</h2>
+          <p class="fa-section-sub">Everything you need to start making artifacts with Keel.</p>
+          <a class="fa-text-link" href="/login">Get started <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="fa-faq-content fa-reveal">
+          <div class="fa-faq-filters" role="tablist" aria-label="Filter questions">
+            <button class="fa-filter is-active" type="button" role="tab" aria-selected="true" data-faq-filter="all">All about Keel</button>
+            <button class="fa-filter" type="button" role="tab" aria-selected="false" data-faq-filter="plans">Plans and billing</button>
+            <button class="fa-filter" type="button" role="tab" aria-selected="false" data-faq-filter="getting-started">Getting started</button>
+          </div>
+
+          <div class="fa-faq-list" data-reveal-group>
+            <div class="fa-faq-item fa-reveal" data-faq-category="plans">
+              <button class="fa-faq-q" type="button" aria-expanded="false" aria-controls="fa-a-1" data-faq-q>Are artifacts available to free plan users? <span class="fa-faq-icon" aria-hidden="true"></span></button>
+              <div class="fa-faq-a" id="fa-a-1" hidden><p>Yes. Free plan users can create and edit artifacts, including docs, slides, and spreadsheets. <a href="/pricing">Compare the plans</a> to see the limits for each tier.</p></div>
+            </div>
+            <div class="fa-faq-item fa-reveal" data-faq-category="about">
+              <button class="fa-faq-q" type="button" aria-expanded="false" aria-controls="fa-a-2" data-faq-q>What kinds of artifacts can I make with Keel? <span class="fa-faq-icon" aria-hidden="true"></span></button>
+              <div class="fa-faq-a" id="fa-a-2" hidden><p>Docs, slides, spreadsheets, dashboards, and web pages. Ask for the format you need and Keel builds an editable first version.</p></div>
+            </div>
+            <div class="fa-faq-item fa-reveal" data-faq-category="about">
+              <button class="fa-faq-q" type="button" aria-expanded="false" aria-controls="fa-a-3" data-faq-q>Can I keep editing an artifact after it is created? <span class="fa-faq-icon" aria-hidden="true"></span></button>
+              <div class="fa-faq-a" id="fa-a-3" hidden><p>Yes. Artifacts stay editable, and you can keep refining them by asking Keel or making changes yourself in the app.</p></div>
+            </div>
+            <div class="fa-faq-item fa-reveal" data-faq-category="about">
+              <button class="fa-faq-q" type="button" aria-expanded="false" aria-controls="fa-a-4" data-faq-q>Can my team work on an artifact with me? <span class="fa-faq-icon" aria-hidden="true"></span></button>
+              <div class="fa-faq-a" id="fa-a-4" hidden><p>Yes. Share an artifact with your team to comment and edit together, so everyone works from the same latest version.</p></div>
+            </div>
+            <div class="fa-faq-item fa-reveal" data-faq-category="getting-started">
+              <button class="fa-faq-q" type="button" aria-expanded="false" aria-controls="fa-a-5" data-faq-q>How do I make my first artifact? <span class="fa-faq-icon" aria-hidden="true"></span></button>
+              <div class="fa-faq-a" id="fa-a-5" hidden><p><a href="/login">Sign in to Keel</a>, describe what you want in a conversation, and choose a format. Your first editable artifact appears in your workspace.</p></div>
+            </div>
+            <div class="fa-faq-item fa-reveal" data-faq-category="getting-started">
+              <button class="fa-faq-q" type="button" aria-expanded="false" aria-controls="fa-a-6" data-faq-q>Do I need to install anything to get started? <span class="fa-faq-icon" aria-hidden="true"></span></button>
+              <div class="fa-faq-a" id="fa-a-6" hidden><p>No. You can start in the browser. If you want to work with local files, <a href="/download">download the desktop app</a> instead.</p></div>
+            </div>
+            <div class="fa-faq-item fa-reveal" data-faq-category="plans">
+              <button class="fa-faq-q" type="button" aria-expanded="false" aria-controls="fa-a-7" data-faq-q>Can I export my work from Keel? <span class="fa-faq-icon" aria-hidden="true"></span></button>
+              <div class="fa-faq-a" id="fa-a-7" hidden><p>Yes. Export artifacts from the app to keep working in the tools your team already uses. <a href="/requirements">Read the documentation</a> for supported formats.</p></div>
+            </div>
+            <p class="fa-faq-empty" id="fa-faq-empty" role="status" hidden>No questions in this category.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== dark footer ===================== -->
+  <footer class="fa-footer" id="fa-footer">
+    <div class="fa-container">
+      <div class="fa-footer-top">
+        <a class="fa-wordmark fa-footer-brand" href="/" aria-label="Keel home">
+          <svg class="fa-brand-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#fa-star" /></svg>
+          <span class="fa-wordmark-text">Keel</span>
+        </a>
+        <p class="fa-footer-tagline">Docs, decks, and dashboards that come back yours.</p>
+      </div>
+
+      <div class="fa-footer-grid">
+        <nav class="fa-footer-col" aria-label="Products">
+          <h2 class="fa-footer-heading">Products</h2>
+          <a class="fa-footer-link" href="/">Keel</a>
+          <a class="fa-footer-link" href="/keel-code">Keel Code</a>
+          <a class="fa-footer-link" href="/cowork">Keel Cowork</a>
+          <a class="fa-footer-link" href="/product/keel-duet">Keel Duet</a>
+          <a class="fa-footer-link" href="/platform/api">Keel Platform</a>
+          <a class="fa-footer-link" href="/features/artifacts" aria-current="page">Artifacts</a>
+        </nav>
+        <nav class="fa-footer-col" aria-label="Developers">
+          <h2 class="fa-footer-heading">Developers</h2>
+          <a class="fa-footer-link" href="/requirements">Documentation</a>
+          <a class="fa-footer-link" href="/platform/api">Platform API</a>
+          <a class="fa-footer-link" href="/plugins">Plugins</a>
+          <a class="fa-footer-link" href="/projects">Projects</a>
+          <a class="fa-footer-link" href="/roadmap">Roadmap</a>
+          <a class="fa-footer-link" href="/login">Console</a>
+        </nav>
+        <nav class="fa-footer-col" aria-label="Company">
+          <h2 class="fa-footer-heading">Company</h2>
+          <a class="fa-footer-link" href="/notices">News</a>
+          <a class="fa-footer-link" href="/resources/articles">Articles</a>
+          <a class="fa-footer-link" href="/product/overview">About Keel</a>
+          <a class="fa-footer-link" href="mailto:hello@keel.dev">Careers</a>
+          <a class="fa-footer-link" href="mailto:hello@keel.dev">Contact</a>
+        </nav>
+        <nav class="fa-footer-col" aria-label="Legal">
+          <h2 class="fa-footer-heading">Legal</h2>
+          <a class="fa-footer-link" href="/privacy">Privacy policy</a>
+          <a class="fa-footer-link" href="/terms">Terms of service</a>
+          <a class="fa-footer-link" href="/eula">EULA</a>
+          <a class="fa-footer-link" href="/trademark">Trademark</a>
+          <a class="fa-footer-link" href="/notices">Notices</a>
+        </nav>
+      </div>
+
+      <div class="fa-footer-bottom">
+        <span>KEEL 2026 All rights reserved.</span>
+        <div class="fa-lang-wrap">
+          <button class="fa-lang" type="button" id="fa-lang-button" aria-expanded="false" aria-controls="fa-lang-menu">English <span class="fa-chevron" aria-hidden="true"></span></button>
+          <div class="fa-lang-menu" id="fa-lang-menu" role="menu" aria-label="Language" hidden>
+            <button type="button" role="menuitemradio" aria-checked="true" data-lang="English">English</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-lang="Deutsch">Deutsch</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-lang="Español">Español</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-lang="Français">Français</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="fa-toast" id="fa-toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
