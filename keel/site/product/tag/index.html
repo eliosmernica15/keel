@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keel Tag — Tag Keel in Slack</title>
+  <meta name="description" content="Tag Keel in any Slack thread to bring Keel into the conversation. Keel picks up the context, follows the thread and gets work done alongside your team." />
+  <link rel="canonical" href="https://keel-desktop.vercel.app/product/tag" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/icons/icon-192.png" />
+  <meta name="theme-color" content="#f5f4ef" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Keel Tag — Tag Keel in Slack" />
+  <meta property="og:description" content="Bring Keel into the tools where your team already works. Tag Keel in Slack and it joins the conversation with the full context of the thread." />
+  <meta property="og:url" content="https://keel-desktop.vercel.app/product/tag" />
+  <meta property="og:image" content="https://keel-desktop.vercel.app/ui/icons/icon-512.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Keel Tag — Tag Keel in Slack" />
+  <meta name="twitter:description" content="Bring Keel into the tools where your team already works." />
+  <meta name="twitter:image" content="https://keel-desktop.vercel.app/ui/icons/icon-512.png" />
+  <link rel="stylesheet" href="/ui/landing.css" />
+  <link rel="stylesheet" href="/ui/tag.css" />
+  <script src="/ui/tag.js" defer></script>
+</head>
+<body class="landing tag-page">
+
+  <!-- ==================== header / mega navigation ==================== -->
+  <header class="l-header" id="siteHeader">
+    <div class="l-nav-inner">
+      <a class="l-wordmark" href="/" aria-label="Keel home">
+        <span class="l-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+        </span>
+        <span class="l-wordmark-text">Keel</span>
+      </a>
+
+      <nav class="l-nav-links" aria-label="Primary">
+        <div class="l-nav-item" data-menu="product">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-product">Product <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-product" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Products</p>
+                <a class="l-mega-link" href="/product/overview">Keel</a>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/cowork">Keel Cowork</a>
+                <a class="l-mega-link" href="/product/keel-duet">Keel Duet</a>
+                <a class="l-mega-link" href="/product/tag" aria-current="page">Keel Tag</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <p class="l-mega-subhead">Specialized</p>
+                <a class="l-mega-link" href="/privacy">Keel Security</a>
+                <a class="l-mega-link" href="/requirements">Keel Science</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Capabilities</p>
+                <a class="l-mega-link" href="/artifacts">Artifacts</a>
+                <a class="l-mega-link" href="/product/overview#capabilities">Design</a>
+                <a class="l-mega-link" href="/product/tag#marketplace">Connectors</a>
+                <a class="l-mega-link" href="/plugins">Plugins</a>
+                <a class="l-mega-link" href="/requirements">Skills</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Extensions</p>
+                <a class="l-mega-link" href="/download">Keel in Chrome</a>
+                <a class="l-mega-link" href="/download">Keel for Google Workspace</a>
+                <a class="l-mega-link" href="/product/tag">Keel in Slack</a>
+                <a class="l-mega-link" href="/product/tag#connect">Keel in Microsoft Teams</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Models</p>
+                <a class="l-mega-link" href="/requirements">Mythos (including Fable) <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/requirements">Opus <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/requirements">Sonnet <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/requirements">Haiku <span class="l-ext" aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/new">Import to Keel</a></div>
+              <div class="l-mega-foot-right">
+                <a class="l-mega-link" href="/download">Download apps <span class="l-dl" aria-hidden="true">↓</span></a>
+                <a class="l-mega-link" href="/login">Login <span class="l-ext" aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="developers">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-developers">Developers <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-developers" aria-hidden="true">
+            <a class="l-explore-hint" href="/requirements">Explore here <span class="l-dl" aria-hidden="true">↓</span></a>
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Build with</p>
+                <a class="l-mega-link" href="/product/keel-code">Keel Code</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+                <a class="l-mega-link" href="/roadmap">Code Review</a>
+                <a class="l-mega-link" href="/platform/api">Managed Agents</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">For developers</p>
+                <a class="l-mega-link" href="/requirements">Keel Academy <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/notices">Community</a>
+                <a class="l-mega-link" href="/notices">Developer blog <span class="l-ext" aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="enterprise">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-enterprise">Enterprise <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-enterprise" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Enterprise</p>
+                <a class="l-mega-link" href="/pricing">Overview</a>
+                <a class="l-mega-link" href="/product/tag#admins">Keel Tag for Enterprise</a>
+                <a class="l-mega-link" href="/platform/api">Keel Platform</a>
+                <a class="l-mega-link" href="/roadmap">Keel Ship</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Use Cases</p>
+                <a class="l-mega-link" href="/product/overview#use-case">AI Agents</a>
+                <a class="l-mega-link" href="/product/keel-code">Coding</a>
+                <a class="l-mega-link" href="/product/tag#teams-use">Team requests</a>
+                <p class="l-mega-subhead">Departments</p>
+                <a class="l-mega-link" href="mailto:hello@keel.ai">Customer support</a>
+                <a class="l-mega-link" href="/privacy">Cybersecurity</a>
+                <a class="l-mega-link" href="/terms">Legal</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Industries</p>
+                <a class="l-mega-link" href="/pricing">Financial services</a>
+                <a class="l-mega-link" href="/pricing">Government</a>
+                <a class="l-mega-link" href="/pricing">Healthcare</a>
+                <a class="l-mega-link" href="/pricing">Higher education</a>
+                <a class="l-mega-link" href="/pricing">Manufacturing</a>
+              </div>
+            </div>
+            <div class="l-mega-foot">
+              <div class="l-mega-foot-left"><a class="l-mega-link" href="/notices">Browse marketplace</a></div>
+              <div class="l-mega-foot-right">
+                <a class="l-mega-link" href="/notices">Customers</a>
+                <a class="l-mega-link" href="mailto:hello@keel.ai?subject=Keel%20Tag%20sales">Contact sales</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="resources">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-resources">Resources <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-resources" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <p class="l-mega-title">Insights</p>
+                <a class="l-mega-link" href="#how-it-works">Resources</a>
+                <a class="l-mega-link" href="/resources/articles">Articles</a>
+                <a class="l-mega-link" href="/notices">Webinars</a>
+                <a class="l-mega-link" href="/notices">Customer stories</a>
+                <a class="l-mega-link" href="/notices">Marketplace</a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Learn</p>
+                <a class="l-mega-link" href="/requirements">Keel Academy <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/requirements">Courses <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/requirements">Tutorials <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/product/overview#use-case">Use cases <span class="l-ext" aria-hidden="true">↗</span></a>
+              </div>
+              <div class="l-mega-col">
+                <p class="l-mega-title">Connect</p>
+                <a class="l-mega-link" href="/notices">Events <span class="l-ext" aria-hidden="true">↗</span></a>
+                <a class="l-mega-link" href="/notices">Community <span class="l-ext" aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="l-nav-item" data-menu="pricing">
+          <button class="l-nav-trigger" type="button" aria-expanded="false" aria-controls="mega-pricing">Pricing <span class="l-chevron" aria-hidden="true"></span></button>
+          <div class="l-mega" id="mega-pricing" aria-hidden="true">
+            <div class="l-mega-grid">
+              <div class="l-mega-col">
+                <a class="l-mega-link" href="/pricing">Overview</a>
+                <a class="l-mega-link" href="/requirements">API</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a class="l-nav-link" href="/login">Log in</a>
+      </nav>
+
+      <div class="l-nav-actions">
+        <a class="l-btn l-btn-outline l-btn-sm" href="mailto:hello@keel.ai?subject=Keel%20Tag%20sales">Contact sales</a>
+        <a class="l-btn l-btn-dark l-btn-sm" href="/login">Get Keel</a>
+      </div>
+
+      <button class="l-nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+        <span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span><span class="l-nav-toggle-bar"></span>
+      </button>
+    </div>
+
+    <div class="l-mobile-menu" id="mobileMenu" hidden>
+      <a href="/product/overview">Product</a>
+      <a href="/product/tag">Keel Tag</a>
+      <a href="/requirements">Developers</a>
+      <a href="/pricing">Enterprise</a>
+      <a href="#how-it-works">Resources</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/download">Download desktop app</a>
+      <a href="/login">Log in</a>
+      <a href="mailto:hello@keel.ai?subject=Keel%20Tag%20sales">Contact sales</a>
+      <a class="l-btn l-btn-dark" href="/login">Get Keel</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <nav class="c-crumbs l-container" aria-label="Breadcrumb"><a href="/product/overview">Product</a><span aria-hidden="true">/</span><span aria-current="page">Keel Tag</span></nav>
+
+    <!-- ==================== hero ==================== -->
+    <section class="c-hero" id="hero">
+      <div class="l-container">
+        <div class="c-hero-copy" data-reveal>
+          <h1 class="c-title">Tag Keel in Slack</h1>
+          <p class="c-lede">Bring Keel into the tools where your team already works.</p>
+          <div class="c-hero-actions">
+            <a class="l-btn l-btn-dark" href="/login">Get started for free</a>
+            <a class="l-btn l-btn-outline" href="mailto:hello@keel.ai?subject=Keel%20Tag%20sales">Talk to sales</a>
+          </div>
+        </div>
+
+        <div class="c-hero-frame" data-reveal data-parallax="0.04">
+          <div class="t-slack" aria-label="Slack channel showing a Keel reply">
+            <div class="t-slack-rail" aria-hidden="true">
+              <span class="t-rail-work">K</span>
+              <span class="t-rail-item"># general</span>
+              <span class="t-rail-item is-active"># product-help</span>
+              <span class="t-rail-item"># design-review</span>
+              <span class="t-rail-item"># engineering</span>
+              <span class="t-rail-item"># random</span>
+              <span class="t-rail-msg">@mentions</span>
+            </div>
+            <div class="t-slack-main">
+              <div class="t-slack-top">
+                <span class="t-top-hash">#</span><strong>product-help</strong>
+                <span class="t-top-detail">A place to ask the team anything</span>
+                <span class="t-top-faces" aria-hidden="true"><i></i><i></i><i></i></span>
+              </div>
+              <div class="t-slack-thread">
+                <article class="t-msg">
+                  <span class="t-avatar t-avatar-a" aria-hidden="true">M</span>
+                  <div><p class="t-msg-meta"><strong>Maya Chen</strong><time>10:24 AM</time></p>
+                    <p class="t-msg-text">Does anyone have the latest numbers from the onboarding survey? I need them for the review at 2.</p>
+                  </div>
+                </article>
+                <article class="t-msg t-msg-thread">
+                  <span class="t-avatar t-avatar-b" aria-hidden="true">J</span>
+                  <div><p class="t-msg-meta"><strong>Jordan Lee</strong><time>10:26 AM</time></p>
+                    <p class="t-msg-text">I remember someone shared a doc last week — searching the channel now.</p>
+                  </div>
+                </article>
+                <article class="t-msg t-msg-keel">
+                  <span class="t-avatar t-avatar-keel" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg></span>
+                  <div>
+                    <p class="t-msg-meta"><strong>Keel</strong><span class="t-app-badge">APP</span><time>10:26 AM</time></p>
+                    <p class="t-msg-text">I found the survey in the #research channel. Here's the summary and the source file.</p>
+                    <div class="t-attachments">
+                      <div class="t-attach"><span class="t-attach-icon" aria-hidden="true">▤</span><div><strong>Onboarding survey — Q3 results</strong><span>12 responses · shared by Priya · Sep 18</span></div></div>
+                      <div class="t-attach"><span class="t-attach-icon t-attach-link" aria-hidden="true">↗</span><div><strong>survey-results.csv</strong><span>Research / Q3 · spreadsheet</span></div></div>
+                    </div>
+                    <div class="t-msg-actions">
+                      <button type="button" class="t-inline-btn" data-thread-reply>Reply in thread</button>
+                      <button type="button" class="t-inline-btn" data-copy="https://keel-desktop.vercel.app/product/tag">Copy link</button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="t-slack-compose" aria-hidden="true">Message #product-help</div>
+            </div>
+          </div>
+          <p class="t-frame-caption"><span class="t-live-dot" aria-hidden="true"></span> Keel is in the channel · replies with context from the thread</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== tool row ==================== -->
+    <section class="c-tool-row" id="integrations">
+      <div class="l-container" data-reveal>
+        <h2 class="c-eyebrow">Works where your team already works</h2>
+        <div class="t-tool-grid" data-reveal-group>
+          <article class="t-tool" data-reveal>
+            <span class="t-tool-mark t-tool-asana" aria-hidden="true">◈</span>
+            <div><h3>Asana</h3><p>AI-powered project management</p></div>
+          </article>
+          <article class="t-tool" data-reveal>
+            <img src="/assets/img/platform/pa-logo-atlassian.svg" alt="" width="108" height="24" loading="lazy" />
+            <div><h3>Atlassian</h3><p>Software development and collaboration</p></div>
+          </article>
+          <article class="t-tool" data-reveal>
+            <span class="t-tool-mark t-tool-figma" aria-hidden="true">◉</span>
+            <div><h3>Figma</h3><p>Screenshot design, feedback and collaboration</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== connecting banner ==================== -->
+    <section class="l-section c-connect" id="connect">
+      <div class="l-container">
+        <h2 class="l-section-title" data-reveal>Connecting your teammates</h2>
+        <div class="t-connect-card" data-reveal>
+          <div class="t-connect-copy">
+            <span class="t-chip">New integration</span>
+            <h3>Connecting you to Microsoft Teams</h3>
+            <p>Ask Keel a question in a Teams channel and get an answer grounded in your projects, files and conversations — without switching apps.</p>
+            <button type="button" class="l-btn l-btn-outline" data-modal="teams">Learn more</button>
+          </div>
+          <div class="t-connect-art" aria-hidden="true">
+            <div class="t-teams-bar"><span class="t-teams-dots"><i></i><i></i><i></i></span><span>Microsoft Teams</span></div>
+            <div class="t-teams-body">
+              <span class="t-teams-msg">@Keel can you summarise the launch checklist?</span>
+              <span class="t-teams-reply"><i aria-hidden="true"></i> Here's the checklist and the two items still open…</span>
+              <span class="t-teams-file">▤ launch-checklist.md</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== how it works ==================== -->
+    <section class="l-section c-how" id="how-it-works">
+      <div class="l-container">
+        <h2 class="l-section-title" data-reveal>How it works</h2>
+        <p class="c-section-lede" data-reveal>Tag Keel in any Slack thread to bring Keel into the conversation. For a task that is part of an ongoing thread, it knows what's going on and can jump back in.</p>
+        <div class="t-how-grid">
+          <ol class="t-steps" data-reveal-group>
+            <li class="t-step" data-reveal>
+              <span class="t-step-num">01</span>
+              <div><h3>Tag Keel</h3><p>Mention @Keel in a channel or thread and ask your question the way you would ask a teammate.</p></div>
+            </li>
+            <li class="t-step" data-reveal>
+              <span class="t-step-num">02</span>
+              <div><h3>For a task that is part of an ongoing thread</h3><p>Keel reads the messages above your mention, so it understands the decision, the people involved and what has already been tried.</p></div>
+            </li>
+            <li class="t-step" data-reveal>
+              <span class="t-step-num">03</span>
+              <div><h3>It knows what's going on and can jump back in</h3><p>When the thread continues, Keel follows along. It picks up new context and can pick the work back up when you tag it again.</p></div>
+            </li>
+          </ol>
+
+          <div class="t-thread-card" data-reveal>
+            <div class="t-thread-head"><span aria-hidden="true">#</span> product-help <small>Thread · 4 replies</small></div>
+            <div class="t-thread-body">
+              <article class="t-msg">
+                <span class="t-avatar t-avatar-a" aria-hidden="true">P</span>
+                <div><p class="t-msg-meta"><strong>Priya Nair</strong><time>9:41 AM</time></p>
+                  <p class="t-msg-text">Can we ship the billing fix this week? Last time it caused a regression.</p>
+                </div>
+              </article>
+              <article class="t-msg">
+                <span class="t-avatar t-avatar-c" aria-hidden="true">R</span>
+                <div><p class="t-msg-meta"><strong>Ravi Patel</strong><time>9:44 AM</time></p>
+                  <p class="t-msg-text">Only if the retry path is covered by tests. @Keel can you check?</p>
+                </div>
+              </article>
+              <article class="t-msg t-msg-keel">
+                <span class="t-avatar t-avatar-keel" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg></span>
+                <div>
+                  <p class="t-msg-meta"><strong>Keel</strong><span class="t-app-badge">APP</span><time>9:44 AM</time></p>
+                  <p class="t-msg-text">I checked the July regression and the current branch. The retry path has no test yet. I've drafted one and linked the earlier incident.</p>
+                  <div class="t-attachments">
+                    <div class="t-attach"><span class="t-attach-icon" aria-hidden="true">✓</span><div><strong>Add retry regression test</strong><span>Task · assigned to Ravi · due Friday</span></div></div>
+                    <div class="t-attach"><span class="t-attach-icon t-attach-link" aria-hidden="true">↗</span><div><strong>Incident: double charge in July</strong><span>Postmortem · Engineering</span></div></div>
+                  </div>
+                  <div class="t-thread-extra" id="threadExtra" hidden>
+                    <p class="t-msg-text">Follow-up: the fix is safe to ship once that test passes. I'll post an update here when it does.</p>
+                  </div>
+                  <div class="t-msg-actions">
+                    <button type="button" class="t-inline-btn" data-thread-more aria-expanded="false" aria-controls="threadExtra">View follow-up</button>
+                    <button type="button" class="t-inline-btn" data-copy="https://keel-desktop.vercel.app/product/tag#how-it-works">Copy link</button>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <form class="t-thread-form" id="threadForm">
+              <label class="l-sr-only" for="threadReply">Reply to Keel in thread</label>
+              <input id="threadReply" name="reply" type="text" placeholder="Reply in thread…" autocomplete="off" />
+              <button type="submit" class="t-send" aria-label="Send reply">↗</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== how teams use Keel ==================== -->
+    <section class="l-section c-use" id="teams-use">
+      <div class="l-container">
+        <h2 class="l-section-title" data-reveal>How teams use Keel</h2>
+        <p class="c-section-lede" data-reveal>Your work, alongside your team, right in Slack.</p>
+        <div class="l-toggle t-use-toggle" role="tablist" aria-label="Ways teams use Keel" data-reveal>
+          <button class="l-toggle-btn is-active" type="button" role="tab" id="t-tab-track" aria-selected="true" aria-controls="t-panel-track" data-use-tab="track">Track requests</button>
+          <button class="l-toggle-btn" type="button" role="tab" id="t-tab-manage" aria-selected="false" aria-controls="t-panel-manage" data-use-tab="manage" tabindex="-1">Manage requests</button>
+        </div>
+        <div class="t-use-panel" id="t-panel-track" role="tabpanel" aria-labelledby="t-tab-track" tabindex="0">
+          <div class="t-channel-shot" data-reveal data-parallax="0.025">
+            <div class="t-channel-top"><span aria-hidden="true">#</span><strong>customer-requests</strong><span class="t-channel-meta">18 members · 4 active requests</span></div>
+            <div class="t-channel-cols">
+              <div class="t-channel-side" aria-hidden="true">
+                <span class="t-side-head">CHANNELS</span>
+                <span># customer-requests</span><span># product-help</span><span># releases</span>
+                <span class="t-side-head">DIRECT MESSAGES</span>
+                <span>Keel</span><span>Maya Chen</span>
+              </div>
+              <div class="t-channel-feed">
+                <article class="t-msg"><span class="t-avatar t-avatar-d" aria-hidden="true">S</span><div><p class="t-msg-meta"><strong>Sam Ortiz</strong><time>11:02 AM</time></p><p class="t-msg-text">Enterprise customer can't export their audit log. Can someone take a look?</p></div></article>
+                <article class="t-msg t-msg-keel"><span class="t-avatar t-avatar-keel" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg></span><div><p class="t-msg-meta"><strong>Keel</strong><span class="t-app-badge">APP</span><time>11:02 AM</time></p><p class="t-msg-text">Logged as a request and added to the export bug thread. I'll update this channel when there's a fix.</p></div></article>
+                <div class="t-task-list">
+                  <p class="t-task-head">REQUESTS IN THIS CHANNEL</p>
+                  <div class="t-task"><span class="t-task-check is-open" aria-hidden="true"></span><span>Audit log export fails for enterprise accounts</span><span class="t-task-state">In progress</span></div>
+                  <div class="t-task"><span class="t-task-check" aria-hidden="true">✓</span><span>SSO setup guide for new customers</span><span class="t-task-state is-done">Done</span></div>
+                  <div class="t-task"><span class="t-task-check is-open" aria-hidden="true"></span><span>Add usage dashboard to admin console</span><span class="t-task-state">Triaged</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="t-shot-caption" data-reveal>Track and manage requests</p>
+        </div>
+        <div class="t-use-panel" id="t-panel-manage" role="tabpanel" aria-labelledby="t-tab-manage" tabindex="0" hidden>
+          <div class="t-channel-shot t-channel-shot-alt" data-reveal>
+            <div class="t-channel-top"><span aria-hidden="true">#</span><strong>customer-requests</strong><span class="t-channel-meta">18 members · 4 active requests</span></div>
+            <div class="t-channel-cols">
+              <div class="t-channel-side" aria-hidden="true">
+                <span class="t-side-head">CHANNELS</span>
+                <span># customer-requests</span><span># product-help</span><span># releases</span>
+                <span class="t-side-head">DIRECT MESSAGES</span>
+                <span>Keel</span><span>Maya Chen</span>
+              </div>
+              <div class="t-channel-feed">
+                <article class="t-msg t-msg-keel"><span class="t-avatar t-avatar-keel" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg></span><div><p class="t-msg-meta"><strong>Keel</strong><span class="t-app-badge">APP</span><time>11:14 AM</time></p><p class="t-msg-text">Here's the weekly digest: 4 new requests, 2 resolved, 1 needs an owner. I've routed the open items to the right people.</p></div></article>
+                <div class="t-task-list">
+                  <p class="t-task-head">ASSIGNED THIS WEEK</p>
+                  <div class="t-task"><span class="t-task-check is-open" aria-hidden="true"></span><span>Audit log export · routed to Platform</span><span class="t-task-state">In progress</span></div>
+                  <div class="t-task"><span class="t-task-check" aria-hidden="true">✓</span><span>SSO setup guide · resolved</span><span class="t-task-state is-done">Done</span></div>
+                  <div class="t-task"><span class="t-task-check is-open" aria-hidden="true"></span><span>Usage dashboard · waiting on design</span><span class="t-task-state">Triaged</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="t-shot-caption" data-reveal>Route, resolve and report on requests</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== core capabilities ==================== -->
+    <section class="l-section c-capabilities" id="capabilities">
+      <div class="l-container">
+        <h2 class="l-section-title" data-reveal>Core capabilities</h2>
+        <p class="c-section-lede" data-reveal>See what Keel can do for your team.</p>
+        <div class="t-cap-grid" data-reveal-group>
+          <article class="t-cap" data-reveal>
+            <button class="t-cap-btn" type="button" data-cap="capture" aria-expanded="false" aria-controls="t-cap-capture"><span class="t-cap-art t-art-capture" aria-hidden="true"><i></i><i></i><i></i></span><span class="t-cap-text"><strong>Capture incoming information</strong><span>Keep every request, even the ones posted between channels.</span></span><span class="t-cap-plus" aria-hidden="true">+</span></button>
+            <div class="t-cap-detail" id="t-cap-capture" hidden><p>Keel reads new messages, links and attachments in the channels you allow, and turns them into structured requests without anyone copying notes into another tool.</p></div>
+          </article>
+          <article class="t-cap" data-reveal>
+            <button class="t-cap-btn" type="button" data-cap="consolidate" aria-expanded="false" aria-controls="t-cap-consolidate"><span class="t-cap-art t-art-consolidate" aria-hidden="true"><i></i><i></i><i></i></span><span class="t-cap-text"><strong>Consolidate requests with a next step</strong><span>Group related messages into one clear, actionable item.</span></span><span class="t-cap-plus" aria-hidden="true">+</span></button>
+            <div class="t-cap-detail" id="t-cap-consolidate" hidden><p>When a question turns into a thread, Keel collects the relevant messages and proposes a next step with an owner and a status, so nothing gets lost in the scroll.</p></div>
+          </article>
+          <article class="t-cap" data-reveal>
+            <button class="t-cap-btn" type="button" data-cap="discovery" aria-expanded="false" aria-controls="t-cap-discovery"><span class="t-cap-art t-art-discovery" aria-hidden="true"><i></i><i></i><i></i></span><span class="t-cap-text"><strong>Progressive problem discovery</strong><span>Ask the right follow-up questions as the thread develops.</span></span><span class="t-cap-plus" aria-hidden="true">+</span></button>
+            <div class="t-cap-detail" id="t-cap-discovery" hidden><p>Keel asks focused clarifying questions one at a time, using what the team has already said, and updates its answer as new information arrives in the thread.</p></div>
+          </article>
+          <article class="t-cap" data-reveal>
+            <button class="t-cap-btn" type="button" data-cap="context" aria-expanded="false" aria-controls="t-cap-context"><span class="t-cap-art t-art-context" aria-hidden="true"><i></i><i></i><i></i></span><span class="t-cap-text"><strong>Bring context like insights and files</strong><span>Answer with the documents and data your team already has.</span></span><span class="t-cap-plus" aria-hidden="true">+</span></button>
+            <div class="t-cap-detail" id="t-cap-context" hidden><p>Keel can pull in linked files, dashboards and past decisions from the tools you connect, then cite them in its reply so teammates can check the source.</p></div>
+          </article>
+          <article class="t-cap" data-reveal>
+            <button class="t-cap-btn" type="button" data-cap="routing" aria-expanded="false" aria-controls="t-cap-routing"><span class="t-cap-art t-art-routing" aria-hidden="true"><i></i><i></i><i></i></span><span class="t-cap-text"><strong>Routing tasks to specific people</strong><span>Match each request to the right owner and team.</span></span><span class="t-cap-plus" aria-hidden="true">+</span></button>
+            <div class="t-cap-detail" id="t-cap-routing" hidden><p>Using channel rules and your directory, Keel assigns work to the person or team best placed to handle it, and notifies them in the same thread.</p></div>
+          </article>
+          <article class="t-cap" data-reveal>
+            <button class="t-cap-btn" type="button" data-cap="resolve" aria-expanded="false" aria-controls="t-cap-resolve"><span class="t-cap-art t-art-resolve" aria-hidden="true"><i></i><i></i><i></i></span><span class="t-cap-text"><strong>Fully resolve requests</strong><span>Carry a task through to an answer, not just a hand-off.</span></span><span class="t-cap-plus" aria-hidden="true">+</span></button>
+            <div class="t-cap-detail" id="t-cap-resolve" hidden><p>Keel can gather the evidence, draft the response and complete the workflow, then post the outcome back in Slack so the whole team sees the resolution.</p></div>
+          </article>
+          <article class="t-cap" data-reveal>
+            <button class="t-cap-btn" type="button" data-cap="knowledge" aria-expanded="false" aria-controls="t-cap-knowledge"><span class="t-cap-art t-art-knowledge" aria-hidden="true"><i></i><i></i><i></i></span><span class="t-cap-text"><strong>Build a knowledge base of important information</strong><span>Turn resolved threads into answers you can find again.</span></span><span class="t-cap-plus" aria-hidden="true">+</span></button>
+            <div class="t-cap-detail" id="t-cap-knowledge" hidden><p>Every resolved request becomes a searchable entry with its sources and decision history, so the next person can find the answer without asking again.</p></div>
+          </article>
+          <article class="t-cap" data-reveal>
+            <button class="t-cap-btn" type="button" data-cap="enterprise" aria-expanded="false" aria-controls="t-cap-enterprise"><span class="t-cap-art t-art-enterprise" aria-hidden="true"><i></i><i></i><i></i></span><span class="t-cap-text"><strong>Enterprise-ready control</strong><span>Set the channels, people and permissions yourself.</span></span><span class="t-cap-plus" aria-hidden="true">+</span></button>
+            <div class="t-cap-detail" id="t-cap-enterprise" hidden><p>Admins control which channels Keel can read, who can tag it and what it is allowed to do, with an audit log of every action. <a href="#admins">See admin controls</a>.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== logo grid ==================== -->
+    <section class="l-section c-marketplace" id="marketplace">
+      <div class="l-container">
+        <h2 class="l-section-title" data-reveal>Keel connects to your favorite tools</h2>
+        <div class="t-logo-grid" data-reveal-group data-reveal>
+          <span class="t-logo" data-reveal><img src="/assets/img/platform/pa-logo-github.svg" alt="GitHub" width="90" height="22" loading="lazy" /></span>
+          <span class="t-logo" data-reveal>Asana</span>
+          <span class="t-logo" data-reveal>Linear</span>
+          <span class="t-logo" data-reveal><img src="/assets/img/platform/pa-logo-atlassian.svg" alt="Atlassian" width="100" height="22" loading="lazy" /></span>
+          <span class="t-logo" data-reveal><img src="/assets/img/platform/pa-logo-notion.svg" alt="Notion" width="92" height="22" loading="lazy" /></span>
+          <span class="t-logo" data-reveal>Google Drive</span>
+          <span class="t-logo" data-reveal>Figma</span>
+          <span class="t-logo" data-reveal>Zapier</span>
+          <span class="t-logo" data-reveal>PagerDuty</span>
+          <span class="t-logo" data-reveal>Zendesk</span>
+        </div>
+        <a class="t-market-link" href="/notices" data-reveal>Explore the marketplace <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <!-- ==================== admins ==================== -->
+    <section class="l-section c-admins" id="admins">
+      <div class="l-container">
+        <h2 class="l-section-title" data-reveal>Admins stay in control</h2>
+        <p class="c-section-lede" data-reveal>Configure the people, projects and agents allowed to use Keel.</p>
+        <div class="t-admin-grid">
+          <div class="t-admin-list" data-reveal-group>
+            <article class="t-admin-item" data-reveal>
+              <div><h3>Directory sync and approvals</h3><p>Keep your directory as the source of truth and approve who can bring Keel into a channel.</p></div>
+              <button class="t-switch" type="button" data-admin-toggle="directory" aria-pressed="true" aria-label="Directory sync and approvals"><span aria-hidden="true"></span></button>
+            </article>
+            <article class="t-admin-item" data-reveal>
+              <div><h3>Audit logged</h3><p>See what Keel read, wrote and changed, with a searchable history for your security team.</p></div>
+              <button class="t-switch" type="button" data-admin-toggle="audit" aria-pressed="true" aria-label="Audit logged"><span aria-hidden="true"></span></button>
+            </article>
+            <article class="t-admin-item" data-reveal>
+              <div><h3>Allowed channels</h3><p>Choose exactly which channels Keel can join and which topics it can respond to.</p></div>
+              <button class="t-switch" type="button" data-admin-toggle="channels" aria-pressed="false" aria-label="Allowed channels"><span aria-hidden="true"></span></button>
+            </article>
+          </div>
+          <div class="t-admin-art" data-reveal aria-label="Admin settings preview">
+            <div class="t-admin-window">
+              <div class="t-admin-bar">Keel admin · Settings <span aria-hidden="true">•••</span></div>
+              <div class="t-admin-row"><span>Workspace</span><strong>Acme Inc.</strong></div>
+              <div class="t-admin-row"><span>Directory sync</span><strong class="t-state-on">On</strong></div>
+              <div class="t-admin-row"><span>Audit log</span><strong class="t-state-on">On</strong></div>
+              <div class="t-admin-row"><span>Allowed channels</span><strong class="t-state-off">Limited</strong></div>
+              <div class="t-admin-row"><span>Approved members</span><strong>42 of 60</strong></div>
+              <button type="button" class="t-admin-cta" data-modal="admin">View admin guide</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== dark CTA ==================== -->
+    <section class="c-cta" id="get-tag">
+      <div class="l-container">
+        <h2 data-reveal>Ready for a new way of working?</h2>
+        <p class="t-cta-chip" data-reveal>with Enterprise</p>
+        <div class="c-cta-actions" data-reveal>
+          <a class="l-btn l-btn-dark" href="/login">Get started for free</a>
+          <a class="l-btn l-btn-outline" href="mailto:hello@keel.ai?subject=Keel%20Tag%20sales">Talk to sales</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== dark footer ==================== -->
+  <footer class="l-footer" id="footer">
+    <div class="l-container">
+      <div class="l-footer-top">
+        <a class="l-wordmark l-footer-wordmark" href="/" aria-label="Keel home">
+          <span class="l-brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" focusable="false"><path fill="currentColor" d="M12 0l1.6 7.1L20.5 3.5l-4.1 6.9L24 12l-7.6 1.6 4.1 6.9-6.9-3.6L12 24l-1.6-7.1L3.5 20.5l4.1-6.9L0 12l7.6-1.6L3.5 3.5l6.9 3.6z"/></svg>
+          </span>
+          <span class="l-wordmark-text">Keel</span>
+        </a>
+
+        <form class="l-help" id="helpForm" role="search">
+          <label class="l-sr-only" for="helpSearch">How can we help today?</label>
+          <input id="helpSearch" type="search" placeholder="How can we help today?" autocomplete="off" />
+          <button class="l-help-submit" type="submit" aria-label="Search Keel help and links">
+            <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true" focusable="false"><path d="M4 10h11m0 0-4.5-4.5M15 10l-4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+        <p class="l-search-status" id="searchStatus" role="status" aria-live="polite" hidden>
+          <span id="searchStatusText"></span>
+          <button type="button" id="clearSearch">Clear search</button>
+        </p>
+      </div>
+
+      <div class="l-footer-cols">
+        <nav class="l-footer-col" aria-label="Keel">
+          <h2 class="l-footer-h">Products</h2>
+          <a href="/product/overview">Keel</a>
+          <a href="/product/keel-code">Keel Code</a>
+          <a href="/cowork">Keel Cowork</a>
+          <a href="/product/keel-duet">Keel Duet</a>
+          <a href="/product/tag">Keel Tag</a>
+          <a href="/platform/api">Keel Platform</a>
+          <p class="l-footer-sub">Specialized</p>
+          <a href="/privacy">Keel Security</a>
+          <a href="/requirements">Keel Science</a>
+          <p class="l-footer-sub">Capabilities</p>
+          <a href="/artifacts">Artifacts</a>
+          <a href="/product/tag#capabilities">Connectors</a>
+          <a href="/plugins">Plugins</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Enterprise">
+          <h2 class="l-footer-h">Enterprise</h2>
+          <a href="/pricing">Overview</a>
+          <a href="/product/tag#admins">Keel Tag for Enterprise</a>
+          <a href="/platform/api">Keel Platform</a>
+          <a href="/roadmap">Keel Ship</a>
+          <a href="mailto:hello@keel.ai">Customer support</a>
+          <a href="/privacy">Cybersecurity</a>
+          <a href="/terms">Legal</a>
+          <a href="mailto:hello@keel.ai?subject=Keel%20Tag%20sales">Sales</a>
+          <a href="/pricing">Finance</a>
+          <a href="/pricing">Healthcare</a>
+          <a href="/pricing">Government</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Developers">
+          <h2 class="l-footer-h">Developers</h2>
+          <a href="/requirements">Developer docs</a>
+          <a href="/notices">Developer blog</a>
+          <a href="/login">Console</a>
+          <a href="/notices">Engineering at Keel</a>
+          <p class="l-footer-sub">Platform</p>
+          <a href="/platform/api">Overview</a>
+          <a href="/roadmap">Manuscript</a>
+          <a href="/requirements">Keel on AWS</a>
+          <a href="/platform/api">Managed Agents</a>
+          <p class="l-footer-sub">Resources</p>
+          <a href="#how-it-works">Overview</a>
+          <a href="/requirements">AI academy</a>
+          <a href="/notices">Events</a>
+        </nav>
+
+        <nav class="l-footer-col" aria-label="Company">
+          <h2 class="l-footer-h">Company</h2>
+          <a href="/product/overview">Keel</a>
+          <a href="mailto:careers@keel.ai">Careers</a>
+          <a href="/notices">News</a>
+          <a href="/terms">Responsible scaling policy</a>
+          <a href="/privacy">Trust &amp; safety</a>
+          <p class="l-footer-sub">Terms and policies</p>
+          <a href="/privacy">Privacy policy</a>
+          <a href="/terms">Terms of service</a>
+          <a href="/terms">Usage policy</a>
+          <a href="/privacy">Cookie settings</a>
+        </nav>
+      </div>
+
+      <div class="l-footer-bar">
+        <span class="l-footer-sig">KEEL 2026 All rights reserved.</span>
+        <div class="l-socials" aria-label="Keel social channels">
+          <a href="/notices" aria-label="Keel on X (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+          <a href="/notices" aria-label="Keel on LinkedIn (social updates)"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" focusable="false"><path d="M4 9h4v11H4zM6 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM11 9h4v1.7c.8-1.2 2-2 3.5-2 2.5 0 3.5 1.6 3.5 4.3V20h-4v-6c0-1.5-.5-2.3-1.8-2.3-1.4 0-2.2 1-2.2 2.4V20h-4z"/></svg></a>
+          <a href="/notices" aria-label="Keel on GitHub (source updates)"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-2c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.2 0-1.1.4-2 1-2.8-.1-.3-.4-1.4.1-2.8 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.5.1 2.8.6.8 1 1.7 1 2.8 0 4-2.4 4.9-4.7 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg></a>
+          <a href="/notices" aria-label="Keel on YouTube (video updates)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M22 12s0-3.4-.4-5a2.5 2.5 0 0 0-1.8-1.8C18.2 4.8 12 4.8 12 4.8s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7C2 8.6 2 12 2 12s0 3.4.4 5a2.5 2.5 0 0 0 1.8 1.8c1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8c.4-1.6.4-5 .4-5zM10 15V9l5.2 3z"/></svg></a>
+        </div>
+
+        <label class="l-lang">
+          <span class="l-sr-only">Language</span>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+          <select id="languageSelect" aria-label="Language">
+            <option value="en" selected>English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="ja">日本語</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </footer>
+
+  <aside class="l-news" id="newsChip" role="status" aria-label="Latest news">
+    <span class="l-news-label">Latest news</span>
+    <span class="l-news-text">Keel Tag is here. <a href="/product/tag">See how it works in Slack.</a></span>
+    <button class="l-news-close" type="button" aria-label="Dismiss latest news">×</button>
+  </aside>
+
+  <div class="t-modal" id="tModal" hidden>
+    <div class="t-modal-backdrop" data-t-close></div>
+    <div class="t-modal-card" role="dialog" aria-modal="true" aria-labelledby="t-modal-title">
+      <button type="button" class="t-modal-close" data-t-close aria-label="Close dialog">×</button>
+      <h2 id="t-modal-title"></h2>
+      <div id="t-modal-body"></div>
+      <button type="button" class="l-btn l-btn-dark" data-t-close>Close</button>
+    </div>
+  </div>
+  <div class="t-toast" id="tToast" role="status" aria-live="polite" hidden></div>
+
+  <!-- tag.js is self-contained and owns every interactive control on this page. -->
+</body>
+</html>
