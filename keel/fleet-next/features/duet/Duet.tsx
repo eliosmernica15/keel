@@ -14,7 +14,8 @@ import {
   TerminalView, TreeView, useNarrow, useProjects, useTree,
   type TerminalState,
 } from "@/features/code/workspace";
-import ReviewPairView from "./reviewPair";
+import PairWorkbench from "./pairWorkbench";
+import { PairCommentsProvider, usePairComments, type SharedReviewComment } from "./pairComments";
 import s from "./duet.module.css";
 
 // `pair` is opened on demand (button / command), never added to DEFAULT_TABS:
@@ -161,8 +162,43 @@ function LocalPreview({ project, onClose }: { project: Project | null; onClose: 
   );
 }
 
-export default function Duet() {
+/** Review Pair findings are shown inline with the Review tab's git state. The
+ *  list is empty until a real reviewer row is read; it is never synthesised. */
+function ReviewerCommentsStrip({ comments }: { comments: SharedReviewComment[] }) {
+  const visible = comments.filter((c) => c.resolution !== "dismissed");
+  if (!comments.length) return null;
+  return (
+    <section className={s.reviewerStrip} data-review-inline="true" aria-label="Reviewer comments on this diff">
+      <div className={s.paneHead}>
+        <strong>Reviewer comments</strong>
+        <span className={s.muted}>From Review Pair · real reviewer message rows</span>
+      </div>
+      <ul className={s.commentList}>
+        {visible.length ? visible.map((c) => (
+          <li key={c.key} className={s.comment} data-pair-comment={c.seq ?? c.key}
+            data-comment-file={c.file ?? ""} data-comment-severity={c.severity ?? ""}>
+            <div className={s.commentHead}>
+              <span className={s.mono}>
+                {c.file ? `${c.file}${c.line !== null && c.line !== undefined ? `:${c.line}` : ""}` : `row ${c.seq ?? "unknown"}`}
+              </span>
+              {c.severity && <Badge tone={/high|critical|blocker/i.test(c.severity) ? "danger" : "warning"}>{c.severity}</Badge>}
+              {c.resolution === "resolved" && <Badge tone="success">resolved locally</Badge>}
+              {c.sentTaskId && <Badge tone="info">task {c.sentTaskId}</Badge>}
+            </div>
+            <p className={s.commentBody}>{c.message}</p>
+            {c.suggestion && <p className={s.commentSuggestion}><strong>Suggestion:</strong> {c.suggestion}</p>}
+          </li>
+        )) : (
+          <li className={s.hint}>All reviewer comments were dismissed in this browser.</li>
+        )}
+      </ul>
+    </section>
+  );
+}
+
+function DuetWorkspace() {
   const { notify, registerCommands } = useApp();
+  const { comments: pairComments } = usePairComments();
   const projects = useProjects("keel-duet:project");
   const selectedId = projects.selectedId;
   const project = projects.selected;
@@ -540,7 +576,9 @@ export default function Duet() {
           {/* Review pair reads bots/rows, not project files, so it is available
               without trusting a folder. It never edits or executes anything. */}
           {activeTab?.kind === "pair" ? (
-            <section className={s.pane}><ReviewPairView /></section>
+            <section className={s.pane}>
+              <PairWorkbench projectId={selectedId} trusted={trusted} notify={notify} />
+            </section>
           ) : gate ?? (
             !project ? <EmptyProject onAdd={() => setAddOpen(true)} /> :
               !activeTab ? (
@@ -548,7 +586,10 @@ export default function Duet() {
                   description="Restore a recent tab or reset the layout to return to Review, Terminal, Open file and Local preview."
                   action={<Button variant="primary" onClick={resetLayout}>Reset layout</Button>} />
               ) : activeTab.kind === "review" ? (
-                <section className={s.pane}><ReviewView projectId={selectedId as string} /></section>
+                <section className={s.pane}>
+                  <ReviewView projectId={selectedId as string} />
+                  <ReviewerCommentsStrip comments={pairComments} />
+                </section>
               ) : activeTab.kind === "terminal" ? (
                 <section className={s.pane}>
                   <TerminalView
@@ -642,5 +683,13 @@ export default function Duet() {
         </form>
       </Dialog>
     </div>
+  );
+}
+
+export default function Duet() {
+  return (
+    <PairCommentsProvider>
+      <DuetWorkspace />
+    </PairCommentsProvider>
   );
 }

@@ -109,6 +109,38 @@
 .contextTabs { padding: 6px 8px 0; border-bottom: 1px solid var(--line); }
 .contextBody { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
 
+/* Duet pair — two modes in one workspace. Layout only; existing tokens. */
+.pairWorkbench { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; }
+.pairModeBar { display: flex; align-items: center; gap: 4px; padding: 7px 12px; border-bottom: 1px solid var(--line); }
+.pairModeButton {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px;
+  border: 1px solid transparent; border-radius: 7px; background: transparent;
+  color: var(--muted); font: inherit; font-size: 12px; cursor: pointer;
+}
+.pairModeButton:hover { background: var(--panel); }
+.pairModeButton[aria-pressed="true"] { background: var(--pill-on); border-color: var(--line-strong); color: var(--text); }
+.pairModeButton:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.pairSetup { margin: 12px 12px 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.pairSetup h4 { margin: 0 0 10px; font-size: 13px; font-weight: 600; }
+.pairSelectors { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr); gap: 6px 10px; align-items: center; font-size: 12px; }
+.fieldLabel { color: var(--muted); font-size: 12px; }
+.pairSelect {
+  min-width: 0; width: 100%; padding: 5px 7px; border: 1px solid var(--line-strong);
+  border-radius: 7px; background: var(--card); color: var(--text); font: inherit; font-size: 12px;
+}
+.pairSelect:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.pairSelect:disabled { color: var(--muted); }
+.pairActionRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; }
+.pairActionRow code { font-family: var(--font-mono, "JetBrains Mono", monospace); }
+.liveStatus { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; color: var(--muted); font-size: 12px; }
+.cursorMark { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--panel); flex: none; }
+.cursorMarkOn { background: var(--accent); border-color: var(--accent); }
+.reviewerStrip { flex: none; max-height: 40%; overflow: auto; border-top: 1px solid var(--line); background: var(--panel); }
+.reviewerStrip .paneHead { position: sticky; top: 0; background: var(--panel); z-index: 1; }
+.reviewerStrip .commentList { margin: 8px 12px 12px; }
+.commentSuggestion { margin: 0; padding: 0 9px 9px; color: var(--body); font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
+.commentActions { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 9px 9px; }
+
 /* Review pair — identity and review state from real bridge bots/rows. */
 .pair { display: flex; flex: 1; min-height: 0; min-width: 0; flex-direction: column; overflow: auto; }
 .pairCards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 12px; }
