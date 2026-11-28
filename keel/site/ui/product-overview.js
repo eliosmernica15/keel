@@ -1,6 +1,10 @@
 /* ===========================================================================
    Keel product overview — progressive enhancement, no libraries, no network.
-   Every lookup is guarded: a missing element never breaks the rest of the page.
+
+   All motion is opt-in: reveals only run when IntersectionObserver exists and
+   the visitor has not asked for reduced motion. Scroll listeners are passive
+   and throttled with requestAnimationFrame, so nothing busy-loops.
+   Every lookup is guarded: a missing element never breaks another section.
    =========================================================================== */
 (function () {
   "use strict";
@@ -16,7 +20,6 @@
     catch (error) { return []; }
   }
 
-  /* One broken section must not stop the others. */
   function safe(setup) {
     try { setup(); } catch (error) { /* UI enhancements must never throw */ }
   }
@@ -31,8 +34,6 @@
     return node ? String(node.textContent || "").replace(/\s+/g, " ").trim() : "";
   }
 
-  /* hidden plus a class plus an inline display keeps filtering authoritative
-     even when a stylesheet sets display on the same selector. */
   function setHidden(node, hidden) {
     if (!node) return;
     var hide = !!hidden;
@@ -51,9 +52,8 @@
   }
 
   var ACRONYMS = {
-    ai: "AI", api: "API", crm: "CRM", hr: "HR", jd: "JD", kpi: "KPI",
-    okr: "OKR", qbr: "QBR", roi: "ROI", sla: "SLA", esg: "ESG",
-    h1: "H1", h2: "H2", h3: "H3", q1: "Q1", q2: "Q2", q3: "Q3", q4: "Q4"
+    ai: "AI", api: "API", crm: "CRM", hr: "HR", okr: "OKR", qbr: "QBR",
+    q1: "Q1", q2: "Q2", q3: "Q3", q4: "Q4"
   };
   var MINOR_WORDS = {
     a: true, an: true, and: true, as: true, at: true, but: true, by: true,
@@ -71,7 +71,16 @@
     }).join(" ");
   }
 
-  /* --------------------- shared toast / auth bridge --------------------- */
+  var reduceMotion = (function () {
+    try { return window.matchMedia("(prefers-reduced-motion: reduce)"); }
+    catch (error) { return { matches: false, addEventListener: null }; }
+  }());
+
+  function prefersReducedMotion() {
+    return !!(reduceMotion && reduceMotion.matches);
+  }
+
+  /* ------------------------ shared toast / auth bridge ---------------- */
   var toastTimer = null;
 
   function showToast(message) {
@@ -79,12 +88,10 @@
     if (!toast || !message) return;
     toast.textContent = message;
     setHidden(toast, false);
-    if (toast.classList) toast.classList.add("is-visible");
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(function () {
       toastTimer = null;
       setHidden(toast, true);
-      if (toast.classList) toast.classList.remove("is-visible");
     }, 3800);
   }
 
@@ -94,11 +101,86 @@
   function rememberPrompt(prompt) {
     pendingPrompt = String(prompt == null ? "" : prompt).replace(/\s+/g, " ").trim();
     var askInput = qs("#po-ask-input");
-    if (askInput) askInput.value = pendingPrompt;
+    if (askInput && askInput.type !== "email") askInput.value = pendingPrompt;
     if (authBridge.setContext) authBridge.setContext(pendingPrompt);
   }
 
-  /* --------------------- 1. Mega dropdown menus --------------------- */
+  /* -------------------- 1. reveal on scroll (IO) -------------------- */
+  function initReveal() {
+    var targets = qsa("[data-reveal]");
+    if (!targets.length) return;
+
+    /* Give staggered groups a CSS custom property; no inline handlers. */
+    qsa("[data-reveal-group]").forEach(function (group) {
+      qsa("[data-reveal]", group).forEach(function (node, index) {
+        if (!node.style || node.style.getPropertyValue("--po-reveal-delay")) return;
+        node.style.setProperty("--po-reveal-delay", Math.min(index * 55, 330) + "ms");
+      });
+    });
+
+    if (prefersReducedMotion() || typeof IntersectionObserver !== "function") {
+      targets.forEach(function (node) { node.classList.add("is-revealed"); });
+      return;
+    }
+
+    document.documentElement.classList.add("po-reveal-ready");
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-revealed");
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    targets.forEach(function (node) { observer.observe(node); });
+  }
+
+  /* ------------- 2. header shadow + hero parallax (rAF) ------------- */
+  function onScrollFrame(handler) {
+    var ticking = false;
+    return function () {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        ticking = false;
+        handler();
+      });
+    };
+  }
+
+  function initScrollEffects() {
+    var header = qs("#po-header, .po-site-header");
+    var cards = qsa("[data-parallax]");
+    var allowParallax = !prefersReducedMotion() && cards.length > 0;
+
+    function update() {
+      var y = window.pageYOffset || window.scrollY || 0;
+      if (header && header.classList) {
+        header.classList.toggle("is-scrolled", y > 12);
+      }
+      if (!allowParallax) return;
+      cards.forEach(function (card) {
+        var speed = parseFloat(card.getAttribute("data-parallax")) || 0;
+        var offset = Math.max(-20, Math.min(20, y * speed));
+        /* Transform only — no top/left/layout churn. */
+        card.style.transform = "translate3d(0," + offset.toFixed(2) + "px,0)";
+      });
+    }
+
+    var frame = onScrollFrame(update);
+    window.addEventListener("scroll", frame, { passive: true });
+    window.addEventListener("resize", frame, { passive: true });
+    update();
+
+    if (reduceMotion && typeof reduceMotion.addEventListener === "function") {
+      reduceMotion.addEventListener("change", function () {
+        allowParallax = !reduceMotion.matches;
+        if (!allowParallax) cards.forEach(function (card) { card.style.transform = ""; });
+        update();
+      });
+    }
+  }
+
+  /* --------------------- 3. Mega dropdown menus --------------------- */
   function initMegaNav() {
     var items = qsa(".po-nav-item[data-nav]");
     if (!items.length) return;
@@ -130,7 +212,6 @@
       if (record.mega) {
         setHidden(record.mega, !record.open);
         if (record.mega.classList) record.mega.classList.toggle("is-open", record.open);
-        record.mega.setAttribute("aria-hidden", record.open ? "false" : "true");
       }
     }
 
@@ -171,12 +252,9 @@
       var item = record.item;
       var trigger = record.trigger;
       if (trigger && !trigger.hasAttribute("aria-expanded")) setExpanded(trigger, false);
-      if (record.mega && !record.mega.hasAttribute("aria-hidden")) {
-        record.mega.setAttribute("aria-hidden", "true");
-      }
       render(record, false);
 
-      /* Hover intent: a short delay to open, a longer grace period to close. */
+      /* Hover intent: quick open, leisurely close. */
       item.addEventListener("mouseenter", function () {
         if (pointerDown) return;
         clearTimers(record);
@@ -197,23 +275,19 @@
       });
 
       if (trigger) {
-        /* Pointer focus must not pre-open a menu the click is about to toggle. */
         trigger.addEventListener("pointerdown", function () {
           pointerDown = true;
           record.suppressFocus = true;
           clearTimers(record);
         });
-
         trigger.addEventListener("click", function () {
           pointerDown = false;
-          /* Enter/Space are handled in keydown; ignore the synthetic click. */
           if (Date.now() < record.keyHandledUntil) {
             record.keyHandledUntil = 0;
             return;
           }
           toggle(record);
         });
-
         trigger.addEventListener("keydown", function (event) {
           if (!event) return;
           var key = event.key;
@@ -263,7 +337,6 @@
         record.suppressFocus = false;
       });
 
-      /* Following a link or button inside a panel dismisses it. */
       item.addEventListener("click", function (event) {
         var target = event && event.target;
         if (!target || typeof target.closest !== "function") return;
@@ -286,7 +359,7 @@
     initMegaNav._closeAll = function () { closeAll(null, true); };
   }
 
-  /* ------------------------ 2. Mobile menu ------------------------ */
+  /* ------------------------ 4. Mobile menu ------------------------ */
   function initMobileMenu() {
     var toggle = qs(".po-hamburger, #po-hamburger");
     var menu = qs("#po-mobile-menu");
@@ -295,7 +368,6 @@
 
     function render(open) {
       setHidden(menu, !open);
-      if (menu.classList) menu.classList.toggle("is-open", !!open);
       setExpanded(toggle, !!open);
       toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
     }
@@ -303,7 +375,6 @@
     initMobileMenu._close = close;
 
     toggle.addEventListener("click", function () { render(menu.hidden); });
-
     menu.addEventListener("click", function (event) {
       var target = event && event.target;
       if (target && typeof target.closest === "function" && target.closest("a, button")) close();
@@ -312,7 +383,7 @@
       var target = event && event.target;
       if (!target || typeof target.closest !== "function") return;
       if (menu.hidden) return;
-      if (target.closest(".po-hamburger, #po-mobile-menu, #po-mobile-nav")) return;
+      if (target.closest(".po-hamburger, #po-mobile-menu")) return;
       close();
     });
     window.addEventListener("resize", function () {
@@ -320,100 +391,23 @@
     });
   }
 
-  /* -------------------- 3. Persona showcase tabs -------------------- */
-  var PERSONAS = {
-    everyone: {
-      time: "8:00 AM · Everyone",
-      title: "Keep up with meetings all day",
-      desc: "Keel joins your calls, pulls out the decisions and next steps, and turns them into a recap you can actually use.",
-      prompt: "After each of my meetings, send me a short recap with decisions, owners and due dates.",
-      steps: ["Listen to the call", "Capture decisions", "Share the recap"],
-      model: "Opus High"
-    },
-    marketing: {
-      time: "9:15 AM · Marketing",
-      title: "Turn a brief into a launch",
-      desc: "Give Keel the campaign brief and past results. It drafts channel copy, builds the readout and flags what is working.",
-      prompt: "Draft a launch email and a campaign readout from this brief, then list the numbers I still need.",
-      steps: ["Read the brief", "Draft channel assets", "Build the readout"],
-      model: "Opus High"
-    },
-    sales: {
-      time: "7:45 AM · Sales",
-      title: "Walk into every call prepared",
-      desc: "Keel reads the CRM notes, the last email thread and the account plan, then hands you a one-page brief before the call.",
-      prompt: "Build a call prep brief for tomorrow's meetings using the CRM notes and recent email threads.",
-      steps: ["Pull account context", "Spot open questions", "Write the brief"],
-      model: "Sonnet"
-    },
-    finance: {
-      time: "6:30 AM · Finance",
-      title: "Close the books with fewer tabs",
-      desc: "Keel checks the numbers, writes the variance commentary and assembles a month-end package your team can review.",
-      prompt: "Compare this month's spend to the budget and draft the variance commentary for the close deck.",
-      steps: ["Gather the data", "Check the variance", "Draft commentary"],
-      model: "Opus High"
-    },
-    "human-resources": {
-      time: "10:00 AM · People",
-      title: "Make every policy easy to understand",
-      desc: "Keel checks job descriptions against your rubric, summarizes policy changes and drafts clear answers for employees.",
-      prompt: "Review this job description for inclusive language and draft a concise version for our careers page.",
-      steps: ["Read the document", "Check the language", "Draft the update"],
-      model: "Sonnet"
-    },
-    legal: {
-      time: "11:20 AM · Legal",
-      title: "Get to the clause that matters",
-      desc: "Keel reads the contract, flags non-standard terms and drafts a redline with plain-language reasoning for each change.",
-      prompt: "Summarize the risks in this contract and propose a redline for the liability and termination clauses.",
-      steps: ["Read the contract", "Flag the risk", "Draft the redline"],
-      model: "Opus High"
-    },
-    product: {
-      time: "8:50 AM · Product",
-      title: "Ship with the context intact",
-      desc: "Keel turns research notes and feedback into a spec, keeps decisions in one place and drafts the update for stakeholders.",
-      prompt: "Turn these customer interviews into a one-page PRD with open questions and a success metric.",
-      steps: ["Cluster the feedback", "Draft the spec", "Share the update"],
-      model: "Opus High"
-    }
-  };
-  PERSONAS.hr = PERSONAS["human-resources"];
-
-  function initPersonas() {
-    var tabs = qsa(".po-persona-tab[data-persona]");
-    if (!tabs.length) return;
-    var title = qs(".po-showcase-title");
-    var desc = qs(".po-showcase-desc");
-    var time = qs(".po-showcase-time");
-    var prompt = qs(".po-chat-prompt");
-    var model = qs(".po-chat-model");
-    var visual = qs(".po-showcase-visual");
-    var steps = qsa(".po-chat-step", visual || document);
+  /* ---------------- 5. Put Keel to work: surface tabs ---------------- */
+  function initWorkTabs() {
+    var tabs = qsa(".po-work-tab[data-work-tab]");
+    var panels = qsa(".po-work-panel[data-work-panel]");
+    if (!tabs.length || !panels.length) return;
 
     function select(tab, moveFocus) {
-      var key = norm(tab.getAttribute("data-persona") || "");
-      var data = PERSONAS[key];
+      var key = norm(tab.getAttribute("data-work-tab") || "");
       tabs.forEach(function (other) {
         var active = other === tab;
         if (other.classList) other.classList.toggle("is-active", active);
         other.setAttribute("aria-selected", active ? "true" : "false");
         other.tabIndex = active ? 0 : -1;
-        var controls = other.getAttribute("aria-controls");
-        var panel = controls ? document.getElementById(controls) : null;
-        if (panel) setHidden(panel, !active);
       });
-      if (data) {
-        if (title) title.textContent = data.title;
-        if (desc) desc.textContent = data.desc;
-        if (time) time.textContent = data.time;
-        if (prompt) prompt.textContent = data.prompt;
-        if (model) model.textContent = data.model;
-        steps.forEach(function (step, index) {
-          if (data.steps && data.steps[index]) step.textContent = data.steps[index];
-        });
-      }
+      panels.forEach(function (panel) {
+        setHidden(panel, norm(panel.getAttribute("data-work-panel")) !== key);
+      });
       if (moveFocus && typeof tab.focus === "function") tab.focus();
     }
 
@@ -438,12 +432,12 @@
     if (initial) select(initial, false);
   }
 
-  /* ------------- 4. Capability search and category tabs ------------- */
+  /* ------------- 6. Hub filter tabs (All / knowledge / dev) ------------- */
   function initCapabilities() {
     var input = qs("#po-cap-search");
     var section = qs(".po-capabilities, #po-capabilities");
-    var nodes = qsa(".po-hub-node[data-search]");
-    var cards = qsa(".po-cap-card");
+    var nodes = qsa(".po-hub-node[data-caps]");
+    var cards = qsa(".po-cap-card[data-caps]");
     var tabs = qsa(".po-cap-tab[data-cap-tab]");
     if (!nodes.length && !cards.length) return;
 
@@ -452,7 +446,7 @@
       empty = document.createElement("p");
       empty.id = "po-cap-empty";
       empty.className = "po-cap-empty";
-      empty.textContent = "No use cases match that search.";
+      empty.textContent = "No work matches that filter.";
       section.appendChild(empty);
     }
 
@@ -462,18 +456,21 @@
     })[0];
     if (activeTabNode) activeTab = norm(activeTabNode.getAttribute("data-cap-tab") || "all");
 
-    function tabMatches(node, tab) {
-      if (!tab || tab === "all" || tab === "all-use-cases") return true;
-      var aliases = [tab];
-      if (tab === "software-engineering") aliases.push("engineering", "software");
-      if (tab === "engineering") aliases.push("software-engineering", "software");
-      if (tab === "human-resources" || tab === "hr") aliases.push("hr", "human-resources", "people");
-      if (tab === "customer-success") aliases.push("support", "customer-support");
-      var cat = norm(node.getAttribute("data-category") || "");
-      var caps = tokens(node.getAttribute("data-caps") || "");
-      return aliases.some(function (alias) {
-        return cat === alias || caps.indexOf(alias) !== -1;
-      });
+    /* Per-node timers keep a pending fade-out from hiding a node that a
+       newer filter/search has just brought back. */
+    var hideTimers = [];
+
+    function clearHideTimer(node) {
+      if (node._poHideTimer) {
+        clearTimeout(node._poHideTimer);
+        node._poHideTimer = null;
+      }
+    }
+
+    function tabMatches(node) {
+      if (!activeTab || activeTab === "all" || activeTab === "all-work") return true;
+      var values = tokens(node.getAttribute("data-caps") || "");
+      return values.indexOf(activeTab) !== -1;
     }
 
     function textMatches(node, needle) {
@@ -481,30 +478,55 @@
       var haystack = [
         node.getAttribute("data-search"),
         node.getAttribute("data-caps"),
-        node.getAttribute("data-category"),
         nodeText(node)
       ].join(" ").toLowerCase();
       return haystack.indexOf(needle) !== -1;
+    }
+
+    function show(node) {
+      clearHideTimer(node);
+      setHidden(node, false);
+      if (prefersReducedMotion() || !node.classList) {
+        node.classList.remove("is-entering", "is-filtering-out");
+        return;
+      }
+      node.classList.add("is-entering");
+      window.requestAnimationFrame(function () { node.classList.remove("is-entering"); });
+    }
+
+    function hide(node) {
+      clearHideTimer(node);
+      if (prefersReducedMotion() || !node.classList) {
+        setHidden(node, true);
+        node.classList.remove("is-entering", "is-filtering-out");
+        return;
+      }
+      node.classList.add("is-filtering-out");
+      node._poHideTimer = setTimeout(function () {
+        node._poHideTimer = null;
+        setHidden(node, true);
+        node.classList.remove("is-filtering-out");
+      }, 180);
+      hideTimers.push(node._poHideTimer);
     }
 
     function apply() {
       var needle = input ? String(input.value || "").replace(/\s+/g, " ").trim().toLowerCase() : "";
       var shown = 0;
       nodes.concat(cards).forEach(function (node) {
-        var visible = tabMatches(node, activeTab) && textMatches(node, needle);
-        setHidden(node, !visible);
-        if (visible) shown += 1;
+        var visible = tabMatches(node) && textMatches(node, needle);
+        if (visible) { show(node); shown += 1; }
+        else hide(node);
       });
       if (empty) {
         setHidden(empty, shown > 0);
-        if (!shown) empty.textContent = "No use cases match that search.";
+        if (!shown) empty.textContent = "No work matches that filter.";
       }
     }
 
     tabs.forEach(function (tab) {
       tab.addEventListener("click", function () {
         activeTab = norm(tab.getAttribute("data-cap-tab") || "all");
-        /* The All tab is a true reset, including a pending search. */
         if (activeTab === "all" && input) input.value = "";
         tabs.forEach(function (other) {
           var active = other === tab;
@@ -512,6 +534,8 @@
           other.setAttribute("aria-selected", active ? "true" : "false");
           other.tabIndex = active ? 0 : -1;
         });
+        hideTimers.forEach(clearTimeout);
+        hideTimers = [];
         apply();
       });
     });
@@ -524,7 +548,7 @@
     apply();
   }
 
-  /* ---------------------- 5. Use case demo ---------------------- */
+  /* ---------------------- 7. Marketing scenario ---------------------- */
   function initUseCase() {
     var section = qs(".po-usecase, #po-usecase");
     if (!section) return;
@@ -534,24 +558,9 @@
     if (!roles.length && !sizes.length && !tasks.length) return;
 
     var heading = qs("#po-usecase-heading", section);
-    var stage = qs("#po-usecase-stage, .po-usecase-stage", section);
-    var caption = qs("#po-usecase-caption, .po-usecase-caption, .po-stage-caption, [data-usecase-caption]", section);
-    if (!caption && stage) {
-      caption = document.createElement("p");
-      caption.id = "po-usecase-caption";
-      caption.className = "po-usecase-caption";
-      caption.setAttribute("aria-live", "polite");
-      stage.appendChild(caption);
-    }
-
+    var caption = qs(".po-usecase-caption, [data-usecase-caption]", section);
+    var promptPane = qs("#po-stage-prompt, .po-stage-prompt p", section);
     var view = qs(".po-view-usecase", section);
-    if (!view) {
-      view = document.createElement("button");
-      view.type = "button";
-      view.className = "po-view-usecase po-btn po-btn-dark";
-      view.textContent = "View this use case in Keel";
-      (qs(".po-usecase-tasks", section) || section).appendChild(view);
-    }
 
     function initial(list) {
       var found = list.filter(function (node) {
@@ -564,7 +573,7 @@
 
     var role = initial(roles) || "Marketing";
     var size = initial(sizes) || "Any";
-    var task = initial(tasks) || "Campaign readout";
+    var task = initial(tasks) || "Q3 campaign rendition";
 
     function select(list, node, attribute) {
       var value = node.getAttribute(attribute) || nodeText(node);
@@ -582,11 +591,18 @@
       return " at " + article + " " + titleCase(size) + " company";
     }
 
+    function promptText() {
+      var company = norm(size) === "any" ? "" :
+        " at " + (/^[aeiou]/i.test(String(size)) ? "an" : "a") + " " + size + " company";
+      return "Help me make the " + task + " for a " + role + " team" + company + ".";
+    }
+
     function render() {
       if (heading) {
         heading.textContent = "I'm in " + titleCase(role) + sizeClause() +
           " and I need to make the " + titleCase(task) + ".";
       }
+      if (promptPane) promptPane.textContent = promptText();
       if (caption) {
         caption.textContent = "Preview · " + titleCase(role) + " · " +
           (norm(size) === "any" ? "any company size" : titleCase(size) + " company") +
@@ -607,20 +623,18 @@
       node.addEventListener("click", function () { task = select(tasks, node, "data-task"); render(); });
     });
 
-    view.addEventListener("click", function (event) {
-      if (event && typeof event.preventDefault === "function") event.preventDefault();
-      var company = norm(size) === "any" ? "" :
-        " at " + (/^[aeiou]/i.test(String(size)) ? "an" : "a") + " " + size + " company";
-      var prompt = "Help me with " + task + " for a " + role + " team" + company + ".";
-      rememberPrompt(prompt);
-      if (authBridge.open) authBridge.open(view);
-      else showToast("Open Keel to try this prompt: " + prompt);
-    });
-
+    if (view) {
+      view.addEventListener("click", function (event) {
+        if (event && typeof event.preventDefault === "function") event.preventDefault();
+        rememberPrompt(promptText());
+        if (authBridge.open) authBridge.open(view);
+        else showToast("Open Keel to try this prompt: " + pendingPrompt);
+      });
+    }
     render();
   }
 
-  /* ---------------------- 6. FAQ accordion ---------------------- */
+  /* ---------------------- 8. FAQ animated accordion ---------------------- */
   function initFaq() {
     var questions = qsa(".po-faq-q");
     if (!questions.length) return;
@@ -635,158 +649,117 @@
       return panel;
     }
 
-    function setOpen(question, open) {
-      setExpanded(question, open);
-      if (question.classList) question.classList.toggle("is-open", open);
-      var item = question.closest ? question.closest(".po-faq-item") : null;
-      if (item && item.classList) item.classList.toggle("is-open", open);
-      var icon = qs(".po-faq-icon", question);
-      if (icon && icon.classList) icon.classList.toggle("is-open", open);
+    function setOpen(question, open, animate) {
       var panel = panelFor(question);
-      if (panel) {
-        setHidden(panel, !open);
-        panel.setAttribute("aria-hidden", open ? "false" : "true");
+      var item = question.closest ? question.closest(".po-faq-item") : null;
+      var shouldAnimate = animate && !prefersReducedMotion();
+      setExpanded(question, open);
+      if (item && item.classList) item.classList.toggle("is-open", open);
+      if (!panel) return;
+      panel.setAttribute("aria-hidden", open ? "false" : "true");
+      /* visibility:hidden removes links inside a collapsed panel from the
+         tab order while max-height animates. */
+      if (!shouldAnimate) {
+        if (panel.style) {
+          panel.style.visibility = open ? "visible" : "hidden";
+          /* Keep the panel in the flow when JS animation is unavailable. */
+          panel.style.maxHeight = open ? "none" : "0px";
+        }
+        return;
+      }
+      if (panel.style) panel.style.visibility = "visible";
+      if (open) {
+        panel.style.maxHeight = panel.scrollHeight + "px";
+      } else {
+        if (panel.style.maxHeight === "none") panel.style.maxHeight = panel.scrollHeight + "px";
+        window.requestAnimationFrame(function () { panel.style.maxHeight = "0px"; });
+        /* Drop links out of the tab order once the height animation ends. */
+        setTimeout(function () {
+          if (question.getAttribute("aria-expanded") === "false" && panel.style) {
+            panel.style.visibility = "hidden";
+          }
+        }, 260);
       }
     }
 
     questions.forEach(function (question) {
-      setOpen(question, question.getAttribute("aria-expanded") === "true");
+      setOpen(question, question.getAttribute("aria-expanded") === "true", false);
       question.addEventListener("click", function () {
         var wasOpen = question.getAttribute("aria-expanded") === "true";
         questions.forEach(function (other) {
-          if (other !== question) setOpen(other, false);
+          if (other !== question && other.getAttribute("aria-expanded") === "true") {
+            setOpen(other, false, true);
+          }
         });
-        setOpen(question, !wasOpen);
+        setOpen(question, !wasOpen, true);
       });
     });
+
+    /* Recalculate open panels after a resize so text never gets clipped. */
+    var frame = onScrollFrame(function () {
+      questions.forEach(function (question) {
+        if (question.getAttribute("aria-expanded") !== "true") return;
+        var panel = panelFor(question);
+        if (panel && panel.style) panel.style.maxHeight = panel.scrollHeight + "px";
+      });
+    });
+    window.addEventListener("resize", frame, { passive: true });
   }
 
-  /* ------------------------- 7. Ask Keel ------------------------- */
-  function answerFor(question) {
-    var q = question.toLowerCase();
-    if (/summar|meeting|transcript|notes|recap|readout/.test(q)) {
-      return "For “" + question + "”, give Keel the transcript or notes and ask for a recap with decisions, owners and dates. " +
-        "It will pull out the action items and leave unclear points flagged so nothing gets lost.";
-    }
-    if (/writ|draft|email|copy|blog|post/.test(q)) {
-      return "For “" + question + "”, start with the audience, the outcome you want and one example you like. " +
-        "Keel can draft a first version, match your tone and offer a shorter alternative you can edit before it goes out.";
-    }
-    if (/data|analy|spreadsheet|budget|number|metric|chart/.test(q)) {
-      return "For “" + question + "”, upload the spreadsheet and ask Keel to clean it, compare the key columns and " +
-        "explain the changes in plain language. You can check every figure before it goes into a deck.";
-    }
-    if (/code|build|app|bug|script|api/.test(q)) {
-      return "For “" + question + "”, describe the feature and the constraints. Keel can sketch the approach, " +
-        "write the first pass, explain the trade-offs and help you review the result before you ship it.";
-    }
-    return "Keel can help with “" + question + "”. Add the source material and the outcome you want, then ask it to " +
-      "draft a first pass. You stay in control: review, edit and steer everything before it is shared.";
+  /* ---------------------- 9. Ask Keel (honest demo) ---------------------- */
+  function answerFor(email) {
+    return "Local demo only: " + email + " has been noted in this browser. " +
+      "Nothing was sent, no account was created, and no email will arrive. " +
+      "Open Keel to start a real conversation.";
   }
 
   function initAsk() {
     var form = qs("#po-ask-form, .po-ask-form");
     if (!form) return;
     var input = qs("#po-ask-input");
-    /* Handle an empty question in-page instead of relying on native bubbles. */
     form.noValidate = true;
 
     var result = qs("#po-ask-result");
     if (!result) {
-      result = document.createElement("div");
+      result = document.createElement("p");
       result.id = "po-ask-result";
       result.className = "po-ask-result";
+      result.setAttribute("role", "status");
       result.setAttribute("aria-live", "polite");
       setHidden(result, true);
       if (form.parentNode) form.parentNode.appendChild(result);
     }
 
-    var timer = null;
     form.addEventListener("submit", function (event) {
       if (event && typeof event.preventDefault === "function") event.preventDefault();
-      var question = input ? String(input.value || "").replace(/\s+/g, " ").trim() : "";
-      if (!question) {
-        if (timer) { clearTimeout(timer); timer = null; }
-        if (result.classList) result.classList.remove("is-thinking");
+      var value = input ? String(input.value || "").trim() : "";
+      var nativeOk = input && typeof input.checkValidity === "function" ? input.checkValidity() : true;
+      var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+      if (!value || !nativeOk || !validEmail) {
         setHidden(result, false);
-        result.textContent = "Type a question first — for example, “Summarize this meeting into action items.”";
-        if (input && typeof input.focus === "function") input.focus();
+        result.textContent = "Enter a valid email address, like you@company.com. Nothing will be sent.";
+        if (input) {
+          if (typeof input.setAttribute === "function") input.setAttribute("aria-invalid", "true");
+          if (typeof input.focus === "function") input.focus();
+        }
         return;
       }
-      if (timer) clearTimeout(timer);
+      if (input && typeof input.removeAttribute === "function") input.removeAttribute("aria-invalid");
+      try { window.localStorage.setItem("keel_ask_email", value); }
+      catch (storageError) { /* storage may be blocked — the message is still honest */ }
       setHidden(result, false);
-      if (result.classList) result.classList.add("is-thinking");
-      result.textContent = "Keel is thinking…";
+      result.textContent = answerFor(value);
       if (input) input.value = "";
-      timer = setTimeout(function () {
-        timer = null;
-        if (result.classList) result.classList.remove("is-thinking");
-        result.textContent = answerFor(question);
-      }, 700);
     });
-  }
 
-  /* --------------------- 8. Footer link search --------------------- */
-  function initFooterSearch() {
-    var form = qs("#po-footer-search-form, .po-footer-search");
-    var input = qs("#po-footer-search");
-    if (!form || !input) return;
-    var links = qsa(".po-footer-link");
-    var footer = qs(".po-footer, #po-footer");
-    var result = qs("#po-footer-search-result");
-    if (!result) {
-      result = document.createElement("p");
-      result.id = "po-footer-search-result";
-      result.className = "po-footer-search-result";
-      result.setAttribute("aria-live", "polite");
-      setHidden(result, true);
-      if (footer) footer.appendChild(result);
-      else if (form.parentNode) form.parentNode.appendChild(result);
-    }
-
-    function apply() {
-      var query = String(input.value || "").replace(/\s+/g, " ").trim();
-      var needle = query.toLowerCase();
-      var shown = 0;
-      links.forEach(function (link) {
-        var match = !needle || nodeText(link).toLowerCase().indexOf(needle) !== -1;
-        setHidden(link, !match);
-        if (match) shown += 1;
-      });
-      if (!needle) {
-        setHidden(result, true);
-        result.textContent = "";
-        return;
-      }
-      setHidden(result, false);
-      result.textContent = shown
-        ? shown + (shown === 1 ? " matching link" : " matching links") + " for “" + query + "”."
-        : "No footer links match “" + query + "”. Try “download”, “privacy” or “code”.";
-    }
-
-    form.addEventListener("submit", function (event) {
-      if (event && typeof event.preventDefault === "function") event.preventDefault();
-      apply();
-    });
-    input.addEventListener("input", apply);
-    input.addEventListener("change", apply);
-    input.addEventListener("search", apply);
-    /* The button is type=submit, so the form handler covers it; wire it
-       explicitly too so clicking never depends on implicit submit behaviour. */
-    qsa(".po-footer-search-btn", footer || document).forEach(function (button) {
-      button.addEventListener("click", apply);
-    });
-    var clear = qs(".po-footer-search-clear, [data-footer-search-clear]", form);
-    if (clear) {
-      clear.addEventListener("click", function () {
-        input.value = "";
-        apply();
-        if (typeof input.focus === "function") input.focus();
+    if (input) {
+      input.addEventListener("input", function () {
+        if (typeof input.removeAttribute === "function") input.removeAttribute("aria-invalid");
       });
     }
   }
 
-  /* ------------------------- 9. Auth modal ------------------------- */
+  /* ------------------------- 10. Auth modal ------------------------- */
   function initAuthModal() {
     var modal = qs("#po-auth-modal");
     if (!modal) return;
@@ -837,7 +810,6 @@
       setError("");
       setContext(pendingPrompt);
       setHidden(modal, false);
-      if (modal.classList) modal.classList.add("is-open");
       modal.setAttribute("aria-hidden", "false");
       document.body.classList.add("po-modal-open");
       var target = input || qs("button, a[href], input", dialog);
@@ -848,7 +820,6 @@
       if (modal.hidden) return;
       if (redirectTimer) { clearTimeout(redirectTimer); redirectTimer = null; }
       setHidden(modal, true);
-      if (modal.classList) modal.classList.remove("is-open");
       modal.setAttribute("aria-hidden", "true");
       document.body.classList.remove("po-modal-open");
       if (form) form.reset();
@@ -863,28 +834,14 @@
     authBridge.open = open;
     authBridge.close = close;
 
-    function noRedirect() {
-      return !!(form && form.hasAttribute && form.hasAttribute("data-no-redirect")) ||
-        !!(modal && modal.hasAttribute && modal.hasAttribute("data-no-redirect")) ||
-        !!(lastFocused && lastFocused.hasAttribute && lastFocused.hasAttribute("data-no-redirect"));
-    }
-
     function finishSignIn(byEmail) {
-      try {
-        window.localStorage.setItem("keel_logged_in", "1");
-      } catch (storageError) { /* storage may be blocked — the demo still continues */ }
+      try { window.localStorage.setItem("keel_logged_in", "1"); }
+      catch (storageError) { /* optional */ }
       pendingPrompt = "";
       setContext("");
-      if (noRedirect()) {
-        showToast("Demo sign-in complete — you're logged in to Keel. No real account was created.");
-        close();
-        return;
-      }
       if (byEmail) {
-        setHidden(modal, true);
-        if (modal.classList) modal.classList.remove("is-open");
-        modal.setAttribute("aria-hidden", "true");
-        document.body.classList.remove("po-modal-open");
+        showToast("Demo sign-in — no real account was created. Opening the Keel app…");
+        close();
         window.location.assign("/login");
         return;
       }
@@ -932,7 +889,8 @@
         }
         setError("");
         if (input) input.removeAttribute("aria-invalid");
-        try { window.localStorage.setItem("keel_auth_email", value); } catch (storageError) { /* optional */ }
+        try { window.localStorage.setItem("keel_auth_email", value); }
+        catch (storageError) { /* optional */ }
         finishSignIn(true);
       });
     }
@@ -975,10 +933,9 @@
     modal.setAttribute("aria-hidden", "true");
   }
 
-  /* ------------- 10/12. Try-prompt links and news chip ------------- */
+  /* ------------------------ 11. Try-prompt link ------------------------ */
   function initTryPrompts() {
-    var links = qsa(".po-text-link[data-try-prompt]");
-    links.forEach(function (link) {
+    qsa(".po-text-link[data-try-prompt]").forEach(function (link) {
       link.addEventListener("click", function (event) {
         if (event && typeof event.preventDefault === "function") event.preventDefault();
         rememberPrompt(link.getAttribute("data-try-prompt") || "");
@@ -988,24 +945,7 @@
     });
   }
 
-  function initNews() {
-    qsa(".po-news-dismiss").forEach(function (button) {
-      button.addEventListener("click", function (event) {
-        if (event && typeof event.preventDefault === "function") event.preventDefault();
-        var chip = button.closest ? (
-          button.closest(".po-news-chip") ||
-          button.closest("[data-news-chip]") ||
-          button.closest("#po-news-chip")
-        ) : null;
-        if (!chip) chip = qs(".po-news-chip");
-        if (!chip) return;
-        setHidden(chip, true);
-        if (chip.classList) chip.classList.add("is-dismissed");
-      });
-    });
-  }
-
-  /* ------------------- 13. Footer language selector ------------------- */
+  /* ---------------------- 12. Footer language selector ---------------------- */
   var LANGUAGES = [
     { code: "en", label: "English" },
     { code: "es", label: "Español" },
@@ -1022,9 +962,6 @@
 
     buttons.forEach(function (button, index) {
       var menuId = "po-lang-menu-" + (index + 1);
-
-      /* Move the existing text into a dedicated span so the decorative
-         chevron survives every label update. */
       var label = document.createElement("span");
       label.className = "po-lang-label";
       var chevron = qs(".po-chevron", button);
@@ -1037,12 +974,8 @@
       if (button.insertBefore) button.insertBefore(label, chevron || null);
       else button.appendChild(label);
 
-      /* Wrap the button in JS — the HTML file stays untouched. */
       var wrapper = document.createElement("div");
       wrapper.className = "po-lang-wrap";
-      wrapper.style.position = "relative";
-      wrapper.style.display = "inline-flex";
-      wrapper.style.alignItems = "center";
       if (button.parentNode && button.parentNode.insertBefore) {
         button.parentNode.insertBefore(wrapper, button);
       }
@@ -1053,16 +986,6 @@
       menu.id = menuId;
       menu.setAttribute("role", "menu");
       menu.setAttribute("aria-label", "Choose a language");
-      menu.style.position = "absolute";
-      menu.style.bottom = "calc(100% + 8px)";
-      menu.style.right = "0";
-      menu.style.minWidth = "152px";
-      menu.style.padding = "6px";
-      menu.style.border = "1px solid rgba(255,255,255,.18)";
-      menu.style.borderRadius = "12px";
-      menu.style.background = "#1d1a17";
-      menu.style.boxShadow = "0 12px 32px rgba(0,0,0,.35)";
-      menu.style.zIndex = "120";
       wrapper.appendChild(menu);
 
       button.setAttribute("aria-haspopup", "menu");
@@ -1071,13 +994,22 @@
       setHidden(menu, true);
 
       var open = false;
+      var items = LANGUAGES.map(function (lang) {
+        var item = document.createElement("button");
+        item.type = "button";
+        item.className = "po-lang-option";
+        item.setAttribute("role", "menuitemradio");
+        item.setAttribute("aria-checked", "false");
+        item.textContent = lang.label;
+        item.addEventListener("click", function () { choose(lang); });
+        menu.appendChild(item);
+        return item;
+      });
 
       function render(state, moveFocus) {
         open = !!state;
         setHidden(menu, !open);
         setExpanded(button, open);
-        if (button.classList) button.classList.toggle("is-open", open);
-        if (menu.classList) menu.classList.toggle("is-open", open);
         if (open && moveFocus) {
           var checked = items.filter(function (item) {
             return item.getAttribute("aria-checked") === "true";
@@ -1098,8 +1030,7 @@
         var clean = String(value == null ? "" : value).trim();
         if (!clean) return null;
         return LANGUAGES.filter(function (lang) {
-          return lang.code === clean.toLowerCase() ||
-            lang.label.toLowerCase() === clean.toLowerCase();
+          return lang.code === clean.toLowerCase() || lang.label.toLowerCase() === clean.toLowerCase();
         })[0] || null;
       }
 
@@ -1118,40 +1049,10 @@
         showToast("Language set to " + lang.label + " (localized copy is a demo)");
       }
 
-      var items = LANGUAGES.map(function (lang) {
-        var item = document.createElement("button");
-        item.type = "button";
-        item.className = "po-lang-option";
-        item.setAttribute("role", "menuitemradio");
-        item.setAttribute("aria-checked", "false");
-        item.textContent = lang.label;
-        item.style.display = "block";
-        item.style.width = "100%";
-        item.style.padding = "7px 10px";
-        item.style.border = "0";
-        item.style.borderRadius = "8px";
-        item.style.background = "transparent";
-        item.style.color = "#f7f6f2";
-        item.style.font = "inherit";
-        item.style.fontSize = "12px";
-        item.style.textAlign = "left";
-        item.style.cursor = "pointer";
-        item.addEventListener("mouseenter", function () {
-          item.style.background = "rgba(255,255,255,.12)";
-        });
-        item.addEventListener("mouseleave", function () {
-          item.style.background = "transparent";
-        });
-        item.addEventListener("click", function () { choose(lang); });
-        menu.appendChild(item);
-        return item;
-      });
-
       button.addEventListener("click", function (event) {
         if (event && typeof event.preventDefault === "function") event.preventDefault();
         render(!open, false);
       });
-
       button.addEventListener("keydown", function (event) {
         if (!event) return;
         if (event.key === "Escape" || event.key === "Esc") {
@@ -1169,12 +1070,10 @@
           if (items[next] && typeof items[next].focus === "function") items[next].focus();
         }
       });
-
       menu.addEventListener("keydown", function (event) {
         if (!event || (event.key !== "Escape" && event.key !== "Esc")) return;
         if (close(true) && typeof event.preventDefault === "function") event.preventDefault();
       });
-
       document.addEventListener("click", function (event) {
         if (!open) return;
         var target = event && event.target;
@@ -1183,7 +1082,6 @@
         close(false);
       });
 
-      /* Restore a previously chosen language silently. */
       var stored = "";
       try { stored = String(window.localStorage.getItem("keel_lang") || ""); }
       catch (storageError) { stored = ""; }
@@ -1223,17 +1121,17 @@
 
   /* ----------------------------- Boot ----------------------------- */
   function init() {
+    safe(initReveal);
+    safe(initScrollEffects);
     safe(initMegaNav);
     safe(initMobileMenu);
-    safe(initPersonas);
+    safe(initWorkTabs);
     safe(initCapabilities);
     safe(initUseCase);
     safe(initFaq);
     safe(initAsk);
-    safe(initFooterSearch);
     safe(initAuthModal);
     safe(initTryPrompts);
-    safe(initNews);
     safe(initLangSelector);
     safe(initGlobalKeys);
   }
