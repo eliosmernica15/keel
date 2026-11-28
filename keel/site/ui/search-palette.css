@@ -381,3 +381,7 @@
     transition-duration: .01ms !important;
   }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

@@ -1066,3 +1066,6 @@ body.po-body .po-toast {
   body.po-body [data-parallax] { transform: none !important; }
   body.po-body .po-faq-a { opacity: 1; }
 }
+
+html { overflow-x: clip !important; }
+

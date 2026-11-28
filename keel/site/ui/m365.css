@@ -588,3 +588,7 @@ body.m365-page.m365-dialog-open { overflow: hidden; }
   .m365-dialog-card { padding: 28px 22px; }
   .m365-demo-tabs { display: flex; flex-wrap: wrap; }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

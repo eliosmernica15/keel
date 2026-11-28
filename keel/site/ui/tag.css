@@ -1470,3 +1470,6 @@ body.tag-page .t-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
   body.tag-page .l-header.is-scrolled { box-shadow: none !important; }
   body.tag-page .t-toast { transform: translate(-50%, 0) !important; }
 }
+
+html { overflow-x: clip !important; }
+

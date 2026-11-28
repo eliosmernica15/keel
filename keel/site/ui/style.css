@@ -1056,3 +1056,7 @@ body.vim-mode #prompt-chat:focus,body.vim-mode #prompt-code:focus{
 @media (max-width: 900px) {
   .home-chips, .artifacts { width: calc(100% - 24px); }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

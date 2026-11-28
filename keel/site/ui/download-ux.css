@@ -85,3 +85,7 @@ body.download-clone .kp-variant-row button.kp-row-action[aria-disabled="true"]:h
 @media (max-width: 760px) {
   body.download-clone .kp-other-options { left: auto; right: 0; }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

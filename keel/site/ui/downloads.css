@@ -778,3 +778,7 @@ body.dl-page .dl-dialog-actions .dl-btn { flex: 1 1 auto; }
     scroll-behavior: auto !important;
   }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

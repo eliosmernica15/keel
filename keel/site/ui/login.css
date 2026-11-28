@@ -708,3 +708,7 @@ body.login-page .login-socials a:hover { color: var(--login-ink); }
     scroll-behavior: auto !important;
   }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

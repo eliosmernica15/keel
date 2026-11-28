@@ -676,3 +676,7 @@ body.chrome-page .cl-guide-body li { margin-bottom: 6px; }
     scroll-behavior: auto !important;
   }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

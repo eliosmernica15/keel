@@ -733,3 +733,7 @@ body.design-page.s-animate .s-reveal.is-visible {
     transition: none !important;
   }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

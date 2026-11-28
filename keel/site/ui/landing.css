@@ -1084,3 +1084,6 @@ body.landing .l-modal-success .l-modal-submit + .l-modal-submit { margin-top: 8p
     scroll-behavior: auto !important;
   }
 }
+
+html { overflow-x: clip !important; }
+

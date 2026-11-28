@@ -828,3 +828,6 @@ body.mc-page .mc-mail-note a { color: var(--mc-ink); text-decoration: underline;
     transform: none !important;
   }
 }
+
+html { overflow-x: clip !important; }
+

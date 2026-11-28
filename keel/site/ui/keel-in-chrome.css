@@ -606,3 +606,7 @@ body.kic-page :focus-visible { outline: 2px solid var(--kic-accent); outline-off
   .kic-footer-brand { grid-column: 1 / -1; }
   .kic-metrics { grid-template-columns: 1fr; }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

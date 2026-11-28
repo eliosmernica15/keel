@@ -2926,3 +2926,6 @@ body.code-page .c-cta .c-diff-stat { color: #8fcf9a; }
   body.code-page .c-faq [id^="c-faq-a-"] { transition: none !important; }
   body.code-page .l-header.is-scrolled { box-shadow: none !important; }
 }
+
+html { overflow-x: clip !important; }
+

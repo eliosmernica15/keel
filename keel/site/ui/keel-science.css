@@ -988,3 +988,7 @@ body.science-page.s-animate .s-reveal.is-visible { opacity: 1; transform: none; 
   }
   body.science-page .s-chat-card { transform: none !important; }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

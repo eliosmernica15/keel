@@ -1,0 +1,140 @@
+[
+  {
+    "route": "/",
+    "ok": false,
+    "bytes": 0,
+    "internalLinks": 0
+  },
+  {
+    "route": "/product/overview",
+    "ok": false,
+    "bytes": 0,
+    "internalLinks": 0
+  },
+  {
+    "route": "/product/keel-code",
+    "ok": false,
+    "bytes": 0,
+    "internalLinks": 0
+  },
+  {
+    "route": "/product/cowork",
+    "ok": false,
+    "bytes": 0,
+    "internalLinks": 0
+  },
+  {
+    "route": "/product/keel-duet",
+    "ok": false,
+    "bytes": 0,
+    "internalLinks": 0
+  },
+  {
+    "route": "/platform/api",
+    "ok": true,
+    "bytes": 39840,
+    "internalLinks": 24
+  },
+  {
+    "route": "/product/tag",
+    "ok": true,
+    "bytes": 50723,
+    "internalLinks": 22
+  },
+  {
+    "route": "/product/keel-security",
+    "ok": true,
+    "bytes": 31480,
+    "internalLinks": 20
+  },
+  {
+    "route": "/product/keel-science",
+    "ok": true,
+    "bytes": 45457,
+    "internalLinks": 19
+  },
+  {
+    "route": "/product/design",
+    "ok": true,
+    "bytes": 45637,
+    "internalLinks": 21
+  },
+  {
+    "route": "/skills",
+    "ok": true,
+    "bytes": 38822,
+    "internalLinks": 22
+  },
+  {
+    "route": "/features/artifacts",
+    "ok": true,
+    "bytes": 55554,
+    "internalLinks": 24
+  },
+  {
+    "route": "/marketplace/connectors-plugins",
+    "ok": true,
+    "bytes": 51515,
+    "internalLinks": 24
+  },
+  {
+    "route": "/marketplace/plugins",
+    "ok": true,
+    "bytes": 38247,
+    "internalLinks": 19
+  },
+  {
+    "route": "/keel-in-chrome",
+    "ok": true,
+    "bytes": 42042,
+    "internalLinks": 14
+  },
+  {
+    "route": "/keel-for-google-workspace",
+    "ok": true,
+    "bytes": 50432,
+    "internalLinks": 24
+  },
+  {
+    "route": "/keel-for-microsoft-365",
+    "ok": true,
+    "bytes": 38361,
+    "internalLinks": 16
+  },
+  {
+    "route": "/login",
+    "ok": true,
+    "bytes": 31707,
+    "internalLinks": 13
+  },
+  {
+    "route": "/new",
+    "ok": true,
+    "bytes": 31707,
+    "internalLinks": 13
+  },
+  {
+    "route": "/download",
+    "ok": true,
+    "bytes": 46552,
+    "internalLinks": 16
+  },
+  {
+    "route": "/downloads",
+    "ok": true,
+    "bytes": 24706,
+    "internalLinks": 4
+  },
+  {
+    "route": "/pricing",
+    "ok": true,
+    "bytes": 59625,
+    "internalLinks": 16
+  },
+  {
+    "route": "/roadmap",
+    "ok": false,
+    "bytes": 1346,
+    "internalLinks": 4
+  }
+]

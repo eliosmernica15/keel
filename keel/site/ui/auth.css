@@ -186,3 +186,7 @@ body.n-page .auth-account-fields input {
   body.login-page .auth-panel,
   body.login-page .auth-recovery { animation: none; }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

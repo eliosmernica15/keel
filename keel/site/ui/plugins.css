@@ -971,3 +971,7 @@ body.p-page .p-btn-link { text-decoration: none; }
     scroll-behavior: auto !important;
   }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

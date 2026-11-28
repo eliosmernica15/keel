@@ -1267,3 +1267,6 @@ body.security-page.ks-animate .ks-reveal.is-visible {
   }
   body.security-page .ks-chat-card { transform: none !important; }
 }
+
+html { overflow-x: clip !important; }
+

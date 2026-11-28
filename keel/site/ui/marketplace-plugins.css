@@ -321,3 +321,6 @@ body.mp-page h1, h2, h3, p { margin-top: 0; }
   .mp-reveal-ready .mp-reveal.is-revealed { opacity: 1; transform: none; }
   .mp-btn:hover, .mp-card:hover { transform: none; }
 }
+
+html { overflow-x: clip !important; }
+

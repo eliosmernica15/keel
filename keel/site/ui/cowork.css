@@ -658,3 +658,6 @@ body.cw-body.cw-modal-open { overflow: hidden; }
   body.cw-body .cw-hero-card,
   body.cw-body .cw-hero-visual { transform: none !important; will-change: auto !important; }
 }
+
+html { overflow-x: clip !important; }
+

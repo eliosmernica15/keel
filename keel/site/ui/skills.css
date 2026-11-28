@@ -811,3 +811,7 @@ body.skills-page .s-story .s-text-btn { margin-top: auto; padding-top: 18px; }
   body.skills-page .s-acc-icon::after,
   body.skills-page .s-acc-panel { transition: none !important; }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

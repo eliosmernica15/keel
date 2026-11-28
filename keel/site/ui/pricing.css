@@ -1000,3 +1000,7 @@ body.pricing-page .pr-footer .pr-btn-outline:hover { background: var(--pr-cream)
   .pr-card:hover,
   .pr-btn:hover { transform: none; }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

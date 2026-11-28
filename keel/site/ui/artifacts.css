@@ -1070,3 +1070,7 @@ body.ar-page .ar-full-preview {
     scroll-behavior: auto !important;
   }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+

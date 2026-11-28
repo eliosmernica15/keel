@@ -1022,3 +1022,6 @@ body.fa-page .fa-reveal {
     translate: none !important;
   }
 }
+
+html { overflow-x: clip !important; }
+

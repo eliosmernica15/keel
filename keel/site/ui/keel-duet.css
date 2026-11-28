@@ -943,3 +943,7 @@ body.duet-page.d-animate .d-reveal.is-visible {
   body.duet-page .d-announce { transform: none !important; }
   body.duet-page .d-phone-typing i { animation: none !important; }
 }
+
+/* Site-wide QA fix: hidden mega-menu panels must not create horizontal scroll. */
+html, body { overflow-x: clip; }
+
